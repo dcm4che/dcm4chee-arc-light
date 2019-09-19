@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.query.util;
 
+import com.google.common.base.Function;
 import org.dcm4che3.data.*;
 import org.dcm4che3.data.PersonName;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -54,7 +55,6 @@ import org.dcm4chee.arc.entity.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.dcm4chee.arc.entity.Instance_.contentItems;
 
@@ -673,7 +673,8 @@ public class QueryBuilder {
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             anyOf(predicates, mwlItem.get(MWLItem_.modality),
                     toUpperCase(sps.getStrings(Tag.Modality)), false);
-            showSPSWithStatus(predicates, mwlItem, sps);
+            anyOf(predicates, mwlItem.get(MWLItem_.status), SPSStatus::valueOf,
+                    toUpperCase(sps.getStrings(Tag.ScheduledProcedureStepStatus)));
             String spsAET = sps.getString(Tag.ScheduledStationAETitle, "*");
             if (!isUniversalMatching(spsAET))
                 predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
@@ -681,14 +682,32 @@ public class QueryBuilder {
         hideSPSWithStatus(predicates, mwlItem, queryParam);
     }
 
-    private void showSPSWithStatus(List<Predicate> predicates, Path<MWLItem> mwlItem, Attributes sps) {
-        String status = sps.getString(Tag.ScheduledProcedureStepStatus, "*").toUpperCase();
-        switch(status) {
-            case "SCHEDULED":
-            case "ARRIVED":
-            case "READY":
-                predicates.add(cb.equal(mwlItem.get(MWLItem_.status), SPSStatus.valueOf(status)));
+    private <T> boolean anyOf(List<Predicate> predicates, Path<T> path, Function<String, T> valueOf,
+            String[] names) {
+        if (isUniversalMatching(names))
+            return false;
+
+        if (names.length == 1) {
+            try {
+                predicates.add(cb.equal(path, valueOf.apply(names[0])));
+                return true;
+            } catch (IllegalArgumentException e) {}
+            return false;
         }
+
+        List<Predicate> y = new ArrayList<>(names.length);
+        for (String name : names) {
+            if (isUniversalMatching(name))
+                return false;
+            try {
+                y.add(cb.equal(path, valueOf.apply(name)));
+            } catch (IllegalArgumentException e) {}
+        }
+        if (y.isEmpty())
+            return false;
+
+        predicates.add(cb.or(y.toArray(new Predicate[0])));
+        return true;
     }
 
     private void hideSPSWithStatus(List<Predicate> predicates, Path<MWLItem> mwlItem, QueryParam queryParam) {
@@ -700,7 +719,8 @@ public class QueryBuilder {
     private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, workitem.get(Workitem_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
-        spsPriority(predicates, workitem, keys);
+        anyOf(predicates, workitem.get(Workitem_.spsPriority), SPSPriority::valueOf,
+                toUpperCase(keys.getStrings(Tag.ScheduledProcedureStepPriority)));
         dateRange(predicates, workitem.get(Workitem_.updatedTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
         anyOf(predicates, workitem.get(Workitem_.spsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
@@ -723,7 +743,8 @@ public class QueryBuilder {
                 keys.getDateRange(Tag.ScheduledProcedureStepExpirationDateTime), FormatDate.DT);
         code(predicates, workitem.get(Workitem_.scheduledWorkitemCode),
                 keys.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
-        inputReadiness(predicates, workitem, keys);
+        anyOf(predicates, workitem.get(Workitem_.inputReadinessState), InputReadinessState::valueOf,
+                toUpperCase(keys.getStrings(Tag.InputReadinessState)));
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
@@ -736,40 +757,8 @@ public class QueryBuilder {
         uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
                 getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                         Tag.ReferencedSOPInstanceUID, "*"));
-        upsState(predicates, workitem, keys);
-    }
-
-    private void spsPriority(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
-        String priority = keys.getString(Tag.ScheduledProcedureStepPriority);
-        if (priority == null)
-            return;
-
-        try {
-            SPSPriority spsPriority = SPSPriority.valueOf(priority);
-            predicates.add(cb.equal(workitem.get(Workitem_.spsPriority), spsPriority));
-        } catch (IllegalArgumentException e) {}
-    }
-
-    private void inputReadiness(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
-        String readiness = keys.getString(Tag.InputReadinessState);
-        if (readiness == null)
-            return;
-
-        try {
-            InputReadinessState inputReadinessState = InputReadinessState.valueOf(readiness);
-            predicates.add(cb.equal(workitem.get(Workitem_.inputReadinessState), inputReadinessState));
-        } catch (IllegalArgumentException e) {}
-    }
-
-    private void upsState(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
-        String state = keys.getString(Tag.ProcedureStepState);
-        if (state == null)
-            return;
-
-        try {
-            UPSState upsState = UPSState.valueOf(state);
-            predicates.add(cb.equal(workitem.get(Workitem_.procedureStepState), upsState));
-        } catch (IllegalArgumentException e) {}
+        anyOf(predicates, workitem.get(Workitem_.procedureStepState), UPSState::valueOf,
+                toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
     }
 
     private String getString(Attributes item, int tag, String defVal) {
