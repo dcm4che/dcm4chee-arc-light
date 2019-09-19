@@ -529,7 +529,11 @@ export class StudyComponent implements OnInit{
                 this.downloadCSV(model.attrs, id.level);
             }
             if(id.action === "upload_file"){
-                this.uploadFile(model, id.level);
+                if(id.level === "patient"){
+                    this.uploadInPatient(model);
+                }else{
+                    this.uploadFile(model, id.level);
+                }
             }
             if(id.action === "view"){
                 this.viewInstance(model);
@@ -554,6 +558,14 @@ export class StudyComponent implements OnInit{
             }
         });
     };
+    uploadInPatient(object){
+        console.log("in uuploadInPatient",object);
+        this.service.createEmptyStudy(object.attrs, this.studyWebService.selectedWebService).subscribe(res=>{
+            this.uploadFile({attrs:res},"study");
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     uploadFile(object,mode){
         if(mode === "mwl"){
             //perpare mwl object for study upload
@@ -785,6 +797,7 @@ export class StudyComponent implements OnInit{
             if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
                 if(!this.appService.global.notSecure){
+                    console.log("te",this.service.renderURL(inst));
                     WindowRefService.nativeWindow.open(this.service.renderURL(inst) + `&access_token=${token}`);
                 }else{
                     WindowRefService.nativeWindow.open(this.service.renderURL(inst));

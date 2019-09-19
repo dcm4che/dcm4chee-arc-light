@@ -76,6 +76,16 @@ export class UploadFilesComponent implements OnInit {
         }
     }
 
+/*    GenerateUidFromGuid(){
+        var guid = uuid.v4();                         //Generate UUID using node-uuid *) package or some other similar package
+        var guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
+        var bigInteger = bigInt(guidBytes,16);        //As big integer are not still in all browser supported I use BigInteger **) packaged to parse the integer with base 16 from uuid string
+        return `2.25.${bigInteger.toString()}`;       //Output the previus parsed integer as string by adding `2.25.` as prefix
+        //*) https://github.com/kelektiv/node-uuid
+
+        //**)https://github.com/peterolson/BigInteger.js
+    }*/
+
 
 
     fileChange(event){

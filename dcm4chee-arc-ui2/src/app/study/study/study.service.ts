@@ -773,6 +773,25 @@ export class StudyService {
                                         id: 'action-studies-download',
                                         param: 'visible'
                                     }
+                                },
+                                {
+                                    icon:{
+                                        tag:'i',
+                                        cssClass:'material-icons',
+                                        text:'file_upload'
+                                    },
+                                    click:(e)=>{
+                                        actions.call($this, {
+                                            event:"click",
+                                            level:"patient",
+                                            action:"upload_file"
+                                        },e);
+                                    },
+                                    title:'Upload file',
+                                    permission:{
+                                        id:'action-studies-study',
+                                        param:'upload'
+                                    }
                                 }
                             ]
                     },
@@ -1819,7 +1838,7 @@ export class StudyService {
         return this.getDicomURL(mode, this.getModifyPatientWebApp(deviceWebService));
     }
     getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService:StudyWebService, neededWebServiceClass:string, alternativeWebServiceClass:string){
-        if(deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
+        if(_.hasIn(deviceWebService,"selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
             return deviceWebService.selectedWebService;
         }else{
             try{
@@ -2115,4 +2134,5 @@ export class StudyService {
 
     getRejectNotes = (params?:any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
-}
+    createEmptyStudy =  (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp),patientDicomAttrs,this.dicomHeader);
+
