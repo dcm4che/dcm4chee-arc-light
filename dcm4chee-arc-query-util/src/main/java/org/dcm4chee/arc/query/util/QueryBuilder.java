@@ -242,8 +242,6 @@ public class QueryBuilder {
             return true;
 
         switch (orderByTag.tag) {
-            case Tag.SOPInstanceUID:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.sopInstanceUID)));
             case Tag.ScheduledProcedureStepPriority:
                 return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsPriority)));
             case Tag.ScheduledProcedureStepModificationDateTime:
