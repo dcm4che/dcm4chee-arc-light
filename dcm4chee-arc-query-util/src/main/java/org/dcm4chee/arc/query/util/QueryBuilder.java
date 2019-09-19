@@ -242,8 +242,6 @@ public class QueryBuilder {
             return true;
 
         switch (orderByTag.tag) {
-            case Tag.SOPInstanceUID:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.sopInstanceUID)));
             case Tag.ScheduledProcedureStepPriority:
                 return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsPriority)));
             case Tag.ScheduledProcedureStepModificationDateTime:
@@ -702,10 +700,7 @@ public class QueryBuilder {
     private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
         uidsPredicate(predicates, workitem.get(Workitem_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
-        Optional<SPSPriority> spsPriority = Stream.of(SPSPriority.values())
-                .filter(priority -> priority.name().equals(keys.getString(Tag.ScheduledProcedureStepPriority)))
-                .findFirst();
-        spsPriority.ifPresent(priority -> predicates.add(cb.equal(workitem.get(Workitem_.spsPriority), priority)));
+        spsPriority(predicates, workitem, keys);
         dateRange(predicates, workitem.get(Workitem_.updatedTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
         anyOf(predicates, workitem.get(Workitem_.spsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
@@ -728,11 +723,7 @@ public class QueryBuilder {
                 keys.getDateRange(Tag.ScheduledProcedureStepExpirationDateTime), FormatDate.DT);
         code(predicates, workitem.get(Workitem_.scheduledWorkitemCode),
                 keys.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
-        Optional<InputReadinessState> inputReadinessState = Stream.of(InputReadinessState.values())
-                .filter(readiness -> readiness.name().equals(keys.getString(Tag.InputReadinessState)))
-                .findFirst();
-        inputReadinessState.ifPresent(
-                readiness -> predicates.add(cb.equal(workitem.get(Workitem_.inputReadinessState), readiness)));
+        inputReadiness(predicates, workitem, keys);
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
@@ -745,13 +736,43 @@ public class QueryBuilder {
         uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
                 getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                         Tag.ReferencedSOPInstanceUID, "*"));
-        Optional<UPSState> upsState = Stream.of(UPSState.values())
-                .filter(state -> state.name().equals(keys.getString(Tag.ProcedureStepState)))
-                .findFirst();
-        upsState.ifPresent(state -> predicates.add(cb.equal(workitem.get(Workitem_.procedureStepState), state)));
+        upsState(predicates, workitem, keys);
     }
 
-    private static String getString(Attributes item, int tag, String defVal) {
+    private void spsPriority(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
+        String priority = keys.getString(Tag.ScheduledProcedureStepPriority);
+        if (priority == null)
+            return;
+
+        try {
+            SPSPriority spsPriority = SPSPriority.valueOf(priority);
+            predicates.add(cb.equal(workitem.get(Workitem_.spsPriority), spsPriority));
+        } catch (IllegalArgumentException e) {}
+    }
+
+    private void inputReadiness(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
+        String readiness = keys.getString(Tag.InputReadinessState);
+        if (readiness == null)
+            return;
+
+        try {
+            InputReadinessState inputReadinessState = InputReadinessState.valueOf(readiness);
+            predicates.add(cb.equal(workitem.get(Workitem_.inputReadinessState), inputReadinessState));
+        } catch (IllegalArgumentException e) {}
+    }
+
+    private void upsState(List<Predicate> predicates, Root<Workitem> workitem, Attributes keys) {
+        String state = keys.getString(Tag.ProcedureStepState);
+        if (state == null)
+            return;
+
+        try {
+            UPSState upsState = UPSState.valueOf(state);
+            predicates.add(cb.equal(workitem.get(Workitem_.procedureStepState), upsState));
+        } catch (IllegalArgumentException e) {}
+    }
+
+    private String getString(Attributes item, int tag, String defVal) {
         return item != null ? item.getString(tag, defVal) : defVal;
     }
 
