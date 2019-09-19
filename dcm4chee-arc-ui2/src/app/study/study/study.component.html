@@ -82,7 +82,7 @@
               ></dcm-drop-down>
             </div>
           </div>
-          <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyWebService && studyWebService.selectedWebService))">
+          <div class="filter_block" *ngIf="(patients && patients.length > 0)">
             <div class="line">
               <dcm-drop-down
                       [placeholder]="actionsSelections.placeholder"

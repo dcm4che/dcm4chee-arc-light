@@ -7,6 +7,11 @@ import {StudiesService} from "../../../studies/studies.service";
 import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 
+// declare var uuidv4: any;
+
+// import * as uuidv4 from  'uuid/v4';
+
+
 @Component({
   selector: 'app-upload-files',
   templateUrl: './upload-files.component.html'
@@ -57,6 +62,11 @@ export class UploadFilesComponent implements OnInit {
     }
 
     ngOnInit() {
+        console.log("uuidv4",uuidv4());
+        const buffer = new Array();
+        console.log("uuidv4",uuidv4(null, buffer, 0));
+        console.log("buffer",buffer);
+        console.log("buffer",'2.25.' + buffer.join(""));
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
         if(!this._fromExternalWebApp){
@@ -81,6 +91,8 @@ export class UploadFilesComponent implements OnInit {
         let descriptionPart;
         let token;
         this.showFileList = true;
+        let seriesInstanceUID;
+        // let instanceNumber = uuidv4();
         let instanceNumber;
         let seriesNumber;
         // this.fileList = this.file;
@@ -95,10 +107,8 @@ export class UploadFilesComponent implements OnInit {
                 this.seriesNumber = 0;
             }
             if (this.fileList) {
+                // seriesInstanceUID = uuidv4();
                 _.forEach(this.fileList, (file, i) => {
-                    console.log("i",i);
-                    instanceNumber = this.instanceNumber + i;
-                    seriesNumber = this.seriesNumber + i;
                     let transfareSyntax;
                     switch (file.type) {
                         case "image/jpeg":
@@ -152,30 +162,32 @@ export class UploadFilesComponent implements OnInit {
                                 $this.description
                             ]
                         };
-                        studyObject["00200013"] = {
+                        studyObject["00200013"] = { //"00200013":"Instance Number", increment from 1..
                             "vr": "IS",
                             "Value": [
-                                instanceNumber || 1
+                                i+1
                             ]
                         };
-                        studyObject["00200011"] = {
+                        studyObject["00200011"] = { // "00200011":"Series Number",//Should be a number
                             "vr": "IS",
                             "Value": [
+                                //this.seriesNumber //als input anbieten
                                 seriesNumber || 0
                             ]
                         };
                         if(_.hasIn(studyObject, "0020000D.Value[0]")){
-                            studyObject["0020000E"] = {
+                            studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
                                 "vr": "UI",
                                 "Value": [
                                     `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
+                                    //seriesInstanceUID //generieren
                                 ]
                             };
                         }
-/*                            studyObject["00080018"] = {
+/*                            studyObject["00080018"] = { //"00080018":"SOP Instance UID", //Should be generated
                                 "vr": "UI",
                                 "Value": [
-                                    `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}.${(this.instanceNumber || 1)}`
+                                    uuidv4()
                                 ]
                             };*/
 
