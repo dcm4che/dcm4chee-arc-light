@@ -62,11 +62,11 @@ export class UploadFilesComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log("uuidv4",uuidv4());
+/*        console.log("uuidv4",uuidv4());
         const buffer = new Array();
         console.log("uuidv4",uuidv4(null, buffer, 0));
         console.log("buffer",buffer);
-        console.log("buffer",'2.25.' + buffer.join(""));
+        console.log("buffer",'2.25.' + buffer.join(""));*/
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
         if(!this._fromExternalWebApp){
