@@ -358,6 +358,11 @@
       "description": "Value of Worklist Label (0074,1202) added to Workitems of N-CREATE RQs without Worklist Label (0074,1202) attribute received by this Network AE. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmUPSEventAETitle": {
+      "title": "UPS Event AE Title",
+      "description": "AE Title of UPS Event N-EVENT-REPORT SCU, to which UPS Event Reports are sent for subscriptions created on this Network AE  - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service. Overwrites value specified on Device level.",
+      "type": "string"
+    },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
       "description": "Specifies Retrieve AE Titles associated with DICOM objects received by this Network AE. Overwrites value specified on Device level.",

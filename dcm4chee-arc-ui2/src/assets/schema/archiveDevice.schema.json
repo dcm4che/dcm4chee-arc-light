@@ -744,11 +744,6 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
-    "dcmStorePermissionServiceResponse": {
-      "title": "Store Permission Service Response",
-      "description": "Emulate Store Permission Service Response on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. Only effective if no Store Permission Service URL is configured.",
-      "type": "string"
-    },
     "dcmMergeMWLCacheStaleTimeout": {
       "title": "Merge MWL Cache Stale Timeout",
       "description": "Maximal staleness of Request Attributes extracted from matching DICOM MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, cached Request Attributes are only removed on reaching the maximal cache size.",
@@ -838,6 +833,11 @@
     "dcmDefaultWorklistLabel": {
       "title": "Default Worklist Label",
       "description": "Value of Worklist Label (0074,1202) added to Workitems of N-CREATE RQs without Worklist Label (0074,1202) attribute received by any AE. If absent, the AE Title of the receiving AE will be used. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string"
+    },
+    "dcmUPSEventAETitle": {
+      "title": "UPS Event AE Title",
+      "description": "AE Title of UPS Event N-EVENT-REPORT SCU, to which UPS Event Reports are sent - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmRetrieveAET": {
