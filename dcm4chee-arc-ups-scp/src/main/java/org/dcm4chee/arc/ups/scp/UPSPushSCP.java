@@ -162,8 +162,14 @@ public class UPSPushSCP extends AbstractDicomService {
 
     private Attributes get(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
-        //TODO
-        return null;
+        UPSContext ctx = service.newUPSContext(as);
+        ctx.setSopInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        service.findWorkitem(ctx);
+        return filter(ctx.getAttributes(), rqAttrs.getInts(Tag.AttributeIdentifierList));
+    }
+
+    private Attributes filter(Attributes attrs, int[] tags) {
+        return tags != null ? new Attributes(attrs, tags) : attrs;
     }
 
     private Attributes action(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp, Action action)
