@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {AppService} from '../../../app.service';
 import {MatDialogRef} from '@angular/material';
 import {Globalvar} from '../../../constants/globalvar';
@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 
 
 @Component({
-    selector: 'app-edit-study',
+    selector: 'edit-study',
     templateUrl: './edit-study.component.html',
     styles: [`
 
@@ -32,6 +32,7 @@ export class EditStudyComponent{
 
     DCM4CHE = DCM4CHE;
     constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
+        console.log("this.study",this._study);
 /*
         setTimeout(function(){
             if(this._mode === "create"){
@@ -65,6 +66,7 @@ export class EditStudyComponent{
         return this._mode;
     }
 
+    @Input()
     set mode(value) {
         this._mode = value;
     }
@@ -88,6 +90,7 @@ export class EditStudyComponent{
         return this._dropdown;
     }
 
+    @Input()
     set dropdown(value) {
         this._dropdown = value;
     }
@@ -96,6 +99,7 @@ export class EditStudyComponent{
         return this._study;
     }
 
+    @Input()
     set study(value: any) {
         this._study = value;
     }
@@ -112,6 +116,7 @@ export class EditStudyComponent{
         return this._iod;
     }
 
+    @Input()
     set iod(value: any) {
         this._iod = value;
     }

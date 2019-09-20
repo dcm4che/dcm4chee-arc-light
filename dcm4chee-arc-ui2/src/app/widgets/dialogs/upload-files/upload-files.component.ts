@@ -7,6 +7,7 @@ import {StudiesService} from "../../../studies/studies.service";
 import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../../helpers/j4care.service";
+import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 
 // declare var uuidv4: any;
 
@@ -15,7 +16,15 @@ import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
   selector: 'app-upload-files',
-  templateUrl: './upload-files.component.html'
+  templateUrl: './upload-files.component.html',
+    styles:[`
+        .edit_attribute_block{
+            float:left;
+            width:100%;
+            max-height: 200px;
+            overflow: auto;
+        }
+    `]
 })
 export class UploadFilesComponent implements OnInit {
 
@@ -38,6 +47,9 @@ export class UploadFilesComponent implements OnInit {
     selectedWebApp;
     seriesNumber = 0;
     // instanceNumber = 1;
+    moreAttributes = false;
+    dropdown;
+    iod;
     imageType = [
         {
             title:"Screenshots",
@@ -77,6 +89,21 @@ export class UploadFilesComponent implements OnInit {
         if(this.fileList[0] && this.fileList[0].type === "image/jpeg"){
             this.isImage = true;
         }
+    }
+    showMoreAttributes(){
+        console.log("this.dicomObject",this.dicomObject);
+        if(!this._dicomObject){
+            this._dicomObject = {
+                attrs:[]
+            }
+        }
+        this.studieService.getStudyIod().subscribe((iod) => {
+            this.iod = iod;
+            console.log("iod",iod);
+            console.log("dicomOjbect",this.dicomObject);
+            this.dropdown = this.studieService.getArrayFromIod(iod);
+            this.moreAttributes = !this.moreAttributes;
+        });
     }
     upload() {
         let $this = this;
@@ -132,7 +159,7 @@ export class UploadFilesComponent implements OnInit {
                         //Post with the correct MIME type (If the OS can identify one)
                         let studyObject = _.pickBy($this._dicomObject.attrs, (o, i) => {
                             return (i.toString().indexOf("777") === -1);
-                        })
+                        });
                         if (!$this.description || $this.description === "") {
                             $this.description = "Imported " + descriptionPart;
                         }

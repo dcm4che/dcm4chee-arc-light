@@ -628,7 +628,7 @@ export class StudyComponent implements OnInit{
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(UploadFilesComponent, {
             height: 'auto',
-            width: '500px'
+            width: '900px'
         });
 /*        this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
