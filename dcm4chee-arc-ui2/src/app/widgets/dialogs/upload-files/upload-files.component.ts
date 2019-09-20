@@ -6,6 +6,7 @@ import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";
 import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 // declare var uuidv4: any;
 
@@ -36,7 +37,7 @@ export class UploadFilesComponent implements OnInit {
     webApps;
     selectedWebApp;
     seriesNumber = 0;
-    instanceNumber = 1;
+    // instanceNumber = 1;
     imageType = [
         {
             title:"Screenshots",
@@ -62,11 +63,6 @@ export class UploadFilesComponent implements OnInit {
     }
 
     ngOnInit() {
-/*        console.log("uuidv4",uuidv4());
-        const buffer = new Array();
-        console.log("uuidv4",uuidv4(null, buffer, 0));
-        console.log("buffer",buffer);
-        console.log("buffer",'2.25.' + buffer.join(""));*/
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
         if(!this._fromExternalWebApp){
@@ -75,18 +71,6 @@ export class UploadFilesComponent implements OnInit {
             this.selectedWebApp = this._fromExternalWebApp;
         }
     }
-
-/*    GenerateUidFromGuid(){
-        var guid = uuid.v4();                         //Generate UUID using node-uuid *) package or some other similar package
-        var guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
-        var bigInteger = bigInt(guidBytes,16);        //As big integer are not still in all browser supported I use BigInteger **) packaged to parse the integer with base 16 from uuid string
-        return `2.25.${bigInteger.toString()}`;       //Output the previus parsed integer as string by adding `2.25.` as prefix
-        //*) https://github.com/kelektiv/node-uuid
-
-        //**)https://github.com/peterolson/BigInteger.js
-    }*/
-
-
 
     fileChange(event){
         this.fileList = event.target.files;
@@ -97,27 +81,19 @@ export class UploadFilesComponent implements OnInit {
     upload() {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
-        let filetype;
         let descriptionPart;
         let token;
         this.showFileList = true;
         let seriesInstanceUID;
-        // let instanceNumber = uuidv4();
-        let instanceNumber;
-        let seriesNumber;
-        // this.fileList = this.file;
         this._keycloakService.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
                 token = response.token;
-            }
-            if(!this.instanceNumber){
-                this.instanceNumber = 1;
             }
             if(!this.seriesNumber && this.seriesNumber != 0){
                 this.seriesNumber = 0;
             }
             if (this.fileList) {
-                // seriesInstanceUID = uuidv4();
+                seriesInstanceUID = j4care.generateOIDFromUUID();
                 _.forEach(this.fileList, (file, i) => {
                     let transfareSyntax;
                     switch (file.type) {
@@ -144,14 +120,8 @@ export class UploadFilesComponent implements OnInit {
                     }
                     if (transfareSyntax || transfareSyntax === "") {
                         this.percentComplete[file.name] = {};
-                        // this.percentComplete[file.name]['value'] = 0;
-
                         $this.percentComplete[file.name]['showTicker'] = false;
                         $this.percentComplete[file.name]['showLoader'] = true;
-                        /*                    let reader = new FileReader();
-                                            // reader.readAsBinaryString(file);
-                                            reader.readAsArrayBuffer(file);
-                                            reader.onload = function (e) {*/
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
@@ -172,34 +142,32 @@ export class UploadFilesComponent implements OnInit {
                                 $this.description
                             ]
                         };
-                        studyObject["00200013"] = { //"00200013":"Instance Number", increment from 1..
+                        studyObject["00200013"] = { //"00200013":"Instance Number"
                             "vr": "IS",
                             "Value": [
                                 i+1
                             ]
                         };
-                        studyObject["00200011"] = { // "00200011":"Series Number",//Should be a number
+                        studyObject["00200011"] = { // "00200011":"Series Number"
                             "vr": "IS",
                             "Value": [
-                                //this.seriesNumber //als input anbieten
-                                seriesNumber || 0
+                                this.seriesNumber || 0
                             ]
                         };
                         if(_.hasIn(studyObject, "0020000D.Value[0]")){
                             studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
                                 "vr": "UI",
                                 "Value": [
-                                    `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
-                                    //seriesInstanceUID //generieren
+                                    seriesInstanceUID
                                 ]
                             };
                         }
-/*                            studyObject["00080018"] = { //"00080018":"SOP Instance UID", //Should be generated
+                            studyObject["00080018"] = {
                                 "vr": "UI",
                                 "Value": [
-                                    uuidv4()
+                                    j4care.generateOIDFromUUID()
                                 ]
-                            };*/
+                            };
 
                         if (file.type === "application/pdf") {
                             studyObject["00420011"] = {
@@ -278,9 +246,6 @@ export class UploadFilesComponent implements OnInit {
                                 $this.modality
                             ]
                         };
-
-                        // const dataView = new DataView(e.target['result']);
-
                         let object = [{}];
                         Object.keys(studyObject).forEach(key=>{
                             if(([
@@ -336,10 +301,7 @@ export class UploadFilesComponent implements OnInit {
                                 $this.percentComplete[file.name]['value'] = 100;
                             }
                         };
-                        //Send the binary data
-                        // xmlHttpRequest.send(payload);
                         xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
-                        // };
                     } else {
                         $this.mainservice.setMessage({
                             'title': 'Error',

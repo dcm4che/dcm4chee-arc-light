@@ -19,15 +19,18 @@ import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-
+import * as uuid from  'uuid/v4';
+// import * as bigInt from  'big-integer';
+//
+// type BigInt = number;
+// declare const BigInt: typeof Number;
+declare const bigInt:Function;
 
 @Injectable()
 export class j4care {
     header = new HttpHeaders();
     dialogRef: MatDialogRef<any>;
     constructor(
-        // public mainservice:AppService,
-        public ngHttp:Http,
         private $httpClient:HttpClient,
         public dialog: MatDialog,
         public config: MatDialogConfig,
@@ -1220,5 +1223,11 @@ export class j4care {
         }else{
             return _.mergeWith(j4care.changed(object,base,ignoreEmpty), j4care.changed(base, object, ignoreEmpty));
         }
+    }
+
+    static generateOIDFromUUID(){
+        let guid = uuid();                            //Generate UUID
+        let guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
+        return `2.25.${bigInt(guidBytes,16).toString()}`;       //Output the previous parsed integer as string by adding `2.25.` as prefix
     }
 }

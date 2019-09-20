@@ -47,15 +47,17 @@ export class StudyService {
 
     dicomHeader = new HttpHeaders({'Content-Type': 'application/dicom+json'});
     jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
+
     constructor(
-      private aeListService:AeListService,
-      private $http:J4careHttpService,
-      private storageSystems:StorageSystemsService,
-      private devicesService:DevicesService,
-      private webAppListService:WebAppsListService,
-      private retrieveMonitoringService:RetrieveMonitoringService,
-      private permissionService:PermissionService
-    ) { }
+        private aeListService: AeListService,
+        private $http: J4careHttpService,
+        private storageSystems: StorageSystemsService,
+        private devicesService: DevicesService,
+        private webAppListService: WebAppsListService,
+        private retrieveMonitoringService: RetrieveMonitoringService,
+        private permissionService: PermissionService
+    ) {
+    }
 
     get patientIod() {
         return this._patientIod;
@@ -81,88 +83,90 @@ export class StudyService {
         this._studyIod = value;
     }
 
-    getWebApps(){
+    getWebApps() {
         return this.webAppListService.getWebApps();
     }
 
-    getEntrySchema(devices, aetWebService):{schema:FilterSchema, lineLength:number}{
+    getEntrySchema(devices, aetWebService): { schema: FilterSchema, lineLength: number } {
         return {
-            schema: j4care.prepareFlatFilterObject(Globalvar.STUDY_FILTER_ENTRY_SCHEMA(devices,aetWebService),1),
+            schema: j4care.prepareFlatFilterObject(Globalvar.STUDY_FILTER_ENTRY_SCHEMA(devices, aetWebService), 1),
             lineLength: 1
         }
     }
+
     /*
     * return patientid - combination of patient id, issuer
     * */
-    getPatientId(patient){
+    getPatientId(patient) {
         console.log('patient', patient);
         let obj;
-        if (_.hasIn(patient, '[0]')){
+        if (_.hasIn(patient, '[0]')) {
             obj = patient[0];
-        }else{
+        } else {
             obj = patient;
         }
         let patientId = '';
-        if(obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')){
-            if (obj.PatientID){
+        if (obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')) {
+            if (obj.PatientID) {
                 patientId = obj.PatientID;
             }
-            if (obj.IssuerOfPatientID){
+            if (obj.IssuerOfPatientID) {
                 patientId += '^^^' + obj.IssuerOfPatientID;
             }
-            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityID')){
+            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID')) {
                 patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
             }
-            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
+            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType')) {
                 patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
             }
-            if (_.hasIn(obj, '["00100020"].Value[0]')){
+            if (_.hasIn(obj, '["00100020"].Value[0]')) {
                 patientId += obj["00100020"].Value[0];
             }
             if (_.hasIn(obj, '["00100021"].Value[0]'))
                 patientId += '^^^' + obj["00100021"].Value[0];
-            else{
-                if(_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') || _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]'))
+            else {
+                if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') || _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]'))
                     patientId += '^^^';
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')) {
                 patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')) {
                 patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
             }
             return patientId;
-        }else{
+        } else {
             return undefined;
         }
     }
 
-    clearPatientObject(object){
+    clearPatientObject(object) {
         let $this = this;
-        _.forEach(object, function(m, i){
-            if (typeof(m) === 'object' && i != 'vr'){
+        _.forEach(object, function (m, i) {
+            if (typeof(m) === 'object' && i != 'vr') {
                 $this.clearPatientObject(m);
-            }else{
+            } else {
                 let check = typeof(i) === 'number' || i === 'vr' || i === 'Value' || i === 'Alphabetic' || i === 'Ideographic' || i === 'Phonetic' || i === 'items';
-                if (!check){
+                if (!check) {
                     delete object[i];
                 }
             }
         });
     };
-    convertStringToNumber(object){
+
+    convertStringToNumber(object) {
         let $this = this;
-        _.forEach(object, function(m, i){
-            if (typeof(m) === 'object' && i != 'vr'){
+        _.forEach(object, function (m, i) {
+            if (typeof(m) === 'object' && i != 'vr') {
                 $this.convertStringToNumber(m);
-            }else{
-                if (i === 'vr'){
-                    if (($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
-                        if (object.Value.length > 1){
+            } else {
+                if (i === 'vr') {
+                    if (($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)) {
+                        if (object.Value.length > 1) {
                             _.forEach(object.Value, (k, j) => {
                                 object.Value[j] = Number(object.Value[j]);
                             });
-                        }else{
+                        } else {
                             object.Value[0] = Number(object.Value[0]);
                         }
                     }
@@ -171,16 +175,17 @@ export class StudyService {
             }
         });
     };
-    initEmptyValue(object){
-        _.forEach(object, (m, k)=>{
+
+    initEmptyValue(object) {
+        _.forEach(object, (m, k) => {
             console.log('m', m);
-            if (m && m.vr && m.vr === 'PN' && m.vr != 'SQ' && (!m.Value || m.Value[0] === null)){
+            if (m && m.vr && m.vr === 'PN' && m.vr != 'SQ' && (!m.Value || m.Value[0] === null)) {
                 console.log('in pnvalue=', m);
                 object[k]['Value'] = [{
                     Alphabetic: ''
                 }];
             }
-            if (m && m.vr && m.vr != 'SQ' && !m.Value){
+            if (m && m.vr && m.vr != 'SQ' && !m.Value) {
                 object[k]['Value'] = [''];
             }
             if (m && (_.isArray(m) || (m && _.isObject(m)))) {
@@ -191,18 +196,18 @@ export class StudyService {
         return object;
     };
 
-    replaceKeyInJson(object, key, key2){
+    replaceKeyInJson(object, key, key2) {
         let $this = this;
-        _.forEach(object, function(m, k){
-            if (m[key]){
+        _.forEach(object, function (m, k) {
+            if (m[key]) {
                 object[k][key2] = [object[k][key]];
                 delete object[k][key];
             }
-            if (m.vr && m.vr != 'SQ' && !m.Value){
-                if (m.vr === 'PN'){
+            if (m.vr && m.vr != 'SQ' && !m.Value) {
+                if (m.vr === 'PN') {
                     object[k]['Value'] = object[k]['Value'] || [{Alphabetic: ''}];
                     object[k]['Value'] = [{Alphabetic: ''}];
-                }else{
+                } else {
                     object[k]['Value'] = [''];
                 }
             }
@@ -212,18 +217,19 @@ export class StudyService {
         });
         return object;
     };
-    getArrayFromIod(res){
+
+    getArrayFromIod(res) {
         let dropdown = [];
-        _.forEach(res, function(m, i){
-            if (i === '00400100'){
-                _.forEach(m.items || m.Value[0], function(l, j){
+        _.forEach(res, function (m, i) {
+            if (i === '00400100') {
+                _.forEach(m.items || m.Value[0], function (l, j) {
                     dropdown.push({
                         'code': '00400100:' + j,
                         'codeComma': '>' + j.slice(0, 4) + ',' + j.slice(4),
                         'name': DCM4CHE.elementName.forTag(j)
                     });
                 });
-            }else{
+            } else {
                 dropdown.push({
                     'code': i,
                     'codeComma': i.slice(0, 4) + ',' + i.slice(4),
@@ -234,126 +240,126 @@ export class StudyService {
         return dropdown;
     };
 
-    getFilterSchema(tab:DicomMode, aets:Aet[], quantityText:{count:string,size:string}, filterMode:('main'| 'expand'), webApps?:DcmWebApp[]){
-        let schema:FilterSchema;
-        let lineLength:number = 3;
-        switch(tab){
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[]) {
+        let schema: FilterSchema;
+        let lineLength: number = 3;
+        switch (tab) {
             case "patient":
-                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets,filterMode === "expand");
-                lineLength = filterMode === "expand" ? 1:2;
+                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets, filterMode === "expand");
+                lineLength = filterMode === "expand" ? 1 : 2;
                 break;
             case "mwl":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,filterMode === "expand");
-                lineLength = filterMode === "expand" ? 2:3;
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand");
+                lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             case "diff":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,filterMode === "expand");
-                lineLength = filterMode === "expand" ? 2:3;
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand");
+                lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets,false).filter(filter=>{
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, false).filter(filter => {
                     return filter.filterKey != "aet";
                 });
-                lineLength = filterMode === "expand" ? 2:3;
+                lineLength = filterMode === "expand" ? 2 : 3;
         }
-        if(filterMode === "main"){
-            if(tab != 'diff'){
+        if (filterMode === "main") {
+            if (tab != 'diff') {
                 schema.push({
-                    tag:"html-select",
-                    options:Globalvar.ORDERBY_NEW
-                        .filter(order=>order.mode === tab)
-                        .map(order=>{
-                            return new SelectDropdown(order.value, order.label,order.title,order.title,order.label);
+                    tag: "html-select",
+                    options: Globalvar.ORDERBY_NEW
+                        .filter(order => order.mode === tab)
+                        .map(order => {
+                            return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
                         }),
-                    filterKey:'orderby',
-                    text:"Order By",
-                    title:"Order By",
-                    placeholder:"Order By",
-                    cssClass:'study_order'
+                    filterKey: 'orderby',
+                    text: "Order By",
+                    title: "Order By",
+                    placeholder: "Order By",
+                    cssClass: 'study_order'
 
                 });
                 schema.push({
-                    tag:"html-select",
-                    options:webApps
-                        .map((webApps:DcmWebApp)=>{
-                            return new SelectDropdown(webApps ,webApps.dcmWebAppName,webApps.dicomDescription);
+                    tag: "html-select",
+                    options: webApps
+                        .map((webApps: DcmWebApp) => {
+                            return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
                         }),
-                    filterKey:'webApp',
-                    text:"Web App Service",
-                    title:"Web App Service",
-                    placeholder:"Web App Service",
-                    cssClass:'study_order',
-                    showSearchField:true
+                    filterKey: 'webApp',
+                    text: "Web App Service",
+                    title: "Web App Service",
+                    placeholder: "Web App Service",
+                    cssClass: 'study_order',
+                    showSearchField: true
 
                 });
             }
             schema.push(
-            {
-                tag: "button",
-                id: "submit",
-                text: "SUBMIT",
-                description: "Query Studies"
-            });
+                {
+                    tag: "button",
+                    id: "submit",
+                    text: "SUBMIT",
+                    description: "Query Studies"
+                });
             schema.push(
                 {
-                    tag:"dummy"
+                    tag: "dummy"
                 },
                 {
                     tag: "button",
                     id: "count",
                     text: quantityText.count,
-                    showRefreshIcon:true,
-                    showDynamicLoader:false,
+                    showRefreshIcon: true,
+                    showDynamicLoader: false,
                     description: "QUERY ONLY THE COUNT"
-                },{
+                }, {
                     tag: "button",
                     id: "size",
-                    showRefreshIcon:true,
-                    showDynamicLoader:false,
+                    showRefreshIcon: true,
+                    showDynamicLoader: false,
                     text: quantityText.size,
                     description: "QUERY ONLY THE SIZE"
                 });
         }
         return {
-            lineLength:lineLength,
-            schema:j4care.prepareFlatFilterObject(schema,lineLength)
+            lineLength: lineLength,
+            schema: j4care.prepareFlatFilterObject(schema, lineLength)
         }
     }
 
 
-    getStudies(filterModel, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
-        let header:HttpHeaders;
-        if(!responseType || responseType === "object"){
-            header =  this.dicomHeader
+    getStudies(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
-        params = params ? `?${params}`:params;
+        params = params ? `?${params}` : params;
 
         return this.$http.get(
             `${this.getDicomURL("study", dcmWebApp, responseType)}${params || ''}`,
-                header,
-                false,
-                dcmWebApp
-            ).map(res => j4care.redirectOnAuthResponse(res));
+            header,
+            false,
+            dcmWebApp
+        ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    getSeries(studyInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
+    getSeries(studyInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header;
-        if(!responseType || responseType === "object"){
-            header =  this.dicomHeader
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
-        params = params ? `?${params}`:params;
+        params = params ? `?${params}` : params;
 
         return this.$http.get(
             `${this.getDicomURL("study", dcmWebApp, responseType)}/${studyInstanceUID}/series${params || ''}`,
-                header,
+            header,
             false,
             dcmWebApp
-            ).map(res => j4care.redirectOnAuthResponse(res));
+        ).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    testAet( url, dcmWebApp:DcmWebApp){
+    testAet(url, dcmWebApp: DcmWebApp) {
         return this.$http.get(
             url,//`http://test-ng:8080/dcm4chee-arc/ui2/rs/aets`,
             this.jsonHeader,
@@ -361,24 +367,26 @@ export class StudyService {
             dcmWebApp
         ).map(res => j4care.redirectOnAuthResponse(res));
     }
-    getInstances(studyInstanceUID:string, seriesInstanceUID:string, filterModel:any, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):Observable<any>{
-        let header:HttpHeaders;
-        if(!responseType || responseType === "object"){
-            header =  this.dicomHeader
+
+    getInstances(studyInstanceUID: string, seriesInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
-        params = params ? `?${params}`:params;
+        params = params ? `?${params}` : params;
 
         return this.$http.get(
             `${this.getDicomURL("study", dcmWebApp, responseType)}/${studyInstanceUID}/series/${seriesInstanceUID}/instances${params || ''}`,
-                header,
+            header,
             false,
             dcmWebApp
-            ).map(res => j4care.redirectOnAuthResponse(res));
+        ).map(res => j4care.redirectOnAuthResponse(res));
     }
-    getDicomURL(mode:DicomMode, dcmWebApp:DcmWebApp, responseType?:DicomResponseType):string{
-        console.log("object",dcmWebApp);
-        try{
+
+    getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): string {
+        console.log("object", dcmWebApp);
+        try {
             let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
             switch (mode) {
                 case "patient":
@@ -393,29 +401,30 @@ export class StudyService {
                 case "study":
                     url += '/studies';
                     break;
-    /*            case "diff":
-                    url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
-                    break;*/
+                /*            case "diff":
+                                url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
+                                break;*/
                 default:
                     url;
             }
-            if(mode != "diff" && responseType){
-               if(responseType === "count")
-                url += '/count';
-               if(responseType === "size")
-                url += '/size';
+            if (mode != "diff" && responseType) {
+                if (responseType === "count")
+                    url += '/count';
+                if (responseType === "size")
+                    url += '/size';
             }
             return url;
-        }catch (e) {
-            j4care.log("Error on getting dicomURL in study.service.ts",e);
+        } catch (e) {
+            j4care.log("Error on getting dicomURL in study.service.ts", e);
         }
     }
 
-    wadoURL(webService:StudyWebService,...args: any[]): any {
-        let i, url = `${j4care.getUrlFromDcmWebApplication(this.getWebAppFromWebServiceClassAndSelectedWebApp(webService,"WADO_URI",  "WADO_URI"))}?requestType=WADO`;
+    wadoURL(webService: StudyWebService, ...args: any[]): any {
+        let i,
+            url = `${j4care.getUrlFromDcmWebApplication(this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI"))}?requestType=WADO`;
         for (i = 1; i < arguments.length; i++) {
             _.forEach(arguments[i], (value, key) => {
-                url += '&' + key.replace(/^(_){1}(\w*)/, (match,p1,p2)=>{
+                url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
                     return p2;
                 }) + '=' + value;
             });
@@ -425,72 +434,75 @@ export class StudyService {
 
     renderURL(inst) {
         if (inst.video)
-            return this.wadoURL(inst.wadoQueryParams, { contentType: 'video/*' });
+            return this.wadoURL(inst.wadoQueryParams, {contentType: 'video/*'});
         if (inst.numberOfFrames)
-            return this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg', frameNumber: inst.view });
+            return this.wadoURL(inst.wadoQueryParams, {contentType: 'image/jpeg', frameNumber: inst.view});
         if (inst.gspsQueryParams.length)
             return this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
         return this.wadoURL(inst.wadoQueryParams);
     }
 
-    private diffUrl(callingAet:Aet,  firstExternalAet?:Aet, secondExternalAet?:Aet, baseUrl?:string){
+    private diffUrl(callingAet: Aet, firstExternalAet?: Aet, secondExternalAet?: Aet, baseUrl?: string) {
 
         return `${
-                baseUrl || '..'
+        baseUrl || '..'
             }/aets/${
-                callingAet.dicomAETitle
+            callingAet.dicomAETitle
             }/dimse/${
-                firstExternalAet.dicomAETitle
+            firstExternalAet.dicomAETitle
             }/diff/${
-                secondExternalAet.dicomAETitle
+            secondExternalAet.dicomAETitle
             }/studies`;
     }
 
-/*    private rsURL(callingAet:Aet, accessLocation?:AccessLocation,  externalAet?:Aet, baseUrl?:string) {
-        if(accessLocation === "external" && externalAet){
-            return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/dims/${externalAet.dicomAETitle}`;
-        }
-        return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/rs`;
-    }*/
+    /*    private rsURL(callingAet:Aet, accessLocation?:AccessLocation,  externalAet?:Aet, baseUrl?:string) {
+            if(accessLocation === "external" && externalAet){
+                return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/dims/${externalAet.dicomAETitle}`;
+            }
+            return `${baseUrl || '..'}/aets/${callingAet.dicomAETitle}/rs`;
+        }*/
 
-    getAttributeFilter(entity?:string, baseUrl?:string){
+    getAttributeFilter(entity?: string, baseUrl?: string) {
         return this.$http.get(
             `${baseUrl || '..'}/attribute-filter/${entity || "Patient"}`
         )
-        .map(res => j4care.redirectOnAuthResponse(res))
-        .map(res => {
-            if((!entity || entity === "Patient") && res.dcmTag){
-                let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
-                res.dcmTag.push(...privateAttr);
-            }
-            return res;
-        });
+            .map(res => j4care.redirectOnAuthResponse(res))
+            .map(res => {
+                if ((!entity || entity === "Patient") && res.dcmTag) {
+                    let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
+                    res.dcmTag.push(...privateAttr);
+                }
+                return res;
+            });
     }
-    getAets = ()=> this.aeListService.getAets();
 
-    getAes = ()=> this.aeListService.getAes();
+    getAets = () => this.aeListService.getAets();
+
+    getAes = () => this.aeListService.getAes();
 
     equalsIgnoreSpecificCharacterSet(attrs, other) {
         return Object.keys(attrs).filter(tag => tag != '00080005')
-                .every(tag => _.isEqual(attrs[tag],other[tag]))
+                .every(tag => _.isEqual(attrs[tag], other[tag]))
             && Object.keys(other).filter(tag => tag != '00080005')
                 .every(tag => attrs[tag]);
     }
-    queryPatientDemographics(patientID:string, PDQServiceID:string,url?:string){
+
+    queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
         return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
     }
+
     extractAttrs(attrs, tags, extracted) {
-        for (let tag in attrs){
-            if (_.indexOf(tags, tag) > -1){
+        for (let tag in attrs) {
+            if (_.indexOf(tags, tag) > -1) {
                 extracted[tag] = attrs[tag];
             }
         }
     }
 
-    createGSPSQueryParams(attrs):GSPSQueryParams[] {
+    createGSPSQueryParams(attrs): GSPSQueryParams[] {
         let sopClass = j4care.valueOf(attrs['00080016']),
             refSeries = j4care.valuesOf(attrs['00081115']),
-            queryParams:GSPSQueryParams[] = [];
+            queryParams: GSPSQueryParams[] = [];
         if (sopClass === '1.2.840.10008.5.1.4.1.1.11.1' && refSeries) {
             refSeries.forEach((seriesRef) => {
                 j4care.valuesOf(seriesRef['00081140']).forEach((objRef) => {
@@ -511,53 +523,59 @@ export class StudyService {
         return queryParams;
     }
 
-    studyURL(attrs, webApp:DcmWebApp){
+    studyURL(attrs, webApp: DcmWebApp) {
         return `${this.getDicomURL("study", webApp)}/${attrs['0020000D'].Value[0]}`;
     }
-    seriesURL(attrs, webApp:DcmWebApp) {
+
+    seriesURL(attrs, webApp: DcmWebApp) {
         return this.studyURL(attrs, webApp) + '/series/' + attrs['0020000E'].Value[0];
     }
-    instanceURL(attrs, webApp:DcmWebApp) {
+
+    instanceURL(attrs, webApp: DcmWebApp) {
         return this.seriesURL(attrs, webApp) + '/instances/' + attrs['00080018'].Value[0];
     }
-    getObjectUniqueId(attrs:any[], dicomLevel:DicomLevel):UniqueSelectIdObject{
+
+    getObjectUniqueId(attrs: any[], dicomLevel: DicomLevel): UniqueSelectIdObject {
         let idObject = {
-            id:this.getPatientId(attrs),
-            idParts:[this.getPatientId(attrs)]
+            id: this.getPatientId(attrs),
+            idParts: [this.getPatientId(attrs)]
         };
-        if(dicomLevel != "patient"){
+        if (dicomLevel != "patient") {
             idObject.id += `_${attrs['0020000D'].Value[0]}`;
             idObject.idParts.push(attrs['0020000D'].Value[0]);
         }
-        if(dicomLevel === "series" || dicomLevel === "instance"){
+        if (dicomLevel === "series" || dicomLevel === "instance") {
             idObject.id += `_${attrs['0020000D'].Value[0]}`;
             idObject.idParts.push(attrs['0020000E'].Value[0]);
         }
-        if(dicomLevel === "instance"){
+        if (dicomLevel === "instance") {
             idObject.id += `_${attrs['00080018'].Value[0]}`;
             idObject.idParts.push(attrs['00080018'].Value[0]);
         }
         return idObject;
     }
 
-    getURL(attrs, webApp:DcmWebApp, dicomLevel:DicomLevel){
-        if(dicomLevel === "series")
-              return this.seriesURL(attrs, webApp);
-        if(dicomLevel === "instance")
-              return this.instanceURL(attrs, webApp);
+    getURL(attrs, webApp: DcmWebApp, dicomLevel: DicomLevel) {
+        if (dicomLevel === "series")
+            return this.seriesURL(attrs, webApp);
+        if (dicomLevel === "instance")
+            return this.instanceURL(attrs, webApp);
         return this.studyURL(attrs, webApp);
     }
 
     studyFileName(attrs) {
         return attrs['0020000D'].Value[0];
     }
+
     seriesFileName(attrs) {
         return this.studyFileName(attrs) + '_' + attrs['0020000E'].Value[0];
     }
+
     instanceFileName(attrs) {
         return this.seriesFileName(attrs) + '_' + attrs['00080018'].Value[0];
     }
-    isVideo(attrs):boolean {
+
+    isVideo(attrs): boolean {
         let sopClass = j4care.valueOf(attrs['00080016']);
         return [
             '1.2.840.10008.5.1.4.1.1.77.1.1.1',
@@ -565,357 +583,360 @@ export class StudyService {
             '1.2.840.10008.5.1.4.1.1.77.1.4.1']
             .indexOf(sopClass) != -1;
     }
-    isImage(attrs):boolean{
+
+    isImage(attrs): boolean {
         let sopClass = j4care.valueOf(attrs['00080016']);
         let bitsAllocated = j4care.valueOf(attrs['00280100']);
         return ((bitsAllocated && bitsAllocated != "") && (sopClass != '1.2.840.10008.5.1.4.1.1.481.2'));
     }
 
-    createArray(n):any[] {
+    createArray(n): any[] {
         let a = [];
         for (let i = 1; i <= n; i++)
             a.push(i);
         return a;
     }
-    getStorageSystems(){
-        return this.storageSystems.search({},0);
+
+    getStorageSystems() {
+        return this.storageSystems.search({}, 0);
     }
 
-    verifyStorage = (attrs, studyWebService:StudyWebService, level:DicomLevel, params:any) => {
+    verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, params: any) => {
         let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgver`;
 
-        return this.$http.post(url,{}, this.dicomHeader);
+        return this.$http.post(url, {}, this.dicomHeader);
     };
 
-    scheduleStorageVerification = (param, studyWebService:StudyWebService) => this.$http.post(`${this.getDicomURL("study",studyWebService.selectedWebService)}/stgver${j4care.param(param)}`,{});
+    scheduleStorageVerification = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
 
-    getDevices(){
+    getDevices() {
         return this.devicesService.getDevices();
     }
 
-    checkSchemaPermission(schema:DicomTableSchema):DicomTableSchema{
-        Object.keys(schema).forEach(levelKey =>{
-            schema[levelKey].forEach((element:TableSchemaElement)=>{
-                if(element && element.type){
-                    if(element.type === "actions" || element.type === "actions-menu"){
+    checkSchemaPermission(schema: DicomTableSchema): DicomTableSchema {
+        Object.keys(schema).forEach(levelKey => {
+            schema[levelKey].forEach((element: TableSchemaElement) => {
+                if (element && element.type) {
+                    if (element.type === "actions" || element.type === "actions-menu") {
                         let key = "actions";
-                        if(_.hasIn(element, "menu") && element.menu){
+                        if (_.hasIn(element, "menu") && element.menu) {
                             key = "menu.actions";
                         }
-                        if(_.get(element,key) && (<any[]>_.get(element,key)).length > 0){
-                            let result = (<any[]>_.get(element,key)).filter((menu:TableAction)=>{
-                                console.log("menu",menu);
-                                console.log("menu.permission",menu.permission);
-                                console.log("checkVisibility",this.permissionService.checkVisibility(menu.permission));
-                                if(menu.permission){
+                        if (_.get(element, key) && (<any[]>_.get(element, key)).length > 0) {
+                            let result = (<any[]>_.get(element, key)).filter((menu: TableAction) => {
+                                console.log("menu", menu);
+                                console.log("menu.permission", menu.permission);
+                                console.log("checkVisibility", this.permissionService.checkVisibility(menu.permission));
+                                if (menu.permission) {
                                     return this.permissionService.checkVisibility(menu.permission);
                                 }
                                 return true
                             });
-                            console.log("element",element);
-                            console.log("result",result);
+                            console.log("element", element);
+                            console.log("result", result);
                             _.set(element, key, result);
-                            console.log("result",result);
+                            console.log("result", result);
                         }
                     }
-                }else{
+                } else {
                     return false;
                 }
             })
         });
-        console.log("schema",schema);
+        console.log("schema", schema);
         return schema;
     }
-    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options:StudySchemaOptions):DicomTableSchema{
-        let schema:DicomTableSchema = {
-            patient:[
+
+    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options: StudySchemaOptions): DicomTableSchema {
+        let schema: DicomTableSchema = {
+            patient: [
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-down',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-down',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"patient",
-                                    action:"toggle_studies"
-                                },e);
+                                    event: "click",
+                                    level: "patient",
+                                    action: "toggle_studies"
+                                }, e);
                             },
-                            title:"Hide Studies",
-                            showIf:(e)=>{
+                            title: "Hide Studies",
+                            showIf: (e) => {
                                 return e.showStudies
                             }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-right',
-                                text:''
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-right',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 // e.showStudies = !e.showStudies;
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"patient",
-                                    action:"toggle_studies"
-                                },e);
+                                    event: "click",
+                                    level: "patient",
+                                    action: "toggle_studies"
+                                }, e);
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title:"Show Studies",
-                            showIf:(e)=>{
+                            title: "Show Studies",
+                            showIf: (e) => {
                                 return !e.showStudies
                             }
                         }
                     ],
-                    headerDescription:"Show studies",
-                    pxWidth:40
+                    headerDescription: "Show studies",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"index",
-                    header:'',
-                    pathToValue:'',
-                    pxWidth:40
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions-menu",
-                    header:"",
-                    menu:{
-                            toggle:(e)=>{
-                                console.log("e",e);
-                                e.showMenu = !e.showMenu;
-                            },
-                            actions:[
-                                {
-                                    icon:{
-                                        tag:'span',
-                                        cssClass:'glyphicon glyphicon-unchecked',
-                                        text:''
-                                    },
-                                    click:(e)=>{
-                                        e.selected = !e.selected;
-                                    },
-                                    title:"Select",
-                                    showIf:(e, config)=>{
-                                        return !config.showCheckboxes && !e.selected;
-                                    }
-                                },{
-                                    icon:{
-                                        tag:'span',
-                                        cssClass:'glyphicon glyphicon-check',
-                                        text:''
-                                    },
-                                    click:(e)=>{
-                                        console.log("e",e);
-                                        e.selected = !e.selected;
-                                    },
-                                    title:"Unselect",
-                                    showIf:(e, config)=>{
-                                        return !config.showCheckboxes && e.selected;
-                                    }
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions: [
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-unchecked',
+                                    text: ''
                                 },
-                                {
-                                    icon:{
-                                        tag:'span',
-                                        cssClass:'glyphicon glyphicon-pencil',
-                                        text:''
-                                    },
-                                    click:(e)=>{
-                                        actions.call($this, {
-                                            event:"click",
-                                            level:"patient",
-                                            action:"edit_patient"
-                                        },e);
-                                    },
-                                    title:'Edit this Patient',
-                                    permission:{
-                                        id:'action-studies-patient',
-                                        param:'edit'
-                                    }
-                                },{
-                                    icon:{
-                                        tag:'span',
-                                        cssClass:'glyphicon glyphicon-plus',
-                                        text:''
-                                    },
-                                    click:(e)=>{
-                                        actions.call($this, {
-                                            event:"click",
-                                            level:"patient",
-                                            action:"create_mwl"
-                                        },e);
-                                    },
-                                    title:'Add new MWL',
-                                    permission:{
-                                        id:'action-studies-mwl',
-                                        param:'create'
-                                    }
-                                },{
-                                    icon:{
-                                        tag:'span',
-                                        cssClass:'custom_icon csv_icon_black',
-                                        text:''
-                                    },
-                                    click:(e)=>{
-                                        actions.call($this, {
-                                            event:"click",
-                                            level:"study",
-                                            action:"download_csv"
-                                        },e);
-                                    },
-                                    title:'Download as CSV',
-                                    permission: {
-                                        id: 'action-studies-download',
-                                        param: 'visible'
-                                    }
+                                click: (e) => {
+                                    e.selected = !e.selected;
                                 },
-                                {
-                                    icon:{
-                                        tag:'i',
-                                        cssClass:'material-icons',
-                                        text:'file_upload'
-                                    },
-                                    click:(e)=>{
-                                        actions.call($this, {
-                                            event:"click",
-                                            level:"patient",
-                                            action:"upload_file"
-                                        },e);
-                                    },
-                                    title:'Upload file',
-                                    permission:{
-                                        id:'action-studies-study',
-                                        param:'upload'
-                                    }
+                                title: "Select",
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && !e.selected;
                                 }
-                            ]
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-check',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    console.log("e", e);
+                                    e.selected = !e.selected;
+                                },
+                                title: "Unselect",
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && e.selected;
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "edit_patient"
+                                    }, e);
+                                },
+                                title: 'Edit this Patient',
+                                permission: {
+                                    id: 'action-studies-patient',
+                                    param: 'edit'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-plus',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "create_mwl"
+                                    }, e);
+                                },
+                                title: 'Add new MWL',
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'create'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "download_csv"
+                                    }, e);
+                                },
+                                title: 'Download as CSV',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "upload_file"
+                                    }, e);
+                                },
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'upload'
+                                }
+                            }
+                        ]
                     },
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-th-list',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title:"Toggle Attributes"
+                            title: "Toggle Attributes"
                         }
                     ],
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Patient's Name",
-                    pathToValue:"00100010.Value[0].Alphabetic",
-                    headerDescription:"Patient's Name",
-                    widthWeight:1,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Patient's Name",
+                    pathToValue: "00100010.Value[0].Alphabetic",
+                    headerDescription: "Patient's Name",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Patient ID",
-                    pathToValue:"00100020.Value[0]",
-                    headerDescription:"Patient ID",
-                    widthWeight:1,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Patient ID",
+                    pathToValue: "00100020.Value[0]",
+                    headerDescription: "Patient ID",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Issuer of Patient",
-                    pathToValue:"00100021.Value[0]",
-                    headerDescription:"Issuer of Patient ID",
-                    widthWeight:1,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Issuer of Patient",
+                    pathToValue: "00100021.Value[0]",
+                    headerDescription: "Issuer of Patient ID",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Birth Date",
-                    pathToValue:"00100030.Value[0]",
-                    headerDescription:"Patient's Birth Date",
-                    widthWeight:0.5,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Birth Date",
+                    pathToValue: "00100030.Value[0]",
+                    headerDescription: "Patient's Birth Date",
+                    widthWeight: 0.5,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Sex",
-                    pathToValue:"00100040.Value[0]",
-                    headerDescription:"Patient's Sex",
-                    widthWeight:0.2,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Sex",
+                    pathToValue: "00100040.Value[0]",
+                    headerDescription: "Patient's Sex",
+                    widthWeight: 0.2,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Patient Comments",
-                    pathToValue:"00104000.Value[0]",
-                    headerDescription:"Patient Comments",
-                    widthWeight:3,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Patient Comments",
+                    pathToValue: "00104000.Value[0]",
+                    headerDescription: "Patient Comments",
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"#S",
-                    pathToValue:"00201200.Value[0]",
-                    headerDescription:"Number of Patient Related Studies",
-                    widthWeight:0.2,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "#S",
+                    pathToValue: "00201200.Value[0]",
+                    headerDescription: "Number of Patient Related Studies",
+                    widthWeight: 0.2,
+                    calculatedWidth: "20%"
                 })
             ],
-            studies:[
+            studies: [
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-down',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-down',
+                                text: ''
                             },
-                            click:(e)=>{
+                            click: (e) => {
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"study",
-                                    action:"toggle_series"
-                                },e);
+                                    event: "click",
+                                    level: "study",
+                                    action: "toggle_series"
+                                }, e);
                             },
-                            title:"Hide Series",
-                            showIf:(e)=>{
+                            title: "Hide Series",
+                            showIf: (e) => {
                                 return e.showSeries
                             },
                             permission: {
                                 id: 'action-studies-serie',
                                 param: 'visible'
                             }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-right',
-                                text:''
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-right',
+                                text: ''
                             },
-                            click:(e)=>{
+                            click: (e) => {
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"study",
-                                    action:"toggle_series"
-                                },e);
+                                    event: "click",
+                                    level: "study",
+                                    action: "toggle_series"
+                                }, e);
                             },
-                            title:"Show Series",
-                            showIf:(e)=>{
+                            title: "Show Series",
+                            showIf: (e) => {
                                 return !e.showSeries
                             },
                             permission: {
@@ -924,197 +945,197 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription:"Show studies",
-                    widthWeight:0.3,
-                    calculatedWidth:"6%"
+                    headerDescription: "Show studies",
+                    widthWeight: 0.3,
+                    calculatedWidth: "6%"
                 }),
                 new TableSchemaElement({
-                    type:"index",
-                    header:'',
-                    pathToValue:'',
-                    pxWidth:40
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions-menu",
-                    header:"",
-                    menu:{
-                        toggle:(e)=>{
-                            console.log("e",e);
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
                             e.showMenu = !e.showMenu;
                         },
-                        actions:[
+                        actions: [
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-unchecked',
-                                    text:''
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-unchecked',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     e.selected = !e.selected;
                                 },
-                                title:"Select",
-                                showIf:(e, config)=>{
+                                title: "Select",
+                                showIf: (e, config) => {
                                     return !config.showCheckboxes && !e.selected;
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-check',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-check',
+                                    text: ''
                                 },
-                                click:(e)=>{
-                                    console.log("e",e);
+                                click: (e) => {
+                                    console.log("e", e);
                                     e.selected = !e.selected;
                                 },
-                                title:"Unselect",
-                                showIf:(e, config)=>{
+                                title: "Unselect",
+                                showIf: (e, config) => {
                                     return !config.showCheckboxes && e.selected;
                                 }
                             },
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-pencil',
-                                    text:''
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"edit_study"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "edit_study"
+                                    }, e);
                                 },
-                                title:'Edit this study',
-                                permission:{
-                                    id:'action-studies-study',
-                                    param:'edit'
+                                title: 'Edit this study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-export',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-export',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"export"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "export"
+                                    }, e);
                                 },
-                                title:'Export study',
-                                permission:{
-                                    id:'action-studies-study',
-                                    param:'export'
+                                title: 'Export study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'export'
                                 }
-                            },{
-                                icon:{
-                                    tag:'i',
-                                    cssClass:'material-icons',
-                                    text:'history'
+                            }, {
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'history'
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"modify_expired_date"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "modify_expired_date"
+                                    }, e);
                                 },
-                                title:'Set/Change expired date',
-                                permission:{
-                                    id:'action-studies-study',
-                                    param:'edit'
+                                title: 'Set/Change expired date',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
                                 }
-                            },{
-                            //<i class="material-icons">file_upload</i>
-                                icon:{
-                                    tag:'i',
-                                    cssClass:'material-icons',
-                                    text:'file_upload'
+                            }, {
+                                //<i class="material-icons">file_upload</i>
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"upload_file"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "upload_file"
+                                    }, e);
                                 },
-                                title:'Upload file',
-                                permission:{
-                                    id:'action-studies-study',
-                                    param:'upload'
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'upload'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-save',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-save',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"download",
-                                        mode:"uncompressed"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "download",
+                                        mode: "uncompressed"
+                                    }, e);
                                 },
-                                title:'Retrieve Study uncompressed',
-                                permission:{
-                                    id:'action-studies-download',
-                                    param:'visible'
+                                title: 'Retrieve Study uncompressed',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-download-alt',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-download-alt',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"download",
-                                        mode:"compressed",
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "download",
+                                        mode: "compressed",
+                                    }, e);
                                 },
-                                title:'Retrieve Study as stored at the archive',
-                                permission:{
-                                    id:'action-studies-download',
-                                    param:'visible'
+                                title: 'Retrieve Study as stored at the archive',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
+                            }, {
+                                icon: {
+                                    tag: 'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:''
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"reject"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "reject"
+                                    }, e);
                                 },
-                                title:options.trash.active ? 'Restore study' : 'Reject study',
-                                permission:{
-                                    id:'action-studies-study',
-                                    param:options.trash.active ? 'restore': 'reject'
+                                title: options.trash.active ? 'Restore study' : 'Reject study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: options.trash.active ? 'restore' : 'reject'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
+                            }, {
+                                icon: {
+                                    tag: 'span',
                                     cssClass: 'glyphicon glyphicon-remove',
-                                    text:''
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"delete"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "delete"
+                                    }, e);
                                 },
-                                title:'Delete study permanently',
-                                showIf:(e)=>{
+                                title: 'Delete study permanently',
+                                showIf: (e) => {
                                     return options.trash.active ||
                                         (
                                             options.selectedWebService &&
@@ -1126,38 +1147,38 @@ export class StudyService {
                                     id: 'action-studies-study',
                                     param: 'delete'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-ok',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-ok',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"study",
-                                        action:"verify_storage"
-                                    },e);
+                                        event: "click",
+                                        level: "study",
+                                        action: "verify_storage"
+                                    }, e);
                                 },
-                                title:'Verify storage commitment',
+                                title: 'Verify storage commitment',
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'custom_icon csv_icon_black',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"series",
-                                        action:"download_csv"
-                                    },e);
+                                        event: "click",
+                                        level: "series",
+                                        action: "download_csv"
+                                    }, e);
                                 },
-                                title:"Download as CSV",
+                                title: "Download as CSV",
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1165,246 +1186,246 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-th-list',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title:"Toggle Attributes"
+                            title: "Toggle Attributes"
                         }
                     ],
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Study ID",
-                    pathToValue:"[00200010].Value[0]",
-                    headerDescription:"Study ID",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
-                }),new TableSchemaElement({
-                    type:"value",
-                    header:"Study Instance UID",
-                    pathToValue:"[0020000D].Value[0]",
-                    headerDescription:"Study Instance UID",
-                    widthWeight:3,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Study ID",
+                    pathToValue: "[00200010].Value[0]",
+                    headerDescription: "Study ID",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
+                }), new TableSchemaElement({
+                    type: "value",
+                    header: "Study Instance UID",
+                    pathToValue: "[0020000D].Value[0]",
+                    headerDescription: "Study Instance UID",
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Study Date",
-                    pathToValue:"[00080020].Value[0]",
-                    headerDescription:"Study Date",
-                    widthWeight:0.6,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Study Date",
+                    pathToValue: "[00080020].Value[0]",
+                    headerDescription: "Study Date",
+                    widthWeight: 0.6,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Study Time",
-                    pathToValue:"[00080030].Value[0]",
-                    headerDescription:"Study Time",
-                    widthWeight:0.6,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Study Time",
+                    pathToValue: "[00080030].Value[0]",
+                    headerDescription: "Study Time",
+                    widthWeight: 0.6,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"R. Physician's Name",
-                    pathToValue:"[00080090].Value[0].Alphabetic",
-                    headerDescription:"Referring Physician's Name",
-                    widthWeight:1,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "R. Physician's Name",
+                    pathToValue: "[00080090].Value[0].Alphabetic",
+                    headerDescription: "Referring Physician's Name",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Accession Number",
-                    pathToValue:"[00080050].Value[0]",
-                    headerDescription:"Accession Number",
-                    widthWeight:1,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Accession Number",
+                    pathToValue: "[00080050].Value[0]",
+                    headerDescription: "Accession Number",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Modalities",
-                    pathToValue:"[00080061].Value[0]",
-                    headerDescription:"Modalities in Study",
-                    widthWeight:0.5,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Modalities",
+                    pathToValue: "[00080061].Value[0]",
+                    headerDescription: "Modalities in Study",
+                    widthWeight: 0.5,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Study Description",
-                    pathToValue:"[00081030].Value[0]",
-                    headerDescription:"Study Description",
-                    widthWeight:2,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Study Description",
+                    pathToValue: "[00081030].Value[0]",
+                    headerDescription: "Study Description",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"#S",
-                    pathToValue:"[00201206].Value[0]",
-                    headerDescription:"Number of Study Related Series",
-                    widthWeight:0.2,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "#S",
+                    pathToValue: "[00201206].Value[0]",
+                    headerDescription: "Number of Study Related Series",
+                    widthWeight: 0.2,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"#I",
-                    pathToValue:"[00201208].Value[0]",
-                    headerDescription:"Number of Study Related Instances",
-                    widthWeight:0.2,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "#I",
+                    pathToValue: "[00201208].Value[0]",
+                    headerDescription: "Number of Study Related Instances",
+                    widthWeight: 0.2,
+                    calculatedWidth: "20%"
                 })
             ],
-            series:[
+            series: [
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-down',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-down',
+                                text: ''
                             },
-                            click:(e)=>{
+                            click: (e) => {
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"series",
-                                    action:"toggle_instances"
-                                },e);
+                                    event: "click",
+                                    level: "series",
+                                    action: "toggle_instances"
+                                }, e);
                             },
-                            title:"Hide Instances",
-                            showIf:(e)=>{
+                            title: "Hide Instances",
+                            showIf: (e) => {
                                 return e.showInstances
                             },
                             permission: {
                                 id: 'action-studies-serie',
                                 param: 'visible'
                             }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-chevron-right',
-                                text:''
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-right',
+                                text: ''
                             },
-                            click:(e)=>{
+                            click: (e) => {
                                 actions.call($this, {
-                                    event:"click",
-                                    level:"series",
-                                    action:"toggle_instances"
-                                },e);
+                                    event: "click",
+                                    level: "series",
+                                    action: "toggle_instances"
+                                }, e);
                             },
-                            title:"Show Instaces",
-                            showIf:(e)=>{
+                            title: "Show Instaces",
+                            showIf: (e) => {
                                 return !e.showInstances
                             },
-                            permission:{
+                            permission: {
                                 id: 'action-studies-serie',
                                 param: 'visible'
                             }
                         }
                     ],
-                    headerDescription:"Show Instances",
-                    widthWeight:0.2,
-                    calculatedWidth:"6%"
+                    headerDescription: "Show Instances",
+                    widthWeight: 0.2,
+                    calculatedWidth: "6%"
                 }),
                 new TableSchemaElement({
-                    type:"index",
-                    header:'',
-                    pathToValue:'',
-                    pxWidth:40
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions-menu",
-                    header:"",
-                    menu:{
-                        toggle:(e)=>{
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
                             e.showMenu = !e.showMenu;
                         },
-                        actions:[
+                        actions: [
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'custom_icon csv_icon_black',
-                                    text:''
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
                                 },
-                                click:(e)=>{
-                                    console.log("e",e);
+                                click: (e) => {
+                                    console.log("e", e);
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"download_csv"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "download_csv"
+                                    }, e);
                                 },
-                                title:'Download as CSV',
+                                title: 'Download as CSV',
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
+                            }, {
+                                icon: {
+                                    tag: 'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:''
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"series",
-                                        action:"reject"
-                                    },e);
+                                        event: "click",
+                                        level: "series",
+                                        action: "reject"
+                                    }, e);
                                 },
-                                title:options.trash.active ? 'Restore series' : 'Reject series',
+                                title: options.trash.active ? 'Restore series' : 'Reject series',
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: options.trash.active ? 'restore' : 'reject'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-ok',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-ok',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"series",
-                                        action:"verify_storage"
-                                    },e);
+                                        event: "click",
+                                        level: "series",
+                                        action: "verify_storage"
+                                    }, e);
                                 },
-                                title:'Verify storage commitment',
+                                title: 'Verify storage commitment',
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
                             }
-                            ,{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-export',
-                                    text:''
+                            , {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-export',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"series",
-                                        action:"export"
-                                    },e);
+                                        event: "click",
+                                        level: "series",
+                                        action: "export"
+                                    }, e);
                                 },
-                                title:'Export series',
+                                title: 'Export series',
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'export'
@@ -1412,219 +1433,219 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-th-list',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
                             },
-                            click:(e)=>{
+                            click: (e) => {
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title:"Show attributes"
+                            title: "Show attributes"
                         }
                     ],
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Station Name",
-                    pathToValue:"00081010.Value[0]",
-                    headerDescription:"Station Name",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Station Name",
+                    pathToValue: "00081010.Value[0]",
+                    headerDescription: "Station Name",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Series Number",
-                    pathToValue:"00200011.Value[0]",
-                    headerDescription:"Series Number",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Series Number",
+                    pathToValue: "00200011.Value[0]",
+                    headerDescription: "Series Number",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"PPS Start Date",
-                    pathToValue:"00400244.Value[0]",
-                    headerDescription:"Performed Procedure Step Start Date",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "PPS Start Date",
+                    pathToValue: "00400244.Value[0]",
+                    headerDescription: "Performed Procedure Step Start Date",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"PPS Start Time",
-                    pathToValue:"00400245.Value[0]",
-                    headerDescription:"Performed Procedure Step Start Time",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "PPS Start Time",
+                    pathToValue: "00400245.Value[0]",
+                    headerDescription: "Performed Procedure Step Start Time",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Body Part",
-                    pathToValue:"00180015.Value[0]",
-                    headerDescription:"Body Part Examined",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Body Part",
+                    pathToValue: "00180015.Value[0]",
+                    headerDescription: "Body Part Examined",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Modality",
-                    pathToValue:"00080060.Value[0]",
-                    headerDescription:"Modality",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Modality",
+                    pathToValue: "00080060.Value[0]",
+                    headerDescription: "Modality",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Series Description",
-                    pathToValue:"0008103E.Value[0]",
-                    headerDescription:"Series Description",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Series Description",
+                    pathToValue: "0008103E.Value[0]",
+                    headerDescription: "Series Description",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"#I",
-                    pathToValue:"00201209.Value[0]",
-                    headerDescription:"Number of Series Related Instances",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "#I",
+                    pathToValue: "00201209.Value[0]",
+                    headerDescription: "Number of Series Related Instances",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 })
             ],
-            instance:[
+            instance: [
                 new TableSchemaElement({
-                    type:"index",
-                    header:'',
-                    pathToValue:'',
-                    pxWidth:40
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"actions-menu",
-                    header:"",
-                    menu:{
-                        toggle:(e)=>{
-                            console.log("e",e);
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
                             e.showMenu = !e.showMenu;
                         },
-                        actions:[
+                        actions: [
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-export',
-                                    text:''
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-export',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"export"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "export"
+                                    }, e);
                                 },
-                                title:'Export instance',
+                                title: 'Export instance',
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: 'export'
                                 }
                             },
                             {
-                                icon:{
-                                    tag:'span',
+                                icon: {
+                                    tag: 'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text:''
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"reject"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "reject"
+                                    }, e);
                                 },
-                                title:options.trash.active ? 'Restore instance' : 'Reject instance',
+                                title: options.trash.active ? 'Restore instance' : 'Reject instance',
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: options.trash.active ? 'restore' : 'reject'
                                 }
-                            },{
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-ok',
-                                    text:''
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-ok',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"verify_storage"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "verify_storage"
+                                    }, e);
                                 },
-                                title:'Verify storage commitment',
+                                title: 'Verify storage commitment',
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
                             },
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-save',
-                                    text:''
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-save',
+                                    text: ''
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"download",
-                                        mode:"uncompressed"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "download",
+                                        mode: "uncompressed"
+                                    }, e);
                                 },
-                                title:'Download Uncompressed DICOM Object',
+                                title: 'Download Uncompressed DICOM Object',
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
                             },
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-download-alt',
-                                    text:'',
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-download-alt',
+                                    text: '',
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"download",
-                                        mode:"compressed",
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "download",
+                                        mode: "compressed",
+                                    }, e);
                                 },
-                                title:'Download DICOM Object',
+                                title: 'Download DICOM Object',
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
                             },
                             {
-                                icon:{
-                                    tag:'span',
-                                    cssClass:'glyphicon glyphicon-picture',
-                                    text:'',
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-picture',
+                                    text: '',
                                 },
-                                click:(e)=>{
+                                click: (e) => {
                                     actions.call($this, {
-                                        event:"click",
-                                        level:"instance",
-                                        action:"view"
-                                    },e);
+                                        event: "click",
+                                        level: "instance",
+                                        action: "view"
+                                    }, e);
                                 },
-                                title:'View DICOM Object',
+                                title: 'View DICOM Object',
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1632,254 +1653,264 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription:"Actions",
-                    pxWidth:40
-                }),new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }), new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-th-list',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title:'Show attributes'
+                            title: 'Show attributes'
                         }
                     ],
-                    headerDescription:"Actions",
-                    pxWidth:40
-                }),new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }), new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-list',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-list',
+                                text: ''
                             },
-                            click:(e)=>{
-                                console.log("e",e);
+                            click: (e) => {
+                                console.log("e", e);
                                 e.showFileAttributes = !e.showFileAttributes;
                             },
-                            title:'Show attributes from file'
+                            title: 'Show attributes from file'
                         }
                     ],
-                    headerDescription:"Actions",
-                    pxWidth:40
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"SOP Class UID",
-                    pathToValue:"00080016.Value[0]",
-                    headerDescription:"SOP Class UID",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "SOP Class UID",
+                    pathToValue: "00080016.Value[0]",
+                    headerDescription: "SOP Class UID",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Instance Number",
-                    pathToValue:"00200013.Value[0]",
-                    headerDescription:"Instance Number",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Instance Number",
+                    pathToValue: "00200013.Value[0]",
+                    headerDescription: "Instance Number",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Content Date",
-                    pathToValue:"00080023.Value[0]",
-                    headerDescription:"Content Date",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Content Date",
+                    pathToValue: "00080023.Value[0]",
+                    headerDescription: "Content Date",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"Content Time",
-                    pathToValue:"00080033.Value[0]",
-                    headerDescription:"Content Time",
-                    widthWeight:0.9,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "Content Time",
+                    pathToValue: "00080033.Value[0]",
+                    headerDescription: "Content Time",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type:"pipe",
-                    header:"Content Description",
-                    headerDescription:"Content Description",
-                    widthWeight:1.5,
-                    calculatedWidth:"20%",
-                    pipe:new DynamicPipe(ContentDescriptionPipe,undefined)
+                    type: "pipe",
+                    header: "Content Description",
+                    headerDescription: "Content Description",
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(ContentDescriptionPipe, undefined)
                 }),
                 new TableSchemaElement({
-                    type:"value",
-                    header:"#F",
-                    pathToValue:"00280008.Value[0]",
-                    headerDescription:"Number of Frames",
-                    widthWeight:0.3,
-                    calculatedWidth:"20%"
+                    type: "value",
+                    header: "#F",
+                    pathToValue: "00280008.Value[0]",
+                    headerDescription: "Number of Frames",
+                    widthWeight: 0.3,
+                    calculatedWidth: "20%"
                 })
             ]
         };
 
-        if(_.hasIn(options,"tableParam.config.showCheckboxes") && options.tableParam.config.showCheckboxes){
-            Object.keys(schema).forEach(mode=>{
-                schema[mode].splice(1,0, new TableSchemaElement({
-                    type:"actions",
-                    header:"",
-                    actions:[
+        if (_.hasIn(options, "tableParam.config.showCheckboxes") && options.tableParam.config.showCheckboxes) {
+            Object.keys(schema).forEach(mode => {
+                schema[mode].splice(1, 0, new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
                         {
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-unchecked',
-                                text:''
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-unchecked',
+                                text: ''
                             },
-                            click:(e,level)=>{
+                            click: (e, level) => {
                                 e.selected = !e.selected;
                                 actions.call($this, {
-                                    event:"click",
-                                    level:level,
-                                    action:"select"
-                                },e);
+                                    event: "click",
+                                    level: level,
+                                    action: "select"
+                                }, e);
                             },
-                            title:"Select",
-                            showIf:(e, config)=>{
+                            title: "Select",
+                            showIf: (e, config) => {
                                 return !e.selected;
                             }
-                        },{
-                            icon:{
-                                tag:'span',
-                                cssClass:'glyphicon glyphicon-check',
-                                text:''
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-check',
+                                text: ''
                             },
-                            click:(e, level)=>{
-                                console.log("e",e);
+                            click: (e, level) => {
+                                console.log("e", e);
                                 e.selected = !e.selected;
                                 actions.call($this, {
-                                    event:"click",
-                                    level:level,
-                                    action:"select"
-                                },e);
+                                    event: "click",
+                                    level: level,
+                                    action: "select"
+                                }, e);
                             },
-                            title:"Unselect",
-                            showIf:(e, config)=>{
+                            title: "Unselect",
+                            showIf: (e, config) => {
                                 return e.selected;
                             }
                         }
                     ],
-                    headerDescription:"Select",
-                    pxWidth:40
+                    headerDescription: "Select",
+                    pxWidth: 40
                 }))
             });
         }
 
         return schema;
     }
-    modifyStudy(study,deviceWebservice:StudyWebService, header:HttpHeaders){
+
+    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders) {
         const url = this.getModifyStudyUrl(deviceWebservice);
-        if(url){
-            return this.$http.post(url,study, header);
+        if (url) {
+            return this.$http.post(url, study, header);
         }
-        return Observable.throw({error:"Error on getting the WebApp URL"});
+        return Observable.throw({error: "Error on getting the WebApp URL"});
     }
-    getModifyStudyUrl(deviceWebservice:StudyWebService){
+
+    getModifyStudyUrl(deviceWebservice: StudyWebService) {
         return this.getDicomURL("study", this.getModifyStudyWebApp(deviceWebservice));
     }
-    getModifyStudyWebApp(deviceWebservice:StudyWebService):DcmWebApp{
-        if(deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+
+    getModifyStudyWebApp(deviceWebservice: StudyWebService): DcmWebApp {
+        if (deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
             return deviceWebservice.selectedWebService;
-        }else{
+        } else {
             return undefined;
         }
     }
 
-    modifyMWL(mwl,deviceWebservice:StudyWebService, header:HttpHeaders){
+    modifyMWL(mwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
         const url = this.getModifyMWLUrl(deviceWebservice);
-        if(url){
-            return this.$http.post(url,mwl, header);
+        if (url) {
+            return this.$http.post(url, mwl, header);
         }
-        return Observable.throw({error:"Error on getting the WebApp URL"});
+        return Observable.throw({error: "Error on getting the WebApp URL"});
     }
-    getModifyMWLUrl(deviceWebservice:StudyWebService){
+
+    getModifyMWLUrl(deviceWebservice: StudyWebService) {
         return this.getDicomURL("mwl", this.getModifyMWLWebApp(deviceWebservice));
     }
-    getModifyMWLWebApp(deviceWebservice:StudyWebService):DcmWebApp{
-        if(deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+
+    getModifyMWLWebApp(deviceWebservice: StudyWebService): DcmWebApp {
+        if (deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
             return deviceWebservice.selectedWebService;
-        }else{
+        } else {
             return undefined;
         }
     }
 
-    modifyPatient(patientId:string,patientObject,deviceWebservice:StudyWebService){
+    modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
         const url = this.getModifyPatientUrl(deviceWebservice);
-        if(url){
-            if(patientId){
+        if (url) {
+            if (patientId) {
                 //Change patient;
-                return this.$http.put(`${url}/${patientId}`,patientObject);
-            }else{
+                return this.$http.put(`${url}/${patientId}`, patientObject);
+            } else {
                 //Create new patient
-                return this.$http.post(url,patientObject);
+                return this.$http.post(url, patientObject);
             }
         }
-        return Observable.throw({error:"Error on getting the WebApp URL"});
+        return Observable.throw({error: "Error on getting the WebApp URL"});
     }
 
-    getModifyPatientUrl(deviceWebService:StudyWebService){
+    getModifyPatientUrl(deviceWebService: StudyWebService) {
         return this.getDicomURLFromWebService(deviceWebService, "patient");
     }
-    getModifyPatientWebApp(deviceWebService:StudyWebService):DcmWebApp{
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"DCM4CHEE_ARC_AET",  "PAM_RS");
+
+    getModifyPatientWebApp(deviceWebService: StudyWebService): DcmWebApp {
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "DCM4CHEE_ARC_AET", "PAM_RS");
     }
 
-    getDicomURLFromWebService(deviceWebService:StudyWebService, mode:("patient"|"study")){
+    getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
         return this.getDicomURL(mode, this.getModifyPatientWebApp(deviceWebService));
     }
-    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService:StudyWebService, neededWebServiceClass:string, alternativeWebServiceClass:string){
-        if(_.hasIn(deviceWebService,"selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1){
+
+    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string) {
+        if (_.hasIn(deviceWebService, "selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1) {
             return deviceWebService.selectedWebService;
-        }else{
-            try{
-                return deviceWebService.webServices.filter((webService:DcmWebApp)=>{
-                    if(webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle){
+        } else {
+            try {
+                return deviceWebService.webServices.filter((webService: DcmWebApp) => {
+                    if (webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle) {
                         return true;
                     }
                     return false;
                 })[0];
-            }catch (e) {
-                j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`,e);
+            } catch (e) {
+                j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
                 return undefined;
             }
         }
     }
 
-    getUploadFileWebApp(deviceWebService:StudyWebService){
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService,"STOW_RS",  "STOW_RS");
+    getUploadFileWebApp(deviceWebService: StudyWebService) {
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "STOW_RS", "STOW_RS");
     }
-    appendPatientIdTo(patient, obj){
-        if (_.hasIn(patient, '00100020')){
+
+    appendPatientIdTo(patient, obj) {
+        if (_.hasIn(patient, '00100020')) {
             obj['00100020'] = obj['00100020'] || {};
             obj['00100020'] = patient['00100020'];
         }
-        if (_.hasIn(patient, '00100021')){
+        if (_.hasIn(patient, '00100021')) {
             obj['00100021'] = obj['00100021'] || {};
             obj['00100021'] = patient['00100021'];
         }
-        if (_.hasIn(patient, '00100024')){
+        if (_.hasIn(patient, '00100024')) {
             obj['00100024'] = obj['00100024'] || {};
             obj['00100024'] = patient['00100024'];
         }
     }
-    getPatientIod(){
+
+    getPatientIod() {
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
             return this.$http.get('assets/iod/patient.iod.json')
         }
     };
-    getStudyIod(){
+
+    getStudyIod() {
         if (this._studyIod) {
             return Observable.of(this._studyIod);
         } else {
@@ -1887,7 +1918,7 @@ export class StudyService {
         }
     };
 
-    getMwlIod(){
+    getMwlIod() {
         if (this._mwlIod) {
             return Observable.of(this._mwlIod);
         } else {
@@ -1897,232 +1928,238 @@ export class StudyService {
         }
     };
 
-    getPrepareParameterForExpiriationDialog(study, exporters, infinit){
-        let expiredDate:Date;
+    getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
+        let expiredDate: Date;
         let title = "Set expired date for the study.";
-        let schema:any = [
+        let schema: any = [
             [
                 [
                     {
-                        tag:"label",
-                        text:"Expired date"
+                        tag: "label",
+                        text: "Expired date"
                     },
                     {
-                        tag:"p-calendar",
-                        filterKey:"expiredDate",
-                        description:"Expired Date"
+                        tag: "p-calendar",
+                        filterKey: "expiredDate",
+                        description: "Expired Date"
                     }
                 ]
             ]
         ];
         let schemaModel = {};
-        if(infinit){
-            if(_.hasIn(study,"7777102B.Value[0]") && study["7777102B"].Value[0] === "FROZEN"){
+        if (infinit) {
+            if (_.hasIn(study, "7777102B.Value[0]") && study["7777102B"].Value[0] === "FROZEN") {
                 schemaModel = {
-                    setExpirationDateToNever:false,
-                    FreezeExpirationDate:false
+                    setExpirationDateToNever: false,
+                    FreezeExpirationDate: false
                 };
                 title = "Unfreeze/Unprotect Expiration Date of the Study";
                 schema = [
                     [
                         [
                             {
-                                tag:"label",
-                                text:"Expired Date"
+                                tag: "label",
+                                text: "Expired Date"
                             },
                             {
-                                tag:"p-calendar",
-                                filterKey:"expiredDate",
-                                description:"Expired Date"
+                                tag: "p-calendar",
+                                filterKey: "expiredDate",
+                                description: "Expired Date"
                             }
                         ]
                     ]
                 ];
-            }else{
+            } else {
                 title = "Freeze/Protect Expiration Date of the Study";
                 schemaModel = {
-                    setExpirationDateToNever:true,
-                    FreezeExpirationDate:true
+                    setExpirationDateToNever: true,
+                    FreezeExpirationDate: true
                 };
                 schema = [
                     [
                         [
                             {
-                                tag:"label",
-                                text:"Expired date",
-                                showIf:(model)=>{
+                                tag: "label",
+                                text: "Expired date",
+                                showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
                             },
                             {
-                                tag:"p-calendar",
-                                filterKey:"expiredDate",
-                                description:"Expired Date",
-                                showIf:(model)=>{
+                                tag: "p-calendar",
+                                filterKey: "expiredDate",
+                                description: "Expired Date",
+                                showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
                             }
-                        ],[
+                        ], [
                         {
-                            tag:"dummy"
+                            tag: "dummy"
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"setExpirationDateToNever",
-                            description:"Set Expiration Date to 'never' if you want also to protect the study",
-                            text:"Set Expiration Date to 'never' if you want also to protect the study"
+                            tag: "checkbox",
+                            filterKey: "setExpirationDateToNever",
+                            description: "Set Expiration Date to 'never' if you want also to protect the study",
+                            text: "Set Expiration Date to 'never' if you want also to protect the study"
                         }
-                    ],[
+                    ], [
                         {
-                            tag:"dummy"
+                            tag: "dummy"
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"FreezeExpirationDate",
-                            description:"Freeze Expiration Date",
-                            text:"Freeze Expiration Date"
+                            tag: "checkbox",
+                            filterKey: "FreezeExpirationDate",
+                            description: "Freeze Expiration Date",
+                            text: "Freeze Expiration Date"
                         }
                     ]
                     ]
                 ];
             }
-        }else{
-            if(_.hasIn(study,"77771023.Value.0") && study["77771023"].Value[0] != ""){
+        } else {
+            if (_.hasIn(study, "77771023.Value.0") && study["77771023"].Value[0] != "") {
                 let expiredDateString = study["77771023"].Value[0];
-                expiredDate = new Date(expiredDateString.substring(0, 4)+ '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
-            }else{
+                expiredDate = new Date(expiredDateString.substring(0, 4) + '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+            } else {
                 expiredDate = new Date();
             }
             schemaModel = {
-                expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
+                expiredDate: j4care.formatDate(expiredDate, 'yyyyMMdd')
             };
             title += "<p>Set exporter if you wan't to export on expiration date too.";
             schema[0].push([
                 {
-                    tag:"label",
-                    text:"Exporter"
+                    tag: "label",
+                    text: "Exporter"
                 },
                 {
-                    tag:"select",
-                    filterKey:"exporter",
-                    description:"Exporter",
-                    options:exporters.map(exporter=> new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                    tag: "select",
+                    filterKey: "exporter",
+                    description: "Exporter",
+                    options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
                 }])
         }
         return {
             content: title,
-            form_schema:schema,
+            form_schema: schema,
             result: {
                 schema_model: schemaModel
             },
             saveButton: 'SAVE'
         };
     }
-    setExpiredDate(deviceWebservice:StudyWebService,studyUID, expiredDate, exporter, params?:any){
+
+    setExpiredDate(deviceWebservice: StudyWebService, studyUID, expiredDate, exporter, params?: any) {
         const url = this.getModifyStudyUrl(deviceWebservice);
         let localParams = "";
-        if(exporter){
+        if (exporter) {
             localParams = `?ExporterID=${exporter}`
         }
-        if(params && Object.keys(params).length > 0){
-            if(localParams){
+        if (params && Object.keys(params).length > 0) {
+            if (localParams) {
                 localParams += j4care.objToUrlParams(params);
-            }else{
+            } else {
                 localParams = `?${j4care.objToUrlParams(params)}`
             }
         }
-        return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`,{})
+        return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`, {})
     }
 
     getExporters = () => this.$http.get('../export');
 
-    deleteStudy = (studyInstanceUID:string, dcmWebApp:DcmWebApp) => this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}`);
+    deleteStudy = (studyInstanceUID: string, dcmWebApp: DcmWebApp) => this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}`);
 
     deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 
-    rejectRestoreMultipleObjects(multipleObjects:SelectionActionElement, selectedWebService:DcmWebApp, rejectionCode:string){
-        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element:SelectedDetailObject)=>(element.dicomLevel != "patient")).map((element:SelectedDetailObject)=>{
+    rejectRestoreMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, rejectionCode: string) {
+        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
             return this.$http.post(
-                `${this.getURL(element.object.attrs,selectedWebService,element.dicomLevel)}/reject/${rejectionCode}`,
+                `${this.getURL(element.object.attrs, selectedWebService, element.dicomLevel)}/reject/${rejectionCode}`,
                 {},
                 this.jsonHeader
             );
         }));
     }
-    rejectStudy(studyAttr, webApp:DcmWebApp, rejectionCode){
+
+    rejectStudy(studyAttr, webApp: DcmWebApp, rejectionCode) {
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
             this.jsonHeader
         )
     }
-    rejectSeries(studyAttr, webApp:DcmWebApp, rejectionCode){
+
+    rejectSeries(studyAttr, webApp: DcmWebApp, rejectionCode) {
         return this.$http.post(
             `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
             this.jsonHeader
         )
     }
-    rejectInstance(studyAttr, webApp:DcmWebApp, rejectionCode){
+
+    rejectInstance(studyAttr, webApp: DcmWebApp, rejectionCode) {
         return this.$http.post(
             `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`,
             {},
             this.jsonHeader
         )
     }
-    mapCode(m,i,newObject,mapCodes){
-        if(_.hasIn(mapCodes,i)){
-            if(_.isArray(mapCodes[i])){
-                _.forEach(mapCodes[i],(seq,j)=>{
-                    newObject[seq.code] = _.get(m,seq.map);
+
+    mapCode(m, i, newObject, mapCodes) {
+        if (_.hasIn(mapCodes, i)) {
+            if (_.isArray(mapCodes[i])) {
+                _.forEach(mapCodes[i], (seq, j) => {
+                    newObject[seq.code] = _.get(m, seq.map);
                     newObject[seq.code].vr = seq.vr;
                 });
-            }else{
+            } else {
                 newObject[mapCodes[i].code] = m;
                 newObject[mapCodes[i].code].vr = mapCodes[i].vr;
             }
         }
     }
-    getMsgFromResponse(res,defaultMsg = null){
+
+    getMsgFromResponse(res, defaultMsg = null) {
         let msg;
         let endMsg = '';
-        try{
+        try {
             msg = res.json();
-            if(_.hasIn(msg,"completed")){
+            if (_.hasIn(msg, "completed")) {
                 endMsg = `Completed: ${msg.completed}<br>`;
             }
-            if(_.hasIn(msg,"warning")){
+            if (_.hasIn(msg, "warning")) {
                 endMsg = endMsg + `Warning: ${msg.warning}<br>`;
             }
-            if(_.hasIn(msg,"failed")){
+            if (_.hasIn(msg, "failed")) {
                 endMsg = endMsg + `Failed: ${msg.failed}<br>`;
             }
-            if(_.hasIn(msg,"errorMessage")){
+            if (_.hasIn(msg, "errorMessage")) {
                 endMsg = endMsg + `${msg.errorMessage}<br>`;
             }
-            if(_.hasIn(msg,"error")){
+            if (_.hasIn(msg, "error")) {
                 endMsg = endMsg + `${msg.error}<br>`;
             }
-            if(endMsg === ""){
+            if (endMsg === "") {
                 endMsg = defaultMsg;
             }
-        }catch (e){
-            if(defaultMsg){
+        } catch (e) {
+            if (defaultMsg) {
                 endMsg = defaultMsg;
-            }else{
+            } else {
                 endMsg = res.statusText;
             }
         }
         return endMsg;
     }
 
-    export = (url, objects?:SelectionActionElement, urlSuffix?:string, selectedWebService?:DcmWebApp) => {
-        if(url){
-            return this.$http.post(url,{}, this.jsonHeader);
-        }else{
-            return Observable.forkJoin(objects.getAllAsArray().filter((element:SelectedDetailObject)=>(element.dicomLevel != "patient")).map((element:SelectedDetailObject)=>{
+    export = (url, objects?: SelectionActionElement, urlSuffix?: string, selectedWebService?: DcmWebApp) => {
+        if (url) {
+            return this.$http.post(url, {}, this.jsonHeader);
+        } else {
+            return Observable.forkJoin(objects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
                 return this.$http.post(
-                    this.getURL(element.object.attrs,selectedWebService,element.dicomLevel) + urlSuffix,
+                    this.getURL(element.object.attrs, selectedWebService, element.dicomLevel) + urlSuffix,
                     {},
                     this.jsonHeader
                 );
@@ -2132,7 +2169,7 @@ export class StudyService {
 
     getQueueNames = () => this.retrieveMonitoringService.getQueueNames();
 
-    getRejectNotes = (params?:any) => this.$http.get(`../reject/${j4care.param(params)}`);
+    getRejectNotes = (params?: any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
-    createEmptyStudy =  (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp),patientDicomAttrs,this.dicomHeader);
-
+    createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
+}
