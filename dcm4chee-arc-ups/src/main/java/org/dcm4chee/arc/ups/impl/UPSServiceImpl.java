@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Workitem;
@@ -68,6 +69,11 @@ public class UPSServiceImpl implements UPSService {
 
     @Inject
     private UPSServiceEJB ejb;
+
+    @Override
+    public UPSContext newUPSContext(Association as) {
+        return new UPSContextImpl(as);
+    }
 
     @Override
     public UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE) {

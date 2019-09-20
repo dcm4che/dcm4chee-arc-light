@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups.scp;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Commands;
@@ -51,6 +52,8 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -144,7 +147,10 @@ public class UPSPushSCP extends AbstractDicomService {
 
     private Attributes create(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
-        //TODO
+        UPSContext ctx = service.newUPSContext(as);
+        ctx.setSopInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
+        ctx.setAttributes(rqAttrs);
+        service.createWorkitem(ctx);
         return null;
     }
 

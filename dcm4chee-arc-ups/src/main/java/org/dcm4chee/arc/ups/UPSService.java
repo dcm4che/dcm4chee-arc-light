@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.ups;
 
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Workitem;
@@ -51,6 +52,8 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
  * @since Sep 2019
  */
 public interface UPSService {
+
+    UPSContext newUPSContext(Association as);
 
     UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE);
 

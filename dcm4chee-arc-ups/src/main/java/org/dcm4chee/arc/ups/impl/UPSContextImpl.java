@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
@@ -51,14 +52,22 @@ import org.dcm4chee.arc.ups.UPSContext;
  * @since Sep 2019
  */
 public class UPSContextImpl implements UPSContext {
+    private final Association as;
     private final HttpServletRequestInfo httpRequestInfo;
     private final ArchiveAEExtension archiveAEExtension;
     private Attributes attributes;
     private String sopInstanceUID;
 
     public UPSContextImpl(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension archiveAEExtension) {
+        this.as = null;
         this.httpRequestInfo = httpRequestInfo;
         this.archiveAEExtension = archiveAEExtension;
+    }
+
+    public UPSContextImpl(Association as) {
+        this.as = as;
+        this.httpRequestInfo = null;
+        this.archiveAEExtension = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     @Override
@@ -93,8 +102,9 @@ public class UPSContextImpl implements UPSContext {
 
     @Override
     public String toString() {
-        return httpRequestInfo.requesterUserID +
-                '@' + httpRequestInfo.requesterHost +
-                "->" + archiveAEExtension.getApplicationEntity().getAETitle();
+        return as != null ? as.toString()
+                : httpRequestInfo.requesterUserID +
+                    '@' + httpRequestInfo.requesterHost +
+                    "->" + archiveAEExtension.getApplicationEntity().getAETitle();
     }
 }
