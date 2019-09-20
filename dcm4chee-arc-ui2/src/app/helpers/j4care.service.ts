@@ -20,10 +20,6 @@ import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
-// import * as bigInt from  'big-integer';
-//
-// type BigInt = number;
-// declare const BigInt: typeof Number;
 declare const bigInt:Function;
 
 @Injectable()

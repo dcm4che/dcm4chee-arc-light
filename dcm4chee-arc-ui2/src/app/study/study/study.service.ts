@@ -54,10 +54,8 @@ export class StudyService {
         private storageSystems: StorageSystemsService,
         private devicesService: DevicesService,
         private webAppListService: WebAppsListService,
-        private retrieveMonitoringService: RetrieveMonitoringService,
         private permissionService: PermissionService
-    ) {
-    }
+    ) {}
 
     get patientIod() {
         return this._patientIod;
@@ -2167,7 +2165,7 @@ export class StudyService {
         }
     };
 
-    getQueueNames = () => this.retrieveMonitoringService.getQueueNames();
+    getQueueNames = () => this.$http.get('../queue');
 
     getRejectNotes = (params?: any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
