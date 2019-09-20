@@ -75,13 +75,13 @@ public class UPSCFindSCP extends BasicCFindSCP {
     @EJB
     private RunInTransaction runInTx;
 
-    public UPSCFindSCP(String... sopClasses) {
+    public UPSCFindSCP() {
         super(UID.UnifiedProcedureStepPullSOPClass, UID.UnifiedProcedureStepWatchSOPClass);
     }
 
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys) {
-        LOG.info("{}: Process MWL C-FIND RQ:\n{}", as, keys);
+        LOG.info("{}: Process UPS C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
