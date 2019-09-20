@@ -86,8 +86,7 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public Workitem createWorkitem(UPSContext ctx) throws DicomServiceException {
-        checkDuplicate(ctx);
+    public Workitem createWorkitem(UPSContext ctx) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
@@ -134,14 +133,10 @@ public class UPSServiceEJB {
         }
     }
 
-    private void checkDuplicate(UPSContext ctx) throws DicomServiceException {
-        try {
-            em.createNamedQuery(Workitem.FIND_BY_SOP_IUID, Workitem.class)
-                    .setParameter(1, ctx.getSopInstanceUID())
-                    .getSingleResult();
-            throw new DicomServiceException(Status.DuplicateSOPinstance, "Duplicate UPS Instance");
-        } catch (NoResultException e) {
-        }
+    public boolean exists(UPSContext ctx) {
+        return !em.createNamedQuery(Workitem.PK_BY_SOP_IUID)
+                .setParameter(1, ctx.getSopInstanceUID())
+                .getResultList().isEmpty();
     }
 
     private void setReferencedRequests(Collection<WorkitemRequest> referencedRequests,

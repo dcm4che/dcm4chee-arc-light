@@ -57,8 +57,8 @@ import java.util.Collection;
 import java.util.Date;
 
 @NamedQuery(
-        name=Workitem.FIND_BY_SOP_IUID,
-        query="select ups from Workitem ups where ups.sopInstanceUID = ?1")
+        name=Workitem.PK_BY_SOP_IUID,
+        query="select ups.pk from Workitem ups where ups.sopInstanceUID = ?1")
 @NamedQuery(
         name=Workitem.FIND_BY_SOP_IUID_EAGER,
         query="select ups from Workitem ups " +
@@ -84,7 +84,7 @@ import java.util.Date;
         })
 public class Workitem {
 
-    public static final String FIND_BY_SOP_IUID = "Workitem.findBySopIUID";
+    public static final String PK_BY_SOP_IUID = "Workitem.pkBySopIUID";
     public static final String FIND_BY_SOP_IUID_EAGER = "Workitem.findBySopIUIDEager";
 
     @Id

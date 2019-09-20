@@ -46,6 +46,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Workitem;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,7 +85,17 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public Workitem createWorkitem(UPSContext ctx) throws DicomServiceException {
         Attributes attrs = ctx.getAttributes();
-        return ejb.createWorkitem(ctx);
+        if ("SCHEDULED".equals(attrs.getString(Tag.ScheduledProcedureStepStatus))) {
+            throw new DicomServiceException(Status.UPSStateNotScheduled);
+        }
+        try {
+            return ejb.createWorkitem(ctx);
+        } catch (Exception e) {
+            try {
+                if (ejb.exists(ctx)) throw new DicomServiceException(Status.DuplicateSOPinstance);
+            } catch (Exception ignore) {}
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
     }
 
     @Override

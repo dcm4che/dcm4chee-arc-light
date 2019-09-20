@@ -277,7 +277,7 @@ public class QidoRS {
     @NoCache
     @Path("/workitems")
     public Response searchForUPS() {
-        return search("SearchForUPS", Model.UPS, null, null, null);
+        return search("SearchForUPS", Model.UPS, null, null, QIDO.UPS);
     }
 
     @GET
@@ -402,7 +402,7 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
-            ctx.setReturnKeys(queryAttrs.isIncludeAll() || qido == null
+            ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
                     ? queryAttrs.getReturnKeys(qido.includetags)
