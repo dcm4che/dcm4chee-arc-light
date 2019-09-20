@@ -199,6 +199,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet(), null);
+        writer.writeNotNullOrDef("dcmDefaultWorklistLabel", arcDev.getDefaultWorklistLabel(), null);
+        writer.writeNotEmpty("dcmUPSEventSCU", arcDev.getUPSEventSCUs());
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcDev.getStorePermissionServiceErrorCommentPattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
@@ -846,11 +848,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcAE.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
+        writer.writeNotNullOrDef("dcmDefaultWorklistLabel", arcAE.getDefaultWorklistLabel(), null);
+        writer.writeNotEmpty("dcmUPSEventSCU", arcAE.getUPSEventSCUs());
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcAE.getStorePermissionServiceErrorCommentPattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
                 arcAE.getStorePermissionServiceErrorCodePattern(), null);
-        writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
         writer.writeNotEmpty("dcmReturnRetrieveAET", arcAE.getReturnRetrieveAETitles());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination",
                 arcAE.getExternalRetrieveAEDestination(), null);
@@ -1204,6 +1207,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmDefaultCharacterSet":
                     arcDev.setDefaultCharacterSet(reader.stringValue());
+                    break;
+                case "dcmDefaultWorklistLabel":
+                    arcDev.setDefaultWorklistLabel(reader.stringValue());
+                    break;
+                case "dcmUPSEventSCU":
+                    arcDev.setUPSEventSCUs(reader.stringArray());
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcDev.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));
@@ -2741,6 +2750,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmDefaultCharacterSet":
                     arcAE.setDefaultCharacterSet(reader.stringValue());
+                    break;
+                case "dcmDefaultWorklistLabel":
+                    arcAE.setDefaultWorklistLabel(reader.stringValue());
+                    break;
+                case "dcmUPSEventSCU":
+                    arcAE.setUPSEventSCUs(reader.stringArray());
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcAE.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));

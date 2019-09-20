@@ -538,6 +538,7 @@
     <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-rs</module>
+    <module>dcm4chee-arc-ups-scp</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>

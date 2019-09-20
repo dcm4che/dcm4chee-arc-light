@@ -5519,6 +5519,26 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Storage Commitment Push Model SOP Class SCU
 
+dn: cn=Unified Procedure Step - Pull SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.3
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Pull SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Unified Procedure Step - Push SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Push SOP Class SCP
+
 dn: cn=VL Whole Slide Microscopy Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.6
 dicomTransferRole: SCP
@@ -5662,6 +5682,26 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
+
+dn: cn=Unified Procedure Step - Event SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Event SOP Class SCP
+
+dn: cn=Unified Procedure Step - Watch SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.2
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Watch SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
 
 dn: cn=Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2

@@ -1458,8 +1458,8 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.302 NAME 'dcmDefaultWorklistLabel'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.303 NAME 'dcmUPSEventAETitle'
-  DESC 'AE Title of UPS Event N-EVENT-REPORT SCU, to which UPS Event Reports are sent - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.303 NAME 'dcmUPSEventSCU'
+  DESC 'AE Title of UPS Event SOP Class SCU, to which UPS Event Reports are sent - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
@@ -1476,7 +1476,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
     dcmDefaultWorklistLabel $
-    dcmUPSEventAETitle $
+    dcmUPSEventSCU $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
@@ -1671,7 +1671,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmReturnRetrieveAET $
     dcmDefaultCharacterSet $
     dcmDefaultWorklistLabel $
-    dcmUPSEventAETitle $
+    dcmUPSEventSCU $
     dcmStorageID $
     dcmObjectStorageID $
     dcmObjectStorageCount $
