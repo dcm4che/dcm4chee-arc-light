@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import com.google.common.base.Function;
 import org.dcm4che3.data.*;
 import org.dcm4che3.data.PersonName;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -55,6 +54,7 @@ import org.dcm4chee.arc.entity.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
+import java.util.function.Function;
 
 import static org.dcm4chee.arc.entity.Instance_.contentItems;
 
