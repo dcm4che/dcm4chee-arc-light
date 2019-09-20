@@ -1,0 +1,30 @@
+{
+  "00080005": { "vr": "CS", "multi": true },
+  "00080008": { "vr": "CS", "multi": true,
+    "value1": {
+      "enum": [
+        "ORIGINAL",
+        "DERIVED"
+      ]
+    },
+    "value2": {
+      "enum": [
+        "PRIMARY",
+        "SECONDARY"
+      ]
+    }
+  },
+  "00080023": { "vr": "DA", "required": 2 },
+  "00080033": { "vr": "TM", "required": 2 },
+  "00082218": { "vr": "SQ",
+    "item": {
+      "00080100": { "vr": "SH", "required": 1 },
+      "00080102": { "vr": "SH", "required": 1 },
+      "00080103": { "vr": "SH" },
+      "00080104": { "vr": "LO", "required": 1 }
+    }
+  },
+  "00280010": { "vr": "US", "required": 1 },
+  "00280011": { "vr": "US", "required": 1 },
+  "00280100": { "vr": "US", "required": 1 }
+}

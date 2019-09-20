@@ -1,0 +1,27 @@
+{
+  "Patient IE": {
+    "$ref": "patient.iod.json"
+  },
+  "Study IE": {
+    "$ref": "study.iod.json"
+  },
+  "Series IE": {
+    "$ref": "series.iod.json"
+  },
+  "Equipment IE": {
+    "General Equipment": {
+      "$ref": "equipment.iod.json"
+    },
+    "SC Equipment": {
+      "$ref": "scEquipment.iod.json"
+    }
+  },
+  "Encapsulated Document IE": {
+    "SOP Common": {
+      "$ref": "sop.iod.json"
+    },
+    "Encapsulated Document": {
+      "$ref": "encapsulatedDoc.iod.json"
+    }
+  }
+}
