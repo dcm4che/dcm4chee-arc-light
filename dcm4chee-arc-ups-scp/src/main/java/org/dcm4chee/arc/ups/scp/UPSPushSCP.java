@@ -52,7 +52,6 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 
@@ -156,7 +155,10 @@ public class UPSPushSCP extends AbstractDicomService {
 
     private Attributes set(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
-        //TODO
+        UPSContext ctx = service.newUPSContext(as);
+        ctx.setSopInstanceUID(rq.getString(Tag.RequestedSOPClassUID));
+        ctx.setAttributes(rqAttrs);
+        service.updateWorkitem(ctx);
         return null;
     }
 

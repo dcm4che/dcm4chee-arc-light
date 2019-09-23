@@ -59,5 +59,7 @@ public interface UPSService {
 
     Workitem createWorkitem(UPSContext ctx) throws DicomServiceException;
 
+    Workitem updateWorkitem(UPSContext ctx) throws DicomServiceException;
+
     Workitem findWorkitem(UPSContext ctx) throws DicomServiceException;
 }

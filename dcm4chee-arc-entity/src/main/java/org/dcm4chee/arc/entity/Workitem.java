@@ -232,6 +232,18 @@ public class Workitem {
         this.sopInstanceUID = sopInstanceUID;
     }
 
+    public UPSState getProcedureStepState() {
+        return procedureStepState;
+    }
+
+    public String getTransactionUID() {
+        return transactionUID;
+    }
+
+    public void setTransactionUID(String transactionUID) {
+        this.transactionUID = transactionUID;
+    }
+
     public AttributesBlob getAttributesBlob() {
         return attributesBlob;
     }

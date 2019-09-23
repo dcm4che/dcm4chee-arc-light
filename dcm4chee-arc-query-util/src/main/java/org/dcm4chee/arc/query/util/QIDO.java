@@ -142,6 +142,8 @@ public enum QIDO {
         Tag.ScheduledHumanPerformersSequence,
         Tag.InputReadinessState,
         Tag.ReferencedRequestSequence,
+        Tag.ProcedureStepState,
+        Tag.ProcedureStepProgressInformationSequence,
         Tag.ScheduledProcedureStepPriority,
         Tag.WorklistLabel,
         Tag.ProcedureStepLabel,

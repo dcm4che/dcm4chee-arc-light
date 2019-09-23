@@ -75,6 +75,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -140,6 +141,26 @@ public class UpsRS {
         return createWorkitem(iuid, parseXML(in));
     }
 
+    @POST
+    @Path("/workitems/{workitem}")
+    @Consumes("application/dicom+json")
+    public Response updateJSONWorkitem(
+            @PathParam("workitem")
+            String iuid,
+            InputStream in) {
+        return updateWorkitem(iuid, parseJSON(in));
+    }
+
+    @POST
+    @Path("/workitems/{workitem}")
+    @Consumes("application/dicom+xml")
+    public Response updateXMLWorkitem(
+            @PathParam("workitem")
+            String iuid,
+            InputStream in) {
+        return updateWorkitem(iuid, parseXML(in));
+    }
+
     @GET
     @NoCache
     @Path("/workitems/{workitem}")
@@ -150,7 +171,7 @@ public class UpsRS {
         try {
             service.findWorkitem(ctx);
         } catch (DicomServiceException e) {
-            return Response.status(ngetToHttpStatus(e.getStatus())).build();
+            return errResponse(UpsRS::retrieveFailed, e);
         }
         return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
     }
@@ -167,12 +188,6 @@ public class UpsRS {
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private String baseURL() {
-        StringBuffer sb = request.getRequestURL();
-        sb.setLength(sb.lastIndexOf("/workitems" + 10));
-        return sb.toString();
-    }
-
     private Response createWorkitem(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setSopInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
@@ -180,27 +195,71 @@ public class UpsRS {
         try {
             service.createWorkitem(ctx);
         } catch (DicomServiceException e) {
-            return Response.status(ncreateToHttpStatus(e.getStatus())).build();
+            return errResponse(UpsRS::createFailed, e);
         }
         return Response.created(locationOf(ctx)).build();
     }
 
-    private static Response.Status ncreateToHttpStatus(int status) {
+    private Response updateWorkitem(String iuid, Attributes workitem) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setSopInstanceUID(iuid);
+        ctx.setAttributes(workitem);
+        try {
+            service.updateWorkitem(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::updateFailed, e);
+        }
+        return Response.ok().build();
+    }
+
+    private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
+        return Response.status(httpStatusOf.apply(e.getStatus()))
+                .header("Warning", toWarning(e))
+                .build();
+    }
+
+    private String toWarning(DicomServiceException e) {
+        return Integer.toHexString(e.getStatus()) + " " + baseURL() + ": " + e.getMessage();
+    }
+
+    private String baseURL() {
+        StringBuffer sb = request.getRequestURL();
+        sb.setLength(sb.lastIndexOf("/workitems") + 10);
+        return sb.toString();
+    }
+
+    private static Response.Status createFailed(int status) {
         switch (status) {
             case Status.DuplicateSOPinstance:
                 return Response.Status.CONFLICT;
+            case Status.UPSStateNotScheduled:
+            case Status.NoSuchAttribute:
+            case Status.MissingAttribute:
+            case Status.MissingAttributeValue:
+            case Status.InvalidAttributeValue:
+                return Response.Status.BAD_REQUEST;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
-    private static Response.Status nsetToHttpStatus(int status) {
+    private static Response.Status updateFailed(int status) {
         switch (status) {
-
+            case Status.NoSuchUPSInstance:
+                return Response.Status.NOT_FOUND;
+            case Status.UPSStateNotInProgress:
+                return Response.Status.CONFLICT;
+            case Status.TransactionUIDNotCorrect:
+            case Status.UPSMayNoLongerBeUpdated:
+            case Status.NoSuchAttribute:
+            case Status.MissingAttribute:
+            case Status.MissingAttributeValue:
+            case Status.InvalidAttributeValue:
+                return Response.Status.BAD_REQUEST;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
-    private static Response.Status ngetToHttpStatus(int status) {
+    private static Response.Status retrieveFailed(int status) {
         switch (status) {
             case Status.NoSuchUPSInstance:
                 return Response.Status.NOT_FOUND;

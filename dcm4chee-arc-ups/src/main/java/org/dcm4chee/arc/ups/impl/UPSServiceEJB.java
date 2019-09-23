@@ -49,6 +49,7 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -119,7 +120,61 @@ public class UPSServiceEJB {
                 arcDev.getFuzzyStr());
         workitem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
         em.persist(workitem);
-        LOG.info("{}: Create {}", ctx, workitem);
+        return workitem;
+    }
+
+    public Workitem updateWorkitem(UPSContext ctx) throws DicomServiceException {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        Workitem workitem = findWorkitem(ctx);
+        Attributes attrs = workitem.getAttributes();
+        String transactionUID = attrs.getString(Tag.TransactionUID);
+        switch (workitem.getProcedureStepState()) {
+            case SCHEDULED:
+                if (transactionUID != null)
+                    throw new DicomServiceException(
+                            Status.UPSStateNotInProgress,
+                            "The UPS is not in the \"IN PROGRESS\" state");
+                break;
+            case IN_PROGRESS:
+                if (transactionUID == null || !transactionUID.equals(workitem.getTransactionUID()))
+                    throw new DicomServiceException(
+                            Status.TransactionUIDNotCorrect,
+                            "The correct Transaction UID was not provided");
+                break;
+            default: // CANCELED or COMPLETED
+                throw new DicomServiceException(
+                        Status.UPSMayNoLongerBeUpdated,
+                        "The UPS may no longer be updated");
+        }
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
+        Attributes modified = new Attributes();
+        if (attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
+                filter.getSelection())) {
+            if (modified.contains(Tag.IssuerOfAdmissionIDSequence))
+                workitem.setIssuerOfAdmissionID(
+                        findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
+            if (modified.contains(Tag.ScheduledWorkitemCodeSequence))
+                workitem.setScheduledWorkitemCode(
+                        findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
+            if (modified.contains(Tag.ScheduledStationNameCodeSequence))
+                workitem.setScheduledStationNameCode(
+                        findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
+            if (modified.contains(Tag.ScheduledStationClassCodeSequence))
+                workitem.setScheduledStationClassCode(
+                        findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
+            if (modified.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
+                workitem.setScheduledStationGeographicLocationCode(
+                        findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
+            if (modified.contains(Tag.ScheduledHumanPerformersSequence))
+                setHumanPerformerCodes(workitem.getHumanPerformerCodes(),
+                        attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
+            if (modified.contains(Tag.ReferencedRequestSequence))
+                setReferencedRequests(workitem.getReferencedRequests(),
+                        attrs.getSequence(Tag.ReferencedRequestSequence),
+                        arcDev.getFuzzyStr());
+            workitem.setAttributes(attrs, filter);
+        }
         return workitem;
     }
 
@@ -129,7 +184,9 @@ public class UPSServiceEJB {
                     .setParameter(1, ctx.getSopInstanceUID())
                     .getSingleResult();
         } catch (NoResultException e) {
-            throw new DicomServiceException(Status.NoSuchUPSInstance, "No such UPS Instance");
+            throw new DicomServiceException(
+                    Status.NoSuchUPSInstance,
+                    "Specified SOP Instance UID does not exist");
         }
     }
 

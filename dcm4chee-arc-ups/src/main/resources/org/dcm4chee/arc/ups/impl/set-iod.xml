@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IOD xml-space="preserved">
+  <DataElement keyword="SOPClassUID" tag="00080016" vr="UI" type="0" vm="1" />
+  <DataElement keyword="SOPInstanceUID" tag="00080018" vr="UI" type="0" vm="1" />
+  <DataElement keyword="AdmittingDiagnosesDescription" tag="00081080" vr="LO" type="0" vm="1" />
+  <DataElement keyword="AdmittingDiagnosesCodeSequence" tag="00081084" vr="SQ" type="0" items="1" />
+  <DataElement keyword="PatientName" tag="00100010" vr="PN" type="0" vm="1" />
+  <DataElement keyword="PatientID" tag="00100020" vr="LO" type="0" vm="1" />
+  <DataElement keyword="PatientBirthDate" tag="00100030" vr="DA" type="0" vm="1" />
+  <DataElement keyword="PatientSex" tag="00100040" vr="CS" type="0" vm="1" />
+  <DataElement keyword="OtherPatientIDSequence" tag="00101002" vr="SQ" type="0" items="n" />
+  <DataElement keyword="AdmissionID" tag="00380010" vr="LO" type="0" vm="1" />
+  <DataElement keyword="IssuerOfAdmissionIDSequence" tag="00380014" vr="SQ" type="0" items="1" />
+  <DataElement keyword="InputReadinessState" tag="00404041" vr="CS" type="3" vm="1" >
+    <Value>INCOMPLETE</Value>
+    <Value>UNAVAILABLE</Value>
+    <Value>READY</Value>
+  </DataElement>
+  <DataElement keyword="ReferencedRequestSequence" tag="0040A370" vr="SQ" type="0" items="n" />
+  <DataElement keyword="ProcedureStepState" tag="00741000" vr="CS" type="0" vm="1" />
+  <DataElement keyword="ScheduledProcedureStepPriority" tag="00741200" vr="CS" type="3" vm="1" >
+    <Value>HIGH</Value>
+    <Value>MEDIUM</Value>
+    <Value>LOW</Value>
+  </DataElement>
+  <DataElement keyword="ReplacedProcedureStepSequence" tag="00741224" vr="SQ" type="0" items="1" />
+</IOD>

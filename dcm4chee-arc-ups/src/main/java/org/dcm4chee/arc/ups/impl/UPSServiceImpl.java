@@ -41,10 +41,7 @@
 
 package org.dcm4chee.arc.ups.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -58,7 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
+import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,6 +65,8 @@ import javax.persistence.PersistenceException;
 public class UPSServiceImpl implements UPSService {
 
     private static Logger LOG = LoggerFactory.getLogger(UPSServiceImpl.class);
+    private static final IOD CREATE_IOD = loadIOD("create-iod.xml");
+    private static final IOD SET_IOD = loadIOD("set-iod.xml");
 
     @Inject
     private UPSServiceEJB ejb;
@@ -85,8 +84,14 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public Workitem createWorkitem(UPSContext ctx) throws DicomServiceException {
         Attributes attrs = ctx.getAttributes();
+        ValidationResult validate = attrs.validate(CREATE_IOD);
+        if (!validate.isValid()) {
+            throw DicomServiceException.valueOf(validate, attrs);
+        }
         if ("SCHEDULED".equals(attrs.getString(Tag.ScheduledProcedureStepStatus))) {
-            throw new DicomServiceException(Status.UPSStateNotScheduled);
+            throw new DicomServiceException(
+                    Status.UPSStateNotScheduled,
+                    "The provided value of UPS State was not \"SCHEDULED\"");
         }
         try {
             return ejb.createWorkitem(ctx);
@@ -95,6 +100,22 @@ public class UPSServiceImpl implements UPSService {
                 if (ejb.exists(ctx)) throw new DicomServiceException(Status.DuplicateSOPinstance);
             } catch (Exception ignore) {}
             throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
+    @Override
+    public Workitem updateWorkitem(UPSContext ctx) throws DicomServiceException {
+        Attributes attrs = ctx.getAttributes();
+        ValidationResult validate = attrs.validate(SET_IOD);
+        if (!validate.isValid()) {
+            throw DicomServiceException.valueOf(validate, attrs);
+        }
+        try {
+            return ejb.updateWorkitem(ctx);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
     }
 
@@ -113,4 +134,16 @@ public class UPSServiceImpl implements UPSService {
         ctx.setAttributes(attrs);
         return workitem;
     }
+
+    private static IOD loadIOD(String name) {
+        try {
+            IOD iod = new IOD();
+            iod.parse(UPSServiceImpl.class.getResource(name).toString());
+            iod.trimToSize();
+            return iod;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

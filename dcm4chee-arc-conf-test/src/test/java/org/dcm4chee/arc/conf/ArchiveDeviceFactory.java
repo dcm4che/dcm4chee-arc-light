@@ -680,6 +680,8 @@ class ArchiveDeviceFactory {
             Tag.InputReadinessState,
             Tag.OutputDestinationSequence,
             Tag.ReferencedRequestSequence,
+            Tag.ProcedureStepState,
+            Tag.ProcedureStepProgressInformationSequence,
             Tag.ScheduledProcedureStepPriority,
             Tag.WorklistLabel,
             Tag.ProcedureStepLabel,

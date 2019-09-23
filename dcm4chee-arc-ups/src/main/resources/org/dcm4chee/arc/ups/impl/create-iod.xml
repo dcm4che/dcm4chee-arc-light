@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IOD xml-space="preserved">
+  <DataElement keyword="SOPClassUID" tag="00080016" vr="UI" type="0" vm="1" />
+  <DataElement keyword="SOPInstanceUID" tag="00080018" vr="UI" type="0" vm="1" />
+  <DataElement keyword="ScheduledProcedureStepStartDateAndTime" tag="00404005" vr="DT" type="1" vm="1" />
+  <DataElement keyword="InputReadinessState" tag="00404041" vr="CS" type="1" vm="1" >
+    <Value>INCOMPLETE</Value>
+    <Value>UNAVAILABLE</Value>
+    <Value>READY</Value>
+  </DataElement>
+  <DataElement keyword="ScheduledProcedureStepPriority" tag="00741200" vr="CS" type="1" vm="1" >
+    <Value>HIGH</Value>
+    <Value>MEDIUM</Value>
+    <Value>LOW</Value>
+  </DataElement>
+  <DataElement keyword="ProcedureStepLabel" tag="00741204" vr="LO" type="1" vm="1" />
+</IOD>

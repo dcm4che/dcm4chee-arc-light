@@ -96,6 +96,8 @@ dcmTag: 00404034
 dcmTag: 00404041
 dcmTag: 00404070
 dcmTag: 0040A370
+dcmTag: 00741000
+dcmTag: 00741002
 dcmTag: 00741200
 dcmTag: 00741202
 dcmTag: 00741204
