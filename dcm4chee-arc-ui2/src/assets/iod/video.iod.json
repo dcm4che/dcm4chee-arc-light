@@ -1,0 +1,72 @@
+{
+  "Patient IE": {
+    "$ref": "patient.iod.json"
+  },
+  "Study IE": {
+    "$ref": "study.iod.json"
+  },
+  "Series IE": {
+    "$ref": "series.iod.json"
+  },
+  "Equipment IE": {
+    "General Equipment": {
+      "$ref": "equipment.iod.json"
+    }
+  },
+  "Image IE": {
+    "General Image And Image Pixel": {
+      "$ref": "image.iod.json"
+    },
+    "SOP Common": {
+      "$ref": "sop.iod.json"
+    },
+    "VL Image And Acquisition Context": {
+      "$ref": "vlImageAcquisitionContext.iod.json"
+    },
+    "Cine And MultiFrame": {
+      "00181244": { "vr": "US",
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "00181063": { "vr": "DS" },
+      "00181065": { "vr": "DS", "multi": true },
+      "00082142": { "vr": "IS" },
+      "00082143": { "vr": "IS" },
+      "00082144": { "vr": "IS" },
+      "00180040": { "vr": "IS" },
+      "00181066": { "vr": "DS" },
+      "00181067": { "vr": "DS" },
+      "00180072": { "vr": "DS" },
+      "00181242": { "vr": "IS" },
+      "003A0300": { "vr": "SQ", "required": 2,
+        "items": {
+          "003A0301": { "vr": "IS", "required": 1 },
+          "003A0302": { "vr": "CS", "required": 1,
+            "enum": [
+              "MONO",
+              "STEREO"
+            ]
+          },
+          "003A0208": { "vr": "SQ", "required": 1,
+            "item": {
+              "00080100": { "vr": "SH", "required": 1 },
+              "00080102": { "vr": "SH", "required": 1 },
+              "00080103": { "vr": "SH" },
+              "00080104": { "vr": "LO", "required": 1 }
+            }
+          }
+        }
+      },
+      "00280008": { "vr": "IS", "required": 1 },
+      "00280009": { "vr": "AT", "required": 1, "multi": true },
+      "00220028": { "vr": "CS",
+        "enum": [
+          "YES",
+          "NO"
+        ]
+      }
+    }
+  }
+}

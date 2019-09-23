@@ -1,0 +1,34 @@
+{
+  "Patient IE": {
+    "$ref": "patient.iod.json"
+  },
+  "Study IE": {
+    "$ref": "study.iod.json"
+  },
+  "Series IE": {
+    "$ref": "series.iod.json"
+  },
+  "Equipment IE": {
+    "General Equipment": {
+      "$ref": "equipment.iod.json"
+    },
+    "VL Photographic Equipment": {
+      "0016004D": { "vr": "UT" },
+      "0016004E": { "vr": "DS" },
+      "0016004F": { "vr": "UT" },
+      "00160050": { "vr": "UT" },
+      "00160051": { "vr": "UT" }
+    }
+  },
+  "Image IE": {
+    "General Image And Image Pixel": {
+      "$ref": "image.iod.json"
+    },
+    "SOP Common": {
+      "$ref": "sop.iod.json"
+    },
+    "VL Image And Acquisition Context": {
+      "$ref": "vlImageAcquisitionContext.iod.json"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "00400555": { "vr": "SQ", "required": 2,
+    "items": {
+      "0040A040": { "vr": "CS",
+        "enum": [
+          "TEXT",
+          "NUMERIC",
+          "CODE",
+          "DATE",
+          "TIME",
+          "PNAME"
+        ]
+      },
+      "0040A032": { "vr": "DT" },
+      "0040A043": { "vr": "SQ", "required": 1,
+        "item": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      },
+      "00081160": { "vr": "IS", "multi": true },
+      "0040A30A": { "vr": "DS", "multi": true },
+      "0040A161": { "vr": "FD", "multi": true },
+      "0040A162": { "vr": "SL", "multi": true },
+      "0040A163": { "vr": "UL", "multi": true },
+      "004008EA": { "vr": "SQ",
+        "item": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      },
+      "0040A121": { "vr": "DA" },
+      "0040A122": { "vr": "TM" },
+      "0040A123": { "vr": "PN" },
+      "0040A160": { "vr": "UT" },
+      "0040A168": { "vr": "SQ",
+        "item": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      },
+      "00400556": { "vr": "ST" }
+    }
+  },
+  "00080008": { "vr": "CS", "multi": true, "required": 1,
+    "value1": { "required": 1,
+      "enum": [
+        "ORIGINAL",
+        "DERIVED"
+      ]
+    },
+    "value2": { "required": 1,
+      "enum": [
+        "PRIMARY",
+        "SECONDARY"
+      ]
+    },
+    "value3": {
+      "enum": [
+        "STEREO L",
+        "STEREO R"
+      ]
+    }
+  },
+  "00280004": { "vr": "CS", "required": 1,
+    "enum": [
+      "MONOCHROME2",
+      "RGB",
+      "YBR_FUL_422",
+      "YBR_PARTIAL_420",
+      "YBR_RCT",
+      "YBR_ICT"
+    ]
+  },
+  "00280100": { "vr": "US", "required": 1,
+    "enum": [
+      8
+    ]
+  },
+  "00280101": { "vr": "US", "required": 1,
+    "enum": [
+      8
+    ]
+  },
+  "00280102": { "vr": "US", "required": 1,
+    "enum": [
+      7
+    ]
+  },
+  "00280103": { "vr": "US", "required": 1,
+    "enum": [
+      0
+    ]
+  },
+  "00280002": { "vr": "US", "required": 1,
+    "enum": [
+      1,
+      3
+    ]
+  },
+  "00280006": { "vr": "US",
+    "enum": [
+      0
+    ]
+  },
+  "00282110": { "vr": "CS", "required": 2,
+    "enum": [
+      "00",
+      "01"
+    ]
+  },
+  "00081140": { "vr": "SQ",
+    "items": {
+      "00081150": { "vr": "UI", "required": 1 },
+      "00081155": { "vr": "UI", "required": 1 },
+      "00081160": { "vr": "IS", "multi": true },
+      "0062000B": { "vr": "US", "multi": true },
+      "0040A170": { "vr": "SQ",
+        "item": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      }
+    }
+  },
+  "00281050": { "vr": "DS", "multi": true },
+  "00281051": { "vr": "DS", "multi": true },
+  "00200062": { "vr": "CS",
+    "enum": [
+      "R",
+      "L",
+      "U",
+      "B"
+    ]
+  },
+  "0022001A": { "vr": "SQ",
+    "items": {
+      "00080100": { "vr": "SH", "required": 1 },
+      "00080102": { "vr": "SH", "required": 1 },
+      "00080103": { "vr": "SH" },
+      "00080104": { "vr": "LO", "required": 1 }
+    }
+  },
+  "00280030": { "vr": "DS" },
+  "00181164": { "vr": "DS" }
+}
