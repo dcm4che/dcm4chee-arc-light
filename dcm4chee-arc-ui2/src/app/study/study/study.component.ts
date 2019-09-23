@@ -561,7 +561,7 @@ export class StudyComponent implements OnInit{
     uploadInPatient(object){
         console.log("in uuploadInPatient",object);
         this.service.createEmptyStudy(object.attrs, this.studyWebService.selectedWebService).subscribe(res=>{
-            this.uploadFile({attrs:res},"study");
+            this.uploadFile({attrs:res},"patient");
         },err=>{
             this.httpErrorHandler.handleError(err);
         });
@@ -634,6 +634,7 @@ export class StudyComponent implements OnInit{
         this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
         this.dialogRef.componentInstance.fromExternalWebApp = this.service.getUploadFileWebApp(this.studyWebService);
         this.dialogRef.componentInstance.dicomObject = object;
+        this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
             if (result){
@@ -695,7 +696,6 @@ export class StudyComponent implements OnInit{
 
         let $this = this;
         this.service.getMwlIod().subscribe((res) => {
-            $this.service.patientIod = res;
             let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             let mwlFiltered = _.cloneDeep(mwl);
             mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs, iod);
@@ -1455,8 +1455,6 @@ export class StudyComponent implements OnInit{
         this.lastPressedCode = 0;
         this.config.viewContainerRef = this.viewContainerRef;
         this.service.getPatientIod().subscribe((iod) => {
-            this.service.patientIod = iod;
-
             this.service.initEmptyValue(patient.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
                 height: 'auto',
@@ -1522,10 +1520,6 @@ export class StudyComponent implements OnInit{
         }
         this.lastPressedCode = 0;
         this.service.getStudyIod()
-            .map(iod=>{
-                this.service.patientIod = iod;
-                return iod;
-            })
             .subscribe((res) => {
                 let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
                 let studyFiltered = _.cloneDeep(study);

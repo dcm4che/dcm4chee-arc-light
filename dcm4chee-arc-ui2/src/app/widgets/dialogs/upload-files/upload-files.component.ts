@@ -8,6 +8,8 @@ import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
+import {StudyDicom} from "../../../models/study-dicom";
+import {StudyService} from "../../../study/study/study.service";
 
 // declare var uuidv4: any;
 
@@ -16,13 +18,11 @@ import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 
 @Component({
   selector: 'app-upload-files',
-  templateUrl: './upload-files.component.html',
-    styles:[`
-        .edit_attribute_block{
-            float:left;
-            width:100%;
-            max-height: 200px;
-            overflow: auto;
+    templateUrl: './upload-files.component.html',
+    styles:[`        
+        .upload label{
+            float: left;
+            width: 100%;
         }
     `]
 })
@@ -33,7 +33,7 @@ export class UploadFilesComponent implements OnInit {
     private _selectedAe;
     private _dicomObject;
     private _fromExternalWebApp;
-
+    mode;
     file;
     fileList: File[];
     xmlHttpRequest;
@@ -50,6 +50,11 @@ export class UploadFilesComponent implements OnInit {
     moreAttributes = false;
     dropdown;
     iod;
+    iodFileNameFromMode = {
+        patient:"study",
+        study:"series",
+        mwl:"mwl"
+    };
     imageType = [
         {
             title:"Screenshots",
@@ -68,7 +73,7 @@ export class UploadFilesComponent implements OnInit {
         public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
         public $http:J4careHttpService,
-        private studieService:StudiesService,
+        private studyService:StudyService,
         private uploadDicomService:UploadDicomService,
         private _keycloakService: KeycloakService
     ) {
@@ -97,13 +102,39 @@ export class UploadFilesComponent implements OnInit {
                 attrs:[]
             }
         }
-        this.studieService.getStudyIod().subscribe((iod) => {
-            this.iod = iod;
+        if(this.mode === "study"){
+            if(this.seriesNumber && this.seriesNumber != 0){
+                this._dicomObject.attrs['00200011'] = {
+                    "vr": "IS",
+                    "Value": [
+                        this.seriesNumber || 0
+                    ]
+                };
+            }
+            if(this.description && this.description != ""){
+                this._dicomObject.attrs['0008103E'] = {
+                    "vr": "LO",
+                    "Value": [
+                        this.description
+                    ]
+                };
+            }
+        }
+        this.studyService.initEmptyValue(this._dicomObject.attrs);
+
+        this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
+            this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, iod);
+            this.iod = this.studyService.replaceKeyInJson(iod, 'items', 'Value');
             console.log("iod",iod);
             console.log("dicomOjbect",this.dicomObject);
-            this.dropdown = this.studieService.getArrayFromIod(iod);
+            this.dropdown = this.studyService.getArrayFromIod(iod);
             this.moreAttributes = !this.moreAttributes;
         });
+    }
+    onStudyChange(e:StudyDicom){
+        console.log("e",e);
+        console.log("this._dicomObject.attrs",this._dicomObject.attrs);
+        // this._dicomObject.attrs = e.attrs;
     }
     upload() {
         let $this = this;
@@ -111,6 +142,21 @@ export class UploadFilesComponent implements OnInit {
         let descriptionPart;
         let token;
         this.showFileList = true;
+        $this.studyService.clearPatientObject(this.dicomObject.attrs);
+        $this.studyService.convertStringToNumber(this.dicomObject.attrs);
+        // StudiesService.convertDateToString($scope, "editstudyFiltered");
+
+        //Add patient attributs again
+        // angular.extend($scope.editstudyFiltered.attrs, patient.attrs);
+        // $scope.editstudyFiltered.attrs.concat(patient.attrs);
+        let local = {};
+        // $this.studyService.appendPatientIdTo(patient.attrs, local);
+        // local["00100020"] = patient.attrs["00100020"];
+        _.forEach(this.dicomObject.attrs, (m, i)=>{
+            if (this.iod[i]){
+                local[i] = m;
+            }
+        });
         let seriesInstanceUID;
         this._keycloakService.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
@@ -157,30 +203,30 @@ export class UploadFilesComponent implements OnInit {
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
-                        let studyObject = _.pickBy($this._dicomObject.attrs, (o, i) => {
+                        let studyObject = _.pickBy(local, (o, i) => {
                             return (i.toString().indexOf("777") === -1);
                         });
                         if (!$this.description || $this.description === "") {
                             $this.description = "Imported " + descriptionPart;
                         }
-                        studyObject["0008103E"] = {
+/*                        studyObject["0008103E"] = {
                             "vr": "LO",
                             "Value": [
                                 $this.description
                             ]
-                        };
+                        };*/
                         studyObject["00200013"] = { //"00200013":"Instance Number"
                             "vr": "IS",
                             "Value": [
                                 i+1
                             ]
                         };
-                        studyObject["00200011"] = { // "00200011":"Series Number"
+/*                        studyObject["00200011"] = { // "00200011":"Series Number"
                             "vr": "IS",
                             "Value": [
                                 this.seriesNumber || 0
                             ]
-                        };
+                        };*/
                         if(_.hasIn(studyObject, "0020000D.Value[0]")){
                             studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
                                 "vr": "UI",
@@ -383,7 +429,7 @@ export class UploadFilesComponent implements OnInit {
         this._fromExternalWebApp = value;
     }
     getWebApps(){
-        this.studieService.getWebApps().subscribe((res)=>{
+        this.studyService.getWebApps().subscribe((res)=>{
             this.webApps = res;
             this.webApps.forEach(webApp=>{
                 if(webApp.dicomAETitle === this._selectedAe)

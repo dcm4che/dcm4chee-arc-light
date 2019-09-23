@@ -1,5 +1,5 @@
 <div class="vex vex-theme-os edit-study" xmlns="http://www.w3.org/1999/html">
-    <div class="vex-dialog-form">
+    <div class="vex-dialog-form" (keyup)="change()">
         <h3 [innerHtml]="titleLabel"></h3>
         <input autocomplete="off" id="addStudyAttribut" class="addStudyAttribut" [(ngModel)]="addStudyAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
         <div class="dropdown study_edit" *ngIf="opendropdown">

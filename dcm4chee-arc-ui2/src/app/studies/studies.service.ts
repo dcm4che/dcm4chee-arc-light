@@ -170,7 +170,6 @@ export class StudiesService {
         _.forEach(object, function(m, k){
             console.log('m', m);
             if (m && m.vr && m.vr === 'PN' && m.vr != 'SQ' && (!m.Value || m.Value[0] === null)){
-                console.log('in pnvalue=', m);
                 object[k]['Value'] = [{
                     Alphabetic: ''
                 }];
@@ -179,7 +178,6 @@ export class StudiesService {
                 object[k]['Value'] = [''];
             }
             if (m && (_.isArray(m) || (m && _.isObject(m)))) {
-                console.log('beforecall', m);
                 $this.initEmptyValue(m);
             }
         });

@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AppService} from '../../../app.service';
 import {MatDialogRef} from '@angular/material';
 import {Globalvar} from '../../../constants/globalvar';
@@ -28,6 +28,9 @@ export class EditStudyComponent{
     private _studykey: any;
     private _iod: any;
     private _mode;
+
+    @Output() onChange = new EventEmitter();
+
     options = Globalvar.OPTIONS;
 
     DCM4CHE = DCM4CHE;
@@ -60,6 +63,10 @@ export class EditStudyComponent{
              });
              $(".editform .schema-form-fieldset > sf-decorator").hide();*!/
         },1000);*/
+    }
+
+    change(){
+        this.onChange.emit(this.study);
     }
 
     get mode() {

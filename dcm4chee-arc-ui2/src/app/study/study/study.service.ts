@@ -40,9 +40,7 @@ declare var DCM4CHE: any;
 @Injectable()
 export class StudyService {
 
-    private _patientIod;
-    private _mwlIod;
-    private _studyIod;
+    iod = {};
     integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
     dicomHeader = new HttpHeaders({'Content-Type': 'application/dicom+json'});
@@ -56,30 +54,6 @@ export class StudyService {
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService
     ) {}
-
-    get patientIod() {
-        return this._patientIod;
-    }
-
-    set patientIod(value) {
-        this._patientIod = value;
-    }
-
-    get mwlIod() {
-        return this._mwlIod;
-    }
-
-    set mwlIod(value) {
-        this._mwlIod = value;
-    }
-
-    get studyIod() {
-        return this._studyIod;
-    }
-
-    set studyIod(value) {
-        this._studyIod = value;
-    }
 
     getWebApps() {
         return this.webAppListService.getWebApps();
@@ -1900,30 +1874,28 @@ export class StudyService {
         }
     }
 
-    getPatientIod() {
-        if (this._patientIod) {
-            return Observable.of(this._patientIod);
-        } else {
-            return this.$http.get('assets/iod/patient.iod.json')
+    getIod(fileIodName:string){
+        fileIodName = fileIodName || "study";
+        if(this.iod[fileIodName]){
+            return Observable.of(this.iod[fileIodName]);
+        }else{
+            return this.$http.get(`assets/iod/${fileIodName}.iod.json`).map(iod=>{
+                this.iod[fileIodName] = iod;
+                return iod;
+            });
         }
+    }
+
+    getPatientIod() {
+        return this.getIod("patient");
     };
 
     getStudyIod() {
-        if (this._studyIod) {
-            return Observable.of(this._studyIod);
-        } else {
-            return this.$http.get('assets/iod/study.iod.json')
-        }
+        return this.getIod("study");
     };
 
     getMwlIod() {
-        if (this._mwlIod) {
-            return Observable.of(this._mwlIod);
-        } else {
-            return this.$http.get(
-                'assets/iod/mwl.iod.json'
-            )
-        }
+        return this.getIod("mwl");
     };
 
     getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
