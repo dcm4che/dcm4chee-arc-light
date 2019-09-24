@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.UPSState;
 import org.dcm4chee.arc.entity.Workitem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
@@ -90,8 +91,8 @@ public class UPSServiceImpl implements UPSService {
         }
         if ("SCHEDULED".equals(attrs.getString(Tag.ScheduledProcedureStepStatus))) {
             throw new DicomServiceException(
-                    Status.UPSStateNotScheduled,
-                    "The provided value of UPS State was not \"SCHEDULED\"");
+                    Status.UPSNotScheduled,
+                    "The provided value of UPS State was not SCHEDULED");
         }
         try {
             return ejb.createWorkitem(ctx);
@@ -112,6 +113,37 @@ public class UPSServiceImpl implements UPSService {
         }
         try {
             return ejb.updateWorkitem(ctx);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+             throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
+    @Override
+    public Workitem changeWorkitemState(UPSContext ctx) throws DicomServiceException {
+        Attributes attrs = ctx.getAttributes();
+        String transactionUID = attrs.getString(Tag.TransactionUID);
+        if (transactionUID == null)
+            throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                    "The Transaction UID is missing.", false);
+        UPSState upsState;
+        try {
+            upsState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState));
+        } catch (NullPointerException e) {
+            throw new DicomServiceException(
+                    attrs.contains(Tag.ProcedureStepState) ? Status.MissingAttributeValue : Status.MissingAttribute,
+                    "The Procedure Step State is missing.", false);
+        } catch (IllegalArgumentException e) {
+            throw new DicomServiceException(Status.InvalidAttributeValue,
+                    "The Procedure Step State is invalid.", false);
+        }
+        if (upsState == UPSState.SCHEDULED) {
+            throw new DicomServiceException(Status.UPSStateMayNotChangedToScheduled,
+                    "The submitted request is inconsistent with the current state of the UPS Instance.", false);
+        }
+        try {
+            return ejb.changeWorkitemState(ctx, upsState, transactionUID);
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {

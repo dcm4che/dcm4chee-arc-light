@@ -47,10 +47,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -65,6 +62,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -127,28 +125,29 @@ public class UPSServiceEJB {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Workitem workitem = findWorkitem(ctx);
-        Attributes attrs = workitem.getAttributes();
-        String transactionUID = attrs.getString(Tag.TransactionUID);
+        String transactionUID = ctx.getAttributes().getString(Tag.TransactionUID);
         switch (workitem.getProcedureStepState()) {
             case SCHEDULED:
                 if (transactionUID != null)
-                    throw new DicomServiceException(
-                            Status.UPSStateNotInProgress,
-                            "The UPS is not in the \"IN PROGRESS\" state");
+                    throw new DicomServiceException(Status.UPSNotYetInProgress,
+                            "The submitted request is inconsistent with the current state of the UPS Instance.", false);
                 break;
             case IN_PROGRESS:
-                if (transactionUID == null || !transactionUID.equals(workitem.getTransactionUID()))
-                    throw new DicomServiceException(
-                            Status.TransactionUIDNotCorrect,
-                            "The correct Transaction UID was not provided");
+                if (transactionUID == null)
+                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                            "The Transaction UID is missing.", false);
+                if (!transactionUID.equals(workitem.getTransactionUID()))
+                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                            "The Transaction UID is incorrect.", false);
                 break;
-            default: // CANCELED or COMPLETED
-                throw new DicomServiceException(
-                        Status.UPSMayNoLongerBeUpdated,
-                        "The UPS may no longer be updated");
+            case CANCELED:
+            case COMPLETED:
+                throw new DicomServiceException(Status.UPSMayNoLongerBeUpdated,
+                        "The submitted request is inconsistent with the current state of the UPS Instance.", false);
         }
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         Attributes modified = new Attributes();
+        Attributes attrs = workitem.getAttributes();
         if (attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
                 filter.getSelection())) {
             if (modified.contains(Tag.IssuerOfAdmissionIDSequence))
@@ -184,9 +183,8 @@ public class UPSServiceEJB {
                     .setParameter(1, ctx.getSopInstanceUID())
                     .getSingleResult();
         } catch (NoResultException e) {
-            throw new DicomServiceException(
-                    Status.NoSuchUPSInstance,
-                    "Specified SOP Instance UID does not exist");
+            throw new DicomServiceException(Status.UPSDoesNotExist,
+                    "Specified SOP Instance UID does not exist", false);
         }
     }
 
@@ -237,5 +235,102 @@ public class UPSServiceEJB {
                 }
             }
         }
+    }
+
+    public Workitem changeWorkitemState(UPSContext ctx, UPSState upsState, String transactionUID)
+            throws DicomServiceException {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        Workitem workitem = findWorkitem(ctx);
+        Attributes attrs = workitem.getAttributes();
+        switch (upsState) {
+            case IN_PROGRESS:
+                switch (workitem.getProcedureStepState()) {
+                    case IN_PROGRESS:
+                        throw new DicomServiceException(Status.UPSAlreadyInProgress,
+                                "The submitted request is inconsistent with the current state of the UPS Instance.",
+                                false);
+                    case CANCELED:
+                    case COMPLETED:
+                        throw new DicomServiceException(Status.UPSMayNoLongerBeUpdated,
+                                "The submitted request is inconsistent with the current state of the UPS Instance.",
+                                false);
+                }
+                workitem.setTransactionUID(transactionUID);
+                break;
+            case CANCELED:
+                switch (workitem.getProcedureStepState()) {
+                    case SCHEDULED:
+                        throw new DicomServiceException(Status.UPSNotYetInProgress,
+                                "The submitted request is inconsistent with the current state of the UPS Instance.",
+                                false);
+                    case CANCELED:
+                        ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCanceled);
+                        return workitem;
+                    case COMPLETED:
+                        throw new DicomServiceException(Status.UPSMayNoLongerBeUpdated,
+                                "The submitted request is inconsistent with the current state of the UPS Instance.",
+                                false);
+                }
+                if (!transactionUID.equals(workitem.getTransactionUID()))
+                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                            "The Transaction UID is incorrect.", false);
+                if (!meetFinalStateRequirementsOfCanceled(attrs))
+                    throw new DicomServiceException(Status.UPSNotMetFinalStateRequirements,
+                            "The submitted request is inconsistent with the current state of the UPS Instance.", false);
+                workitem.setTransactionUID(null);
+                break;
+           case COMPLETED:
+               switch (workitem.getProcedureStepState()) {
+                   case SCHEDULED:
+                       throw new DicomServiceException(Status.UPSNotYetInProgress,
+                               "The submitted request is inconsistent with the current state of the UPS Instance.",
+                               false);
+                   case CANCELED:
+                       throw new DicomServiceException(Status.UPSMayNoLongerBeUpdated,
+                               "The submitted request is inconsistent with the current state of the UPS Instance.",
+                               false);
+                   case COMPLETED:
+                       ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCompleted);
+                       return workitem;
+               }
+               if (!transactionUID.equals(workitem.getTransactionUID()))
+                   throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                           "The Transaction UID is incorrect.", false);
+               if (!meetFinalStateRequirementsOfCompleted(attrs))
+                   throw new DicomServiceException(Status.UPSNotMetFinalStateRequirements,
+                           "The submitted request is inconsistent with the current state of the UPS Instance.", false);
+               workitem.setTransactionUID(null);
+               break;
+        }
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
+        attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
+        workitem.setAttributes(attrs, filter);
+        return workitem;
+    }
+
+    private static boolean meetFinalStateRequirementsOfCompleted(Attributes attrs) {
+        if (attrs.containsValue(Tag.PerformedProcedureStepStartDateTime)
+                && attrs.containsValue(Tag.PerformedProcedureStepEndDateTime)) {
+            try {
+                new Code(attrs.getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence)
+                        .getNestedDataset(Tag.PerformedStationNameCodeSequence));
+                return true;
+            } catch (Exception e) {}
+        }
+        return false;
+    }
+
+    private static boolean meetFinalStateRequirementsOfCanceled(Attributes attrs) {
+        Attributes progressInformation = attrs.getNestedDataset(Tag.ProcedureStepProgressInformationSequence);
+        try {
+            new Code(progressInformation.getNestedDataset(Tag.ProcedureStepDiscontinuationReasonCodeSequence));
+        } catch (Exception e) {
+            return false;
+        }
+        if (!progressInformation.containsValue(Tag.ProcedureStepCancellationDateTime)) {
+            progressInformation.setDate(Tag.ProcedureStepCancellationDateTime, VR.DT, new Date());
+        }
+        return true;
     }
 }

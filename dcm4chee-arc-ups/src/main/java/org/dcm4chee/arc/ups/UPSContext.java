@@ -59,6 +59,10 @@ public interface UPSContext {
 
     void setSopInstanceUID(String sopInstanceUID);
 
+    int getStatus();
+
+    void setStatus(int status);
+
     Attributes getAttributes();
 
     void setAttributes(Attributes attributes);

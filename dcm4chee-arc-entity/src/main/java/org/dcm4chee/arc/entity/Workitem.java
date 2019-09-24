@@ -263,7 +263,7 @@ public class Workitem {
         admissionID = attrs.getString(Tag.AdmissionID, "*");
         replacedSOPInstanceUID = getString(attrs.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                 Tag.ReferencedSOPInstanceUID, "*");
-        procedureStepState = UPSState.valueOf(attrs.getString(Tag.ProcedureStepState));
+        procedureStepState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState));
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else

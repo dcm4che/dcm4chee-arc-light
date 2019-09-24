@@ -56,7 +56,7 @@ public enum UPSState {
         return name().replace('_', ' ');
     }
 
-    static UPSState fromString(String code) {
+    public static UPSState fromString(String code) {
         return valueOf(code.replace(' ', '_'));
     }
 }

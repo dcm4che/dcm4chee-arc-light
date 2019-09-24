@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
@@ -51,6 +52,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.UPSState;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
@@ -161,6 +163,26 @@ public class UpsRS {
         return updateWorkitem(iuid, parseXML(in));
     }
 
+    @PUT
+    @Path("/workitems/{workitem}/state")
+    @Consumes("application/dicom+json")
+    public Response changeJSONWorkitemState(
+            @PathParam("workitem")
+            String iuid,
+            InputStream in) {
+        return changeWorkitemState(iuid, parseJSON(in));
+    }
+
+    @PUT
+    @Path("/workitems/{workitem}/state")
+    @Consumes("application/dicom+xml")
+    public Response changeXMLWorkitemState(
+            @PathParam("workitem")
+            String iuid,
+            InputStream in) {
+        return changeWorkitemState(iuid, parseXML(in));
+    }
+
     @GET
     @NoCache
     @Path("/workitems/{workitem}")
@@ -212,6 +234,29 @@ public class UpsRS {
         return Response.ok().build();
     }
 
+    private Response changeWorkitemState(String iuid, Attributes workitem) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setSopInstanceUID(iuid);
+        ctx.setAttributes(workitem);
+        try {
+            service.changeWorkitemState(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::changeStateFailed, e);
+        }
+        Response.ResponseBuilder ok = Response.ok();
+        switch (ctx.getStatus()) {
+            case Status.UPSAlreadyInRequestedStateOfCanceled:
+                ok.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCanceled,
+                        "The UPS is already in the requested state of CANCELED."));
+                break;
+            case Status.UPSAlreadyInRequestedStateOfCompleted:
+                ok.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCompleted,
+                        "The UPS is already in the requested state of COMPLETED."));
+                break;
+        }
+        return ok.build();
+    }
+
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
         return Response.status(httpStatusOf.apply(e.getStatus()))
                 .header("Warning", toWarning(e))
@@ -219,7 +264,11 @@ public class UpsRS {
     }
 
     private String toWarning(DicomServiceException e) {
-        return Integer.toHexString(e.getStatus()) + " " + baseURL() + ": " + e.getMessage();
+        return toWarning(e.getStatus(), e.getMessage());
+    }
+
+    private String toWarning(int status, String message) {
+        return Integer.toHexString(status).toUpperCase() + " " + baseURL() + ": " + message;
     }
 
     private String baseURL() {
@@ -232,7 +281,7 @@ public class UpsRS {
         switch (status) {
             case Status.DuplicateSOPinstance:
                 return Response.Status.CONFLICT;
-            case Status.UPSStateNotScheduled:
+            case Status.UPSNotScheduled:
             case Status.NoSuchAttribute:
             case Status.MissingAttribute:
             case Status.MissingAttributeValue:
@@ -244,12 +293,32 @@ public class UpsRS {
 
     private static Response.Status updateFailed(int status) {
         switch (status) {
-            case Status.NoSuchUPSInstance:
+            case Status.UPSDoesNotExist:
                 return Response.Status.NOT_FOUND;
-            case Status.UPSStateNotInProgress:
-                return Response.Status.CONFLICT;
-            case Status.TransactionUIDNotCorrect:
+            case Status.UPSNotYetInProgress:
+            case Status.UPSTransactionUIDNotCorrect:
             case Status.UPSMayNoLongerBeUpdated:
+                return Response.Status.CONFLICT;
+            case Status.NoSuchAttribute:
+            case Status.MissingAttribute:
+            case Status.MissingAttributeValue:
+            case Status.InvalidAttributeValue:
+                return Response.Status.BAD_REQUEST;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private static Response.Status changeStateFailed(int status) {
+        switch (status) {
+            case Status.UPSDoesNotExist:
+                return Response.Status.NOT_FOUND;
+            case Status.UPSNotYetInProgress:
+            case Status.UPSTransactionUIDNotCorrect:
+            case Status.UPSMayNoLongerBeUpdated:
+            case Status.UPSStateMayNotChangedToScheduled:
+            case Status.UPSAlreadyInProgress:
+            case Status.UPSNotMetFinalStateRequirements:
+                return Response.Status.CONFLICT;
             case Status.NoSuchAttribute:
             case Status.MissingAttribute:
             case Status.MissingAttributeValue:
@@ -261,7 +330,7 @@ public class UpsRS {
 
     private static Response.Status retrieveFailed(int status) {
         switch (status) {
-            case Status.NoSuchUPSInstance:
+            case Status.UPSDoesNotExist:
                 return Response.Status.NOT_FOUND;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;

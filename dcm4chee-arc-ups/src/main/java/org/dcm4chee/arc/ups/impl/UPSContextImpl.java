@@ -57,6 +57,7 @@ public class UPSContextImpl implements UPSContext {
     private final ArchiveAEExtension archiveAEExtension;
     private Attributes attributes;
     private String sopInstanceUID;
+    private int status;
 
     public UPSContextImpl(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension archiveAEExtension) {
         this.as = null;
@@ -88,6 +89,16 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
+    }
+
+    @Override
+    public int getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
