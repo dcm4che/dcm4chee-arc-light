@@ -94,6 +94,29 @@ export class UploadFilesComponent implements OnInit {
         if(this.fileList[0] && this.fileList[0].type === "image/jpeg"){
             this.isImage = true;
         }
+/*        console.log("filtetypes",this.fileList);
+        let type;
+        let i = 0;
+        _.forEach(this.fileList,file=>{
+            if(!type){
+                type = file.type;
+                i++;
+            }else{
+                if(type != file.type){
+                   i++;
+                }
+            }
+        });
+        if(i > 1){
+            this.mainservice.showError("Mixed file types at once is not supported!");
+            this.fileList = undefined;
+            this.file = undefined;
+            this.isImage = undefined;
+        }
+        //video / video.iod.json
+        //image / sc.iod.json == screenshot or photograph vlPhotographic.iod.json
+        //pdf   /encapsulatedPDF.iod.json*/
+
     }
     showMoreAttributes(){
         console.log("this.dicomObject",this.dicomObject);
@@ -102,7 +125,7 @@ export class UploadFilesComponent implements OnInit {
                 attrs:[]
             }
         }
-        if(this.mode === "study"){
+/*        if(this.mode === "study"){
             if(this.seriesNumber && this.seriesNumber != 0){
                 this._dicomObject.attrs['00200011'] = {
                     "vr": "IS",
@@ -119,7 +142,7 @@ export class UploadFilesComponent implements OnInit {
                     ]
                 };
             }
-        }
+        }*/
         this.studyService.initEmptyValue(this._dicomObject.attrs);
 
         this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
@@ -209,24 +232,24 @@ export class UploadFilesComponent implements OnInit {
                         if (!$this.description || $this.description === "") {
                             $this.description = "Imported " + descriptionPart;
                         }
-/*                        studyObject["0008103E"] = {
+                        studyObject["0008103E"] = {
                             "vr": "LO",
                             "Value": [
                                 $this.description
                             ]
-                        };*/
+                        };
                         studyObject["00200013"] = { //"00200013":"Instance Number"
                             "vr": "IS",
                             "Value": [
                                 i+1
                             ]
                         };
-/*                        studyObject["00200011"] = { // "00200011":"Series Number"
+                        studyObject["00200011"] = { // "00200011":"Series Number"
                             "vr": "IS",
                             "Value": [
                                 this.seriesNumber || 0
                             ]
-                        };*/
+                        };
                         if(_.hasIn(studyObject, "0020000D.Value[0]")){
                             studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
                                 "vr": "UI",
