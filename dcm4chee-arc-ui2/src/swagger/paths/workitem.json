@@ -10,9 +10,6 @@
         "$ref": "../parameters.json#/archiveAETPathParam"
       },
       {
-        "$ref": "../parameters.json#/archiveAETPathParam"
-      },
-      {
         "$ref": "../parameters.json#/workitemPathParam"
       },
       {
