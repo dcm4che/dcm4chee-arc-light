@@ -217,7 +217,9 @@ export class StudyService {
         let lineLength: number = 3;
         switch (tab) {
             case "patient":
-                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets, filterMode === "expand");
+                schema = Globalvar.PATIENT_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
+                    return filter.filterKey != "aet";
+                });
                 lineLength = filterMode === "expand" ? 1 : 2;
                 break;
             case "mwl":
@@ -298,6 +300,22 @@ export class StudyService {
         }
     }
 
+
+    getPatients(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("patient", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        ).map(res => j4care.redirectOnAuthResponse(res));
+    }
 
     getStudies(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header: HttpHeaders;

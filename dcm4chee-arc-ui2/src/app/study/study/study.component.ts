@@ -204,6 +204,7 @@ export class StudyComponent implements OnInit{
     fixedHeader = false;
     patients:PatientDicom[] = [];
     moreStudies:boolean = false;
+    morePatients:boolean = false; //TODO make them depending on selected tab
     queues;
 
     searchCurrentList = '';
@@ -987,15 +988,15 @@ export class StudyComponent implements OnInit{
             if(e.id === "submit"){
                 if(!mode || mode === "current"){
                     filterModel.offset = 0;
-                    this.getStudies(filterModel);
+                    this.submit(filterModel);
                 }else{
                     if(mode === "next" && this.moreStudies){
                         filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
-                        this.getStudies(filterModel);
+                        this.submit(filterModel);
                     }
                     if(mode === "prev" && filterModel.offset > 0){
                         filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
-                        this.getStudies(filterModel);
+                        this.submit(filterModel);
                     }
                 }
             }
@@ -1012,6 +1013,16 @@ export class StudyComponent implements OnInit{
             }*/
         }else{
             this.appService.showError("No web app service was selected!");
+        }
+    }
+    submit(filterModel){
+        switch (this.studyConfig.tab){
+            case "study":
+                this.getStudies(filterModel);
+                break;
+            case "patient":
+                this.getPatients(filterModel);
+                break;
         }
     }
     showNoFilterWarning(queryParameters){
@@ -1087,6 +1098,39 @@ export class StudyComponent implements OnInit{
         })
     }
 
+    getPatients(filterModel){
+        this.cfpLoadingBar.start();
+        this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
+            this.patients = [];
+            if (_.size(res) > 0){
+                this.patients = res.map((attrs, index) => {
+/*                    return {
+                        moreStudies: false,
+                        offset: this._filter.filterModel.offset + index,
+                        attrs: attrs,
+                        studies: null,
+                        showAttributes: false,
+                        selected: false
+                    };*/
+                    return new PatientDicom(attrs, [], false, true);
+                });
+                if (this.morePatients = (this.patients.length > this._filter.filterModel.limit)) {
+                    this.patients.pop();
+                }
+            } else {
+                this.appService.setMessage( {
+                    "title": "Info",
+                    "text": "No matching Patients found!",
+                    "status": "info"
+                });
+            }
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            j4care.log("Something went wrong on search", err);
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
 
     getStudies(filterModel){
         this.cfpLoadingBar.start();
