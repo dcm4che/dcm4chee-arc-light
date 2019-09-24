@@ -88,7 +88,7 @@ public class UPSPushSCP extends AbstractDicomService {
                         onNGetRQ(as, pc, rq, rqAttrs);
                         return;
                     case N_ACTION_RQ:
-                        onNActionRQ(as, pc, rq, rqAttrs, Action.REQUEST_UPS_CANCEL);
+                        onNActionRQ(as, pc, rq, rqAttrs, 2);
                         return;
                 }
             case UID.UnifiedProcedureStepPullSOPClass:
@@ -100,7 +100,7 @@ public class UPSPushSCP extends AbstractDicomService {
                         onNGetRQ(as, pc, rq, rqAttrs);
                         return;
                     case N_ACTION_RQ:
-                        onNActionRQ(as, pc, rq, rqAttrs, Action.CHANGE_UPS_STATE);
+                        onNActionRQ(as, pc, rq, rqAttrs, 1);
                         return;
                 }
             case UID.UnifiedProcedureStepWatchSOPClass:
@@ -109,7 +109,7 @@ public class UPSPushSCP extends AbstractDicomService {
                         onNGetRQ(as, pc, rq, rqAttrs);
                         return;
                     case N_ACTION_RQ:
-                        onNActionRQ(as, pc, rq, rqAttrs, Action.SUBSCRIBE);
+                        onNActionRQ(as, pc, rq, rqAttrs, 254);
                         return;
                 }
         }
@@ -137,10 +137,10 @@ public class UPSPushSCP extends AbstractDicomService {
         as.tryWriteDimseRSP(pc, rsp, rspAttrs);
     }
 
-    private void onNActionRQ(Association as, PresentationContext pc, Attributes rq, Attributes rqAttrs, Action action)
-            throws IOException {
+    private void onNActionRQ(Association as, PresentationContext pc, Attributes rq, Attributes rqAttrs,
+            int validActionTypeIDs) throws IOException {
         Attributes rsp = Commands.mkNActionRSP(rq, Status.Success);
-        Attributes rspAttrs = action(as, rq, rqAttrs, rsp, action);
+        Attributes rspAttrs = action(as, rq, rqAttrs, rsp, validActionTypeIDs);
         as.tryWriteDimseRSP(pc, rsp, rspAttrs);
     }
 
@@ -174,15 +174,31 @@ public class UPSPushSCP extends AbstractDicomService {
         return tags != null ? new Attributes(attrs, tags) : attrs;
     }
 
-    private Attributes action(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp, Action action)
+    private Attributes action(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp, int validActionTypeIDs)
             throws DicomServiceException {
-        //TODO
+        int actionTypeID = validateActionTypeID(rq.getInt(Tag.ActionTypeID, 0), validActionTypeIDs);
+        UPSContext ctx = service.newUPSContext(as);
+        ctx.setSopInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        switch(actionTypeID) {
+            case 1:
+                service.changeWorkitemState(ctx);
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+        }
         return null;
     }
 
-    private enum Action {
-        REQUEST_UPS_CANCEL,
-        CHANGE_UPS_STATE,
-        SUBSCRIBE
+    private static int validateActionTypeID(int actionTypeID, int validActionTypeIDs) throws DicomServiceException {
+        if (actionTypeID <= 0 || ((1 << (actionTypeID - 1)) & validActionTypeIDs) == 0) {
+            throw new DicomServiceException(Status.NoSuchActionType).setActionTypeID(actionTypeID);
+        }
+        return actionTypeID;
     }
 }
