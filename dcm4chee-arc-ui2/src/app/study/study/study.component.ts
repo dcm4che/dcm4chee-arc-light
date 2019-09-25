@@ -203,8 +203,13 @@ export class StudyComponent implements OnInit{
     testShow = true;
     fixedHeader = false;
     patients:PatientDicom[] = [];
-    moreStudies:boolean = false;
-    morePatients:boolean = false; //TODO make them depending on selected tab
+    moreState = {
+        "study":false,
+        "patient":false,
+        "mwl":false,
+        "diff":false,
+        "export":false
+    };
     queues;
 
     searchCurrentList = '';
@@ -216,6 +221,7 @@ export class StudyComponent implements OnInit{
     };
     internal = true;
     checkboxFunctions = false;
+
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -237,8 +243,11 @@ export class StudyComponent implements OnInit{
         this.selectedElements = new SelectionActionElement({});
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
-          this.studyConfig.tab = params.tab;
-          this.initWebApps();
+            this.patients = [];
+            this.studyConfig.tab = params.tab;
+            this.more = false;
+            this._filter.filterModel.offset = 0;
+            this.initWebApps();
         });
         this.moreFunctionConfig.options.filter(option=>{
             console.log("option",option);
@@ -247,10 +256,17 @@ export class StudyComponent implements OnInit{
             }else{
                 return true;
             }
-        })
+        });
+
     }
 
+    get more(): boolean {
+        return this.moreState[this.studyConfig.tab];
+    }
 
+    set more(value: boolean) {
+        this.moreState[this.studyConfig.tab] = value;
+    }
 
     //
     setTopToTableHeader(){
@@ -449,10 +465,18 @@ export class StudyComponent implements OnInit{
             }
 
             if(id.action === "toggle_studies"){
-                if(!model.studies){
+                if(!model.studies || model.studies.length === 0){
                     // this.getStudies(model);
+                    console.log("models",model);
                     //TODO getStudies (needed for patient mode)
+                    let filterModel =  this.getFilterClone();
+                    if(filterModel.limit){
+                        filterModel.limit++;
+                    }
+                    this.getAllStudiesToPatient(model,filterModel, 0);
+                    //getAllStudies
                 }else{
+                    model.studies = [];
                     model.showStudies = !model.showStudies;
                 }
 
@@ -969,6 +993,20 @@ export class StudyComponent implements OnInit{
             }
 
         }
+        if(e.level === "study"){
+            console.log("e.object",e.object);
+            let filterModel =  this.getFilterClone();
+            if(filterModel.limit){
+                filterModel.limit++;
+            }
+            if(e.direction === "next"){
+                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset + this._filter.filterModel.limit);
+            }
+            if(e.direction === "prev"){
+                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset - this._filter.filterModel.limit);
+            }
+
+        }
     }
 
     getFilterClone():any{
@@ -990,12 +1028,12 @@ export class StudyComponent implements OnInit{
                     filterModel.offset = 0;
                     this.submit(filterModel);
                 }else{
-                    if(mode === "next" && this.moreStudies){
+                    if(mode === "next" && this.more){
                         filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
                         this.submit(filterModel);
                     }
                     if(mode === "prev" && filterModel.offset > 0){
-                        filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
+                        filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
                         this.submit(filterModel);
                     }
                 }
@@ -1102,19 +1140,13 @@ export class StudyComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
             this.patients = [];
+            this._filter.filterModel.offset = filterModel.offset;
             if (_.size(res) > 0){
+                this.setTopToTableHeader();
                 this.patients = res.map((attrs, index) => {
-/*                    return {
-                        moreStudies: false,
-                        offset: this._filter.filterModel.offset + index,
-                        attrs: attrs,
-                        studies: null,
-                        showAttributes: false,
-                        selected: false
-                    };*/
-                    return new PatientDicom(attrs, [], false, true);
+                    return new PatientDicom(attrs, [], false, false, filterModel.offset + index);
                 });
-                if (this.morePatients = (this.patients.length > this._filter.filterModel.limit)) {
+                if (this.more = (this.patients.length > this._filter.filterModel.limit)) {
                     this.patients.pop();
                 }
             } else {
@@ -1131,7 +1163,53 @@ export class StudyComponent implements OnInit{
             this.httpErrorHandler.handleError(err);
         });
     }
+    getAllStudiesToPatient(patient, filterModel, offset) {
 
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+
+        if (offset < 0) offset = 0;
+        filterModel["offset"] = offset;
+
+        filterModel['includefield'] = 'all';
+        filterModel["PatientID"] = j4care.valueOf(patient.attrs['00100020']);
+        filterModel["IssuerOfPatientID"] = j4care.valueOf(patient.attrs['00100021']);
+        this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
+            .subscribe((res) => {
+                if (res && res.length > 0){
+                    let hasMore = res.length > this._filter.filterModel.limit;
+                    patient.studies = res.map((studyAttrs, index) => {
+                        return new StudyDicom(
+                            studyAttrs,
+                            patient,
+                            this._filter.filterModel.offset + index,
+                            hasMore,
+                            hasMore || offset > 0
+                        );
+                    });
+                    patient.showStudies = true;
+/*                    if (this.more = (res.length > this._filter.filterModel.limit)) {
+                        patient.studies.pop();
+                        if (patient.studies.length === 0) {
+                            this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }*/
+                    // StudiesService.trim($this);
+                    // console.log("patient",patient);
+                }else{
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching Studies found!',
+                        'status': 'info'
+                    });
+                }
+                this.cfpLoadingBar.complete();
+            },(err)=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            });
+    };
     getStudies(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
@@ -1168,7 +1246,7 @@ export class StudyComponent implements OnInit{
                         );
                         patient.studies.push(study);
                     });
-                    if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
+                    if (this.more = (res.length > this._filter.filterModel.limit)) {
                         patient.studies.pop();
                         if (patient.studies.length === 0) {
                             this.patients.pop();
@@ -1966,7 +2044,8 @@ export class StudyComponent implements OnInit{
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
-            tableParam:this.tableParam
+            tableParam:this.tableParam,
+            studyConfig:this.studyConfig
         }));
     }
 

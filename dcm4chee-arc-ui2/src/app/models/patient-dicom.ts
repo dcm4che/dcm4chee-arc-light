@@ -6,12 +6,14 @@ export class PatientDicom {
     private _studies:StudyDicom[];
     private _showAttributes:boolean;
     private _showStudies:boolean;
+    private _offset:number;
     private _selected;
-    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean){
+    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean, offset?:number){
         this._attrs = attrs;
         this._studies = studies;
         this._showAttributes = showAttributes || false;
         this._showStudies = showStudies || false;
+        this._offset = offset || 0;
     }
 
 
@@ -47,6 +49,14 @@ export class PatientDicom {
         this._showStudies = value;
     }
 
+
+    get offset(): number {
+        return this._offset;
+    }
+
+    set offset(value: number) {
+        this._offset = value;
+    }
 
     get selected() {
         return this._selected;

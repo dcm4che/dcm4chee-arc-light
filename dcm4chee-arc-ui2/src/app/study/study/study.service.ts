@@ -688,12 +688,6 @@ export class StudyService {
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type: "index",
-                    header: '',
-                    pathToValue: '',
-                    pxWidth: 40
-                }),
-                new TableSchemaElement({
                     type: "actions-menu",
                     header: "",
                     menu: {
@@ -1786,7 +1780,16 @@ export class StudyService {
             });
         }
 
-        return schema;
+        if (_.hasIn(options, "studyConfig.tab") && options.studyConfig.tab === "patient") {
+            schema.patient.splice(1,0, new TableSchemaElement({
+                type: "index",
+                header: '',
+                pathToValue: '',
+                pxWidth: 40,
+            }))
+        }
+
+            return schema;
     }
 
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders) {
