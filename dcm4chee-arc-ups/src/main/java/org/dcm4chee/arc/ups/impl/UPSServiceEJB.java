@@ -94,7 +94,9 @@ public class UPSServiceEJB {
         }
         Workitem workitem = new Workitem();
         workitem.setSopInstanceUID(ctx.getSopInstanceUID());
-        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
+        PatientMgtContext patMgtCtx = ctx.getAssociation() != null
+                ? patientService.createPatientMgtContextDIMSE(ctx.getAssociation())
+                : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
         patMgtCtx.setAttributes(attrs);
         Patient pat = patientService.findPatient(patMgtCtx);
         if (pat == null) {

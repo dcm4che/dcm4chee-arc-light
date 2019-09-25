@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
@@ -52,6 +53,8 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 public interface UPSContext {
 
     HttpServletRequestInfo getHttpRequestInfo();
+
+    Association getAssociation();
 
     ArchiveAEExtension getArchiveAEExtension();
 

@@ -77,6 +77,11 @@ public class UPSContextImpl implements UPSContext {
     }
 
     @Override
+    public Association getAssociation() {
+        return as;
+    }
+
+    @Override
     public ArchiveAEExtension getArchiveAEExtension() {
         return archiveAEExtension;
     }
