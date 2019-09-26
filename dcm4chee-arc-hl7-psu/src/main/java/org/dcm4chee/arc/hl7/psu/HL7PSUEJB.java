@@ -156,9 +156,7 @@ public class HL7PSUEJB {
     public void scheduleHL7PSUTask(HL7PSUTask task, HL7PSUScheduler.HL7PSU action) {
         ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        String sendingAppWithFacility = arcAE.hl7PSUSendingApplication();
-        String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class).getHL7Application(sendingAppWithFacility).getHL7SendingCharacterSet();
-        HL7PSUMessage msg = new HL7PSUMessage(task);
+        Attributes mwlAttrs = null;
         if (task.getMpps() == null) {
             List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
             if (mwlItems.isEmpty()) {
@@ -168,18 +166,29 @@ public class HL7PSUEJB {
             if (action == HL7PSUScheduler.HL7PSU.MWL || action == HL7PSUScheduler.HL7PSU.BOTH)
                 updateStatusToCompleted(arcAE, mwlItems);
 
-            if (action != HL7PSUScheduler.HL7PSU.MWL)
-                msg.setMWLItem(mwlItems.get(0).getAttributes());
+            mwlAttrs = mwlItems.get(0).getAttributes();
         }
-        if (action == HL7PSUScheduler.HL7PSU.MWL) {
-            removeHL7PSUTask(task);
+        if (action != HL7PSUScheduler.HL7PSU.MWL)
+            scheduleHL7Msg(arcAE, task, mwlAttrs);
+        removeHL7PSUTask(task);
+    }
+
+    private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task,
+                               Attributes mwlAttrs) {
+        String sendingAppWithFacility = arcAE.hl7PSUSendingApplication();
+        if (sendingAppWithFacility == null)
             return;
-        }
+
+        String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(sendingAppWithFacility)
+                .getHL7SendingCharacterSet();
+        HL7PSUMessage msg = new HL7PSUMessage(task);
+        if (mwlAttrs != null)
+            msg.setMWLItem(mwlAttrs);
         msg.setSendingApplicationWithFacility(sendingAppWithFacility);
         if (!hl7cs.equals("ISO IR-6"))
             msg.setCharacterSet(hl7cs);
         scheduleMessage(arcAE, hl7cs, msg);
-        removeHL7PSUTask(task);
     }
 
     private void updateStatusToCompleted(ArchiveAEExtension arcAE, List<MWLItem> mwlItems) {
