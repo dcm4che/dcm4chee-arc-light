@@ -1182,12 +1182,15 @@ export class StudyComponent implements OnInit{
                         return new StudyDicom(
                             studyAttrs,
                             patient,
-                            this._filter.filterModel.offset + index,
+                            offset + index,
                             hasMore,
                             hasMore || offset > 0
                         );
                     });
                     patient.showStudies = true;
+                    if(hasMore){
+                        patient.studies.pop();
+                    }
 /*                    if (this.more = (res.length > this._filter.filterModel.limit)) {
                         patient.studies.pop();
                         if (patient.studies.length === 0) {
