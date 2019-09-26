@@ -343,10 +343,7 @@ public class UpsRS {
             case Status.UPSAlreadyInProgress:
             case Status.UPSNotMetFinalStateRequirements:
                 return Response.Status.CONFLICT;
-            case Status.NoSuchAttribute:
-            case Status.MissingAttribute:
-            case Status.MissingAttributeValue:
-            case Status.InvalidAttributeValue:
+            case Status.InvalidArgumentValue:
                 return Response.Status.BAD_REQUEST;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;

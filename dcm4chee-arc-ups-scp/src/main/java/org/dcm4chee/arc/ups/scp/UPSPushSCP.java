@@ -179,6 +179,7 @@ public class UPSPushSCP extends AbstractDicomService {
         int actionTypeID = validateActionTypeID(rq.getInt(Tag.ActionTypeID, 0), validActionTypeIDs);
         UPSContext ctx = service.newUPSContext(as);
         ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        ctx.setAttributes(rqAttrs);
         switch(actionTypeID) {
             case 1:
                 service.changeUPSState(ctx);
@@ -186,6 +187,9 @@ public class UPSPushSCP extends AbstractDicomService {
             case 2:
                 break;
             case 3:
+                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setDeletionLock(validateDeletionLock(rqAttrs));
+                service.createSubscription(ctx);
                 break;
             case 4:
                 break;
@@ -193,6 +197,24 @@ public class UPSPushSCP extends AbstractDicomService {
                 break;
         }
         return null;
+    }
+
+    private boolean validateDeletionLock(Attributes rqAttrs) throws DicomServiceException {
+        switch (requireNonNull(rqAttrs, Tag.DeletionLock)) {
+            case "TRUE":
+                return true;
+            case "FALSE":
+                return false;
+        }
+        throw new DicomServiceException(Status.InvalidArgumentValue);
+    }
+
+    private static String requireNonNull(Attributes rqAttrs, int tag) throws DicomServiceException {
+        String value = rqAttrs.getString(tag);
+        if (value == null) {
+            throw new DicomServiceException(Status.InvalidArgumentValue);
+        }
+        return value;
     }
 
     private static int validateActionTypeID(int actionTypeID, int validActionTypeIDs) throws DicomServiceException {

@@ -153,17 +153,16 @@ public class UPSServiceImpl implements UPSService {
         Attributes attrs = ctx.getAttributes();
         String transactionUID = attrs.getString(Tag.TransactionUID);
         if (transactionUID == null)
-            throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+            throw new DicomServiceException(Status.InvalidArgumentValue,
                     "The Transaction UID is missing.", false);
         UPSState upsState;
         try {
             upsState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState));
         } catch (NullPointerException e) {
-            throw new DicomServiceException(
-                    attrs.contains(Tag.ProcedureStepState) ? Status.MissingAttributeValue : Status.MissingAttribute,
+            throw new DicomServiceException(Status.InvalidArgumentValue,
                     "The Procedure Step State is missing.", false);
         } catch (IllegalArgumentException e) {
-            throw new DicomServiceException(Status.InvalidAttributeValue,
+            throw new DicomServiceException(Status.InvalidArgumentValue,
                     "The Procedure Step State is invalid.", false);
         }
         if (upsState == UPSState.SCHEDULED) {
