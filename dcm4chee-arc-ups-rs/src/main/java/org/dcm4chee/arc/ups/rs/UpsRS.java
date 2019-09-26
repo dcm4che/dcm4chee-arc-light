@@ -184,6 +184,21 @@ public class UpsRS {
         return changeWorkitemState(iuid, parseXML(in));
     }
 
+    @GET
+    @NoCache
+    @Path("/workitems/{workitem}")
+    public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
+        ResponseMediaType responseMediaType = getResponseMediaType();
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUpsInstanceUID(iuid);
+        try {
+            service.findUPS(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::retrieveFailed, e);
+        }
+        return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
+    }
+
     @POST
     @Path("/workitems/{workitem}/subscribers/{SubscriberAET}")
     public Response subscribe(
@@ -202,19 +217,20 @@ public class UpsRS {
         return Response.created(websocketOf(ctx)).build();
     }
 
-    @GET
-    @NoCache
-    @Path("/workitems/{workitem}")
-    public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
-        ResponseMediaType responseMediaType = getResponseMediaType();
+    @DELETE
+    @Path("/workitems/{workitem}/subscribers/{SubscriberAET}")
+    public Response unsubscribe(
+            @PathParam("workitem") String iuid,
+            @PathParam("SubscriberAET") String subscriber) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
+        ctx.setSubscriberAET(subscriber);
         try {
-            service.findUPS(ctx);
+            service.deleteSubscription(ctx);
         } catch (DicomServiceException e) {
-            return errResponse(UpsRS::retrieveFailed, e);
+            return errResponse(UpsRS::unsubscriptionFailed, e);
         }
-        return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
+        return Response.ok().build();
     }
 
     @Override
@@ -355,6 +371,10 @@ public class UpsRS {
             case Status.UPSUnknownReceivingAET:
                 return Response.Status.NOT_FOUND;
         }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private static Response.Status unsubscriptionFailed(int status) {
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 

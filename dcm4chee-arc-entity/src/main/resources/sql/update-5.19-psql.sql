@@ -1,10 +1,4 @@
 -- part 1: can be applied on archive running archive 5.18
-create table deletion_lock (
-    pk int8 not null,
-    subscriber_aet varchar(255) not null,
-    ups_fk int8 not null,
-    primary key (pk));
-
 create table rel_ups_perf_code (
     ups_fk int8 not null,
     perf_code_fk int8 not null);
@@ -54,7 +48,6 @@ create table ups_req (
     ups_fk int8,
     primary key (pk));
 
-alter table deletion_lock add constraint UK_icsqb0lf24mtww0n2i52elte1  unique (subscriber_aet, ups_fk);
 alter table subscription add constraint UK_qjmsmovw4gcurk7mnrrrw3hbw  unique (ups_iuid, subscriber_aet);
 alter table ups add constraint UK_3frtpy5cstsoxk5jxw9cutr33  unique (dicomattrs_fk);
 alter table ups add constraint UK_qck03rlxht9myv77sc79a480t  unique (ups_iuid);
@@ -75,7 +68,6 @@ create index UK_emsk27nclko11ph2tcj5vk7hg on ups_req (req_service);
 create index UK_524vr0q4c0kvyjwov74eru44x on ups_req (req_proc_id);
 create index UK_hf0tly8umknn77civcsi0tdih on ups_req (study_iuid);
 
-alter table deletion_lock add constraint FK_rejapdl7im04psqs9ob9qg5nc foreign key (ups_fk) references ups;
 alter table rel_ups_perf_code add constraint FK_6asj28yy5se9mp443b6ryefd2 foreign key (perf_code_fk) references code;
 alter table rel_ups_perf_code add constraint FK_6m06tt8ku376qxkro94xpteus foreign key (ups_fk) references ups;
 alter table subscription add constraint FK_psyfyj4cyoganysbqbwu2n48a foreign key (matchkeys_fk) references dicomattrs;
@@ -90,7 +82,6 @@ alter table ups_req add constraint FK_gegm1c1ymem7tj2wcm0o7e0pu foreign key (acc
 alter table ups_req add constraint FK_kocdb2pxx2fymu1modhneb4xm foreign key (req_phys_name_fk) references person_name;
 alter table ups_req add constraint FK_7vt6m05r0hertks2fcngd5wn1 foreign key (ups_fk) references ups;
 
-create index FK_rejapdl7im04psqs9ob9qg5nc on deletion_lock (ups_fk) ;
 create index FK_6asj28yy5se9mp443b6ryefd2 on rel_ups_perf_code (perf_code_fk) ;
 create index FK_6m06tt8ku376qxkro94xpteus on rel_ups_perf_code (ups_fk) ;
 create index FK_psyfyj4cyoganysbqbwu2n48a on subscription (matchkeys_fk) ;
@@ -104,7 +95,6 @@ create index FK_gegm1c1ymem7tj2wcm0o7e0pu on ups_req (accno_issuer_fk) ;
 create index FK_kocdb2pxx2fymu1modhneb4xm on ups_req (req_phys_name_fk) ;
 create index FK_7vt6m05r0hertks2fcngd5wn1 on ups_req (ups_fk) ;
 
-create sequence deletion_lock_pk_seq;
 create sequence subscription_pk_seq;
 create sequence ups_pk_seq;
 create sequence ups_request_pk_seq;

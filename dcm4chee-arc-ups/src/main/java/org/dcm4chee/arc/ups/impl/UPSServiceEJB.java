@@ -123,8 +123,8 @@ public class UPSServiceEJB {
                     ctx.getUpsInstanceUID(),
                     globalSubscription.getSubscriberAET(),
                     globalSubscription.isDeletionLock(),
-                    null,
-                    ups);
+                    null
+            );
         }
         return ups;
     }
@@ -319,35 +319,41 @@ public class UPSServiceEJB {
         return ups;
     }
 
-    public Subscription createOrUpdateSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS, UPS ups) {
+    public Subscription createOrUpdateSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS) {
+        switch (ctx.getUpsInstanceUID()) {
+            case UID.UPSGlobalSubscriptionSOPInstance:
+                deleteSubscription(ctx, UID.UPSFilteredGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
+                break;
+            case UID.UPSFilteredGlobalSubscriptionSOPInstance:
+                deleteSubscription(ctx, UID.UPSGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
+                break;
+        }
+        Subscription sub;
         try {
-            return updateSubscription(ctx, ups);
+            sub = updateSubscription(ctx);
+            return sub;
         } catch (NoResultException e) {
-            for (Attributes attrs : notSubscribedUPS) {
-                String notSubscriptedIUID = attrs.getString(Tag.SOPInstanceUID);
-                createSubscription(ctx,
-                        notSubscriptedIUID,
-                        ctx.getSubscriberAET(),
-                        ctx.isDeletionLock(),
-                        null,
-                        ctx.isDeletionLock()
-                                ? em.createNamedQuery(UPS.FIND_BY_IUID, UPS.class)
-                                    .setParameter(1, notSubscriptedIUID)
-                                    .getSingleResult()
-                                : null);
-            }
-            return createSubscription(ctx,
+            sub = createSubscription(ctx,
                     ctx.getUpsInstanceUID(),
                     ctx.getSubscriberAET(),
                     ctx.isDeletionLock(),
-                    ctx.getAttributes(),
-                    ups);
+                    ctx.getAttributes());
         }
+        for (Attributes attrs : notSubscribedUPS) {
+            String notSubscriptedIUID = attrs.getString(Tag.SOPInstanceUID);
+            createSubscription(ctx,
+                    notSubscriptedIUID,
+                    ctx.getSubscriberAET(),
+                    ctx.isDeletionLock(),
+                    null
+            );
+        }
+        return sub;
     }
 
 
     public Subscription createSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET,
-            boolean deletionLock, Attributes matchKeys, UPS ups) {
+            boolean deletionLock, Attributes matchKeys) {
         Subscription sub = new Subscription();
         sub.setUpsInstanceUID(upsInstanceUID);
         sub.setSubscriberAET(subscriberAET);
@@ -355,10 +361,32 @@ public class UPSServiceEJB {
         sub.setMatchKeys(matchKeys);
         em.persist(sub);
         LOG.info("{}: Create {}", ctx, sub);
-        if (deletionLock && ups != null) {
-            createDeletionLock(ctx, subscriberAET, ups);
-        }
         return sub;
+    }
+
+    public int deleteSubscription(UPSContext ctx) {
+        return deleteSubscription(ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET());
+    }
+
+    private int deleteSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET) {
+        int n = em.createNamedQuery(Subscription.DELETE_BY_UPS_IUID_AND_SUBSCRIBER_AET)
+                    .setParameter(1, upsInstanceUID)
+                    .setParameter(2, subscriberAET)
+                    .executeUpdate();
+        if (n > 0) {
+            LOG.info("{}: Delete Subscription[uid={}, aet={}]", ctx, upsInstanceUID, subscriberAET);
+        }
+        return n;
+    }
+
+    public int deleteGlobalSubscription(UPSContext ctx) {
+        int n = em.createNamedQuery(Subscription.DELETE_BY_SUBSCRIBER_AET)
+                .setParameter(1, ctx.getSubscriberAET())
+                .executeUpdate();
+        if (n > 0) {
+            LOG.info("{}: Delete {} Subscriptions[aet={}]", ctx, n, ctx.getSubscriberAET());
+        }
+        return n;
     }
 
     public List<Subscription> findGlobalSubscriptions() {
@@ -373,41 +401,16 @@ public class UPSServiceEJB {
                 .getResultList();
     }
 
-    private Subscription updateSubscription(UPSContext ctx, UPS ups) {
+    private Subscription updateSubscription(UPSContext ctx) {
         Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET,
                 Subscription.class)
                 .setParameter(1, ctx.getUpsInstanceUID())
                 .setParameter(2, ctx.getSubscriberAET())
                 .getSingleResult();
-        if (ups != null) {
-            if (sub.isDeletionLock()) {
-                if (!ctx.isDeletionLock()) {
-                    deleteDeletionLock(ctx, ctx.getSubscriberAET(), ups);
-                }
-            } else {
-                if (ctx.isDeletionLock()) {
-                    createDeletionLock(ctx, ctx.getSubscriberAET(), ups);
-                }
-            }
-        }
         sub.setDeletionLock(ctx.isDeletionLock());
         sub.setMatchKeys(ctx.getAttributes());
         LOG.info("{}: Update {}", ctx, sub);
         return sub;
-    }
-
-    private void deleteDeletionLock(UPSContext ctx, String subscriberAET, UPS subscribedUPS) {
-        em.createNamedQuery(DeletionLock.DELETE_BY_AET_AND_UPS)
-                .setParameter(1, subscriberAET)
-                .setParameter(2, subscribedUPS)
-                .executeUpdate();
-        LOG.info("{}: Delete DeletionLock[iuid={}, aet={}]", ctx, subscribedUPS.getUpsInstanceUID(), subscriberAET);
-    }
-
-    private void createDeletionLock(UPSContext ctx, String subscriberAET, UPS subscribedUPS) {
-        DeletionLock lock = new DeletionLock(subscriberAET, subscribedUPS);
-        em.persist(lock);
-        LOG.info("{}: Create DeletionLock[iuid={}, aet={}]", ctx, subscribedUPS.getUpsInstanceUID(), subscriberAET);
     }
 
     private static boolean meetFinalStateRequirementsOfCompleted(Attributes attrs) {

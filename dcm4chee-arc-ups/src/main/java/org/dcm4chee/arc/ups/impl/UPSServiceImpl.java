@@ -179,20 +179,6 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public Subscription createSubscription(UPSContext ctx) throws DicomServiceException {
-        try {
-            validateSubscriberAET(ctx);
-            return ctx.isGlobalSubscription()
-                    ? ejb.createOrUpdateSubscription(ctx, searchNotSubscribedUPS(ctx), null)
-                    : ejb.createOrUpdateSubscription(ctx, Collections.emptyList(), ejb.findUPS(ctx));
-        } catch (DicomServiceException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.ProcessingFailure, e);
-        }
-    }
-
-    @Override
     public UPS findUPS(UPSContext ctx) throws DicomServiceException {
         UPS ups = ejb.findUPS(ctx);
         Attributes upsAttrs = ups.getAttributes();
@@ -206,6 +192,31 @@ public class UPSServiceImpl implements UPSService {
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT, ups.getUpdatedTime());
         ctx.setAttributes(attrs);
         return ups;
+    }
+
+    @Override
+    public Subscription createSubscription(UPSContext ctx) throws DicomServiceException {
+        try {
+            validateSubscriberAET(ctx);
+            return ctx.isGlobalSubscription()
+                    ? ejb.createOrUpdateSubscription(ctx, searchNotSubscribedUPS(ctx))
+                    : ejb.createOrUpdateSubscription(ctx, Collections.emptyList());
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
+    @Override
+    public int deleteSubscription(UPSContext ctx) throws DicomServiceException {
+        try {
+            return ctx.isGlobalSubscription()
+                    ? ejb.deleteGlobalSubscription(ctx)
+                    : ejb.deleteSubscription(ctx);
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
     }
 
     private static IOD loadIOD(String name) {
@@ -234,14 +245,9 @@ public class UPSServiceImpl implements UPSService {
     private List<Subscription> globalSubscriptions(Attributes attrs) {
         List<Subscription> globalSubs = ejb.findGlobalSubscriptions();
         ejb.findFilteredGlobalSubscriptions().stream()
-                .filter(sub -> !contains(globalSubs, sub.getSubscriberAET())
-                        && attrs.matches(sub.getMatchKeys(), false, false))
+                .filter(sub -> attrs.matches(sub.getMatchKeys(), false, false))
                 .forEach(globalSubs::add);
         return globalSubs;
-    }
-
-    private static boolean contains(List<Subscription> subs, String subscriberAET) {
-        return subs.stream().map(Subscription::getSubscriberAET).anyMatch(subscriberAET::equals);
     }
 
     private List<Attributes> searchNotSubscribedUPS(UPSContext ctx) throws DicomServiceException {

@@ -1,7 +1,6 @@
 create index FK_gudw6viy7lrf5t5hetw7mbgh5 on content_item (code_fk) ;
 create index FK_pyrd1nhijag5ct0ee9xqq4h78 on content_item (name_fk) ;
 create index FK_9kpe6whsov3ur9rph4ih2vi5a on content_item (instance_fk) ;
-create index FK_rejapdl7im04psqs9ob9qg5nc on deletion_lock (ups_fk) ;
 create index FK_dlrthwe594xvfeta3kyuih3ip on diff_task (queue_msg_fk) ;
 create index FK_1sbjtesix8hkq310i84lfg0xi on diff_task_attrs (diff_task_fk) ;
 create index FK_g6atpiywpo2100kn6ovix7uet on export_task (queue_msg_fk) ;

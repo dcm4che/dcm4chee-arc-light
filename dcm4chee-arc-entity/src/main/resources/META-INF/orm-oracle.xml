@@ -421,16 +421,6 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.DeletionLock">
-    <sequence-generator name="deletion_lock_pk_seq" sequence-name="deletion_lock_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="deletion_lock_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
   <entity class="org.dcm4chee.arc.entity.Subscription">
     <sequence-generator name="subscription_pk_seq" sequence-name="subscription_pk_seq" allocation-size="1"/>
     <attributes>
