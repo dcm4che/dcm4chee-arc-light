@@ -246,7 +246,7 @@ public class UpsRS {
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::internalServerError, e);
         }
-        return Response.created(websocketOf(ctx)).build();
+        return Response.ok().build();
     }
 
     @Override
@@ -259,11 +259,11 @@ public class UpsRS {
     public void validate() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
-        matchKeys = uriInfo.getPath().indexOf(UID.UPSFilteredGlobalSubscriptionSOPInstance) >= 0
+        if (uriInfo.getPath().indexOf(UID.UPSFilteredGlobalSubscriptionSOPInstance) >= 0
                 && "POST".equals(request.getMethod())
-                && !uriInfo.getPath().endsWith("/suspend")
-                    ? new QueryAttributes(uriInfo, null).getQueryKeys()
-                    : new Attributes();
+                && !uriInfo.getPath().endsWith("/suspend")) {
+            matchKeys = new QueryAttributes(uriInfo, null).getQueryKeys();
+        }
     }
 
     private Response createWorkitem(String iuid, Attributes workitem) {

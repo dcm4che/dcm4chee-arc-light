@@ -276,10 +276,15 @@ public class UPSServiceImpl implements UPSService {
         QueryParam queryParam = new QueryParam(ae);
         queryParam.setSubscriberAETNot(ctx.getSubscriberAET());
         QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(ctx.getAttributes());
-        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
-            queryContext.setPatientIDs(idWithIssuer);
-        queryContext.setQueryKeys(ctx.getAttributes());
+        Attributes matchKeys = ctx.getAttributes();
+        if (matchKeys != null) {
+            IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(matchKeys);
+            if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
+                queryContext.setPatientIDs(idWithIssuer);
+            queryContext.setQueryKeys(matchKeys);
+        } else {
+            queryContext.setQueryKeys(new Attributes(0));
+        }
         try (Query query = queryService.createUPSWithoutQueryEvent(queryContext)) {
             query.executeQuery(arcdev.getQueryFetchSize());
             while (query.hasMoreMatches()) {

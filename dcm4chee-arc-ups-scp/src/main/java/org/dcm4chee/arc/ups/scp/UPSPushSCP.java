@@ -179,24 +179,28 @@ public class UPSPushSCP extends AbstractDicomService {
         int actionTypeID = validateActionTypeID(rq.getInt(Tag.ActionTypeID, 0), validActionTypeIDs);
         UPSContext ctx = service.newUPSContext(as);
         ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
-        ctx.setAttributes(rqAttrs);
         switch(actionTypeID) {
             case 1:
+                ctx.setAttributes(rqAttrs);
                 service.changeUPSState(ctx);
                 break;
             case 2:
                 break;
             case 3:
-                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
                 ctx.setDeletionLock(validateDeletionLock(rqAttrs));
+                if (ctx.getUpsInstanceUID().equals(UID.UPSFilteredGlobalSubscriptionSOPInstance)) {
+                    rqAttrs.removeSelected(Tag.DeletionLock, Tag.ReceivingAE);
+                    ctx.setAttributes(rqAttrs);
+                }
                 service.createSubscription(ctx);
                 break;
             case 4:
-                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
                 service.deleteSubscription(ctx);
                 break;
             case 5:
-                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
                 service.suspendSubscription(ctx);
                 break;
         }
@@ -204,7 +208,7 @@ public class UPSPushSCP extends AbstractDicomService {
     }
 
     private boolean validateDeletionLock(Attributes rqAttrs) throws DicomServiceException {
-        switch (removeNonNull(rqAttrs, Tag.DeletionLock)) {
+        switch (requireNonNull(rqAttrs, Tag.DeletionLock)) {
             case "TRUE":
                 return true;
             case "FALSE":
@@ -213,12 +217,11 @@ public class UPSPushSCP extends AbstractDicomService {
         throw new DicomServiceException(Status.InvalidArgumentValue);
     }
 
-    private static String removeNonNull(Attributes rqAttrs, int tag) throws DicomServiceException {
+    private static String requireNonNull(Attributes rqAttrs, int tag) throws DicomServiceException {
         String value = rqAttrs.getString(tag);
         if (value == null) {
             throw new DicomServiceException(Status.InvalidArgumentValue);
         }
-        rqAttrs.remove(tag);
         return value;
     }
 
