@@ -351,18 +351,18 @@ export class StudyComponent implements OnInit{
                 break;
             }
             case "copy":{
-                this.selectedElements.action = id;
-                this.resetSetSelectionObject();
+                this.setSelectedElementAction(id);
+                this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
             case "cut":{
-                this.selectedElements.action = id;
-                this.resetSetSelectionObject();
+                this.setSelectedElementAction(id);
+                this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
             case "patient_merge":{
-                this.selectedElements.action = "merge";
-                this.resetSetSelectionObject();
+                this.setSelectedElementAction("merge");
+                this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
             case "paste":{
@@ -401,7 +401,12 @@ export class StudyComponent implements OnInit{
         }
     }
 
-    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean){
+    setSelectedElementAction(id){
+        if(this.selectedElements.postActionElements || this.selectedElements.preActionElements){
+            this.selectedElements.action = id;
+        }
+    }
+    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean, noResetSelectElements?:boolean){
         let newObject = {};
         selectedValue = selectedValue || false;
         resetIds = resetIds || [
@@ -414,8 +419,10 @@ export class StudyComponent implements OnInit{
             newObject[id] = {};
         });
 
-        if(this.selectedElements){
-            this.selectedElements.reset();
+        if(!noResetSelectElements){
+            if(this.selectedElements){
+                this.selectedElements.reset();
+            }
         }
 
         this.patients.forEach(patient=>{
@@ -1191,15 +1198,6 @@ export class StudyComponent implements OnInit{
                     if(hasMore){
                         patient.studies.pop();
                     }
-/*                    if (this.more = (res.length > this._filter.filterModel.limit)) {
-                        patient.studies.pop();
-                        if (patient.studies.length === 0) {
-                            this.patients.pop();
-                        }
-                        // this.studies.pop();
-                    }*/
-                    // StudiesService.trim($this);
-                    // console.log("patient",patient);
                 }else{
                     this.appService.setMessage( {
                         'title': 'Info',

@@ -1,0 +1,20 @@
+<ng-container *ngFor="let levels of Object.keys(dicomObject)">
+    <!--<dicom-list *ngIf="dicomObject[levels] && dicomObject[levels].length > 0" [dicomObject]="dicomObject[levels]"></dicom-list>-->
+    <div class="dynamic_table ">
+        <div class="table_header">
+            <div class="tr">
+                <div class="th {{header.cssClass}}" *ngFor="let header of tableSchema" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
+            </div>
+        </div>
+        <ng-container *ngFor="let level of Object.keys(dicomObject)">
+            <span>{{level|uppercase}}</span>
+            <div class="table_body">
+                <div class="tr load_more_start" *ngFor="let attrs of dicomObject[level]">
+                    <div class="td {{table_element.cssClass}}" *ngFor="let table_element of tableSchema" [ngStyle]="{width: table_element.calculatedWidth}">
+                        <span *ngIf="_.hasIn(attrs, table_element.pathToValue)">{{_.get(attrs,table_element.pathToValue)}}</span>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</ng-container>
