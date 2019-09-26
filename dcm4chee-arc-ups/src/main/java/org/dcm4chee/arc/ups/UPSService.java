@@ -69,4 +69,6 @@ public interface UPSService {
     Subscription createSubscription(UPSContext ctx) throws DicomServiceException;
 
     int deleteSubscription(UPSContext ctx) throws DicomServiceException;
+
+    int suspendGlobalSubscription(UPSContext ctx) throws DicomServiceException;
 }

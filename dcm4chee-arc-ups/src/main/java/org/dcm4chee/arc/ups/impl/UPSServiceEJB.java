@@ -379,6 +379,11 @@ public class UPSServiceEJB {
         return n;
     }
 
+    public int suspendGlobalSubscription(UPSContext ctx) {
+        return deleteSubscription(ctx, UID.UPSGlobalSubscriptionSOPInstance, ctx.getSubscriberAET()) +
+                deleteSubscription(ctx, UID.UPSFilteredGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
+    }
+
     public int deleteGlobalSubscription(UPSContext ctx) {
         int n = em.createNamedQuery(Subscription.DELETE_BY_SUBSCRIBER_AET)
                 .setParameter(1, ctx.getSubscriberAET())

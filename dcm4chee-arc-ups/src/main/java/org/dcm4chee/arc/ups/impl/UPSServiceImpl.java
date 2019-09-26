@@ -219,6 +219,17 @@ public class UPSServiceImpl implements UPSService {
         }
     }
 
+    @Override
+    public int suspendGlobalSubscription(UPSContext ctx) throws DicomServiceException {
+        try {
+            return ctx.isGlobalSubscription()
+                    ? ejb.suspendGlobalSubscription(ctx)
+                    : ejb.deleteSubscription(ctx);
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
     private static IOD loadIOD(String name) {
         try {
             IOD iod = new IOD();
@@ -261,14 +272,9 @@ public class UPSServiceImpl implements UPSService {
         try (Query query = queryService.createUPSWithoutQueryEvent(queryContext)) {
             query.executeQuery(arcdev.getQueryFetchSize());
             while (query.hasMoreMatches()) {
-                addToIfNotNull(list, query.nextMatch());
+                list.add(query.nextMatch());
             }
         }
         return list;
-    }
-
-    private void addToIfNotNull(List<Attributes> list, Attributes match) {
-        if (match != null)
-            list.add(match);
     }
 }

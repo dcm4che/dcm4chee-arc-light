@@ -228,9 +228,25 @@ public class UpsRS {
         try {
             service.deleteSubscription(ctx);
         } catch (DicomServiceException e) {
-            return errResponse(UpsRS::unsubscriptionFailed, e);
+            return errResponse(UpsRS::internalServerError, e);
         }
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/subscribers/{SubscriberAET}/suspend")
+    public Response suspendSubscription(
+            @PathParam("workitem") String iuid,
+            @PathParam("SubscriberAET") String subscriber) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUpsInstanceUID(iuid);
+        ctx.setSubscriberAET(subscriber);
+        try {
+            service.suspendGlobalSubscription(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::internalServerError, e);
+        }
+        return Response.created(websocketOf(ctx)).build();
     }
 
     @Override
@@ -374,7 +390,7 @@ public class UpsRS {
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
-    private static Response.Status unsubscriptionFailed(int status) {
+    private static Response.Status internalServerError(int status) {
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
