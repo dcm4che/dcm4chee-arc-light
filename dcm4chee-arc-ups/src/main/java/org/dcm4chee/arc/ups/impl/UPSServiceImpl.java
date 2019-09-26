@@ -220,7 +220,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public int suspendGlobalSubscription(UPSContext ctx) throws DicomServiceException {
+    public int suspendSubscription(UPSContext ctx) throws DicomServiceException {
         try {
             return ctx.isGlobalSubscription()
                     ? ejb.suspendGlobalSubscription(ctx)

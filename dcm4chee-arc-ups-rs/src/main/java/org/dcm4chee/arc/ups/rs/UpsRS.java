@@ -242,7 +242,7 @@ public class UpsRS {
         ctx.setUpsInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         try {
-            service.suspendGlobalSubscription(ctx);
+            service.suspendSubscription(ctx);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::internalServerError, e);
         }

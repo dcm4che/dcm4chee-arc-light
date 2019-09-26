@@ -196,6 +196,8 @@ public class UPSPushSCP extends AbstractDicomService {
                 service.deleteSubscription(ctx);
                 break;
             case 5:
+                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
+                service.suspendSubscription(ctx);
                 break;
         }
         return null;
