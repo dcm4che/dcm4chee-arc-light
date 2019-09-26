@@ -369,14 +369,17 @@ public class UPSServiceEJB {
     }
 
     private int deleteSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET) {
-        int n = em.createNamedQuery(Subscription.DELETE_BY_UPS_IUID_AND_SUBSCRIBER_AET)
+        try {
+            Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET, Subscription.class)
                     .setParameter(1, upsInstanceUID)
                     .setParameter(2, subscriberAET)
-                    .executeUpdate();
-        if (n > 0) {
-            LOG.info("{}: Delete Subscription[uid={}, aet={}]", ctx, upsInstanceUID, subscriberAET);
+                    .getSingleResult();
+            em.remove(sub);
+            LOG.info("{}: Delete {}", ctx, sub);
+            return 1;
+        } catch (NoResultException e) {
+            return 0;
         }
-        return n;
     }
 
     public int suspendGlobalSubscription(UPSContext ctx) {
@@ -385,6 +388,7 @@ public class UPSServiceEJB {
     }
 
     public int deleteGlobalSubscription(UPSContext ctx) {
+        suspendGlobalSubscription(ctx);
         int n = em.createNamedQuery(Subscription.DELETE_BY_SUBSCRIBER_AET)
                 .setParameter(1, ctx.getSubscriberAET())
                 .executeUpdate();

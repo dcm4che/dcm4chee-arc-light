@@ -187,16 +187,16 @@ public class UPSPushSCP extends AbstractDicomService {
             case 2:
                 break;
             case 3:
-                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
                 ctx.setDeletionLock(validateDeletionLock(rqAttrs));
                 service.createSubscription(ctx);
                 break;
             case 4:
-                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
                 service.deleteSubscription(ctx);
                 break;
             case 5:
-                ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
+                ctx.setSubscriberAET(removeNonNull(rqAttrs, Tag.ReceivingAE));
                 service.suspendSubscription(ctx);
                 break;
         }
@@ -204,7 +204,7 @@ public class UPSPushSCP extends AbstractDicomService {
     }
 
     private boolean validateDeletionLock(Attributes rqAttrs) throws DicomServiceException {
-        switch (requireNonNull(rqAttrs, Tag.DeletionLock)) {
+        switch (removeNonNull(rqAttrs, Tag.DeletionLock)) {
             case "TRUE":
                 return true;
             case "FALSE":
@@ -213,11 +213,12 @@ public class UPSPushSCP extends AbstractDicomService {
         throw new DicomServiceException(Status.InvalidArgumentValue);
     }
 
-    private static String requireNonNull(Attributes rqAttrs, int tag) throws DicomServiceException {
+    private static String removeNonNull(Attributes rqAttrs, int tag) throws DicomServiceException {
         String value = rqAttrs.getString(tag);
         if (value == null) {
             throw new DicomServiceException(Status.InvalidArgumentValue);
         }
+        rqAttrs.remove(tag);
         return value;
     }
 

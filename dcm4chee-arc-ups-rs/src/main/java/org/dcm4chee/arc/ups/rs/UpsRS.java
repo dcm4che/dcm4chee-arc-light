@@ -386,6 +386,8 @@ public class UpsRS {
             case Status.UPSDoesNotExist:
             case Status.UPSUnknownReceivingAET:
                 return Response.Status.NOT_FOUND;
+            case Status.InvalidArgumentValue:
+                return Response.Status.BAD_REQUEST;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
     }

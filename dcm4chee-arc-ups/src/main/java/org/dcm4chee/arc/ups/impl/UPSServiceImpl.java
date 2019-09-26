@@ -198,9 +198,17 @@ public class UPSServiceImpl implements UPSService {
     public Subscription createSubscription(UPSContext ctx) throws DicomServiceException {
         try {
             validateSubscriberAET(ctx);
-            return ctx.isGlobalSubscription()
-                    ? ejb.createOrUpdateSubscription(ctx, searchNotSubscribedUPS(ctx))
-                    : ejb.createOrUpdateSubscription(ctx, Collections.emptyList());
+            switch (ctx.getUpsInstanceUID()) {
+                case UID.UPSFilteredGlobalSubscriptionSOPInstance:
+                    if (ctx.getAttributes().isEmpty()) {
+                        throw new DicomServiceException(Status.InvalidArgumentValue,
+                                "Matching Keys are missing.", false);
+                    }
+                case UID.UPSGlobalSubscriptionSOPInstance:
+                    return ejb.createOrUpdateSubscription(ctx, searchNotSubscribedUPS(ctx));
+                default:
+                    return ejb.createOrUpdateSubscription(ctx, Collections.emptyList());
+            }
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -268,6 +276,9 @@ public class UPSServiceImpl implements UPSService {
         QueryParam queryParam = new QueryParam(ae);
         queryParam.setSubscriberAETNot(ctx.getSubscriberAET());
         QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(ctx.getAttributes());
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
+            queryContext.setPatientIDs(idWithIssuer);
         queryContext.setQueryKeys(ctx.getAttributes());
         try (Query query = queryService.createUPSWithoutQueryEvent(queryContext)) {
             query.executeQuery(arcdev.getQueryFetchSize());

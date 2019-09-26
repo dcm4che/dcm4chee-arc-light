@@ -63,10 +63,6 @@ import javax.persistence.*;
                 "join fetch sub.matchKeysBlob " +
                 "where sub.upsInstanceUID = ?1")
 @NamedQuery(
-        name=Subscription.DELETE_BY_UPS_IUID_AND_SUBSCRIBER_AET,
-        query="delete from Subscription sub " +
-                "where sub.upsInstanceUID = ?1 and sub.subscriberAET = ?2")
-@NamedQuery(
         name=Subscription.DELETE_BY_SUBSCRIBER_AET,
         query="delete from Subscription sub " +
                 "where sub.subscriberAET = ?1")
@@ -82,7 +78,6 @@ public class Subscription {
     public static final String FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET = "Subscription.findByUPSIUIDAndSubscriberAET";
     public static final String FIND_BY_UPS_IUID = "Subscription.findByUPSIUID";
     public static final String FIND_BY_UPS_IUID_EAGER = "Subscription.findByUPSIUIDEager";
-    public static final String DELETE_BY_UPS_IUID_AND_SUBSCRIBER_AET = "Subscription.deleteByUPSIUIDAndSubscriberAET";
     public static final String DELETE_BY_SUBSCRIBER_AET = "Subscription.deleteBySubscriberAET";
 
     @Id
