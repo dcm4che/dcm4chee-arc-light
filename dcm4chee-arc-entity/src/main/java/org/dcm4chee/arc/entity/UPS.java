@@ -57,35 +57,35 @@ import java.util.Collection;
 import java.util.Date;
 
 @NamedQuery(
-        name=Workitem.PK_BY_SOP_IUID,
-        query="select ups.pk from Workitem ups where ups.sopInstanceUID = ?1")
+        name= UPS.FIND_BY_IUID,
+        query="select ups from UPS ups where ups.upsInstanceUID = ?1")
 @NamedQuery(
-        name=Workitem.FIND_BY_SOP_IUID_EAGER,
-        query="select ups from Workitem ups " +
+        name= UPS.FIND_BY_IUID_EAGER,
+        query="select ups from UPS ups " +
                 "join fetch ups.patient p " +
                 "join fetch ups.attributesBlob " +
                 "join fetch p.attributesBlob " +
-                "where ups.sopInstanceUID = ?1")
+                "where ups.upsInstanceUID = ?1")
 @Entity
-@Table(name = "workitem",
-        uniqueConstraints = @UniqueConstraint(columnNames = "sop_iuid" ),
+@Table(name = "ups",
+        uniqueConstraints = @UniqueConstraint(columnNames = "ups_iuid" ),
         indexes = {
                 @Index(columnList = "updated_time"),
-                @Index(columnList = "sps_priority"),
-                @Index(columnList = "sps_label"),
+                @Index(columnList = "ups_priority"),
+                @Index(columnList = "ups_label"),
                 @Index(columnList = "worklist_label"),
-                @Index(columnList = "sps_start_date_time"),
-                @Index(columnList = "sps_expiration_date_time"),
+                @Index(columnList = "start_date_time"),
+                @Index(columnList = "expiration_date_time"),
                 @Index(columnList = "expected_end_date_time"),
                 @Index(columnList = "input_readiness_state"),
                 @Index(columnList = "admission_id"),
                 @Index(columnList = "replaced_iuid"),
                 @Index(columnList = "ups_state")
         })
-public class Workitem {
+public class UPS {
 
-    public static final String PK_BY_SOP_IUID = "Workitem.pkBySopIUID";
-    public static final String FIND_BY_SOP_IUID_EAGER = "Workitem.findBySopIUIDEager";
+    public static final String FIND_BY_IUID = "UPS.findByIUID";
+    public static final String FIND_BY_IUID_EAGER = "UPS.findByIUIDEager";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -107,27 +107,27 @@ public class Workitem {
     private Date updatedTime;
 
     @Basic(optional = false)
-    @Column(name = "sop_iuid", updatable = false)
-    private String sopInstanceUID;
+    @Column(name = "ups_iuid", updatable = false)
+    private String upsInstanceUID;
 
     @Basic(optional = false)
-    @Column(name = "sps_priority")
-    private SPSPriority spsPriority;
+    @Column(name = "ups_priority")
+    private UPSPriority upsPriority;
 
     @Basic(optional = false)
-    @Column(name = "sps_label")
-    private String spsLabel;
+    @Column(name = "ups_label")
+    private String upsLabel;
 
     @Basic(optional = false)
     @Column(name = "worklist_label")
     private String worklistLabel;
 
     @Basic(optional = false)
-    @Column(name = "sps_start_date_time")
+    @Column(name = "start_date_time")
     private String scheduledStartDateAndTime;
 
     @Basic(optional = false)
-    @Column(name = "sps_expiration_date_time")
+    @Column(name = "expiration_date_time")
     private String scheduledProcedureStepExpirationDateTime;
 
     @Basic(optional = false)
@@ -154,7 +154,7 @@ public class Workitem {
     private UPSState procedureStepState;
 
     @ManyToOne
-    @JoinColumn(name = "sps_code_fk")
+    @JoinColumn(name = "ups_code_fk")
     private CodeEntity scheduledWorkitemCode;
 
     @ManyToOne
@@ -174,14 +174,14 @@ public class Workitem {
     private IssuerEntity issuerOfAdmissionID;
 
     @ManyToMany
-    @JoinTable(name = "rel_workitem_perf_code",
-            joinColumns = @JoinColumn(name = "workitem_fk", referencedColumnName = "pk"),
+    @JoinTable(name = "rel_ups_perf_code",
+            joinColumns = @JoinColumn(name = "ups_fk", referencedColumnName = "pk"),
             inverseJoinColumns = @JoinColumn(name = "perf_code_fk", referencedColumnName = "pk"))
     private Collection<CodeEntity> humanPerformerCodes;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "workitem_fk")
-    private Collection<WorkitemRequest> referencedRequests;
+    @JoinColumn(name = "ups_fk")
+    private Collection<UPSRequest> referencedRequests;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
@@ -193,8 +193,8 @@ public class Workitem {
 
     @Override
     public String toString() {
-        return "Workitem[pk=" + pk
-                + ", uid=" + sopInstanceUID
+        return "UPS[pk=" + pk
+                + ", uid=" + upsInstanceUID
                 + ", state=" + procedureStepState
                 + "]";
     }
@@ -224,12 +224,12 @@ public class Workitem {
         return updatedTime;
     }
 
-    public String getSopInstanceUID() {
-        return sopInstanceUID;
+    public String getUpsInstanceUID() {
+        return upsInstanceUID;
     }
 
-    public void setSopInstanceUID(String sopInstanceUID) {
-        this.sopInstanceUID = sopInstanceUID;
+    public void setUpsInstanceUID(String upsInstanceUID) {
+        this.upsInstanceUID = upsInstanceUID;
     }
 
     public UPSState getProcedureStepState() {
@@ -253,8 +253,8 @@ public class Workitem {
     }
 
     public void setAttributes(Attributes attrs, AttributeFilter filter) {
-        spsPriority = SPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority));
-        spsLabel = attrs.getString(Tag.ProcedureStepLabel);
+        upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority));
+        upsLabel = attrs.getString(Tag.ProcedureStepLabel);
         worklistLabel = attrs.getString(Tag.WorklistLabel);
         scheduledStartDateAndTime = attrs.getString(Tag.ScheduledProcedureStepStartDateTime);
         scheduledProcedureStepExpirationDateTime = attrs.getString(Tag.ScheduledProcedureStepExpirationDateTime, "*");
@@ -303,7 +303,7 @@ public class Workitem {
         return humanPerformerCodes;
     }
 
-    public Collection<WorkitemRequest> getReferencedRequests() {
+    public Collection<UPSRequest> getReferencedRequests() {
         if (referencedRequests == null) {
             referencedRequests = new ArrayList<>();
         }

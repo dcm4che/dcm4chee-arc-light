@@ -51,13 +51,13 @@ import javax.persistence.*;
  * @since Sep 2019
  */
 @Entity
-@Table(name = "workitem_req", indexes = {
+@Table(name = "ups_req", indexes = {
     @Index(columnList = "accession_no"),
     @Index(columnList = "req_service"),
     @Index(columnList = "req_proc_id"),
     @Index(columnList = "study_iuid")
 })
-public class WorkitemRequest {
+public class UPSRequest {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -88,9 +88,9 @@ public class WorkitemRequest {
     @JoinColumn(name = "accno_issuer_fk")
     private IssuerEntity issuerOfAccessionNumber;
 
-    public WorkitemRequest() {}
+    public UPSRequest() {}
 
-    public WorkitemRequest(Attributes attrs, IssuerEntity issuerOfAccessionNumber,
+    public UPSRequest(Attributes attrs, IssuerEntity issuerOfAccessionNumber,
                                    FuzzyStr fuzzyStr) {
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID, "*");
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
@@ -135,7 +135,7 @@ public class WorkitemRequest {
 
     @Override
     public String toString() {
-        return "WorkitemRequest[pk=" + pk
+        return "UPSRequest[pk=" + pk
                 + ", suid=" + studyInstanceUID
                 + ", accno=" + accessionNumber
                 + ", rpid=" + requestedProcedureID

@@ -63,7 +63,7 @@ import java.util.stream.Stream;
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String defaultWorklistLabel;
-    private String[] uPSEventSCUs = {};
+    private String[] upsEventSCUs = {};
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
@@ -176,16 +176,16 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public String[] getUPSEventSCUs() {
-        return uPSEventSCUs;
+        return upsEventSCUs;
     }
 
-    public void setUPSEventSCUs(String[] uPSEventSCUs) {
-        this.uPSEventSCUs = uPSEventSCUs;
+    public void setUPSEventSCUs(String[] upsEventSCUs) {
+        this.upsEventSCUs = upsEventSCUs;
     }
 
-    public String[] uPSEventSCUs() {
-        return uPSEventSCUs.length > 0
-                ? uPSEventSCUs
+    public String[] upsEventSCUs() {
+        return upsEventSCUs.length > 0
+                ? upsEventSCUs
                 : getArchiveDeviceExtension().getUPSEventSCUs();
     }
 
@@ -1349,7 +1349,7 @@ public class ArchiveAEExtension extends AEExtension {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
         defaultWorklistLabel = aeExt.defaultWorklistLabel;
-        uPSEventSCUs = aeExt.uPSEventSCUs;
+        upsEventSCUs = aeExt.upsEventSCUs;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;

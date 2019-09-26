@@ -55,6 +55,7 @@ import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static org.dcm4chee.arc.entity.Instance_.contentItems;
 
@@ -110,7 +111,7 @@ public class QueryBuilder {
         return result;
     }
 
-    public List<Order> orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, List<OrderByTag> orderByTags) {
+    public List<Order> orderWorkitems(Join<UPS, Patient> patient, Root<UPS> workitem, List<OrderByTag> orderByTags) {
         List<Order> result = new ArrayList<>(orderByTags.size());
         for (OrderByTag orderByTag : orderByTags)
             orderWorkitems(patient, workitem, orderByTag, result);
@@ -237,31 +238,31 @@ public class QueryBuilder {
         return false;
     }
 
-    private <Z> boolean orderWorkitems(Join<Workitem, Patient> patient, Root<Workitem> workitem, OrderByTag orderByTag, List<Order> result) {
+    private <Z> boolean orderWorkitems(Join<UPS, Patient> patient, Root<UPS> workitem, OrderByTag orderByTag, List<Order> result) {
         if (patient != null && orderPatients(patient, orderByTag, result))
             return true;
 
         switch (orderByTag.tag) {
             case Tag.ScheduledProcedureStepPriority:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsPriority)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.upsPriority)));
             case Tag.ScheduledProcedureStepModificationDateTime:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.updatedTime)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.updatedTime)));
             case Tag.ProcedureStepLabel:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.spsLabel)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.upsLabel)));
             case Tag.WorklistLabel:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.worklistLabel)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.worklistLabel)));
             case Tag.ScheduledProcedureStepStartDateTime:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.scheduledStartDateAndTime)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.scheduledStartDateAndTime)));
             case Tag.ExpectedCompletionDateTime:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.expectedCompletionDateAndTime)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.expectedCompletionDateAndTime)));
             case Tag.ScheduledProcedureStepExpirationDateTime:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.scheduledProcedureStepExpirationDateTime)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.scheduledProcedureStepExpirationDateTime)));
             case Tag.InputReadinessState:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.inputReadinessState)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.inputReadinessState)));
             case Tag.AdmissionID:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.admissionID)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.admissionID)));
             case Tag.ProcedureStepState:
-                return result.add(orderByTag.order(cb, workitem.get(Workitem_.procedureStepState)));
+                return result.add(orderByTag.order(cb, workitem.get(UPS_.procedureStepState)));
         }
         return false;
     }
@@ -359,12 +360,12 @@ public class QueryBuilder {
         return predicates;
     }
 
-    public <T> List<Predicate> workitemPredicates(CriteriaQuery<T> q,
-            Join<Workitem, Patient> patient, Root<Workitem> workitem,
+    public <T> List<Predicate> upsPredicates(CriteriaQuery<T> q,
+            Join<UPS, Patient> patient, Root<UPS> workitem,
             IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
-        workitemLevelPredicates(predicates, q, workitem, keys, queryParam);
+        upsLevelPredicates(predicates, q, workitem, keys, queryParam);
         return predicates;
     }
 
@@ -716,49 +717,51 @@ public class QueryBuilder {
             predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
     }
 
-    private <T> void workitemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            Root<Workitem> workitem, Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, workitem.get(Workitem_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
-        anyOf(predicates, workitem.get(Workitem_.spsPriority), SPSPriority::valueOf,
+    private <T> void upsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+            Root<UPS> ups, Attributes keys, QueryParam queryParam) {
+        uidsPredicate(predicates, ups.get(UPS_.upsInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        anyOf(predicates, ups.get(UPS_.upsPriority), UPSPriority::valueOf,
                 toUpperCase(keys.getStrings(Tag.ScheduledProcedureStepPriority)));
-        dateRange(predicates, workitem.get(Workitem_.updatedTime),
+        dateRange(predicates, ups.get(UPS_.updatedTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
-        anyOf(predicates, workitem.get(Workitem_.spsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
-        anyOf(predicates, workitem.get(Workitem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
-        code(predicates, workitem.get(Workitem_.scheduledStationNameCode),
+        anyOf(predicates, ups.get(UPS_.upsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
+        anyOf(predicates, ups.get(UPS_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
+        code(predicates, ups.get(UPS_.scheduledStationNameCode),
                 keys.getNestedDataset(Tag.ScheduledStationNameCodeSequence));
-        code(predicates, workitem.get(Workitem_.scheduledStationClassCode),
+        code(predicates, ups.get(UPS_.scheduledStationClassCode),
                 keys.getNestedDataset(Tag.ScheduledStationClassCodeSequence));
-        code(predicates, workitem.get(Workitem_.scheduledStationGeographicLocationCode),
+        code(predicates, ups.get(UPS_.scheduledStationGeographicLocationCode),
                 keys.getNestedDataset(Tag.ScheduledStationGeographicLocationCodeSequence));
         Attributes scheduledHumanPerformersSequence = keys.getNestedDataset(Tag.ScheduledHumanPerformersSequence);
         if (scheduledHumanPerformersSequence != null)
-            performerCode(predicates, q, workitem,
+            performerCode(predicates, q, ups,
                 scheduledHumanPerformersSequence.getSequence(Tag.HumanPerformerCodeSequence).get(0));
-        dateRange(predicates, workitem.get(Workitem_.scheduledStartDateAndTime),
+        dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
-        dateRange(predicates, workitem.get(Workitem_.expectedCompletionDateAndTime),
+        dateRange(predicates, ups.get(UPS_.expectedCompletionDateAndTime),
                 keys.getDateRange(Tag.ExpectedCompletionDateTime), FormatDate.DT);
-        dateRange(predicates, workitem.get(Workitem_.scheduledProcedureStepExpirationDateTime),
+        dateRange(predicates, ups.get(UPS_.scheduledProcedureStepExpirationDateTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepExpirationDateTime), FormatDate.DT);
-        code(predicates, workitem.get(Workitem_.scheduledWorkitemCode),
+        code(predicates, ups.get(UPS_.scheduledWorkitemCode),
                 keys.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
-        anyOf(predicates, workitem.get(Workitem_.inputReadinessState), InputReadinessState::valueOf,
+        anyOf(predicates, ups.get(UPS_.inputReadinessState), InputReadinessState::valueOf,
                 toUpperCase(keys.getStrings(Tag.InputReadinessState)));
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
             if (issuer != null)
-              idWithIssuer(predicates, workitem, Workitem_.admissionID, Workitem_.issuerOfAdmissionID, admissionID, issuer);
+              idWithIssuer(predicates, ups, UPS_.admissionID, UPS_.issuerOfAdmissionID, admissionID, issuer);
             else
-                predicates.add(cb.equal(workitem.get(Workitem_.admissionID), admissionID));
+                predicates.add(cb.equal(ups.get(UPS_.admissionID), admissionID));
         }
-        workitemRequestAttributes(predicates, q, workitem, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
-        uidsPredicate(predicates, workitem.get(Workitem_.replacedSOPInstanceUID),
+        upsRequestAttributes(predicates, q, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
+        uidsPredicate(predicates, ups.get(UPS_.replacedSOPInstanceUID),
                 getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                         Tag.ReferencedSOPInstanceUID, "*"));
-        anyOf(predicates, workitem.get(Workitem_.procedureStepState), UPSState::valueOf,
+        anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::valueOf,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
+        subscribedBy(predicates, q, ups, queryParam.getSubscriberAET());
+        notSubscribedBy(predicates, q, ups, queryParam.getSubscriberAETNot());
     }
 
     private String getString(Attributes item, int tag, String defVal) {
@@ -992,17 +995,39 @@ public class QueryBuilder {
     }
 
     private <T, Z> void performerCode(List<Predicate> predicates, CriteriaQuery<T> q,
-                                      From<Z, Workitem> workitem, Attributes item) {
+                                      From<Z, UPS> ups, Attributes item) {
         if (isUniversalMatching(item))
             return;
 
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
-        From<Z, Workitem> sqWorkitem = correlate(sq, workitem);
-        CollectionJoin<Workitem, CodeEntity> code = sqWorkitem.join(Workitem_.humanPerformerCodes);
+        From<Z, UPS> sqUPS = correlate(sq, ups);
+        CollectionJoin<UPS, CodeEntity> code = sqUPS.join(UPS_.humanPerformerCodes);
         List<Predicate> y = new ArrayList<>();
         code(y, code, item);
         if (!y.isEmpty())
             predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
+    }
+
+    private <T, Z> void subscribedBy(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, UPS> ups, String subscriberAET) {
+        subscribedBy(predicates, q, ups, subscriberAET, UnaryOperator.identity());
+    }
+
+    private <T, Z> void notSubscribedBy(List<Predicate> predicates, CriteriaQuery<T> q,
+            From<Z, UPS> ups, String subscriberAET) {
+        subscribedBy(predicates, q, ups, subscriberAET, Predicate::not);
+    }
+
+    private <T, Z> void subscribedBy(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, UPS> ups,
+            String subscriberAET, UnaryOperator<Predicate> op) {
+        if (subscriberAET == null)
+            return;
+
+        Subquery<Subscription> sq = q.subquery(Subscription.class);
+        Root<Subscription> sub = sq.from(Subscription.class);
+        predicates.add(op.apply(cb.exists(sq.select(sub).where(
+                cb.equal(sub.get(Subscription_.upsInstanceUID), ups.get(UPS_.upsInstanceUID)),
+                cb.equal(sub.get(Subscription_.subscriberAET), subscriberAET)))));
     }
 
     private <T, Z> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Series> series,
@@ -1042,14 +1067,14 @@ public class QueryBuilder {
         }
     }
 
-    private <T, Z> void workitemRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Workitem> workitem,
+    private <T, Z> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, UPS> ups,
                                           Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
-        Subquery<WorkitemRequest> sq = q.subquery(WorkitemRequest.class);
-        From<Z, Workitem> sqWorkitem = correlate(sq, workitem);
-        Join<Workitem, WorkitemRequest> request = sqWorkitem.join(Workitem_.referencedRequests);
+        Subquery<UPSRequest> sq = q.subquery(UPSRequest.class);
+        From<Z, UPS> sqUPS = correlate(sq, ups);
+        Join<UPS, UPSRequest> request = sqUPS.join(UPS_.referencedRequests);
         List<Predicate> requestPredicates = new ArrayList<>();
         String accNo = item.getString(Tag.AccessionNumber, "*");
         if (!isUniversalMatching(accNo)) {
@@ -1058,18 +1083,18 @@ public class QueryBuilder {
             if (issuerOfAccessionNumber == null)
                 issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
             idWithIssuer(requestPredicates, request,
-                    WorkitemRequest_.accessionNumber, WorkitemRequest_.issuerOfAccessionNumber,
+                    UPSRequest_.accessionNumber, UPSRequest_.issuerOfAccessionNumber,
                     accNo, issuerOfAccessionNumber);
         }
         anyOf(requestPredicates,
-                request.get(WorkitemRequest_.requestingService),
+                request.get(UPSRequest_.requestingService),
                 item.getStrings(Tag.RequestingService), true);
-        personName(requestPredicates, q, request, WorkitemRequest_.requestingPhysician,
+        personName(requestPredicates, q, request, UPSRequest_.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
         anyOf(requestPredicates,
-                request.get(WorkitemRequest_.requestedProcedureID),
+                request.get(UPSRequest_.requestedProcedureID),
                 item.getStrings(Tag.RequestedProcedureID), false);
-        uidsPredicate(requestPredicates, request.get(WorkitemRequest_.studyInstanceUID),
+        uidsPredicate(requestPredicates, request.get(UPSRequest_.studyInstanceUID),
                 item.getStrings(Tag.StudyInstanceUID));
         if (!requestPredicates.isEmpty())
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));

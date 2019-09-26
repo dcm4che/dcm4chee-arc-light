@@ -89,6 +89,8 @@ public interface QueryService {
 
     Query createUPSQuery(QueryContext ctx);
 
+    Query createUPSWithoutQueryEvent(QueryContext ctx);
+
     Attributes getSeriesAttributes(QueryContext context, Long seriesPk);
 
     void addLocationAttributes(Attributes attrs, Long instancePk);

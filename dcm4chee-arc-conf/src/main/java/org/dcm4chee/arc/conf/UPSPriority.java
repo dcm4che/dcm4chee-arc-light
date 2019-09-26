@@ -39,50 +39,12 @@
  *
  */
 
-package org.dcm4chee.arc.ups;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2019
  */
-public interface UPSContext {
-
-    HttpServletRequestInfo getHttpRequestInfo();
-
-    Association getAssociation();
-
-    ArchiveAEExtension getArchiveAEExtension();
-
-    ApplicationEntity getApplicationEntity();
-
-    ArchiveDeviceExtension getArchiveDeviceExtension();
-
-    String getUpsInstanceUID();
-
-    void setUpsInstanceUID(String upsInstanceUID);
-
-    boolean isGlobalSubscription();
-
-    String getSubscriberAET();
-
-    void setSubscriberAET(String subscriberAET);
-
-    boolean isDeletionLock();
-
-    void setDeletionLock(boolean deletionLock);
-
-    int getStatus();
-
-    void setStatus(int status);
-
-    Attributes getAttributes();
-
-    void setAttributes(Attributes attributes);
+public enum UPSPriority {
+    LOW, MEDIUM, HIGH
 }

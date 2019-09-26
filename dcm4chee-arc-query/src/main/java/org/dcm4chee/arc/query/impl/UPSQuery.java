@@ -58,8 +58,8 @@ import java.util.List;
  * @since Sep 2019
  */
 public class UPSQuery extends AbstractQuery {
-    private Root<Workitem> workitem;
-    private Join<Workitem, Patient> patient;
+    private Root<UPS> ups;
+    private Join<UPS, Patient> patient;
     private Path<byte[]> patientAttrBlob;
     private Path<byte[]> upsAttrBlob;
 
@@ -70,21 +70,21 @@ public class UPSQuery extends AbstractQuery {
     @Override
     protected CriteriaQuery<Tuple> multiselect() {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        this.workitem = q.from(Workitem.class);
-        this.patient = workitem.join(Workitem_.patient);
-        return order(restrict(q, patient, workitem)).multiselect(
-                workitem.get(Workitem_.sopInstanceUID),
-                workitem.get(Workitem_.updatedTime),
+        this.ups = q.from(UPS.class);
+        this.patient = ups.join(UPS_.patient);
+        return order(restrict(q, patient, ups)).multiselect(
+                ups.get(UPS_.upsInstanceUID),
+                ups.get(UPS_.updatedTime),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                upsAttrBlob = workitem.join(Workitem_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+                upsAttrBlob = ups.join(UPS_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
 
     @Override
     protected CriteriaQuery<Long> count() {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<Workitem> workitem = q.from(Workitem.class);
-        Join<Workitem, Patient> patient = workitem.join(Workitem_.patient);
-        return restrict(q, patient, workitem).select(cb.count(workitem));
+        Root<UPS> ups = q.from(UPS.class);
+        Join<UPS, Patient> patient = ups.join(UPS_.patient);
+        return restrict(q, patient, ups).select(cb.count(ups));
     }
 
     @Override
@@ -96,9 +96,9 @@ public class UPSQuery extends AbstractQuery {
         attrs.addAll(patAttrs);
         attrs.addAll(upsAttrs);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
-        attrs.setString(Tag.SOPInstanceUID, VR.UI, results.get(workitem.get(Workitem_.sopInstanceUID)));
+        attrs.setString(Tag.SOPInstanceUID, VR.UI, results.get(ups.get(UPS_.upsInstanceUID)));
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT,
-                results.get(workitem.get(Workitem_.updatedTime)));
+                results.get(ups.get(UPS_.updatedTime)));
         return attrs;
     }
 
@@ -110,12 +110,12 @@ public class UPSQuery extends AbstractQuery {
 
     private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
         if (context.getOrderByTags() != null)
-            q.orderBy(builder.orderWorkitems(patient, workitem, context.getOrderByTags()));
+            q.orderBy(builder.orderWorkitems(patient, ups, context.getOrderByTags()));
         return q;
     }
 
-    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<Workitem, Patient> patient, Root<Workitem> workitem) {
-        List<Predicate> predicates = builder.workitemPredicates(q, patient, workitem,
+    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<UPS, Patient> patient, Root<UPS> ups) {
+        List<Predicate> predicates = builder.upsPredicates(q, patient, ups,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam());

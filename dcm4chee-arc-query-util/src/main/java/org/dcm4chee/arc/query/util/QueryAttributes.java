@@ -105,8 +105,11 @@ public class QueryAttributes {
                     break;
                 case "accept":
                 case "access_token":
+                case "charset":
                 case "comparefield":
                 case "count":
+                case "deletionlock":
+                case "workitem":
                 case "different":
                 case "missing":
                 case "offset":

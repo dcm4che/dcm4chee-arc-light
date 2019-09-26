@@ -42,8 +42,11 @@
 package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
 
@@ -56,7 +59,9 @@ public class UPSContextImpl implements UPSContext {
     private final HttpServletRequestInfo httpRequestInfo;
     private final ArchiveAEExtension archiveAEExtension;
     private Attributes attributes;
-    private String sopInstanceUID;
+    private String upsInstanceUID;
+    private String subscriberAET;
+    private boolean deletionLock;
     private int status;
 
     public UPSContextImpl(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension archiveAEExtension) {
@@ -87,13 +92,49 @@ public class UPSContextImpl implements UPSContext {
     }
 
     @Override
-    public String getSopInstanceUID() {
-        return sopInstanceUID;
+    public ApplicationEntity getApplicationEntity() {
+        return archiveAEExtension.getApplicationEntity();
     }
 
     @Override
-    public void setSopInstanceUID(String sopInstanceUID) {
-        this.sopInstanceUID = sopInstanceUID;
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return archiveAEExtension.getArchiveDeviceExtension();
+    }
+
+    @Override
+    public String getUpsInstanceUID() {
+        return upsInstanceUID;
+    }
+
+    @Override
+    public void setUpsInstanceUID(String upsInstanceUID) {
+        this.upsInstanceUID = upsInstanceUID;
+    }
+
+    @Override
+    public boolean isGlobalSubscription() {
+        return upsInstanceUID.equals(UID.UPSGlobalSubscriptionSOPInstance)
+                || upsInstanceUID.equals(UID.UPSFilteredGlobalSubscriptionSOPInstance);
+    }
+
+    @Override
+    public String getSubscriberAET() {
+        return subscriberAET;
+    }
+
+    @Override
+    public void setSubscriberAET(String subscriberAET) {
+        this.subscriberAET = subscriberAET;
+    }
+
+    @Override
+    public boolean isDeletionLock() {
+        return deletionLock;
+    }
+
+    @Override
+    public void setDeletionLock(boolean deletionLock) {
+        this.deletionLock = deletionLock;
     }
 
     @Override

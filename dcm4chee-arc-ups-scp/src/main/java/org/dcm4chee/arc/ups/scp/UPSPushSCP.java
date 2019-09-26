@@ -147,26 +147,26 @@ public class UPSPushSCP extends AbstractDicomService {
     private Attributes create(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setSopInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
+        ctx.setUpsInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
-        service.createWorkitem(ctx);
+        service.createUPS(ctx);
         return null;
     }
 
     private Attributes set(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setSopInstanceUID(rq.getString(Tag.RequestedSOPClassUID));
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPClassUID));
         ctx.setAttributes(rqAttrs);
-        service.updateWorkitem(ctx);
+        service.updateUPS(ctx);
         return null;
     }
 
     private Attributes get(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setSopInstanceUID(rq.getString(Tag.RequestAttributesSequence));
-        service.findWorkitem(ctx);
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        service.findUPS(ctx);
         return filter(ctx.getAttributes(), rqAttrs.getInts(Tag.AttributeIdentifierList));
     }
 
@@ -178,10 +178,10 @@ public class UPSPushSCP extends AbstractDicomService {
             throws DicomServiceException {
         int actionTypeID = validateActionTypeID(rq.getInt(Tag.ActionTypeID, 0), validActionTypeIDs);
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setSopInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
         switch(actionTypeID) {
             case 1:
-                service.changeWorkitemState(ctx);
+                service.changeUPSState(ctx);
                 break;
             case 2:
                 break;

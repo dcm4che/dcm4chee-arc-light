@@ -73,7 +73,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private volatile String defaultCharacterSet;
     private volatile String defaultWorklistLabel;
-    private volatile String[] uPSEventSCUs = {};
+    private volatile String[] upsEventSCUs = {};
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
@@ -301,11 +301,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public String[] getUPSEventSCUs() {
-        return uPSEventSCUs;
+        return upsEventSCUs;
     }
 
-    public void setUPSEventSCUs(String[] uPSEventSCUs) {
-        this.uPSEventSCUs = uPSEventSCUs;
+    public void setUPSEventSCUs(String[] upsEventSCUs) {
+        this.upsEventSCUs = upsEventSCUs;
     }
 
     public String getFuzzyAlgorithmClass() {
@@ -2442,7 +2442,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
         defaultCharacterSet = arcdev.defaultCharacterSet;
         defaultWorklistLabel = arcdev.defaultWorklistLabel;
-        uPSEventSCUs = arcdev.uPSEventSCUs;
+        upsEventSCUs = arcdev.upsEventSCUs;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;

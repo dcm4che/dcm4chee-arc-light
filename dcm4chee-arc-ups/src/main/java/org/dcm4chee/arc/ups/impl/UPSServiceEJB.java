@@ -63,6 +63,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,15 +86,11 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public Workitem createWorkitem(UPSContext ctx) {
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+    public UPS createUPS(UPSContext ctx, List<Subscription> globalSubscriptions) {
+        ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
-        if (!attrs.containsValue(Tag.WorklistLabel)) {
-            attrs.setString(Tag.WorklistLabel, VR.LO, arcAE.defaultWorklistLabel());
-        }
-        Workitem workitem = new Workitem();
-        workitem.setSopInstanceUID(ctx.getSopInstanceUID());
+        UPS ups = new UPS();
+        ups.setUpsInstanceUID(ctx.getUpsInstanceUID());
         PatientMgtContext patMgtCtx = ctx.getAssociation() != null
                 ? patientService.createPatientMgtContextDIMSE(ctx.getAssociation())
                 : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
@@ -102,33 +99,42 @@ public class UPSServiceEJB {
         if (pat == null) {
             pat = patientService.createPatient(patMgtCtx);
         }
-        workitem.setPatient(pat);
-        workitem.setIssuerOfAdmissionID(
+        ups.setPatient(pat);
+        ups.setIssuerOfAdmissionID(
                 findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
-        workitem.setScheduledWorkitemCode(
+        ups.setScheduledWorkitemCode(
                 findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
-        workitem.setScheduledStationNameCode(
+        ups.setScheduledStationNameCode(
                 findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
-        workitem.setScheduledStationClassCode(
+        ups.setScheduledStationClassCode(
                 findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
-        workitem.setScheduledStationGeographicLocationCode(
+        ups.setScheduledStationGeographicLocationCode(
                 findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
-        setHumanPerformerCodes(workitem.getHumanPerformerCodes(),
+        setHumanPerformerCodes(ups.getHumanPerformerCodes(),
                 attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
-        setReferencedRequests(workitem.getReferencedRequests(),
+        setReferencedRequests(ups.getReferencedRequests(),
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
-        workitem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
-        em.persist(workitem);
-        return workitem;
+        ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
+        em.persist(ups);
+        LOG.info("{}: Create {}", ctx, ups);
+        for (Subscription globalSubscription : globalSubscriptions) {
+            createSubscription(ctx,
+                    ctx.getUpsInstanceUID(),
+                    globalSubscription.getSubscriberAET(),
+                    globalSubscription.isDeletionLock(),
+                    null,
+                    ups);
+        }
+        return ups;
     }
 
-    public Workitem updateWorkitem(UPSContext ctx) throws DicomServiceException {
+    public UPS updateUPS(UPSContext ctx) throws DicomServiceException {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Workitem workitem = findWorkitem(ctx);
+        UPS ups = findUPS(ctx);
         String transactionUID = ctx.getAttributes().getString(Tag.TransactionUID);
-        switch (workitem.getProcedureStepState()) {
+        switch (ups.getProcedureStepState()) {
             case SCHEDULED:
                 if (transactionUID != null)
                     throw new DicomServiceException(Status.UPSNotYetInProgress,
@@ -138,7 +144,7 @@ public class UPSServiceEJB {
                 if (transactionUID == null)
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is missing.", false);
-                if (!transactionUID.equals(workitem.getTransactionUID()))
+                if (!transactionUID.equals(ups.getTransactionUID()))
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is incorrect.", false);
                 break;
@@ -149,40 +155,41 @@ public class UPSServiceEJB {
         }
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         Attributes modified = new Attributes();
-        Attributes attrs = workitem.getAttributes();
+        Attributes attrs = ups.getAttributes();
         if (attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
                 filter.getSelection())) {
             if (modified.contains(Tag.IssuerOfAdmissionIDSequence))
-                workitem.setIssuerOfAdmissionID(
+                ups.setIssuerOfAdmissionID(
                         findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
             if (modified.contains(Tag.ScheduledWorkitemCodeSequence))
-                workitem.setScheduledWorkitemCode(
+                ups.setScheduledWorkitemCode(
                         findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
             if (modified.contains(Tag.ScheduledStationNameCodeSequence))
-                workitem.setScheduledStationNameCode(
+                ups.setScheduledStationNameCode(
                         findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
             if (modified.contains(Tag.ScheduledStationClassCodeSequence))
-                workitem.setScheduledStationClassCode(
+                ups.setScheduledStationClassCode(
                         findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
             if (modified.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-                workitem.setScheduledStationGeographicLocationCode(
+                ups.setScheduledStationGeographicLocationCode(
                         findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
             if (modified.contains(Tag.ScheduledHumanPerformersSequence))
-                setHumanPerformerCodes(workitem.getHumanPerformerCodes(),
+                setHumanPerformerCodes(ups.getHumanPerformerCodes(),
                         attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
             if (modified.contains(Tag.ReferencedRequestSequence))
-                setReferencedRequests(workitem.getReferencedRequests(),
+                setReferencedRequests(ups.getReferencedRequests(),
                         attrs.getSequence(Tag.ReferencedRequestSequence),
                         arcDev.getFuzzyStr());
-            workitem.setAttributes(attrs, filter);
+            ups.setAttributes(attrs, filter);
         }
-        return workitem;
+        LOG.info("{}: Update {}", ctx, ups);
+        return ups;
     }
 
-    public Workitem findWorkitem(UPSContext ctx) throws DicomServiceException {
+    public UPS findUPS(UPSContext ctx) throws DicomServiceException {
         try {
-            return em.createNamedQuery(Workitem.FIND_BY_SOP_IUID_EAGER, Workitem.class)
-                    .setParameter(1, ctx.getSopInstanceUID())
+            return em.createNamedQuery(UPS.FIND_BY_IUID_EAGER, UPS.class)
+                    .setParameter(1, ctx.getUpsInstanceUID())
                     .getSingleResult();
         } catch (NoResultException e) {
             throw new DicomServiceException(Status.UPSDoesNotExist,
@@ -191,17 +198,17 @@ public class UPSServiceEJB {
     }
 
     public boolean exists(UPSContext ctx) {
-        return !em.createNamedQuery(Workitem.PK_BY_SOP_IUID)
-                .setParameter(1, ctx.getSopInstanceUID())
+        return !em.createNamedQuery(UPS.FIND_BY_IUID)
+                .setParameter(1, ctx.getUpsInstanceUID())
                 .getResultList().isEmpty();
     }
 
-    private void setReferencedRequests(Collection<WorkitemRequest> referencedRequests,
+    private void setReferencedRequests(Collection<UPSRequest> referencedRequests,
             Sequence seq, FuzzyStr fuzzyStr) {
         referencedRequests.clear();
         if (seq != null) {
             for (Attributes item : seq) {
-                referencedRequests.add(new WorkitemRequest(
+                referencedRequests.add(new UPSRequest(
                         item,
                         findOrCreateIssuer(item, Tag.IssuerOfAccessionNumberSequence),
                         fuzzyStr));
@@ -239,15 +246,15 @@ public class UPSServiceEJB {
         }
     }
 
-    public Workitem changeWorkitemState(UPSContext ctx, UPSState upsState, String transactionUID)
+    public UPS changeUPSState(UPSContext ctx, UPSState upsState, String transactionUID)
             throws DicomServiceException {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Workitem workitem = findWorkitem(ctx);
-        Attributes attrs = workitem.getAttributes();
+        UPS ups = findUPS(ctx);
+        Attributes attrs = ups.getAttributes();
         switch (upsState) {
             case IN_PROGRESS:
-                switch (workitem.getProcedureStepState()) {
+                switch (ups.getProcedureStepState()) {
                     case IN_PROGRESS:
                         throw new DicomServiceException(Status.UPSAlreadyInProgress,
                                 "The submitted request is inconsistent with the current state of the UPS Instance.",
@@ -258,32 +265,32 @@ public class UPSServiceEJB {
                                 "The submitted request is inconsistent with the current state of the UPS Instance.",
                                 false);
                 }
-                workitem.setTransactionUID(transactionUID);
+                ups.setTransactionUID(transactionUID);
                 break;
             case CANCELED:
-                switch (workitem.getProcedureStepState()) {
+                switch (ups.getProcedureStepState()) {
                     case SCHEDULED:
                         throw new DicomServiceException(Status.UPSNotYetInProgress,
                                 "The submitted request is inconsistent with the current state of the UPS Instance.",
                                 false);
                     case CANCELED:
                         ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCanceled);
-                        return workitem;
+                        return ups;
                     case COMPLETED:
                         throw new DicomServiceException(Status.UPSMayNoLongerBeUpdated,
                                 "The submitted request is inconsistent with the current state of the UPS Instance.",
                                 false);
                 }
-                if (!transactionUID.equals(workitem.getTransactionUID()))
+                if (!transactionUID.equals(ups.getTransactionUID()))
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is incorrect.", false);
                 if (!meetFinalStateRequirementsOfCanceled(attrs))
                     throw new DicomServiceException(Status.UPSNotMetFinalStateRequirements,
                             "The submitted request is inconsistent with the current state of the UPS Instance.", false);
-                workitem.setTransactionUID(null);
+                ups.setTransactionUID(null);
                 break;
            case COMPLETED:
-               switch (workitem.getProcedureStepState()) {
+               switch (ups.getProcedureStepState()) {
                    case SCHEDULED:
                        throw new DicomServiceException(Status.UPSNotYetInProgress,
                                "The submitted request is inconsistent with the current state of the UPS Instance.",
@@ -294,21 +301,113 @@ public class UPSServiceEJB {
                                false);
                    case COMPLETED:
                        ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCompleted);
-                       return workitem;
+                       return ups;
                }
-               if (!transactionUID.equals(workitem.getTransactionUID()))
+               if (!transactionUID.equals(ups.getTransactionUID()))
                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                            "The Transaction UID is incorrect.", false);
                if (!meetFinalStateRequirementsOfCompleted(attrs))
                    throw new DicomServiceException(Status.UPSNotMetFinalStateRequirements,
                            "The submitted request is inconsistent with the current state of the UPS Instance.", false);
-               workitem.setTransactionUID(null);
+               ups.setTransactionUID(null);
                break;
         }
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
-        workitem.setAttributes(attrs, filter);
-        return workitem;
+        ups.setAttributes(attrs, filter);
+        LOG.info("{}: Update {}", ctx, ups);
+        return ups;
+    }
+
+    public Subscription createOrUpdateSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS, UPS ups) {
+        try {
+            return updateSubscription(ctx, ups);
+        } catch (NoResultException e) {
+            for (Attributes attrs : notSubscribedUPS) {
+                String notSubscriptedIUID = attrs.getString(Tag.SOPInstanceUID);
+                createSubscription(ctx,
+                        notSubscriptedIUID,
+                        ctx.getSubscriberAET(),
+                        ctx.isDeletionLock(),
+                        null,
+                        ctx.isDeletionLock()
+                                ? em.createNamedQuery(UPS.FIND_BY_IUID, UPS.class)
+                                    .setParameter(1, notSubscriptedIUID)
+                                    .getSingleResult()
+                                : null);
+            }
+            return createSubscription(ctx,
+                    ctx.getUpsInstanceUID(),
+                    ctx.getSubscriberAET(),
+                    ctx.isDeletionLock(),
+                    ctx.getAttributes(),
+                    ups);
+        }
+    }
+
+
+    public Subscription createSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET,
+            boolean deletionLock, Attributes matchKeys, UPS ups) {
+        Subscription sub = new Subscription();
+        sub.setUpsInstanceUID(upsInstanceUID);
+        sub.setSubscriberAET(subscriberAET);
+        sub.setDeletionLock(deletionLock);
+        sub.setMatchKeys(matchKeys);
+        em.persist(sub);
+        LOG.info("{}: Create {}", ctx, sub);
+        if (deletionLock && ups != null) {
+            createDeletionLock(ctx, subscriberAET, ups);
+        }
+        return sub;
+    }
+
+    public List<Subscription> findGlobalSubscriptions() {
+        return em.createNamedQuery(Subscription.FIND_BY_UPS_IUID)
+                .setParameter(1, UID.UPSGlobalSubscriptionSOPInstance)
+                .getResultList();
+    }
+
+    public List<Subscription> findFilteredGlobalSubscriptions() {
+        return em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_EAGER)
+                .setParameter(1, UID.UPSFilteredGlobalSubscriptionSOPInstance)
+                .getResultList();
+    }
+
+    private Subscription updateSubscription(UPSContext ctx, UPS ups) {
+        Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET,
+                Subscription.class)
+                .setParameter(1, ctx.getUpsInstanceUID())
+                .setParameter(2, ctx.getSubscriberAET())
+                .getSingleResult();
+        if (ups != null) {
+            if (sub.isDeletionLock()) {
+                if (!ctx.isDeletionLock()) {
+                    deleteDeletionLock(ctx, ctx.getSubscriberAET(), ups);
+                }
+            } else {
+                if (ctx.isDeletionLock()) {
+                    createDeletionLock(ctx, ctx.getSubscriberAET(), ups);
+                }
+            }
+        }
+        sub.setDeletionLock(ctx.isDeletionLock());
+        sub.setMatchKeys(ctx.getAttributes());
+        LOG.info("{}: Update {}", ctx, sub);
+        return sub;
+    }
+
+    private void deleteDeletionLock(UPSContext ctx, String subscriberAET, UPS subscribedUPS) {
+        em.createNamedQuery(DeletionLock.DELETE_BY_AET_AND_UPS)
+                .setParameter(1, subscriberAET)
+                .setParameter(2, subscribedUPS)
+                .executeUpdate();
+        LOG.info("{}: Delete DeletionLock[iuid={}, aet={}]", ctx, subscribedUPS.getUpsInstanceUID(), subscriberAET);
+    }
+
+    private void createDeletionLock(UPSContext ctx, String subscriberAET, UPS subscribedUPS) {
+        DeletionLock lock = new DeletionLock(subscriberAET, subscribedUPS);
+        em.persist(lock);
+        LOG.info("{}: Create DeletionLock[iuid={}, aet={}]", ctx, subscribedUPS.getUpsInstanceUID(), subscriberAET);
     }
 
     private static boolean meetFinalStateRequirementsOfCompleted(Attributes attrs) {

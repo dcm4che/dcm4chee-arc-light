@@ -42,7 +42,7 @@
 package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
@@ -52,8 +52,8 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.UPSState;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -120,6 +120,7 @@ public class UpsRS {
 
     private ArchiveAEExtension arcAE;
     private ResponseMediaType responseMediaType;
+    private Attributes matchKeys;
 
     @POST
     @Path("/workitems")
@@ -183,15 +184,33 @@ public class UpsRS {
         return changeWorkitemState(iuid, parseXML(in));
     }
 
+    @POST
+    @Path("/workitems/{workitem}/subscribers/{SubscriberAET}")
+    public Response subscribe(
+            @PathParam("workitem") String iuid,
+            @PathParam("SubscriberAET") String subscriber) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUpsInstanceUID(iuid);
+        ctx.setSubscriberAET(subscriber);
+        ctx.setDeletionLock(Boolean.parseBoolean(deletionlock));
+        ctx.setAttributes(matchKeys);
+        try {
+            service.createSubscription(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::subscriptionFailed, e);
+        }
+        return Response.created(websocketOf(ctx)).build();
+    }
+
     @GET
     @NoCache
     @Path("/workitems/{workitem}")
     public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
         ResponseMediaType responseMediaType = getResponseMediaType();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setSopInstanceUID(iuid);
+        ctx.setUpsInstanceUID(iuid);
         try {
-            service.findWorkitem(ctx);
+            service.findUPS(ctx);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::retrieveFailed, e);
         }
@@ -208,14 +227,19 @@ public class UpsRS {
     public void validate() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
+        matchKeys = uriInfo.getPath().indexOf(UID.UPSFilteredGlobalSubscriptionSOPInstance) >= 0
+                && "POST".equals(request.getMethod())
+                && !uriInfo.getPath().endsWith("/suspend")
+                    ? new QueryAttributes(uriInfo, null).getQueryKeys()
+                    : new Attributes();
     }
 
     private Response createWorkitem(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setSopInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
+        ctx.setUpsInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
         ctx.setAttributes(workitem);
         try {
-            service.createWorkitem(ctx);
+            service.createUPS(ctx);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::createFailed, e);
         }
@@ -224,10 +248,10 @@ public class UpsRS {
 
     private Response updateWorkitem(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setSopInstanceUID(iuid);
+        ctx.setUpsInstanceUID(iuid);
         ctx.setAttributes(workitem);
         try {
-            service.updateWorkitem(ctx);
+            service.updateUPS(ctx);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::updateFailed, e);
         }
@@ -236,10 +260,10 @@ public class UpsRS {
 
     private Response changeWorkitemState(String iuid, Attributes workitem) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setSopInstanceUID(iuid);
+        ctx.setUpsInstanceUID(iuid);
         ctx.setAttributes(workitem);
         try {
-            service.changeWorkitemState(ctx);
+            service.changeUPSState(ctx);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::changeStateFailed, e);
         }
@@ -328,6 +352,15 @@ public class UpsRS {
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
+    private static Response.Status subscriptionFailed(int status) {
+        switch (status) {
+            case Status.UPSDoesNotExist:
+            case Status.UPSUnknownReceivingAET:
+                return Response.Status.NOT_FOUND;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
     private static Response.Status retrieveFailed(int status) {
         switch (status) {
             case Status.UPSDoesNotExist:
@@ -338,7 +371,13 @@ public class UpsRS {
 
     private URI locationOf(UPSContext ctx) {
         return URI.create(
-                request.getRequestURL().append('/').append(ctx.getSopInstanceUID()).toString());
+                request.getRequestURL().append('/').append(ctx.getUpsInstanceUID()).toString());
+    }
+
+    private URI websocketOf(UPSContext ctx) {
+        StringBuffer sb = request.getRequestURL();
+        sb.setLength(sb.indexOf("/rs/"));
+        return URI.create("ws" + sb.append("/ws/subscribers/").append(ctx.getSubscriberAET()).substring(4));
     }
 
     private static Attributes parseJSON(InputStream in) {

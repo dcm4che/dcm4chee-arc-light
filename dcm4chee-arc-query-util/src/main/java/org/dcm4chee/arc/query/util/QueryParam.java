@@ -71,6 +71,8 @@ public class QueryParam {
     private boolean compressionfailed;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
+    private String subscriberAET;
+    private String subscriberAETNot;
     private Patient.VerificationStatus patientVerificationStatus;
     private ExpirationState[] expirationState;
     private String expirationDate;
@@ -218,6 +220,22 @@ public class QueryParam {
 
     public void setExternalRetrieveAETNot(String externalRetrieveAETNot) {
         this.externalRetrieveAETNot = externalRetrieveAETNot;
+    }
+
+    public String getSubscriberAET() {
+        return subscriberAET;
+    }
+
+    public void setSubscriberAET(String subscriberAET) {
+        this.subscriberAET = subscriberAET;
+    }
+
+    public String getSubscriberAETNot() {
+        return subscriberAETNot;
+    }
+
+    public void setSubscriberAETNot(String subscriberAETNot) {
+        this.subscriberAETNot = subscriberAETNot;
     }
 
     public Patient.VerificationStatus getPatientVerificationStatus() {

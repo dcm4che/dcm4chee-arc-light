@@ -66,15 +66,12 @@ import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.*;
-import javax.transaction.Status;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
@@ -185,6 +182,11 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Query createUPSQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
+        return createUPSWithoutQueryEvent(ctx);
+    }
+
+    @Override
+    public Query createUPSWithoutQueryEvent(QueryContext ctx) {
         return new UPSQuery(ctx, em);
     }
 

@@ -39,12 +39,56 @@
  *
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.entity;
+
+import javax.persistence.*;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 20119
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Sep 2019
  */
-public enum SPSPriority {
-    LOW, MEDIUM, HIGH
+@NamedQuery(name = DeletionLock.DELETE_BY_AET_AND_UPS,
+        query = "delete from DeletionLock l where l.subscriberAET = ?1 and l.ups = ?2")
+@NamedQuery(name = DeletionLock.DELETE_BY_AET_AND_IUID,
+        query = "delete from DeletionLock l where l.subscriberAET = ?1 and exists (" +
+                "select ups from UPS ups where ups = l.ups and ups.upsInstanceUID = ?2)")
+@Entity
+@Table(name = "deletion_lock",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"subscriber_aet", "ups_fk"})
+)
+public class DeletionLock {
+
+    public static final String DELETE_BY_AET_AND_UPS = "DeletionLock.deleteByAETAndUPS";
+    public static final String DELETE_BY_AET_AND_IUID = "DeletionLock.deleteByAETAndIUID";
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
+
+    @Basic(optional = false)
+    @Column(name = "subscriber_aet", updatable = false)
+    private String subscriberAET;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "ups_fk", updatable = false)
+    private UPS ups;
+
+    public DeletionLock() {}
+
+    public DeletionLock(String subscriberAET, UPS ups) {
+        this.subscriberAET = subscriberAET;
+        this.ups = ups;
+    }
+
+    public long getPk() {
+        return pk;
+    }
+
+    @Override
+    public String toString() {
+        return "DeletionLock[iuid=" + ups.getUpsInstanceUID()
+                + ", aet=" + subscriberAET
+                + "]";
+    }
 }

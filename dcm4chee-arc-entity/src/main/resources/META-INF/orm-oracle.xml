@@ -401,22 +401,42 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.Workitem">
-    <sequence-generator name="workitem_pk_seq" sequence-name="workitem_pk_seq" allocation-size="1"/>
+  <entity class="org.dcm4chee.arc.entity.UPS">
+    <sequence-generator name="ups_pk_seq" sequence-name="ups_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="workitem_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="ups_pk_seq"/>
       </id>
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.WorkitemRequest">
-    <sequence-generator name="workitem_request_pk_seq" sequence-name="workitem_request_pk_seq" allocation-size="1"/>
+  <entity class="org.dcm4chee.arc.entity.UPSRequest">
+    <sequence-generator name="ups_request_pk_seq" sequence-name="ups_request_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="workitem_request_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="ups_request_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.DeletionLock">
+    <sequence-generator name="deletion_lock_pk_seq" sequence-name="deletion_lock_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="deletion_lock_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.Subscription">
+    <sequence-generator name="subscription_pk_seq" sequence-name="subscription_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="subscription_pk_seq"/>
       </id>
     </attributes>
   </entity>
