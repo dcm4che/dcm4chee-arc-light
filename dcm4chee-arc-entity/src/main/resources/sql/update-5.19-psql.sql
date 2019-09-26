@@ -49,6 +49,10 @@ create table ups_req (
     primary key (pk));
 
 alter table subscription add constraint UK_qjmsmovw4gcurk7mnrrrw3hbw  unique (ups_iuid, subscriber_aet);
+
+create index UK_pylpnams0qt8kx775iw79u3eb on subscription (ups_iuid);
+create index UK_ke0napicnjhqucsq8cv5nig2h on subscription (subscriber_aet);
+
 alter table ups add constraint UK_3frtpy5cstsoxk5jxw9cutr33  unique (dicomattrs_fk);
 alter table ups add constraint UK_qck03rlxht9myv77sc79a480t  unique (ups_iuid);
 
@@ -63,6 +67,7 @@ create index UK_brtgc3vpnoaq1xm80m568r16y on ups (input_readiness_state);
 create index UK_sqoo5rr8pu2qe4gtdne3xh031 on ups (admission_id);
 create index UK_crl67piqoxiccp3i6ckktphdd on ups (replaced_iuid);
 create index UK_c8obxmqpdcy37r3pjga2pukac on ups (ups_state);
+
 create index UK_rfium2ybikqm1f4xmi24mnv4u on ups_req (accession_no);
 create index UK_emsk27nclko11ph2tcj5vk7hg on ups_req (req_service);
 create index UK_524vr0q4c0kvyjwov74eru44x on ups_req (req_proc_id);
