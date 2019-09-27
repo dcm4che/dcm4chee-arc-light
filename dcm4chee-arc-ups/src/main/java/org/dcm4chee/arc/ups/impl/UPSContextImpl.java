@@ -49,6 +49,10 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSContext;
+import org.dcm4chee.arc.ups.UPSEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,6 +67,7 @@ public class UPSContextImpl implements UPSContext {
     private String subscriberAET;
     private boolean deletionLock;
     private int status;
+    private List<UPSEvent> upsEvents;
 
     public UPSContextImpl(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension archiveAEExtension) {
         this.as = null;
@@ -155,6 +160,14 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public void setAttributes(Attributes attributes) {
         this.attributes = attributes;
+    }
+
+    @Override
+    public List<UPSEvent> getUPSEvents() {
+        if (upsEvents == null) {
+            upsEvents = new ArrayList<>();
+        }
+        return upsEvents;
     }
 
     @Override

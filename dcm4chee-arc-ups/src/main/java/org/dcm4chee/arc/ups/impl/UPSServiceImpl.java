@@ -184,6 +184,17 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
+    public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
+        try {
+            return ejb.requestUPSCancel(ctx);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
+    @Override
     public UPS findUPS(UPSContext ctx) throws DicomServiceException {
         UPS ups = ejb.findUPS(ctx);
         Attributes upsAttrs = ups.getAttributes();

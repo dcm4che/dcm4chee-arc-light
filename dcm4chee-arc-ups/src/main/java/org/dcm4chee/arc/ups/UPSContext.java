@@ -48,6 +48,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import java.util.List;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2019
@@ -85,4 +87,6 @@ public interface UPSContext {
     Attributes getAttributes();
 
     void setAttributes(Attributes attributes);
+
+    List<UPSEvent> getUPSEvents();
 }

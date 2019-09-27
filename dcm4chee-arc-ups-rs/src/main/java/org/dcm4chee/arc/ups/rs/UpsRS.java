@@ -118,76 +118,54 @@ public class UpsRS {
     @Inject
     private UPSService service;
 
-    private ArchiveAEExtension arcAE;
-    private ResponseMediaType responseMediaType;
     private Attributes matchKeys;
 
     @POST
     @Path("/workitems")
     @Consumes("application/dicom+json")
-    public Response createJSONWorkitem(
-            @QueryParam("workitem")
-            @Pattern(regexp = "^([0-2])((\\.0)|(\\.[1-9][0-9]*))*")
-            String iuid,
-            InputStream in) {
-        return createWorkitem(iuid, parseJSON(in));
+    public Response createUPSJSON(@QueryParam("workitem") String iuid, InputStream in) {
+        return createUPS(iuid, parseJSON(in));
     }
 
     @POST
     @Path("/workitems")
     @Consumes("application/dicom+xml")
-    public Response createXMLWorkitem(
-            @QueryParam("workitem")
-            @Pattern(regexp = "^([0-2])((\\.0)|(\\.[1-9][0-9]*))*")
-            String iuid,
-            InputStream in) {
-        return createWorkitem(iuid, parseXML(in));
+    public Response createUPSXML(@QueryParam("workitem") String iuid, InputStream in) {
+        return createUPS(iuid, parseXML(in));
     }
 
     @POST
     @Path("/workitems/{workitem}")
     @Consumes("application/dicom+json")
-    public Response updateJSONWorkitem(
-            @PathParam("workitem")
-            String iuid,
-            InputStream in) {
-        return updateWorkitem(iuid, parseJSON(in));
+    public Response updateUPSJSON(@PathParam("workitem") String iuid, InputStream in) {
+        return updateUPS(iuid, parseJSON(in));
     }
 
     @POST
     @Path("/workitems/{workitem}")
     @Consumes("application/dicom+xml")
-    public Response updateXMLWorkitem(
-            @PathParam("workitem")
-            String iuid,
-            InputStream in) {
-        return updateWorkitem(iuid, parseXML(in));
+    public Response updateUPSXML(@PathParam("workitem") String iuid, InputStream in) {
+        return updateUPS(iuid, parseXML(in));
     }
 
     @PUT
     @Path("/workitems/{workitem}/state")
     @Consumes("application/dicom+json")
-    public Response changeJSONWorkitemState(
-            @PathParam("workitem")
-            String iuid,
-            InputStream in) {
-        return changeWorkitemState(iuid, parseJSON(in));
+    public Response changeUPSStateJSON(@PathParam("workitem") String iuid, InputStream in) {
+        return changeUPSState(iuid, parseJSON(in));
     }
 
     @PUT
     @Path("/workitems/{workitem}/state")
     @Consumes("application/dicom+xml")
-    public Response changeXMLWorkitemState(
-            @PathParam("workitem")
-            String iuid,
-            InputStream in) {
-        return changeWorkitemState(iuid, parseXML(in));
+    public Response changeUPSStateXML(@PathParam("workitem") String iuid, InputStream in) {
+        return changeUPSState(iuid, parseXML(in));
     }
 
     @GET
     @NoCache
     @Path("/workitems/{workitem}")
-    public Response retrieveWorkitem(@PathParam("workitem") String iuid) {
+    public Response retrieveUPS(@PathParam("workitem") String iuid) {
         ResponseMediaType responseMediaType = getResponseMediaType();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
@@ -197,6 +175,26 @@ public class UpsRS {
             return errResponse(UpsRS::retrieveFailed, e);
         }
         return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/cancelrequest")
+    public Response requestUPSCancel(@PathParam("workitem") String iuid) {
+        return requestUPSCancel(iuid, new Attributes());
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/cancelrequest")
+    @Consumes("application/dicom+json")
+    public Response requestUPSCancelJSON(@PathParam("workitem") String iuid, InputStream in) {
+        return requestUPSCancel(iuid, parseJSON(in));
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/cancelrequest")
+    @Consumes("application/dicom+xml")
+    public Response requestUPSCancelXML(@PathParam("workitem") String iuid, InputStream in) {
+        return requestUPSCancel(iuid, parseXML(in));
     }
 
     @POST
@@ -266,10 +264,10 @@ public class UpsRS {
         }
     }
 
-    private Response createWorkitem(String iuid, Attributes workitem) {
+    private Response createUPS(String iuid, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
-        ctx.setAttributes(workitem);
+        ctx.setAttributes(attrs);
         try {
             service.createUPS(ctx);
         } catch (DicomServiceException e) {
@@ -278,10 +276,10 @@ public class UpsRS {
         return Response.created(locationOf(ctx)).build();
     }
 
-    private Response updateWorkitem(String iuid, Attributes workitem) {
+    private Response updateUPS(String iuid, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
-        ctx.setAttributes(workitem);
+        ctx.setAttributes(attrs);
         try {
             service.updateUPS(ctx);
         } catch (DicomServiceException e) {
@@ -290,10 +288,10 @@ public class UpsRS {
         return Response.ok().build();
     }
 
-    private Response changeWorkitemState(String iuid, Attributes workitem) {
+    private Response changeUPSState(String iuid, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
-        ctx.setAttributes(workitem);
+        ctx.setAttributes(attrs);
         try {
             service.changeUPSState(ctx);
         } catch (DicomServiceException e) {
@@ -311,6 +309,25 @@ public class UpsRS {
                 break;
         }
         return ok.build();
+    }
+
+    private Response requestUPSCancel(String iuid, Attributes attrs) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUpsInstanceUID(iuid);
+        ctx.setAttributes(attrs);
+        try {
+            service.requestUPSCancel(ctx);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::requestCancelFailed, e);
+        }
+        Response.ResponseBuilder accepted = Response.accepted();
+        switch (ctx.getStatus()) {
+            case Status.UPSAlreadyInRequestedStateOfCanceled:
+                accepted.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCanceled,
+                        "The UPS is already in the requested state of CANCELED."));
+                break;
+        }
+        return accepted.build();
     }
 
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
@@ -377,6 +394,18 @@ public class UpsRS {
                 return Response.Status.CONFLICT;
             case Status.InvalidArgumentValue:
                 return Response.Status.BAD_REQUEST;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private static Response.Status requestCancelFailed(int status) {
+        switch (status) {
+            case Status.UPSDoesNotExist:
+                return Response.Status.NOT_FOUND;
+            case Status.UPSAlreadyCompleted:
+            case Status.UPSPerformerCannotBeContacted:
+            case Status.UPSPerformerChoosesNotToCancel:
+                return Response.Status.CONFLICT;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
     }

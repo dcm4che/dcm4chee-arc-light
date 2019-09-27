@@ -246,8 +246,6 @@ public class UPSServiceEJB {
 
     public UPS changeUPSState(UPSContext ctx, UPSState upsState, String transactionUID)
             throws DicomServiceException {
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         UPS ups = findUPS(ctx);
         Attributes attrs = ups.getAttributes();
         switch (upsState) {
@@ -282,9 +280,7 @@ public class UPSServiceEJB {
                 if (!transactionUID.equals(ups.getTransactionUID()))
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is incorrect.", false);
-                if (!meetFinalStateRequirementsOfCanceled(attrs))
-                    throw new DicomServiceException(Status.UPSNotMetFinalStateRequirements,
-                            "The submitted request is inconsistent with the current state of the UPS Instance.", false);
+                supplementDiscontinuationReasonCode(ensureProgressInformation(attrs));
                 ups.setTransactionUID(null);
                 break;
            case COMPLETED:
@@ -310,9 +306,41 @@ public class UPSServiceEJB {
                ups.setTransactionUID(null);
                break;
         }
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
-        ups.setAttributes(attrs, filter);
+        ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+        LOG.info("{}: Update {}", ctx, ups);
+        return ups;
+    }
+
+    public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
+        UPS ups = findUPS(ctx);
+        switch (ups.getProcedureStepState()) {
+            case IN_PROGRESS:
+                //TODO
+                return ups;
+            case CANCELED:
+                ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCanceled);
+                return ups;
+            case COMPLETED:
+                throw new DicomServiceException(Status.UPSAlreadyCompleted,
+                        "The submitted request is inconsistent with the current state of the UPS Instance.",
+                        false);
+        }
+        Attributes attrs = ups.getAttributes();
+        Attributes progressInformation = ensureProgressInformation(attrs);
+        progressInformation.addSelected(ctx.getAttributes(),
+                Tag.ProcedureStepDiscontinuationReasonCodeSequence,
+                Tag.ReasonForCancellation);
+        Attributes communicationsURI = new Attributes(ctx.getAttributes(),
+                Tag.ContactURI,
+                Tag.ContactDisplayName);
+        if (!communicationsURI.isEmpty()) {
+            progressInformation.ensureSequence(Tag.ProcedureStepCommunicationsURISequence, 1)
+                    .add(communicationsURI);
+        }
+        supplementDiscontinuationReasonCode(progressInformation);
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
+        ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
         return ups;
     }
@@ -435,16 +463,31 @@ public class UPSServiceEJB {
         return false;
     }
 
-    private static boolean meetFinalStateRequirementsOfCanceled(Attributes attrs) {
-        Attributes progressInformation = attrs.getNestedDataset(Tag.ProcedureStepProgressInformationSequence);
-        try {
-            new Code(progressInformation.getNestedDataset(Tag.ProcedureStepDiscontinuationReasonCodeSequence));
-        } catch (Exception e) {
-            return false;
+    private static Attributes ensureProgressInformation(Attributes attrs) {
+        Sequence sq = attrs.ensureSequence(Tag.ProcedureStepProgressInformationSequence, 1);
+        if (!sq.isEmpty()) {
+            return sq.get(0);
         }
-        if (!progressInformation.containsValue(Tag.ProcedureStepCancellationDateTime)) {
-            progressInformation.setDate(Tag.ProcedureStepCancellationDateTime, VR.DT, new Date());
-        }
-        return true;
+        Attributes progressInformation = new Attributes();
+        sq.add(progressInformation);
+        return progressInformation;
     }
+
+    private static void supplementDiscontinuationReasonCode(Attributes attrs) {
+        if (!attrs.containsValue(Tag.ProcedureStepCancellationDateTime)) {
+            attrs.setDate(Tag.ProcedureStepCancellationDateTime, VR.DT, new Date());
+        }
+        Attributes reasonCode =
+                attrs.getNestedDataset(Tag.ProcedureStepDiscontinuationReasonCodeSequence);
+        if (reasonCode == null || reasonCode.isEmpty()) {
+            attrs.newSequence(Tag.ProcedureStepDiscontinuationReasonCodeSequence, 1)
+                    .add(new Code(
+                            "110513",
+                            "DCM",
+                            null,
+                            "Discontinued for unspecified reason")
+                            .toItem());
+        }
+    }
+
 }

@@ -313,13 +313,6 @@ public class UPS {
         return referencedRequests;
     }
 
-    public Collection<Subscription> getSubscriptions() {
-        if (subscriptions == null) {
-            subscriptions = new ArrayList<>();
-        }
-        return subscriptions;
-    }
-
     public Patient getPatient() {
         return patient;
     }
