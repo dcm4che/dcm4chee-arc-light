@@ -6,6 +6,7 @@ export class SelectionsDicomObjects {
     private _study:any;
     private _series:any;
     private _instance:any;
+    private _currentIndexes;
     size:number;
 
     constructor(object:{
@@ -47,12 +48,15 @@ export class SelectionsDicomObjects {
             delete this[dicomLevel][uniqueSelectIdObject.id];
             object.selected = false;
             this.size--;
+            this.currentIndexes.splice(this.currentIndexes.indexOf(uniqueSelectIdObject.id), 1);
         }else{
             this[dicomLevel][uniqueSelectIdObject.id] = {
                 uniqueSelectIdObject:uniqueSelectIdObject,
                 object:object,
                 dicomLevel:dicomLevel
             };
+            this.currentIndexes = this.currentIndexes || [];
+            this.currentIndexes.push(uniqueSelectIdObject.id);
             object.selected = true;
             this.size++;
         }
@@ -97,5 +101,13 @@ export class SelectionsDicomObjects {
 
     set instance(value: any) {
         this._instance = value;
+    }
+
+    get currentIndexes() {
+        return this._currentIndexes;
+    }
+
+    set currentIndexes(value) {
+        this._currentIndexes = value;
     }
 }
