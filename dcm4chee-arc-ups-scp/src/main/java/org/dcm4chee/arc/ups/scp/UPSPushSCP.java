@@ -156,7 +156,7 @@ public class UPSPushSCP extends AbstractDicomService {
     private Attributes set(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPClassUID));
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
         service.updateUPS(ctx);
         return null;
