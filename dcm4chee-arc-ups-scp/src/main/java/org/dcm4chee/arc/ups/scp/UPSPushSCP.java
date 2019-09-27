@@ -165,7 +165,7 @@ public class UPSPushSCP extends AbstractDicomService {
     private Attributes get(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         service.findUPS(ctx);
         return filter(ctx.getAttributes(), rqAttrs.getInts(Tag.AttributeIdentifierList));
     }
@@ -178,7 +178,7 @@ public class UPSPushSCP extends AbstractDicomService {
             throws DicomServiceException {
         int actionTypeID = validateActionTypeID(rq.getInt(Tag.ActionTypeID, 0), validActionTypeIDs);
         UPSContext ctx = service.newUPSContext(as);
-        ctx.setUpsInstanceUID(rq.getString(Tag.RequestAttributesSequence));
+        ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         switch(actionTypeID) {
             case 1:
                 ctx.setAttributes(rqAttrs);
