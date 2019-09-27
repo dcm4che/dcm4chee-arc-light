@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.data.Attributes;
+
 import javax.persistence.*;
 
 /**
@@ -48,26 +50,18 @@ import javax.persistence.*;
  * @since Sep 2019
  */
 @NamedQuery(
-        name=Subscription.FIND_BY_IUID_AND_AET,
-        query="select sub from Subscription sub " +
-                "where sub.ups = (select ups from UPS ups where ups.upsInstanceUID= ?1) " +
-                "and sub.subscriberAET = ?2")
+        name= GlobalSubscription.FIND_BY_AET,
+        query="select sub from GlobalSubscription sub where sub.subscriberAET = ?1")
 @NamedQuery(
-        name=Subscription.DELETE_BY_AET,
-        query="delete from Subscription sub where sub.subscriberAET = ?1")
-@NamedQuery(
-        name=Subscription.DELETE_BY_IUID_AND_AET,
-        query="delete from Subscription sub " +
-                "where sub.ups = (select ups from UPS ups where ups.upsInstanceUID= ?1) " +
-                "and sub.subscriberAET = ?2")
+        name= GlobalSubscription.FIND_ALL_EAGER,
+        query="select sub from GlobalSubscription sub left join fetch sub.matchKeysBlob")
 @Entity
-@Table(name = "subscription",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"subscriber_aet", "ups_fk"}))
-public class Subscription {
+@Table(name = "global_subscription",
+        uniqueConstraints = @UniqueConstraint(columnNames = "subscriber_aet"))
+public class GlobalSubscription {
 
-    public static final String FIND_BY_IUID_AND_AET = "Subscription.findByIUIDAndAET";
-    public static final String DELETE_BY_AET = "Subscription.deleteByAET";
-    public static final String DELETE_BY_IUID_AND_AET = "Subscription.deleteByIUIDAndAET";
+    public static final String FIND_BY_AET = "GlobalSubscription.findByAET";
+    public static final String FIND_ALL_EAGER = "GlobalSubscription.findAllEager";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -82,9 +76,9 @@ public class Subscription {
     @Column(name = "deletion_lock")
     private boolean deletionLock;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "ups_fk")
-    private UPS ups;
+    @OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "matchkeys_fk")
+    private AttributesBlob matchKeysBlob;
 
     public long getPk() {
         return pk;
@@ -106,20 +100,25 @@ public class Subscription {
         this.deletionLock = deletionLock;
     }
 
-    public UPS getUPS() {
-        return ups;
+    public Attributes getMatchKeys() throws BlobCorruptedException {
+        return matchKeysBlob != null ? matchKeysBlob.getAttributes() : null;
     }
 
-    public void setUPS(UPS ups) {
-        this.ups = ups;
+    public void setMatchKeys(Attributes matchKeys) {
+        if (matchKeys == null)
+            matchKeysBlob = null;
+        else if (matchKeysBlob == null)
+            matchKeysBlob = new AttributesBlob(matchKeys);
+        else
+            matchKeysBlob.setAttributes(matchKeys);
     }
 
     @Override
     public String toString() {
-        return "Subscription[pk=" + pk
-                + ", ups=" + ups
+        return "GlobalSubscription[pk=" + pk
                 + ", aet=" + subscriberAET
                 + ", deletionLock=" + deletionLock
+                + ", matchingKeys=" + (matchKeysBlob != null)
                 + "]";
     }
 }

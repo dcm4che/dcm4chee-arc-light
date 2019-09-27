@@ -183,6 +183,9 @@ public class UPS {
     @JoinColumn(name = "ups_fk")
     private Collection<UPSRequest> referencedRequests;
 
+    @OneToMany(mappedBy = "ups")
+    private Collection<Subscription> subscriptions;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
     private Patient patient;
@@ -308,6 +311,13 @@ public class UPS {
             referencedRequests = new ArrayList<>();
         }
         return referencedRequests;
+    }
+
+    public Collection<Subscription> getSubscriptions() {
+        if (subscriptions == null) {
+            subscriptions = new ArrayList<>();
+        }
+        return subscriptions;
     }
 
     public Patient getPatient() {

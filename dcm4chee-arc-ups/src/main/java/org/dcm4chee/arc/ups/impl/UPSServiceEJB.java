@@ -86,7 +86,7 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public UPS createUPS(UPSContext ctx, List<Subscription> globalSubscriptions) {
+    public UPS createUPS(UPSContext ctx, List<GlobalSubscription> globalSubscriptions) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
         UPS ups = new UPS();
@@ -118,13 +118,11 @@ public class UPSServiceEJB {
         ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
-        for (Subscription globalSubscription : globalSubscriptions) {
+        for (GlobalSubscription globalSubscription : globalSubscriptions) {
             createSubscription(ctx,
                     ctx.getUpsInstanceUID(),
                     globalSubscription.getSubscriberAET(),
-                    globalSubscription.isDeletionLock(),
-                    null
-            );
+                    globalSubscription.isDeletionLock());
         }
         return ups;
     }
@@ -319,60 +317,47 @@ public class UPSServiceEJB {
         return ups;
     }
 
-    public Subscription createOrUpdateSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS) {
-        switch (ctx.getUpsInstanceUID()) {
-            case UID.UPSGlobalSubscriptionSOPInstance:
-                deleteSubscription(ctx, UID.UPSFilteredGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
-                break;
-            case UID.UPSFilteredGlobalSubscriptionSOPInstance:
-                deleteSubscription(ctx, UID.UPSGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
-                break;
-        }
-        Subscription sub;
+    public Subscription createOrUpdateSubscription(UPSContext ctx) {
         try {
-            sub = updateSubscription(ctx);
-            return sub;
+            return updateSubscription(ctx);
         } catch (NoResultException e) {
-            sub = createSubscription(ctx,
-                    ctx.getUpsInstanceUID(),
-                    ctx.getSubscriberAET(),
-                    ctx.isDeletionLock(),
-                    ctx.getAttributes());
+            return createSubscription(ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET(), ctx.isDeletionLock());
         }
-        for (Attributes attrs : notSubscribedUPS) {
-            String notSubscriptedIUID = attrs.getString(Tag.SOPInstanceUID);
-            createSubscription(ctx,
-                    notSubscriptedIUID,
-                    ctx.getSubscriberAET(),
-                    ctx.isDeletionLock(),
-                    null
-            );
-        }
-        return sub;
-    }
-
-
-    public Subscription createSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET,
-            boolean deletionLock, Attributes matchKeys) {
-        Subscription sub = new Subscription();
-        sub.setUpsInstanceUID(upsInstanceUID);
-        sub.setSubscriberAET(subscriberAET);
-        sub.setDeletionLock(deletionLock);
-        sub.setMatchKeys(matchKeys);
-        em.persist(sub);
-        LOG.info("{}: Create {}", ctx, sub);
-        return sub;
     }
 
     public int deleteSubscription(UPSContext ctx) {
-        return deleteSubscription(ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET());
+        if (em.createNamedQuery(Subscription.DELETE_BY_IUID_AND_AET, Subscription.class)
+                .setParameter(1, ctx.getUpsInstanceUID())
+                .setParameter(2, ctx.getSubscriberAET())
+                .executeUpdate() > 0) {
+            LOG.info("{}: Delete Subscription[uid={}, aet={}]", ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET());
+            return 1;
+        }
+        return 0;
     }
 
-    private int deleteSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET) {
+    public List<GlobalSubscription> findGlobalSubscriptions() {
+        return em.createNamedQuery(GlobalSubscription.FIND_ALL_EAGER).getResultList();
+    }
+
+    public GlobalSubscription createOrUpdateGlobalSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS) {
+        GlobalSubscription sub;
         try {
-            Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET, Subscription.class)
-                    .setParameter(1, upsInstanceUID)
-                    .setParameter(2, subscriberAET)
+            sub = updateGlobalSubscription(ctx);
+            return sub;
+        } catch (NoResultException e) {
+            sub = createGlobalSubscription(ctx);
+        }
+        for (Attributes attrs : notSubscribedUPS) {
+            createSubscription(ctx, attrs.getString(Tag.SOPInstanceUID), ctx.getSubscriberAET(), ctx.isDeletionLock());
+        }
+        return sub;
+    }
+
+    public int suspendGlobalSubscription(UPSContext ctx) {
+        try {
+            GlobalSubscription sub = em.createNamedQuery(GlobalSubscription.FIND_BY_AET, GlobalSubscription.class)
+                    .setParameter(1, ctx.getSubscriberAET())
                     .getSingleResult();
             em.remove(sub);
             LOG.info("{}: Delete {}", ctx, sub);
@@ -382,14 +367,9 @@ public class UPSServiceEJB {
         }
     }
 
-    public int suspendGlobalSubscription(UPSContext ctx) {
-        return deleteSubscription(ctx, UID.UPSGlobalSubscriptionSOPInstance, ctx.getSubscriberAET()) +
-                deleteSubscription(ctx, UID.UPSFilteredGlobalSubscriptionSOPInstance, ctx.getSubscriberAET());
-    }
-
     public int deleteGlobalSubscription(UPSContext ctx) {
         suspendGlobalSubscription(ctx);
-        int n = em.createNamedQuery(Subscription.DELETE_BY_SUBSCRIBER_AET)
+        int n = em.createNamedQuery(Subscription.DELETE_BY_AET)
                 .setParameter(1, ctx.getSubscriberAET())
                 .executeUpdate();
         if (n > 0) {
@@ -398,27 +378,48 @@ public class UPSServiceEJB {
         return n;
     }
 
-    public List<Subscription> findGlobalSubscriptions() {
-        return em.createNamedQuery(Subscription.FIND_BY_UPS_IUID)
-                .setParameter(1, UID.UPSGlobalSubscriptionSOPInstance)
-                .getResultList();
-    }
-
-    public List<Subscription> findFilteredGlobalSubscriptions() {
-        return em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_EAGER)
-                .setParameter(1, UID.UPSFilteredGlobalSubscriptionSOPInstance)
-                .getResultList();
-    }
-
     private Subscription updateSubscription(UPSContext ctx) {
-        Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_IUID_AND_SUBSCRIBER_AET,
+        Subscription sub = em.createNamedQuery(Subscription.FIND_BY_IUID_AND_AET,
                 Subscription.class)
                 .setParameter(1, ctx.getUpsInstanceUID())
                 .setParameter(2, ctx.getSubscriberAET())
                 .getSingleResult();
         sub.setDeletionLock(ctx.isDeletionLock());
+        LOG.info("{}: Update {}", ctx, sub);
+        return sub;
+    }
+
+    private Subscription createSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET,
+            boolean deletionLock) {
+        Subscription sub = new Subscription();
+        sub.setUPS(em.createNamedQuery(UPS.FIND_BY_IUID, UPS.class)
+                .setParameter(1, upsInstanceUID)
+                .getSingleResult());
+        sub.setSubscriberAET(subscriberAET);
+        sub.setDeletionLock(deletionLock);
+        em.persist(sub);
+        LOG.info("{}: Create {}", ctx, sub);
+        return sub;
+    }
+
+    private GlobalSubscription updateGlobalSubscription(UPSContext ctx) {
+        GlobalSubscription sub = em.createNamedQuery(GlobalSubscription.FIND_BY_AET,
+                GlobalSubscription.class)
+                .setParameter(1, ctx.getSubscriberAET())
+                .getSingleResult();
+        sub.setDeletionLock(ctx.isDeletionLock());
         sub.setMatchKeys(ctx.getAttributes());
         LOG.info("{}: Update {}", ctx, sub);
+        return sub;
+    }
+
+    private GlobalSubscription createGlobalSubscription(UPSContext ctx) {
+        GlobalSubscription sub = new GlobalSubscription();
+        sub.setSubscriberAET(ctx.getSubscriberAET());
+        sub.setDeletionLock(ctx.isDeletionLock());
+        sub.setMatchKeys(ctx.getAttributes());
+        em.persist(sub);
+        LOG.info("{}: Create {}", ctx, sub);
         return sub;
     }
 

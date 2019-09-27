@@ -72,7 +72,7 @@ public class QueryParam {
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private String subscriberAET;
-    private String subscriberAETNot;
+    private String notSubscribedByAET;
     private Patient.VerificationStatus patientVerificationStatus;
     private ExpirationState[] expirationState;
     private String expirationDate;
@@ -222,20 +222,12 @@ public class QueryParam {
         this.externalRetrieveAETNot = externalRetrieveAETNot;
     }
 
-    public String getSubscriberAET() {
-        return subscriberAET;
+    public String getNotSubscribedByAET() {
+        return notSubscribedByAET;
     }
 
-    public void setSubscriberAET(String subscriberAET) {
-        this.subscriberAET = subscriberAET;
-    }
-
-    public String getSubscriberAETNot() {
-        return subscriberAETNot;
-    }
-
-    public void setSubscriberAETNot(String subscriberAETNot) {
-        this.subscriberAETNot = subscriberAETNot;
+    public void setNotSubscribedByAET(String notSubscribedByAET) {
+        this.notSubscribedByAET = notSubscribedByAET;
     }
 
     public Patient.VerificationStatus getPatientVerificationStatus() {

@@ -431,4 +431,14 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.GlobalSubscription">
+    <sequence-generator name="global_subscription_pk_seq" sequence-name="global_subscription_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="global_subscription_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
 </entity-mappings>

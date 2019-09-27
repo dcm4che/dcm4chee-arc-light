@@ -52,7 +52,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.UPSState;
-import org.dcm4chee.arc.entity.Subscription;
+import org.dcm4chee.arc.entity.GlobalSubscription;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
@@ -68,8 +68,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -195,7 +195,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public Subscription createSubscription(UPSContext ctx) throws DicomServiceException {
+    public void createSubscription(UPSContext ctx) throws DicomServiceException {
         try {
             validateSubscriberAET(ctx);
             switch (ctx.getUpsInstanceUID()) {
@@ -205,9 +205,10 @@ public class UPSServiceImpl implements UPSService {
                                 "Matching Keys are missing.", false);
                     }
                 case UID.UPSGlobalSubscriptionSOPInstance:
-                    return ejb.createOrUpdateSubscription(ctx, searchNotSubscribedUPS(ctx));
+                    ejb.createOrUpdateGlobalSubscription(ctx, searchNotSubscribedUPS(ctx));
+                    break;
                 default:
-                    return ejb.createOrUpdateSubscription(ctx, Collections.emptyList());
+                    ejb.createOrUpdateSubscription(ctx);
             }
         } catch (DicomServiceException e) {
             throw e;
@@ -261,12 +262,14 @@ public class UPSServiceImpl implements UPSService {
         }
     }
 
-    private List<Subscription> globalSubscriptions(Attributes attrs) {
-        List<Subscription> globalSubs = ejb.findGlobalSubscriptions();
-        ejb.findFilteredGlobalSubscriptions().stream()
-                .filter(sub -> attrs.matches(sub.getMatchKeys(), false, false))
-                .forEach(globalSubs::add);
-        return globalSubs;
+    private List<GlobalSubscription> globalSubscriptions(Attributes attrs) {
+        return ejb.findGlobalSubscriptions().stream()
+                .filter(sub -> matches(attrs, sub.getMatchKeys()))
+                .collect(Collectors.toList());
+    }
+
+    private static boolean matches(Attributes attrs, Attributes keys) {
+        return keys == null || attrs.matches(keys, false, false);
     }
 
     private List<Attributes> searchNotSubscribedUPS(UPSContext ctx) throws DicomServiceException {
@@ -274,7 +277,7 @@ public class UPSServiceImpl implements UPSService {
         ApplicationEntity ae = ctx.getApplicationEntity();
         ArchiveDeviceExtension arcdev = ctx.getArchiveDeviceExtension();
         QueryParam queryParam = new QueryParam(ae);
-        queryParam.setSubscriberAETNot(ctx.getSubscriberAET());
+        queryParam.setNotSubscribedByAET(ctx.getSubscriberAET());
         QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
         Attributes matchKeys = ctx.getAttributes();
         if (matchKeys != null) {

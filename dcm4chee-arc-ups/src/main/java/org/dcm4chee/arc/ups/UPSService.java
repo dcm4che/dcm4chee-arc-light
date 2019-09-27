@@ -66,7 +66,7 @@ public interface UPSService {
 
     UPS findUPS(UPSContext ctx) throws DicomServiceException;
 
-    Subscription createSubscription(UPSContext ctx) throws DicomServiceException;
+    void createSubscription(UPSContext ctx) throws DicomServiceException;
 
     int deleteSubscription(UPSContext ctx) throws DicomServiceException;
 
