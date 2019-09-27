@@ -59,6 +59,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -171,7 +172,11 @@ public class UPSPushSCP extends AbstractDicomService {
     }
 
     private Attributes filter(Attributes attrs, int[] tags) {
-        return tags != null ? new Attributes(attrs, tags) : attrs;
+        if (tags == null) {
+            return attrs;
+        }
+        Arrays.sort(tags);
+        return new Attributes(attrs, tags);
     }
 
     private Attributes action(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp, int validActionTypeIDs)
