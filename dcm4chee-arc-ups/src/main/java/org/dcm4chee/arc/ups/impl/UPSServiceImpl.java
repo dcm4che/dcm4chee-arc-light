@@ -60,11 +60,13 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.ups.UPSContext;
+import org.dcm4chee.arc.ups.UPSEvent;
 import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,6 +89,9 @@ public class UPSServiceImpl implements UPSService {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private Event<UPSEvent> upsEvent;
 
     @Inject
     private IApplicationEntityCache aeCache;

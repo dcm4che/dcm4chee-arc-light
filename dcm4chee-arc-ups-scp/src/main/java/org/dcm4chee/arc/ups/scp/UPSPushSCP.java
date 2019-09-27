@@ -167,7 +167,7 @@ public class UPSPushSCP extends AbstractDicomService {
         UPSContext ctx = service.newUPSContext(as);
         ctx.setUpsInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         service.findUPS(ctx);
-        return filter(ctx.getAttributes(), rqAttrs.getInts(Tag.AttributeIdentifierList));
+        return filter(ctx.getAttributes(), rq.getInts(Tag.AttributeIdentifierList));
     }
 
     private Attributes filter(Attributes attrs, int[] tags) {
