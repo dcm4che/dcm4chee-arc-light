@@ -7,7 +7,7 @@ export class SelectionsDicomViewService {
 
   constructor() { }
 
-  getTableSchema(dicomLevel?:DicomLevel){
+  getTableSchema($this, actions, dicomLevel?:DicomLevel){
     switch (dicomLevel) {
         case "patient":
             return [
@@ -42,7 +42,26 @@ export class SelectionsDicomViewService {
                     headerDescription: "Number of Patient Related Studies",
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
-                })
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-remove',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, e);
+                            },
+                            title: "Remove from selection"
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }),
             ];
         case "study":
           return [
@@ -84,6 +103,25 @@ export class SelectionsDicomViewService {
                   headerDescription: "Number of Study Related Instances",
                   widthWeight: 0.2,
                   calculatedWidth: "20%"
+              }),
+              new TableSchemaElement({
+                  type: "actions",
+                  header: "",
+                  actions: [
+                      {
+                          icon: {
+                              tag: 'span',
+                              cssClass: 'glyphicon glyphicon-remove',
+                              text: ''
+                          },
+                          click: (e) => {
+                              actions.call($this, e);
+                          },
+                          title: "Remove from selection"
+                      }
+                  ],
+                  headerDescription: "Actions",
+                  pxWidth: 40
               })
           ];
         case "series":
@@ -127,6 +165,25 @@ export class SelectionsDicomViewService {
                     headerDescription: "Number of Series Related Instances",
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-remove',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, e);
+                            },
+                            title: "Remove from selection"
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 })
             ];
         case "instance":
@@ -162,6 +219,25 @@ export class SelectionsDicomViewService {
                     headerDescription: "Number of Frames",
                     widthWeight: 0.3,
                     calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-remove',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, e);
+                            },
+                            title: "Remove from selection"
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 })
             ];
         default:
@@ -188,6 +264,25 @@ export class SelectionsDicomViewService {
                     headerDescription: "Study ID",
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-remove',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, e);
+                            },
+                            title: "Remove from selection"
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
                 })
             ]
     }

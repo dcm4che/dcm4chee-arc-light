@@ -19,17 +19,27 @@ export class SelectionActionElement {
         }
     }
 
-    toggle(dicomLevel:DicomLevel,uniqueSelectIdObject:UniqueSelectIdObject, object){
-        if(this.action){
-            if(!this.postActionElements){
-                this.postActionElements = new SelectionsDicomObjects();
+    toggle(dicomLevel:DicomLevel,uniqueSelectIdObject:UniqueSelectIdObject, object, part?){
+        if(part){
+            if(!this[part]){
+                this[part] = new SelectionsDicomObjects();
             }
-            this.postActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
+            this[part].toggle(dicomLevel,uniqueSelectIdObject, object);
+            if(part === "preActionElements" && this.preActionElements.size === 0){
+                this.action = undefined;
+            }
         }else{
-            if(!this.preActionElements){
-                this.preActionElements = new SelectionsDicomObjects();
+            if(this.action){
+                if(!this.postActionElements){
+                    this.postActionElements = new SelectionsDicomObjects();
+                }
+                this.postActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
+            }else{
+                if(!this.preActionElements){
+                    this.preActionElements = new SelectionsDicomObjects();
+                }
+                this.preActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
             }
-            this.preActionElements.toggle(dicomLevel,uniqueSelectIdObject, object);
         }
     }
     get size() {

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SelectionsDicomObjects} from "../selections-dicom-objects.model";
 import {DicomLevel} from "../../../interfaces";
 import {TableSchemaElement} from "../../../models/dicom-table-schema-element";
@@ -14,31 +14,22 @@ import {j4care} from "../../../helpers/j4care.service";
 export class SelectionsDicomViewComponent implements OnInit {
 
     @Input() dicomLevel:DicomLevel;
+
     private _selectionsDicomObjects:SelectionsDicomObjects;
     Object = Object;
     _ = _;
-    dicomLevels = [
-        "patient",
-        "study",
-        "series",
-        "instance"
-    ];
-    dicomObject = {};
+    dicomObject = [];
 
     tableSchema:TableSchemaElement[];
-    get v(): SelectionsDicomObjects {
+
+    @Output() onRemoveFromSelection = new EventEmitter();
+
+    get selectionsDicomObjects(): SelectionsDicomObjects {
         return this._selectionsDicomObjects;
     }
 
     @Input()
     set selectionsDicomObjects(value: SelectionsDicomObjects) {
-        this.dicomLevels.forEach((dicomLevel:DicomLevel)=>{
-            if(value[dicomLevel] && Object.keys(value[dicomLevel]).length > 0){
-                this.dicomObject[dicomLevel] = Object.keys(value[dicomLevel]).map(key=>{
-                    return value[dicomLevel][key].object.attrs;
-                });
-            }
-        });
         this._selectionsDicomObjects = value;
     }
 
@@ -47,7 +38,10 @@ export class SelectionsDicomViewComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.tableSchema = j4care.calculateWidthOfTable(this.service.getTableSchema(this.dicomLevel));
+        this.tableSchema = j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.actions, this.dicomLevel));
     }
-
+    actions(model){
+        console.log("model",model);
+        this.onRemoveFromSelection.emit(model);
+    }
 }

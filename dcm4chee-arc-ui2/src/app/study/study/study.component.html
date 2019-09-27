@@ -132,59 +132,9 @@
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>
             <div class="table_block">
-                <selections-dicom-view [selectionsDicomObjects]="selectedElements.preActionElements"></selections-dicom-view>
-<!--                <div class="header">
-                    <div *ngIf="clipboard.action === 'merge' || clipboard.hasPatient === true">
-                        Patient ID
-                    </div>
-                    <div class="study_block" [ngClass]="{'haspatient':clipboard.hasPatient === true}" *ngIf="clipboard.action != 'merge'">Study Instance UID
-                        <div *ngIf="showClipboardHeaders.series || showClipboardHeaders.instance">Series Instance UID
-                            <div *ngIf="showClipboardHeaders.instance">
-                                <span class="sopclass">Referenced SOP Class UID</span>
-                                <span class="sopinstance">Referenced SOP Instance UID</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="body">
-                    <ng-container *ngIf="clipboard.action === 'merge'">
-                        <div class="block" *ngFor="let value of selectedElements.preActionElements.patient">
-                            {{ value.PatientID }}
-                            <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
-                        </div>
-                    </ng-container>
-                    <ng-container *ngIf="clipboard.action != 'merge'">
-                        <div class="block" *ngFor="let value of getKeys(clipboard.otherObjects)">
-                            <div *ngIf="!clipboard.otherObjects[value].StudyInstanceUID" class="patient_block block_part">
-                                {{value}}
-                                <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
-                            </div>
-                            <div *ngIf="clipboard.otherObjects[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
-                                {{clipboard.otherObjects[value].StudyInstanceUID}}
-                                <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
-                                <ng-container *ngIf="clipboard.otherObjects[value] && clipboard.otherObjects[value].ReferencedSeriesSequence">
-                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.otherObjects[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
-                                        <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
-                                            {{seriesequence.SeriesInstanceUID}}
-                                        </ng-container>
-                                        <i *ngIf="seriesequence && seriesequence.SeriesInstanceUID" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
-                                        <ng-container *ngIf="seriesequence && seriesequence.ReferencedSOPSequence">
-                                            <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
-                                                <span class="sopclass">
-                                                    {{sopseq.ReferencedSOPClassUID}}
-                                                </span>
-                                                <span class="sopinstance">
-                                                    {{sopseq.ReferencedSOPInstanceUID}}
-                                                </span>
-                                                <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
-                                            </div>
-                                        </ng-container>
-                                    </div>
-                                </ng-container>
-                            </div>
-                        </div>
-                    </ng-container>
-                </div>-->
+                <ng-container  *ngFor="let level of ['patient','study','series','instance']">
+                    <selections-dicom-view *ngIf="selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0" [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
+                </ng-container>
             </div>
         </div>
     </div>

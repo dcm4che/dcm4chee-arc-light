@@ -105,6 +105,7 @@ export class StudyComponent implements OnInit{
     testToggle(){
         this.isOpen = !this.isOpen;
     }
+    Object = Object;
     studyConfig:StudyPageConfig = {
         tab:"study"
     };
@@ -446,19 +447,14 @@ export class StudyComponent implements OnInit{
 
     select(object, dicomLevel:DicomLevel){
         this.selectedElements.toggle(dicomLevel, this.service.getObjectUniqueId(object.attrs, dicomLevel), object);
-/*        let idObject:UniqueSelectIdObject = this.service.getObjectUniqueId(object.attrs, dicomLevel);
-        if(_.hasIn(this.selectedElements,`${dicomLevel}["${idObject.id}"]`)){
-            delete this.selectedElements[dicomLevel][idObject.id];
-            object.selected = false;
-        }else{
-            this.selectedElements[dicomLevel][idObject.id] = {
-                idObject:idObject,
-                object:object,
-                dicomLevel:dicomLevel
-            };
-            object.selected = true;
-        }*/
         console.log("selectedElements",this.selectedElements);
+    }
+    clearClipboard(){
+        this.resetSetSelectionObject();
+    }
+    onRemoveFromSelection(e){
+        console.log("e",e);
+        this.selectedElements.toggle(e.dicomLevel,e.uniqueSelectIdObject, e.object, "preActionElements");
     }
     actions(id, model){
         console.log("id",id);
