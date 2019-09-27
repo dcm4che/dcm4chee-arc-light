@@ -190,6 +190,8 @@ public class UPSPushSCP extends AbstractDicomService {
                 service.changeUPSState(ctx);
                 break;
             case 2:
+                ctx.setAttributes(rqAttrs);
+                service.requestUPSCancel(ctx);
                 break;
             case 3:
                 ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
