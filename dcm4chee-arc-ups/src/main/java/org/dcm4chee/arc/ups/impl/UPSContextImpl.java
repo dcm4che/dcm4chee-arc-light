@@ -64,6 +64,7 @@ public class UPSContextImpl implements UPSContext {
     private final ArchiveAEExtension archiveAEExtension;
     private Attributes attributes;
     private String upsInstanceUID;
+    private String requesterAET;
     private String subscriberAET;
     private boolean deletionLock;
     private int status;
@@ -77,6 +78,7 @@ public class UPSContextImpl implements UPSContext {
 
     public UPSContextImpl(Association as) {
         this.as = as;
+        this.requesterAET = as.getCallingAET();
         this.httpRequestInfo = null;
         this.archiveAEExtension = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
     }
@@ -120,6 +122,16 @@ public class UPSContextImpl implements UPSContext {
     public boolean isGlobalSubscription() {
         return upsInstanceUID.equals(UID.UPSGlobalSubscriptionSOPInstance)
                 || upsInstanceUID.equals(UID.UPSFilteredGlobalSubscriptionSOPInstance);
+    }
+
+    @Override
+    public String getRequesterAET() {
+        return requesterAET;
+    }
+
+    @Override
+    public void setRequesterAET(String requesterAET) {
+        this.requesterAET = requesterAET;
     }
 
     @Override
@@ -168,6 +180,11 @@ public class UPSContextImpl implements UPSContext {
             upsEvents = new ArrayList<>();
         }
         return upsEvents;
+    }
+
+    @Override
+    public void addUPSEvent(UPSEvent.Type type, Attributes eventInformation, List<String> subcribers) {
+        getUPSEvents().add(new UPSEvent(type, eventInformation, subcribers));
     }
 
     @Override

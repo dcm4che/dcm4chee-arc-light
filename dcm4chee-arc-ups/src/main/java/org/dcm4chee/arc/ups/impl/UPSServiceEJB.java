@@ -53,6 +53,7 @@ import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.ups.UPSContext;
+import org.dcm4chee.arc.ups.UPSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +125,7 @@ public class UPSServiceEJB {
                     globalSubscription.getSubscriberAET(),
                     globalSubscription.isDeletionLock());
         }
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribersOf(ups));
         return ups;
     }
 
@@ -262,6 +264,7 @@ public class UPSServiceEJB {
                                 false);
                 }
                 ups.setTransactionUID(transactionUID);
+                ups.setPerformerAET(ctx.getRequesterAET());
                 break;
             case CANCELED:
                 switch (ups.getProcedureStepState()) {
@@ -307,6 +310,7 @@ public class UPSServiceEJB {
                break;
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribersOf(ups));
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
         return ups;
@@ -316,17 +320,39 @@ public class UPSServiceEJB {
         UPS ups = findUPS(ctx);
         switch (ups.getProcedureStepState()) {
             case IN_PROGRESS:
-                //TODO
+                addCancelRequestedEvent(ctx, ups);
                 return ups;
             case CANCELED:
                 ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCanceled);
                 return ups;
             case COMPLETED:
                 throw new DicomServiceException(Status.UPSAlreadyCompleted,
-                        "The submitted request is inconsistent with the current state of the UPS Instance.",
-                        false);
+                        "The UPS is already COMPLETED.");
         }
+        cancelUPS(ctx, ups);
+        return ups;
+    }
+
+    private void addCancelRequestedEvent(UPSContext ctx, UPS ups) throws DicomServiceException {
+        List<String> subcribers = subcribersOf(ups);
+        if (!subcribers.contains(ups.getPerformerAET())) {
+            throw new DicomServiceException(Status.UPSPerformerCannotBeContacted,
+                    "The performer cannot be contacted");
+        }
+        Attributes eventInformation = new Attributes(ctx.getAttributes(),
+                Tag.ContactURI,
+                Tag.ContactDisplayName,
+                Tag.ProcedureStepDiscontinuationReasonCodeSequence,
+                Tag.ReasonForCancellation);
+        eventInformation.setString(Tag.RequestingAE, VR.AE, ctx.getRequesterAET());
+        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, eventInformation, subcribers);
+    }
+
+    private void cancelUPS(UPSContext ctx, UPS ups) {
+        List<String> subcribers = subcribersOf(ups);
         Attributes attrs = ups.getAttributes();
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "IN PROGRESS");
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribers);
         Attributes progressInformation = ensureProgressInformation(attrs);
         progressInformation.addSelected(ctx.getAttributes(),
                 Tag.ProcedureStepDiscontinuationReasonCodeSequence,
@@ -340,9 +366,31 @@ public class UPSServiceEJB {
         }
         supplementDiscontinuationReasonCode(progressInformation);
         attrs.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribers);
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
-        return ups;
+    }
+
+    private static Attributes stateReportOf(Attributes attrs) {
+        Attributes eventInformation = new Attributes(3);
+        eventInformation.setString(Tag.InputReadinessState, VR.CS, attrs.getString(Tag.InputReadinessState));
+        String state = attrs.getString(Tag.ProcedureStepState);
+        eventInformation.setString(Tag.ProcedureStepState, VR.CS, state);
+        if ("CANCELED".equals(state)) {
+            Attributes item = attrs.getNestedDataset(Tag.ProcedureStepProgressInformationSequence);
+            if (item != null) {
+                eventInformation.addSelected(item,
+                        Tag.ProcedureStepDiscontinuationReasonCodeSequence,
+                        Tag.ReasonForCancellation);
+            }
+        }
+        return eventInformation;
+    }
+
+    private List<String> subcribersOf(UPS ups) {
+        return em.createNamedQuery(Subscription.AETS_BY_UPS, String.class)
+                .setParameter(1, ups)
+                .getResultList();
     }
 
     public Subscription createOrUpdateSubscription(UPSContext ctx) {
@@ -354,7 +402,7 @@ public class UPSServiceEJB {
     }
 
     public int deleteSubscription(UPSContext ctx) {
-        if (em.createNamedQuery(Subscription.DELETE_BY_IUID_AND_AET, Subscription.class)
+        if (em.createNamedQuery(Subscription.DELETE_BY_IUID_AND_AET)
                 .setParameter(1, ctx.getUpsInstanceUID())
                 .setParameter(2, ctx.getSubscriberAET())
                 .executeUpdate() > 0) {

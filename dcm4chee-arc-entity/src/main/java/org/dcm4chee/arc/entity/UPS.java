@@ -146,12 +146,15 @@ public class UPS {
     @Column(name = "replaced_iuid")
     private String replacedSOPInstanceUID;
 
-    @Column(name = "transaction_iuid")
-    private String transactionUID;
-
     @Basic(optional = false)
     @Column(name = "ups_state")
     private UPSState procedureStepState;
+
+    @Column(name = "transaction_iuid")
+    private String transactionUID;
+
+    @Column(name = "performer_aet")
+    private String performerAET;
 
     @ManyToOne
     @JoinColumn(name = "ups_code_fk")
@@ -245,6 +248,14 @@ public class UPS {
 
     public void setTransactionUID(String transactionUID) {
         this.transactionUID = transactionUID;
+    }
+
+    public String getPerformerAET() {
+        return performerAET;
+    }
+
+    public void setPerformerAET(String performerAET) {
+        this.performerAET = performerAET;
     }
 
     public AttributesBlob getAttributesBlob() {

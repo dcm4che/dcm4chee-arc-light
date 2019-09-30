@@ -72,6 +72,10 @@ public interface UPSContext {
 
     boolean isGlobalSubscription();
 
+    String getRequesterAET();
+
+    void setRequesterAET(String requesterAET);
+
     String getSubscriberAET();
 
     void setSubscriberAET(String subscriberAET);
@@ -89,4 +93,6 @@ public interface UPSContext {
     void setAttributes(Attributes attributes);
 
     List<UPSEvent> getUPSEvents();
+
+    void addUPSEvent(UPSEvent.Type cancelRequested, Attributes eventInformation, List<String> subcribers);
 }

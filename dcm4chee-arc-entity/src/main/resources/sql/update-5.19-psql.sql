@@ -23,6 +23,7 @@ create table ups (
     created_time timestamp not null,
     expected_end_date_time varchar(255) not null,
     input_readiness_state int4 not null,
+    performer_aet varchar(255),
     ups_state int4 not null,
     replaced_iuid varchar(255) not null,
     expiration_date_time varchar(255) not null,

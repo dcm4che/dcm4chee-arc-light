@@ -91,7 +91,7 @@ public class UPSServiceImpl implements UPSService {
     private QueryService queryService;
 
     @Inject
-    private Event<UPSEvent> upsEvent;
+    private Event<List<UPSEvent>> upsEvent;
 
     @Inject
     private IApplicationEntityCache aeCache;
@@ -119,13 +119,15 @@ public class UPSServiceImpl implements UPSService {
         }
         if ("SCHEDULED".equals(attrs.getString(Tag.ScheduledProcedureStepStatus))) {
             throw new DicomServiceException(Status.UPSNotScheduled,
-                    "The provided value of UPS State was not SCHEDULED", false);
+                    "The provided value of UPS State was not SCHEDULED");
         }
         if (!attrs.containsValue(Tag.WorklistLabel)) {
             attrs.setString(Tag.WorklistLabel, VR.LO, ctx.getArchiveAEExtension().defaultWorklistLabel());
         }
         try {
-            return ejb.createUPS(ctx, globalSubscriptions(attrs));
+            UPS ups = ejb.createUPS(ctx, globalSubscriptions(attrs));
+            upsEvent.fire(ctx.getUPSEvents());
+            return ups;
         } catch (Exception e) {
             try {
                 if (ejb.exists(ctx)) {
@@ -145,7 +147,9 @@ public class UPSServiceImpl implements UPSService {
             throw DicomServiceException.valueOf(validate, attrs);
         }
         try {
-            return ejb.updateUPS(ctx);
+            UPS ups = ejb.updateUPS(ctx);
+            upsEvent.fire(ctx.getUPSEvents());
+            return ups;
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -175,7 +179,9 @@ public class UPSServiceImpl implements UPSService {
                     "The submitted request is inconsistent with the current state of the UPS Instance.", false);
         }
         try {
-            return ejb.changeUPSState(ctx, upsState, transactionUID);
+            UPS ups = ejb.changeUPSState(ctx, upsState, transactionUID);
+            upsEvent.fire(ctx.getUPSEvents());
+            return ups;
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -186,7 +192,9 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
         try {
-            return ejb.requestUPSCancel(ctx);
+            UPS ups = ejb.requestUPSCancel(ctx);
+            upsEvent.fire(ctx.getUPSEvents());
+            return ups;
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -226,6 +234,7 @@ public class UPSServiceImpl implements UPSService {
                 default:
                     ejb.createOrUpdateSubscription(ctx);
             }
+            upsEvent.fire(ctx.getUPSEvents());
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {

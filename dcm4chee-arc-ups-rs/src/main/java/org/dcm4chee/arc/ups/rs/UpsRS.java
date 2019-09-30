@@ -149,17 +149,23 @@ public class UpsRS {
     }
 
     @PUT
-    @Path("/workitems/{workitem}/state")
+    @Path("/workitems/{workitem}/state/{requester}")
     @Consumes("application/dicom+json")
-    public Response changeUPSStateJSON(@PathParam("workitem") String iuid, InputStream in) {
-        return changeUPSState(iuid, parseJSON(in));
+    public Response changeUPSStateJSON(
+            @PathParam("workitem") String iuid,
+            @PathParam("requester") String requester,
+            InputStream in) {
+        return changeUPSState(iuid, requester, parseJSON(in));
     }
 
     @PUT
-    @Path("/workitems/{workitem}/state")
+    @Path("/workitems/{workitem}/state/{requester}")
     @Consumes("application/dicom+xml")
-    public Response changeUPSStateXML(@PathParam("workitem") String iuid, InputStream in) {
-        return changeUPSState(iuid, parseXML(in));
+    public Response changeUPSStateXML(
+            @PathParam("workitem") String iuid,
+            @PathParam("requester") String requester,
+            InputStream in) {
+        return changeUPSState(iuid, requester, parseXML(in));
     }
 
     @GET
@@ -178,23 +184,31 @@ public class UpsRS {
     }
 
     @POST
-    @Path("/workitems/{workitem}/cancelrequest")
-    public Response requestUPSCancel(@PathParam("workitem") String iuid) {
-        return requestUPSCancel(iuid, new Attributes());
+    @Path("/workitems/{workitem}/cancelrequest/{requester}")
+    public Response requestUPSCancel(
+            @PathParam("workitem") String iuid,
+            @PathParam("requester") String requester) {
+        return requestUPSCancel(iuid, requester, new Attributes());
     }
 
     @POST
-    @Path("/workitems/{workitem}/cancelrequest")
+    @Path("/workitems/{workitem}/cancelrequest/{requester}")
     @Consumes("application/dicom+json")
-    public Response requestUPSCancelJSON(@PathParam("workitem") String iuid, InputStream in) {
-        return requestUPSCancel(iuid, parseJSON(in));
+    public Response requestUPSCancelJSON(
+            @PathParam("workitem") String iuid,
+            @PathParam("requester") String requester,
+            InputStream in) {
+        return requestUPSCancel(iuid, requester, parseJSON(in));
     }
 
     @POST
-    @Path("/workitems/{workitem}/cancelrequest")
+    @Path("/workitems/{workitem}/cancelrequest/{requester}")
     @Consumes("application/dicom+xml")
-    public Response requestUPSCancelXML(@PathParam("workitem") String iuid, InputStream in) {
-        return requestUPSCancel(iuid, parseXML(in));
+    public Response requestUPSCancelXML(
+            @PathParam("workitem") String iuid,
+            @PathParam("requester") String requester,
+            InputStream in) {
+        return requestUPSCancel(iuid, requester, parseXML(in));
     }
 
     @POST
@@ -288,9 +302,10 @@ public class UpsRS {
         return Response.ok().build();
     }
 
-    private Response changeUPSState(String iuid, Attributes attrs) {
+    private Response changeUPSState(String iuid, String requester, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
+        ctx.setRequesterAET(requester);
         ctx.setAttributes(attrs);
         try {
             service.changeUPSState(ctx);
@@ -300,20 +315,21 @@ public class UpsRS {
         Response.ResponseBuilder ok = Response.ok();
         switch (ctx.getStatus()) {
             case Status.UPSAlreadyInRequestedStateOfCanceled:
-                ok.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCanceled,
+                ok.header("Warning", toWarning(
                         "The UPS is already in the requested state of CANCELED."));
                 break;
             case Status.UPSAlreadyInRequestedStateOfCompleted:
-                ok.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCompleted,
+                ok.header("Warning", toWarning(
                         "The UPS is already in the requested state of COMPLETED."));
                 break;
         }
         return ok.build();
     }
 
-    private Response requestUPSCancel(String iuid, Attributes attrs) {
+    private Response requestUPSCancel(String iuid, String requester, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUpsInstanceUID(iuid);
+        ctx.setRequesterAET(requester);
         ctx.setAttributes(attrs);
         try {
             service.requestUPSCancel(ctx);
@@ -323,7 +339,7 @@ public class UpsRS {
         Response.ResponseBuilder accepted = Response.accepted();
         switch (ctx.getStatus()) {
             case Status.UPSAlreadyInRequestedStateOfCanceled:
-                accepted.header("Warning", toWarning(Status.UPSAlreadyInRequestedStateOfCanceled,
+                accepted.header("Warning", toWarning(
                         "The UPS is already in the requested state of CANCELED."));
                 break;
         }
@@ -332,16 +348,12 @@ public class UpsRS {
 
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
         return Response.status(httpStatusOf.apply(e.getStatus()))
-                .header("Warning", toWarning(e))
+                .header("Warning", toWarning(e.getMessage()))
                 .build();
     }
 
-    private String toWarning(DicomServiceException e) {
-        return toWarning(e.getStatus(), e.getMessage());
-    }
-
-    private String toWarning(int status, String message) {
-        return Integer.toHexString(status).toUpperCase() + " " + baseURL() + ": " + message;
+    private String toWarning(String message) {
+        return "299 " + baseURL() + ": " + message;
     }
 
     private String baseURL() {
