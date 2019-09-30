@@ -39,6 +39,7 @@ import { SizeRangePickerComponent } from './size-range-picker/size-range-picker.
 import { DropdownComponent } from './dropdown/dropdown.component';
 import {OptionComponent} from "./dropdown/option.component";
 import { DcmDropDownComponent } from './dcm-drop-down/dcm-drop-down.component';
+import { StudyTransferringOverviewComponent } from './dialogs/study-transferring-overview/study-transferring-overview.component';
 
 
 @NgModule({
@@ -87,5 +88,6 @@ export const WidgetsComponents = [
     SizeRangePickerComponent,
     DropdownComponent,
     OptionComponent,
-    DcmDropDownComponent
+    DcmDropDownComponent,
+    StudyTransferringOverviewComponent
 ];

@@ -15,6 +15,8 @@ export class SelectionsDicomViewComponent implements OnInit {
 
     @Input() dicomLevel:DicomLevel;
 
+    @Input() hideHeader:boolean;
+
     private _selectionsDicomObjects:SelectionsDicomObjects;
     Object = Object;
     _ = _;

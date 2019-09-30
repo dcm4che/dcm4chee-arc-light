@@ -1,0 +1,39 @@
+<h3>{{title}}</h3>
+<!--action:{{selectedElements.action}}-->
+<div *ngIf="selectedElements.action === 'move'">
+    <div>Select rejected type:</div>
+    <div>
+        <select id="reject" [(ngModel)]="reject" name="reject" class="col-md-9">
+            <option *ngFor="let rjn of rjnotes" title="{{rjn.title}}" value="{{rjn.value}}">{{rjn.text}}</option>
+        </select>
+    </div>
+</div>
+<ng-container [ngSwitch]="target.dicomLevel">
+    <div *ngSwitchCase="'patient'">
+        <h3>Selected target patient</h3>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></span><br>
+        <ng-template #noname>Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-template>
+        <div *ngIf="selectedElements.action != 'merge'">
+            (An empty study will be automatically created, so it can be used as target study!)
+        </div>
+    </div>
+    <div class="targetobject" *ngSwitchCase="'mwl'">
+        <h3>Selected target MWL</h3>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname">Patient Name:<b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
+        <ng-template #noname>Patient ID: <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-template>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]">Scheduled Station AE Title: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
+        <br>
+    </div>
+    <div *ngSwitchDefault>
+        <h3>Selected target study</h3>
+        Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b><br>
+    </div>
+</ng-container>
+
+<ng-container  *ngFor="let level of ['patient','study','series','instance']">
+  <selections-dicom-view *ngIf="selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0" [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
+</ng-container>
+<div class="dialogbuttons">
+  <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})">{{selectedElements.action|uppercase}}</button>
+  <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+</div>

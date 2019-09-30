@@ -43,9 +43,17 @@ export class SelectionActionElement {
         }
     }
     get size() {
-        if(this.action)
-            return this.postActionElements.size;
-        return this.preActionElements.size;
+        try{
+            if(this.action)
+                return this.postActionElements.size;
+            return this.preActionElements.size;
+        }catch (e) {
+            return undefined;
+        }
+    }
+
+    get sizes(){
+        return (this.postActionElements.size || 0) + (this.preActionElements.size || 0);
     }
 
     getAllAsArray(){

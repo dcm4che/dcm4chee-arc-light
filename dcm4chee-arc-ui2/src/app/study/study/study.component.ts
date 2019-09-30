@@ -70,6 +70,7 @@ import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-dicom.component";
 import {SelectionActionElement} from "./selection-action-element.models";
 import {CopyMoveObjectsComponent} from "../../widgets/dialogs/copy-move-objects/copy-move-objects.component";
+import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 
 
 @Component({
@@ -407,304 +408,134 @@ export class StudyComponent implements OnInit{
     paste(){
         console.log("past,this.selectedEleents",this.selectedElements);
 
-        if (this.selectedElements.size && this.selectedElements.size > 0) {
+        if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
             this.cfpLoadingBar.start();
             let headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
             //
-/*            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){ //TODO preventing element in postSelect if it is in preSelect
+            if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
+                this.appService.showError("More than one target selected!");
+            } else {
+                if (this.selectedElements.preActionElements.currentIndexes.indexOf(this.selectedElements.postActionElements.currentIndexes[0]) > -1) {
+                    this.appService.showError("Target object can not be in the clipboard");
+                }else{
 
-                let $this = this;
+                        // if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){ //TODO preventing element in postSelect if it is in preSelect
 
-                this.config.viewContainerRef = this.viewContainerRef;
-                this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, {
-                    height: 'auto',
-                    width: '90%'
-                });
-                let action = this.clipboard['action'].toUpperCase();
-                let title = action + ' PROCESS';
-                if(this.target.modus === "mwl"){
-                    title = "LINK TO MWL";
-                    _.forEach(this.rjnotes,(m,i)=>{
-                        console.log("m",m);
-                        if(m.type === "INCORRECT_MODALITY_WORKLIST_ENTRY"){
-                            this.reject = m.codeValue+"^"+m.codingSchemeDesignator;
-                        }
+                        let $this = this;CopyMoveObjectsComponent
+
+/*                        this.config.viewContainerRef = this.viewContainerRef;
+                        this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, {
+                            height: 'auto',
+                            width: '90%'
+                        });*/
+                    this.config.viewContainerRef = this.viewContainerRef;
+                    this.dialogRef = this.dialog.open(StudyTransferringOverviewComponent, {
+                        height: 'auto',
+                        width: '90%'
                     });
-                    $this.clipboard.action = 'move';
-                }
-                if(this.externalInternalAetMode === 'external' && ($this.selected.patients.length > 1 || $this.clipboard.patients.length > 1)){
-                    $this.mainservice.setMessage({
-                        'title': 'Warning',
-                        'text': 'External merge of multiple patients is not allowed, just the first selected patient will be taken for merge!',
-                        'status': 'warning'
+                    // let action = this.clipboard['action'].toUpperCase();
+                    let title = this.selectedElements.action + ' PROCESS';
+                    let select:SelectDropdown<any>[] =  [];
+                    _.forEach(this.trash.rjnotes, (m, i) => {
+                        select.push( new SelectDropdown<any>(m.codeValue + '^' + m.codingSchemeDesignator,m.label, m.codeMeaning));
                     });
-                }
-                this.dialogRef.componentInstance.clipboard = this.clipboard;
-                this.dialogRef.componentInstance.rjnotes = this.rjnotes;
-                this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
-                this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
-                this.dialogRef.componentInstance.target = this.target;
-                this.dialogRef.componentInstance.reject = this.reject;
-                this.dialogRef.componentInstance.saveLabel = action;
-                this.dialogRef.componentInstance.title = title;
-                this.cfpLoadingBar.complete();
-                this.dialogRef.afterClosed().subscribe(result => {
-                    $this.cfpLoadingBar.start();
-                    if (result) {
-                        $this.reject = result;
-                        console.log("reject",$this.reject);
-                        if ($this.clipboard.action === 'merge') {
-                            let object;
-                            let url;
-                            if(this.externalInternalAetMode === 'external'){
-                                url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
-                                object = $this.selected.patients[0].attrs;
+/*                        if(this.selectedElements.action === "mwl"){
+                        title = "LINK TO MWL";
 
-                            }else{
-                                delete $this.clipboard.patients[0].attrs;
-                                _.forEach($this.clipboard.patients,(pat,ind)=>{
-                                    if(_.hasIn(pat,"attrs")){
-                                        delete $this.clipboard.patients[ind].attrs;
-                                    }
-                                });
-                                object =  $this.clipboard.patients;
-                                url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
+
+                        _.forEach(this.trash.rjnotes,(m,i)=>{
+                            console.log("m",m);
+                            if(m.type === "INCORRECT_MODALITY_WORKLIST_ENTRY"){
+                                this.trash.reject = m.codeValue+"^"+m.codingSchemeDesignator;
                             }
-                            console.log("url",url);
-                            $this.$http.post(
-                                url,
-                                object,
-                                headers
-                            )
-                                .subscribe((response) => {
-                                    console.log('response in first', response.status);
-                                    if (response.status === 204){
-                                        $this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Patients merged successfully!',
-                                            'status': 'info'
-                                        });
+                        });
+                        this.selectedElements.action = 'move';
+                    }*/
+/*                    if(this.externalInternalAetMode === 'external' && ($this.selected.patients.length > 1 || $this.clipboard.patients.length > 1)){
+                        $this.mainservice.setMessage({
+                            'title': 'Warning',
+                            'text': 'External merge of multiple patients is not allowed, just the first selected patient will be taken for merge!',
+                            'status': 'warning'
+                        });
+                    }*/
+                    this.dialogRef.componentInstance.selectedElements = this.selectedElements;
+                    this.dialogRef.componentInstance.rjnotes = select;
+                    this.cfpLoadingBar.complete();
+                    this.dialogRef.afterClosed().subscribe(result => {
+                            console.log("result",result);
+                            console.log("selectedElements",this.selectedElements);
+/*                            $this.cfpLoadingBar.start();
+                            if (result) {
+                                $this.reject = result;
+                                console.log("reject",$this.reject);
+                                if ($this.clipboard.action === 'merge') {
+                                    let object;
+                                    let url;
+                                    if(this.externalInternalAetMode === 'external'){
+                                        url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
+                                        object = $this.selected.patients[0].attrs;
+
                                     }else{
-                                        $this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': response.statusText,
-                                            'status': 'info'
-                                        });
-                                    }
-                                    $this.selected = {};
-                                    $this.clipboard = {};
-                                    $this.fireRightQuery();
-                                    $this.cfpLoadingBar.complete();
-                                }, (response) => {
-                                    $this.cfpLoadingBar.complete();
-                                    $this.httpErrorHandler.handleError(response);
-                                });
-                        }
-                        if ($this.clipboard.action === 'copy') {
-                            console.log('in ctrlv copy patient', $this.target);
-                            if ($this.target.modus === 'patient') {
-                                let study = {
-                                    '00100020': $this.target.attrs['00100020'],
-                                    '00200010': {'vr': 'SH', 'Value': ['']},
-                                    '0020000D': {'vr': 'UI', 'Value': ['']},
-                                    '00080050': {'vr': 'SH', 'Value': ['']}
-                                };
-                                $this.$http.post(
-                                    '../aets/' + $this.aet + '/rs/studies',
-                                    study,
-                                    headers
-                                ).map(res => {
-                                    console.log('in map1', res);
-                                    let resjson;
-                                    try {
-                                        /!*  let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                          if(pattern.exec(res.url)){
-                                              WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                          }*!/
-                                        // resjson = res.json();
-                                        resjson = res;
-                                    } catch (e) {
-                                        resjson = {};
-                                    }
-                                    return resjson;
-                                })
-                                    .subscribe((response) => {
-                                            console.log('in subscribe2', response);
-                                            _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                                console.log('m', m);
-                                                console.log('i', i);
-                                                $this.$http.post(
-                                                    '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/copy',
-                                                    m,
-                                                    headers
-                                                )
-                                                    .map(res => {
-                                                        console.log('in map1', res);
-                                                        let resjson;
-                                                        try {
-                                                            /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                                            if(pattern.exec(res.url)){
-                                                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                            }*!/
-                                                            // resjson = res.json();
-                                                            resjson = res;
-                                                        } catch (e) {
-                                                            resjson = {};
-                                                        }
-                                                        return resjson;
-                                                    })
-                                                    .subscribe((response) => {
-                                                        console.log('in then function', response);
-                                                        $this.clipboard = {};
-                                                        $this.selected = {};
-                                                        $this.mainservice.setMessage({
-                                                            'title': 'Info',
-                                                            'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
-                                                            'status': 'info'
-                                                        });
-                                                        $this.cfpLoadingBar.complete();
-                                                        // $this.callBackFree = true;
-                                                    }, (response) => {
-                                                        console.log('resin err', response);
-                                                        $this.clipboard = {};
-                                                        $this.cfpLoadingBar.complete();
-                                                        $this.httpErrorHandler.handleError(response);
-                                                        // $this.callBackFree = true;
-                                                    });
-                                            });
-                                            $this.fireRightQuery();
-                                        },
-                                        (response) => {
-                                            $this.cfpLoadingBar.complete();
-                                            $this.httpErrorHandler.handleError(response);
-                                            console.log('response', response);
-                                        }
-                                    );
-                            } else {
-                                _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                    console.log('m', m);
-                                    $this.$http.post(
-                                        '../aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/copy',
-                                        m,
-                                        headers
-                                    )
-                                        .map(res => {
-                                            console.log('in map1', res);
-                                            let resjson;
-                                            try {
-                                                /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                                if(pattern.exec(res.url)){
-                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                }*!/
-                                                // resjson = res.json();
-                                                resjson = res;
-                                            } catch (e) {
-                                                resjson = {};
+                                        delete $this.clipboard.patients[0].attrs;
+                                        _.forEach($this.clipboard.patients,(pat,ind)=>{
+                                            if(_.hasIn(pat,"attrs")){
+                                                delete $this.clipboard.patients[ind].attrs;
                                             }
-                                            return resjson;
-                                        })
-                                        .subscribe((response) => {
-                                            console.log('in then function');
-                                            $this.cfpLoadingBar.complete();
-                                            $this.mainservice.setMessage({
-                                                'title': 'Info',
-                                                'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
-                                                'status': 'info'
-                                            });
-                                            $this.clipboard = {};
-                                            $this.selected = {};
-                                            $this.fireRightQuery();
-                                            // $this.callBackFree = true;
-                                        }, (response) => {
-                                            $this.cfpLoadingBar.complete();
-                                            $this.httpErrorHandler.handleError(response);
-                                            // $this.callBackFree = true;
                                         });
-                                });
-                            }
-                        }
-                        if ($this.clipboard.action === 'move') {
-                            if ($this.target.modus === 'patient') {
-                                let study = {
-                                    '00100020': $this.target.attrs['00100020'],
-                                    '00200010': {'vr': 'SH', 'Value': ['']},
-                                    '0020000D': {'vr': 'UI', 'Value': ['']},
-                                    '00080050': {'vr': 'SH', 'Value': ['']}
-                                };
-                                $this.$http.post(
-                                    '../aets/' + $this.aet + '/rs/studies',
-                                    study,
-                                    headers
-                                ).subscribe((response) => {
-                                            _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                                console.log('m', m);
-                                                $this.$http.post(
-                                                    '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/move/' + $this.reject,
-                                                    m,
-                                                    headers
-                                                )
-                                                    .map(res => {
-                                                        let resjson;
-                                                        try {
-                                                            /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                                            if(pattern.exec(res.url)){
-                                                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                            }*!/
-                                                            // resjson = res.json();
-                                                            resjson = res;
-                                                        } catch (e) {
-                                                            resjson = {};
-                                                        }
-                                                        return resjson;
-                                                    })
-                                                    .subscribe((response) => {
-                                                        console.log('in then function');
-                                                        $this.clipboard = {};
-                                                        $this.selected = {};
-                                                        $this.cfpLoadingBar.complete();
-                                                        $this.mainservice.setMessage({
-                                                            'title': 'Info',
-                                                            'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' moved successfully!',
-                                                            'status': 'info'
-                                                        });
-                                                        $this.fireRightQuery();
-                                                    }, (response) => {
-                                                        $this.cfpLoadingBar.complete();
-                                                        $this.httpErrorHandler.handleError(response);
-                                                    });
-                                            });
-                                        },
-                                        (response) => {
-                                            $this.cfpLoadingBar.complete();
-                                            $this.httpErrorHandler.handleError(response);
-                                            console.log('response', response);
-                                        }
-                                    );
-                            } else {
-                                let url;
-                                let index = 1;
-                                if ($this.target.modus === 'mwl') {
-                                    url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
-                                }else{
-                                    url = `../aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
-                                }
-                                _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                    console.log('m', m);
-                                    console.log("$this.clipboard.otherObjects.length",Object.keys($this.clipboard.otherObjects).length);
-                                    console.log("i",index);
+                                        object =  $this.clipboard.patients;
+                                        url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
+                                    }
+                                    console.log("url",url);
                                     $this.$http.post(
                                         url,
-                                        m,
+                                        object,
                                         headers
                                     )
-                                        .map(res => {
+                                        .subscribe((response) => {
+                                            console.log('response in first', response.status);
+                                            if (response.status === 204){
+                                                $this.mainservice.setMessage({
+                                                    'title': 'Info',
+                                                    'text': 'Patients merged successfully!',
+                                                    'status': 'info'
+                                                });
+                                            }else{
+                                                $this.mainservice.setMessage({
+                                                    'title': 'Info',
+                                                    'text': response.statusText,
+                                                    'status': 'info'
+                                                });
+                                            }
+                                            $this.selected = {};
+                                            $this.clipboard = {};
+                                            $this.fireRightQuery();
+                                            $this.cfpLoadingBar.complete();
+                                        }, (response) => {
+                                            $this.cfpLoadingBar.complete();
+                                            $this.httpErrorHandler.handleError(response);
+                                        });
+                                }
+                                if ($this.clipboard.action === 'copy') {
+                                    console.log('in ctrlv copy patient', $this.target);
+                                    if ($this.target.modus === 'patient') {
+                                        let study = {
+                                            '00100020': $this.target.attrs['00100020'],
+                                            '00200010': {'vr': 'SH', 'Value': ['']},
+                                            '0020000D': {'vr': 'UI', 'Value': ['']},
+                                            '00080050': {'vr': 'SH', 'Value': ['']}
+                                        };
+                                        $this.$http.post(
+                                            '../aets/' + $this.aet + '/rs/studies',
+                                            study,
+                                            headers
+                                        ).map(res => {
                                             console.log('in map1', res);
                                             let resjson;
                                             try {
-                                                /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                                if (pattern.exec(res.url)) {
-                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                                                }*!/
+                                                /!*  let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                  if(pattern.exec(res.url)){
+                                                      WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                  }*!/
                                                 // resjson = res.json();
                                                 resjson = res;
                                             } catch (e) {
@@ -712,46 +543,232 @@ export class StudyComponent implements OnInit{
                                             }
                                             return resjson;
                                         })
-                                        .subscribe((response) => {
-                                            console.log('in then function');
-                                            $this.cfpLoadingBar.complete();
-                                            $this.mainservice.setMessage({
-                                                'title': 'Info',
-                                                'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
-                                                'status': 'info'
-                                            });
-                                            if(index == Object.keys($this.clipboard.otherObjects).length){
-                                                $this.clipboard = {};
-                                                $this.selected = {};
-                                            }
-                                            $this.fireRightQuery();
-                                        }, (response) => {
-                                            $this.cfpLoadingBar.complete();
-                                            $this.httpErrorHandler.handleError(response);
-                                            if(index == Object.keys($this.clipboard.otherObjects).length){
-                                                $this.clipboard = {};
-                                                $this.selected = {};
-                                            }
+                                            .subscribe((response) => {
+                                                    console.log('in subscribe2', response);
+                                                    _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                        console.log('m', m);
+                                                        console.log('i', i);
+                                                        $this.$http.post(
+                                                            '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/copy',
+                                                            m,
+                                                            headers
+                                                        )
+                                                            .map(res => {
+                                                                console.log('in map1', res);
+                                                                let resjson;
+                                                                try {
+                                                                    /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                    if(pattern.exec(res.url)){
+                                                                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                    }*!/
+                                                                    // resjson = res.json();
+                                                                    resjson = res;
+                                                                } catch (e) {
+                                                                    resjson = {};
+                                                                }
+                                                                return resjson;
+                                                            })
+                                                            .subscribe((response) => {
+                                                                console.log('in then function', response);
+                                                                $this.clipboard = {};
+                                                                $this.selected = {};
+                                                                $this.mainservice.setMessage({
+                                                                    'title': 'Info',
+                                                                    'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
+                                                                    'status': 'info'
+                                                                });
+                                                                $this.cfpLoadingBar.complete();
+                                                                // $this.callBackFree = true;
+                                                            }, (response) => {
+                                                                console.log('resin err', response);
+                                                                $this.clipboard = {};
+                                                                $this.cfpLoadingBar.complete();
+                                                                $this.httpErrorHandler.handleError(response);
+                                                                // $this.callBackFree = true;
+                                                            });
+                                                    });
+                                                    $this.fireRightQuery();
+                                                },
+                                                (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    console.log('response', response);
+                                                }
+                                            );
+                                    } else {
+                                        _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                            console.log('m', m);
+                                            $this.$http.post(
+                                                '../aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/copy',
+                                                m,
+                                                headers
+                                            )
+                                                .map(res => {
+                                                    console.log('in map1', res);
+                                                    let resjson;
+                                                    try {
+                                                        /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                        if(pattern.exec(res.url)){
+                                                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                        }*!/
+                                                        // resjson = res.json();
+                                                        resjson = res;
+                                                    } catch (e) {
+                                                        resjson = {};
+                                                    }
+                                                    return resjson;
+                                                })
+                                                .subscribe((response) => {
+                                                    console.log('in then function');
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.mainservice.setMessage({
+                                                        'title': 'Info',
+                                                        'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
+                                                        'status': 'info'
+                                                    });
+                                                    $this.clipboard = {};
+                                                    $this.selected = {};
+                                                    $this.fireRightQuery();
+                                                    // $this.callBackFree = true;
+                                                }, (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    // $this.callBackFree = true;
+                                                });
                                         });
-                                    index++;
-                                });
+                                    }
+                                }
+                                if ($this.clipboard.action === 'move') {
+                                    if ($this.target.modus === 'patient') {
+                                        let study = {
+                                            '00100020': $this.target.attrs['00100020'],
+                                            '00200010': {'vr': 'SH', 'Value': ['']},
+                                            '0020000D': {'vr': 'UI', 'Value': ['']},
+                                            '00080050': {'vr': 'SH', 'Value': ['']}
+                                        };
+                                        $this.$http.post(
+                                            '../aets/' + $this.aet + '/rs/studies',
+                                            study,
+                                            headers
+                                        ).subscribe((response) => {
+                                                _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                    console.log('m', m);
+                                                    $this.$http.post(
+                                                        '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/move/' + $this.reject,
+                                                        m,
+                                                        headers
+                                                    )
+                                                        .map(res => {
+                                                            let resjson;
+                                                            try {
+                                                                /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                if(pattern.exec(res.url)){
+                                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                }*!/
+                                                                // resjson = res.json();
+                                                                resjson = res;
+                                                            } catch (e) {
+                                                                resjson = {};
+                                                            }
+                                                            return resjson;
+                                                        })
+                                                        .subscribe((response) => {
+                                                            console.log('in then function');
+                                                            $this.clipboard = {};
+                                                            $this.selected = {};
+                                                            $this.cfpLoadingBar.complete();
+                                                            $this.mainservice.setMessage({
+                                                                'title': 'Info',
+                                                                'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' moved successfully!',
+                                                                'status': 'info'
+                                                            });
+                                                            $this.fireRightQuery();
+                                                        }, (response) => {
+                                                            $this.cfpLoadingBar.complete();
+                                                            $this.httpErrorHandler.handleError(response);
+                                                        });
+                                                });
+                                            },
+                                            (response) => {
+                                                $this.cfpLoadingBar.complete();
+                                                $this.httpErrorHandler.handleError(response);
+                                                console.log('response', response);
+                                            }
+                                        );
+                                    } else {
+                                        let url;
+                                        let index = 1;
+                                        if ($this.target.modus === 'mwl') {
+                                            url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+                                        }else{
+                                            url = `../aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
+                                        }
+                                        _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                            console.log('m', m);
+                                            console.log("$this.clipboard.otherObjects.length",Object.keys($this.clipboard.otherObjects).length);
+                                            console.log("i",index);
+                                            $this.$http.post(
+                                                url,
+                                                m,
+                                                headers
+                                            )
+                                                .map(res => {
+                                                    console.log('in map1', res);
+                                                    let resjson;
+                                                    try {
+                                                        /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                        if (pattern.exec(res.url)) {
+                                                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                        }*!/
+                                                        // resjson = res.json();
+                                                        resjson = res;
+                                                    } catch (e) {
+                                                        resjson = {};
+                                                    }
+                                                    return resjson;
+                                                })
+                                                .subscribe((response) => {
+                                                    console.log('in then function');
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.mainservice.setMessage({
+                                                        'title': 'Info',
+                                                        'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
+                                                        'status': 'info'
+                                                    });
+                                                    if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                        $this.clipboard = {};
+                                                        $this.selected = {};
+                                                    }
+                                                    $this.fireRightQuery();
+                                                }, (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                        $this.clipboard = {};
+                                                        $this.selected = {};
+                                                    }
+                                                });
+                                            index++;
+                                        });
+                                    }
+                                }
+                            }else{
+                                this.clearClipboard();
                             }
-                        }
-                    }else{
-                        this.clearClipboard();
-                    }
-                    $this.cfpLoadingBar.complete();
-                    this.dialogRef = null;
-                });
-            }else {
-                this.appService.setMessage({
-                    'title': 'Warning',
-                    'text': 'Target object can not be in the clipboard',
-                    'status': 'warning'
-                });
-            }*/
+                            $this.cfpLoadingBar.complete();*/
+                            this.dialogRef = null;
+                        });
+/*                    }else {
+                        this.appService.setMessage({
+                            'title': 'Warning',
+                            'text': 'Target object can not be in the clipboard',
+                            'status': 'warning'
+                        });
+                    }*/
+                }
+            }
         }else {
-            if(!this.selectedElements.postActionElements.size || this.selectedElements.postActionElements.size === 0){
+            if(!this.selectedElements.postActionElements || !this.selectedElements.postActionElements.size || this.selectedElements.postActionElements.size === 0){
                 this.appService.setMessage({
                     'title': 'Warning',
                     'text': 'No target object was selected!',
