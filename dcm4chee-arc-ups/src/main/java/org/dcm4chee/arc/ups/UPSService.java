@@ -48,6 +48,9 @@ import org.dcm4chee.arc.entity.Subscription;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import javax.websocket.Session;
+import java.util.List;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2019
@@ -73,4 +76,10 @@ public interface UPSService {
     int deleteSubscription(UPSContext ctx) throws DicomServiceException;
 
     int suspendSubscription(UPSContext ctx) throws DicomServiceException;
+
+    void registerWebsocketChannel(Session session, String aet, String subscriberAET);
+
+    void unregisterWebsocketChannel(Session session);
+
+    List<Session> getWebsocketChannels(String subscriberAET);
 }

@@ -41,17 +41,28 @@
 
 package org.dcm4chee.arc.ups.rs;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.json.JSONWriter;
+import org.dcm4chee.arc.ups.UPSEvent;
+import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,38 +72,81 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint(value = "/aets/{AETitle}/ws/subscribers/{SubscriberAET}")
 public class EventReportSender {
     private static final Logger LOG = LoggerFactory.getLogger(EventReportSender.class);
-    private final ConcurrentHashMap<String, Subscriber> subscribers = new ConcurrentHashMap<>();
+
+    @Inject
+    private UPSService service;
 
     @OnOpen
     public void open(Session session,
             @PathParam("AETitle") String aet,
             @PathParam("SubscriberAET") String subscriberAET) {
-        subscribers.put(session.getId(), new Subscriber(session, aet, subscriberAET));
+        LOG.info("{} open /aets/{}/ws/subscribers/{} ", session, aet, subscriberAET);
+        service.registerWebsocketChannel(session, aet, subscriberAET);
     }
 
     @OnClose
     public void close(Session session,
             @PathParam("AETitle") String aet,
             @PathParam("SubscriberAET") String subscriberAET) {
-        subscribers.remove(session.getId());
+        LOG.info("{} close /aets/{}/ws/subscribers/{} ", session, aet, subscriberAET);
+        service.unregisterWebsocketChannel(session);
     }
 
     @OnError
     public void error(Session session, Throwable thr,
             @PathParam("AETitle") String aet,
             @PathParam("SubscriberAET") String subscriberAET) {
-        LOG.warn("{} error:\n", session, thr);
+        LOG.warn("{} error /aets/{}/ws/subscribers/{}:\n", session, aet, subscriberAET, thr);
     }
 
-    private class Subscriber {
-        final Session session;
-        final String aet;
-        final String subscriberAET;
-
-        Subscriber(Session session, String aet, String subscriberAET) {
-            this.session = session;
-            this.aet = aet;
-            this.subscriberAET = subscriberAET;
+    public void onArchiveServiceEvent(@Observes UPSEvent event) {
+        Optional<String> inprocessStateReport = toInprocessStateReportJson(event);
+        String json = toJson(event);
+        for (String subscriberAET : event.subscriberAETs) {
+            List<Session> sessions = service.getWebsocketChannels(subscriberAET);
+            if (sessions.isEmpty()) {
+                LOG.info("No Websocket channel to send {} EventReport to {}", event.type, subscriberAET);
+            } else {
+                try {
+                    LOG.info("Send {} EventReport to {}", event.type, subscriberAET);
+                    if (inprocessStateReport.isPresent()) {
+                        send(inprocessStateReport.get(), sessions);
+                    }
+                    send(json, sessions);
+                } catch (IOException e) {
+                    LOG.warn("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
+                }
+            }
         }
+    }
+
+    private Optional<String> toInprocessStateReportJson(UPSEvent event) {
+        return event.inprocessStateReport().map(attrs -> toJson(event, event.messageID - 1, attrs));
+    }
+
+    private String toJson(UPSEvent event) {
+        return toJson(event, event.messageID, new Attributes(event.attrs));
+    }
+
+    private String toJson(UPSEvent event, int messageID, Attributes attrs) {
+        StringWriter out = new StringWriter(256);
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            new JSONWriter(gen).write(event.withCommandAttributes(attrs, messageID));
+        }
+        return out.toString();
+    }
+
+    private void send(String json, List<Session> sessions) throws IOException {
+        IOException e1 = null;
+        for (Session session : sessions) {
+            try {
+                session.getBasicRemote().sendText(json);
+                return;
+            } catch (IOException e) {
+                service.unregisterWebsocketChannel(session);
+                LOG.info("{} error:\n", session, e1 = e);
+            }
+        }
+        throw e1;
     }
 }

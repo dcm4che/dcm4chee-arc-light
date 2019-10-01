@@ -42,25 +42,60 @@
 package org.dcm4chee.arc.ups;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Sep 2019
  */
 public class UPSEvent {
+    private static final AtomicInteger seq = new AtomicInteger(0);
+    public final int messageID;
     public final Type type;
-    public final Attributes attributes;
+    public final String upsIUID;
+    public final Attributes attrs;
     public final List<String> subscriberAETs;
 
-    public UPSEvent(Type type, Attributes attributes, List<String> subscriberAETs) {
+    public UPSEvent(Type type, String upsIUID, Attributes attrs, List<String> subscriberAETs) {
+        this.messageID = seq.addAndGet(type == Type.StateReportInProcessAndCanceled ? 2 : 1);
         this.type = type;
-        this.attributes = attributes;
+        this.upsIUID = upsIUID;
+        this.attrs = attrs;
         this.subscriberAETs = subscriberAETs;
     }
 
+    public Optional<Attributes> inprocessStateReport() {
+        if (type != Type.StateReportInProcessAndCanceled) {
+            return Optional.empty();
+        }
+        Attributes eventInformation = new Attributes(6);
+        eventInformation.setString(Tag.InputReadinessState, VR.CS, attrs.getString(Tag.InputReadinessState));
+        eventInformation.setString(Tag.ProcedureStepState, VR.CS, "IN PROGRESS");
+        return Optional.of(eventInformation);
+    }
+
+    public Attributes withCommandAttributes(Attributes src, int messageID) {
+        Attributes dest = new Attributes(src);
+        dest.setString(Tag.AffectedSOPClassUID, VR.UI, UID.UnifiedProcedureStepEventSOPClass);
+        dest.setInt(Tag.MessageID, VR.US, messageID);
+        dest.setString(Tag.AffectedSOPInstanceUID, VR.UI, upsIUID);
+        dest.setInt(Tag.EventTypeID, VR.US, type.eventTypeID());
+        return dest;
+    }
+
     public enum Type {
+        StateReportInProcessAndCanceled {
+            @Override
+            public int eventTypeID() {
+                return 1;
+            }
+        },
         StateReport,
         CancelRequested,
         ProgressReport,
@@ -68,7 +103,7 @@ public class UPSEvent {
         Assigned;
 
         public int eventTypeID() {
-            return ordinal() + 1;
+            return ordinal();
         }
     }
 }

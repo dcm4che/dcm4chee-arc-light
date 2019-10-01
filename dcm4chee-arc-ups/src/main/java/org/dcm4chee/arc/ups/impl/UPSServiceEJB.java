@@ -125,7 +125,7 @@ public class UPSServiceEJB {
                     globalSubscription.getSubscriberAET(),
                     globalSubscription.isDeletionLock());
         }
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribersOf(ups));
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUpsInstanceUID(), stateReportOf(attrs), subcribersOf(ups));
         return ups;
     }
 
@@ -310,7 +310,7 @@ public class UPSServiceEJB {
                break;
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribersOf(ups));
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUpsInstanceUID(), stateReportOf(attrs), subcribersOf(ups));
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
         return ups;
@@ -345,14 +345,12 @@ public class UPSServiceEJB {
                 Tag.ProcedureStepDiscontinuationReasonCodeSequence,
                 Tag.ReasonForCancellation);
         eventInformation.setString(Tag.RequestingAE, VR.AE, ctx.getRequesterAET());
-        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, eventInformation, subcribers);
+        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUpsInstanceUID(), eventInformation, subcribers);
     }
 
     private void cancelUPS(UPSContext ctx, UPS ups) {
         List<String> subcribers = subcribersOf(ups);
         Attributes attrs = ups.getAttributes();
-        attrs.setString(Tag.ProcedureStepState, VR.CS, "IN PROGRESS");
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribers);
         Attributes progressInformation = ensureProgressInformation(attrs);
         progressInformation.addSelected(ctx.getAttributes(),
                 Tag.ProcedureStepDiscontinuationReasonCodeSequence,
@@ -366,7 +364,10 @@ public class UPSServiceEJB {
         }
         supplementDiscontinuationReasonCode(progressInformation);
         attrs.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, stateReportOf(attrs), subcribers);
+        ctx.addUPSEvent(UPSEvent.Type.StateReportInProcessAndCanceled,
+                ctx.getUpsInstanceUID(),
+                stateReportOf(attrs),
+                subcribers);
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
     }

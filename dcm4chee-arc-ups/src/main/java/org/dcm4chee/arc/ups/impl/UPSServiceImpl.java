@@ -68,9 +68,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -84,6 +86,8 @@ public class UPSServiceImpl implements UPSService {
     private static final IOD CREATE_IOD = loadIOD("create-iod.xml");
     private static final IOD SET_IOD = loadIOD("set-iod.xml");
 
+    private final ConcurrentHashMap<String, WSChannel> websocketChannels = new ConcurrentHashMap<>();
+
     @Inject
     private UPSServiceEJB ejb;
 
@@ -91,7 +95,7 @@ public class UPSServiceImpl implements UPSService {
     private QueryService queryService;
 
     @Inject
-    private Event<List<UPSEvent>> upsEvent;
+    private Event<UPSEvent> upsEvent;
 
     @Inject
     private IApplicationEntityCache aeCache;
@@ -126,7 +130,7 @@ public class UPSServiceImpl implements UPSService {
         }
         try {
             UPS ups = ejb.createUPS(ctx, globalSubscriptions(attrs));
-            upsEvent.fire(ctx.getUPSEvents());
+            fireUPSEvents(ctx);
             return ups;
         } catch (Exception e) {
             try {
@@ -148,7 +152,7 @@ public class UPSServiceImpl implements UPSService {
         }
         try {
             UPS ups = ejb.updateUPS(ctx);
-            upsEvent.fire(ctx.getUPSEvents());
+            fireUPSEvents(ctx);
             return ups;
         } catch (DicomServiceException e) {
             throw e;
@@ -180,7 +184,7 @@ public class UPSServiceImpl implements UPSService {
         }
         try {
             UPS ups = ejb.changeUPSState(ctx, upsState, transactionUID);
-            upsEvent.fire(ctx.getUPSEvents());
+            fireUPSEvents(ctx);
             return ups;
         } catch (DicomServiceException e) {
             throw e;
@@ -193,7 +197,7 @@ public class UPSServiceImpl implements UPSService {
     public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
         try {
             UPS ups = ejb.requestUPSCancel(ctx);
-            upsEvent.fire(ctx.getUPSEvents());
+            fireUPSEvents(ctx);
             return ups;
         } catch (DicomServiceException e) {
             throw e;
@@ -234,7 +238,7 @@ public class UPSServiceImpl implements UPSService {
                 default:
                     ejb.createOrUpdateSubscription(ctx);
             }
-            upsEvent.fire(ctx.getUPSEvents());
+            fireUPSEvents(ctx);
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -262,6 +266,28 @@ public class UPSServiceImpl implements UPSService {
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
+    }
+
+    @Override
+    public void registerWebsocketChannel(Session session, String aet, String subscriberAET) {
+        websocketChannels.put(session.getId(), new WSChannel(session, aet, subscriberAET));
+    }
+
+    @Override
+    public void unregisterWebsocketChannel(Session session) {
+        websocketChannels.remove(session.getId());
+    }
+
+    @Override
+    public List<Session> getWebsocketChannels(String subscriberAET) {
+        return websocketChannels.values().stream()
+                .filter(ws -> ws.subscriberAET.equals(subscriberAET))
+                .map(ws -> ws.session)
+                .collect(Collectors.toList());
+    }
+
+    private void fireUPSEvents(UPSContext ctx) {
+        ctx.getUPSEvents().forEach(upsEvent::fire);
     }
 
     private static IOD loadIOD(String name) {
@@ -320,5 +346,17 @@ public class UPSServiceImpl implements UPSService {
             }
         }
         return list;
+    }
+
+    private static class WSChannel {
+        final Session session;
+        final String aet;
+        final String subscriberAET;
+
+        private WSChannel(Session session, String aet, String subscriberAET) {
+            this.session = session;
+            this.aet = aet;
+            this.subscriberAET = subscriberAET;
+        }
     }
 }
