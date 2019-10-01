@@ -1832,6 +1832,22 @@ export class StudyService {
         }
     }
 
+
+    mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService) => {
+        console.log("patient id",this.getPatientId(selectedElements.postActionElements.patient.object.attrs));
+        if(selectedElements.preActionElements.patient.length > 1){
+           // return this.
+        }else{
+            const url = this.getModifyPatientUrl(deviceWebservice);
+            console.log("url",url);
+            return this.$http.put(
+                `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?margin=true`,
+                selectedElements.postActionElements.getAttrs("patient"),
+                this.jsonHeader
+            )
+        }
+    };
+
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
         const url = this.getModifyPatientUrl(deviceWebservice);
         if (url) {
@@ -2096,6 +2112,7 @@ export class StudyService {
             this.jsonHeader
         )
     }
+
 
     mapCode(m, i, newObject, mapCodes) {
         if (_.hasIn(mapCodes, i)) {

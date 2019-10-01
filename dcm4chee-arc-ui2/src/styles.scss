@@ -365,9 +365,22 @@ p-calendar{
     }
   }
 }
-.single_block{
+.single_block,.line_block{
   float: left;
   width:100%;
+}
+.line_element{
+  float: left;
+  margin-right: 10px;
+  height: 30px;
+  line-height: 30px;
+}
+.h30px{
+  height: 30px;
+  line-height: 30px;
+}
+.margin_right{
+  margin-right: 10px;
 }
 body{
     margin: 0;

@@ -1,9 +1,8 @@
 <h3>{{title}}</h3>
-<!--action:{{selectedElements.action}}-->
-<div *ngIf="selectedElements.action === 'move'">
-    <div>Select rejected type:</div>
-    <div>
-        <select id="reject" [(ngModel)]="reject" name="reject" class="col-md-9">
+<div *ngIf="selectedElements.action === 'cut'">
+    <div class="line_block">
+        <span class="line_element">Select rejected type:</span>
+        <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
             <option *ngFor="let rjn of rjnotes" title="{{rjn.title}}" value="{{rjn.value}}">{{rjn.text}}</option>
         </select>
     </div>

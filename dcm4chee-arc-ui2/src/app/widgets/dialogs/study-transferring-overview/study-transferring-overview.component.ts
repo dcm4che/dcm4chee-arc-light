@@ -16,6 +16,7 @@ export class StudyTransferringOverviewComponent implements OnInit {
     title = "Move";
     Object = Object;
     target;
+    reject;
 
     constructor(public dialogRef: MatDialogRef<StudyTransferringOverviewComponent>) { }
 

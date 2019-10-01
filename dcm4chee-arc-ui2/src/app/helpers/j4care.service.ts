@@ -1189,7 +1189,7 @@ export class j4care {
     static changed(object, base, ignoreEmpty?:boolean) {
         function changes(object, base) {
             return _.transform(object, function(result, value, key) {
-                if (!_.isEqual(value, base[key])) {
+                if (!base || !_.isEqual(value, base[key])) {
                     if(ignoreEmpty){
                         if(_.isObject(value) && _.isObject(base[key])){
                             result[key] = changes(value, base[key])

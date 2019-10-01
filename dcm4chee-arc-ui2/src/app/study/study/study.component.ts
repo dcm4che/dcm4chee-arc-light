@@ -464,14 +464,14 @@ export class StudyComponent implements OnInit{
                     this.dialogRef.afterClosed().subscribe(result => {
                             console.log("result",result);
                             console.log("selectedElements",this.selectedElements);
-/*                            $this.cfpLoadingBar.start();
+                            $this.cfpLoadingBar.start();
                             if (result) {
-                                $this.reject = result;
-                                console.log("reject",$this.reject);
-                                if ($this.clipboard.action === 'merge') {
-                                    let object;
+                                // $this.reject = result;
+                                // console.log("reject",$this.reject);
+                                if ($this.selectedElements.action === 'merge') {
+/*                                    let object;
                                     let url;
-                                    if(this.externalInternalAetMode === 'external'){
+                                    if(!this.internal){
                                         url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
                                         object = $this.selected.patients[0].attrs;
 
@@ -484,38 +484,40 @@ export class StudyComponent implements OnInit{
                                         });
                                         object =  $this.clipboard.patients;
                                         url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
-                                    }
-                                    console.log("url",url);
-                                    $this.$http.post(
+                                    }*/
+                                    // console.log("url",url);
+                                    this.service.mergePatients(this.selectedElements,this.studyWebService)
+/*                                    $this.$http.post(
                                         url,
                                         object,
                                         headers
-                                    )
+                                    )*/
                                         .subscribe((response) => {
                                             console.log('response in first', response.status);
                                             if (response.status === 204){
-                                                $this.mainservice.setMessage({
+                                                $this.appService.setMessage({
                                                     'title': 'Info',
                                                     'text': 'Patients merged successfully!',
                                                     'status': 'info'
                                                 });
                                             }else{
-                                                $this.mainservice.setMessage({
+                                                $this.appService.setMessage({
                                                     'title': 'Info',
                                                     'text': response.statusText,
                                                     'status': 'info'
                                                 });
                                             }
-                                            $this.selected = {};
+                                            this.clearClipboard();
+/*                                            $this.selected = {};
                                             $this.clipboard = {};
-                                            $this.fireRightQuery();
+                                            $this.fireRightQuery();*/
                                             $this.cfpLoadingBar.complete();
                                         }, (response) => {
                                             $this.cfpLoadingBar.complete();
                                             $this.httpErrorHandler.handleError(response);
                                         });
                                 }
-                                if ($this.clipboard.action === 'copy') {
+/*                                if ($this.clipboard.action === 'copy') {
                                     console.log('in ctrlv copy patient', $this.target);
                                     if ($this.target.modus === 'patient') {
                                         let study = {
@@ -572,7 +574,7 @@ export class StudyComponent implements OnInit{
                                                                 console.log('in then function', response);
                                                                 $this.clipboard = {};
                                                                 $this.selected = {};
-                                                                $this.mainservice.setMessage({
+                                                                $this.appService.setMessage({
                                                                     'title': 'Info',
                                                                     'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
                                                                     'status': 'info'
@@ -621,7 +623,7 @@ export class StudyComponent implements OnInit{
                                                 .subscribe((response) => {
                                                     console.log('in then function');
                                                     $this.cfpLoadingBar.complete();
-                                                    $this.mainservice.setMessage({
+                                                    $this.appService.setMessage({
                                                         'title': 'Info',
                                                         'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
                                                         'status': 'info'
@@ -637,8 +639,8 @@ export class StudyComponent implements OnInit{
                                                 });
                                         });
                                     }
-                                }
-                                if ($this.clipboard.action === 'move') {
+                                }*/
+/*                                if ($this.clipboard.action === 'move') {
                                     if ($this.target.modus === 'patient') {
                                         let study = {
                                             '00100020': $this.target.attrs['00100020'],
@@ -677,7 +679,7 @@ export class StudyComponent implements OnInit{
                                                             $this.clipboard = {};
                                                             $this.selected = {};
                                                             $this.cfpLoadingBar.complete();
-                                                            $this.mainservice.setMessage({
+                                                            $this.appService.setMessage({
                                                                 'title': 'Info',
                                                                 'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' moved successfully!',
                                                                 'status': 'info'
@@ -730,7 +732,7 @@ export class StudyComponent implements OnInit{
                                                 .subscribe((response) => {
                                                     console.log('in then function');
                                                     $this.cfpLoadingBar.complete();
-                                                    $this.mainservice.setMessage({
+                                                    $this.appService.setMessage({
                                                         'title': 'Info',
                                                         'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
                                                         'status': 'info'
@@ -751,11 +753,11 @@ export class StudyComponent implements OnInit{
                                             index++;
                                         });
                                     }
-                                }
+                                }*/
                             }else{
                                 this.clearClipboard();
                             }
-                            $this.cfpLoadingBar.complete();*/
+                            $this.cfpLoadingBar.complete();
                             this.dialogRef = null;
                         });
 /*                    }else {
@@ -782,7 +784,7 @@ export class StudyComponent implements OnInit{
             this.selectedElements.action = id;
         }
     }
-    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean, noResetSelectElements?:boolean){
+    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean, noResetSelectElements?:boolean, allReset?:boolean){
         let newObject = {};
         selectedValue = selectedValue || false;
         resetIds = resetIds || [
@@ -797,7 +799,7 @@ export class StudyComponent implements OnInit{
 
         if(!noResetSelectElements){
             if(this.selectedElements){
-                this.selectedElements.reset();
+                this.selectedElements.reset(allReset);
             }
         }
 
@@ -825,7 +827,7 @@ export class StudyComponent implements OnInit{
         console.log("selectedElements",this.selectedElements);
     }
     clearClipboard(){
-        this.resetSetSelectionObject();
+        this.resetSetSelectionObject(undefined,undefined,undefined,true);
     }
     onRemoveFromSelection(e){
         console.log("e",e);
