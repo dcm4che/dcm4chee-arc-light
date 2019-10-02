@@ -136,6 +136,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean relationalRetrieveNegotiationLenient;
     private Boolean stowRetiredTransferSyntax;
     private Boolean stowExcludeAPPMarkers;
+    private RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities;
     private int[] rejectConflictingPatientAttribute = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
@@ -1344,6 +1345,21 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowExcludeAPPMarkers();
     }
 
+    public RestrictRetrieveAccordingTransferCapabilities getRestrictRetrieveAccordingTransferCapabilities() {
+        return restrictRetrieveAccordingTransferCapabilities;
+    }
+
+    public void setRestrictRetrieveAccordingTransferCapabilities(
+            RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities) {
+        this.restrictRetrieveAccordingTransferCapabilities = restrictRetrieveAccordingTransferCapabilities;
+    }
+
+    public RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities() {
+        return restrictRetrieveAccordingTransferCapabilities != null
+                ? restrictRetrieveAccordingTransferCapabilities
+                : getArchiveDeviceExtension().getRestrictRetrieveAccordingTransferCapabilities();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1422,6 +1438,7 @@ public class ArchiveAEExtension extends AEExtension {
         rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
+        restrictRetrieveAccordingTransferCapabilities = aeExt.restrictRetrieveAccordingTransferCapabilities;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

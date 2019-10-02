@@ -249,6 +249,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int schedulerMinStartDelay = 60;
     private volatile boolean stowRetiredTransferSyntax = false;
     private volatile boolean stowExcludeAPPMarkers = false;
+    private volatile RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities
+            = RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
@@ -2437,6 +2439,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowExcludeAPPMarkers = stowExcludeAPPMarkers;
     }
 
+    public RestrictRetrieveAccordingTransferCapabilities getRestrictRetrieveAccordingTransferCapabilities() {
+        return restrictRetrieveAccordingTransferCapabilities;
+    }
+
+    public void setRestrictRetrieveAccordingTransferCapabilities(
+            RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities) {
+        this.restrictRetrieveAccordingTransferCapabilities = restrictRetrieveAccordingTransferCapabilities;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2620,6 +2631,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         schedulerMinStartDelay = arcdev.schedulerMinStartDelay;
         stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
+        restrictRetrieveAccordingTransferCapabilities = arcdev.restrictRetrieveAccordingTransferCapabilities;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

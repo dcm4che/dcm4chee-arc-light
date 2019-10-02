@@ -513,7 +513,6 @@
       "title": "Restrict Retrieve According Transfer Capabilities",
       "description": "Indicates if the set of requested objects to retrieve shall be restricted according the Transfer Capabilities of the Retrieve Destination. CONFIGURATION - consider configured Transfer Capabilities of the Destination AE, but treat a non accepted Presentation Context as failure. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "CONFIGURATION",
       "enum": [
         "NO",
         "YES",

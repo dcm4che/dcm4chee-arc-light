@@ -187,9 +187,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
                 arcDev.getAllowRejectionForDataRetentionPolicyExpired(),
                 AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET);
-        writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
-        writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently(), AllowDeleteStudyPermanently.REJECTED);
-        writer.writeNotNullOrDef("dcmAllowDeletePatient", arcDev.getAllowDeletePatient(), AllowDeletePatient.WITHOUT_STUDIES);
+        writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID(),
+                AcceptMissingPatientID.CREATE);
+        writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently(),
+                AllowDeleteStudyPermanently.REJECTED);
+        writer.writeNotNullOrDef("dcmAllowDeletePatient", arcDev.getAllowDeletePatient(),
+                AllowDeletePatient.WITHOUT_STUDIES);
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcDev.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmShowPatientInfoInSystemLog",
@@ -207,8 +210,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
         writer.writeNotEmpty("dcmReturnRetrieveAET", arcDev.getReturnRetrieveAETitles());
-        writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination(), null);
-        writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(), null);
+        writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination(),
+                null);
+        writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(),
+                null);
         writer.writeNotNullOrDef("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL(), null);
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
         writer.writeNotNullOrDef("hl7PSUSendingApplication", arcDev.getHL7PSUSendingApplication(), null);
@@ -228,44 +233,59 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getCopyMoveUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy",
                 arcDev.getLinkMWLEntryUpdatePolicy(), Attributes.UpdatePolicy.PRESERVE);
-        writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcDev.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
-        writer.writeNotDef("dcmStorageVerificationUpdateLocationStatus", arcDev.isStorageVerificationUpdateLocationStatus(), false);
+        writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcDev.getStorageVerificationPolicy(),
+                StorageVerificationPolicy.OBJECT_CHECKSUM);
+        writer.writeNotDef("dcmStorageVerificationUpdateLocationStatus",
+                arcDev.isStorageVerificationUpdateLocationStatus(), false);
         writer.writeNotEmpty("dcmStorageVerificationStorageID", arcDev.getStorageVerificationStorageIDs());
-        writer.writeNotNullOrDef("dcmStorageVerificationAETitle", arcDev.getStorageVerificationAETitle(), null);
-        writer.writeNotNullOrDef("dcmStorageVerificationBatchID", arcDev.getStorageVerificationBatchID(), null);
-        writer.writeNotNullOrDef("dcmStorageVerificationInitialDelay", arcDev.getStorageVerificationInitialDelay(), null);
-        writer.writeNotNullOrDef("dcmStorageVerificationPeriod", arcDev.getStorageVerificationPeriod(), null);
-        writer.writeNotDef("dcmStorageVerificationMaxScheduled", arcDev.getStorageVerificationMaxScheduled(), 0);
+        writer.writeNotNullOrDef("dcmStorageVerificationAETitle", arcDev.getStorageVerificationAETitle(),
+                null);
+        writer.writeNotNullOrDef("dcmStorageVerificationBatchID", arcDev.getStorageVerificationBatchID(),
+                null);
+        writer.writeNotNullOrDef("dcmStorageVerificationInitialDelay", arcDev.getStorageVerificationInitialDelay(),
+                null);
+        writer.writeNotNullOrDef("dcmStorageVerificationPeriod", arcDev.getStorageVerificationPeriod(),
+                null);
+        writer.writeNotDef("dcmStorageVerificationMaxScheduled", arcDev.getStorageVerificationMaxScheduled(),
+                0);
         writer.writeNotNullOrDef("dcmStorageVerificationPollingInterval",
                 arcDev.getStorageVerificationPollingInterval(), null);
         writer.writeNotEmpty("dcmStorageVerificationSchedule", arcDev.getStorageVerificationSchedules());
-        writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(), 100);
+        writer.writeNotDef("dcmStorageVerificationFetchSize", arcDev.getStorageVerificationFetchSize(),
+                100);
         writer.writeNotDef("dcmUpdateLocationStatusOnRetrieve",
                 arcDev.isUpdateLocationStatusOnRetrieve(), false);
         writer.writeNotDef("dcmStorageVerificationOnRetrieve",
                 arcDev.isStorageVerificationOnRetrieve(), false);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHL7TrackChangedPatientID(), true);
-        writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
-        writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
-        writer.writeNotNullOrDef("hl7ADTSendingApplication", arcDev.getHL7ADTSendingApplication(), null);
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(),
+                null);
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(),
+                null);
+        writer.writeNotNullOrDef("hl7ADTSendingApplication", arcDev.getHL7ADTSendingApplication(),
+                null);
         writer.writeNotEmpty("hl7ADTReceivingApplication", arcDev.getHL7ADTReceivingApplication());
         writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder",
                 arcDev.getHL7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
-        writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", arcDev.getHL7ScheduledStationAETInOrder(), null);
+        writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", arcDev.getHL7ScheduledStationAETInOrder(),
+                null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", arcDev.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNullOrDef("dcmAuditUnknownStudyInstanceUID",
                 arcDev.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         writer.writeNotNullOrDef("dcmAuditUnknownPatientID",
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
-        writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
+        writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(),
+                false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHL7UseNullValue(), false);
         writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
         writer.writeNotNullOrDef("dcmRejectionNoteStorageAET", arcDev.getRejectionNoteStorageAET(), null);
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
         writer.writeNotEmpty("dcmImpaxReportProperty", descriptorProperties(arcDev.getImpaxReportProperties()));
-        writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
+        writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(),
+                null);
         writer.writeNotNullOrDef("dcmCompressionAETitle", arcDev.getCompressionAETitle(), null);
-        writer.writeNotNullOrDef("dcmCompressionPollingInterval", arcDev.getCompressionPollingInterval(), null);
+        writer.writeNotNullOrDef("dcmCompressionPollingInterval", arcDev.getCompressionPollingInterval(),
+                null);
         writer.writeNotDef("dcmCompressionFetchSize", arcDev.getCompressionFetchSize(), 100);
         writer.writeNotEmpty("dcmCompressionSchedule", arcDev.getCompressionSchedules());
         writer.writeNotDef("dcmCompressionThreads", arcDev.getCompressionThreads(), 1);
@@ -291,8 +311,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxStaleness(), null);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
-        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy", arcDev.getHl7ImportReportMissingStudyIUIDPolicy(),
-                HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
+        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
+                arcDev.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", arcDev.getHl7DicomCharacterSet(), null);
         writer.writeNotDef("hl7VeterinaryUsePatientName", arcDev.isHl7VeterinaryUsePatientName(), false);
         writer.writeNotDef("dcmCSVUploadChunkSize", arcDev.getCSVUploadChunkSize(), 100);
@@ -308,6 +328,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStowExcludeAPPMarkers", arcDev.isStowExcludeAPPMarkers(), false);
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcDev.getWadoThumbnailViewPort(),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
+        writer.writeNotNullOrDef("dcmRestrictRetrieveAccordingTransferCapabilities",
+                arcDev.getRestrictRetrieveAccordingTransferCapabilities(),
+                RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -886,6 +909,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowRetiredTransferSyntax", arcAE.getStowRetiredTransferSyntax());
         writer.writeNotNull("dcmStowExcludeAPPMarkers", arcAE.getStowExcludeAPPMarkers());
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
+        writer.writeNotNullOrDef("dcmRestrictRetrieveAccordingTransferCapabilities",
+                arcAE.getRestrictRetrieveAccordingTransferCapabilities(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1454,6 +1479,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoThumbnailViewport":
                     arcDev.setWadoThumbnailViewPort(reader.stringValue());
+                    break;
+                case "dcmRestrictRetrieveAccordingTransferCapabilities":
+                    arcDev.setRestrictRetrieveAccordingTransferCapabilities(
+                            RestrictRetrieveAccordingTransferCapabilities.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -2846,6 +2875,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoThumbnailViewport":
                     arcAE.setWadoThumbnailViewPort(reader.stringValue());
+                    break;
+                case "dcmRestrictRetrieveAccordingTransferCapabilities":
+                    arcAE.setRestrictRetrieveAccordingTransferCapabilities(
+                            RestrictRetrieveAccordingTransferCapabilities.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
