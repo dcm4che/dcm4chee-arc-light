@@ -1,0 +1,25 @@
+.edit_attribute_block{
+  float:left;
+  width:100%;
+  //max-height: 200px;
+  overflow: auto;
+  .mat-dialog-content{
+    width:100%;
+    max-height: 200px;
+  }
+  .addStudyAttribut{
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 5px 7px;
+    margin-bottom: 20px;
+  }
+  .dialogbuttons{
+    display: none;
+  }
+
+
+
+}
+.cdk-overlay-container .edit_attribute_block .dropdown.study_edit{
+  margin-top: 52px;
+}                                               

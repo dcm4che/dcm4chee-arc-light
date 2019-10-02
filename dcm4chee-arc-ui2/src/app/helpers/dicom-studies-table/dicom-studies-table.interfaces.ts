@@ -1,5 +1,6 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {DcmWebApp} from "../../models/dcm-web-app";
+import {StudyPageConfig} from "../../interfaces";
 
 export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu";
 
@@ -52,6 +53,7 @@ export interface StudySchemaOptions{
     trash?:StudyTrash;
     selectedWebService?:DcmWebApp;
     tableParam?:TableParam;
+    studyConfig?:StudyPageConfig;
 }
 export interface TableAction{
     icon:Icon;

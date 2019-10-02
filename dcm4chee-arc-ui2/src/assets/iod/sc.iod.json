@@ -1,0 +1,60 @@
+{
+  "Patient IE": {
+    "$ref": "patient.iod.json"
+  },
+  "Study IE": {
+    "$ref": "study.iod.json"
+  },
+  "Series IE": {
+    "$ref": "series.iod.json"
+  },
+  "Equipment IE": {
+    "General Equipment": {
+      "$ref": "equipment.iod.json"
+    },
+    "SC Equipment": {
+      "$ref": "scEquipment.iod.json"
+    }
+  },
+  "Image IE": {
+    "General Image And Image Pixel": {
+      "$ref": "image.iod.json"
+    },
+    "SOP Common": {
+      "$ref": "sop.iod.json"
+    },
+    "SC Image": {
+      "00181012": { "vr": "DA" },
+      "00181014": { "vr": "TM" },
+      "00182010": { "vr": "DS" },
+      "0040E008": { "vr": "SQ",
+        "items": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      },
+      "00280030": { "vr": "DS" },
+      "00280A02": { "vr": "CS" },
+      "00280A04": { "vr": "LO" }
+    },
+    "00540220": { "vr": "SQ",
+      "item": {
+        "00080100": { "vr": "SH", "required": 1 },
+        "00080102": { "vr": "SH", "required": 1 },
+        "00080103": { "vr": "SH" },
+        "00080104": { "vr": "LO", "required": 1 },
+        "00540222": { "vr": "SQ",
+          "items": {
+            "00080100": { "vr": "SH", "required": 1 },
+            "00080102": { "vr": "SH", "required": 1 },
+            "00080103": { "vr": "SH" },
+            "00080104": { "vr": "LO", "required": 1 }
+          }
+        },
+        "00540500": { "vr": "CS" }
+      }
+    }
+  }
+}

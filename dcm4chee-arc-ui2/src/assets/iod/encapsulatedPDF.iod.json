@@ -1,0 +1,164 @@
+{
+  "Patient IE": {
+    "$ref": "patient.iod.json"
+  },
+  "Study IE": {
+    "$ref": "study.iod.json"
+  },
+  "Series IE": {
+    "$ref": "series.iod.json"
+  },
+  "Equipment IE": {
+    "General Equipment": {
+      "$ref": "equipment.iod.json"
+    },
+    "SC Equipment": {
+      "$ref": "scEquipment.iod.json"
+    }
+  },
+  "Encapsulated Document IE": {
+    "SOP Common": {
+      "$ref": "sop.iod.json"
+    },
+    "Encapsulated Document": {
+      "00200013": { "vr": "IS", "required": 1 },
+      "00080023": { "vr": "DA", "required": 2 },
+      "00080033": { "vr": "TM", "required": 2 },
+      "0008002A": { "vr": "DT", "required": 2 },
+      "00200062": { "vr": "CS",
+        "enum": [
+          "R",
+          "L",
+          "U",
+          "B"
+        ]
+      },
+      "00280301": { "vr": "CS", "required": 1,
+        "enum": [
+          "YES",
+          "NO"
+        ]
+      },
+      "00280302": { "vr": "CS",
+        "enum": [
+          "YES",
+          "NO"
+        ]
+      },
+      "00420013": { "vr": "SQ",
+        "items": {
+          "00081150": { "vr": "UI", "required": 1 },
+          "00081155": { "vr": "UI", "required": 1 },
+          "0040A170": { "vr": "SQ",
+            "item": {
+              "00080100": { "vr": "SH", "required": 1 },
+              "00080102": { "vr": "SH", "required": 1 },
+              "00080103": { "vr": "SH" },
+              "00080104": { "vr": "LO", "required": 1 }
+            }
+          }
+        }
+      },
+      "00420010": { "vr": "ST", "required": 2 },
+      "0040A043": { "vr": "SQ", "required": 2,
+        "item": {
+          "00080100": { "vr": "SH", "required": 1 },
+          "00080102": { "vr": "SH", "required": 1 },
+          "00080103": { "vr": "SH" },
+          "00080104": { "vr": "LO", "required": 1 }
+        }
+      },
+      "0040A493": { "vr": "CS",
+        "enum": [
+          "VERIFIED",
+          "UNVERIFIED"
+        ]
+      },
+      "0040E001": { "vr": "ST" },
+      "0040A525": { "vr": "SQ",
+        "item": {
+          "0020000D": { "vr": "UI", "required": 1 },
+          "00081115": { "vr": "SQ", "required": 1,
+            "items": {
+              "0020000E": { "vr": "UI", "required": 1 },
+              "00080054": { "vr": "AE", "multi": true },
+              "0040E011": { "vr": "UI" },
+              "00081199": { "vr": "SQ",
+                "items": {
+                  "00081150": { "vr": "UI", "required": 1 },
+                  "00081155": { "vr": "UI", "required": 1 }
+                }
+              }
+            }
+          }
+        }
+      },
+      "00420012": { "vr": "LO", "required": 1 },
+      "0040A040": { "vr": "CS",
+        "enum": [
+          "CONTAINER"
+        ]
+      },
+      "0040A730": { "vr": "SQ",
+        "items": {
+          "0040A010": { "vr": "CS",
+            "enum": [
+              "CONTAINS",
+              "HAS OBS CONTEXT",
+              "HAS ACQ CONTEXT",
+              "HAS CONCEPT MOD"
+            ]
+          },
+          "0040A032": { "vr": "DT" },
+          "0040A171": { "vr": "UI" },
+          "0040A040": { "vr": "CS", "required": 1,
+            "enum": [
+              "TEXT",
+              "NUM",
+              "CODE",
+              "DATE",
+              "TIME",
+              "DATETIME",
+              "UIDREF",
+              "PNAME",
+              "COMPOSITE",
+              "IMAGE",
+              "WAVEFORM",
+              "SCOORD",
+              "SCOORD3D",
+              "TCOORD",
+              "CONTAINER"
+            ]
+          },
+          "0040A043": { "vr": "SQ",
+            "item": {
+              "00080100": { "vr": "SH", "required": 1 },
+              "00080102": { "vr": "SH", "required": 1 },
+              "00080103": { "vr": "SH" },
+              "00080104": { "vr": "LO", "required": 1 }
+            }
+          },
+          "0040A160": { "vr": "UT" },
+          "0040A120": { "vr": "DT" },
+          "0040A121": { "vr": "DA" },
+          "0040A122": { "vr": "TM" },
+          "0040A123": { "vr": "PN" },
+          "0040A124": { "vr": "UI" }
+        }
+      },
+      "0040A050": { "vr": "LO",
+        "enum": [
+          "SEPARATE",
+          "CONTINUOUS"
+        ]
+      },
+      "0040A504": { "vr": "SQ",
+        "item": {
+          "00080105": { "vr": "CS", "required": 1 },
+          "00080118": { "vr": "UI" },
+          "0040DB00": { "vr": "CS", "required": 1 }
+        }
+      }
+    }
+  }
+}

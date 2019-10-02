@@ -627,6 +627,20 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         }
     }
+    uploadInPatient(object){
+        console.log("in uuploadInPatient",object);
+        this.$http.post(
+            '../aets/' + this.aet + '/rs/studies',
+            object.attrs,
+            new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
+        ).subscribe(res=>{
+            console.log("study created",res);
+            this.upload({attrs:res},"study");
+        },err=>{
+            console.log("err",err);
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     upload(object,mode){
         if(mode === "mwl"){
             //perpare mwl object for study upload

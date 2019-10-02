@@ -3497,10 +3497,11 @@ input.ng-invalid, .has-error .form-control{
 	    right: 0;
 	    top: 21%;
 	    z-index: 999;
+		max-width: 70%;
 	}
     .toggle_button {
 	   //background: #bbb none repeat scroll 0 0;
-	   background: #2e4150 none repeat scroll 0 0;
+	    background: #2e4150 none repeat scroll 0 0;
 	    border-bottom-left-radius: 5px;
 	    border-top-left-radius: 5px;
 	    -moz-box-shadow:-3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
@@ -3528,7 +3529,7 @@ input.ng-invalid, .has-error .form-control{
 	    //background:#f0f0f0;
 	    background:white;
 	    color: #444;
-	    float: left;
+	    //float: left;
 	    max-height: 500px;
 	    min-height: 100px;
     	//border-top: 20px solid #bbb;
@@ -3574,7 +3575,7 @@ input.ng-invalid, .has-error .form-control{
 		    text-transform: uppercase;
 		}
       .table_block{
-        border:1px solid #dddddd;
+        //border:1px solid #dddddd;
         margin:15px;
       }
 	    .block {

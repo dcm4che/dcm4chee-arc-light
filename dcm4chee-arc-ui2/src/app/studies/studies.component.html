@@ -614,8 +614,11 @@
                           <a class="table_btn hiddenbuttons" [permission]="{id:'action-studies-patient',param:'edit'}" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
                               <span class="glyphicon glyphicon-pencil"></span>
                           </a>
-                          <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-mwl',param:'create'}" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
+                          <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-patient',param:'upload'}" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
                               <span class="glyphicon glyphicon-plus" ></span>
+                          </a>
+                          <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-mwl',param:'create'}" (click)="$event.preventDefault();uploadInPatient(patient._VALUE)" href="" title="Upload file">
+                              <i class="material-icons">file_upload</i>
                           </a>
                           <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && ((_.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0) && aetmodel.dcmAllowDeletePatient != 'NEVER') || aetmodel.dcmAllowDeletePatient === 'ALWAYS')" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient" [permission]="{id:'action-studies-patient',param:'delete'}">
                               <span class="glyphicon glyphicon-remove"></span>

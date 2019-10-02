@@ -15,7 +15,12 @@ import {
     StudyFilterConfig,
     StudyPageConfig,
     DicomMode,
-    SelectDropdown, DicomLevel, UniqueSelectIdObject, DicomSelectObject, Quantity, DicomResponseType
+    SelectDropdown,
+    DicomLevel,
+    UniqueSelectIdObject,
+    DicomSelectObject,
+    Quantity,
+    DicomResponseType
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {Observable} from "rxjs/Observable";
@@ -63,6 +68,9 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-dicom.component";
+import {SelectionActionElement} from "./selection-action-element.models";
+import {CopyMoveObjectsComponent} from "../../widgets/dialogs/copy-move-objects/copy-move-objects.component";
+import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 
 
 @Component({
@@ -99,6 +107,7 @@ export class StudyComponent implements OnInit{
     testToggle(){
         this.isOpen = !this.isOpen;
     }
+    Object = Object;
     studyConfig:StudyPageConfig = {
         tab:"study"
     };
@@ -152,7 +161,7 @@ export class StudyComponent implements OnInit{
         active:false
     };
     studyWebService:StudyWebService;
-    selectedElements:SelectionsDicomObjects;
+    selectedElements:SelectionActionElement;
     tableParam:TableParam = {
         tableSchema:this.getSchema(),
         config:{
@@ -185,11 +194,11 @@ export class StudyComponent implements OnInit{
     actionsSelections = {
         placeholder: "Actions for selections",
         options:[
+            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection"),
             new SelectDropdown("export_object","Export selections", "Export selected studies, series or instances"),
             new SelectDropdown("reject_object","Reject selections", "Reject selected studies, series or instances"),
             new SelectDropdown("restore_object","Restore selections", "Restore selected studies, series or instances"),
-            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently"),
-            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection")
+            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently")
         ],
         model:undefined
     };
@@ -197,7 +206,13 @@ export class StudyComponent implements OnInit{
     testShow = true;
     fixedHeader = false;
     patients:PatientDicom[] = [];
-    moreStudies:boolean = false;
+    moreState = {
+        "study":false,
+        "patient":false,
+        "mwl":false,
+        "diff":false,
+        "export":false
+    };
     queues;
 
     searchCurrentList = '';
@@ -208,6 +223,8 @@ export class StudyComponent implements OnInit{
         size:[]
     };
     internal = true;
+    checkboxFunctions = false;
+
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -225,11 +242,15 @@ export class StudyComponent implements OnInit{
     ngOnInit() {
         console.log("this.service",this.appService);
         this.largeIntFormat = new LargeIntFormatPipe();
-        this.resetSelectionObject();
+        // this.resetSetSelectionObject();
+        this.selectedElements = new SelectionActionElement({});
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
-          this.studyConfig.tab = params.tab;
-          this.initWebApps();
+            this.patients = [];
+            this.studyConfig.tab = params.tab;
+            this.more = false;
+            this._filter.filterModel.offset = 0;
+            this.initWebApps();
         });
         this.moreFunctionConfig.options.filter(option=>{
             console.log("option",option);
@@ -238,19 +259,20 @@ export class StudyComponent implements OnInit{
             }else{
                 return true;
             }
-        })
-    }
-
-    resetSelectionObject(){
-        this.selectedElements = new SelectionsDicomObjects({
-            instance:{},
-            series:{},
-            patient:{},
-            study:{}
         });
+
     }
 
-    setTopToTableHeder(){
+    get more(): boolean {
+        return this.moreState[this.studyConfig.tab];
+    }
+
+    set more(value: boolean) {
+        this.moreState[this.studyConfig.tab] = value;
+    }
+
+    //
+    setTopToTableHeader(){
         if(this.stickyHeaderView.nativeElement.scrollHeight && this.stickyHeaderView.nativeElement.scrollHeight > 0 && this.tableParam.config.headerTop != `${this.stickyHeaderView.nativeElement.scrollHeight}px`){
             this.tableParam.config.headerTop = `${this.stickyHeaderView.nativeElement.scrollHeight}px`;
         }
@@ -305,44 +327,511 @@ export class StudyComponent implements OnInit{
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
             this.tableParam.tableSchema  = this.getSchema();
         }
-        //TODO
-        // if(_.size(this.selectedElements) > 0){
-            if(e === "export_object"){
-                // Object.keys(this.selectedElements).forEach((id)=>{
-                //     let object:DicomSelectObject = <DicomSelectObject>this.selectedElements[e.dicomLevel];
-/*                    if(object.dicomLevel === "instance"){
-                        this.exportInstance(object.object);
-                    }
-                    if(object.dicomLevel === "study"){
-                        this.exportStudy(object.object);
-                    }
-                    if(object.dicomLevel === "series"){
-                        this.exportSeries(object.object);
-                    }*/
-                // });
-            }
-        // }
+        if(e === "export_object"){
+            this.exporter(
+                    undefined,
+                'Export selected objects',
+                'Object will not be sent!',
+                'single',
+                    undefined,
+                    undefined,
+                   this.selectedElements
+            );
+        }
+        if(e === "reject_object" || e === "restore_object"){
+            this.rejectRestoreMultipleObjects();
+        }
 
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
         },1);
     }
+    selectionAction(id){
+        console.log("this.patient",this.patients);
+        switch (id){
+            case "checkbox_functions":{
+                this.checkboxFunctions = !this.checkboxFunctions;
+                break;
+            }
+            case "copy":{
+                this.setSelectedElementAction(id);
+                this.resetSetSelectionObject(undefined, undefined, true);
+                break;
+            }
+            case "cut":{
+                this.setSelectedElementAction(id);
+                this.resetSetSelectionObject(undefined, undefined, true);
+                break;
+            }
+            case "patient_merge":{
+                this.setSelectedElementAction("merge");
+                this.resetSetSelectionObject(undefined, undefined, true);
+                break;
+            }
+            case "paste":{
+                //TODO
+                this.paste();
+                break;
+            }
+            case 'remove_selection':{
+                this.resetSetSelectionObject();
+                break;
+            }
+            case 'uncheck_selection_study':{
+                this.resetSetSelectionObject(['study'],false);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'check_selection_study':{
+                this.resetSetSelectionObject(['study'],true);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'check_selection_patient':{
+                this.resetSetSelectionObject(['patient'],true);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'uncheck_selection_patient':{
+                this.resetSetSelectionObject(['patient'],false);
+                this.checkboxFunctions = false;
+                break;
+            }
+            case 'hide_checkboxes':{
+                this.resetSetSelectionObject();
+                this.tableParam.config.showCheckboxes = false;
+                this.tableParam.tableSchema  = this.getSchema();
+                break;
+            }
+        }
+    }
+    paste(){
+        console.log("past,this.selectedEleents",this.selectedElements);
 
+        if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
+            this.cfpLoadingBar.start();
+            let headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
+            //
+            if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
+                this.appService.showError("More than one target selected!");
+            } else {
+                if (this.selectedElements.preActionElements.currentIndexes.indexOf(this.selectedElements.postActionElements.currentIndexes[0]) > -1) {
+                    this.appService.showError("Target object can not be in the clipboard");
+                }else{
+
+                        // if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){ //TODO preventing element in postSelect if it is in preSelect
+
+                        let $this = this;CopyMoveObjectsComponent
+
+/*                        this.config.viewContainerRef = this.viewContainerRef;
+                        this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, {
+                            height: 'auto',
+                            width: '90%'
+                        });*/
+                    this.config.viewContainerRef = this.viewContainerRef;
+                    this.dialogRef = this.dialog.open(StudyTransferringOverviewComponent, {
+                        height: 'auto',
+                        width: '90%'
+                    });
+                    // let action = this.clipboard['action'].toUpperCase();
+                    let title = this.selectedElements.action + ' PROCESS';
+                    let select:SelectDropdown<any>[] =  [];
+                    _.forEach(this.trash.rjnotes, (m, i) => {
+                        select.push( new SelectDropdown<any>(m.codeValue + '^' + m.codingSchemeDesignator,m.label, m.codeMeaning));
+                    });
+/*                        if(this.selectedElements.action === "mwl"){
+                        title = "LINK TO MWL";
+
+
+                        _.forEach(this.trash.rjnotes,(m,i)=>{
+                            console.log("m",m);
+                            if(m.type === "INCORRECT_MODALITY_WORKLIST_ENTRY"){
+                                this.trash.reject = m.codeValue+"^"+m.codingSchemeDesignator;
+                            }
+                        });
+                        this.selectedElements.action = 'move';
+                    }*/
+/*                    if(this.externalInternalAetMode === 'external' && ($this.selected.patients.length > 1 || $this.clipboard.patients.length > 1)){
+                        $this.mainservice.setMessage({
+                            'title': 'Warning',
+                            'text': 'External merge of multiple patients is not allowed, just the first selected patient will be taken for merge!',
+                            'status': 'warning'
+                        });
+                    }*/
+                    this.dialogRef.componentInstance.selectedElements = this.selectedElements;
+                    this.dialogRef.componentInstance.rjnotes = select;
+                    this.cfpLoadingBar.complete();
+                    this.dialogRef.afterClosed().subscribe(result => {
+                            console.log("result",result);
+                            console.log("selectedElements",this.selectedElements);
+                            $this.cfpLoadingBar.start();
+                            if (result) {
+                                // $this.reject = result;
+                                // console.log("reject",$this.reject);
+                                if ($this.selectedElements.action === 'merge') {
+/*                                    let object;
+                                    let url;
+                                    if(!this.internal){
+                                        url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
+                                        object = $this.selected.patients[0].attrs;
+
+                                    }else{
+                                        delete $this.clipboard.patients[0].attrs;
+                                        _.forEach($this.clipboard.patients,(pat,ind)=>{
+                                            if(_.hasIn(pat,"attrs")){
+                                                delete $this.clipboard.patients[ind].attrs;
+                                            }
+                                        });
+                                        object =  $this.clipboard.patients;
+                                        url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
+                                    }*/
+                                    // console.log("url",url);
+                                    this.service.mergePatients(this.selectedElements,this.studyWebService)
+/*                                    $this.$http.post(
+                                        url,
+                                        object,
+                                        headers
+                                    )*/
+                                        .subscribe((response) => {
+                                            console.log('response in first', response.status);
+                                            if (response.status === 204){
+                                                $this.appService.setMessage({
+                                                    'title': 'Info',
+                                                    'text': 'Patients merged successfully!',
+                                                    'status': 'info'
+                                                });
+                                            }else{
+                                                $this.appService.setMessage({
+                                                    'title': 'Info',
+                                                    'text': response.statusText,
+                                                    'status': 'info'
+                                                });
+                                            }
+                                            this.clearClipboard();
+/*                                            $this.selected = {};
+                                            $this.clipboard = {};
+                                            $this.fireRightQuery();*/
+                                            $this.cfpLoadingBar.complete();
+                                        }, (response) => {
+                                            $this.cfpLoadingBar.complete();
+                                            $this.httpErrorHandler.handleError(response);
+                                        });
+                                }
+/*                                if ($this.clipboard.action === 'copy') {
+                                    console.log('in ctrlv copy patient', $this.target);
+                                    if ($this.target.modus === 'patient') {
+                                        let study = {
+                                            '00100020': $this.target.attrs['00100020'],
+                                            '00200010': {'vr': 'SH', 'Value': ['']},
+                                            '0020000D': {'vr': 'UI', 'Value': ['']},
+                                            '00080050': {'vr': 'SH', 'Value': ['']}
+                                        };
+                                        $this.$http.post(
+                                            '../aets/' + $this.aet + '/rs/studies',
+                                            study,
+                                            headers
+                                        ).map(res => {
+                                            console.log('in map1', res);
+                                            let resjson;
+                                            try {
+                                                /!*  let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                  if(pattern.exec(res.url)){
+                                                      WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                  }*!/
+                                                // resjson = res.json();
+                                                resjson = res;
+                                            } catch (e) {
+                                                resjson = {};
+                                            }
+                                            return resjson;
+                                        })
+                                            .subscribe((response) => {
+                                                    console.log('in subscribe2', response);
+                                                    _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                        console.log('m', m);
+                                                        console.log('i', i);
+                                                        $this.$http.post(
+                                                            '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/copy',
+                                                            m,
+                                                            headers
+                                                        )
+                                                            .map(res => {
+                                                                console.log('in map1', res);
+                                                                let resjson;
+                                                                try {
+                                                                    /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                    if(pattern.exec(res.url)){
+                                                                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                    }*!/
+                                                                    // resjson = res.json();
+                                                                    resjson = res;
+                                                                } catch (e) {
+                                                                    resjson = {};
+                                                                }
+                                                                return resjson;
+                                                            })
+                                                            .subscribe((response) => {
+                                                                console.log('in then function', response);
+                                                                $this.clipboard = {};
+                                                                $this.selected = {};
+                                                                $this.appService.setMessage({
+                                                                    'title': 'Info',
+                                                                    'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
+                                                                    'status': 'info'
+                                                                });
+                                                                $this.cfpLoadingBar.complete();
+                                                                // $this.callBackFree = true;
+                                                            }, (response) => {
+                                                                console.log('resin err', response);
+                                                                $this.clipboard = {};
+                                                                $this.cfpLoadingBar.complete();
+                                                                $this.httpErrorHandler.handleError(response);
+                                                                // $this.callBackFree = true;
+                                                            });
+                                                    });
+                                                    $this.fireRightQuery();
+                                                },
+                                                (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    console.log('response', response);
+                                                }
+                                            );
+                                    } else {
+                                        _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                            console.log('m', m);
+                                            $this.$http.post(
+                                                '../aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/copy',
+                                                m,
+                                                headers
+                                            )
+                                                .map(res => {
+                                                    console.log('in map1', res);
+                                                    let resjson;
+                                                    try {
+                                                        /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                        if(pattern.exec(res.url)){
+                                                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                        }*!/
+                                                        // resjson = res.json();
+                                                        resjson = res;
+                                                    } catch (e) {
+                                                        resjson = {};
+                                                    }
+                                                    return resjson;
+                                                })
+                                                .subscribe((response) => {
+                                                    console.log('in then function');
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.appService.setMessage({
+                                                        'title': 'Info',
+                                                        'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
+                                                        'status': 'info'
+                                                    });
+                                                    $this.clipboard = {};
+                                                    $this.selected = {};
+                                                    $this.fireRightQuery();
+                                                    // $this.callBackFree = true;
+                                                }, (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    // $this.callBackFree = true;
+                                                });
+                                        });
+                                    }
+                                }*/
+/*                                if ($this.clipboard.action === 'move') {
+                                    if ($this.target.modus === 'patient') {
+                                        let study = {
+                                            '00100020': $this.target.attrs['00100020'],
+                                            '00200010': {'vr': 'SH', 'Value': ['']},
+                                            '0020000D': {'vr': 'UI', 'Value': ['']},
+                                            '00080050': {'vr': 'SH', 'Value': ['']}
+                                        };
+                                        $this.$http.post(
+                                            '../aets/' + $this.aet + '/rs/studies',
+                                            study,
+                                            headers
+                                        ).subscribe((response) => {
+                                                _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                    console.log('m', m);
+                                                    $this.$http.post(
+                                                        '../aets/' + $this.aet + '/rs/studies/' + response['0020000D'].Value[0] + '/move/' + $this.reject,
+                                                        m,
+                                                        headers
+                                                    )
+                                                        .map(res => {
+                                                            let resjson;
+                                                            try {
+                                                                /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                if(pattern.exec(res.url)){
+                                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                }*!/
+                                                                // resjson = res.json();
+                                                                resjson = res;
+                                                            } catch (e) {
+                                                                resjson = {};
+                                                            }
+                                                            return resjson;
+                                                        })
+                                                        .subscribe((response) => {
+                                                            console.log('in then function');
+                                                            $this.clipboard = {};
+                                                            $this.selected = {};
+                                                            $this.cfpLoadingBar.complete();
+                                                            $this.appService.setMessage({
+                                                                'title': 'Info',
+                                                                'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' moved successfully!',
+                                                                'status': 'info'
+                                                            });
+                                                            $this.fireRightQuery();
+                                                        }, (response) => {
+                                                            $this.cfpLoadingBar.complete();
+                                                            $this.httpErrorHandler.handleError(response);
+                                                        });
+                                                });
+                                            },
+                                            (response) => {
+                                                $this.cfpLoadingBar.complete();
+                                                $this.httpErrorHandler.handleError(response);
+                                                console.log('response', response);
+                                            }
+                                        );
+                                    } else {
+                                        let url;
+                                        let index = 1;
+                                        if ($this.target.modus === 'mwl') {
+                                            url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+                                        }else{
+                                            url = `../aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
+                                        }
+                                        _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                            console.log('m', m);
+                                            console.log("$this.clipboard.otherObjects.length",Object.keys($this.clipboard.otherObjects).length);
+                                            console.log("i",index);
+                                            $this.$http.post(
+                                                url,
+                                                m,
+                                                headers
+                                            )
+                                                .map(res => {
+                                                    console.log('in map1', res);
+                                                    let resjson;
+                                                    try {
+                                                        /!*let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                        if (pattern.exec(res.url)) {
+                                                            WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                        }*!/
+                                                        // resjson = res.json();
+                                                        resjson = res;
+                                                    } catch (e) {
+                                                        resjson = {};
+                                                    }
+                                                    return resjson;
+                                                })
+                                                .subscribe((response) => {
+                                                    console.log('in then function');
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.appService.setMessage({
+                                                        'title': 'Info',
+                                                        'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
+                                                        'status': 'info'
+                                                    });
+                                                    if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                        $this.clipboard = {};
+                                                        $this.selected = {};
+                                                    }
+                                                    $this.fireRightQuery();
+                                                }, (response) => {
+                                                    $this.cfpLoadingBar.complete();
+                                                    $this.httpErrorHandler.handleError(response);
+                                                    if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                        $this.clipboard = {};
+                                                        $this.selected = {};
+                                                    }
+                                                });
+                                            index++;
+                                        });
+                                    }
+                                }*/
+                            }else{
+                                this.clearClipboard();
+                            }
+                            $this.cfpLoadingBar.complete();
+                            this.dialogRef = null;
+                        });
+/*                    }else {
+                        this.appService.setMessage({
+                            'title': 'Warning',
+                            'text': 'Target object can not be in the clipboard',
+                            'status': 'warning'
+                        });
+                    }*/
+                }
+            }
+        }else {
+            if(!this.selectedElements.postActionElements || !this.selectedElements.postActionElements.size || this.selectedElements.postActionElements.size === 0){
+                this.appService.setMessage({
+                    'title': 'Warning',
+                    'text': 'No target object was selected!',
+                    'status': 'warning'
+                });
+            }
+        }
+    }
+    setSelectedElementAction(id){
+        if(this.selectedElements.postActionElements || this.selectedElements.preActionElements){
+            this.selectedElements.action = id;
+        }
+    }
+    resetSetSelectionObject(resetIds?:string[], selectedValue?:boolean, noResetSelectElements?:boolean, allReset?:boolean){
+        let newObject = {};
+        selectedValue = selectedValue || false;
+        resetIds = resetIds || [
+            "instance",
+            "series",
+            "patient",
+            "study"
+        ];
+        resetIds.forEach(id=>{
+            newObject[id] = {};
+        });
+
+        if(!noResetSelectElements){
+            if(this.selectedElements){
+                this.selectedElements.reset(allReset);
+            }
+        }
+
+        this.patients.forEach(patient=>{
+            if(resetIds.indexOf("patient") > -1){
+                patient.selected = selectedValue;
+            }
+            if(patient.studies && resetIds.indexOf("study") > -1)
+                patient.studies.forEach(study=>{
+                    study.selected = selectedValue;
+                    if(study.series && resetIds.indexOf("series") > -1)
+                        study.series.forEach(serie=>{
+                            serie.selected = selectedValue;
+                            if(serie.instances && resetIds.indexOf("instance") > -1)
+                                serie.instances.forEach(instance=>{
+                                    instance.selected = selectedValue;
+                                })
+                        })
+                })
+        })
+    }
 
     select(object, dicomLevel:DicomLevel){
         this.selectedElements.toggle(dicomLevel, this.service.getObjectUniqueId(object.attrs, dicomLevel), object);
-/*        let idObject:UniqueSelectIdObject = this.service.getObjectUniqueId(object.attrs, dicomLevel);
-        if(_.hasIn(this.selectedElements,`${dicomLevel}["${idObject.id}"]`)){
-            delete this.selectedElements[dicomLevel][idObject.id];
-            object.selected = false;
-        }else{
-            this.selectedElements[dicomLevel][idObject.id] = {
-                idObject:idObject,
-                object:object,
-                dicomLevel:dicomLevel
-            };
-            object.selected = true;
-        }*/
+        console.log("selectedElements",this.selectedElements);
+    }
+    clearClipboard(){
+        this.resetSetSelectionObject(undefined,undefined,undefined,true);
+    }
+    onRemoveFromSelection(e){
+        console.log("e",e);
+        this.selectedElements.toggle(e.dicomLevel,e.uniqueSelectIdObject, e.object, "preActionElements");
     }
     actions(id, model){
         console.log("id",id);
@@ -356,10 +845,18 @@ export class StudyComponent implements OnInit{
             }
 
             if(id.action === "toggle_studies"){
-                if(!model.studies){
+                if(!model.studies || model.studies.length === 0){
                     // this.getStudies(model);
+                    console.log("models",model);
                     //TODO getStudies (needed for patient mode)
+                    let filterModel =  this.getFilterClone();
+                    if(filterModel.limit){
+                        filterModel.limit++;
+                    }
+                    this.getAllStudiesToPatient(model,filterModel, 0);
+                    //getAllStudies
                 }else{
+                    model.studies = [];
                     model.showStudies = !model.showStudies;
                 }
 
@@ -437,7 +934,11 @@ export class StudyComponent implements OnInit{
                 this.downloadCSV(model.attrs, id.level);
             }
             if(id.action === "upload_file"){
-                this.uploadFile(model, id.level);
+                if(id.level === "patient"){
+                    this.uploadInPatient(model);
+                }else{
+                    this.uploadFile(model, id.level);
+                }
             }
             if(id.action === "view"){
                 this.viewInstance(model);
@@ -462,6 +963,14 @@ export class StudyComponent implements OnInit{
             }
         });
     };
+    uploadInPatient(object){
+        console.log("in uuploadInPatient",object);
+        this.service.createEmptyStudy(object.attrs, this.studyWebService.selectedWebService).subscribe(res=>{
+            this.uploadFile({attrs:res},"patient");
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     uploadFile(object,mode){
         if(mode === "mwl"){
             //perpare mwl object for study upload
@@ -524,12 +1033,13 @@ export class StudyComponent implements OnInit{
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(UploadFilesComponent, {
             height: 'auto',
-            width: '500px'
+            width: '900px'
         });
 /*        this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
         this.dialogRef.componentInstance.fromExternalWebApp = this.service.getUploadFileWebApp(this.studyWebService);
         this.dialogRef.componentInstance.dicomObject = object;
+        this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
             if (result){
@@ -591,7 +1101,6 @@ export class StudyComponent implements OnInit{
 
         let $this = this;
         this.service.getMwlIod().subscribe((res) => {
-            $this.service.patientIod = res;
             let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             let mwlFiltered = _.cloneDeep(mwl);
             mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs, iod);
@@ -693,6 +1202,7 @@ export class StudyComponent implements OnInit{
             if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
                 if(!this.appService.global.notSecure){
+                    console.log("te",this.service.renderURL(inst));
                     WindowRefService.nativeWindow.open(this.service.renderURL(inst) + `&access_token=${token}`);
                 }else{
                     WindowRefService.nativeWindow.open(this.service.renderURL(inst));
@@ -863,6 +1373,20 @@ export class StudyComponent implements OnInit{
             }
 
         }
+        if(e.level === "study"){
+            console.log("e.object",e.object);
+            let filterModel =  this.getFilterClone();
+            if(filterModel.limit){
+                filterModel.limit++;
+            }
+            if(e.direction === "next"){
+                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset + this._filter.filterModel.limit);
+            }
+            if(e.direction === "prev"){
+                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset - this._filter.filterModel.limit);
+            }
+
+        }
     }
 
     getFilterClone():any{
@@ -882,15 +1406,15 @@ export class StudyComponent implements OnInit{
             if(e.id === "submit"){
                 if(!mode || mode === "current"){
                     filterModel.offset = 0;
-                    this.getStudies(filterModel);
+                    this.submit(filterModel);
                 }else{
-                    if(mode === "next" && this.moreStudies){
+                    if(mode === "next" && this.more){
                         filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
-                        this.getStudies(filterModel);
+                        this.submit(filterModel);
                     }
                     if(mode === "prev" && filterModel.offset > 0){
-                        filterModel.offset = filterModel.offset - this._filter.filterModel.offset;
-                        this.getStudies(filterModel);
+                        filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
+                        this.submit(filterModel);
                     }
                 }
             }
@@ -907,6 +1431,16 @@ export class StudyComponent implements OnInit{
             }*/
         }else{
             this.appService.showError("No web app service was selected!");
+        }
+    }
+    submit(filterModel){
+        switch (this.studyConfig.tab){
+            case "study":
+                this.getStudies(filterModel);
+                break;
+            case "patient":
+                this.getPatients(filterModel);
+                break;
         }
     }
     showNoFilterWarning(queryParameters){
@@ -982,7 +1516,74 @@ export class StudyComponent implements OnInit{
         })
     }
 
+    getPatients(filterModel){
+        this.cfpLoadingBar.start();
+        this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
+            this.patients = [];
+            this._filter.filterModel.offset = filterModel.offset;
+            if (_.size(res) > 0){
+                this.setTopToTableHeader();
+                this.patients = res.map((attrs, index) => {
+                    return new PatientDicom(attrs, [], false, false, filterModel.offset + index);
+                });
+                if (this.more = (this.patients.length > this._filter.filterModel.limit)) {
+                    this.patients.pop();
+                }
+            } else {
+                this.appService.setMessage( {
+                    "title": "Info",
+                    "text": "No matching Patients found!",
+                    "status": "info"
+                });
+            }
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            j4care.log("Something went wrong on search", err);
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+    getAllStudiesToPatient(patient, filterModel, offset) {
 
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+
+        if (offset < 0) offset = 0;
+        filterModel["offset"] = offset;
+
+        filterModel['includefield'] = 'all';
+        filterModel["PatientID"] = j4care.valueOf(patient.attrs['00100020']);
+        filterModel["IssuerOfPatientID"] = j4care.valueOf(patient.attrs['00100021']);
+        this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
+            .subscribe((res) => {
+                if (res && res.length > 0){
+                    let hasMore = res.length > this._filter.filterModel.limit;
+                    patient.studies = res.map((studyAttrs, index) => {
+                        return new StudyDicom(
+                            studyAttrs,
+                            patient,
+                            offset + index,
+                            hasMore,
+                            hasMore || offset > 0
+                        );
+                    });
+                    patient.showStudies = true;
+                    if(hasMore){
+                        patient.studies.pop();
+                    }
+                }else{
+                    this.appService.setMessage( {
+                        'title': 'Info',
+                        'text': 'No matching Studies found!',
+                        'status': 'info'
+                    });
+                }
+                this.cfpLoadingBar.complete();
+            },(err)=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            });
+    };
     getStudies(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
@@ -992,7 +1593,7 @@ export class StudyComponent implements OnInit{
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
                 if(res){
-                    this.setTopToTableHeder();
+                    this.setTopToTableHeader();
                     let index = 0;
                     let patient: PatientDicom;
                     let study: StudyDicom;
@@ -1019,7 +1620,7 @@ export class StudyComponent implements OnInit{
                         );
                         patient.studies.push(study);
                     });
-                    if (this.moreStudies = (res.length > this._filter.filterModel.limit)) {
+                    if (this.more = (res.length > this._filter.filterModel.limit)) {
                         patient.studies.pop();
                         if (patient.studies.length === 0) {
                             this.patients.pop();
@@ -1194,8 +1795,8 @@ export class StudyComponent implements OnInit{
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
-    moreFunctionFilterPipe(value, internal){
-        console.log("value",value);
+    moreFunctionFilterPipe(value, args){
+        let internal = args[0];
         return value.filter(option=>{
             console.log("option",option);
             switch (option.value) {
@@ -1209,6 +1810,23 @@ export class StudyComponent implements OnInit{
                     return internal;
                 case "export_multiple":
                     return internal;
+            }
+            return true;
+        });
+    }
+    actionsSelectionsFilterPipe(value, args){
+        console.log("args",args);
+        let internal = args[0];
+        let trashActive = args[1];
+        return value.filter(option=>{
+            if(option.value === "delete_object"){
+                return internal && trashActive
+            }
+            if(option.value === "restore_object"){
+                return internal && trashActive
+            }
+            if(option.value === "reject_object"){
+                return !trashActive
             }
             return true;
         });
@@ -1333,8 +1951,6 @@ export class StudyComponent implements OnInit{
         this.lastPressedCode = 0;
         this.config.viewContainerRef = this.viewContainerRef;
         this.service.getPatientIod().subscribe((iod) => {
-            this.service.patientIod = iod;
-
             this.service.initEmptyValue(patient.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
                 height: 'auto',
@@ -1400,10 +2016,6 @@ export class StudyComponent implements OnInit{
         }
         this.lastPressedCode = 0;
         this.service.getStudyIod()
-            .map(iod=>{
-                this.service.patientIod = iod;
-                return iod;
-            })
             .subscribe((res) => {
                 let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
                 let studyFiltered = _.cloneDeep(study);
@@ -1532,16 +2144,12 @@ export class StudyComponent implements OnInit{
 
     deleteStudy(study){
         console.log('study', study);
-        // if(study.attrs['00201208'].Value[0] === 0){
         this.confirm({
             content: 'Are you sure you want to delete this study?'
         }).subscribe(result => {
             this.cfpLoadingBar.start();
             if (result){
                 this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"),this.studyWebService.selectedWebService)
-/*                this.$http.delete(
-                    '../aets/' + this.aet + '/rs/studies/' + study.attrs['0020000D'].Value[0]
-                )*/
                 .subscribe(
                     (response) => {
                         this.appService.showMsg('Study deleted successfully!');
@@ -1557,9 +2165,51 @@ export class StudyComponent implements OnInit{
         });
     };
 
+
+    rejectRestoreMultipleObjects(){
+        let msg = "";
+        let select: any = [];
+        let rejectionRestoreService = (rejectionCode)=>{
+            this.cfpLoadingBar.start();
+            this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
+                this.appService.showMsg(msg);
+            this.cfpLoadingBar.complete();
+            },err=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            })
+        };
+
+        if (this.trash.active) {
+            msg = 'Objects restored successfully!';
+            rejectionRestoreService(this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator);
+        }else{
+            msg = 'Objects rejected successfully!';
+            _.forEach(this.trash.rjnotes, (m, i) => {
+                select.push({
+                    title: m.codeMeaning,
+                    value: m.codeValue + '^' + m.codingSchemeDesignator,
+                    label: m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+                saveButton: 'REJECT'
+            };
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    rejectionRestoreService(parameters.result.select);
+                }
+            });
+        }
+
+    }
     rejectStudy(study) {
         let $this = this;
         if (this.trash.active) {
+            //restore
             this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
@@ -1768,14 +2418,14 @@ export class StudyComponent implements OnInit{
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
-            tableParam:this.tableParam
+            tableParam:this.tableParam,
+            studyConfig:this.studyConfig
         }));
     }
 
 
     retrieveMultipleStudies(){
         this.exporter(
-            // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
             '',
             'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
             '',
@@ -1825,12 +2475,13 @@ export class StudyComponent implements OnInit{
             "instance"
         );
     };
-    exporter(url, title, warning, mode, objectAttr, dicomMode){
+    exporter(url, title, warning, mode, objectAttr, dicomMode, multipleObjects?:SelectionActionElement){
         let $this = this;
         let id;
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
+        let singleUrlSuffix = "";
         _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
                 dicomPrefixes.push(m);
@@ -1884,55 +2535,76 @@ export class StudyComponent implements OnInit{
                         }${
                             this.appService.param(this.createStudyFilterParams())
                         }`;
-                    console.log("urlrest",urlRest);
                 }else{
                     if(mode === 'multipleExport'){
-                        let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
+                        let checkbox = `${
+                            (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
+                        }${
+                            (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
+                        }`;
                         if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `${this.service.getDicomURL("export",this.studyWebService.selectedWebService)}/${result.selectedExporter}?${batchID}${this.appService.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `${
+                            this.service.getDicomURL("export",this.studyWebService.selectedWebService)
+                        }/${
+                            result.selectedExporter
+                        }?${
+                            batchID
+                        }${
+                            this.appService.param(this.createStudyFilterParams())
+                        }${
+                            checkbox
+                        }`;
                     }else{
                         //SINGLE
-                        console.log("deviceName",this.appService.archiveDeviceName);
-                        console.log("deviceName",this.studyWebService.selectedWebService.dicomDeviceName);
-                        if(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName){
-                        // if(this.studyWebService.selectedWebService){
-                            // let param = result.dcmQueueName ? `?${batchID}dcmQueueName=${result.dcmQueueName}` : '';
+                        if(!this.internal){
                             if(result.dcmQueueName){
                                 params['dcmQueueName'] = result.dcmQueueName
                             }
-                            urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                            singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                            // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                         }else{
                             if (result.exportType === 'dicom'){
-                                //id = result.dicomPrefix + result.selectedAet;
                                 id = 'dicom:' + result.selectedAet;
                             }else{
                                 id = result.selectedExporter;
                             }
-                            urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                         }
                     }
                 }
-                this.service.export(urlRest)
-                    .subscribe(
-                    (result) => {
-                        $this.appService.setMessage({
-                            'title': 'Info',
-                            'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
-                            'status': 'info'
-                        });
+                if(multipleObjects.size > 0){
+                    //TODO
+                    this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                        console.log("res",res);
+                        $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
                         $this.cfpLoadingBar.complete();
-                    },
-                    (err) => {
+                    }, err=>{
                         console.log("err",err);
-                        $this.appService.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': $this.service.getMsgFromResponse(err),
-                            'status': 'error'
-                        });
                         $this.cfpLoadingBar.complete();
+                    });
+                }else{
+                    if(singleUrlSuffix){
+                        urlRest = url + singleUrlSuffix;
                     }
-                );
+                    this.service.export(urlRest)
+                        .subscribe(
+                        (result) => {
+                            $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            console.log("err",err);
+                            $this.appService.setMessage({
+                                'title': 'Error ' + err.status,
+                                'text': $this.service.getMsgFromResponse(err),
+                                'status': 'error'
+                            });
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
             }
         });
     }

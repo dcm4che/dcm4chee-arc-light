@@ -82,11 +82,11 @@
               ></dcm-drop-down>
             </div>
           </div>
-          <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyWebService && studyWebService.selectedWebService))">
+          <div class="filter_block" *ngIf="(patients && patients.length > 0)">
             <div class="line">
               <dcm-drop-down
                       [placeholder]="actionsSelections.placeholder"
-                      [options]="actionsSelections.options"
+                      [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active"
                       [editable]="false"
                       [(model)]="actionsSelections.model"
                       [showSearchField]="false"
@@ -101,8 +101,41 @@
           </div>
         </div>
       </div>
-    <div class="left_arrow arrow"  title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev')"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-    <div class="right_arrow arrow" title="Next page" *ngIf="patients" [ngClass]="{'active':moreStudies}" (click)="search('next')"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+        <ul class="selection_functions">
+            <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
+            <li><button (click)="selectionAction('copy')"><i class="material-icons">content_copy</i></button></li>
+            <li><button (click)="selectionAction('cut')"><i class="material-icons">content_cut</i></button></li>
+            <li><button (click)="selectionAction('patient_merge')"><i class="material-icons">supervisor_account</i></button></li>
+            <li><button (click)="selectionAction('paste')"><i class="material-icons">content_paste</i></button></li>
+        </ul>
+        <ul *ngIf="checkboxFunctions" class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')">Remove all selections</button></li>
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_study')">Select all studies</button></li>
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')">Unselect all studies</button></li>
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')">Select all patients</button></li>
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')">Unselect all patients</button></li>
+            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')">Hide checkboxes</button></li>
+        </ul>
+    </div>
+    <div class="left_arrow arrow"  title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+    <div class="right_arrow arrow" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
     <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
+    <div id="clipboard" class="clipboard said"  *ngIf="selectedElements.preActionElements && selectedElements.preActionElements.size > 0 && selectedElements.action">
+        <div id="clipboardtoggle" class="toggle_button" (click)="showClipboardContent = !showClipboardContent">
+            <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
+        </div>
+        <div class="content" id="clipboard_content" *ngIf="showClipboardContent">
+            <h5>Selected Objects to {{selectedElements.action}}</h5>
+            <a class="clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
+                Clear <span class="glyphicon glyphicon-remove"></span>
+            </a>
+            <div class="table_block">
+                <ng-container  *ngFor="let level of ['patient','study','series','instance']">
+                    <selections-dicom-view *ngIf="selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0" [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
+                </ng-container>
+            </div>
+        </div>
+    </div>
 </div>

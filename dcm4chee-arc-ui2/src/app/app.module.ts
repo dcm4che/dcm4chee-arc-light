@@ -110,6 +110,8 @@ import { WebAppsListComponent } from './configuration/web-apps-list/web-apps-lis
 import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.service";
 import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
 import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
+import { SelectionsDicomViewComponent } from './study/study/selections-dicom-view/selections-dicom-view.component';
+import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/selections-dicom-view.service";
 
 @NgModule({
     declarations: [
@@ -169,7 +171,8 @@ import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
         DynamicPipePipe,
         ArrayToStringPipe,
         MetricsComponent,
-        WebAppsListComponent
+        WebAppsListComponent,
+        SelectionsDicomViewComponent
     ],
     imports: [
         BrowserModule,
@@ -271,6 +274,7 @@ import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
         KeycloakHttpClient,
         MetricsService,
         WebAppsListService,
+        SelectionsDicomViewService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent],

@@ -12,17 +12,24 @@
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
+            <label>Chose a File to upload:</label><br>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,application/pdf" multiple>
             <ng-container *ngIf="isImage">
                 <label>Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
                     <mat-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</mat-option>
                 </mat-select>
             </ng-container>
-            <label title="Series Description">Series Number:</label><input type="number" [(ngModel)]="seriesNumber"><br>
-            <label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>
-            <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
-            <label>Chose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,application/pdf">
+            <ng-container *ngIf="!moreAttributes && file">
+                <label title="Series Number">Series Number:</label><input type="number" [(ngModel)]="seriesNumber"><br>
+                <!--<label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>-->
+                <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
+            </ng-container>
+<!--            <button *ngIf="mode != 'patient' && file" (click)="showMoreAttributes()">Edit study attributes</button>
+
+            <div class="edit_attribute_block" *ngIf="moreAttributes && file">
+                <edit-study [study]="dicomObject" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>
+            </div>-->
             <div mat-dialog-content>
                 <ng-container *ngIf="showFileList">
                     <div class="upload_state" *ngFor="let file of fileList">
@@ -43,3 +50,4 @@
         </div>
     </div>
 </div>
+

@@ -6,6 +6,7 @@ export class SelectionsDicomObjects {
     private _study:any;
     private _series:any;
     private _instance:any;
+    private _currentIndexes;
     size:number;
 
     constructor(object:{
@@ -14,10 +15,31 @@ export class SelectionsDicomObjects {
         series?:any,
         instance?:any
     }={}){
-        this.patient = object.patient;
-        this.study = object.study;
-        this.series = object.series;
-        this.instance = object.instance;
+        this.size = 0;
+        if(object.patient){
+            this.patient = object.patient;
+            this.size += Object.keys(object.patient).length
+        }else{
+            this._patient = {};
+        }
+        if(object.study){
+            this.study = object.study;
+            this.size += Object.keys(object.study).length
+        }else{
+            this._study = {};
+        }
+        if(object.series){
+            this.series = object.series;
+            this.size += Object.keys(object.series).length
+        }else{
+            this._series = {};
+        }
+        if(object.instance){
+            this.instance = object.instance;
+            this.size += Object.keys(object.instance).length
+        }else{
+            this._instance = {};
+        }
     }
 
 
@@ -25,16 +47,33 @@ export class SelectionsDicomObjects {
         if(_.hasIn(this,`${dicomLevel}["${uniqueSelectIdObject.id}"]`)){
             delete this[dicomLevel][uniqueSelectIdObject.id];
             object.selected = false;
+            this.size--;
+            this.currentIndexes.splice(this.currentIndexes.indexOf(uniqueSelectIdObject.id), 1);
         }else{
             this[dicomLevel][uniqueSelectIdObject.id] = {
                 uniqueSelectIdObject:uniqueSelectIdObject,
                 object:object,
                 dicomLevel:dicomLevel
             };
+            this.currentIndexes = this.currentIndexes || [];
+            this.currentIndexes.push(uniqueSelectIdObject.id);
             object.selected = true;
+            this.size++;
         }
     }
 
+
+    getAttrs(dicomLevel:DicomLevel){
+        this[dicomLevel].map(o=>o.object.attrs);
+    }
+    getAllAsArray(){
+        return [
+            ..._.values(this._patient),
+            ..._.values(this._study),
+            ..._.values(this._series),
+            ..._.values(this._instance)
+        ]
+    }
     get patient(): any {
         return this._patient;
     }
@@ -65,5 +104,13 @@ export class SelectionsDicomObjects {
 
     set instance(value: any) {
         this._instance = value;
+    }
+
+    get currentIndexes() {
+        return this._currentIndexes;
+    }
+
+    set currentIndexes(value) {
+        this._currentIndexes = value;
     }
 }

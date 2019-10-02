@@ -266,4 +266,6 @@ public interface RetrieveContext extends Closeable {
     boolean isUpdateLocationStatusOnRetrieve();
 
     boolean isStorageVerificationOnRetrieve();
+
+    void decrementNumberOfMatches();
 }

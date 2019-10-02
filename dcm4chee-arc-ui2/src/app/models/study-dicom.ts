@@ -4,19 +4,21 @@ import {SeriesDicom} from "./series-dicom";
 export class StudyDicom {
     private _patient:PatientDicom;
     private _offset:number;
-    private _moreSeries:boolean;
+    private _hasMore:boolean;
     private _attrs:any[];
     private _series:SeriesDicom[];
     private _showAttributes:boolean;
     private _fromAllStudies:boolean;
     private _showSeries:boolean;
     private _selected:boolean;
+    private _showPaginations:boolean;
 
     constructor(
         attrs:any[],
         patient:PatientDicom,
         offset?:number,
-        moreSeries?:boolean,
+        hasMore?:boolean,
+        showPaginations?:boolean,
         series?:SeriesDicom[],
         showAttributes?:boolean,
         fromAllStudies?:boolean,
@@ -26,7 +28,8 @@ export class StudyDicom {
         this._attrs = attrs;
         this._patient = patient;
         this._offset = offset || 0;
-        this._moreSeries = moreSeries || false;
+        this._hasMore = hasMore || false;
+        this._showPaginations = showPaginations || false;
         this._series = series || null;
         this._showAttributes = showAttributes || false;
         this._fromAllStudies = fromAllStudies || false;
@@ -51,12 +54,12 @@ export class StudyDicom {
         this._offset = value;
     }
 
-    get moreSeries(): boolean {
-        return this._moreSeries;
+    get hasMore(): boolean {
+        return this._hasMore;
     }
 
-    set moreSeries(value: boolean) {
-        this._moreSeries = value;
+    set hasMore(value: boolean) {
+        this._hasMore = value;
     }
 
     get attrs(): any[] {
@@ -105,5 +108,13 @@ export class StudyDicom {
 
     set selected(value: boolean) {
         this._selected = value;
+    }
+
+    get showPaginations(): boolean {
+        return this._showPaginations;
+    }
+
+    set showPaginations(value: boolean) {
+        this._showPaginations = value;
     }
 }

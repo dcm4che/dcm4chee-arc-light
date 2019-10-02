@@ -158,9 +158,6 @@ final class RetrieveTaskImpl implements RetrieveTask {
         int priority = ctx.getPriority();
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {
-            if (tsuids.isEmpty()) {
-                throw new NoPresentationContextException(cuid);
-            }
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();

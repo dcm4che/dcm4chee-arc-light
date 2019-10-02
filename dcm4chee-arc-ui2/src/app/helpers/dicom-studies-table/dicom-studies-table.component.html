@@ -24,7 +24,7 @@
                  (mouseenter)="active_td = patient_table.elementId"
                  tooltip="{{ patient_table.type === 'value' ? _.get(patient.attrs,patient_table.pathToValue) : (patient_table.type === 'pipe' ? (patient.attrs | dynamicPipe:patient_table.pipe):'')}}"
             >
-                <ng-container *ngSwitchCase="'index'">{{i + config.offset + 1}}</ng-container>
+                <ng-container *ngSwitchCase="'index'">{{patient.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
 <!--                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
                         <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
@@ -257,25 +257,25 @@
                         </div>
                     </div>
                 </div>
-<!--                <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies.length > patient.studies[0].limit">
-                    <div class="instance_block table_item">
-                        <div class="td td_with_centered_child">
-                            <div class="centered_child">
-                                <button
-                                        title="Preview page of series"
-                                        class="transparent_button"
-                                        (click)="paginationClick(patient, 'study', 'prev')"
-                                ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                <button
-                                        title="Next page of series"
-                                        class="transparent_button"
-                                        (click)="paginationClick(patient, 'study', 'next')"
-                                ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                            </div>
+                <!--3:END;-->
+            </div>
+            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
+                <div class="instance_block table_item">
+                    <div class="td td_with_centered_child">
+                        <div class="centered_child">
+                            <button
+                                    title="Preview page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'prev')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                            <button
+                                    title="Next page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'next')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                         </div>
                     </div>
-                </div>-->
-                <!--3:END;-->
+                </div>
             </div>
         </div>
         <!--2:END;-->
