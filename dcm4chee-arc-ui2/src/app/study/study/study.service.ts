@@ -37,6 +37,7 @@ import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
 import 'rxjs/add/observable/throw';
+import {forkJoin} from 'rxjs/observable/forkJoin';
 
 @Injectable()
 export class StudyService {
@@ -2180,4 +2181,22 @@ export class StudyService {
     getRejectNotes = (params?: any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
+
+    copyMove(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode?):Observable<any>{
+        try{
+            const target = selectedElements.postActionElements.getAllAsArray()[0];
+            let url = `${this.getDicomURL("study", dcmWebApp)}/${_.get(target,"requestReady.StudyInstanceUID")}/${selectedElements.action}`;
+            if(selectedElements.action === "move"){
+                url += `/` + rejectionCode;
+            }
+            let observables = [];
+            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
+                observables.push(this.$http.post(url,object.requestReady));
+            });
+            return forkJoin(observables);
+        }catch (e) {
+            return Observable.throw(e);
+        }
+    };
+
 }

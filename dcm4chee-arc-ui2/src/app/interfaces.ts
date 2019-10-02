@@ -130,6 +130,8 @@ export interface FilterSchemaElement {
     showDynamicLoader?:boolean;
 }
 
+
+
 export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
 export type DicomLevel = "patient" | "study" | "series" | "instance";
 export type AccessLocation = "internal" | "external";
@@ -151,6 +153,7 @@ export interface SelectedDetailObject{
     uniqueSelectIdObject:UniqueSelectIdObject;
     object:any;
     dicomLevel:DicomLevel;
+    requestReady:any;
 }
 
 export interface UniqueSelectIdObject {
