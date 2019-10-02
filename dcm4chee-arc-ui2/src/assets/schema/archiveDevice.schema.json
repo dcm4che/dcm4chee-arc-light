@@ -66,6 +66,7 @@
     "dcmValidateUID",
     "dcmRelationalQueryNegotiationLenient",
     "dcmRelationalRetrieveNegotiationLenient",
+    "dcmRestrictRetrieveAccordingTransferCapabilities",
     "dcmSchedulerMinStartDelay",
     "dcmStowRetiredTransferSyntax",
     "dcmAuditSoftwareConfigurationVerbose",
@@ -1271,15 +1272,26 @@
     },
     "dcmRelationalQueryNegotiationLenient": {
       "title": "Relational Query Negotiation Lenient",
-      "description": "Indicates to accept C-FIND RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated.",
+      "description": "Indicates to accept C-FIND RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
     "dcmRelationalRetrieveNegotiationLenient": {
       "title": "Relational Retrieve Negotiation Lenient",
-      "description": "Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated.",
+      "description": "Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
+    },
+    "dcmRestrictRetrieveAccordingTransferCapabilities": {
+      "title": "Restrict Retrieve According Transfer Capabilities",
+      "description": "Indicates if the set of requested objects to retrieve shall be restricted according the Transfer Capabilities of the Retrieve Destination. CONFIGURATION - consider configured Transfer Capabilities of the Destination AE, but treat a non accepted Presentation Context as failure. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "CONFIGURATION",
+      "enum": [
+        "NO",
+        "YES",
+        "CONFIGURATION"
+      ]
     },
     "dcmSchedulerMinStartDelay": {
       "title": "Scheduler Minimum Start Delay",
@@ -1291,26 +1303,26 @@
     },
     "dcmRejectConflictingPatientAttribute": {
       "title": "Reject Conflicting Patient Attribute",
-      "description": "DICOM Tag of Patient Attribute which have to match in received objects with the value in previous received objects with equal Patient ID to be accepted.",
+      "description": "DICOM Tag of Patient Attribute which have to match in received objects with the value in previous received objects with equal Patient ID to be accepted. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmTag"
     },
     "dcmStowRetiredTransferSyntax": {
       "title": "STOW Retired Transfer Syntax",
-      "description": "Store received JPEG Full Progression, Non-Hierarchical JPEG images in DICOM images with corresponding (retired) Transfer Syntax UID 1.2.840.10008.1.2.4.55. Otherwise set 1.2.840.10008.1.2.4.50 (= JPEG Baseline) or 1.2.840.10008.1.2.4.51 (= JPEG Extended) as Transfer Syntax UID of the stored DICOM image, without transcoding to JPEG Baseline or JPEG Extended, but including the JPEG image as received.",
+      "description": "Store received JPEG Full Progression, Non-Hierarchical JPEG images in DICOM images with corresponding (retired) Transfer Syntax UID 1.2.840.10008.1.2.4.55. Otherwise set 1.2.840.10008.1.2.4.50 (= JPEG Baseline) or 1.2.840.10008.1.2.4.51 (= JPEG Extended) as Transfer Syntax UID of the stored DICOM image, without transcoding to JPEG Baseline or JPEG Extended, but including the JPEG image as received. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default" : false
     },
     "dcmStowExcludeAPPMarkers": {
       "title": "STOW Exclude Application Markers",
-      "description": "Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances.",
+      "description": "Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default" : false
     },
     "dcmFallbackCMoveSCPCallingAET": {
       "title": "Fallback C-Move SCP Calling AE title",
-      "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used.",
+      "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmArchiveAETitle"
     },

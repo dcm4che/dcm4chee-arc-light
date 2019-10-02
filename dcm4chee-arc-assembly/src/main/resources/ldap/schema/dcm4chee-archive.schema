@@ -1756,6 +1756,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.303 NAME 'dcmUPSEventSCU'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.304 NAME 'dcmRestrictRetrieveAccordingTransferCapabilities'
+  DESC 'Indicates if the set of requested objects to retrieve shall be restricted according the Transfer Capabilities of the Retrieve Destination. Enumerated values: NO, YES, CONFIGURATION (= consider configured Transfer Capabilities of the Destination AE, but treat a non accepted Presentation Context as failure). If absent, CONFIGURATION will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1936,6 +1942,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmValidateUID $
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
+    dcmRestrictRetrieveAccordingTransferCapabilities $
     dcmStowRetiredTransferSyntax $
     dcmStowExcludeAPPMarkers $
     dcmSchedulerMinStartDelay $
@@ -2037,6 +2044,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorageVerificationInitialDelay $
     dcmRelationalQueryNegotiationLenient $
     dcmRelationalRetrieveNegotiationLenient $
+    dcmRestrictRetrieveAccordingTransferCapabilities $
     dcmStowRetiredTransferSyntax $
     dcmStowExcludeAPPMarkers $
     hl7PSUDelay $
