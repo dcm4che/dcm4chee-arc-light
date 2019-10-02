@@ -48,6 +48,8 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.RestrictRetrieveAccordingTransferCapabilities;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -87,6 +89,8 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             try {
                 ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+                RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities
+                        = localAE.getAEExtension(ArchiveAEExtension.class).restrictRetrieveAccordingTransferCapabilities();
                 List<InstanceLocations> noPresentationContextOffered = new ArrayList<>();
                 Association storeas = localAE.connect(ctx.getDestinationAE(),
                         createAARQ(ctx, noPresentationContextOffered));
@@ -99,8 +103,12 @@ public class CStoreSCUImpl implements CStoreSCU {
                     InstanceLocations inst = iter.next();
                     if (storeas.getTransferSyntaxesFor(inst.getSopClassUID()).isEmpty()) {
                         iter.remove();
-                        ctx.incrementFailed();
-                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                        if (restrictRetrieveAccordingTransferCapabilities
+                                != RestrictRetrieveAccordingTransferCapabilities.YES) {
+                            ctx.incrementFailed();
+                            ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                        } else
+                            ctx.decrementNumberOfMatches();
                         LOG.info("{}: failed to send {} - no Presentation Context accepted",
                                 storeas, inst);
                     }
