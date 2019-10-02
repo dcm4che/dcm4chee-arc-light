@@ -8,7 +8,7 @@ export class HttpErrorHandler {
     constructor(private mainservice:AppService){}
 
     public handleError(error){
-        if ((error._body && error._body != '')|| _.hasIn(error,"message") || _.hasIn(error, "[00000902].Value[0]")) {
+        if ((error._body && error._body != '') || _.hasIn(error,"message") || _.hasIn(error,"error") || _.hasIn(error, "[00000902].Value[0]")) {
             try{
                 if(_.hasIn(error,"message") || _.hasIn(error,"error.errorMessage")){
                     if(_.hasIn(error,"error.errorMessage")){
@@ -32,22 +32,26 @@ export class HttpErrorHandler {
                             'status': 'error'
                         });
                     }else{
-                        let msg = "Error";
-                        let msgObject = JSON.parse(error._body);
-                        if(_.hasIn(msgObject,"msa-3")){
-                            msg = msgObject["msa-3"];
+                        if( _.hasIn(error,"error")){
+                            this.mainservice.showError(error.error);
+                        }else{
+                            let msg = "Error";
+                            let msgObject = JSON.parse(error._body);
+                            if(_.hasIn(msgObject,"msa-3")){
+                                msg = msgObject["msa-3"];
+                            }
+                            if(_.hasIn(msgObject,"err-8")){
+                                msg = msgObject["erSr-8"];
+                            }
+                            if(_.hasIn(msgObject,"errorMessage")){
+                                msg = msgObject["errorMessage"];
+                            }
+                            this.mainservice.setMessage({
+                                'title': 'Error ' + (error.status||''),
+                                'text': msg,
+                                'status': 'error'
+                            });
                         }
-                        if(_.hasIn(msgObject,"err-8")){
-                            msg = msgObject["erSr-8"];
-                        }
-                        if(_.hasIn(msgObject,"errorMessage")){
-                            msg = msgObject["errorMessage"];
-                        }
-                        this.mainservice.setMessage({
-                            'title': 'Error ' + (error.status||''),
-                            'text': msg,
-                            'status': 'error'
-                        });
                     }
                 }
 

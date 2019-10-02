@@ -36,6 +36,7 @@ import {PermissionService} from "../../helpers/permissions/permission.service";
 import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
+import 'rxjs/add/observable/throw';
 
 @Injectable()
 export class StudyService {
@@ -1834,14 +1835,13 @@ export class StudyService {
 
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService) => {
-        console.log("patient id",this.getPatientId(selectedElements.postActionElements.patient.object.attrs));
-        if(selectedElements.preActionElements.patient.length > 1){
-           // return this.
+        if(selectedElements.preActionElements.getAttrs("patient").length > 1){
+            return Observable.throw({error:"Multi patient merge is not supported!"});
         }else{
             const url = this.getModifyPatientUrl(deviceWebservice);
             console.log("url",url);
             return this.$http.put(
-                `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?margin=true`,
+                `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
                 selectedElements.postActionElements.getAttrs("patient"),
                 this.jsonHeader
             )
