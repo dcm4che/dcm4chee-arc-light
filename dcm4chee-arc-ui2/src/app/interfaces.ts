@@ -264,4 +264,4 @@ export interface MetricsDescriptors{
     dicomDescription:string;
 }
 
-export type SelectionAction = "copy" | "move" | "merge";
+export type SelectionAction = "copy" | "move" | "merge" | "cut";

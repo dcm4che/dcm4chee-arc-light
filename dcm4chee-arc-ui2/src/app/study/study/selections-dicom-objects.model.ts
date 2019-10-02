@@ -63,10 +63,14 @@ export class SelectionsDicomObjects {
     }
 
 
-    getAttrs(dicomLevel:DicomLevel){
-        this[dicomLevel].map(o=>o.object.attrs);
+    getAttrs(dicomLevel:DicomLevel):any[]{
+        try{
+            return Object.keys(this[dicomLevel]).map(key=>this[dicomLevel][key].object.attrs);
+        }catch (e) {
+            return [];
+        }
     }
-    getAllAsArray(){
+    getAllAsArray():any[]{
         return [
             ..._.values(this._patient),
             ..._.values(this._study),

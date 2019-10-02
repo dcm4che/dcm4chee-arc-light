@@ -409,9 +409,6 @@ export class StudyComponent implements OnInit{
         console.log("past,this.selectedEleents",this.selectedElements);
 
         if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
-            this.cfpLoadingBar.start();
-            let headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
-            //
             if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
                 this.appService.showError("More than one target selected!");
             } else {
@@ -421,7 +418,7 @@ export class StudyComponent implements OnInit{
 
                         // if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){ //TODO preventing element in postSelect if it is in preSelect
 
-                        let $this = this;CopyMoveObjectsComponent
+                        let $this = this;
 
 /*                        this.config.viewContainerRef = this.viewContainerRef;
                         this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, {
@@ -466,51 +463,15 @@ export class StudyComponent implements OnInit{
                             console.log("selectedElements",this.selectedElements);
                             $this.cfpLoadingBar.start();
                             if (result) {
-                                // $this.reject = result;
-                                // console.log("reject",$this.reject);
                                 if ($this.selectedElements.action === 'merge') {
-/*                                    let object;
-                                    let url;
-                                    if(!this.internal){
-                                        url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge?queue=true`;
-                                        object = $this.selected.patients[0].attrs;
-
-                                    }else{
-                                        delete $this.clipboard.patients[0].attrs;
-                                        _.forEach($this.clipboard.patients,(pat,ind)=>{
-                                            if(_.hasIn(pat,"attrs")){
-                                                delete $this.clipboard.patients[ind].attrs;
-                                            }
-                                        });
-                                        object =  $this.clipboard.patients;
-                                        url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
-                                    }*/
-                                    // console.log("url",url);
                                     this.service.mergePatients(this.selectedElements,this.studyWebService)
-/*                                    $this.$http.post(
-                                        url,
-                                        object,
-                                        headers
-                                    )*/
                                         .subscribe((response) => {
-                                            console.log('response in first', response.status);
-                                            if (response.status === 204){
-                                                $this.appService.setMessage({
-                                                    'title': 'Info',
-                                                    'text': 'Patients merged successfully!',
-                                                    'status': 'info'
-                                                });
-                                            }else{
-                                                $this.appService.setMessage({
-                                                    'title': 'Info',
-                                                    'text': response.statusText,
-                                                    'status': 'info'
-                                                });
-                                            }
+                                            $this.appService.setMessage({
+                                                'title': 'Info',
+                                                'text': 'Patients merged successfully!',
+                                                'status': 'info'
+                                            });
                                             this.clearClipboard();
-/*                                            $this.selected = {};
-                                            $this.clipboard = {};
-                                            $this.fireRightQuery();*/
                                             $this.cfpLoadingBar.complete();
                                         }, (response) => {
                                             $this.cfpLoadingBar.complete();
