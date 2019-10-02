@@ -677,4 +677,9 @@ class RetrieveContextImpl implements RetrieveContext {
     public boolean isStorageVerificationOnRetrieve() {
         return arcAE.storageVerificationOnRetrieve();
     }
+
+    @Override
+    public void decrementNumberOfMatches() {
+        numberOfMatches--;
+    }
 }

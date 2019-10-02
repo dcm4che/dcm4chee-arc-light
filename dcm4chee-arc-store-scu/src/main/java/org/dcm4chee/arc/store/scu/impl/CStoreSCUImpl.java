@@ -54,10 +54,15 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
@@ -68,6 +73,8 @@ import static org.dcm4che3.net.TransferCapability.Role.SCP;
  */
 @ApplicationScoped
 public class CStoreSCUImpl implements CStoreSCU {
+
+    static final Logger LOG = LoggerFactory.getLogger(CStoreSCUImpl.class);
 
     @Inject @RetrieveStart
     private Event<RetrieveContext> retrieveStart;
@@ -80,7 +87,25 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             try {
                 ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-                return localAE.connect(ctx.getDestinationAE(), createAARQ(ctx));
+                List<InstanceLocations> noPresentationContextOffered = new ArrayList<>();
+                Association storeas = localAE.connect(ctx.getDestinationAE(),
+                        createAARQ(ctx, noPresentationContextOffered));
+                for (InstanceLocations inst : noPresentationContextOffered) {
+                    ctx.decrementNumberOfMatches();
+                    LOG.info("{}: failed to send {} - no Presentation Context offered",
+                            storeas, inst);
+                }
+                for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
+                    InstanceLocations inst = iter.next();
+                    if (storeas.getTransferSyntaxesFor(inst.getSopClassUID()).isEmpty()) {
+                        iter.remove();
+                        ctx.incrementFailed();
+                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                        LOG.info("{}: failed to send {} - no Presentation Context accepted",
+                                storeas, inst);
+                    }
+                }
+                return storeas;
             } catch (Exception e) {
                 throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
             }
@@ -91,18 +116,22 @@ public class CStoreSCUImpl implements CStoreSCU {
         }
     }
 
-    private AAssociateRQ createAARQ(RetrieveContext ctx) {
+    private AAssociateRQ createAARQ(RetrieveContext ctx, List<InstanceLocations> noPresentationContextOffered) {
         AAssociateRQ aarq = new AAssociateRQ();
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
             aarq.setCallingAET(ctx.getLocalAETitle());
         boolean considerConfiguredTCs = !destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
-        for (InstanceLocations inst : ctx.getMatches()) {
+        for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
+            InstanceLocations inst = iter.next();
             String cuid = inst.getSopClassUID();
             TransferCapability configuredTCs = null;
-            if (considerConfiguredTCs && ((configuredTCs = destAE.getTransferCapabilityFor(cuid, SCP)) == null))
+            if (considerConfiguredTCs && ((configuredTCs = destAE.getTransferCapabilityFor(cuid, SCP)) == null)) {
+                iter.remove();
+                noPresentationContextOffered.add(inst);
                 continue;
+            }
             if (!aarq.containsPresentationContextFor(cuid) && !isVideo(inst)) {
                 addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, configuredTCs);
                 addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, configuredTCs);
