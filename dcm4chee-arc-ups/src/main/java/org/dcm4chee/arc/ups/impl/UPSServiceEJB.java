@@ -63,6 +63,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
@@ -121,12 +122,9 @@ public class UPSServiceEJB {
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
         for (GlobalSubscription globalSubscription : globalSubscriptions) {
-            createSubscription(ctx,
-                    ctx.getUpsInstanceUID(),
-                    globalSubscription.getSubscriberAET(),
-                    globalSubscription.isDeletionLock());
+            createSubscription(ctx, ups, globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock());
         }
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUpsInstanceUID(), stateReportOf(attrs), subcribersOf(ups));
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs), subcribersOf(ups));
         return ups;
     }
 
@@ -189,9 +187,7 @@ public class UPSServiceEJB {
 
     public UPS findUPS(UPSContext ctx) throws DicomServiceException {
         try {
-            return em.createNamedQuery(UPS.FIND_BY_IUID_EAGER, UPS.class)
-                    .setParameter(1, ctx.getUpsInstanceUID())
-                    .getSingleResult();
+            return findUPS(ctx.getUpsInstanceUID());
         } catch (NoResultException e) {
             throw new DicomServiceException(Status.UPSDoesNotExist,
                     "Specified SOP Instance UID does not exist", false);
@@ -202,6 +198,12 @@ public class UPSServiceEJB {
         return !em.createNamedQuery(UPS.FIND_BY_IUID)
                 .setParameter(1, ctx.getUpsInstanceUID())
                 .getResultList().isEmpty();
+    }
+
+    private UPS findUPS(String upsInstanceUID) {
+        return em.createNamedQuery(UPS.FIND_BY_IUID_EAGER, UPS.class)
+                .setParameter(1, upsInstanceUID)
+                .getSingleResult();
     }
 
     private void setReferencedRequests(Collection<UPSRequest> referencedRequests,
@@ -398,12 +400,16 @@ public class UPSServiceEJB {
                 .getResultList();
     }
 
-    public Subscription createOrUpdateSubscription(UPSContext ctx) {
+    public Subscription createOrUpdateSubscription(UPSContext ctx) throws DicomServiceException {
+        UPS ups = findUPS(ctx);
+        Subscription sub;
         try {
-            return updateSubscription(ctx);
+            sub = updateSubscription(ctx);
         } catch (NoResultException e) {
-            return createSubscription(ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET(), ctx.isDeletionLock());
+            sub = createSubscription(ctx, ups, ctx.getSubscriberAET(), ctx.isDeletionLock());
         }
+        addInitialEvent(ctx, ups, ctx.getSubscriberAET());
+        return sub;
     }
 
     public int deleteSubscription(UPSContext ctx) {
@@ -425,12 +431,14 @@ public class UPSServiceEJB {
         GlobalSubscription sub;
         try {
             sub = updateGlobalSubscription(ctx);
-            return sub;
         } catch (NoResultException e) {
             sub = createGlobalSubscription(ctx);
         }
         for (Attributes attrs : notSubscribedUPS) {
-            createSubscription(ctx, attrs.getString(Tag.SOPInstanceUID), ctx.getSubscriberAET(), ctx.isDeletionLock());
+            UPS ups = findUPS(attrs.getString(Tag.SOPInstanceUID));
+            createSubscription(ctx, ups, ctx.getSubscriberAET(), ctx.isDeletionLock());
+            if (ctx.isDeletionLock())
+                addInitialEvent(ctx, ups, ctx.getSubscriberAET());
         }
         return sub;
     }
@@ -470,17 +478,20 @@ public class UPSServiceEJB {
         return sub;
     }
 
-    private Subscription createSubscription(UPSContext ctx, String upsInstanceUID, String subscriberAET,
-            boolean deletionLock) {
+    private Subscription createSubscription(UPSContext ctx, UPS ups, String subscriberAET, boolean deletionLock) {
         Subscription sub = new Subscription();
-        sub.setUPS(em.createNamedQuery(UPS.FIND_BY_IUID, UPS.class)
-                .setParameter(1, upsInstanceUID)
-                .getSingleResult());
+        sub.setUPS(ups);
         sub.setSubscriberAET(subscriberAET);
         sub.setDeletionLock(deletionLock);
         em.persist(sub);
         LOG.info("{}: Create {}", ctx, sub);
         return sub;
+    }
+
+    private static void addInitialEvent(UPSContext ctx, UPS ups, String subscriberAET) {
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(),
+                stateReportOf(ups.getAttributes()),
+                Collections.singletonList(subscriberAET));
     }
 
     private GlobalSubscription updateGlobalSubscription(UPSContext ctx) {
