@@ -501,11 +501,15 @@ public class UPSServiceEJB {
     }
 
     private static boolean meetFinalStateRequirementsOfCompleted(Attributes attrs) {
-        if (attrs.containsValue(Tag.PerformedProcedureStepStartDateTime)
-                && attrs.containsValue(Tag.PerformedProcedureStepEndDateTime)) {
+        Attributes performedProcedureStep = attrs.getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence);
+        if (performedProcedureStep != null
+                && performedProcedureStep.containsValue(Tag.PerformedProcedureStepStartDateTime)
+                && performedProcedureStep.containsValue(Tag.PerformedProcedureStepEndDateTime)) {
             try {
-                new Code(attrs.getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence)
+                new Code(performedProcedureStep
                         .getNestedDataset(Tag.PerformedStationNameCodeSequence));
+                new Code(performedProcedureStep
+                        .getNestedDataset(Tag.PerformedWorkitemCodeSequence));
                 return true;
             } catch (Exception e) {}
         }
