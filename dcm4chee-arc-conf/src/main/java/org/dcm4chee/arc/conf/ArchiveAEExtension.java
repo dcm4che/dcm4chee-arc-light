@@ -190,6 +190,10 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getUPSEventSCUs();
     }
 
+    public boolean isUPSEventSCU(String aet) {
+        return Stream.of(upsEventSCUs).anyMatch(aet::equals);
+    }
+
     public String[] getObjectStorageIDs() {
         return objectStorageIDs;
     }

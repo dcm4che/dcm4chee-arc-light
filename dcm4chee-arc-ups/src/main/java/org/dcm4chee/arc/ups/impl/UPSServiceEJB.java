@@ -65,6 +65,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -316,11 +317,11 @@ public class UPSServiceEJB {
         return ups;
     }
 
-    public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
+    public UPS requestUPSCancel(UPSContext ctx, UPSServiceImpl upsService) throws DicomServiceException {
         UPS ups = findUPS(ctx);
         switch (ups.getProcedureStepState()) {
             case IN_PROGRESS:
-                addCancelRequestedEvent(ctx, ups);
+                addCancelRequestedEvent(ctx, ups, upsService);
                 return ups;
             case CANCELED:
                 ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCanceled);
@@ -333,8 +334,11 @@ public class UPSServiceEJB {
         return ups;
     }
 
-    private void addCancelRequestedEvent(UPSContext ctx, UPS ups) throws DicomServiceException {
+    private void addCancelRequestedEvent(UPSContext ctx, UPS ups, UPSServiceImpl upsService)
+            throws DicomServiceException {
         List<String> subcribers = subcribersOf(ups);
+        Predicate<String> isUPSEventSCU = ctx.getArchiveAEExtension()::isUPSEventSCU;
+        subcribers.removeIf(isUPSEventSCU.or(upsService::websocketChannelsExists).negate());
         if (!subcribers.contains(ups.getPerformerAET())) {
             throw new DicomServiceException(Status.UPSPerformerCannotBeContacted,
                     "The performer cannot be contacted");

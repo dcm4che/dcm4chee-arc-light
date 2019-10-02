@@ -196,7 +196,7 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public UPS requestUPSCancel(UPSContext ctx) throws DicomServiceException {
         try {
-            UPS ups = ejb.requestUPSCancel(ctx);
+            UPS ups = ejb.requestUPSCancel(ctx, this);
             fireUPSEvents(ctx);
             return ups;
         } catch (DicomServiceException e) {
@@ -286,6 +286,10 @@ public class UPSServiceImpl implements UPSService {
                 .collect(Collectors.toList());
     }
 
+    boolean websocketChannelsExists(String subscriberAET) {
+        return websocketChannels.values().stream().anyMatch(ws -> ws.subscriberAET.equals(subscriberAET));
+    }
+
     private void fireUPSEvents(UPSContext ctx) {
         ctx.getUPSEvents().forEach(upsEvent::fire);
     }
@@ -302,13 +306,11 @@ public class UPSServiceImpl implements UPSService {
     }
 
     private void validateSubscriberAET(UPSContext ctx) throws DicomServiceException, ConfigurationException {
-        for (String aet : ctx.getArchiveAEExtension().upsEventSCUs()) {
-            if (aet.equals(ctx.getSubscriberAET())) {
-                try {
-                    aeCache.findApplicationEntity(aet);
-                } catch (ConfigurationNotFoundException e) {
-                    throw new DicomServiceException(Status.UPSUnknownReceivingAET, e);
-                }
+        if (ctx.getArchiveAEExtension().isUPSEventSCU(ctx.getSubscriberAET())) {
+            try {
+                aeCache.findApplicationEntity(ctx.getSubscriberAET());
+            } catch (ConfigurationNotFoundException e) {
+                throw new DicomServiceException(Status.UPSUnknownReceivingAET, e);
             }
         }
     }

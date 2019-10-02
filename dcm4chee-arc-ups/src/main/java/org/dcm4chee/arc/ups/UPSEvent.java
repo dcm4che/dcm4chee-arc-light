@@ -45,25 +45,25 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Sep 2019
  */
 public class UPSEvent {
-    private static final AtomicInteger seq = new AtomicInteger(0);
-    public final int messageID;
     public final Type type;
     public final String upsIUID;
     public final Attributes attrs;
     public final List<String> subscriberAETs;
+    public final ArchiveAEExtension arcAE;
 
-    public UPSEvent(Type type, String upsIUID, Attributes attrs, List<String> subscriberAETs) {
-        this.messageID = seq.addAndGet(type == Type.StateReportInProcessAndCanceled ? 2 : 1);
+    public UPSEvent(ArchiveAEExtension arcAE, Type type, String upsIUID, Attributes attrs,
+            List<String> subscriberAETs) {
+        this.arcAE = arcAE;
         this.type = type;
         this.upsIUID = upsIUID;
         this.attrs = attrs;
@@ -82,7 +82,7 @@ public class UPSEvent {
 
     public Attributes withCommandAttributes(Attributes src, int messageID) {
         Attributes dest = new Attributes(src);
-        dest.setString(Tag.AffectedSOPClassUID, VR.UI, UID.UnifiedProcedureStepEventSOPClass);
+        dest.setString(Tag.AffectedSOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
         dest.setInt(Tag.MessageID, VR.US, messageID);
         dest.setString(Tag.AffectedSOPInstanceUID, VR.UI, upsIUID);
         dest.setInt(Tag.EventTypeID, VR.US, type.eventTypeID());

@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -72,6 +73,8 @@ import java.util.Optional;
 @ServerEndpoint(value = "/aets/{AETitle}/ws/subscribers/{SubscriberAET}")
 public class EventReportSender {
     private static final Logger LOG = LoggerFactory.getLogger(EventReportSender.class);
+
+    private final AtomicInteger messageID = new AtomicInteger(0);
 
     @Inject
     private UPSService service;
@@ -99,7 +102,7 @@ public class EventReportSender {
         LOG.warn("{} error /aets/{}/ws/subscribers/{}:\n", session, aet, subscriberAET, thr);
     }
 
-    public void onArchiveServiceEvent(@Observes UPSEvent event) {
+    public void onUPSEvent(@Observes UPSEvent event) {
         Optional<String> inprocessStateReport = toInprocessStateReportJson(event);
         String json = toJson(event);
         for (String subscriberAET : event.subscriberAETs) {
@@ -121,17 +124,17 @@ public class EventReportSender {
     }
 
     private Optional<String> toInprocessStateReportJson(UPSEvent event) {
-        return event.inprocessStateReport().map(attrs -> toJson(event, event.messageID - 1, attrs));
+        return event.inprocessStateReport().map(attrs -> toJson(event, attrs));
     }
 
     private String toJson(UPSEvent event) {
-        return toJson(event, event.messageID, new Attributes(event.attrs));
+        return toJson(event, new Attributes(event.attrs));
     }
 
-    private String toJson(UPSEvent event, int messageID, Attributes attrs) {
+    private String toJson(UPSEvent event, Attributes attrs) {
         StringWriter out = new StringWriter(256);
         try (JsonGenerator gen = Json.createGenerator(out)) {
-            new JSONWriter(gen).write(event.withCommandAttributes(attrs, messageID));
+            new JSONWriter(gen).write(event.withCommandAttributes(attrs, messageID.incrementAndGet()));
         }
         return out.toString();
     }

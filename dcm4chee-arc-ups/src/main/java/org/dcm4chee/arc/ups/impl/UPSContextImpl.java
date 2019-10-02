@@ -183,8 +183,10 @@ public class UPSContextImpl implements UPSContext {
     }
 
     @Override
-    public void addUPSEvent(UPSEvent.Type type, String upsInstanceUID, Attributes eventInformation, List<String> subcribers) {
-        getUPSEvents().add(new UPSEvent(type, upsInstanceUID, eventInformation, subcribers));
+    public void addUPSEvent(UPSEvent.Type type, String upsInstanceUID, Attributes eventInformation,
+            List<String> subcribers) {
+        getUPSEvents().add(
+                new UPSEvent(archiveAEExtension, type, upsInstanceUID, eventInformation, subcribers));
     }
 
     @Override
