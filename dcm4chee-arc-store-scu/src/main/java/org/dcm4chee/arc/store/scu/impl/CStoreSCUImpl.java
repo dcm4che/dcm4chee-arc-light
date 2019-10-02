@@ -95,7 +95,13 @@ public class CStoreSCUImpl implements CStoreSCU {
                 Association storeas = localAE.connect(ctx.getDestinationAE(),
                         createAARQ(ctx, noPresentationContextOffered));
                 for (InstanceLocations inst : noPresentationContextOffered) {
-                    ctx.decrementNumberOfMatches();
+                    if (restrictRetrieveAccordingTransferCapabilities
+                            == RestrictRetrieveAccordingTransferCapabilities.NO) {
+                        ctx.incrementFailed();
+                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                    } else {
+                        ctx.decrementNumberOfMatches();
+                    }
                     LOG.info("{}: failed to send {} - no Presentation Context offered",
                             storeas, inst);
                 }
