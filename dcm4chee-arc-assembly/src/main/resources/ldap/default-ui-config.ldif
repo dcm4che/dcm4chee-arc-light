@@ -42,7 +42,7 @@ dcmAcceptedUserRole: j4care
 dcmuiAction: tab-study-study
 
 dn: dcmuiPermissionName=Tab - Study - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Tab - Study - Study
+dcmuiPermissionName: Tab - Study - Patient
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
