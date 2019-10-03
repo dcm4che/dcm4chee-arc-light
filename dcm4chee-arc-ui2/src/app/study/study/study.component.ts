@@ -369,7 +369,6 @@ export class StudyComponent implements OnInit{
                 break;
             }
             case "paste":{
-                //TODO
                 this.paste();
                 break;
             }
@@ -450,7 +449,7 @@ export class StudyComponent implements OnInit{
                                     try{
                                         console.log("res",res);
                                         const errorCount = res.filter(result=>result.isError).length;
-                                        const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nError: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
+                                        const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nErrors: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
                                         if(errorCount === res.length){
                                             this.appService.showError(msg);
                                         }else{
@@ -2283,7 +2282,6 @@ export class StudyComponent implements OnInit{
                     }
                 }
                 if(multipleObjects.size > 0){
-                    //TODO
                     this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
                         console.log("res",res);
                         $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));

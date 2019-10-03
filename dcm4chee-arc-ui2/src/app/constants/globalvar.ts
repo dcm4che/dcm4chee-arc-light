@@ -680,8 +680,20 @@ export class Globalvar {
             "/audit-record-repository/*":{
                 permissionsAction:"menu-audit_record_repository"
             },
+            "/study/*":{
+                permissionsAction:"menu-study"
+            },
             "/study/study":{
                 permissionsAction:"tab-study-study"
+            },
+            "/study/patient":{
+                permissionsAction:"tab-study-patient"
+            },
+            "/study/mwl":{
+                permissionsAction:"tab-study-mwl"
+            },
+            "/study/diff":{
+                permissionsAction:"tab-study-diff"
             },
             "/device/devicelist":{
                 permissionsAction:"tab-configuration->devices",
