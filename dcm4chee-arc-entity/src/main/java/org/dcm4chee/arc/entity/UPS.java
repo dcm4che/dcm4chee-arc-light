@@ -66,6 +66,13 @@ import java.util.Date;
                 "join fetch ups.attributesBlob " +
                 "join fetch p.attributesBlob " +
                 "where ups.upsInstanceUID = ?1")
+@NamedQuery(
+        name= UPS.FIND_WO_DELETION_LOCK,
+        query="select ups from UPS ups " +
+                "where ((ups.procedureStepState = ?1 and ups.updatedTime < ?2) " +
+                "or (ups.procedureStepState = ?3 and ups.updatedTime < ?4)) " +
+                "and not exists (select sub from Subscription sub where sub.ups = ups and sub.deletionLock = ?5) " +
+                "order by ups.updatedTime")
 @Entity
 @Table(name = "ups",
         uniqueConstraints = @UniqueConstraint(columnNames = "ups_iuid" ),
@@ -86,6 +93,7 @@ public class UPS {
 
     public static final String FIND_BY_IUID = "UPS.findByIUID";
     public static final String FIND_BY_IUID_EAGER = "UPS.findByIUIDEager";
+    public static final String FIND_WO_DELETION_LOCK = "UPS.findWithoutDeletionLock";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

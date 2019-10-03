@@ -148,6 +148,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeQueueMessagePollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
+    private volatile Duration purgeUPSPollingInterval;
+    private volatile int purgeUPSFetchSize = 100;
+    private volatile Duration purgeUPSCompletedDelay;
+    private volatile Duration purgeUPSCanceledDelay;
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
@@ -1047,6 +1051,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeStgCmtCompletedDelay(Duration purgeStgCmtCompletedDelay) {
         this.purgeStgCmtCompletedDelay = purgeStgCmtCompletedDelay;
+    }
+
+    public Duration getPurgeUPSPollingInterval() {
+        return purgeUPSPollingInterval;
+    }
+
+    public void setPurgeUPSPollingInterval(Duration purgeUPSPollingInterval) {
+        this.purgeUPSPollingInterval = purgeUPSPollingInterval;
+    }
+
+    public int getPurgeUPSFetchSize() {
+        return purgeUPSFetchSize;
+    }
+
+    public void setPurgeUPSFetchSize(int purgeUPSFetchSize) {
+        this.purgeUPSFetchSize = purgeUPSFetchSize;
+    }
+
+    public Duration getPurgeUPSCompletedDelay() {
+        return purgeUPSCompletedDelay;
+    }
+
+    public void setPurgeUPSCompletedDelay(Duration purgeUPSCompletedDelay) {
+        this.purgeUPSCompletedDelay = purgeUPSCompletedDelay;
+    }
+
+    public Duration getPurgeUPSCanceledDelay() {
+        return purgeUPSCanceledDelay;
+    }
+
+    public void setPurgeUPSCanceledDelay(Duration purgeUPSCanceledDelay) {
+        this.purgeUPSCanceledDelay = purgeUPSCanceledDelay;
     }
 
     public SPSStatus[] getHideSPSWithStatusFrom() {
@@ -2535,6 +2571,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
+        purgeUPSPollingInterval = arcdev.purgeUPSPollingInterval;
+        purgeUPSFetchSize = arcdev.purgeUPSFetchSize;
+        purgeUPSCompletedDelay = arcdev.purgeUPSCompletedDelay;
+        purgeUPSCanceledDelay = arcdev.purgeUPSCanceledDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;

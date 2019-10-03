@@ -483,7 +483,7 @@ public class UPSServiceEJB {
         UPS ups = findUPS(ctx);
         Subscription sub;
         try {
-            sub = updateSubscription(ctx);
+            sub = updateSubscription(ctx, ups);
         } catch (NoResultException e) {
             sub = createSubscription(ctx, ups, ctx.getSubscriberAET(), ctx.isDeletionLock());
         }
@@ -546,10 +546,42 @@ public class UPSServiceEJB {
         return n;
     }
 
-    private Subscription updateSubscription(UPSContext ctx) {
-        Subscription sub = em.createNamedQuery(Subscription.FIND_BY_IUID_AND_AET,
+    public boolean purgeUPSWithoutDeletionLock(ArchiveDeviceExtension arcdev) {
+        int fetchSize = arcdev.getPurgeUPSFetchSize();
+        List<UPS> list = findUPSWithoutDeletionLock(
+                arcdev.getPurgeUPSCompletedDelay(),
+                arcdev.getPurgeUPSCanceledDelay(),
+                fetchSize);
+        list.forEach(this::deleteUPS);
+        return list.size() == fetchSize && arcdev.getPurgeUPSPollingInterval() != null;
+    }
+
+    private List<UPS> findUPSWithoutDeletionLock(Duration completedDelay, Duration canceledDelay, int fetchSize) {
+        long now = System.currentTimeMillis();
+        return em.createNamedQuery(UPS.FIND_WO_DELETION_LOCK, UPS.class)
+                .setParameter(1, UPSState.COMPLETED)
+                .setParameter(2, before(now, completedDelay))
+                .setParameter(3, UPSState.CANCELED)
+                .setParameter(4, before(now, canceledDelay))
+                .setParameter(5, true)
+                .setMaxResults(fetchSize)
+                .getResultList();
+    }
+
+    private static Date before(long now, Duration delay) {
+        return new Date(delay != null ? now - delay.getSeconds() * 1000L : now);
+    }
+
+    private void deleteUPS(UPS ups) {
+        em.createNamedQuery(Subscription.DELETE_BY_UPS).setParameter(1, ups).executeUpdate();
+        em.remove(ups);
+        LOG.info("Delete {}", ups);
+    }
+
+    private Subscription updateSubscription(UPSContext ctx, UPS ups) {
+        Subscription sub = em.createNamedQuery(Subscription.FIND_BY_UPS_AND_AET,
                 Subscription.class)
-                .setParameter(1, ctx.getUpsInstanceUID())
+                .setParameter(1, ups)
                 .setParameter(2, ctx.getSubscriberAET())
                 .getSingleResult();
         sub.setDeletionLock(ctx.isDeletionLock());
@@ -634,5 +666,4 @@ public class UPSServiceEJB {
                             .toItem());
         }
     }
-
 }

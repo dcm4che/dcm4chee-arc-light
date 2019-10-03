@@ -51,10 +51,9 @@ import javax.persistence.*;
         name=Subscription.AETS_BY_UPS,
         query="select sub.subscriberAET from Subscription sub where sub.ups = ?1")
 @NamedQuery(
-        name=Subscription.FIND_BY_IUID_AND_AET,
+        name=Subscription.FIND_BY_UPS_AND_AET,
         query="select sub from Subscription sub " +
-                "where sub.ups = (select ups from UPS ups where ups.upsInstanceUID= ?1) " +
-                "and sub.subscriberAET = ?2")
+                "where sub.ups =  ?1 and sub.subscriberAET = ?2")
 @NamedQuery(
         name=Subscription.DELETE_BY_AET,
         query="delete from Subscription sub where sub.subscriberAET = ?1")
@@ -63,15 +62,19 @@ import javax.persistence.*;
         query="delete from Subscription sub " +
                 "where sub.ups = (select ups from UPS ups where ups.upsInstanceUID= ?1) " +
                 "and sub.subscriberAET = ?2")
+@NamedQuery(
+        name=Subscription.DELETE_BY_UPS,
+        query="delete from Subscription sub where sub.ups = ?1")
 @Entity
 @Table(name = "subscription",
         uniqueConstraints = @UniqueConstraint(columnNames = {"subscriber_aet", "ups_fk"}))
 public class Subscription {
 
     public static final String AETS_BY_UPS = "Subscription.aetsByUPS";
-    public static final String FIND_BY_IUID_AND_AET = "Subscription.findByIUIDAndAET";
+    public static final String FIND_BY_UPS_AND_AET = "Subscription.findByUPSAndAET";
     public static final String DELETE_BY_AET = "Subscription.deleteByAET";
     public static final String DELETE_BY_IUID_AND_AET = "Subscription.deleteByIUIDAndAET";
+    public static final String DELETE_BY_UPS = "Subscription.deleteByUPS";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

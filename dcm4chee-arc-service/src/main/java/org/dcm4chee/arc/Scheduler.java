@@ -73,11 +73,13 @@ public abstract class Scheduler implements Runnable {
 
     @Override
     public void run() {
+        log().info("start");
         try {
             execute();
         } catch (Throwable e) {
             log().warn("execute throws Exception", e);
         }
+        log().info("finished");
     }
 
     public void start() {
