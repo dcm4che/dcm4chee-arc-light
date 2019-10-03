@@ -38,6 +38,8 @@ import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
 import 'rxjs/add/observable/throw';
 import {forkJoin} from 'rxjs/observable/forkJoin';
+import {catchError} from "rxjs/operators";
+import {of} from "rxjs/observable/of";
 
 @Injectable()
 export class StudyService {
@@ -2191,7 +2193,9 @@ export class StudyService {
             }
             let observables = [];
             selectedElements.preActionElements.getAllAsArray().forEach(object=>{
-                observables.push(this.$http.post(url,object.requestReady));
+                observables.push(this.$http.post(url,object.requestReady).pipe(
+                    catchError(err => of({isError: true, error: err})),
+                ));
             });
             return forkJoin(observables);
         }catch (e) {

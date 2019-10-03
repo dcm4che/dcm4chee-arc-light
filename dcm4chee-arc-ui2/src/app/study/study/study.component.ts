@@ -426,12 +426,11 @@ export class StudyComponent implements OnInit{
                     });
                     this.dialogRef.componentInstance.selectedElements = this.selectedElements;
                     this.dialogRef.componentInstance.rjnotes = select;
-                    this.cfpLoadingBar.complete();
                     this.dialogRef.afterClosed().subscribe(result => {
                         console.log("result",result);
                         console.log("selectedElements",this.selectedElements);
-                        this.cfpLoadingBar.start();
                         if (result) {
+                            this.cfpLoadingBar.start();
                             if (this.selectedElements.action === 'merge') {
                                 this.service.mergePatients(this.selectedElements,this.studyWebService)
                                     .subscribe((response) => {
@@ -448,8 +447,22 @@ export class StudyComponent implements OnInit{
                                     });
                             }else{
                                 this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
-                                    console.log("res",res);
-                                    this.appService.showMsg(`${this.selectedElements.action} process executed successfully!`);
+                                    try{
+                                        console.log("res",res);
+                                        const errorCount = res.filter(result=>result.isError).length;
+                                        const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nError: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
+                                        if(errorCount === res.length){
+                                            this.appService.showError(msg);
+                                        }else{
+                                            if(errorCount > 0){
+                                                this.appService.showWarning(msg);
+                                            }else{
+                                                this.appService.showMsg(msg);
+                                            }
+                                        }
+                                    }catch (e) {
+                                        this.httpErrorHandler.handleError(res);
+                                    }
                                     this.clearClipboard();
                                     this.cfpLoadingBar.complete();
                                 },err=>{
@@ -460,7 +473,6 @@ export class StudyComponent implements OnInit{
                         }else{
                             this.clearClipboard();
                         }
-                        this.cfpLoadingBar.complete();
                         this.dialogRef = null;
                     });
                 }
