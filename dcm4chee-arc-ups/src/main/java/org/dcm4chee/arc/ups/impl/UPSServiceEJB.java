@@ -62,11 +62,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -124,7 +122,13 @@ public class UPSServiceEJB {
         for (GlobalSubscription globalSubscription : globalSubscriptions) {
             createSubscription(ctx, ups, globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock());
         }
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs), subcribersOf(ups));
+        List<String> subcribers = subcribersOf(ups);
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs), subcribers);
+        for (Attributes eventInformation : assigned(attrs,
+                attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
+                attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
+            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUpsInstanceUID(), eventInformation, subcribers);
+        }
         return ups;
     }
 
@@ -155,33 +159,79 @@ public class UPSServiceEJB {
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         Attributes modified = new Attributes();
         Attributes attrs = ups.getAttributes();
-        if (attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
+        boolean prevIssuerOfAdmissionID = attrs.containsValue(Tag.IssuerOfAdmissionIDSequence);
+        boolean prevWorkitemCode = attrs.containsValue(Tag.ScheduledWorkitemCodeSequence);
+        boolean prevStationName = attrs.containsValue(Tag.ScheduledStationNameCodeSequence);
+        boolean prevStationClass = attrs.containsValue(Tag.ScheduledStationClassCodeSequence);
+        boolean prevStationLocation =
+                attrs.containsValue(Tag.ScheduledStationGeographicLocationCodeSequence);
+        boolean prevPerformers = attrs.containsValue(Tag.ScheduledHumanPerformersSequence);
+        boolean prevRequest = attrs.containsValue(Tag.ReferencedRequestSequence);
+        boolean prevProgressInformation = attrs.containsValue(Tag.ProcedureStepProgressInformationSequence);
+        if (!attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
                 filter.getSelection())) {
-            if (modified.contains(Tag.IssuerOfAdmissionIDSequence))
-                ups.setIssuerOfAdmissionID(
-                        findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
-            if (modified.contains(Tag.ScheduledWorkitemCodeSequence))
-                ups.setScheduledWorkitemCode(
-                        findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
-            if (modified.contains(Tag.ScheduledStationNameCodeSequence))
-                ups.setScheduledStationNameCode(
-                        findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
-            if (modified.contains(Tag.ScheduledStationClassCodeSequence))
-                ups.setScheduledStationClassCode(
-                        findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
-            if (modified.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-                ups.setScheduledStationGeographicLocationCode(
-                        findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
-            if (modified.contains(Tag.ScheduledHumanPerformersSequence))
-                setHumanPerformerCodes(ups.getHumanPerformerCodes(),
-                        attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
-            if (modified.contains(Tag.ReferencedRequestSequence))
-                setReferencedRequests(ups.getReferencedRequests(),
-                        attrs.getSequence(Tag.ReferencedRequestSequence),
-                        arcDev.getFuzzyStr());
-            ups.setAttributes(attrs, filter);
+            return ups;
         }
+        boolean issuerOfAdmissionIDUpdated = (prevIssuerOfAdmissionID ? modified : attrs)
+                .containsValue(Tag.IssuerOfAdmissionIDSequence);
+        if (issuerOfAdmissionIDUpdated) {
+            ups.setIssuerOfAdmissionID(
+                    findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
+        }
+        boolean workitemCodeUpdated = (prevWorkitemCode ? modified : attrs)
+                .containsValue(Tag.ScheduledWorkitemCodeSequence);
+        if (workitemCodeUpdated) {
+            ups.setScheduledWorkitemCode(
+                    findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
+        }
+        boolean stationNameUpdated = (prevStationName ? modified : attrs)
+                .containsValue(Tag.ScheduledStationNameCodeSequence);
+        if (stationNameUpdated) {
+            ups.setScheduledStationNameCode(
+                    findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
+        }
+        boolean stationClassUpdated = (prevStationClass ? modified : attrs)
+                .containsValue(Tag.ScheduledStationClassCodeSequence);
+        if (stationClassUpdated) {
+            ups.setScheduledStationClassCode(
+                    findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
+        }
+        boolean stationLocationUpdated = (prevStationLocation ? modified : attrs)
+                .containsValue(Tag.ScheduledStationGeographicLocationCodeSequence);
+        if (stationLocationUpdated) {
+            ups.setScheduledStationGeographicLocationCode(
+                    findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
+        }
+        boolean performerUpdated = (prevPerformers ? modified : attrs)
+                .containsValue(Tag.ScheduledHumanPerformersSequence);
+        if (performerUpdated) {
+            setHumanPerformerCodes(ups.getHumanPerformerCodes(),
+                    attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
+        }
+        boolean requestUpdated = (prevRequest ? modified : attrs)
+                .containsValue(Tag.ReferencedRequestSequence);
+        if (requestUpdated) {
+            setReferencedRequests(ups.getReferencedRequests(),
+                    attrs.getSequence(Tag.ReferencedRequestSequence),
+                    arcDev.getFuzzyStr());
+        }
+        ups.setAttributes(attrs, filter);
         LOG.info("{}: Update {}", ctx, ups);
+        List<String> subcribers = null;
+        if (modified.contains(Tag.InputReadinessState)) {
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs),
+                    subcribers = subcribersOf(ups));
+        }
+        boolean progressInformationUpdated = (prevProgressInformation ? modified : attrs)
+                .containsValue(Tag.ProcedureStepProgressInformationSequence);
+        if (progressInformationUpdated) {
+            ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUpsInstanceUID(), progressReportOf(attrs),
+                    subcribers != null ? subcribers : (subcribers = subcribersOf(ups)));
+        }
+        for (Attributes eventInformation : assigned(attrs, stationNameUpdated, performerUpdated)) {
+            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUpsInstanceUID(), eventInformation,
+                    subcribers != null ? subcribers : subcribersOf(ups));
+        }
         return ups;
     }
 
@@ -345,13 +395,7 @@ public class UPSServiceEJB {
             throw new DicomServiceException(Status.UPSPerformerCannotBeContacted,
                     "The performer cannot be contacted");
         }
-        Attributes eventInformation = new Attributes(ctx.getAttributes(),
-                Tag.ContactURI,
-                Tag.ContactDisplayName,
-                Tag.ProcedureStepDiscontinuationReasonCodeSequence,
-                Tag.ReasonForCancellation);
-        eventInformation.setString(Tag.RequestingAE, VR.AE, ctx.getRequesterAET());
-        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUpsInstanceUID(), eventInformation, subcribers);
+        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUpsInstanceUID(), cancelRequestedBy(ctx), subcribers);
     }
 
     private void cancelUPS(UPSContext ctx, UPS ups) {
@@ -378,6 +422,16 @@ public class UPSServiceEJB {
         LOG.info("{}: Update {}", ctx, ups);
     }
 
+    private static Attributes cancelRequestedBy(UPSContext ctx) {
+        Attributes eventInformation = new Attributes(ctx.getAttributes(),
+                Tag.ContactURI,
+                Tag.ContactDisplayName,
+                Tag.ProcedureStepDiscontinuationReasonCodeSequence,
+                Tag.ReasonForCancellation);
+        eventInformation.setString(Tag.RequestingAE, VR.AE, ctx.getRequesterAET());
+        return eventInformation;
+    }
+
     private static Attributes stateReportOf(Attributes attrs) {
         Attributes eventInformation = new Attributes(3);
         eventInformation.setString(Tag.InputReadinessState, VR.CS, attrs.getString(Tag.InputReadinessState));
@@ -392,6 +446,31 @@ public class UPSServiceEJB {
             }
         }
         return eventInformation;
+    }
+
+    private static Attributes progressReportOf(Attributes attrs) {
+        return new Attributes(attrs, Tag.ProcedureStepProgressInformationSequence);
+    }
+
+    private static List<Attributes> assigned(Attributes attrs, boolean stationNameUpdated, boolean performerUpdated) {
+        if (!performerUpdated) {
+            return stationNameUpdated
+                    ? Collections.singletonList(new Attributes(attrs, Tag.ScheduledStationNameCodeSequence))
+                    : Collections.emptyList();
+        }
+        return attrs.getSequence(Tag.ScheduledHumanPerformersSequence)
+                .stream()
+                .map(item -> assignedOf(attrs, stationNameUpdated, item))
+                .collect(Collectors.toList());
+        }
+
+    private static Attributes assignedOf(Attributes attrs, boolean stationNameUpdated, Attributes item) {
+        Attributes eventInformation = new Attributes(3);
+        eventInformation.addSelected(item, Tag.HumanPerformerCodeSequence, Tag.HumanPerformerOrganization);
+        if (stationNameUpdated) {
+            eventInformation.addSelected(attrs, Tag.ScheduledStationNameCodeSequence);
+        }
+        return item;
     }
 
     private List<String> subcribersOf(UPS ups) {

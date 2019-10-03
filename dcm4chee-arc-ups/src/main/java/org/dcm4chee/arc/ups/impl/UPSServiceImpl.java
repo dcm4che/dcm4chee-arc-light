@@ -48,6 +48,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -224,6 +225,7 @@ public class UPSServiceImpl implements UPSService {
 
     @Override
     public void createSubscription(UPSContext ctx) throws DicomServiceException {
+        validateSupportEventReports(ctx);
         try {
             validateSubscriberAET(ctx);
             switch (ctx.getUpsInstanceUID()) {
@@ -302,6 +304,14 @@ public class UPSServiceImpl implements UPSService {
             return iod;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void validateSupportEventReports(UPSContext ctx) throws DicomServiceException {
+        if (ctx.getApplicationEntity().getTransferCapabilityFor(
+                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) == null) {
+            throw new DicomServiceException(Status.UPSDoesNotSupportEventReports,
+                    "Event Reports are not supported");
         }
     }
 
