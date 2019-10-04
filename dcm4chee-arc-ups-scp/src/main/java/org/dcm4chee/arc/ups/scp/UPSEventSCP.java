@@ -112,7 +112,7 @@ public class UPSEventSCP {
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.UnifiedProcedureStepWatchSOPClass,
                 TransferCapability.Role.SCP);
         aarq.addPresentationContext(new PresentationContext(1, UID.UnifiedProcedureStepWatchSOPClass,
-                tc.getTransferSyntaxes()));
+                tc != null ? tc.getTransferSyntaxes() : new String[] { UID.ImplicitVRLittleEndian }));
         aarq.addRoleSelection(new RoleSelection(UID.UnifiedProcedureStepWatchSOPClass, false, true));
         return aarq;
     }

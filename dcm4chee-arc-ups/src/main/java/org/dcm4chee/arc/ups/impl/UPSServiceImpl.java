@@ -338,7 +338,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     private void validateSupportEventReports(UPSContext ctx) throws DicomServiceException {
-        if (isUPSEventSCP(ctx.getApplicationEntity())) {
+        if (!isUPSEventSCP(ctx.getApplicationEntity())) {
             throw new DicomServiceException(Status.UPSDoesNotSupportEventReports,
                     "Event Reports are not supported");
         }

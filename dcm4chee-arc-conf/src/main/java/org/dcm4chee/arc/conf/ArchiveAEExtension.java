@@ -191,7 +191,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public boolean isUPSEventSCU(String aet) {
-        return Stream.of(upsEventSCUs).anyMatch(aet::equals);
+        return Stream.of(upsEventSCUs()).anyMatch(aet::equals);
     }
 
     public String[] getObjectStorageIDs() {
