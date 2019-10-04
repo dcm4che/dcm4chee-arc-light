@@ -51,6 +51,9 @@ import javax.persistence.*;
         name=Subscription.ALL_IUID_AND_AET,
         query="select sub.ups.upsInstanceUID, sub.subscriberAET from Subscription sub")
 @NamedQuery(
+        name=Subscription.AETS_BY_UPS,
+        query="select sub.subscriberAET from Subscription sub where sub.ups = ?1")
+@NamedQuery(
         name=Subscription.FIND_BY_UPS_AND_AET,
         query="select sub from Subscription sub " +
                 "where sub.ups =  ?1 and sub.subscriberAET = ?2")
