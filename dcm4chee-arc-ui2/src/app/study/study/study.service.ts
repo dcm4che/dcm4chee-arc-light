@@ -235,10 +235,10 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, false).filter(filter => {
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
-                lineLength = filterMode === "expand" ? 2 : 3;
+                lineLength = 3;
         }
         if (filterMode === "main") {
             if (tab != 'diff') {
