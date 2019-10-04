@@ -931,18 +931,6 @@ export class Globalvar {
                     text:"Compression Failed"
                 },
                 {
-                    tag:"checkbox",
-                    filterKey:"retrievefailed",
-                    text:"Only failed retrieving",
-                    description:"Only failed to be retrieved"
-                },
-                {
-                    tag:"checkbox",
-                    filterKey:"storageVerificationFailed",
-                    text:"Verification Failed",
-                    description:"Storage Verification Failed"
-                },
-                {
                     tag:"size_range_picker",
                     filterKey:"StudySizeInKB"
                 },
@@ -969,8 +957,15 @@ export class Globalvar {
                 },
                 {
                     tag:"checkbox",
+                    filterKey:"retrievefailed",
+                    text:"Only failed retrieving",
+                    description:"Only failed to be retrieved"
+                },
+                {
+                    tag:"checkbox",
                     filterKey:"storageVerificationFailed",
-                    text:"Storage Verification Failed"
+                    text:"Verification Failed",
+                    description:"Storage Verification Failed"
                 },
                 {
                     tag:"checkbox",
