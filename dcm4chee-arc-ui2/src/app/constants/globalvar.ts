@@ -966,6 +966,16 @@ export class Globalvar {
                     type:"text",
                     filterKey:"ExpirationDate",
                     description:"Expiration Date"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:"Storage Verification Failed"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"onlyDefault",
+                    text:"Only Default"
                 }
             ];
         }

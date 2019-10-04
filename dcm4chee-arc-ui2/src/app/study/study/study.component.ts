@@ -230,7 +230,7 @@ export class StudyComponent implements OnInit{
         private route:ActivatedRoute,
         private service:StudyService,
         private permissionService:PermissionService,
-        private appService:AppService,
+        public appService:AppService,
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar:LoadingBarService,
         private deviceConfigurator:DeviceConfiguratorService,
