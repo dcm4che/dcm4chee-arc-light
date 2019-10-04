@@ -165,7 +165,7 @@ export class UploadFilesComponent implements OnInit {
         let descriptionPart;
         let token;
         this.showFileList = true;
-        $this.studyService.clearPatientObject(this.dicomObject.attrs);
+/*        $this.studyService.clearPatientObject(this.dicomObject.attrs);
         $this.studyService.convertStringToNumber(this.dicomObject.attrs);
         // StudiesService.convertDateToString($scope, "editstudyFiltered");
 
@@ -179,7 +179,7 @@ export class UploadFilesComponent implements OnInit {
             if (this.iod[i]){
                 local[i] = m;
             }
-        });
+        });*/
         let seriesInstanceUID;
         this._keycloakService.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
@@ -226,7 +226,10 @@ export class UploadFilesComponent implements OnInit {
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
-                        let studyObject = _.pickBy(local, (o, i) => {
+/*                        let studyObject = _.pickBy(local, (o, i) => {
+                            return (i.toString().indexOf("777") === -1);
+                        });          */
+                        let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
                             return (i.toString().indexOf("777") === -1);
                         });
                         if (!$this.description || $this.description === "") {

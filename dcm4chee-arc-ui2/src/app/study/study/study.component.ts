@@ -636,13 +636,18 @@ export class StudyComponent implements OnInit{
                // this.editMWL(model);
             }
             if(id.action === "delete_mwl"){
-               // this.deleteMWL(model);
+               this.deleteMWL(model);
             }
             if(id.action === "modify_expired_date"){
                 this.setExpiredDate(model);
             }
             if(id.action === "create_mwl"){
                 this.createMWL(model);
+            }
+            if(id.action === "edit_mwl"){
+                console.log("id",id);
+                console.log("model", model);
+                this.editMWL(model.patient,model);
             }
             if(id.action === "download_csv"){
                 this.downloadCSV(model.attrs, id.level);
@@ -771,7 +776,34 @@ export class StudyComponent implements OnInit{
             }
         });
     }
-    editMWL(patient, patientkey, mwlkey, mwl){
+
+    deleteMWL(mwl){
+        let $this = this;
+        this.confirm({
+            content: 'Are you sure you want to delete this MWL?'
+        }).subscribe(result => {
+            if (result){
+                $this.cfpLoadingBar.start();
+                let studyInstanceUID = j4care.valueOf(mwl.attrs['00100021']);
+                let scheduledProcedureStepID = (<string>_.get(mwl.attrs, "['00400100'].Value[0]['00400009'].Value[0]"));
+                if(studyInstanceUID && scheduledProcedureStepID){
+                    this.service.deleteMWL(this.studyWebService.selectedWebService, studyInstanceUID, scheduledProcedureStepID).subscribe(
+                        (response) => {
+                            $this.appService.showMsg('MWL deleted successfully!');
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.httpErrorHandler.handleError(err);
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    this.appService.showError("Study Instance UID or Scheduled Procedure Step ID is missing!");
+                }
+            }
+        });
+    };
+    editMWL(patient, mwl){
         let config = {
             saveLabel:'SAVE',
             titleLabel:'Edit MWL of patient '
@@ -779,7 +811,7 @@ export class StudyComponent implements OnInit{
         config.titleLabel = 'Edit MWL of patient ';
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
-        this.modifyMWL(patient, 'edit', patientkey, mwlkey, mwl, config);
+        this.modifyMWL(patient, 'edit', '', '', mwl, config);
     };
     createMWL(patient){
         let mwl: any = {
