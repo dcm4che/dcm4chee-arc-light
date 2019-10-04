@@ -340,8 +340,6 @@ public class Series {
     public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
 
-    private static final long MILLIS_PER_DAY = 24 * 3600_000;
-
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
     public static class MetadataUpdate {

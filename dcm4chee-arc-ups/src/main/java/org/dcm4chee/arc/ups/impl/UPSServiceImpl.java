@@ -45,16 +45,14 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.UPSState;
 import org.dcm4chee.arc.entity.GlobalSubscription;
 import org.dcm4chee.arc.entity.UPS;
+import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -68,11 +66,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -100,6 +100,9 @@ public class UPSServiceImpl implements UPSService {
 
     @Inject
     private IApplicationEntityCache aeCache;
+
+    @Inject
+    private Device device;
 
     @Override
     public UPSContext newUPSContext(Association as) {
@@ -288,12 +291,39 @@ public class UPSServiceImpl implements UPSService {
                 .collect(Collectors.toList());
     }
 
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+        Attributes eventInformation = new Attributes(3);
+        switch (event.getType()) {
+            case STARTED:
+                eventInformation.setString(Tag.SCPStatus, VR.CS, "RESTARTED");
+                eventInformation.setString(Tag.SubscriptionListStatus, VR.CS, "WARM START");
+                eventInformation.setString(Tag.UnifiedProcedureStepListStatus, VR.CS, "WARM START");
+                break;
+            case STOPPED:
+                eventInformation.setString(Tag.SCPStatus, VR.CS, "GOING DOWN");
+                break;
+            case RELOADED:
+                return;
+        }
+        try {
+            device.getApplicationEntities().stream().filter(UPSServiceImpl::isUPSEventSCP).forEach(
+                    ae -> ejb.statusChangeEvents(ae.getAEExtensionNotNull(ArchiveAEExtension.class), eventInformation)
+                            .forEach(upsEvent::fire));
+        } catch (Exception e) {
+            LOG.warn("Failed to send StatusChange Event Reports\n", e);
+        }
+    }
+
     boolean websocketChannelsExists(String subscriberAET) {
         return websocketChannels.values().stream().anyMatch(ws -> ws.subscriberAET.equals(subscriberAET));
     }
 
     private void fireUPSEvents(UPSContext ctx) {
-        ctx.getUPSEvents().forEach(upsEvent::fire);
+        try {
+            ctx.getUPSEvents().forEach(upsEvent::fire);
+        } catch (Exception e) {
+            LOG.warn("Failed to send Event Reports\n", e);
+        }
     }
 
     private static IOD loadIOD(String name) {
@@ -308,11 +338,15 @@ public class UPSServiceImpl implements UPSService {
     }
 
     private void validateSupportEventReports(UPSContext ctx) throws DicomServiceException {
-        if (ctx.getApplicationEntity().getTransferCapabilityFor(
-                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) == null) {
+        if (isUPSEventSCP(ctx.getApplicationEntity())) {
             throw new DicomServiceException(Status.UPSDoesNotSupportEventReports,
                     "Event Reports are not supported");
         }
+    }
+
+    private static boolean isUPSEventSCP(ApplicationEntity ae) {
+        return ae.getTransferCapabilityFor(
+                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) == null;
     }
 
     private void validateSubscriberAET(UPSContext ctx) throws DicomServiceException, ConfigurationException {

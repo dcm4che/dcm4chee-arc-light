@@ -50,6 +50,12 @@ import javax.persistence.*;
  * @since Sep 2019
  */
 @NamedQuery(
+        name= GlobalSubscription.GLOBAL_AETS,
+        query="select sub.subscriberAET from GlobalSubscription sub where sub.matchKeysBlob is null")
+@NamedQuery(
+        name= GlobalSubscription.FILTERED_AETS,
+        query="select sub.subscriberAET from GlobalSubscription sub where sub.matchKeysBlob is not null")
+@NamedQuery(
         name= GlobalSubscription.FIND_BY_AET,
         query="select sub from GlobalSubscription sub where sub.subscriberAET = ?1")
 @NamedQuery(
@@ -60,6 +66,8 @@ import javax.persistence.*;
         uniqueConstraints = @UniqueConstraint(columnNames = "subscriber_aet"))
 public class GlobalSubscription {
 
+    public static final String GLOBAL_AETS = "GlobalSubscription.globalAETs";
+    public static final String FILTERED_AETS = "GlobalSubscription.filteredAETs";
     public static final String FIND_BY_AET = "GlobalSubscription.findByAET";
     public static final String FIND_ALL_EAGER = "GlobalSubscription.findAllEager";
 

@@ -48,8 +48,8 @@ import javax.persistence.*;
  * @since Sep 2019
  */
 @NamedQuery(
-        name=Subscription.AETS_BY_UPS,
-        query="select sub.subscriberAET from Subscription sub where sub.ups = ?1")
+        name=Subscription.ALL_IUID_AND_AET,
+        query="select sub.ups.upsInstanceUID, sub.subscriberAET from Subscription sub")
 @NamedQuery(
         name=Subscription.FIND_BY_UPS_AND_AET,
         query="select sub from Subscription sub " +
@@ -70,6 +70,7 @@ import javax.persistence.*;
         uniqueConstraints = @UniqueConstraint(columnNames = {"subscriber_aet", "ups_fk"}))
 public class Subscription {
 
+    public static final String ALL_IUID_AND_AET = "Subscription.allIUIDAndAET";
     public static final String AETS_BY_UPS = "Subscription.aetsByUPS";
     public static final String FIND_BY_UPS_AND_AET = "Subscription.findByUPSAndAET";
     public static final String DELETE_BY_AET = "Subscription.deleteByAET";
