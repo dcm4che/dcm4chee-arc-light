@@ -57,6 +57,9 @@ import java.util.Collection;
 import java.util.Date;
 
 @NamedQuery(
+        name = UPS.FIND_BY_PATIENT,
+        query = "select ups from UPS ups where ups.patient = ?1")
+@NamedQuery(
         name= UPS.FIND_BY_IUID,
         query="select ups from UPS ups where ups.upsInstanceUID = ?1")
 @NamedQuery(
@@ -91,6 +94,7 @@ import java.util.Date;
         })
 public class UPS {
 
+    public static final String FIND_BY_PATIENT = "UPS.findByPatient";
     public static final String FIND_BY_IUID = "UPS.findByIUID";
     public static final String FIND_BY_IUID_EAGER = "UPS.findByIUIDEager";
     public static final String FIND_WO_DELETION_LOCK = "UPS.findWithoutDeletionLock";

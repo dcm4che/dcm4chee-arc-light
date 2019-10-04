@@ -213,6 +213,7 @@ public class PatientServiceEJB {
             moveStudies(ctx, prev, pat);
             moveMPPS(prev, pat);
             moveMWLItems(prev, pat);
+            moveUPS(prev, pat);
         }
         if (ctx.getHttpServletRequestInfo() != null) {
             if (pat.getPatientName() != null)
@@ -363,6 +364,13 @@ public class PatientServiceEJB {
                 .setParameter(1, from)
                 .getResultList()
                 .forEach(mwl -> mwl.setPatient(to));
+    }
+
+    private void moveUPS(Patient from, Patient to) {
+        em.createNamedQuery(UPS.FIND_BY_PATIENT, UPS.class)
+                .setParameter(1, from)
+                .getResultList()
+                .forEach(ups -> ups.setPatient(to));
     }
 
     private PatientID createPatientID(IDWithIssuer idWithIssuer) {
