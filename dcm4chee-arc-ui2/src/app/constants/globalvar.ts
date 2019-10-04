@@ -765,6 +765,106 @@ export class Globalvar {
             return actionObject;
         }
     }
+
+    static MWL_FILTER_SCHEMA(hidden?):FilterSchema{
+        if(hidden){
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    description:"SPS Status",
+                    placeholder:"SPS Status"
+                },{
+                    tag:"checkbox",
+                    filterKey:"onlyDefault",
+                    text:"Only Default"
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
+                    description:"Scheduled Performing Physician's Name",
+                    placeholder:"SP Physician's Name"
+                }
+            ]
+        }else{
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientName",
+                    description:"Patient name",
+                    placeholder:"Patient name"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"fuzzymatching",
+                    text:"Fuzzy Matching"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientID",
+                    description:"Patient ID",
+                    placeholder:"Patient ID"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfPatientID",
+                    description:"Issuer of patient",
+                    placeholder:"Issuer of patient"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"AccessionNumber",
+                    description:"Accession number",
+                    placeholder:"Accession number"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                    description:"Issuer of accession number",
+                    placeholder:"Issuer of accession number"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledStationAETitle",
+                    description:"Scheduled Station AE Title",
+                    placeholder:"Scheduled Station AE Title"
+                },{
+                    tag:"modality",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.Modality",
+                    placeholder:"Modality",
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyInstanceUID",
+                    description:"Study Instance UID",
+                    placeholder:"Study Instance UID"
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"limit",
+                    description:"Limit",
+                    placeholder:"Limit of MWL"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate",
+                    description:"SPS Start Date",
+                    placeholder:"Scheduled Procedure Step Start Date"
+                },{
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                    description:"SPS Start Time",
+                    placeholder:"Scheduled Procedure Step Start Time"
+                }
+            ]
+        }
+    }
+
     static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
         if(hidden){
             return [

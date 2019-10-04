@@ -71,6 +71,7 @@ import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-di
 import {SelectionActionElement} from "./selection-action-element.models";
 import {CopyMoveObjectsComponent} from "../../widgets/dialogs/copy-move-objects/copy-move-objects.component";
 import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
+import {MwlDicom} from "../../models/mwl-dicom";
 
 
 @Component({
@@ -631,6 +632,12 @@ export class StudyComponent implements OnInit{
             if(id.action === "edit_study"){
                 this.editStudy(model);
             }
+            if(id.action === "edit_study"){
+               // this.editMWL(model);
+            }
+            if(id.action === "delete_mwl"){
+               // this.deleteMWL(model);
+            }
             if(id.action === "modify_expired_date"){
                 this.setExpiredDate(model);
             }
@@ -641,6 +648,17 @@ export class StudyComponent implements OnInit{
                 this.downloadCSV(model.attrs, id.level);
             }
             if(id.action === "upload_file"){
+/*                switch (id.level) {
+                    case "patient":
+                        this.uploadInPatient(model);
+                        break;
+                    case "mwl":
+                        this.uploadFile(model, id.level);
+                        break;
+                    default:
+                        this.uploadFile(model, id.level);
+
+                }*/
                 if(id.level === "patient"){
                     this.uploadInPatient(model);
                 }else{
@@ -1148,6 +1166,12 @@ export class StudyComponent implements OnInit{
             case "patient":
                 this.getPatients(filterModel);
                 break;
+            case "mwl":
+                this.getMWL(filterModel);
+                break;
+            case "diff":
+                // this.getDiff(filterModel);
+                break;
         }
     }
     showNoFilterWarning(queryParameters){
@@ -1222,7 +1246,103 @@ export class StudyComponent implements OnInit{
             this.httpErrorHandler.handleError(err);
         })
     }
+    getMWL(filterModel){
+/*        this.queryMode = 'queryMWL';
+        this.moreStudies = undefined;
+        this.morePatients = undefined;
+        if (offset < 0 || offset === undefined) offset = 0;
+        this.cfpLoadingBar.start();
+        let $this = this;
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'mwlitems',
+                this.createPatientFilterParams()
+            ).subscribe((res)=>{
+                this.count = res.count;
+            },(err)=>{
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            });
+        }else{
+            this.count = "";
+        };*/
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+        filterModel['includefield'] = 'all';
+        this.service.getMWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
+                this.patients = [];
+                //           this.studies = [];
+                this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
+/*                this.morePatients = undefined;
+                this.moreMWL = undefined;*/
+                if (res){
+                    this.setTopToTableHeader();
+                    // let pat, mwl, patAttrs, tags = this.attributeFilters.Patient.dcmTag;
+                    let patient: PatientDicom;
+                    let mwl: MwlDicom;
+                    let patAttrs;
+                    let tags = this.patientAttributes.dcmTag;
+                    res.forEach((mwlAttrs, index) => {
+                        patAttrs = {};
+                        this.service.extractAttrs(mwlAttrs, tags, patAttrs);
+                        if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            patient = new PatientDicom(patAttrs, [], false, true, 0, [], true);
+                            this.patients.push(patient);
+                        }
+                        mwl = new MwlDicom(
+                            mwlAttrs,
+                            patient,
+                            this._filter.filterModel.offset + index
+                        );
+/*                        mwl = {
+                            patient: pat,
+                            offset: offset + index,
+                            moreSeries: false,
+                            attrs: studyAttrs,
+                            series: null,
+                            showAttributes: false,
+                            fromAllStudies: false,
+                            selected: false
+                        };*/
+                        patient.mwls.push(mwl);
+                    });
 
+                    if (this.more = (res.length > this._filter.filterModel.limit)) {
+                        patient.mwls.pop();
+                        if (patient.mwls.length === 0) {
+                            this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                    console.log("patient",this.patients);
+/*                    console.log('in mwl patient', this.patients);
+                    this.extendedFilter(false);
+                    if (this.moreMWL = (res.length > this.limit)) {
+                        pat.mwls.pop();
+                        if (pat.mwls.length === 0)
+                            this.patients.pop();
+                        // this.studies.pop();
+                    }*/
+                    // this.mainservice.setGlobal({
+                    //     patients:this.patients,
+                    //     moreMWL:this.moreMWL,
+                    //     morePatients:this.morePatients,
+                    //     moreStudies:this.moreStudies
+                    // });
+                } else {
+                    this.appService.showMsg('No matching Modality Worklist Entries found!');
+                }
+                this.cfpLoadingBar.complete();
+            },
+            (err) => {
+                j4care.log("Something went wrong on search", err);
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            }
+        );
+    };
     getPatients(filterModel){
         this.cfpLoadingBar.start();
         this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
@@ -1237,11 +1357,7 @@ export class StudyComponent implements OnInit{
                     this.patients.pop();
                 }
             } else {
-                this.appService.setMessage( {
-                    "title": "Info",
-                    "text": "No matching Patients found!",
-                    "status": "info"
-                });
+                this.appService.showMsg("No matching Patients found!");
             }
             this.cfpLoadingBar.complete();
         },(err)=>{

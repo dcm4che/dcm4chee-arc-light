@@ -9,6 +9,8 @@ export interface DicomTableSchema{
     studies:TableSchemaElement[];
     series:TableSchemaElement[];
     instance:TableSchemaElement[];
+    mwl?:TableSchemaElement[];
+    diff?:TableSchemaElement[];
 }
 
 /*export interface TableSchemaElement {

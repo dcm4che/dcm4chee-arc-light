@@ -227,8 +227,8 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 1 : 2;
                 break;
             case "mwl":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand");
-                lineLength = filterMode === "expand" ? 2 : 3;
+                schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
+                lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "diff":
                 schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand");
@@ -305,6 +305,22 @@ export class StudyService {
     }
 
 
+    getMWL(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("mwl", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        )
+    }
+
     getPatients(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header: HttpHeaders;
         if (!responseType || responseType === "object") {
@@ -318,7 +334,7 @@ export class StudyService {
             header,
             false,
             dcmWebApp
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     }
 
     getStudies(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
@@ -656,15 +672,23 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
-                                actions.call($this, {
-                                    event: "click",
-                                    level: "patient",
-                                    action: "toggle_studies"
-                                }, e);
+                                if(options.studyConfig.tab === "mwl") {
+                                    e.showMwls = !e.showMwls;
+                                }else{
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "toggle_studies"
+                                    }, e);
+                                }
                             },
-                            title: "Hide Studies",
+                            title: (options.studyConfig.tab === "mwl") ? "Hide MWLs":"Hide Studies",
                             showIf: (e) => {
-                                return e.showStudies
+                                if(options.studyConfig.tab === "mwl"){
+                                    return e.showMwls;
+                                }else{
+                                    return e.showStudies;
+                                }
                             }
                         }, {
                             icon: {
@@ -675,20 +699,28 @@ export class StudyService {
                             click: (e) => {
                                 console.log("e", e);
                                 // e.showStudies = !e.showStudies;
-                                actions.call($this, {
-                                    event: "click",
-                                    level: "patient",
-                                    action: "toggle_studies"
-                                }, e);
+                                if(options.studyConfig.tab === "mwl") {
+                                    e.showMwls = !e.showMwls;
+                                }else{
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "toggle_studies"
+                                    }, e);
+                                }
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title: "Show Studies",
+                            title: (options.studyConfig.tab === "mwl") ? "Show MWLs":"Show Studies",
                             showIf: (e) => {
-                                return !e.showStudies
+                                if(options.studyConfig.tab === "mwl") {
+                                    return !e.showMwls
+                                }else{
+                                    return !e.showStudies
+                                }
                             }
                         }
                     ],
-                    headerDescription: "Show studies",
+                    headerDescription: (options.studyConfig.tab === "mwl") ? "Toggle MWLs":"Toggle studies",
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -1728,6 +1760,175 @@ export class StudyService {
                     pathToValue: "00280008.Value[0]",
                     headerDescription: "Number of Frames",
                     widthWeight: 0.3,
+                    calculatedWidth: "20%"
+                })
+            ],
+            mwl:[
+                new TableSchemaElement({
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions: [
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "mwl",
+                                        action: "edit_mwl"
+                                    }, e);
+                                },
+                                title: 'Edit MWL',
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'edit'
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-remove',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "mwl",
+                                        action: "delete_mwl"
+                                    }, e);
+                                },
+                                title: 'Delete MWL',
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'delete'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "mwl",
+                                        action: "upload_file"
+                                    }, e);
+                                },
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'upload'
+                                }
+                            }
+                        ]
+                    },
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }), new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title: 'Show attributes'
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Requested Procedure ID",
+                    pathToValue: "00401001.Value[0]",
+                    headerDescription: "Requested Procedure ID",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study Instance UID",
+                    pathToValue: "0020000D.Value[0]",
+                    headerDescription: "Study Instance UID",
+                    widthWeight: 3.5,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SPS Start Date",
+                    pathToValue: "00400100.Value[0].00400002.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Start Date",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SPS Start",
+                    pathToValue: "00400100.Value[0].00400003.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Start Time",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SP Physician's Name",
+                    pathToValue: "00400100.Value[0].00400006.Value[0]",
+                    headerDescription: "Scheduled Performing Physician's Name",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Accession Number",
+                    pathToValue: "00080050.Value[0]",
+                    headerDescription: "Accession Number",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Modality",
+                    pathToValue: "00400100.Value[0].00080060.Value[0]",
+                    headerDescription: "Modality",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Description",
+                    pathToValue: "00400100.Value[0].00400007.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Description",
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SS AET",
+                    pathToValue: "00400100.Value[0].00400001.Value[0]",
+                    headerDescription: "Scheduled Station AE Title",
+                    widthWeight: 1.5,
                     calculatedWidth: "20%"
                 })
             ]
