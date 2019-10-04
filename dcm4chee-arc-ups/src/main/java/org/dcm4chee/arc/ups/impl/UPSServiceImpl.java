@@ -346,7 +346,7 @@ public class UPSServiceImpl implements UPSService {
 
     private static boolean isUPSEventSCP(ApplicationEntity ae) {
         return ae.getTransferCapabilityFor(
-                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) == null;
+                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) != null;
     }
 
     private void validateSubscriberAET(UPSContext ctx) throws DicomServiceException, ConfigurationException {
