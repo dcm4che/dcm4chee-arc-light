@@ -1085,6 +1085,7 @@ export class StudyComponent implements OnInit{
         if(!this._filter.filterModel["onlyDefault"]){
             params["includefield"] = 'all';
         }
+        delete this._filter.filterModel["onlyDefault"];
 
         for (let key in filter){
             if ((filter[key] || filter[key] === false) && key != "onlyDefault" && key != "webApp"){
@@ -1101,13 +1102,13 @@ export class StudyComponent implements OnInit{
         if(!this._filter.filterModel["onlyDefault"]){
             filter["includefield"] = 'all';
         }
+        delete this._filter.filterModel["onlyDefault"];
         if(withoutPagination){
             delete filter["size"];
             delete filter["offset"];
         }
         return filter;
     }
-
     onSubPaginationClick(e){
         console.log("e",e);
         if(e.level === "instance"){
@@ -1148,6 +1149,10 @@ export class StudyComponent implements OnInit{
 
     getFilterClone():any{
         let filterModel =  _.clone(this._filter.filterModel);
+        if(!filterModel["onlyDefault"]){
+            filterModel["includefield"] = 'all';
+        }
+        delete filterModel["onlyDefault"];
         delete filterModel.webApp;
         return filterModel;
     }
@@ -1301,7 +1306,6 @@ export class StudyComponent implements OnInit{
         };*/
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-        filterModel['includefield'] = 'all';
         this.service.getMWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
                 this.patients = [];
                 //           this.studies = [];
@@ -1406,7 +1410,6 @@ export class StudyComponent implements OnInit{
         if (offset < 0) offset = 0;
         filterModel["offset"] = offset;
 
-        filterModel['includefield'] = 'all';
         filterModel["PatientID"] = j4care.valueOf(patient.attrs['00100020']);
         filterModel["IssuerOfPatientID"] = j4care.valueOf(patient.attrs['00100021']);
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
@@ -1442,7 +1445,6 @@ export class StudyComponent implements OnInit{
     getStudies(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-        filterModel['includefield'] = 'all';
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients = [];
@@ -1504,7 +1506,6 @@ export class StudyComponent implements OnInit{
         if(filters.limit){
             filters.limit++;
         }
-        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
         this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
@@ -1563,7 +1564,6 @@ export class StudyComponent implements OnInit{
             filters.limit++;
         }
         filters["offset"] = offset;
-        filters['includefield'] = 'all';
         delete filters.aet;
         filters["orderby"] = 'InstanceNumber';
         this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.studyWebService.selectedWebService)
