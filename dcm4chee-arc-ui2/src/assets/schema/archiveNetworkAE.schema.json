@@ -353,9 +353,9 @@
       "type": "string",
       "format": "dcmCharset"
     },
-    "dcmDefaultWorklistLabel": {
-      "title": "Default Worklist Label",
-      "description": "Value of Worklist Label (0074,1202) added to Workitems of N-CREATE RQs without Worklist Label (0074,1202) attribute received by this Network AE. Overwrites value specified on Device level.",
+    "dcmUPSWorklistLabel": {
+      "title": "UPS Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of created UPS by this Network AE, if the UPS Push SCU or UPS-RS User Agent does not provide a value for this attribute. If absent, the AE Title of the receiving AE will be used. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmUPSEventSCU": {

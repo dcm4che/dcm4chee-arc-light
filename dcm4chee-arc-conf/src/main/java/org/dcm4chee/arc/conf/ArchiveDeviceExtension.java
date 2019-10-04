@@ -72,7 +72,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
 
     private volatile String defaultCharacterSet;
-    private volatile String defaultWorklistLabel;
+    private volatile String upsWorklistLabel;
     private volatile String[] upsEventSCUs = {};
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
@@ -298,12 +298,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.defaultCharacterSet = defaultCharacterSet;
     }
 
-    public String getDefaultWorklistLabel() {
-        return defaultWorklistLabel;
+    public String getUPSWorklistLabel() {
+        return upsWorklistLabel;
     }
 
-    public void setDefaultWorklistLabel(String defaultWorklistLabel) {
-        this.defaultWorklistLabel = defaultWorklistLabel;
+    public void setUPSWorklistLabel(String upsWorklistLabel) {
+        this.upsWorklistLabel = upsWorklistLabel;
     }
 
     public String[] getUPSEventSCUs() {
@@ -2488,7 +2488,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
         defaultCharacterSet = arcdev.defaultCharacterSet;
-        defaultWorklistLabel = arcdev.defaultWorklistLabel;
+        upsWorklistLabel = arcdev.upsWorklistLabel;
         upsEventSCUs = arcdev.upsEventSCUs;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;

@@ -206,7 +206,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet(), null);
-        writer.writeNotNullOrDef("dcmDefaultWorklistLabel", arcDev.getDefaultWorklistLabel(), null);
+        writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcDev.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcDev.getUPSEventSCUs());
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcDev.getStorePermissionServiceErrorCommentPattern(), null);
@@ -875,7 +875,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcAE.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
-        writer.writeNotNullOrDef("dcmDefaultWorklistLabel", arcAE.getDefaultWorklistLabel(), null);
+        writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcAE.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcAE.getUPSEventSCUs());
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcAE.getStorePermissionServiceErrorCommentPattern(), null);
@@ -1249,8 +1249,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmDefaultCharacterSet":
                     arcDev.setDefaultCharacterSet(reader.stringValue());
                     break;
-                case "dcmDefaultWorklistLabel":
-                    arcDev.setDefaultWorklistLabel(reader.stringValue());
+                case "dcmUPSWorklistLabel":
+                    arcDev.setUPSWorklistLabel(reader.stringValue());
                     break;
                 case "dcmUPSEventSCU":
                     arcDev.setUPSEventSCUs(reader.stringArray());
@@ -2796,8 +2796,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmDefaultCharacterSet":
                     arcAE.setDefaultCharacterSet(reader.stringValue());
                     break;
-                case "dcmDefaultWorklistLabel":
-                    arcAE.setDefaultWorklistLabel(reader.stringValue());
+                case "dcmUPSWorklistLabel":
+                    arcAE.setUPSWorklistLabel(reader.stringValue());
                     break;
                 case "dcmUPSEventSCU":
                     arcAE.setUPSEventSCUs(reader.stringArray());

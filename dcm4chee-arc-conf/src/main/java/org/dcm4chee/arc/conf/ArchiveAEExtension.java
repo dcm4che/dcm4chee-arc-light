@@ -62,7 +62,7 @@ import java.util.stream.Stream;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
-    private String defaultWorklistLabel;
+    private String upsWorklistLabel;
     private String[] upsEventSCUs = {};
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
@@ -162,18 +162,18 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getDefaultCharacterSet();
     }
 
-    public String getDefaultWorklistLabel() {
-        return defaultWorklistLabel;
+    public String getUPSWorklistLabel() {
+        return upsWorklistLabel;
     }
 
-    public void setDefaultWorklistLabel(String defaultWorklistLabel) {
-        this.defaultWorklistLabel = defaultWorklistLabel;
+    public void setUPSWorklistLabel(String upsWorklistLabel) {
+        this.upsWorklistLabel = upsWorklistLabel;
     }
 
-    public String defaultWorklistLabel() {
+    public String upsWorklistLabel() {
         return defaultCharacterSet != null
-                ? defaultWorklistLabel
-                : StringUtils.maskNull(getArchiveDeviceExtension().getDefaultWorklistLabel(), ae.getAETitle());
+                ? upsWorklistLabel
+                : StringUtils.maskNull(getArchiveDeviceExtension().getUPSWorklistLabel(), ae.getAETitle());
     }
 
     public String[] getUPSEventSCUs() {
@@ -1368,7 +1368,7 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
-        defaultWorklistLabel = aeExt.defaultWorklistLabel;
+        upsWorklistLabel = aeExt.upsWorklistLabel;
         upsEventSCUs = aeExt.upsEventSCUs;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;

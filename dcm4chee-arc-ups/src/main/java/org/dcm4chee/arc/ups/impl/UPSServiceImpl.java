@@ -127,7 +127,7 @@ public class UPSServiceImpl implements UPSService {
                     "The provided value of UPS State was not SCHEDULED");
         }
         if (!attrs.containsValue(Tag.WorklistLabel)) {
-            attrs.setString(Tag.WorklistLabel, VR.LO, ctx.getArchiveAEExtension().defaultWorklistLabel());
+            attrs.setString(Tag.WorklistLabel, VR.LO, ctx.getArchiveAEExtension().upsWorklistLabel());
         }
         try {
             UPS ups = ejb.createUPS(ctx, globalSubscriptions(attrs));

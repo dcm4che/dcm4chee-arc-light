@@ -270,8 +270,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPurgeStgCmtPollingInterval(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet",
                 ext.getDefaultCharacterSet(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultWorklistLabel",
-                ext.getDefaultWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
+                ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
                 ext.getStorePermissionServiceErrorCommentPattern(), null);
@@ -547,7 +547,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeStgCmtCompletedDelay(toDuration(attrs.get("dcmPurgeStgCmtCompletedDelay"), null));
         ext.setPurgeStgCmtPollingInterval(toDuration(attrs.get("dcmPurgeStgCmtPollingInterval"), null));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
-        ext.setDefaultWorklistLabel(LdapUtils.stringValue(attrs.get("dcmDefaultWorklistLabel"), null));
+        ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
@@ -914,8 +914,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultWorklistLabel",
-                aa.getDefaultWorklistLabel(), bb.getDefaultWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
+                aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU", aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
                 aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern(), null);
@@ -1323,8 +1323,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet",
                 ext.getDefaultCharacterSet(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultWorklistLabel",
-                ext.getDefaultWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
+                ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
                 ext.getStorePermissionServiceErrorCommentPattern(), null);
@@ -1448,7 +1448,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(
                 attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
-        ext.setDefaultWorklistLabel(LdapUtils.stringValue(attrs.get("dcmDefaultWorklistLabel"), null));
+        ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(
                 attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
@@ -1619,8 +1619,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultWorklistLabel",
-                aa.getDefaultWorklistLabel(), bb.getDefaultWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
+                aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU",
                 aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
