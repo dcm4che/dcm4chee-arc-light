@@ -73,13 +73,13 @@ public abstract class Scheduler implements Runnable {
 
     @Override
     public void run() {
-        log().info("start");
+        log().info("start {}.execute()", getClass().getSimpleName());
         try {
             execute();
         } catch (Throwable e) {
-            log().warn("execute throws Exception", e);
+            log().warn("{}.execute() throws:\n", getClass().getSimpleName(), e);
         }
-        log().info("finished");
+        log().info("finished {}.execute()", getClass().getSimpleName());
     }
 
     public void start() {

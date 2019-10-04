@@ -1466,6 +1466,26 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.304 NAME 'dcmRestrictRetrieveAccordi
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.306 NAME 'dcmDeleteUPSPollingInterval'
+  DESC 'Polling Interval for deleting Unified Procedure Steps (UPS) in ISO-8601 duration format PnDTnHnMnS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.307 NAME 'dcmDeleteUPSFetchSize'
+  DESC 'Maximal number of Unified Procedure Steps (UPS) to delete in one transaction; 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.308 NAME 'dcmDeleteUPSCompletedDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting completed Unified Procedure Steps without Deletion Lock. If absent, completed Unified Procedure Steps without Deletion Lock are deleted immediately.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.309 NAME 'dcmDeleteUPSCanceledDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting canceled Unified Procedure Steps without Deletion Lock. If absent, canceled Unified Procedure Steps without Deletion Lock are deleted immediately.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1492,6 +1512,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPurgeInstanceRecordsDelay $
     dcmPurgeInstanceRecordsPollingInterval $
     dcmPurgeInstanceRecordsFetchSize $
+    dcmDeleteUPSPollingInterval $
+    dcmDeleteUPSFetchSize $
+    dcmDeleteUPSCompletedDelay $
+    dcmDeleteUPSCanceledDelay $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $

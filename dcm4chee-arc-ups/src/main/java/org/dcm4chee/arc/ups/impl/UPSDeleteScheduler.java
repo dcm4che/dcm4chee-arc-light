@@ -73,7 +73,7 @@ public class UPSDeleteScheduler extends Scheduler {
 
     @Override
     protected Duration getPollingInterval() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getPurgeUPSPollingInterval();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getDeleteUPSPollingInterval();
     }
 
     @Override

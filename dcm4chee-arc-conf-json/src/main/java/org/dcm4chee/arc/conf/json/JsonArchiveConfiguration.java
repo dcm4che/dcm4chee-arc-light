@@ -95,6 +95,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPurgeInstanceRecordsPollingInterval(), null);
         writer.writeNotDef("dcmPurgeInstanceRecordsFetchSize",
                 arcDev.getPurgeInstanceRecordsFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmDeleteUPSPollingInterval", arcDev.getDeleteUPSPollingInterval(), null);
+        writer.writeNotDef("dcmDeleteUPSFetchSize", arcDev.getDeleteUPSFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmDeleteUPSCompletedDelay", arcDev.getDeleteUPSCompletedDelay(), null);
+        writer.writeNotNullOrDef("dcmDeleteUPSCanceledDelay", arcDev.getDeleteUPSCanceledDelay(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
@@ -976,6 +980,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPurgeInstanceRecordsFetchSize":
                     arcDev.setPurgeInstanceRecordsFetchSize(reader.intValue());
+                    break;
+                case "dcmDeleteUPSPollingInterval":
+                    arcDev.setDeleteUPSPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmDeleteUPSFetchSize":
+                    arcDev.setDeleteUPSFetchSize(reader.intValue());
+                    break;
+                case "dcmDeleteUPSCompletedDelay":
+                    arcDev.setDeleteUPSCompletedDelay(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmDeleteUPSCanceledDelay":
+                    arcDev.setDeleteUPSCanceledDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));

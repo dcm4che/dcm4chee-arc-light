@@ -87,6 +87,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeInstanceRecordsDelay;
     private volatile Duration purgeInstanceRecordsPollingInterval;
     private volatile int purgeInstanceRecordsFetchSize = 100;
+    private volatile Duration deleteUPSPollingInterval;
+    private volatile int deleteUPSFetchSize = 100;
+    private volatile Duration deleteUPSCompletedDelay;
+    private volatile Duration deleteUPSCanceledDelay;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
     private volatile ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
@@ -148,10 +152,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeQueueMessagePollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
-    private volatile Duration purgeUPSPollingInterval;
-    private volatile int purgeUPSFetchSize = 100;
-    private volatile Duration purgeUPSCompletedDelay;
-    private volatile Duration purgeUPSCanceledDelay;
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
@@ -484,6 +484,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeInstanceRecordsFetchSize(int purgeInstanceRecordsFetchSize) {
         this.purgeInstanceRecordsFetchSize =  greaterZero(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
+    }
+
+    public Duration getDeleteUPSPollingInterval() {
+        return deleteUPSPollingInterval;
+    }
+
+    public void setDeleteUPSPollingInterval(Duration deleteUPSPollingInterval) {
+        this.deleteUPSPollingInterval = deleteUPSPollingInterval;
+    }
+
+    public int getDeleteUPSFetchSize() {
+        return deleteUPSFetchSize;
+    }
+
+    public void setDeleteUPSFetchSize(int deleteUPSFetchSize) {
+        this.deleteUPSFetchSize = deleteUPSFetchSize;
+    }
+
+    public Duration getDeleteUPSCompletedDelay() {
+        return deleteUPSCompletedDelay;
+    }
+
+    public void setDeleteUPSCompletedDelay(Duration deleteUPSCompletedDelay) {
+        this.deleteUPSCompletedDelay = deleteUPSCompletedDelay;
+    }
+
+    public Duration getDeleteUPSCanceledDelay() {
+        return deleteUPSCanceledDelay;
+    }
+
+    public void setDeleteUPSCanceledDelay(Duration deleteUPSCanceledDelay) {
+        this.deleteUPSCanceledDelay = deleteUPSCanceledDelay;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -1051,38 +1083,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeStgCmtCompletedDelay(Duration purgeStgCmtCompletedDelay) {
         this.purgeStgCmtCompletedDelay = purgeStgCmtCompletedDelay;
-    }
-
-    public Duration getPurgeUPSPollingInterval() {
-        return purgeUPSPollingInterval;
-    }
-
-    public void setPurgeUPSPollingInterval(Duration purgeUPSPollingInterval) {
-        this.purgeUPSPollingInterval = purgeUPSPollingInterval;
-    }
-
-    public int getPurgeUPSFetchSize() {
-        return purgeUPSFetchSize;
-    }
-
-    public void setPurgeUPSFetchSize(int purgeUPSFetchSize) {
-        this.purgeUPSFetchSize = purgeUPSFetchSize;
-    }
-
-    public Duration getPurgeUPSCompletedDelay() {
-        return purgeUPSCompletedDelay;
-    }
-
-    public void setPurgeUPSCompletedDelay(Duration purgeUPSCompletedDelay) {
-        this.purgeUPSCompletedDelay = purgeUPSCompletedDelay;
-    }
-
-    public Duration getPurgeUPSCanceledDelay() {
-        return purgeUPSCanceledDelay;
-    }
-
-    public void setPurgeUPSCanceledDelay(Duration purgeUPSCanceledDelay) {
-        this.purgeUPSCanceledDelay = purgeUPSCanceledDelay;
     }
 
     public SPSStatus[] getHideSPSWithStatusFrom() {
@@ -2503,6 +2503,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
         purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;
         purgeInstanceRecordsFetchSize = arcdev.purgeInstanceRecordsFetchSize;
+        deleteUPSPollingInterval = arcdev.deleteUPSPollingInterval;
+        deleteUPSFetchSize = arcdev.deleteUPSFetchSize;
+        deleteUPSCompletedDelay = arcdev.deleteUPSCompletedDelay;
+        deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
         overwritePolicy = arcdev.overwritePolicy;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
@@ -2571,10 +2575,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
-        purgeUPSPollingInterval = arcdev.purgeUPSPollingInterval;
-        purgeUPSFetchSize = arcdev.purgeUPSFetchSize;
-        purgeUPSCompletedDelay = arcdev.purgeUPSCompletedDelay;
-        purgeUPSCanceledDelay = arcdev.purgeUPSCanceledDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;

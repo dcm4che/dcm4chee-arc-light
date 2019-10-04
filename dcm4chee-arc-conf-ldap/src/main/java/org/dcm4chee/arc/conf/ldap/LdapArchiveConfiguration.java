@@ -110,6 +110,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPurgeInstanceRecordsPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeInstanceRecordsFetchSize",
                 ext.getPurgeInstanceRecordsFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteUPSPollingInterval",
+                ext.getDeleteUPSPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteUPSFetchSize", ext.getDeleteUPSFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteUPSCompletedDelay",
+                ext.getDeleteUPSCompletedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteUPSCanceledDelay",
+                ext.getDeleteUPSCanceledDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy",
                 ext.getOverwritePolicy(), OverwritePolicy.NEVER);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
@@ -433,6 +440,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeInstanceRecordsPollingInterval(toDuration(attrs.get("dcmPurgeInstanceRecordsPollingInterval"), null));
         ext.setPurgeInstanceRecordsFetchSize(
                 LdapUtils.intValue(attrs.get("dcmPurgeInstanceRecordsFetchSize"), 100));
+        ext.setDeleteUPSPollingInterval(toDuration(attrs.get("dcmDeleteUPSPollingInterval"), null));
+        ext.setDeleteUPSFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteUPSFetchSize"), 100));
+        ext.setDeleteUPSCompletedDelay(toDuration(attrs.get("dcmDeleteUPSCompletedDelay"), null));
+        ext.setDeleteUPSCanceledDelay(toDuration(attrs.get("dcmDeleteUPSCanceledDelay"), null));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), OverwritePolicy.NEVER));
         ext.setBulkDataSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
@@ -717,6 +728,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPurgeInstanceRecordsFetchSize(),
                 bb.getPurgeInstanceRecordsFetchSize(),
                 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteUPSPollingInterval",
+                aa.getDeleteUPSPollingInterval(),
+                bb.getDeleteUPSPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteUPSFetchSize",
+                aa.getDeleteUPSFetchSize(),
+                bb.getDeleteUPSFetchSize(),
+                100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteUPSCompletedDelay",
+                aa.getDeleteUPSCompletedDelay(),
+                bb.getDeleteUPSCompletedDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteUPSCanceledDelay",
+                aa.getDeleteUPSCanceledDelay(),
+                bb.getDeleteUPSCanceledDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), OverwritePolicy.NEVER);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(),

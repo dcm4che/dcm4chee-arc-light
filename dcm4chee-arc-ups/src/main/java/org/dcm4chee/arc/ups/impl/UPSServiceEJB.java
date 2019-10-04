@@ -547,13 +547,13 @@ public class UPSServiceEJB {
     }
 
     public boolean purgeUPSWithoutDeletionLock(ArchiveDeviceExtension arcdev) {
-        int fetchSize = arcdev.getPurgeUPSFetchSize();
+        int fetchSize = arcdev.getDeleteUPSFetchSize();
         List<UPS> list = findUPSWithoutDeletionLock(
-                arcdev.getPurgeUPSCompletedDelay(),
-                arcdev.getPurgeUPSCanceledDelay(),
+                arcdev.getDeleteUPSCompletedDelay(),
+                arcdev.getDeleteUPSCanceledDelay(),
                 fetchSize);
         list.forEach(this::deleteUPS);
-        return list.size() == fetchSize && arcdev.getPurgeUPSPollingInterval() != null;
+        return list.size() == fetchSize && arcdev.getDeleteUPSPollingInterval() != null;
     }
 
     private List<UPS> findUPSWithoutDeletionLock(Duration completedDelay, Duration canceledDelay, int fetchSize) {

@@ -9,6 +9,7 @@
     "dcmSeriesMetadataMaxRetries",
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
+    "dcmDeleteUPSFetchSize",
     "dcmOverwritePolicy",
     "dcmAcceptMissingPatientID",
     "dcmAcceptConflictingPatientID",
@@ -175,6 +176,32 @@
       "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
+    },
+    "dcmDeleteUPSPollingInterval": {
+      "title": "Delete UPS Polling Interval",
+      "description": "Polling Interval for deleting Unified Procedure Steps (UPS) in ISO-8601 duration format PnDTnHnMnS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteUPSFetchSize": {
+      "title": "Delete UPS Fetch Size",
+      "description": "Maximal number of Unified Procedure Steps (UPS) to delete in one transaction; 100 if absent.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDeleteUPSCompletedDelay": {
+      "title": "Delete UPS Completed Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting completed Unified Procedure Steps without Deletion Lock. If absent, completed Unified Procedure Steps without Deletion Lock are deleted immediately.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteUPSCanceledDelay": {
+      "title": "Delete UPS Canceled Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting canceled Unified Procedure Steps without Deletion Lock. If absent, canceled Unified Procedure Steps without Deletion Lock are deleted immediately.",
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
@@ -839,6 +866,7 @@
     "dcmUPSEventSCU": {
       "title": "UPS Event SOP Class SCU",
       "description": "AE Title of UPS Event SOP Class SCU, to which UPS Event Reports are sent - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "array",
       "items": {
         "type": "string"
       },
