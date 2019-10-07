@@ -966,11 +966,6 @@ export class Globalvar {
                     filterKey:"storageVerificationFailed",
                     text:"Verification Failed",
                     description:"Storage Verification Failed"
-                },
-                {
-                    tag:"checkbox",
-                    filterKey:"onlyDefault",
-                    text:"Only Default"
                 }
             ];
         }
@@ -1038,17 +1033,26 @@ export class Globalvar {
             },
             {
                 tag:"input",
-                type:"text",
-                filterKey:"ReferringPhysicianName",
-                description:"Referring physician name",
-                placeholder:"Referring physician name"
-            },
-            {
-                tag:"input",
                 type:"number",
                 filterKey:"limit",
                 description:"Limit",
                 placeholder:"Limit of studies"
+            },{
+                tag:"select",
+                filterKey:"includefield",
+                options:[
+                    new SelectDropdown("", "Default"),
+                    new SelectDropdown("all", "All")
+                ],
+                description:"Include field",
+                placeholder:"Include field",
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"ReferringPhysicianName",
+                description:"Referring physician name",
+                placeholder:"Referring physician name"
             },{
                 tag:"input",
                 type:"text",
@@ -1088,11 +1092,6 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
-            },{
-                tag:"select",
-                options:[
-                    new SelectDropdown("PatientName","Patient Name")
-                ]
             }
         ];
     }

@@ -132,7 +132,8 @@ export class StudyComponent implements OnInit{
         },
         filterModel:{
             limit:20,
-            offset:0
+            offset:0,
+            includefield:"all"
         },
         expand:false,
         quantityText:{
@@ -1082,13 +1083,13 @@ export class StudyComponent implements OnInit{
             offset: offset,
             limit: limit
         };
-        if(!this._filter.filterModel["onlyDefault"]){
+/*        if(this._filter.filterModel["allAttributes"]){
             params["includefield"] = 'all';
         }
-        delete this._filter.filterModel["onlyDefault"];
+        delete this._filter.filterModel["allAttributes"];*/
 
         for (let key in filter){
-            if ((filter[key] || filter[key] === false) && key != "onlyDefault" && key != "webApp"){
+            if ((filter[key] || filter[key] === false) && key != "allAttributes" && key != "webApp"){
                 params[key] = filter[key];
             }
         }
@@ -1096,13 +1097,13 @@ export class StudyComponent implements OnInit{
     }
     createStudyFilterParams(withoutPagination?:boolean) {
         let filter = this.getFilterClone();
-        delete filter["onlyDefault"];
+        // delete filter["allAttributes"];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
-        if(!this._filter.filterModel["onlyDefault"]){
+/*        if(this._filter.filterModel["allAttributes"]){
             filter["includefield"] = 'all';
-        }
-        delete this._filter.filterModel["onlyDefault"];
+        }*/
+        // delete this._filter.filterModel["allAttributes"];
         if(withoutPagination){
             delete filter["size"];
             delete filter["offset"];
@@ -1149,10 +1150,10 @@ export class StudyComponent implements OnInit{
 
     getFilterClone():any{
         let filterModel =  _.clone(this._filter.filterModel);
-        if(!filterModel["onlyDefault"]){
-            filterModel["includefield"] = 'all';
-        }
-        delete filterModel["onlyDefault"];
+        // if(!filterModel["allAttributes"]){
+        //     filterModel["includefield"] = 'all';
+        // }
+        // delete filterModel["allAttributes"];
         delete filterModel.webApp;
         return filterModel;
     }
