@@ -42,6 +42,9 @@ BEGIN { FS = "[ )]" }
             && $6 != "(check_different" \
             && $6 != "(verification_status" \
             && $6 != "(verification_time" \
+            && $6 != "(ups_priority" \
+            && $6 != "(input_readiness_state" \
+            && $6 != "(ups_state" \
         ) {
         print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
     } else {
