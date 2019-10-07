@@ -1041,8 +1041,8 @@ export class Globalvar {
                 tag:"select",
                 filterKey:"includefield",
                 options:[
-                    new SelectDropdown("", "Default"),
-                    new SelectDropdown("all", "All")
+                    new SelectDropdown("", "dicom","Search Response Payload according DICOM PS 3.18"),
+                    new SelectDropdown("all", "all", "all available attributes")
                 ],
                 description:"Include field",
                 placeholder:"Include field",

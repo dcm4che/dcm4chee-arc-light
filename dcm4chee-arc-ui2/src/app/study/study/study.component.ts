@@ -1637,6 +1637,11 @@ export class StudyComponent implements OnInit{
         if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
             this.studyWebService.selectedWebService = _.get(this.filter,"filterModel.webApp");
             this.internal = !(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
+            if(!this.internal){
+                delete this._filter.filterModel.includefield;
+            }else{
+                this._filter.filterModel.includefield = "all";
+            }
 /*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
                 console.log("option",option);
                 if(option.value === "retrieve_multiple"){
