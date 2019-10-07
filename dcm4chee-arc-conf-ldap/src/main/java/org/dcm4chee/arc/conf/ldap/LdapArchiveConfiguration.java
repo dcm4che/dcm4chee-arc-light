@@ -273,6 +273,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSEventSCUKeepAlive", ext.getUPSEventSCUKeepAlive(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
                 ext.getStorePermissionServiceErrorCommentPattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern",
@@ -549,6 +550,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
+        ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
@@ -917,6 +919,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU", aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCUKeepAlive",
+                aa.getUPSEventSCUKeepAlive(), bb.getUPSEventSCUKeepAlive(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
                 aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCodePattern",
@@ -1326,6 +1330,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSEventSCUKeepAlive", ext.getUPSEventSCUKeepAlive(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
                 ext.getStorePermissionServiceErrorCommentPattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern",
@@ -1450,6 +1455,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
+        ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(
                 attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
@@ -1623,6 +1629,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU",
                 aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCUKeepAlive",
+                aa.getUPSEventSCUKeepAlive(), bb.getUPSEventSCUKeepAlive(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
                 aa.getStorePermissionServiceErrorCommentPattern(),
                 bb.getStorePermissionServiceErrorCommentPattern(), null);

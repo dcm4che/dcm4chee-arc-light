@@ -64,6 +64,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String upsWorklistLabel;
     private String[] upsEventSCUs = {};
+    private int upsEventSCUKeepAlive;
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
@@ -193,6 +194,21 @@ public class ArchiveAEExtension extends AEExtension {
     public boolean isUPSEventSCU(String aet) {
         return Stream.of(upsEventSCUs()).anyMatch(aet::equals);
     }
+
+    public int getUPSEventSCUKeepAlive() {
+        return upsEventSCUKeepAlive;
+    }
+
+    public void setUPSEventSCUKeepAlive(int upsEventSCUKeepAlive) {
+        this.upsEventSCUKeepAlive = upsEventSCUKeepAlive;
+    }
+
+    public int upsEventSCUKeepAlive() {
+        return upsEventSCUKeepAlive > 0
+                ? upsEventSCUKeepAlive
+                : getArchiveDeviceExtension().getUPSEventSCUKeepAlive();
+    }
+
 
     public String[] getObjectStorageIDs() {
         return objectStorageIDs;
@@ -1370,6 +1386,7 @@ public class ArchiveAEExtension extends AEExtension {
         defaultCharacterSet = aeExt.defaultCharacterSet;
         upsWorklistLabel = aeExt.upsWorklistLabel;
         upsEventSCUs = aeExt.upsEventSCUs;
+        upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;

@@ -208,6 +208,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet(), null);
         writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcDev.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcDev.getUPSEventSCUs());
+        writer.writeNotDef("dcmUPSEventSCUKeepAlive", arcDev.getUPSEventSCUKeepAlive(), 0);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcDev.getStorePermissionServiceErrorCommentPattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
@@ -877,6 +878,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
         writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcAE.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcAE.getUPSEventSCUs());
+        writer.writeNotDef("dcmUPSEventSCUKeepAlive", arcAE.getUPSEventSCUKeepAlive(), 0);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
                 arcAE.getStorePermissionServiceErrorCommentPattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
@@ -1254,6 +1256,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSEventSCU":
                     arcDev.setUPSEventSCUs(reader.stringArray());
+                    break;
+                case "dcmUPSEventSCUKeepAlive":
+                    arcDev.setUPSEventSCUKeepAlive(reader.intValue());
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcDev.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));
@@ -2801,6 +2806,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSEventSCU":
                     arcAE.setUPSEventSCUs(reader.stringArray());
+                    break;
+                case "dcmUPSEventSCUKeepAlive":
+                    arcAE.setUPSEventSCUKeepAlive(reader.intValue());
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcAE.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));

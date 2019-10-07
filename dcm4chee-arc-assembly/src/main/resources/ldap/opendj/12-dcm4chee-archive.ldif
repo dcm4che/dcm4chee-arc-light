@@ -1487,6 +1487,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.309 NAME 'dcmDeleteUPSCanceledDelay'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.310 NAME 'dcmUPSEventSCUKeepAlive'
+  DESC 'Timeout in ms to keep associations to UPS Event SCUs alive. If absent, associations will not be reused for sending multiple UPS Event Reports to one UPS Event SCU.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1500,6 +1505,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDefaultCharacterSet $
     dcmUPSWorklistLabel $
     dcmUPSEventSCU $
+    dcmUPSEventSCUKeepAlive $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
@@ -1700,6 +1706,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmDefaultCharacterSet $
     dcmUPSWorklistLabel $
     dcmUPSEventSCU $
+    dcmUPSEventSCUKeepAlive $
     dcmStorageID $
     dcmObjectStorageID $
     dcmObjectStorageCount $

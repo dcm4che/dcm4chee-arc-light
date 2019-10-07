@@ -57,7 +57,10 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -67,29 +70,54 @@ import java.util.Optional;
 public class UPSEventSCP {
     private static final Logger LOG = LoggerFactory.getLogger(UPSEventSCP.class);
 
+    private final ConcurrentHashMap<FromTo, Association> reuseAssociations = new ConcurrentHashMap<>();
+
     @Inject
     private IApplicationEntityCache aeCache;
 
     public void onUPSEvent(@Observes UPSEvent event) {
         Optional<Attributes> inprocessStateReport = event.inprocessStateReport();
+        int keepAliveTimeout = event.arcAE.upsEventSCUKeepAlive();
+        boolean keepAlive = keepAliveTimeout > 0;
         for (String subscriberAET : event.subscriberAETs) {
             if (event.arcAE.isUPSEventSCU(subscriberAET)) {
                 try {
                     ApplicationEntity localAE = event.arcAE.getApplicationEntity();
-                    Association as = localAE.connect(aeCache.get(subscriberAET), mkAAssociateRQ(localAE));
+                    Association as = keepAlive
+                            ? getAssociation(localAE, subscriberAET, keepAliveTimeout)
+                            : localAE.connect(
+                                    aeCache.findApplicationEntity(subscriberAET),
+                                    mkAAssociateRQ(localAE, subscriberAET));
                     try {
                         if (inprocessStateReport.isPresent()) {
                             sendNEventReport(as, event, inprocessStateReport.get());
                         }
                         sendNEventReport(as, event, event.attrs);
                     } finally {
-                        as.release();
+                        if (!keepAlive) {
+                            as.release();
+                        }
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
                 }
             }
         }
+    }
+
+    private Association getAssociation(ApplicationEntity localAE, String subscriberAET, int keepAlive)
+            throws Exception {
+        FromTo fromTo = new FromTo(localAE.getAETitle(), subscriberAET);
+        Association as = reuseAssociations.get(fromTo);
+        if (!as.isReadyForDataTransfer()) {
+            ApplicationEntity remote = aeCache.get(subscriberAET);
+            CompatibleConnection cc = localAE.findCompatibleConnection(remote);
+            Connection localConnection = new Connection(cc.getLocalConnection());
+            localConnection.setIdleTimeout(keepAlive);
+            as = localAE.connect(localConnection, cc.getRemoteConnection(), mkAAssociateRQ(localAE, subscriberAET));
+            reuseAssociations.put(fromTo, as);
+        }
+        return as;
     }
 
     private void sendNEventReport(Association as, UPSEvent event, Attributes attrs) throws Exception {
@@ -107,13 +135,38 @@ public class UPSEventSCP {
         }
     }
 
-    private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
+    private static AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String subscriberAET) {
         AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCalledAET(subscriberAET);
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.UnifiedProcedureStepEventSOPClass,
                 TransferCapability.Role.SCP);
         aarq.addPresentationContext(new PresentationContext(1, UID.UnifiedProcedureStepEventSOPClass,
                 tc != null ? tc.getTransferSyntaxes() : new String[] { UID.ImplicitVRLittleEndian }));
         aarq.addRoleSelection(new RoleSelection(UID.UnifiedProcedureStepEventSOPClass, false, true));
         return aarq;
+    }
+
+    private static class FromTo {
+        final String callingAET;
+        final String calledAET;
+
+        FromTo(String callingAET, String calledAET) {
+            this.callingAET = callingAET;
+            this.calledAET = calledAET;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FromTo fromTo = (FromTo) o;
+            return callingAET.equals(fromTo.callingAET) &&
+                    calledAET.equals(fromTo.calledAET);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(callingAET, calledAET);
+        }
     }
 }

@@ -359,13 +359,19 @@
       "type": "string"
     },
     "dcmUPSEventSCU": {
-      "title": "UPS Event SOP Class SCU",
+      "title": "UPS Event SCU",
       "description": "AE Title of UPS Event SOP Class SCU, to which UPS Event Reports are sent for subscriptions created on this Network AE  - independently if the subscription was created by the N-ACTION DIMSE service, or by a corresponding UPS RESTful service. Overwrites value specified on Device level.",
       "type": "array",
       "items": {
         "type": "string"
       },
       "format": "dcmAETitle"
+    },
+    "dcmUPSEventSCUKeepAlive": {
+      "title": "UPS Event SCU Keep Alive",
+      "description": "Timeout in ms to keep associations to UPS Event SCUs alive. If absent, associations will not be reused for sending multiple UPS Event Reports to one UPS Event SCU. Overwrites value specified on Device level.",
+      "type": "integer",
+      "minimum": 100
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
