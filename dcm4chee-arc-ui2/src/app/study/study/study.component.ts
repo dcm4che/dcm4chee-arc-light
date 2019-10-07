@@ -1,36 +1,28 @@
 import {
-    AfterViewChecked,
-    AfterViewInit,
     Component,
     ElementRef,
     HostListener,
     OnInit,
     ViewChild,
-    ViewContainerRef
+    ViewContainerRef,
+    AfterContentChecked,
 } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
-    AccessLocation,
-    FilterSchema,
     StudyFilterConfig,
     StudyPageConfig,
     DicomMode,
     SelectDropdown,
     DicomLevel,
-    UniqueSelectIdObject,
-    DicomSelectObject,
     Quantity,
-    DicomResponseType, SelectedDetailObject
+    DicomResponseType,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
-import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 import {Aet} from "../../models/aet";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {AppService} from "../../app.service";
-import { retry } from 'rxjs/operators';
 import {Globalvar} from "../../constants/globalvar";
-import {unescape} from "querystring";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {PatientDicom} from "../../models/patient-dicom";
@@ -38,16 +30,12 @@ import {StudyDicom} from "../../models/study-dicom";
 import * as _  from "lodash";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {
-    DicomTableSchema,
     StudyTrash, TableParam,
-    TableSchemaConfig
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {SeriesDicom} from "../../models/series-dicom";
 import {InstanceDicom} from "../../models/instance-dicom";
 import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
-import {DropdownList} from "../../helpers/form/dropdown-list";
-import {DropdownComponent} from "../../widgets/dropdown/dropdown.component";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
@@ -61,17 +49,15 @@ import {ExportDialogComponent} from "../../widgets/dialogs/export/export.compone
 import {UploadFilesComponent} from "../../widgets/dialogs/upload-files/upload-files.component";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyWebService} from "./study-web-service.model";
-import {RequestOptionsArgs} from "@angular/http";
 import {DeleteRejectedInstancesComponent} from "../../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {ViewerComponent} from "../../widgets/dialogs/viewer/viewer.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
-import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-dicom.component";
 import {SelectionActionElement} from "./selection-action-element.models";
-import {CopyMoveObjectsComponent} from "../../widgets/dialogs/copy-move-objects/copy-move-objects.component";
 import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 import {MwlDicom} from "../../models/mwl-dicom";
+import {ChangeDetectorRef} from "@angular/core";
 
 
 @Component({
@@ -100,7 +86,7 @@ import {MwlDicom} from "../../models/mwl-dicom";
         ])
     ]
 })
-export class StudyComponent implements OnInit{
+export class StudyComponent implements OnInit, AfterContentChecked{
 
     test = Globalvar.ORDERBY;
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
@@ -110,7 +96,8 @@ export class StudyComponent implements OnInit{
     }
     Object = Object;
     studyConfig:StudyPageConfig = {
-        tab:"study"
+        tab:"study",
+        title:"Study"
     };
 
     patientAttributes;
@@ -227,6 +214,7 @@ export class StudyComponent implements OnInit{
     internal = true;
     checkboxFunctions = false;
 
+
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -238,24 +226,26 @@ export class StudyComponent implements OnInit{
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog,
         private config: MatDialogConfig,
-        private _keycloakService:KeycloakService
+        private _keycloakService:KeycloakService,
+        private changeDetector: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        console.log("this.service",this.appService);
         this.largeIntFormat = new LargeIntFormatPipe();
-        // this.resetSetSelectionObject();
         this.selectedElements = new SelectionActionElement({});
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
             this.studyConfig.tab = params.tab;
+            this.studyConfig.title = this.tabToTitleMap(params.tab);
+            if(this.studyConfig.tab === "diff"){
+                this.getApplicationEntities();
+            }
             this.more = false;
             this._filter.filterModel.offset = 0;
             this.initWebApps();
         });
         this.moreFunctionConfig.options.filter(option=>{
-            console.log("option",option);
             if(option.value === "retrieve_multiple"){
                 return !this.internal;
             }else{
@@ -264,6 +254,15 @@ export class StudyComponent implements OnInit{
         });
 
     }
+
+    tabToTitleMap(tab:DicomMode){
+        return {
+            "study":"Studies",
+            "patient":"Patients",
+            "mwl":"MWLs",
+            "diff":"Differences"
+        }[tab] || "Studies";
+    };
 
     get more(): boolean {
         return this.moreState[this.studyConfig.tab];
@@ -1723,33 +1722,40 @@ export class StudyComponent implements OnInit{
             this.httpErrorHandler.handleError(err);
         });
     }
-/*
+    diffOptions:{
+        aes:SelectDropdown<Aet>[]
+    } = {
+        aes:[]
+    }
     getApplicationEntities(){
-        if(!this.applicationEntities.aetsAreSet){
-            Observable.forkJoin(
+        // if(!this.applicationEntities.aetsAreSet){
+/*            Observable.forkJoin(
                 this.service.getAes().map(aes=> aes.map(aet=> new Aet(aet))),
                 this.service.getAets().map(aets=> aets.map(aet => new Aet(aet))),
-            )
-            .subscribe((res)=>{
-/!*                [0,1].forEach(i=>{
+            )*/
+            this.service.getAes()
+            .subscribe((aes:Aet[])=>{
+/*                [0,1].forEach(i=>{
                     res[i] = j4care.extendAetObjectWithAlias(res[i]);
                     ["external","internal"].forEach(location=>{
                       this.applicationEntities.aes[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aets[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
                       this.applicationEntities.aetsAreSet = true;
                     })
-                });*!/
+                });*/
+                this.diffOptions.aes = aes.map((ae:Aet)=>{
+                    return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
+                });
                 console.log("filter",this.filter);
                 this.setSchema();
             },(err)=>{
                 this.appService.showError("Error getting AETs!");
                 j4care.log("error getting aets in Study page",err);
             });
-        }else{
+/*        }else{
             this.setSchema();
-        }
+        }*/
     }
-*/
 
 /*    getDevices(){
         this.service.getDevices()
@@ -2716,6 +2722,7 @@ export class StudyComponent implements OnInit{
                         this.initRjNotes(retries - 1);
                 });
     }
+    aets;
     initWebApps(){
         let aetsTemp;
         this.service.getAets()
@@ -2737,6 +2744,8 @@ export class StudyComponent implements OnInit{
                             return webApp;
                         })
                     });
+                    this.aets = aetsTemp;
+                    console.log("ates",this.aets);
                     // this.getDevices();
                     this.setSchema();
                     this.initExporters(2);
@@ -2790,6 +2799,10 @@ export class StudyComponent implements OnInit{
             console.log("err",err);
         });
         // this.service.test(this.selectedWebAppService);
+    }
+
+    ngAfterContentChecked(): void {
+        this.changeDetector.detectChanges();
     }
 
 /*    get selectedWebAppService(): DcmWebApp {

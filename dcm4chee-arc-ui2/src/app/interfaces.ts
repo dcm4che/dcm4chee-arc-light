@@ -167,6 +167,7 @@ export interface DicomSelectObject {
 }
 export interface StudyPageConfig {
     tab:DicomMode;
+    title:string;
 }
 
 export type DicomResponseType = 'object'|'count'|'size';

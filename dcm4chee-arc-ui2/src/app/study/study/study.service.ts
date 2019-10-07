@@ -231,7 +231,9 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "diff":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand");
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
+                    return filter.filterKey != "aet";
+                });
                 lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
@@ -256,21 +258,21 @@ export class StudyService {
                     cssClass: 'study_order'
 
                 });
-                schema.push({
-                    tag: "html-select",
-                    options: webApps
-                        .map((webApps: DcmWebApp) => {
-                            return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
-                        }),
-                    filterKey: 'webApp',
-                    text: "Web App Service",
-                    title: "Web App Service",
-                    placeholder: "Web App Service",
-                    cssClass: 'study_order',
-                    showSearchField: true
-
-                });
             }
+            schema.push({
+                tag: "html-select",
+                options: webApps
+                    .map((webApps: DcmWebApp) => {
+                        return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
+                    }),
+                filterKey: 'webApp',
+                text: "Web App Service",
+                title: "Web App Service",
+                placeholder: "Web App Service",
+                cssClass: 'study_order',
+                showSearchField: true
+
+            });
             schema.push(
                 {
                     tag: "button",
