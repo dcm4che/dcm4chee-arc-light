@@ -1211,8 +1211,6 @@ export class j4care {
         if(splited){
             const first = j4care.changed(object,base,ignoreEmpty);
             const second = j4care.changed(base, object, ignoreEmpty);
-            console.log("first",first);
-            console.log("second",second);
             return {
                 first: first,
                 second: second,
