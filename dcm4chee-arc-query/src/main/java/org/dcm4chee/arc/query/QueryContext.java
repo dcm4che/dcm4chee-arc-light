@@ -86,6 +86,8 @@ public interface QueryContext {
 
     void setQueryKeys(Attributes keys);
 
+    Attributes getCoercedQueryKeys();
+
     boolean isReturnPrivate();
 
     void setReturnPrivate(boolean returnPrivate);

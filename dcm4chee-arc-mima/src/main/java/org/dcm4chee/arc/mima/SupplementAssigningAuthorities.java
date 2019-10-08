@@ -70,6 +70,10 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         return device != null ? new SupplementAssigningAuthorities(Entity.MPPS, device, next) : next;
     }
 
+    public static AttributesCoercion forMWL(Device device, AttributesCoercion next) {
+        return device != null ? new SupplementAssigningAuthorities(Entity.MWL, device, next) : next;
+    }
+
     @Override
     public String remapUID(String uid) {
         return next != null ? next.remapUID(uid) : uid;
@@ -95,6 +99,11 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
             void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
                 coercion.supplementMPPS(attrs);
             }
+        }, MWL {
+            @Override
+            void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
+                coercion.supplementMWL(attrs);
+            }
         };
 
         abstract void supplement(SupplementAssigningAuthorities coercion, Attributes attrs);
@@ -119,6 +128,12 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         supplementIssuers(attrs);
         supplementRequestIssuers(attrs.getSequence(Tag.ScheduledStepAttributesSequence));
         LOG.info("Supplement MPPS from device: {}", device.getDeviceName());
+    }
+
+    private void supplementMWL(Attributes attrs) {
+        supplementIssuers(attrs);
+        supplementRequestIssuers(attrs);
+        LOG.info("Supplement MWL from device: {}", device.getDeviceName());
     }
 
     private void supplementValue(Attributes attrs, int tag, VR vr, String... values) {

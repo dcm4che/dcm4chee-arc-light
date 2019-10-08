@@ -657,6 +657,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
             writer.writeNotNullOrDef("dcmIssuerOfPatientIDFormat", aac.getIssuerOfPatientIDFormat(), null);
             writer.writeNotDef("dcmTrimISO2022CharacterSet", aac.isTrimISO2022CharacterSet(), false);
+            writer.writeNotDef("dcmUseCallingAETAsScheduledStationAET",
+                    aac.isUseCallingAETAsScheduledStationAET(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2237,6 +2239,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmTrimISO2022CharacterSet":
                         aac.setTrimISO2022CharacterSet(reader.booleanValue());
+                        break;
+                    case "dcmUseCallingAETAsScheduledStationAET":
+                        aac.setUseCallingAETAsScheduledStationAET(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

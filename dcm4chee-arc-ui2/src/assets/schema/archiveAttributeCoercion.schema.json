@@ -10,7 +10,8 @@
     "dcmRetrieveAsReceived",
     "dcmNoKeywords",
     "dcmAttributeUpdatePolicy",
-    "dcmTrimISO2022CharacterSet"
+    "dcmTrimISO2022CharacterSet",
+    "dcmCallingAETAsScheduledStationAET"
   ],
   "properties": {
     "cn": {
@@ -139,6 +140,12 @@
     "dcmTrimISO2022CharacterSet": {
       "title": "Trim ISO 2022 Character Set",
       "description": "Replace single code for Single-Byte Character Sets with Code Extensions by code for Single-Byte Character Sets without Code Extensions. Only effective with DIMSE = C_STORE_RQ and DICOM Transfer Role = SCU.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCallingAETAsScheduledStationAET": {
+      "title": "Calling AET as Scheduled Station AET",
+      "description": "Use Calling AET as matching Key of Scheduled Station AE Title (0040,0001) in item of Scheduled Procedure Step Sequence (0040,0100). Only effective with DIMSE = C_FIND_RQ, DICOM Transfer Role = SCU and SOP Class UID = 1.2.840.10008.5.1.4.31 (= Modality Worklist Information Model - FIND).",
       "type": "boolean",
       "default": false
     },

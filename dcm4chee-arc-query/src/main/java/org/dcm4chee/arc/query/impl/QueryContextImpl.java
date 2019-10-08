@@ -73,6 +73,7 @@ class QueryContextImpl implements QueryContext {
     private QueryRetrieveLevel2 qrLevel;
     private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
+    private Attributes coercedQueryKeys = new Attributes();
     private Attributes returnKeys;
     private boolean returnPrivate;
     private String sopClassUID;
@@ -191,6 +192,11 @@ class QueryContextImpl implements QueryContext {
     @Override
     public void setQueryKeys(Attributes keys) {
         this.queryKeys = keys;
+    }
+
+    @Override
+    public Attributes getCoercedQueryKeys() {
+        return coercedQueryKeys;
     }
 
     @Override
