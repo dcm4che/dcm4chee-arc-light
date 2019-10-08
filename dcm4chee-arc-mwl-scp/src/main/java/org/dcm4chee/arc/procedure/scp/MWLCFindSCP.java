@@ -127,7 +127,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
-        if (rule.isUseCallingAETAsScheduledStationAET())
+        if (rule.isCallingAETAsScheduledStationAET())
             coercion = new CallingAETAsScheduledStationAETCoercion(ctx.getCallingAET(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getQueryKeys(), ctx.getCoercedQueryKeys());
