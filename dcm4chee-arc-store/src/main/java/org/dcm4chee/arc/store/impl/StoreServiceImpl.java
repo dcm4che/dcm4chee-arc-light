@@ -407,7 +407,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
+    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances,
+                                    Attributes coerceAttrs, Attributes.UpdatePolicy updatePolicy)
             throws Exception {
         Attributes result = new Attributes();
         if (instances != null) {
@@ -417,7 +418,7 @@ class StoreServiceImpl implements StoreService {
                 Attributes attr = il.getAttributes();
                 StoreContext ctx = newStoreContext(session);
                 UIDUtils.remapUIDs(attr, session.getUIDMap(), ctx.getCoercedAttributes());
-                mergeMWLAttrs(ctx, attr, mwlAttrs);
+                coerceAttrs(ctx, attr, coerceAttrs, updatePolicy);
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
                     if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
@@ -438,17 +439,18 @@ class StoreServiceImpl implements StoreService {
         return result;
     }
 
-    private void mergeMWLAttrs(StoreContext ctx, Attributes attrs, Attributes mwlAttrs) {
-        if (mwlAttrs == null)
+    private void coerceAttrs(StoreContext ctx, Attributes attrs, Attributes coerceAttrs,
+                             Attributes.UpdatePolicy updatePolicy) {
+        if (coerceAttrs == null)
             return;
 
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        mwlAttrs = new Attributes(mwlAttrs);
-        mwlAttrs.updateSelected(session.getStudyUpdatePolicy(), attrs, null,
+        coerceAttrs = new Attributes(coerceAttrs);
+        coerceAttrs.updateSelected(session.getStudyUpdatePolicy(), attrs, null,
                 arcDev.getAttributeFilter(Entity.Study).getSelection(false));
-        attrs.update(Attributes.UpdatePolicy.OVERWRITE, mwlAttrs, ctx.getCoercedAttributes());
+        attrs.update(updatePolicy, coerceAttrs, ctx.getCoercedAttributes());
     }
 
     private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {

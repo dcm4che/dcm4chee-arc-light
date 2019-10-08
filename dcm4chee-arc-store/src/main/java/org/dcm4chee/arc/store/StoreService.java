@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 
+import javax.management.Attribute;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -111,7 +112,8 @@ public interface StoreService {
 
     void importInstanceOnStorage(StoreContext ctx, Attributes attrs, ReadContext readCtx) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
+    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes coerceAttrs,
+                             Attributes.UpdatePolicy updatePolicy)
             throws Exception;
 
     ZipInputStream openZipInputStream(
