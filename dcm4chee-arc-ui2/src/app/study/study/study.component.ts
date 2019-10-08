@@ -1723,10 +1723,12 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         });
     }
     diffOptions:{
-        aes:SelectDropdown<Aet>[]
+        aes:SelectDropdown<Aet>[],
+        primaryAET?:any,
+        secondaryAET?:any
     } = {
-        aes:[]
-    }
+        aes:[],
+    };
     getApplicationEntities(){
         // if(!this.applicationEntities.aetsAreSet){
 /*            Observable.forkJoin(

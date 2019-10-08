@@ -2394,12 +2394,25 @@ export class StudyService {
 
     copyMove(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode?):Observable<any>{
         try{
-            const target = selectedElements.postActionElements.getAllAsArray()[0];
-            let url = `${this.getDicomURL("study", dcmWebApp)}/${_.get(target,"requestReady.StudyInstanceUID")}/${selectedElements.action}`;
+            const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
+            let studyInstanceUID;
+            let patientParams = {};
+            let observables = [];
+
+            if(!_.hasIn(target,"requestReady.StudyInstanceUID")){
+                studyInstanceUID = j4care.generateOIDFromUUID();
+                if(target.dicomLevel === "patient"){
+                    patientParams["PatientID"] = _.get(target.object, "attrs.00100020.Value[0]");
+                    patientParams["IssuerOfPatientID"] = _.get(target.object, "attrs.00100021.Value[0]");
+                }
+            }else{
+                studyInstanceUID = _.get(target,"requestReady.StudyInstanceUID");
+            }
+            let url = `${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}/${selectedElements.action}`;
             if(selectedElements.action === "move"){
                 url += `/` + rejectionCode;
             }
-            let observables = [];
+            url += j4care.param(patientParams);
             selectedElements.preActionElements.getAllAsArray().forEach(object=>{
                 observables.push(this.$http.post(url,object.requestReady).pipe(
                     catchError(err => of({isError: true, error: err})),
