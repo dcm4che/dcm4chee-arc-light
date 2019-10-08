@@ -959,10 +959,10 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
                 if(!this.appService.global.notSecure){
-                    console.log("te",this.service.renderURL(inst));
-                    WindowRefService.nativeWindow.open(this.service.renderURL(inst) + `&access_token=${token}`);
+                    console.log("te",this.service.renderURL(this.studyWebService, inst));
+                    WindowRefService.nativeWindow.open(this.service.renderURL(this.studyWebService, inst) + `&access_token=${token}`);
                 }else{
-                    WindowRefService.nativeWindow.open(this.service.renderURL(inst));
+                    WindowRefService.nativeWindow.open(this.service.renderURL(this.studyWebService, inst));
                 }
             }else{
                 this.config.viewContainerRef = this.viewContainerRef;

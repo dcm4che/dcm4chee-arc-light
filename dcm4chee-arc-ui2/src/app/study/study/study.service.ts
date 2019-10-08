@@ -449,14 +449,14 @@ export class StudyService {
         return url;
     }
 
-    renderURL(inst) {
+    renderURL(webService: StudyWebService,inst) {
         if (inst.video)
-            return this.wadoURL(inst.wadoQueryParams, {contentType: 'video/*'});
+            return this.wadoURL(webService, inst.wadoQueryParams, {contentType: 'video/*'});
         if (inst.numberOfFrames)
-            return this.wadoURL(inst.wadoQueryParams, {contentType: 'image/jpeg', frameNumber: inst.view});
+            return this.wadoURL(webService, inst.wadoQueryParams, {contentType: 'image/jpeg', frameNumber: inst.view});
         if (inst.gspsQueryParams.length)
-            return this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
-        return this.wadoURL(inst.wadoQueryParams);
+            return this.wadoURL(webService, inst.gspsQueryParams[inst.view - 1]);
+        return this.wadoURL(webService, inst.wadoQueryParams);
     }
 
     private diffUrl(callingAet: Aet, firstExternalAet?: Aet, secondExternalAet?: Aet, baseUrl?: string) {
