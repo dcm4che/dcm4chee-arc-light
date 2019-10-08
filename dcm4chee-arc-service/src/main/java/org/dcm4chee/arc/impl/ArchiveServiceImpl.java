@@ -149,7 +149,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Inject
     private Event<SoftwareConfiguration> softwareConfigurationEvent;
 
-    private Status status = Status.STOPPED;
+    private volatile Status status = Status.STOPPED;
 
     private final DicomService echoscp = new BasicCEchoSCP();
 
@@ -192,7 +192,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @PreDestroy
     public void destroy() {
-        stop(null);
+        if (status != Status.STOPPED) {
+            stop(null);
+        }
 
         serviceRegistry.removeDicomService(echoscp);
         for (DicomService service : dicomServices) {
