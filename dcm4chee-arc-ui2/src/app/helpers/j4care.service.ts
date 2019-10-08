@@ -1191,7 +1191,7 @@ export class j4care {
             return _.transform(object, function(result, value, key) {
                 if (!base || !_.isEqual(value, base[key])) {
                     if(ignoreEmpty){
-                        if(_.isObject(value) && _.isObject(base[key])){
+                        if(_.isObject(value) && base && key && _.isObject(base[key])){
                             result[key] = changes(value, base[key])
                         }else{
                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value != [""]){

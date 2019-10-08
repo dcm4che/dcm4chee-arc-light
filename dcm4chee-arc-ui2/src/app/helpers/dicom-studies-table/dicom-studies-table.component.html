@@ -279,6 +279,130 @@
             </div>
         </div>
         <!--2:END;-->
+        <!--mwl 2:-->
+        <div *ngIf="patient.showMwls" class="study_main_block">
+            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let mwl of patient.mwls;let i = index">
+                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mwl'" [ngClass]="{'selected':mwl.selected}">
+                    <div class="td"
+                         *ngFor="let mwl_table of tableSchema.mwl"
+                         [ngClass]="[config?.cssTdClass || '', mwl_table.type || '']"
+                         [ngStyle]="{width: mwl_table.calculatedWidth}"
+                         [ngSwitch]="mwl_table.type"
+                         (mouseenter)="active_td = mwl_table.elementId"
+                         tooltip="{{ mwl_table.type === 'value' ? _.get(mwl.attrs, mwl_table.pathToValue) : (mwl_table.type === 'pipe' ? (mwl.attrs | dynamicPipe:mwl_table.pipe):'')}}"
+                    >
+                        <ng-container *ngSwitchCase="'index'">{{mwl.offset + 1}}</ng-container>
+                        <ng-container *ngSwitchCase="'actions'">
+<!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="mwl.selected = !mwl.selected">
+                                <span *ngIf="!mwl.selected" class="glyphicon glyphicon-unchecked"></span>
+                                <span *ngIf="mwl.selected" class="glyphicon glyphicon-check"></span>
+                            </button>-->
+                            <ng-container *ngFor="let action of mwl_table.actions">
+                                <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
+                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'actions-menu'">
+                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                            <mat-menu #menu="matMenu" [classList]="'mwl_action_buttons'" (click)="$event.stopPropagation()">
+                                <ng-container *ngFor="let action of mwl_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                            </mat-menu>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{mwl.attrs | dynamicPipe:mwl_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}</ng-container>
+                    </div>
+                    <attribute-list *ngIf="mwl.showAttributes" [attrs]="mwl.attrs"></attribute-list>
+                </div>
+            </div>
+            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
+                <div class="instance_block table_item">
+                    <div class="td td_with_centered_child">
+                        <div class="centered_child">
+                            <button
+                                    title="Preview page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'prev')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                            <button
+                                    title="Next page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'next')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--mwl 2:END;-->
+        <!--diff 2:-->
+        <div *ngIf="patient.showDiffs" class="study_main_block">
+            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let diff of patient.diffs;let i = index">
+                <div class="diff_block table_item" (mouseenter)="hover_mode = 'diff'" [ngClass]="{'selected':diff.selected}">
+                    <div class="td"
+                         *ngFor="let diff_table of tableSchema.diff"
+                         [ngClass]="[config?.cssTdClass || '', diff_table.type || '']"
+                         [ngStyle]="{width: diff_table.calculatedWidth}"
+                         [ngSwitch]="diff_table.type"
+                         (mouseenter)="active_td = diff_table.elementId"
+                         tooltip="{{ diff_table.type === 'value' ? _.get(diff.attrs, diff_table.pathToValue) : (diff_table.type === 'pipe' ? (diff.attrs | dynamicPipe:diff_table.pipe):'')}}"
+                    >
+                        <ng-container *ngSwitchCase="'index'">{{diff.offset + 1}}</ng-container>
+                        <ng-container *ngSwitchCase="'actions'">
+                            <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="diff.selected = !diff.selected">
+                                                            <span *ngIf="!diff.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                            <span *ngIf="diff.selected" class="glyphicon glyphicon-check"></span>
+                                                        </button>-->
+                            <ng-container *ngFor="let action of diff_table.actions">
+                                <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
+                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'actions-menu'">
+                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                            <mat-menu #menu="matMenu" [classList]="'diff_action_buttons'" (click)="$event.stopPropagation()">
+                                <ng-container *ngFor="let action of diff_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                            </mat-menu>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{diff.attrs | dynamicPipe:diff_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(diff.attrs, diff_table.pathToValue) || '&nbsp;'}}</ng-container>
+                    </div>
+                    <attribute-list *ngIf="diff.showAttributes" [attrs]="diff.attrs"></attribute-list>
+                </div>
+            </div>
+            <div class="tr" *ngIf="patient.diffs && patient.diffs.length > 0 && patient.diffs[0].showPaginations">
+                <div class="instance_block table_item">
+                    <div class="td td_with_centered_child">
+                        <div class="centered_child">
+                            <button
+                                    title="Preview page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'diff', 'prev')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                            <button
+                                    title="Next page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'diff', 'next')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--diff 2:END;-->
 
     </div>
     <!--1:END;-->

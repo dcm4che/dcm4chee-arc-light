@@ -1,5 +1,6 @@
 import {DicomLevel, UniqueSelectIdObject} from "../../interfaces";
 import * as _ from "lodash";
+import {j4care} from "../../helpers/j4care.service";
 
 export class SelectionsDicomObjects {
     private _patient:any;
@@ -50,10 +51,27 @@ export class SelectionsDicomObjects {
             this.size--;
             this.currentIndexes.splice(this.currentIndexes.indexOf(uniqueSelectIdObject.id), 1);
         }else{
+            let requestReady;
+            if(dicomLevel != "patient"){
+                requestReady = {};
+                if(_.hasIn(object, "attrs.0020000D.Value[0]")){
+                    requestReady["StudyInstanceUID"] = j4care.valueOf(object.attrs['0020000D']);
+                }
+                if(_.hasIn(object, "attrs.0020000E.Value[0]")){
+                    _.set(requestReady,"ReferencedSeriesSequence[0]SeriesInstanceUID",j4care.valueOf(object.attrs['0020000E']));
+                }
+                if(_.hasIn(object, "attrs.00080016.Value[0]")){
+                    _.set(requestReady,"ReferencedSeriesSequence[0]ReferencedSOPSequence[0]ReferencedSOPClassUID",j4care.valueOf(object.attrs['00080016']));
+                }
+                if(_.hasIn(object, "attrs.00080018.Value[0]")){
+                    _.set(requestReady,"ReferencedSeriesSequence[0]ReferencedSOPSequence[0]ReferencedSOPInstanceUID",j4care.valueOf(object.attrs['00080018']));
+                }
+            }
             this[dicomLevel][uniqueSelectIdObject.id] = {
                 uniqueSelectIdObject:uniqueSelectIdObject,
                 object:object,
-                dicomLevel:dicomLevel
+                dicomLevel:dicomLevel,
+                requestReady:requestReady
             };
             this.currentIndexes = this.currentIndexes || [];
             this.currentIndexes.push(uniqueSelectIdObject.id);

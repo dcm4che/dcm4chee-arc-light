@@ -3581,7 +3581,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   }
 }
 
-.study_action_buttons.mat-menu-panel{
+.study_action_buttons.mat-menu-panel, .mwl_action_buttons.mat-menu-panel{
   min-width: 30px !important;
   max-width: 96px !important;
   overflow: visible;

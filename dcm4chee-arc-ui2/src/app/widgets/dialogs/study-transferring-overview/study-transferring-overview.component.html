@@ -1,5 +1,5 @@
 <h3>{{title}}</h3>
-<div *ngIf="selectedElements.action === 'cut'">
+<div *ngIf="selectedElements.action === 'move'">
     <div class="line_block">
         <span class="line_element">Select rejected type:</span>
         <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
@@ -33,6 +33,6 @@
   <selections-dicom-view *ngIf="selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0" [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
 </ng-container>
 <div class="dialogbuttons">
-  <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})">{{selectedElements.action|uppercase}}</button>
+  <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})" [disabled]="selectedElements.action === 'move' && !reject">{{selectedElements.action|uppercase}}</button>
   <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
 </div>

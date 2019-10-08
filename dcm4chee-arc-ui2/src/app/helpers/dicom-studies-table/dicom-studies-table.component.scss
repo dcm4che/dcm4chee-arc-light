@@ -125,7 +125,7 @@ $pink:rgba(82, 36, 88, 0.85);
         background:rgba(67, 139, 173, 0.88);
       }
     }
-    &.study_block{
+    &.study_block, &.mwl_block{
       -webkit-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
       -moz-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
       box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);

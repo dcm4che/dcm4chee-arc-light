@@ -680,8 +680,20 @@ export class Globalvar {
             "/audit-record-repository/*":{
                 permissionsAction:"menu-audit_record_repository"
             },
+            "/study/*":{
+                permissionsAction:"menu-study"
+            },
             "/study/study":{
                 permissionsAction:"tab-study-study"
+            },
+            "/study/patient":{
+                permissionsAction:"tab-study-patient"
+            },
+            "/study/mwl":{
+                permissionsAction:"tab-study-mwl"
+            },
+            "/study/diff":{
+                permissionsAction:"tab-study-diff"
             },
             "/device/devicelist":{
                 permissionsAction:"tab-configuration->devices",
@@ -753,6 +765,106 @@ export class Globalvar {
             return actionObject;
         }
     }
+
+    static MWL_FILTER_SCHEMA(hidden?):FilterSchema{
+        if(hidden){
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    description:"SPS Status",
+                    placeholder:"SPS Status"
+                },{
+                    tag:"checkbox",
+                    filterKey:"onlyDefault",
+                    text:"Only Default"
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
+                    description:"Scheduled Performing Physician's Name",
+                    placeholder:"SP Physician's Name"
+                }
+            ]
+        }else{
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientName",
+                    description:"Patient name",
+                    placeholder:"Patient name"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"fuzzymatching",
+                    text:"Fuzzy Matching"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientID",
+                    description:"Patient ID",
+                    placeholder:"Patient ID"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfPatientID",
+                    description:"Issuer of patient",
+                    placeholder:"Issuer of patient"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"AccessionNumber",
+                    description:"Accession number",
+                    placeholder:"Accession number"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                    description:"Issuer of accession number",
+                    placeholder:"Issuer of accession number"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledStationAETitle",
+                    description:"Scheduled Station AE Title",
+                    placeholder:"Scheduled Station AE Title"
+                },{
+                    tag:"modality",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.Modality",
+                    placeholder:"Modality",
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyInstanceUID",
+                    description:"Study Instance UID",
+                    placeholder:"Study Instance UID"
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"limit",
+                    description:"Limit",
+                    placeholder:"Limit of MWL"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate",
+                    description:"SPS Start Date",
+                    placeholder:"Scheduled Procedure Step Start Date"
+                },{
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                    description:"SPS Start Time",
+                    placeholder:"Scheduled Procedure Step Start Time"
+                }
+            ]
+        }
+    }
+
     static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
         if(hidden){
             return [
@@ -819,18 +931,6 @@ export class Globalvar {
                     text:"Compression Failed"
                 },
                 {
-                    tag:"checkbox",
-                    filterKey:"retrievefailed",
-                    text:"Only failed retrieving",
-                    description:"Only failed to be retrieved"
-                },
-                {
-                    tag:"checkbox",
-                    filterKey:"storageVerificationFailed",
-                    text:"Verification Failed",
-                    description:"Storage Verification Failed"
-                },
-                {
                     tag:"size_range_picker",
                     filterKey:"StudySizeInKB"
                 },
@@ -854,6 +954,18 @@ export class Globalvar {
                     type:"text",
                     filterKey:"ExpirationDate",
                     description:"Expiration Date"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"retrievefailed",
+                    text:"Only failed retrieving",
+                    description:"Only failed to be retrieved"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:"Verification Failed",
+                    description:"Storage Verification Failed"
                 }
             ];
         }
@@ -921,17 +1033,26 @@ export class Globalvar {
             },
             {
                 tag:"input",
-                type:"text",
-                filterKey:"ReferringPhysicianName",
-                description:"Referring physician name",
-                placeholder:"Referring physician name"
-            },
-            {
-                tag:"input",
                 type:"number",
                 filterKey:"limit",
                 description:"Limit",
                 placeholder:"Limit of studies"
+            },{
+                tag:"select",
+                filterKey:"includefield",
+                options:[
+                    new SelectDropdown("", "dicom","Search Response Payload according DICOM PS 3.18"),
+                    new SelectDropdown("all", "all", "all available attributes")
+                ],
+                description:"Include field",
+                placeholder:"Include field",
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"ReferringPhysicianName",
+                description:"Referring physician name",
+                placeholder:"Referring physician name"
             },{
                 tag:"input",
                 type:"text",
@@ -971,11 +1092,6 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
-            },{
-                tag:"select",
-                options:[
-                    new SelectDropdown("PatientName","Patient Name")
-                ]
             }
         ];
     }

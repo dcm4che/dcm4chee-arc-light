@@ -1,66 +1,18 @@
 <div class="main_content white_design" >
   <study-tab></study-tab>
-<!--  <pre>
-    studyDevice:{{studyDevice|json}}
-  </pre>-->
   <div class="tab-content tab_content_with_fixed_header">
     <div class="sticky" #stickyHeader [ngClass]="{'fixed_header':fixedHeader}">
-        <!--model2:{{model|json}}-->
-<!--      <j4care-select [(model)]="model" [placeholder]="'Test placeholder'">
-          <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
-          <j4care-option *ngFor="let el of test" [value]="el.value" [htmlLabel]="el.label" [title]="'Test title'"></j4care-option>
-      </j4care-select>-->
-      <!--<button (click)="testSecure()">test</button>-->
-      <h2>Studies {{studyConfig.tab}}</h2>
-      <!--<h4 [@showHide]="fixedHeader ? 'hide':'show'">Select device and web service</h4>-->
-<!--      <div class="controll_header" *ngIf="studyDevice">
-        <j4care-select [(model)]="studyDevice.selectedDevice" [placeholder]="'Select Device'">
-          <j4care-option [value]="''" [title]="'Test title'">*</j4care-option>
-          <j4care-option *ngFor="let el of studyDevice.devices" [value]="el.value" [title]="'Test title'">{{el.text}}</j4care-option>
-        </j4care-select>
-      </div>-->
-<!--      <dcm-drop-down
-              *ngIf="studyDevice && studyDevice.devices"
-              [(model)]="studyDevice.selectedDevice"
-              [placeholder]="'Select Device'"
-              [options]="studyDevice.devices"
-              [showSearchField]="false"
-              [multiSelectMode]="false"
-              [showStar]="false"
-      ></dcm-drop-down>-->
-<!--      <div class="filter_line">
-        <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [model]="filter.filterModel" (submit)="search('current')" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()"></filter-generator>
-        </div>
-      </div>-->
-<!--      <div class="filter_line" [@showHide]="fixedHeader ? 'hide':'show'">
-        <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaEntry.lineLength" [schema]="filter.filterSchemaEntry.schema" [filterID]="'study-filter'" [model]="filter.filterEntryModel" [filterTreeHeight]="filter.filterSchemaEntry.lineLength" (onChange)="entryFilterChanged($event)"></filter-generator>
-        </div>
-      </div>-->
+      <h2>{{studyConfig.title}}</h2>
       <div class="filter_line">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [doNotSave]="['webApp']" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
         </div>
       </div>
       <div class="filter_line" [hidden]="!filter.expand">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" [filterID]="'study-filter'" [doNotSave]="['webApp']" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" [filterID]="'study-filter'" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
         </div>
       </div>
-<!--      <ng-container *ngIf="(studyConfig.tab === 'study' || studyConfig.tab === 'patient') && filter.expand">
-        <h4 [@showHide]="fixedHeader ? 'hide':'show'">Select the Location Mode</h4>
-        <div [@showHide]="fixedHeader ? 'hide':'show'" class="controll_header">
-          <mat-radio-group class="example-radio-group" [(ngModel)]="studyConfig.accessLocation" (change)="accessLocationChange($event)">
-            <mat-radio-button value="internal" >
-              Internal
-            </mat-radio-button>
-            <mat-radio-button value="external" >
-              External
-            </mat-radio-button>
-          </mat-radio-group>
-        </div>
-      </ng-container>-->
   </div>
       <div class="filter_line more_function_block">
         <div class="filter single_block">
@@ -68,6 +20,11 @@
             <div class="line">
               <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
+              <input *ngIf="patients && patients.length > 0" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
+            </div>
+          </div>
+          <div class="filter_block" *ngIf="(patients && patients.length > 0)">
+            <div class="line">
               <dcm-drop-down
                   [placeholder]="moreFunctionConfig.placeholder"
                   [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal"
@@ -77,13 +34,9 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="studyWebService && studyWebService.selectedWebService"
+                  *ngIf="studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff')"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
-            </div>
-          </div>
-          <div class="filter_block" *ngIf="(patients && patients.length > 0)">
-            <div class="line">
               <dcm-drop-down
                       [placeholder]="actionsSelections.placeholder"
                       [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active"
@@ -93,10 +46,9 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService"
+                      *ngIf="studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff')"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
-              <input *ngIf="patients && patients.length > 0" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
             </div>
           </div>
         </div>
@@ -105,7 +57,7 @@
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
             <li><button (click)="selectionAction('copy')"><i class="material-icons">content_copy</i></button></li>
-            <li><button (click)="selectionAction('cut')"><i class="material-icons">content_cut</i></button></li>
+            <li><button (click)="selectionAction('move')"><i class="material-icons">content_cut</i></button></li>
             <li><button (click)="selectionAction('patient_merge')"><i class="material-icons">supervisor_account</i></button></li>
             <li><button (click)="selectionAction('paste')"><i class="material-icons">content_paste</i></button></li>
         </ul>

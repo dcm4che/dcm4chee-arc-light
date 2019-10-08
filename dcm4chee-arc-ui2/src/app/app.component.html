@@ -38,6 +38,7 @@
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-monitoring',param:'visible'}"><a routerLink="monitoring/associations" routerLinkActive="active">Monitoring</a></li>
     <li (click)="showMenu = false;" [permission]="{id:'menu-studies',param:'visible'}"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
+    <li (click)="showMenu = false;" [permission]="{id:'menu-study',param:'visible'}"><a routerLink="study/study" routerLinkActive="active">Study [New]</a></li>
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
