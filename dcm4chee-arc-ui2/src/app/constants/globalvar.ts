@@ -1137,8 +1137,19 @@ export class Globalvar {
                     tag:"p-calendar",
                     filterKey:"PatientBirthDate",
                     description:"Birth Date"
-                },{
-                    tag:"dummy"
+                },
+                {
+                    tag: "select",
+                    options: [
+                        new SelectDropdown("UNVERIFIED", "UNVERIFIED"),
+                        new SelectDropdown("VERIFIED", "VERIFIED"),
+                        new SelectDropdown("NOT_FOUND", "NOT_FOUND"),
+                        new SelectDropdown("VERIFICATION_FAILED", "VERIFICATION_FAILED")
+                    ],
+                    showStar: true,
+                    filterKey: "patientVerificationStatus",
+                    description: "Verification Status",
+                    placeholder: "Verification Status"
                 }
             ]
         }
