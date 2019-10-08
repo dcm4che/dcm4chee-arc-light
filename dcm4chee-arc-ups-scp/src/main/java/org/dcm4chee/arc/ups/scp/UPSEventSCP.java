@@ -99,7 +99,7 @@ public class UPSEventSCP {
                         }
                     }
                 } catch (Exception e) {
-                    LOG.info("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
+                    LOG.info("Failed to send {} EventReport to {} - {}", event.type, subscriberAET, e);
                 }
             }
         }
