@@ -177,6 +177,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
+            new SelectDropdown("trigger_diff","Trigger Diff"),
         ],
         model:undefined
     };
@@ -1213,7 +1214,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     }
     showNoFilterWarning(queryParameters){
         let param =  _.clone(queryParameters);
-        if (param['orderby'] == '-StudyDate,-StudyTime'){
+        // if (param['orderby'] == '-StudyDate,-StudyTime'){
             if (_.hasIn(param, ['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'])){
                 delete param['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
             }
@@ -1238,9 +1239,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                 }
             }
             return (_.size(param) < 1) ? true : false;
-        }else{
+/*        }else{
             return false;
-        }
+        }*/
     }
     getQuantity(quantity:Quantity){
         let filterModel =  this.getFilterClone();
@@ -1657,22 +1658,35 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     }
     moreFunctionFilterPipe(value, args){
         let internal = args[0];
+        let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
             switch (option.value) {
                 case "retrieve_multiple":
-                    return !internal;
+                    return !internal && !(studyConfig && studyConfig.tab === "diff");
                 case "export_multiple":
-                    return internal;
+                    return internal && !(studyConfig && studyConfig.tab === "diff");
                 case "upload_dicom":
-                    return internal;
+                    return internal && !(studyConfig && studyConfig.tab === "diff");
                 case "permanent_delete":
-                    return internal;
+                    return internal && !(studyConfig && studyConfig.tab === "diff");
                 case "export_multiple":
-                    return internal;
+                    return internal && !(studyConfig && studyConfig.tab === "diff");
+                case "trigger_diff":
+                    return studyConfig && studyConfig.tab === "diff";
             }
             return true;
         });
+
+        /*
+        * create_patient
+upload_dicom
+permanent_delete
+export_multiple
+retrieve_multiple
+storage_verification
+download_studies
+trigger_diff*/
     }
     actionsSelectionsFilterPipe(value, args){
         console.log("args",args);
@@ -1680,13 +1694,13 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         let trashActive = args[1];
         return value.filter(option=>{
             if(option.value === "delete_object"){
-                return internal && trashActive
+                return internal && trashActive;
             }
             if(option.value === "restore_object"){
-                return internal && trashActive
+                return internal && trashActive;
             }
             if(option.value === "reject_object"){
-                return !trashActive
+                return !trashActive;
             }
             return true;
         });

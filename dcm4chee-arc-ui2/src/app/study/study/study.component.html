@@ -23,18 +23,18 @@
               <input *ngIf="patients && patients.length > 0" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
             </div>
           </div>
-          <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff'))">
+          <div class="filter_block" *ngIf="(patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff')">
             <div class="line">
               <dcm-drop-down
                   [placeholder]="moreFunctionConfig.placeholder"
-                  [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal"
+                  [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal:studyConfig"
                   [editable]="false"
                   [(model)]="moreFunctionConfig.model"
                   [showSearchField]="false"
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff')"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService) || (studyConfig && studyConfig.tab === 'diff')"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
@@ -46,10 +46,10 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff')"
+                      *ngIf="(studyWebService && studyWebService.selectedWebService) && !(studyConfig && studyConfig.tab === 'diff')"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
-              <dcm-drop-down
+<!--              <dcm-drop-down
                   placeholder="Primary AET"
                   [options]="diffOptions.aes"
                   [editable]="false"
@@ -72,9 +72,14 @@
                       [showStar]="false"
                       *ngIf="studyConfig && studyConfig.tab === 'diff'"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
-              ></dcm-drop-down>
+              ></dcm-drop-down>-->
             </div>
           </div>
+            <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff'))">
+                <div class="line">
+
+                </div>
+            </div>
         </div>
       </div>
     <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
