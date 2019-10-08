@@ -4048,8 +4048,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTrimISO2022CharacterSet",
                 coercion.isTrimISO2022CharacterSet(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCallingAETAsScheduledStationAET",
-                coercion.isCallingAETAsScheduledStationAET(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUseCallingAETitleAs",
+                coercion.getUseCallingAETitleAs(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
@@ -4088,8 +4088,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 coercion.setTrimISO2022CharacterSet(
                         LdapUtils.booleanValue(attrs.get("dcmTrimISO2022CharacterSet"), false));
-                coercion.setCallingAETAsScheduledStationAET(
-                        LdapUtils.booleanValue(attrs.get("dcmCallingAETAsScheduledStationAET"), false));
+                coercion.setUseCallingAETitleAs(
+                        LdapUtils.enumValue(UseCallingAETitleAsCoercion.Type.class,
+                        attrs.get("dcmUseCallingAETitleAs"), null));
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
                 coercion.setMergeMWLTemplateURI(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
@@ -4147,8 +4148,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTrimISO2022CharacterSet",
                 prev.isTrimISO2022CharacterSet(), coercion.isTrimISO2022CharacterSet(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmCallingAETAsScheduledStationAET",
-                prev.isCallingAETAsScheduledStationAET(), coercion.isCallingAETAsScheduledStationAET(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUseCallingAETitleAs",
+                prev.getUseCallingAETitleAs(), coercion.getUseCallingAETitleAs(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLTemplateURI",
                 prev.getMergeMWLTemplateURI(),

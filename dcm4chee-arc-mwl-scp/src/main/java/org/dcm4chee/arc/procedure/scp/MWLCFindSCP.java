@@ -52,6 +52,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.UseCallingAETitleAsCoercion;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -127,8 +128,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
-        if (rule.isCallingAETAsScheduledStationAET())
-            coercion = new CallingAETAsScheduledStationAETCoercion(ctx.getCallingAET(), coercion);
+        coercion = UseCallingAETitleAsCoercion.of(rule.getUseCallingAETitleAs(), ctx.getCallingAET(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getQueryKeys(), ctx.getCoercedQueryKeys());
     }

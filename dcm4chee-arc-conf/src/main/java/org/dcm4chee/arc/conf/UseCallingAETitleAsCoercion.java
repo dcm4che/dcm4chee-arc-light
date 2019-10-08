@@ -39,21 +39,28 @@
  *
  */
 
-package org.dcm4chee.arc.procedure.scp;
+package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.PrivateTag;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Oct 2019
  */
-class CallingAETAsScheduledStationAETCoercion implements AttributesCoercion {
+public class UseCallingAETitleAsCoercion implements AttributesCoercion {
+    private final Type type;
     private final String callingAET;
     private final AttributesCoercion next;
 
-    public CallingAETAsScheduledStationAETCoercion(String callingAET, AttributesCoercion next) {
+    private UseCallingAETitleAsCoercion(Type type, String callingAET, AttributesCoercion next) {
+        this.type = type;
         this.callingAET = callingAET;
         this.next = next;
+    }
+
+    public static AttributesCoercion of(Type type, String callingAET, AttributesCoercion next) {
+        return type != null ? new UseCallingAETitleAsCoercion(type, callingAET, next) : next;
     }
 
     @Override
@@ -63,10 +70,7 @@ class CallingAETAsScheduledStationAETCoercion implements AttributesCoercion {
 
     @Override
     public void coerce(Attributes attrs, Attributes modified) {
-        Attributes sps = ensureItem(attrs.ensureSequence(Tag.ScheduledProcedureStepSequence, 1));
-        if (!sps.containsValue(Tag.ScheduledStationAETitle)) {
-            sps.setString(Tag.ScheduledStationAETitle, VR.AE, callingAET);
-        }
+        type.coerce(attrs, modified, callingAET);
         if (next != null)
             next.coerce(attrs, modified);
     }
@@ -76,5 +80,28 @@ class CallingAETAsScheduledStationAETCoercion implements AttributesCoercion {
             sq.add(new Attributes(1));
         }
         return sq.get(0);
+    }
+
+    public enum Type {
+        ScheduledStationAETitle {
+            @Override
+            void coerce(Attributes attrs, Attributes modified, String callingAET) {
+                Attributes sps = ensureItem(attrs.ensureSequence(Tag.ScheduledProcedureStepSequence, 1));
+                if (!sps.containsValue(Tag.ScheduledStationAETitle)) {
+                    sps.setString(Tag.ScheduledStationAETitle, VR.AE, callingAET);
+                }
+            }
+        },
+        SendingApplicationEntityTitleOfSeries {
+            @Override
+            void coerce(Attributes attrs, Attributes modified, String callingAET) {
+                if (!attrs.containsValue(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries)) {
+                    attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries,
+                            VR.AE, callingAET);
+                }
+            }
+        };
+
+        abstract void coerce(Attributes attrs, Attributes modified, String callingAET);
     }
 }

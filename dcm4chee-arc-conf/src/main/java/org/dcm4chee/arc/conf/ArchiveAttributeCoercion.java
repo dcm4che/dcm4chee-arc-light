@@ -71,7 +71,7 @@ public class ArchiveAttributeCoercion {
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private boolean trimISO2022CharacterSet;
-    private boolean callingAETAsScheduledStationAET;
+    private UseCallingAETitleAsCoercion.Type useCallingAETitleAs;
     private int[] nullifyTags = {};
     private NullifyIssuer nullifyIssuerOfPatientID;
     private Issuer[] issuerOfPatientIDs = {};
@@ -227,12 +227,12 @@ public class ArchiveAttributeCoercion {
         this.trimISO2022CharacterSet = trimISO2022CharacterSet;
     }
 
-    public boolean isCallingAETAsScheduledStationAET() {
-        return callingAETAsScheduledStationAET;
+    public UseCallingAETitleAsCoercion.Type getUseCallingAETitleAs() {
+        return useCallingAETitleAs;
     }
 
-    public void setCallingAETAsScheduledStationAET(boolean callingAETAsScheduledStationAET) {
-        this.callingAETAsScheduledStationAET = callingAETAsScheduledStationAET;
+    public void setUseCallingAETitleAs(UseCallingAETitleAsCoercion.Type useCallingAETitleAs) {
+        this.useCallingAETitleAs = useCallingAETitleAs;
     }
 
     public int[] getNullifyTags() {
@@ -381,7 +381,7 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet
-                + ", callingAETAsScheduledStationAET=" + callingAETAsScheduledStationAET
+                + ", useCallingAETitleAs=" + useCallingAETitleAs
                 + ", nullifyTags=" + Arrays.toString(nullifyTags)
                 + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
                 + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
