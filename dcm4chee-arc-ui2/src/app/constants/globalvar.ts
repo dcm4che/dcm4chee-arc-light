@@ -966,6 +966,18 @@ export class Globalvar {
                     filterKey:"storageVerificationFailed",
                     text:"Verification Failed",
                     description:"Storage Verification Failed"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ResponsiblePerson",
+                    description:"Responsible Person",
+                    placeholder:"Responsible Person"
+                },{
+                    tag:"p-calendar",
+                    type:"text",
+                    filterKey:"PatientsBirthDate",
+                    description:"Patient's Birth Date",
+                    placeholder:"Birth Date"
                 }
             ];
         }
