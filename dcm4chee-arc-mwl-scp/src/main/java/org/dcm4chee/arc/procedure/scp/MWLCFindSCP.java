@@ -116,7 +116,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
                 ctx.getCallingAET(),
                 TransferCapability.Role.SCU,
                 Dimse.C_FIND_RQ,
-                UID.ModalityWorklistInformationModelFIND);
+                ctx.getSOPClassUID());
         if (rule == null)
             return;
 
