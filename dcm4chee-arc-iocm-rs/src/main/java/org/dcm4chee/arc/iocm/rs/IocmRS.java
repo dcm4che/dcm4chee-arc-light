@@ -46,7 +46,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
@@ -61,6 +61,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.rs.client.RSForward;
@@ -70,6 +71,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +104,7 @@ import java.util.*;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
+@InvokeValidate(type = IocmRS.class)
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
@@ -157,6 +160,8 @@ public class IocmRS {
 
     @Context
     private UriInfo uriInfo;
+
+    private Attributes coerceAttrs;
 
     @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
@@ -214,7 +219,6 @@ public class IocmRS {
     @DELETE
     @Path("/patients/{PatientID}")
     public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
@@ -250,7 +254,6 @@ public class IocmRS {
     @DELETE
     @Path("/studies/{StudyUID}")
     public void deleteStudy(@PathParam("StudyUID") String studyUID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
@@ -273,7 +276,6 @@ public class IocmRS {
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
     public String createPatient(InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             PatientMgtContext ctx = patientMgtCtx(in);
@@ -305,7 +307,6 @@ public class IocmRS {
             @PathParam("priorPatientID") IDWithIssuer priorPatientID,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         PatientMgtContext ctx = patientMgtCtx(in);
         IDWithIssuer targetPatientID = ctx.getPatientID();
@@ -359,7 +360,6 @@ public class IocmRS {
     @Path("/patients/{patientID}/merge")
     @Consumes("application/json")
     public void mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -392,7 +392,6 @@ public class IocmRS {
     @Path("/patients/{priorPatientID}/merge/{patientID}")
     public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
                              @PathParam("patientID") IDWithIssuer patientID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             Attributes priorPatAttr = new Attributes(3);
@@ -427,7 +426,6 @@ public class IocmRS {
     @Path("/patients/{priorPatientID}/changeid/{patientID}")
     public void changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
                                 @PathParam("patientID") IDWithIssuer patientID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             Patient prevPatient = patientService.findPatient(priorPatientID);
@@ -486,7 +484,6 @@ public class IocmRS {
     @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
     public StreamingOutput updateStudy(InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
@@ -525,7 +522,6 @@ public class IocmRS {
     public Response updateStudyAccessControlID(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("accessControlID") String accessControlID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
@@ -565,7 +561,6 @@ public class IocmRS {
 
     private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate,
                                           String expirationExporterID, String freezeExpirationDate) {
-        logRequest();
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
@@ -605,7 +600,6 @@ public class IocmRS {
                                               @PathParam("codeValue") String codeValue,
                                               @PathParam("codingSchemeDesignator") String designator,
                                               InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
@@ -688,6 +682,16 @@ public class IocmRS {
         refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instanceLocation.getSopClassUID());
         refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instanceLocation.getSopInstanceUID());
         refSOPSeq.add(refSOP);
+    }
+
+    public void validate() {
+        logRequest();
+        String[] uriPath = StringUtils.split(uriInfo.getPath(), '/');
+        if ("copy".equals(uriPath[uriPath.length -1])
+            || ("move".equals(uriPath[uriPath.length -2])
+                && "studies".equals(uriPath[uriPath.length -4]))) {
+            coerceAttrs = new QueryAttributes(uriInfo, null).getQueryKeys();
+        }
     }
 
     private void logRequest() {
@@ -780,7 +784,7 @@ public class IocmRS {
             session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
             session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
             Attributes result = storeService.copyInstances(
-                    session, instances, coerceAttrs(), Attributes.UpdatePolicy.MERGE);
+                    session, instances, coerceAttrs, Attributes.UpdatePolicy.MERGE);
             if (rjNote != null)
                 rejectInstances(instanceRefs, rjNote, session, result);
 
@@ -791,23 +795,6 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
-    }
-
-    private Attributes coerceAttrs() {
-        if (uriInfo.getQueryParameters().isEmpty())
-            return null;
-
-        Attributes attrs = new Attributes();
-        uriInfo.getQueryParameters()
-                .forEach((key, values) -> {
-                    try {
-                        int tag = TagUtils.forName(key);
-                        attrs.setString(tag, DICT.vrOf(tag), values.toArray(new String[0]));
-                    } catch (IllegalArgumentException e) {
-                        LOG.info("Invalid: " + key + "=" + values.get(0));
-                    }
-                });
-        return attrs;
     }
 
     private Collection<InstanceLocations> toInstanceLocations(
