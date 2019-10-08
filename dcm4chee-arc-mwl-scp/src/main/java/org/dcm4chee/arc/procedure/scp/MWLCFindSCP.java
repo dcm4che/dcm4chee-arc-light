@@ -100,7 +100,10 @@ public class MWLCFindSCP extends BasicCFindSCP {
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
         coerceAttributes(ctx);
-        return new MWLQueryTask(as, pc, rq, keys, queryService.createMWLQuery(ctx), runInTx);
+        return new MWLQueryTask(as, pc, rq, keys,
+                queryService.createMWLQuery(ctx),
+                queryService.getAttributesCoercion(ctx),
+                runInTx);
     }
 
     private Attributes createReturnKeys(Attributes keys) {
