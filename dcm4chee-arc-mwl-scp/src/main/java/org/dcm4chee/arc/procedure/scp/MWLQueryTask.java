@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.procedure.scp;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
@@ -66,12 +67,14 @@ public class MWLQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(MWLQueryTask.class);
 
     private final Query query;
+    private final AttributesCoercion coercion;
     private final RunInTransaction runInTx;
 
     public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query,
-            RunInTransaction runInTx) {
+            AttributesCoercion coercion, RunInTransaction runInTx) {
         super(as, pc, rq, keys);
         this.query = query;
+        this.coercion = coercion;
         this.runInTx = runInTx;
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
@@ -127,6 +130,12 @@ public class MWLQueryTask extends BasicQueryTask {
 
     @Override
     protected Attributes adjust(Attributes match) {
+        if (match == null)
+            return null;
+
+        if (coercion != null)
+            coercion.coerce(match, null);
+
         return query.adjust(match);
     }
 }

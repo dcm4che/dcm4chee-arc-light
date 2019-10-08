@@ -1491,10 +1491,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.310 NAME 'dcmUPSEventSCUKeepAlive'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.311 NAME 'dcmCallingAETAsScheduledStationAET'
-  DESC 'Use Calling AET as matching Key of Scheduled Station AE Title (0040,0001) in item of Scheduled Procedure Step Sequence (0040,0100). Only effective with DIMSE = C_FIND_RQ, DICOM Transfer Role = SCU and SOP Class UID = 1.2.840.10008.5.1.4.31 (= Modality Worklist Information Model - FIND).'
-  EQUALITY booleanMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.311 NAME 'dcmUseCallingAETitleAs'
+  DESC 'Identifies the attribute which is set to the value of the Calling AET if it is absent or empty. Enumerated values: ScheduledStationAETitle (= Scheduled Station AE Title (0040,0001) in item of Scheduled Procedure Step Sequence (0040,0100)), SendingApplicationEntityTitleOfSeries (= Sending Application Entity Title of Series (7777,xx37)).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1940,7 +1940,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmTag $
     dcmAttributeUpdatePolicy $
     dcmTrimISO2022CharacterSet $
-    dcmCallingAETAsScheduledStationAET $
+    dcmUseCallingAETitleAs $
     dcmNullifyTag $
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $

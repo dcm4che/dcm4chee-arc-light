@@ -74,6 +74,10 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         return device != null ? new SupplementAssigningAuthorities(Entity.MWL, device, next) : next;
     }
 
+    public static AttributesCoercion forQuery(Device device, AttributesCoercion next) {
+        return device != null ? new SupplementAssigningAuthorities(Entity.Query, device, next) : next;
+    }
+
     @Override
     public String remapUID(String uid) {
         return next != null ? next.remapUID(uid) : uid;
@@ -103,6 +107,11 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
             @Override
             void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
                 coercion.supplementMWL(attrs);
+            }
+        }, Query {
+            @Override
+            void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
+                coercion.supplementQuery(attrs);
             }
         };
 
@@ -134,6 +143,13 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         supplementIssuers(attrs);
         supplementRequestIssuers(attrs);
         LOG.info("Supplement MWL from device: {}", device.getDeviceName());
+    }
+
+    private void supplementQuery(Attributes attrs) {
+        supplementIssuers(attrs);
+        supplementRequestIssuers(attrs);
+        supplementRequestIssuers(attrs.getSequence(Tag.RequestAttributesSequence));
+        LOG.info("Supplement composite query from device: {}", device.getDeviceName());
     }
 
     private void supplementValue(Attributes attrs, int tag, VR vr, String... values) {

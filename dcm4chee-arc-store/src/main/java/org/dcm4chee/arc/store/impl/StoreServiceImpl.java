@@ -518,6 +518,7 @@ class StoreServiceImpl implements StoreService {
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
+        coercion = UseCallingAETitleAsCoercion.of(rule.getUseCallingAETitleAs(), session.getCallingAET(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
     }

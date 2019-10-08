@@ -57,7 +57,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -99,7 +98,7 @@ public class UPSEventSCP {
                         }
                     }
                 } catch (Exception e) {
-                    LOG.info("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
+                    LOG.info("Failed to send {} EventReport to {} - {}", event.type, subscriberAET, e.getMessage());
                 }
             }
         }
