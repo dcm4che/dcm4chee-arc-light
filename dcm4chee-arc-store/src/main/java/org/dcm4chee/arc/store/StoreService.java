@@ -111,7 +111,8 @@ public interface StoreService {
 
     void importInstanceOnStorage(StoreContext ctx, Attributes attrs, ReadContext readCtx) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs)
+    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes mwlAttrs,
+                             Attributes.UpdatePolicy updatePolicy)
             throws Exception;
 
     ZipInputStream openZipInputStream(

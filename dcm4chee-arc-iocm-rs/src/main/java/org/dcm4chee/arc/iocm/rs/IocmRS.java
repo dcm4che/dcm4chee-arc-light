@@ -46,6 +46,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
@@ -86,6 +87,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -103,6 +105,7 @@ import java.util.*;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
+    private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     @Inject
     private Device device;
@@ -152,6 +155,8 @@ public class IocmRS {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private UriInfo uriInfo;
 
     @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
@@ -639,7 +644,8 @@ public class IocmRS {
                 session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
                 session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
                 session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
-                result = storeService.copyInstances(session, instanceLocations, instAttrs(mwl));
+                result = storeService.copyInstances(
+                        session, instanceLocations, instAttrs(mwl), Attributes.UpdatePolicy.OVERWRITE);
                 rejectInstances(instanceRefs, rjNote, session, result);
             }
             return toResponse(result);
@@ -773,7 +779,8 @@ public class IocmRS {
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
             session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
             session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
-            Attributes result = storeService.copyInstances(session, instances, null);
+            Attributes result = storeService.copyInstances(
+                    session, instances, coerceAttrs(), Attributes.UpdatePolicy.MERGE);
             if (rjNote != null)
                 rejectInstances(instanceRefs, rjNote, session, result);
 
@@ -784,6 +791,23 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private Attributes coerceAttrs() {
+        if (uriInfo.getQueryParameters().isEmpty())
+            return null;
+
+        Attributes attrs = new Attributes();
+        uriInfo.getQueryParameters()
+                .forEach((key, values) -> {
+                    try {
+                        int tag = TagUtils.forName(key);
+                        attrs.setString(tag, DICT.vrOf(tag), values.toArray(new String[0]));
+                    } catch (IllegalArgumentException e) {
+                        LOG.info("Invalid: " + key + "=" + values.get(0));
+                    }
+                });
+        return attrs;
     }
 
     private Collection<InstanceLocations> toInstanceLocations(
