@@ -17,6 +17,9 @@
       },
       {
         "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/filter"
       }
     ],
     "requestBody": {

@@ -11,6 +11,9 @@
       },
       {
         "$ref": "../parameters.json#/studyPathParam"
+      },
+      {
+        "$ref": "../parameters.json#/filter"
       }
     ],
     "requestBody": {
