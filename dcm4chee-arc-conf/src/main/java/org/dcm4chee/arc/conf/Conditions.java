@@ -99,25 +99,15 @@ public class Conditions {
             if (seq != null)
                 for (Attributes item : seq)
                     if (match(item, tagPath, pattern, level+1, false))
-                        return true;
+                        return !ne;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);
             if (ss != null)
                 for (String s : ss)
-                    if (pattern != null && s != null && pattern.matcher(s).matches() && !ne)
-                        return true;
-                    else if (pattern == null || s == null)
-                        return false;
-                    else if (ne && !pattern.matcher(s).matches())
-                        return true;
-//            if (pattern.matcher(s).matches())
-//                        return true;
-            if (ss == null && ne)
-                return true;
-            if (ss == null && !ne)
-                return false;
+                    if (s != null && pattern.matcher(s).matches())
+                        return !ne;
         }
-        return false;
+        return ne;
     }
 
     @Override

@@ -81,19 +81,46 @@ public class ConditionsTest {
         assertTrue(notreceiving.match(null, null, null, empty));
         Attributes ct = modality("CT");
         Attributes mr = modality("MR");
+        Attributes emptyModality = modality(null);
         Conditions modality = new Conditions("Modality=CT");
         assertTrue(modality.match(null, null, null, ct));
         assertFalse(modality.match(null, null, null, mr));
+        assertFalse(modality.match(null, null, null, emptyModality));
         assertFalse(modality.match(null, null, null, empty));
         Conditions notmodality = new Conditions("Modality!=CT");
         assertFalse(notmodality.match(null, null, null, ct));
         assertTrue(notmodality.match(null, null, null, mr));
+        assertTrue(notmodality.match(null, null, null, emptyModality));
         assertTrue(notmodality.match(null, null, null, empty));
+        Conditions nomodality = new Conditions("Modality!=.+");
+        assertFalse(nomodality.match(null, null, null, ct));
+        assertFalse(nomodality.match(null, null, null, mr));
+        assertTrue(nomodality.match(null, null, null, emptyModality));
+        assertTrue(nomodality.match(null, null, null, empty));
+        Attributes spsItemCT = spsItem(ct);
+        Attributes spsItemMR = spsItem(mr);
+        Attributes spsItemEmpty = spsItem(empty);
+        Conditions spsItem = new Conditions("00400100.Modality=CT");
+        assertTrue(spsItem.match(null, null, null, spsItemCT));
+        assertFalse(spsItem.match(null, null, null, spsItemMR));
+        assertFalse(spsItem.match(null, null, null, spsItemEmpty));
+        assertFalse(spsItem.match(null, null, null, empty));
+        Conditions notSpsItem = new Conditions("00400100.Modality!=CT");
+        assertFalse(notSpsItem.match(null, null, null, spsItemCT));
+        assertTrue(notSpsItem.match(null, null, null, spsItemMR));
+        assertTrue(notSpsItem.match(null, null, null, spsItemEmpty));
+        assertTrue(notSpsItem.match(null, null, null, empty));
     }
 
     private Attributes modality(String modality) {
         Attributes attrs = new Attributes(1);
         attrs.setString(Tag.Modality, VR.CS, modality);
+        return attrs;
+    }
+
+    private Attributes spsItem(Attributes item) {
+        Attributes attrs = new Attributes(1);
+        attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(item);
         return attrs;
     }
 }
