@@ -471,6 +471,54 @@
           "type": "string",
           "format": "binary"
         }
+      },
+      "application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "text/html": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "text/plain": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
       }
     }
   },
@@ -490,6 +538,24 @@
         }
       },
       "multipart/related;type=image/gif": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/png": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "image/gif": {
         "schema": {
           "type": "string",
           "format": "binary"
