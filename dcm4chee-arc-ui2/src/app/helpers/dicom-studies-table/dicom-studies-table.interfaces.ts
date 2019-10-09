@@ -2,7 +2,7 @@ import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyPageConfig} from "../../interfaces";
 
-export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu";
+export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy";
 
 export interface DicomTableSchema{
     patient:TableSchemaElement[];

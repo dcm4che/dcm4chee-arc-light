@@ -1197,19 +1197,42 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         }
     }
     submit(filterModel){
-        switch (this.studyConfig.tab){
-            case "study":
-                this.getStudies(filterModel);
-                break;
-            case "patient":
-                this.getPatients(filterModel);
-                break;
-            case "mwl":
-                this.getMWL(filterModel);
-                break;
-            case "diff":
-                // this.getDiff(filterModel);
-                break;
+        if (this.showNoFilterWarning(filterModel)) {
+            this.confirm({
+                content: 'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if (result){
+                    switch (this.studyConfig.tab){
+                        case "study":
+                            this.getStudies(filterModel);
+                            break;
+                        case "patient":
+                            this.getPatients(filterModel);
+                            break;
+                        case "mwl":
+                            this.getMWL(filterModel);
+                            break;
+                        case "diff":
+                            // this.getDiff(filterModel);
+                            break;
+                    }
+                }
+            });
+        }else{
+            switch (this.studyConfig.tab){
+                case "study":
+                    this.getStudies(filterModel);
+                    break;
+                case "patient":
+                    this.getPatients(filterModel);
+                    break;
+                case "mwl":
+                    this.getMWL(filterModel);
+                    break;
+                case "diff":
+                    // this.getDiff(filterModel);
+                    break;
+            }
         }
     }
     showNoFilterWarning(queryParameters){

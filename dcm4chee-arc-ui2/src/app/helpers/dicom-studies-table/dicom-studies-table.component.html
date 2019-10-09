@@ -18,12 +18,13 @@
         <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'" [ngClass]="{'selected':patient.selected}" (click)="onBlockClick(patient)">
             <div class="td"
                  *ngFor="let patient_table of tableSchema.patient"
-                 [ngClass]="[config?.cssTdClass || '', patient_table.type || '']"
+                 [ngClass]="[config?.cssTdClass || '', patient_table.cssClass || '', patient_table.type || '']"
                  [ngStyle]="{width: patient_table.calculatedWidth}"
                  [ngSwitch]="patient_table.type"
                  (mouseenter)="active_td = patient_table.elementId"
                  tooltip="{{ patient_table.type === 'value' ? _.get(patient.attrs,patient_table.pathToValue) : (patient_table.type === 'pipe' ? (patient.attrs | dynamicPipe:patient_table.pipe):'')}}"
             >
+                <ng-container *ngSwitchCase="'dummy'"></ng-container>
                 <ng-container *ngSwitchCase="'index'">{{patient.offset + 1}}</ng-container>
                 <ng-container *ngSwitchCase="'actions'">
 <!--                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
@@ -39,7 +40,7 @@
                 </ng-container>
                 <ng-container *ngSwitchCase="'actions-menu'">
                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons patient'">
 <!--                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
                             <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
                             <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
@@ -64,7 +65,7 @@
                 <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'" [ngClass]="{'selected':study.selected}">
                     <div class="td"
                          *ngFor="let studies_table of tableSchema.studies"
-                         [ngClass]="[config?.cssTdClass || '', studies_table.type || '']"
+                         [ngClass]="[config?.cssTdClass || '', studies_table.cssClass || '', studies_table.type || '']"
                          [ngStyle]="{width: studies_table.calculatedWidth}"
                          [ngSwitch]="studies_table.type"
                          (mouseenter)="active_td = studies_table.elementId"
@@ -94,7 +95,7 @@
                                 </ng-container>
                             </div>-->
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons'" (click)="$event.stopPropagation()">
+                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons study'" (click)="$event.stopPropagation()">
 <!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
                                     <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                     <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
@@ -118,7 +119,7 @@
                         <div class="series_block table_item" (mouseenter)="hover_mode = 'series'" [ngClass]="{'selected':serie.selected}">
                             <div class="td"
                                  *ngFor="let serie_table of tableSchema.series"
-                                 [ngClass]="[config?.cssTdClass || '', serie_table.type || '']"
+                                 [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
                                  [ngStyle]="{width: serie_table.calculatedWidth}"
                                  [ngSwitch]="serie_table.type"
                                  (mouseenter)="active_td = serie_table.elementId"
@@ -139,7 +140,7 @@
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'actions-menu'">
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons series'">
 <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                             <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                             <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
@@ -164,7 +165,7 @@
                                 <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'" [ngClass]="{'selected':instance.selected}">
                                     <div class="td"
                                          *ngFor="let instance_table of tableSchema.instance"
-                                         [ngClass]="[config?.cssTdClass || '', instance_table.type || '']"
+                                         [ngClass]="[config?.cssTdClass || '', instance_table.cssClass || '', instance_table.type || '']"
                                          [ngStyle]="{width: instance_table.calculatedWidth}"
                                          [ngSwitch]="instance_table.type"
                                          (mouseenter)="active_td = instance_table.elementId"
@@ -187,7 +188,7 @@
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'actions-menu'">
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons'">
+                                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons instance'">
 <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                     <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                     <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
