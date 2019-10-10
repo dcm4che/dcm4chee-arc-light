@@ -158,7 +158,7 @@ public class AuditTriggerObserver {
             return;
 
         if (deviceHasAuditLoggers())
-            auditService.spoolProcedureRecord(ctx);
+            auditService.spoolStudyRecord(ctx);
     }
 
     public void onStorageCommit(@Observes StgCmtContext stgCmtContext) {

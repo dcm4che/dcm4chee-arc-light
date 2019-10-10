@@ -66,19 +66,9 @@ import java.nio.file.Path;
 class ProcedureRecordAuditService {
 
     private ArchiveDeviceExtension arcDev;
-    private StudyMgtContext studyMgtCtx;
     private ProcedureContext procCtx;
     private HL7ConnectionEvent hl7ConnEvent;
     private AuditInfoBuilder.Builder infoBuilder;
-
-    ProcedureRecordAuditService(StudyMgtContext ctx, ArchiveDeviceExtension arcDev) {
-        studyMgtCtx = ctx;
-        infoBuilder = new AuditInfoBuilder.Builder()
-                .callingHost(studyMgtCtx.getRemoteHostName())
-                .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
-                .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
-                .outcome(outcome(studyMgtCtx.getException()));
-    }
 
     ProcedureRecordAuditService(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
         procCtx = ctx;
@@ -92,10 +82,6 @@ class ProcedureRecordAuditService {
     ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
         this.arcDev = arcDev;
         this.hl7ConnEvent = hl7ConnEvent;
-    }
-
-    AuditInfoBuilder getStudyUpdateAuditInfo() {
-        return studyMgtCtx.getHttpRequest() != null ? studyExpiredByWeb() : studyExpiredByHL7();
     }
 
     AuditInfoBuilder getProcUpdateAuditInfo() {
@@ -135,22 +121,6 @@ class ProcedureRecordAuditService {
                 .outgoingHL7Sender(sendingApplicationWithFacility)
                 .outgoingHL7Receiver(receivingApplicationWithFacility);
         return pid != null ? procRecForward(pid) : infoBuilder.build();
-    }
-
-    private AuditInfoBuilder studyExpiredByHL7() {
-        HL7Segment msh = studyMgtCtx.getUnparsedHL7Message().msh();
-        return infoBuilder
-                .callingUserID(msh.getSendingApplicationWithFacility())
-                .calledUserID(msh.getReceivingApplicationWithFacility())
-                .build();
-    }
-
-    private AuditInfoBuilder studyExpiredByWeb() {
-        HttpServletRequest request = studyMgtCtx.getHttpRequest();
-        return infoBuilder
-                .callingUserID(KeycloakContext.valueOf(request).getUserName())
-                .calledUserID(request.getRequestURI())
-                .build();
     }
 
     private AuditInfoBuilder procUpdatedByMPPS() {

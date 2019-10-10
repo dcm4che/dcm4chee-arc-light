@@ -47,6 +47,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Patient;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ class ParticipantObjectID {
 
     static ParticipantObjectIdentificationBuilder patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
         ParticipantObjectIdentificationBuilder.Builder patientPOIBuilder = patientPOIBuilder(auditInfo)
-                .detail(getHL7ParticipantObjectDetail(reader));
+                .detail(hl7ParticipantObjectDetail(reader).toArray(new ParticipantObjectDetail[0]));
 
         String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
         if (patVerStatus != null
@@ -81,19 +82,20 @@ class ParticipantObjectID {
                 .name(auditInfo.getField(AuditInfo.P_NAME));
     }
 
-    private static ParticipantObjectDetail[] getHL7ParticipantObjectDetail(SpoolFileReader reader) {
-        ParticipantObjectDetail[] detail = new ParticipantObjectDetail[2];
-        setParticipantObjectDetail(reader.getData(), 0, detail);
-        setParticipantObjectDetail(reader.getAck(), 1, detail);
+    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader) {
+        List<ParticipantObjectDetail> detail = new ArrayList<>();
+        if (reader.getData().length > 0)
+            detail.add(hl7ParticipantObjectDetail(reader.getData()));
+        if (reader.getAck().length > 0)
+            detail.add(hl7ParticipantObjectDetail(reader.getAck()));
         return detail;
     }
 
-    private static void setParticipantObjectDetail(byte[] val, int index, ParticipantObjectDetail[] detail) {
-        if (val.length > 0) {
-            detail[index] = new ParticipantObjectDetail();
-            detail[index].setType("HL7v2 Message");
-            detail[index].setValue(val);
-        }
+    private static ParticipantObjectDetail hl7ParticipantObjectDetail(byte[] val) {
+        ParticipantObjectDetail detail = new ParticipantObjectDetail();
+        detail.setType("HL7v2 Message");
+        detail.setValue(val);
+        return detail;
     }
 
     private static ParticipantObjectIdentificationBuilder submissionSetPOI(AuditInfo auditInfo) {
@@ -150,9 +152,15 @@ class ParticipantObjectID {
         instanceInfo.addAcc(auditInfo);
 
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
+        List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
+        if (auditInfo.getField(AuditInfo.EXPIRATION_DATE) != null)
+            participantObjectDetails.add(
+                    AuditMessages.createParticipantObjectDetail(
+                            "Expiration Date",
+                            auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
         studyPatParticipants[0] = studyPOI(auditInfo)
                 .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
-                .detail(getHL7ParticipantObjectDetail(reader))
+                .detail(participantObjectDetails.toArray(new ParticipantObjectDetail[0]))
                 .build();
         if (auditInfo.getField(AuditInfo.P_ID) != null)
             studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();

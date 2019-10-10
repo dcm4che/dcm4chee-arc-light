@@ -84,6 +84,7 @@ class AuditInfo {
     static final int PDQ_SERVICE_URI = 33;
     static final int IMPAX_ENDPOINT = 34;
     static final int FAILED = 35;
+    static final int EXPIRATION_DATE = 36;
 
     private final String[] fields;
 
@@ -124,7 +125,8 @@ class AuditInfo {
                 i.patVerificationStatus != null ? i.patVerificationStatus.name() : null,
                 i.pdqServiceURI,
                 i.impaxEndpoint,
-                String.valueOf(i.failed)
+                String.valueOf(i.failed),
+                i.expirationDate
         };
     }
 

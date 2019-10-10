@@ -134,8 +134,11 @@ public class AuditService {
             case PATIENT:
                 auditPatientRecord(auditLogger, path, eventType);
                 break;
-            case PROC_STUDY:
+            case PROCEDURE:
                 auditProcedureRecord(auditLogger, path, eventType);
+                break;
+            case STUDY:
+                auditStudyRecord(auditLogger, path, eventType);
                 break;
             case PROV_REGISTER:
                 auditProvideAndRegister(auditLogger, path, eventType);
@@ -770,16 +773,22 @@ public class AuditService {
         }
     }
 
-    void spoolProcedureRecord(StudyMgtContext ctx) {
+    void spoolStudyRecord(StudyMgtContext ctx) {
         try {
             writeSpoolFile(
-                    AuditUtils.EventType.forProcedure(ctx.getEventActionCode()),
+                    AuditUtils.EventType.forStudy(ctx.getEventActionCode()),
                     null,
-                    new ProcedureRecordAuditService(ctx, getArchiveDevice()).getStudyUpdateAuditInfo());
+                    new StudyRecordAuditService(ctx, getArchiveDevice()).getStudyUpdateAuditInfo());
         } catch (Exception e) {
             LOG.warn("Failed to spool Study Update procedure record for [StudyIUID={}, EventActionCode={}]\n",
                     ctx.getStudy(), ctx.getEventActionCode(), e);
         }
+    }
+
+    private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        emitAuditMessage(
+                StudyRecordAuditService.auditMsg(auditLogger, path, eventType),
+                auditLogger);
     }
 
     private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {

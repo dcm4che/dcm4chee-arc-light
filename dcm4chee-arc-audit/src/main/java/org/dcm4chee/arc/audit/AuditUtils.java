@@ -69,8 +69,8 @@ class AuditUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditUtils.class);
 
     enum EventClass {
-        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, PATIENT, PROC_STUDY, PROV_REGISTER,
-        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
+        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, PATIENT,
+        PROCEDURE, STUDY, PROV_REGISTER, STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -130,13 +130,18 @@ class AuditUtils {
         PAT_RD__SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 null, null, null),
 
-        PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
+        PROC_STD_C(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, null),
-        PROC_STD_U(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
+        PROC_STD_U(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
                  null, null, null),
-        PROC_STD_D(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
-                 null, null, null),
-        PROC_STD_R(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+        PROC_STD_R(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+                null, null, null),
+        PROC_STD_D(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
+                null, null, null),
+
+        STUDY_UPDT(EventClass.STUDY, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Update,
+                null, null, null),
+        STUDY_READ(EventClass.STUDY, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Read,
                 null, null, null),
 
         PROV_REGIS(EventClass.PROV_REGISTER, AuditMessages.EventID.Export, AuditMessages.EventActionCode.Read,
@@ -263,6 +268,10 @@ class AuditUtils {
                         : eventActionCode.equals(AuditMessages.EventActionCode.Update)
                             ? PROC_STD_U
                             : PROC_STD_D;
+        }
+
+        static EventType forStudy(String eventActionCode) {
+            return eventActionCode == null ? STUDY_READ : STUDY_UPDT;
         }
 
         static EventType forHL7IncomingOrderMsg(UnparsedHL7Message hl7ResponseMessage) {
