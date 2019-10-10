@@ -55,9 +55,9 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee8.version>17.0.0.Final</wildfly-javaee8.version>
-    <jbossws-cxf-client.version>5.2.4.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.2.7</apache-cxf.version>
+    <wildfly-jakartaee8.version>18.0.0.Final</wildfly-jakartaee8.version>
+    <jbossws-cxf-client.version>5.3.0.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.3.3</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
@@ -70,7 +70,7 @@
     <jclouds.version>2.1.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
-    <jakarta.json.version>1.1.5</jakarta.json.version>
+    <jakarta.json.version>1.1.6</jakarta.json.version>
     <junit.version>4.12</junit.version>
 
     <!-- JPA -->
@@ -135,8 +135,8 @@
     <dependencies>
       <dependency>
         <groupId>org.wildfly.bom</groupId>
-        <artifactId>wildfly-javaee8-with-tools</artifactId>
-        <version>${wildfly-javaee8.version}</version>
+        <artifactId>wildfly-jakartaee8-with-tools</artifactId>
+        <version>${wildfly-jakartaee8.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -357,7 +357,7 @@
 
     <dependency>
       <groupId>org.jboss.spec.javax.xml.soap</groupId>
-      <artifactId>jboss-saaj-api_1.3_spec</artifactId>
+      <artifactId>jboss-saaj-api_1.4_spec</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -395,16 +395,16 @@
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Import Java Persistence API, Version 2.2 -->
+    <!-- Import Java Persistence API -->
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Import the CDI API -->
     <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Import the Common Annotations API (JSR-250) -->
@@ -433,8 +433,8 @@
     </dependency>
     <!-- Import Bean Validation API -->
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
