@@ -5,12 +5,12 @@
       <h2>{{studyConfig.title}}</h2>
       <div class="filter_line">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" [filterID]="'study-filter'" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
         </div>
       </div>
       <div class="filter_line" [hidden]="!filter.expand">
         <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" [filterID]="'study-filter'" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'"></filter-generator>
+          <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
         </div>
       </div>
   </div>

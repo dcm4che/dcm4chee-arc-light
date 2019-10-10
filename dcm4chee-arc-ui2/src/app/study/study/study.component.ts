@@ -256,6 +256,26 @@ export class StudyComponent implements OnInit, AfterContentChecked{
 
     }
 
+    onFilterTemplateSet(object){
+        console.log("object",object);
+        this.filter.filterModel = {};
+        if(object && _.hasIn(object,"webApp")){
+            Object.keys(object).forEach(key=>{
+                if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
+                    this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
+                        if(webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1 && object.webApp.dcmWebAppName === webApp.dcmWebAppName){
+                            this.filter.filterModel["webApp"] = webApp;
+                        }
+                    });
+                }else{
+                    this.filter.filterModel[key] = object[key];
+                }
+            })
+        }else{
+            Object.assign(this.filter.filterModel, object);
+        }
+    }
+
     tabToTitleMap(tab:DicomMode){
         return {
             "study":"Studies",
