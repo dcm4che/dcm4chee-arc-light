@@ -449,14 +449,14 @@ export class StudyService {
         return url;
     }
 
-    renderURL(inst) {
+    renderURL(webService: StudyWebService,inst) {
         if (inst.video)
-            return this.wadoURL(inst.wadoQueryParams, {contentType: 'video/*'});
+            return this.wadoURL(webService, inst.wadoQueryParams, {contentType: 'video/*'});
         if (inst.numberOfFrames)
-            return this.wadoURL(inst.wadoQueryParams, {contentType: 'image/jpeg', frameNumber: inst.view});
+            return this.wadoURL(webService, inst.wadoQueryParams, {contentType: 'image/jpeg', frameNumber: inst.view});
         if (inst.gspsQueryParams.length)
-            return this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
-        return this.wadoURL(inst.wadoQueryParams);
+            return this.wadoURL(webService, inst.gspsQueryParams[inst.view - 1]);
+        return this.wadoURL(webService, inst.wadoQueryParams);
     }
 
     private diffUrl(callingAet: Aet, firstExternalAet?: Aet, secondExternalAet?: Aet, baseUrl?: string) {
@@ -668,69 +668,6 @@ export class StudyService {
         let schema: DicomTableSchema = {
             patient: [
                 new TableSchemaElement({
-                    type: "actions",
-                    header: "",
-                    actions: [
-                        {
-                            icon: {
-                                tag: 'span',
-                                cssClass: 'glyphicon glyphicon-chevron-down',
-                                text: ''
-                            },
-                            click: (e) => {
-                                console.log("e", e);
-                                if(options.studyConfig.tab === "mwl") {
-                                    e.showMwls = !e.showMwls;
-                                }else{
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "patient",
-                                        action: "toggle_studies"
-                                    }, e);
-                                }
-                            },
-                            title: (options.studyConfig.tab === "mwl") ? "Hide MWLs":"Hide Studies",
-                            showIf: (e) => {
-                                if(options.studyConfig.tab === "mwl"){
-                                    return e.showMwls;
-                                }else{
-                                    return e.showStudies;
-                                }
-                            }
-                        }, {
-                            icon: {
-                                tag: 'span',
-                                cssClass: 'glyphicon glyphicon-chevron-right',
-                                text: ''
-                            },
-                            click: (e) => {
-                                console.log("e", e);
-                                // e.showStudies = !e.showStudies;
-                                if(options.studyConfig.tab === "mwl") {
-                                    e.showMwls = !e.showMwls;
-                                }else{
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "patient",
-                                        action: "toggle_studies"
-                                    }, e);
-                                }
-                                // actions.call(this, 'study_arrow',e);
-                            },
-                            title: (options.studyConfig.tab === "mwl") ? "Show MWLs":"Show Studies",
-                            showIf: (e) => {
-                                if(options.studyConfig.tab === "mwl") {
-                                    return !e.showMwls
-                                }else{
-                                    return !e.showStudies
-                                }
-                            }
-                        }
-                    ],
-                    headerDescription: (options.studyConfig.tab === "mwl") ? "Toggle MWLs":"Toggle studies",
-                    pxWidth: 40
-                }),
-                new TableSchemaElement({
                     type: "actions-menu",
                     header: "",
                     menu: {
@@ -867,6 +804,69 @@ export class StudyService {
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-down',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                if(options.studyConfig.tab === "mwl") {
+                                    e.showMwls = !e.showMwls;
+                                }else{
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "toggle_studies"
+                                    }, e);
+                                }
+                            },
+                            title: (options.studyConfig.tab === "mwl") ? "Hide MWLs":"Hide Studies",
+                            showIf: (e) => {
+                                if(options.studyConfig.tab === "mwl"){
+                                    return e.showMwls;
+                                }else{
+                                    return e.showStudies;
+                                }
+                            }
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-right',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                // e.showStudies = !e.showStudies;
+                                if(options.studyConfig.tab === "mwl") {
+                                    e.showMwls = !e.showMwls;
+                                }else{
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "toggle_studies"
+                                    }, e);
+                                }
+                                // actions.call(this, 'study_arrow',e);
+                            },
+                            title: (options.studyConfig.tab === "mwl") ? "Show MWLs":"Show Studies",
+                            showIf: (e) => {
+                                if(options.studyConfig.tab === "mwl") {
+                                    return !e.showMwls
+                                }else{
+                                    return !e.showStudies
+                                }
+                            }
+                        }
+                    ],
+                    headerDescription: (options.studyConfig.tab === "mwl") ? "Toggle MWLs":"Toggle studies",
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
                     type: "value",
                     header: "Patient's Name",
                     pathToValue: "00100010.Value[0].Alphabetic",
@@ -924,7 +924,248 @@ export class StudyService {
                 })
             ],
             studies: [
+
                 new TableSchemaElement({
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions: [
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-unchecked',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    e.selected = !e.selected;
+                                },
+                                title: "Select",
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && !e.selected;
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-check',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    console.log("e", e);
+                                    e.selected = !e.selected;
+                                },
+                                title: "Unselect",
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && e.selected;
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "edit_study"
+                                    }, e);
+                                },
+                                title: 'Edit this study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'history'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "modify_expired_date"
+                                    }, e);
+                                },
+                                title: 'Set/Change expired date',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "reject"
+                                    }, e);
+                                },
+                                title: options.trash.active ? 'Restore study' : 'Reject study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: options.trash.active ? 'restore' : 'reject'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-ok',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "verify_storage"
+                                    }, e);
+                                },
+                                title: 'Verify storage commitment',
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-save',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "download",
+                                        mode: "uncompressed"
+                                    }, e);
+                                },
+                                title: 'Retrieve Study uncompressed',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-download-alt',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "download",
+                                        mode: "compressed",
+                                    }, e);
+                                },
+                                title: 'Retrieve Study as stored at the archive',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-export',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "export"
+                                    }, e);
+                                },
+                                title: 'Export study',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'export'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-remove',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "delete"
+                                    }, e);
+                                },
+                                title: 'Delete study permanently',
+                                showIf: (e) => {
+                                    return options.trash.active ||
+                                        (
+                                            options.selectedWebService &&
+                                            options.selectedWebService.dicomAETitleObject &&
+                                            options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
+                                        )
+                                },
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'delete'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "download_csv"
+                                    }, e);
+                                },
+                                title: "Download as CSV",
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            }
+                        ]
+                    },
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title: "Toggle Attributes"
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }),new TableSchemaElement({
                     type: "actions",
                     header: "",
                     actions: [
@@ -975,266 +1216,6 @@ export class StudyService {
                     headerDescription: "Show studies",
                     widthWeight: 0.3,
                     calculatedWidth: "6%"
-                }),
-                new TableSchemaElement({
-                    type: "index",
-                    header: '',
-                    pathToValue: '',
-                    pxWidth: 40
-                }),
-                new TableSchemaElement({
-                    type: "actions-menu",
-                    header: "",
-                    menu: {
-                        toggle: (e) => {
-                            console.log("e", e);
-                            e.showMenu = !e.showMenu;
-                        },
-                        actions: [
-                            {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-unchecked',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    e.selected = !e.selected;
-                                },
-                                title: "Select",
-                                showIf: (e, config) => {
-                                    return !config.showCheckboxes && !e.selected;
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-check',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    console.log("e", e);
-                                    e.selected = !e.selected;
-                                },
-                                title: "Unselect",
-                                showIf: (e, config) => {
-                                    return !config.showCheckboxes && e.selected;
-                                }
-                            },
-                            {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-pencil',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "edit_study"
-                                    }, e);
-                                },
-                                title: 'Edit this study',
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: 'edit'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-export',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "export"
-                                    }, e);
-                                },
-                                title: 'Export study',
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: 'export'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'i',
-                                    cssClass: 'material-icons',
-                                    text: 'history'
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "modify_expired_date"
-                                    }, e);
-                                },
-                                title: 'Set/Change expired date',
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: 'edit'
-                                }
-                            }, {
-                                //<i class="material-icons">file_upload</i>
-                                icon: {
-                                    tag: 'i',
-                                    cssClass: 'material-icons',
-                                    text: 'file_upload'
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "upload_file"
-                                    }, e);
-                                },
-                                title: 'Upload file',
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: 'upload'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-save',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "download",
-                                        mode: "uncompressed"
-                                    }, e);
-                                },
-                                title: 'Retrieve Study uncompressed',
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-download-alt',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "download",
-                                        mode: "compressed",
-                                    }, e);
-                                },
-                                title: 'Retrieve Study as stored at the archive',
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "reject"
-                                    }, e);
-                                },
-                                title: options.trash.active ? 'Restore study' : 'Reject study',
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: options.trash.active ? 'restore' : 'reject'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-remove',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "delete"
-                                    }, e);
-                                },
-                                title: 'Delete study permanently',
-                                showIf: (e) => {
-                                    return options.trash.active ||
-                                        (
-                                            options.selectedWebService &&
-                                            options.selectedWebService.dicomAETitleObject &&
-                                            options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
-                                        )
-                                },
-                                permission: {
-                                    id: 'action-studies-study',
-                                    param: 'delete'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-ok',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "verify_storage"
-                                    }, e);
-                                },
-                                title: 'Verify storage commitment',
-                                permission: {
-                                    id: 'action-studies-verify_storage_commitment',
-                                    param: 'visible'
-                                }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "series",
-                                        action: "download_csv"
-                                    }, e);
-                                },
-                                title: "Download as CSV",
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            }
-                        ]
-                    },
-                    headerDescription: "Actions",
-                    pxWidth: 40
-                }),
-                new TableSchemaElement({
-                    type: "actions",
-                    header: "",
-                    actions: [
-                        {
-                            icon: {
-                                tag: 'span',
-                                cssClass: 'glyphicon glyphicon-th-list',
-                                text: ''
-                            },
-                            click: (e) => {
-                                console.log("e", e);
-                                e.showAttributes = !e.showAttributes;
-                            },
-                            title: "Toggle Attributes"
-                        }
-                    ],
-                    headerDescription: "Actions",
-                    pxWidth: 40
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1317,58 +1298,7 @@ export class StudyService {
                 })
             ],
             series: [
-                new TableSchemaElement({
-                    type: "actions",
-                    header: "",
-                    actions: [
-                        {
-                            icon: {
-                                tag: 'span',
-                                cssClass: 'glyphicon glyphicon-chevron-down',
-                                text: ''
-                            },
-                            click: (e) => {
-                                actions.call($this, {
-                                    event: "click",
-                                    level: "series",
-                                    action: "toggle_instances"
-                                }, e);
-                            },
-                            title: "Hide Instances",
-                            showIf: (e) => {
-                                return e.showInstances
-                            },
-                            permission: {
-                                id: 'action-studies-serie',
-                                param: 'visible'
-                            }
-                        }, {
-                            icon: {
-                                tag: 'span',
-                                cssClass: 'glyphicon glyphicon-chevron-right',
-                                text: ''
-                            },
-                            click: (e) => {
-                                actions.call($this, {
-                                    event: "click",
-                                    level: "series",
-                                    action: "toggle_instances"
-                                }, e);
-                            },
-                            title: "Show Instaces",
-                            showIf: (e) => {
-                                return !e.showInstances
-                            },
-                            permission: {
-                                id: 'action-studies-serie',
-                                param: 'visible'
-                            }
-                        }
-                    ],
-                    headerDescription: "Show Instances",
-                    widthWeight: 0.2,
-                    calculatedWidth: "6%"
-                }),
+
                 new TableSchemaElement({
                     type: "index",
                     header: '',
@@ -1481,6 +1411,57 @@ export class StudyService {
                     ],
                     headerDescription: "Actions",
                     pxWidth: 40
+                }),new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-down',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, {
+                                    event: "click",
+                                    level: "series",
+                                    action: "toggle_instances"
+                                }, e);
+                            },
+                            title: "Hide Instances",
+                            showIf: (e) => {
+                                return e.showInstances
+                            },
+                            permission: {
+                                id: 'action-studies-serie',
+                                param: 'visible'
+                            }
+                        }, {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-chevron-right',
+                                text: ''
+                            },
+                            click: (e) => {
+                                actions.call($this, {
+                                    event: "click",
+                                    level: "series",
+                                    action: "toggle_instances"
+                                }, e);
+                            },
+                            title: "Show Instaces",
+                            showIf: (e) => {
+                                return !e.showInstances
+                            },
+                            permission: {
+                                id: 'action-studies-serie',
+                                param: 'visible'
+                            }
+                        }
+                    ],
+                    headerDescription: "Show Instances",
+                    widthWeight: 0.2,
+                    calculatedWidth: "6%"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -2394,12 +2375,25 @@ export class StudyService {
 
     copyMove(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode?):Observable<any>{
         try{
-            const target = selectedElements.postActionElements.getAllAsArray()[0];
-            let url = `${this.getDicomURL("study", dcmWebApp)}/${_.get(target,"requestReady.StudyInstanceUID")}/${selectedElements.action}`;
+            const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
+            let studyInstanceUID;
+            let patientParams = {};
+            let observables = [];
+
+            if(!_.hasIn(target,"requestReady.StudyInstanceUID")){
+                studyInstanceUID = j4care.generateOIDFromUUID();
+                if(target.dicomLevel === "patient"){
+                    patientParams["PatientID"] = _.get(target.object, "attrs.00100020.Value[0]");
+                    patientParams["IssuerOfPatientID"] = _.get(target.object, "attrs.00100021.Value[0]");
+                }
+            }else{
+                studyInstanceUID = _.get(target,"requestReady.StudyInstanceUID");
+            }
+            let url = `${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}/${selectedElements.action}`;
             if(selectedElements.action === "move"){
                 url += `/` + rejectionCode;
             }
-            let observables = [];
+            url += j4care.param(patientParams);
             selectedElements.preActionElements.getAllAsArray().forEach(object=>{
                 observables.push(this.$http.post(url,object.requestReady).pipe(
                     catchError(err => of({isError: true, error: err})),

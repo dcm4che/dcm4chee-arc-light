@@ -47,7 +47,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
@@ -109,7 +108,6 @@ import java.util.*;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
-    private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     @Inject
     private Device device;

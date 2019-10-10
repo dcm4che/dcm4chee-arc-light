@@ -966,6 +966,18 @@ export class Globalvar {
                     filterKey:"storageVerificationFailed",
                     text:"Verification Failed",
                     description:"Storage Verification Failed"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ResponsiblePerson",
+                    description:"Responsible Person",
+                    placeholder:"Responsible Person"
+                },{
+                    tag:"p-calendar",
+                    type:"text",
+                    filterKey:"PatientsBirthDate",
+                    description:"Patient's Birth Date",
+                    placeholder:"Birth Date"
                 }
             ];
         }
@@ -1137,8 +1149,19 @@ export class Globalvar {
                     tag:"p-calendar",
                     filterKey:"PatientBirthDate",
                     description:"Birth Date"
-                },{
-                    tag:"dummy"
+                },
+                {
+                    tag: "select",
+                    options: [
+                        new SelectDropdown("UNVERIFIED", "UNVERIFIED"),
+                        new SelectDropdown("VERIFIED", "VERIFIED"),
+                        new SelectDropdown("NOT_FOUND", "NOT_FOUND"),
+                        new SelectDropdown("VERIFICATION_FAILED", "VERIFICATION_FAILED")
+                    ],
+                    showStar: true,
+                    filterKey: "patientVerificationStatus",
+                    description: "Verification Status",
+                    placeholder: "Verification Status"
                 }
             ]
         }

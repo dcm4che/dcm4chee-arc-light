@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
 import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfaces";
 import {PatientDicom} from "../../models/patient-dicom";
 import * as _ from "lodash";
@@ -44,6 +44,8 @@ export class DicomStudiesTableComponent implements OnInit {
     }
 
 
+
+
     get config(): TableSchemaConfig {
         return this._config;
     }
@@ -60,5 +62,37 @@ export class DicomStudiesTableComponent implements OnInit {
             level:level,
             direction:direction
         });
+    }
+
+/*    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        this.pressedKey = event.key;
+    }
+
+    @HostListener('document:keyup', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        this.pressedKey = event.key;
+    }*/
+    pressedKey;
+    @HostListener('document:keydown', ['$event'])
+    keyDown(event: KeyboardEvent){
+        console.log("e",event)
+
+        console.log("this.presedKey",this.pressedKey);
+        this.pressedKey = event.keyCode;
+    }
+    @HostListener('document:keyup', ['$event'])
+    keyUp(event: KeyboardEvent){
+        console.log("e",event)
+
+        console.log("this.presedKey",this.pressedKey);
+        this.pressedKey = undefined;
+    }
+
+    onBlockClick(object){
+        console.log("this.presedKey",this.pressedKey);
+        if(this.pressedKey === 17){
+            object.selected = !object.selected;
+        }
     }
 }

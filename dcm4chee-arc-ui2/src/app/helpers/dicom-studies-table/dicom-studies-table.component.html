@@ -15,7 +15,7 @@
 
     <!--Patient Table 1:-->
     <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients|searchDicom:searchList;let i = index">
-        <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'" [ngClass]="{'selected':patient.selected}">
+        <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'" [ngClass]="{'selected':patient.selected}" (click)="onBlockClick(patient)">
             <div class="td"
                  *ngFor="let patient_table of tableSchema.patient"
                  [ngClass]="[config?.cssTdClass || '', patient_table.type || '']"
