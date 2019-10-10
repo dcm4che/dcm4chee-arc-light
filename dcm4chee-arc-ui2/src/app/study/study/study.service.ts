@@ -668,6 +668,10 @@ export class StudyService {
         let schema: DicomTableSchema = {
             patient: [
                 new TableSchemaElement({
+                    type: "dummy",
+                    pxWidth: 35,
+                }),
+                new TableSchemaElement({
                     type: "actions-menu",
                     header: "",
                     menu: {
@@ -740,24 +744,6 @@ export class StudyService {
                                     id: 'action-studies-mwl',
                                     param: 'create'
                                 }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "download_csv"
-                                    }, e);
-                                },
-                                title: 'Download as CSV',
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
                             },
                             {
                                 icon: {
@@ -777,11 +763,29 @@ export class StudyService {
                                     id: 'action-studies-study',
                                     param: 'upload'
                                 }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "download_csv"
+                                    }, e);
+                                },
+                                title: 'Download as CSV',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                         ]
                     },
                     headerDescription: "Actions",
-                    pxWidth: 40
+                    pxWidth: 35
                 }),
                 new TableSchemaElement({
                     type: "actions",
@@ -872,7 +876,8 @@ export class StudyService {
                     pathToValue: "00100010.Value[0].Alphabetic",
                     headerDescription: "Patient's Name",
                     widthWeight: 1,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1078,6 +1083,24 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "upload_file"
+                                    }, e);
+                                },
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'upload'
+                                }
                             }, {
                                 icon: {
                                     tag: 'span',
@@ -1122,7 +1145,7 @@ export class StudyService {
                                     id: 'action-studies-study',
                                     param: 'delete'
                                 }
-                            }, {
+                            },{
                                 icon: {
                                     tag: 'span',
                                     cssClass: 'custom_icon csv_icon_black',
@@ -1144,7 +1167,7 @@ export class StudyService {
                         ]
                     },
                     headerDescription: "Actions",
-                    pxWidth: 40
+                    pxWidth: 35
                 }),
                 new TableSchemaElement({
                     type: "actions",
@@ -1223,7 +1246,8 @@ export class StudyService {
                     pathToValue: "[00200010].Value[0]",
                     headerDescription: "Study ID",
                     widthWeight: 0.9,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 }), new TableSchemaElement({
                     type: "value",
                     header: "Study Instance UID",
@@ -1313,26 +1337,7 @@ export class StudyService {
                             e.showMenu = !e.showMenu;
                         },
                         actions: [
-                            {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    console.log("e", e);
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "instance",
-                                        action: "download_csv"
-                                    }, e);
-                                },
-                                title: 'Download as CSV',
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            }, {
+                             {
                                 icon: {
                                     tag: 'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
@@ -1387,11 +1392,30 @@ export class StudyService {
                                     id: 'action-studies-serie',
                                     param: 'export'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'custom_icon csv_icon_black',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    console.log("e", e);
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "instance",
+                                        action: "download_csv"
+                                    }, e);
+                                },
+                                title: 'Download as CSV',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                         ]
                     },
                     headerDescription: "Actions",
-                    pxWidth: 40
+                    pxWidth: 35
                 }),
                 new TableSchemaElement({
                     type: "actions",
@@ -1469,7 +1493,8 @@ export class StudyService {
                     pathToValue: "00081010.Value[0]",
                     headerDescription: "Station Name",
                     widthWeight: 0.9,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1547,25 +1572,6 @@ export class StudyService {
                             {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-export',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "instance",
-                                        action: "export"
-                                    }, e);
-                                },
-                                title: 'Export instance',
-                                permission: {
-                                    id: 'action-studies-instance',
-                                    param: 'export'
-                                }
-                            },
-                            {
-                                icon: {
-                                    tag: 'span',
                                     cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
                                     text: ''
                                 },
@@ -1639,6 +1645,24 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-export',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "instance",
+                                        action: "export"
+                                    }, e);
+                                },
+                                title: 'Export instance',
+                                permission: {
+                                    id: 'action-studies-instance',
+                                    param: 'export'
+                                }
                             },
                             {
                                 icon: {
@@ -1662,7 +1686,7 @@ export class StudyService {
                         ]
                     },
                     headerDescription: "Actions",
-                    pxWidth: 40
+                    pxWidth: 35
                 }), new TableSchemaElement({
                     type: "actions",
                     header: "",
@@ -1708,7 +1732,8 @@ export class StudyService {
                     pathToValue: "00080016.Value[0]",
                     headerDescription: "SOP Class UID",
                     widthWeight: 0.9,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1826,7 +1851,7 @@ export class StudyService {
                         ]
                     },
                     headerDescription: "Actions",
-                    pxWidth: 40
+                    pxWidth: 35
                 }), new TableSchemaElement({
                     type: "actions",
                     header: "",
@@ -1853,7 +1878,8 @@ export class StudyService {
                     pathToValue: "00401001.Value[0]",
                     headerDescription: "Requested Procedure ID",
                     widthWeight: 2,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1974,7 +2000,7 @@ export class StudyService {
         }
 
         if (_.hasIn(options, "studyConfig.tab") && options.studyConfig.tab === "patient") {
-            schema.patient.splice(1,0, new TableSchemaElement({
+            schema.patient.splice(0,1, new TableSchemaElement({
                 type: "index",
                 header: '',
                 pathToValue: '',

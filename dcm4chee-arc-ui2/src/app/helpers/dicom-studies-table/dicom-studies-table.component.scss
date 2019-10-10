@@ -50,9 +50,23 @@ $pink:rgba(82, 36, 88, 0.85);
     .td{
       float: left;
       padding: 5px 7px;
-      border-right: 1px solid rgba(0, 0, 0, 0.19);
       overflow: hidden;
       height: 30px;
+      &.actions,&.actions-menu{
+        border-right: none;
+      }
+      &.value{
+        border-right: 1px solid rgba(0, 0, 0, 0.19);
+      }
+      &.value:first-child{
+        border-left: 1px solid rgba(0, 0, 0, 0.19);
+      }
+      &.border-left{
+        border-left: 1px solid rgba(0, 0, 0, 0.19);
+      }
+      &.border-right{
+        border-right: 1px solid rgba(0, 0, 0, 0.19);
+      }
       &:last-child{
         border:none;
       }
@@ -161,7 +175,7 @@ $pink:rgba(82, 36, 88, 0.85);
       margin-left: 6px;
       width: calc(100% - 6px);
       background: rgba(195, 195, 195, 0.7);
-      padding-left: 93px;
+      padding-left: 45px;
       position: relative;
       z-index: 1;
       &.selected{

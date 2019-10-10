@@ -15,6 +15,7 @@ import {DeviceConfiguratorService} from "../../configuration/device-configurator
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import {RangePickerService} from "../../widgets/range-picker/range-picker.service";
 
 @Component({
     selector: 'filter-generator',
@@ -32,6 +33,8 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Input() doNotSave;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
+    @Output() onTemplateSet  = new EventEmitter();
+    @Input() ignoreOnClear; //string[], pas here all filter keys that should be ignored on clear
     @Input() defaultSubmitId:string;
     dialogRef: MatDialogRef<any>;
     cssBlockClass = '';
@@ -50,7 +53,8 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         public dialog: MatDialog,
         public config: MatDialogConfig,
         private deviceConfigurator:DeviceConfiguratorService,
-        private devices:DevicesService
+        private devices:DevicesService,
+        private rangePicker:RangePickerService
     ) {
         console.log("test",this._filterTreeHeight)
     }
@@ -100,6 +104,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                });
            }
         }
+        this.onTemplateSet.emit(this.model);
     }
 
     onKeyUp(e){

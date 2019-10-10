@@ -256,6 +256,26 @@ export class StudyComponent implements OnInit, AfterContentChecked{
 
     }
 
+    onFilterTemplateSet(object){
+        console.log("object",object);
+        this.filter.filterModel = {};
+        if(object && _.hasIn(object,"webApp")){
+            Object.keys(object).forEach(key=>{
+                if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
+                    this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
+                        if(webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1 && object.webApp.dcmWebAppName === webApp.dcmWebAppName){
+                            this.filter.filterModel["webApp"] = webApp;
+                        }
+                    });
+                }else{
+                    this.filter.filterModel[key] = object[key];
+                }
+            })
+        }else{
+            Object.assign(this.filter.filterModel, object);
+        }
+    }
+
     tabToTitleMap(tab:DicomMode){
         return {
             "study":"Studies",
@@ -1197,19 +1217,42 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         }
     }
     submit(filterModel){
-        switch (this.studyConfig.tab){
-            case "study":
-                this.getStudies(filterModel);
-                break;
-            case "patient":
-                this.getPatients(filterModel);
-                break;
-            case "mwl":
-                this.getMWL(filterModel);
-                break;
-            case "diff":
-                // this.getDiff(filterModel);
-                break;
+        if (this.showNoFilterWarning(filterModel)) {
+            this.confirm({
+                content: 'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if (result){
+                    switch (this.studyConfig.tab){
+                        case "study":
+                            this.getStudies(filterModel);
+                            break;
+                        case "patient":
+                            this.getPatients(filterModel);
+                            break;
+                        case "mwl":
+                            this.getMWL(filterModel);
+                            break;
+                        case "diff":
+                            // this.getDiff(filterModel);
+                            break;
+                    }
+                }
+            });
+        }else{
+            switch (this.studyConfig.tab){
+                case "study":
+                    this.getStudies(filterModel);
+                    break;
+                case "patient":
+                    this.getPatients(filterModel);
+                    break;
+                case "mwl":
+                    this.getMWL(filterModel);
+                    break;
+                case "diff":
+                    // this.getDiff(filterModel);
+                    break;
+            }
         }
     }
     showNoFilterWarning(queryParameters){
