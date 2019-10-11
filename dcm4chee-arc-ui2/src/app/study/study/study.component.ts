@@ -1056,7 +1056,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         if(mode === 'compressed'){
             param += ';transfer-syntax=*';
         }
-        if(level === 'serie'){
+        if(level === 'series'){
             url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
             fileName = this.service.seriesFileName(object.attrs);
         }

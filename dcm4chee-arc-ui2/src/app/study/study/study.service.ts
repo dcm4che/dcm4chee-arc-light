@@ -1527,6 +1527,44 @@ export class StudyService {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-save',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "download",
+                                        mode: "uncompressed"
+                                    }, e);
+                                },
+                                title: 'Retrieve Series uncompressed',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-download-alt',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "download",
+                                        mode: "compressed",
+                                    }, e);
+                                },
+                                title: 'Retrieve Series as stored at the archive',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                             , {
                                 icon: {
