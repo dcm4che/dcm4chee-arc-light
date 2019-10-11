@@ -585,16 +585,16 @@
       "$ref": "paths/tokenFromKeycloak.json"
     },
     "/ctrl/start": {
-      "$ref": "paths/startArchive.json"
+      "$ref": "paths/archiveControl.json#/start"
     },
     "/ctrl/stop": {
-      "$ref": "paths/stopArchive.json"
+      "$ref": "paths/archiveControl.json#/stop"
     },
     "/ctrl/reload": {
-      "$ref": "paths/reloadArchive.json"
+      "$ref": "paths/archiveControl.json#/reload"
     },
     "/ctrl/status": {
-      "$ref": "paths/archiveStatus.json"
+      "$ref": "paths/archiveControl.json#/status"
     },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/access/{accessControlID}": {
       "$ref": "paths/updateStudyAccessControlID.json"
@@ -792,28 +792,28 @@
       "$ref": "paths/seriesExpire.json"
     },
     "/queue": {
-      "$ref": "paths/queues.json"
+      "$ref": "paths/queues.json#/-"
     },
     "/queue/{queueName}": {
-      "$ref": "paths/queueMsgs.json"
-    },
-    "/queue/{queueName}/{taskID}": {
-      "$ref": "paths/queueMsgDelete.json"
+      "$ref": "paths/queues.json#/queue"
     },
     "/queue/{queueName}/count": {
-      "$ref": "paths/queueMsgsCount.json"
-    },
-    "/queue/{queueName}/{taskID}/cancel": {
-      "$ref": "paths/queueMsgCancel.json"
+      "$ref": "paths/queues.json#/count"
     },
     "/queue/{queueName}/cancel": {
-      "$ref": "paths/queueMsgsCancel.json"
+      "$ref": "paths/queues.json#/cancel"
     },
-    "/queue/{queueName}/{taskID}/reschedule": {
-      "$ref": "paths/queueMsgReschedule.json"
+    "/queue/{queueName}/{taskID}/cancel": {
+      "$ref": "paths/queues.json#/cancelQueueMsg"
     },
     "/queue/{queueName}/reschedule": {
-      "$ref": "paths/queueMsgsReschedule.json"
+      "$ref": "paths/queues.json#/reschedule"
+    },
+    "/queue/{queueName}/{taskID}/reschedule": {
+      "$ref": "paths/queues.json#/rescheduleQueueMsg"
+    },
+    "/queue/{queueName}/{taskID}": {
+      "$ref": "paths/queues.json#/deleteQueueMsg"
     },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
       "$ref": "paths/studyStorageVerification.json"

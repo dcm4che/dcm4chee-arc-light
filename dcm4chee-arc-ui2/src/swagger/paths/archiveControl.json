@@ -1,0 +1,62 @@
+{
+  "start": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Start Archive",
+      "operationId": "start",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "archive started"
+        }
+      }
+    }
+  },
+  "stop": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Stop Archive",
+      "operationId": "stop",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "archive stopped"
+        }
+      }
+    }
+  },
+  "reload": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Reload Archive Configuration",
+      "operationId": "reload",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "configuration reloaded"
+        }
+      }
+    }
+  },
+  "status": {
+    "get": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Get Archive Status",
+      "operationId": "status",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/Status"
+        }
+      }
+    }
+  }
+}
