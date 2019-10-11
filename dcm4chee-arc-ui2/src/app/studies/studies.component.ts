@@ -82,7 +82,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         ModalitiesInStudy: '',
         'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate': '',
         'ScheduledProcedureStepSequence.ScheduledProcedureStepStatus': '',
-        returnempty: false,
+        //returnempty: false,
         PatientSex: '',
         PatientName:'',
         PatientBirthDate: '',
@@ -2560,7 +2560,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         $this.rjcode = res[0];
                     });
             }
-            this.filter.returnempty = false;
+            //this.filter.returnempty = false;
             this.trashaktive = true;
         }else{
             this.trashaktive = false;

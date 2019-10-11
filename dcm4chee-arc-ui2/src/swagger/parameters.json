@@ -789,15 +789,6 @@
       "$ref": "schemas.json#/patientVerificationStatus"
     }
   },
-  "returnempty": {
-    "name": "returnempty",
-    "in": "query",
-    "description": "return also empty Studies (proprietary extension)",
-    "schema": {
-      "type": "boolean",
-      "default": false
-    }
-  },
   "incomplete": {
     "name": "incomplete",
     "in": "query",

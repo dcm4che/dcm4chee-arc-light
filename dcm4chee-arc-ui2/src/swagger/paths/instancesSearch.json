@@ -37,9 +37,6 @@
         "$ref": "../parameters.json#/patientVerificationStatus"
       },
       {
-        "$ref": "../parameters.json#/returnempty"
-      },
-      {
         "$ref": "../parameters.json#/incomplete"
       },
       {
