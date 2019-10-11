@@ -48,7 +48,7 @@
                                 placeholder="{{line[index]?.placeholder}}"
                                 min="{{line[index]?.min}}"
                                 max="{{line[index]?.max}}"
-                                *ngIf="line[index].type === 'text'"
+                                *ngIf="line[index].type === 'text' || line[index].type != 'number'"
                         >
                           <input
                                 [disabled]="line[index].disabled"
