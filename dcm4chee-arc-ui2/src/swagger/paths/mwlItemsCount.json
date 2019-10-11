@@ -1,7 +1,7 @@
 {
   "get": {
     "tags": [
-      "STAT-RS"
+      "MWL-RS"
     ],
     "summary": "Count Scheduled Procedure Steps",
     "operationId": "CountScheduledProcedureSteps",

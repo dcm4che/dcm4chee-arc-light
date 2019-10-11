@@ -198,31 +198,31 @@
       "$ref": "paths/importInstances.json"
     },
     "/aets/{aet}/rs/workitems": {
-      "$ref": "paths/workitems.json"
+      "$ref": "paths/workitems.json#/-"
     },
     "/aets/{aet}/rs/workitems/{workitem}": {
-      "$ref": "paths/workitem.json"
+      "$ref": "paths/workitems.json#/workitem"
     },
-    "/aets/{aet}/rs/workitems/{workitem}/state": {
-      "$ref": "paths/workitemState.json"
+    "/aets/{aet}/rs/workitems/{workitem}/state/{requester}": {
+      "$ref": "paths/workitems.json#/state"
     },
-    "/aets/{aet}/rs/workitems/{workitem}/cancelrequest": {
-      "$ref": "paths/workitemCancelrequest.json"
+    "/aets/{aet}/rs/workitems/{workitem}/cancelrequest/{requester}": {
+      "$ref": "paths/workitems.json#/cancelrequest"
     },
     "/aets/{aet}/rs/workitems/{workitem}/subscribers/{subscriber}": {
-      "$ref": "paths/workitemSubscriber.json"
+      "$ref": "paths/workitems.json#/subscriber"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5/subscribers/{subscriber}": {
-      "$ref": "paths/workitemGlobalSubscriber.json"
+      "$ref": "paths/workitems.json#/globalSubscriber"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5.1/subscribers/{subscriber}": {
-      "$ref": "paths/workitemFilteredSubscriber.json"
+      "$ref": "paths/workitems.json#/filteredSubscriber"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5/subscribers/{subscriber}/suspend": {
-      "$ref": "paths/workitemGlobalSubscriberSuspend.json"
+      "$ref": "paths/workitems.json#/globalSubscriberSuspend"
     },
     "/aets/{aet}/rs/workitems/1.2.840.10008.5.1.4.34.5.1/subscribers/{subscriber}/suspend": {
-      "$ref": "paths/workitemFilteredSubscriberSuspend.json"
+      "$ref": "paths/workitems.json#/filteredSubscriberSuspend"
     },
     "/aets/{aet}/rs/mwlitems": {
       "$ref": "paths/mwlItemsSearchOrCreateUpdate.json"
@@ -255,7 +255,7 @@
       "$ref": "paths/mwlItemsCount.json"
     },
     "/aets/{aet}/rs/workitems/count": {
-      "$ref": "paths/workitemsCount.json"
+      "$ref": "paths/workitems.json#/count"
     },
     "/aets/{aet}/rs/studies/size": {
       "$ref": "paths/studiesSize.json"

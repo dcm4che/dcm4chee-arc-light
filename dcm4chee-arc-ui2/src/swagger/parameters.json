@@ -188,6 +188,15 @@
       "type": "string"
     }
   },
+  "requesterPathParam": {
+    "name": "requester",
+    "in": "path",
+    "description": "AET of a Requester",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "subscriptionPathParam": {
     "name": "workitem",
     "in": "path",

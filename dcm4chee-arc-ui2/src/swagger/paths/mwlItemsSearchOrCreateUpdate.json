@@ -1,7 +1,7 @@
 {
   "get": {
     "tags": [
-      "QIDO-RS"
+      "MWL-RS"
     ],
     "summary": "Search for Scheduled Procedure Steps",
     "operationId": "SearchForSPS",
