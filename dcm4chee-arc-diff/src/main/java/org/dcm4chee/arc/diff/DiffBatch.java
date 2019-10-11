@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.diff;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -206,6 +207,7 @@ public class DiffBatch {
     }
 
     public void setComparefields(List<String> comparefields) {
+        comparefields.removeAll(Collections.singleton(null));
         this.comparefields = comparefields.toArray(new String[0]);
     }
 
