@@ -40,6 +40,9 @@ import 'rxjs/add/observable/throw';
 import {forkJoin} from 'rxjs/observable/forkJoin';
 import {catchError} from "rxjs/operators";
 import {of} from "rxjs/observable/of";
+import {FormatTMPipe} from "../../pipes/format-tm.pipe";
+import {FormatDAPipe} from "../../pipes/format-da.pipe";
+import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
 
 @Injectable()
 export class StudyService {
@@ -323,6 +326,136 @@ export class StudyService {
         )
     }
 
+    getDiff(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("diff", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        )
+    }
+
+    getDiffHeader(study,code){
+        let value;
+        let sqValue;
+        if(_.hasIn(study,[code,"Value",0])){
+            if(study[code].vr === "PN"){
+                if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0,"Alphabetic"])){
+                    value =  _.get(study,[code,"Value",0,"Alphabetic"]);
+                    sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0,"Alphabetic"]);
+                    if(value === sqValue){
+                        return {
+                            value: value,
+                            showBorder:false
+                        }
+                    }else{
+                        return {
+                            value: value + "/" + sqValue,
+                            showBorder:true
+                        }
+                    }
+                }else{
+                    return {
+                        value: study[code].Value[0].Alphabetic,
+                        showBorder:false
+                    }
+                }
+            }else{
+                //00200010
+                switch(code) {
+                    case "00080061":
+                        value = new FormatAttributeValuePipe().transform(study[code]);
+                        // value = _.get(study,[code,"Value", 0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatAttributeValuePipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code, "Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    case "00080020":
+                        value = new FormatDAPipe().transform(_.get(study,[code,"Value",0]));
+                        // value = _.get(study,[code,"Value",0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatDAPipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    case "00080030":
+                        value = new FormatTMPipe().transform(_.get(study,[code,"Value",0]));
+                        // value = _.get(study,[code,"Value",0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatTMPipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            value = _.get(study,[code,"Value",0]);
+                            sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                }
+            }
+            return {
+                value: study[code].Value[0],
+                showBorder:false
+            }
+        }else{
+            return {
+                value: "",
+                showBorder:false
+            }
+        }
+    }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
         return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
@@ -418,9 +551,10 @@ export class StudyService {
                 case "study":
                     url += '/studies';
                     break;
-                /*            case "diff":
-                                url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
-                                break;*/
+                case "diff":
+                    // url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
+                    //TODO
+                    break;
                 default:
                     url;
             }
@@ -506,6 +640,9 @@ export class StudyService {
 
     queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
         return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+    queryNationalPatientRegister(patientID){
+        return this.$http.get(`../xroad/RR441/${patientID}`)
     }
 
     extractAttrs(attrs, tags, extracted) {
@@ -706,6 +843,23 @@ export class StudyService {
                                 title: "Unselect",
                                 showIf: (e, config) => {
                                     return !config.showCheckboxes && e.selected;
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'xroad_icon',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "pdq_patient"
+                                    }, e);
+                                },
+                                title: "Query National Patient Registry",
+                                showIf: (e, config) => {
+                                    return options.appService['xRoad'] || (options.appService.global['PDQs'] && options.appService.global['PDQs'].length > 0);
                                 }
                             },
                             {

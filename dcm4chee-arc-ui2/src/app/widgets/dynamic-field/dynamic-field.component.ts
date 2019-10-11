@@ -42,6 +42,7 @@ export class DynamicFieldComponent implements OnInit {
                 this.key = 'hl7ApplicationName';
             break;
         }
+        console.log("elements",this.elements)
 
     }
     valueChanged(){

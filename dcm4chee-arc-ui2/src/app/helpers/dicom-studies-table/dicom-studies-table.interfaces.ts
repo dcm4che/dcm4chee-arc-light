@@ -56,6 +56,7 @@ export interface StudySchemaOptions{
     selectedWebService?:DcmWebApp;
     tableParam?:TableParam;
     studyConfig?:StudyPageConfig;
+    appService?:any;
 }
 export interface TableAction{
     icon:Icon;

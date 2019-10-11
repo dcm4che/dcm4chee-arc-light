@@ -3388,11 +3388,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.aet1 = this.aet;
         }
         if(!this.aet2){
-            this.mainservice.setMessage({
-                'title': 'Warning',
-                'text': "Secondary AET is empty!",
-                'status': 'warning'
-            });
+            this.mainservice.showMsg("Secondary AET is empty!");
         }else{
             return `../aets/${this.aet}/dimse/${this.aet1}/diff/${this.aet2}/studies`;
         }

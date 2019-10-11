@@ -609,6 +609,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             if(id.action === "edit_patient"){
                 this.editPatient(model);
             }
+            if(id.action === "pdq_patient"){
+                this.queryNationalPatientRegister(model);
+            }
             if(id.action === "download"){
                 if(id.level === "instance"){
                     if(id.mode === "uncompressed"){
@@ -1222,39 +1225,134 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                 content: 'No filter are set, are you sure you want to continue?'
             }).subscribe(result => {
                 if (result){
-                    switch (this.studyConfig.tab){
-                        case "study":
-                            this.getStudies(filterModel);
-                            break;
-                        case "patient":
-                            this.getPatients(filterModel);
-                            break;
-                        case "mwl":
-                            this.getMWL(filterModel);
-                            break;
-                        case "diff":
-                            // this.getDiff(filterModel);
-                            break;
-                    }
+                    this.triggerQueries(filterModel);
                 }
             });
         }else{
-            switch (this.studyConfig.tab){
-                case "study":
-                    this.getStudies(filterModel);
-                    break;
-                case "patient":
-                    this.getPatients(filterModel);
-                    break;
-                case "mwl":
-                    this.getMWL(filterModel);
-                    break;
-                case "diff":
-                    // this.getDiff(filterModel);
-                    break;
+            this.triggerQueries(filterModel);
+        }
+
+    }
+    triggerQueries(filterModel){
+        switch (this.studyConfig.tab){
+            case "study":
+                this.getStudies(filterModel);
+                break;
+            case "patient":
+                this.getPatients(filterModel);
+                break;
+            case "mwl":
+                this.getMWL(filterModel);
+                break;
+            case "diff":
+                this.getDiff(filterModel);
+                break;
+        }
+    };
+    getDiff(filterModel){
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+/*        let filter = Object.assign({},params);
+        filter['offset'] = offset ? offset:0;
+        filter['limit'] = this.limit + 1;
+        let mode = 'pk';
+        this.cfpLoadingBar.start();
+        if(this.taskPK != ''){
+            filter['pk'] = this.taskPK;
+        }else{
+            mode = 'batch';
+            filter['batchID'] = this.batchID;
+        }*/
+        this.service.getDiff(filterModel,this.studyWebService.selectedWebService).subscribe(res=>{
+            console.log("res",res);
+            this.patients = [];
+/*            this.morePatients = undefined;
+            this.moreDiffs = undefined;
+            this.moreStudies = undefined;*/
+
+            if (_.size(res) > 0) {
+                // this.moreDiffs = res.length > this.limit;
+                this.prepareDiffData(res, filterModel.offset);
+            }else{
+                this.appService.setMessage({
+                    'title': 'Info',
+                    'text': 'No Diff Results found!',
+                    'status': 'info'
+                });
             }
+            this.cfpLoadingBar.complete();
+        },err=>{
+            this.patients = [];
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
+        });
+    }
+
+    prepareDiffData(res, offset){
+        let haederCodes = [
+            "00200010",
+            "0020000D",
+            "00080020",
+            "00080030",
+            "00080090",
+            "00080050",
+            "00080061",
+            "00081030",
+            "00201206",
+            "00201208"
+        ];
+        let index = 0;
+        while (this.patientAttributes.dcmTag[index] && (this.patientAttributes.dcmTag[index] < '00201200')) {
+            index++;
+        }
+        this.patientAttributes.dcmTag.splice(index, 0, '00201200');
+
+        let pat, study, patAttrs, tags = this.patientAttributes.dcmTag;
+        console.log('res', res);
+        res.forEach((studyAttrs, index)=> {
+            patAttrs = {};
+            this.service.extractAttrs(studyAttrs, tags, patAttrs);
+            if (!(pat && this.service.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                pat = {
+                    attrs: patAttrs,
+                    studies: [],
+                    showAttributes: false,
+                    showStudies:true
+                };
+                // this.$apply(function () {
+                this.patients.push(pat);
+                // });
+            }
+            let showBorder = false;
+            let diffHeaders = {};
+            _.forEach(haederCodes,(m)=>{
+                diffHeaders[m] = this.service.getDiffHeader(studyAttrs,m);
+            });
+            study = {
+                patient: pat,
+                offset: offset + index,
+                moreSeries: false,
+                attrs: studyAttrs,
+                series: null,
+                showAttributes: false,
+                fromAllStudies: false,
+                selected: false,
+                showBorder:false,
+                diffHeaders:diffHeaders
+            };
+            pat.studies.push(study);
+            // this.extendedFilter(false);
+            //                   this.studies.push(study); //sollte weg kommen
+        });
+        if (this.more = (res.length > this._filter.filterModel.limit)) {
+            pat.studies.pop();
+            if (pat.studies.length === 0) {
+                this.patients.pop();
+            }
+            // this.studies.pop();
         }
     }
+
     showNoFilterWarning(queryParameters){
         let param =  _.clone(queryParameters);
         // if (param['orderby'] == '-StudyDate,-StudyTime'){
@@ -1359,7 +1457,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                 this.moreMWL = undefined;*/
                 if (res){
                     this.setTopToTableHeader();
-                    // let pat, mwl, patAttrs, tags = this.attributeFilters.Patient.dcmTag;
+                    // let pat, mwl, patAttrs, tags = this.patientAttributes.dcmTag;
                     let patient: PatientDicom;
                     let mwl: MwlDicom;
                     let patAttrs;
@@ -2345,7 +2443,8 @@ trigger_diff*/
             trash:this.trash,
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
             tableParam:this.tableParam,
-            studyConfig:this.studyConfig
+            studyConfig:this.studyConfig,
+            appService:this.appService
         }));
     }
 
@@ -2829,6 +2928,75 @@ trigger_diff*/
                     if (retries)
                         this.initExporters(retries - 1);
                 });
+    }
+
+    queryNationalPatientRegister(patientId){
+        if(patientId.xroad){
+            delete patientId.xroad;
+        }else{
+            if(_.hasIn(this.appService,"global['PDQs']") && this.appService.global['PDQs'].length > 0){
+                //PDQ is configured
+                console.log("global",this.appService.global);
+                if(this.appService.global['PDQs'].length > 1){
+                    this.confirm({
+                        content: 'Schedule Storage Verification of matching Studies',
+                        doNotSave:true,
+                        form_schema:[
+                            [
+                                [
+
+                                    {
+                                        tag:"label",
+                                        text:"Select PDQ Service"
+                                    },
+                                    {
+                                        tag:"select",
+                                        options:this.appService.global['PDQs'].map(pdq=>{
+                                            return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
+                                        }),
+                                        filterKey:"PDQServiceID",
+                                        description:"PDQ ServiceID",
+                                        placeholder:"PDQ ServiceID"
+                                    }
+                                ]
+                            ]
+                        ],
+                        result: {
+                            schema_model: {}
+                        },
+                        saveButton: 'QUERY'
+                    }).subscribe(ok=>{
+                        if(ok && ok.schema_model.PDQServiceID){
+                            this.queryPDQ(patientId,ok.schema_model.PDQServiceID);
+                        }
+                    })
+                }else{
+                    this.queryPDQ(patientId, this.appService.global.PDQs[0].id);
+                }
+            }else{
+                console.log("global",this.appService.global);
+                this.cfpLoadingBar.start();
+                this.service.queryNationalPatientRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
+                    patientId.xroad = xroadAttr;
+                    this.cfpLoadingBar.complete();
+                },(err)=>{
+                    console.error("Error Quering National Pation Register",err);
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+            }
+        }
+    }
+    queryPDQ(patientId, PDQServiceID){
+        this.cfpLoadingBar.start();
+        this.service.queryPatientDemographics(this.service.getPatientId(patientId.attrs),PDQServiceID).subscribe((xroadAttr)=>{
+            patientId.xroad = xroadAttr;
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            console.error("Error Quering National Patient Register",err);
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
+        });
     }
     getQueueNames(){
         this.service.getQueueNames().subscribe(names=>{

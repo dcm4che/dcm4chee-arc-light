@@ -21,7 +21,7 @@ $pink:rgba(82, 36, 88, 0.85);
       padding-left: 33px;
     }
     &.instance{
-      padding-left: 96px;
+      padding-left: 50px;
     }
     .td{
       float: left;
@@ -55,7 +55,7 @@ $pink:rgba(82, 36, 88, 0.85);
       &.actions,&.actions-menu{
         border-right: none;
       }
-      &.value{
+      &.value, &.pipe{
         border-right: 1px solid rgba(0, 0, 0, 0.19);
       }
       &.value:first-child{
