@@ -1,0 +1,224 @@
+{
+  "-": {
+    "get": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Search for Scheduled Procedure Steps",
+      "operationId": "SearchForSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Create/Update Scheduled Procedure Step",
+      "operationId": "CreateUpdateSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/createUpdateSPS"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/createUpdateSPSSuccessful"
+        },
+        "400": {
+          "description": "Missing Patient ID or Scheduled Procedure Step Sequence in request body"
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or Patient does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "count": {
+    "get": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Count Scheduled Procedure Steps",
+      "operationId": "CountScheduledProcedureSteps",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "deleteMWL": {
+    "delete": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Delete Scheduled Procedure Step",
+      "operationId": "DeleteSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/spsIDPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Scheduled Procedure Step deleted successfully."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or Scheduled Procedure Step not found."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "linkInstancesWithMWL": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Link Instances with MWL Entry",
+      "operationId": "LinkInstancesWithMWLEntry",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/spsIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+      },
+      "responses": {
+        "200": {
+          "description": "All matching Instances linked with MWLItem",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some Instances were linked with MWLItem, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity, Study, MWL Item or Rejection Note."
+        },
+        "409": {
+          "description": "Link Instances with MWLItem failed for all.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}
