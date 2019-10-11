@@ -1,22 +1,46 @@
 {
-  "get": {
-    "tags": [
-      "MONITOR-RS"
-    ],
-    "summary": "List Open Associations",
-    "operationId": "listOpenAssociations",
-    "parameters": [
+  "-": {
+    "get": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "List Open Associations",
+      "operationId": "listOpenAssociations",
+      "parameters": [
 
-    ],
-    "responses": {
-      "200": {
-        "description": "Open Associations",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "../schemas/associations.schema.json"
+      ],
+      "responses": {
+        "200": {
+          "description": "Open Associations",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/associations.schema.json"
+              }
             }
           }
+        }
+      }
+    }
+  },
+  "abortAssociation": {
+    "delete": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Abort Associations",
+      "operationId": "abortAssociation",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/serialNoPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "no open Association with given serialNo found"
         }
       }
     }

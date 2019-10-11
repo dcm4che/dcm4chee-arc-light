@@ -1,0 +1,550 @@
+{
+  "patients": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Search for Patients external",
+      "operationId": "SearchForPatientsExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "patientsCount": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Count Patients external",
+      "operationId": "CountPatientsExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "studies": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Search for Studies external",
+      "operationId": "SearchForStudiesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "studiesCount": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Count Studies external",
+      "operationId": "CountStudiesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or C-FIND SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "seriesOfStudy": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Search for Series of Study external",
+      "operationId": "SearchForStudySeriesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "seriesOfStudyCount": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Count Series of Study external",
+      "operationId": "CountStudySeriesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE, C-FIND SCP with the specified Title or Study."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "instancesOfSeriesOfStudy": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Search for Instances of Series of Study external",
+      "operationId": "SearchForStudySeriesInstancesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "instancesOfSeriesOfStudyCount": {
+    "get": {
+      "tags": [
+        "FIND-RS"
+      ],
+      "summary": "Count Instances of Series of Study external",
+      "operationId": "CountStudySeriesInstancesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE, C-FIND SCP with the specified Title, Study or Series."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Query of C-FIND SCP failed."
+        }
+      }
+    }
+  }
+}

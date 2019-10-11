@@ -363,37 +363,67 @@
       "$ref": "paths/wadoURI.json"
     },
     "/aets/{aet}/dimse/{findscp}/patients": {
-      "$ref": "paths/patientsExternalFind.json"
-    },
-    "/aets/{aet}/dimse/{findscp}/studies": {
-      "$ref": "paths/studiesExternalFind.json"
-    },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
-      "$ref": "paths/seriesOfStudyExternalFind.json"
-    },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/instancesOfSeriesExternalFind.json"
+      "$ref": "paths/externalCFind.json#/patients"
     },
     "/aets/{aet}/dimse/{findscp}/patients/count": {
-      "$ref": "paths/patientsExternalCount.json"
+      "$ref": "paths/externalCFind.json#/patientsCount"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies": {
+      "$ref": "paths/externalCFind.json#/studies"
     },
     "/aets/{aet}/dimse/{findscp}/studies/count": {
-      "$ref": "paths/studiesExternalCount.json"
+      "$ref": "paths/externalCFind.json#/studiesCount"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+      "$ref": "paths/externalCFind.json#/seriesOfStudy"
     },
     "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
-      "$ref": "paths/seriesOfStudyExternalCount.json"
+      "$ref": "paths/externalCFind.json#/seriesOfStudyCount"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
+      "$ref": "paths/externalCFind.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
-      "$ref": "paths/instancesOfSeriesExternalCount.json"
+      "$ref": "paths/externalCFind.json#/instancesOfSeriesOfStudyCount"
+    },
+    "/aets/{aet}/dimse/{findscp}/diff/{secondaryFindSCP}/studies": {
+      "$ref": "paths/diff.json#/studiesCompare"
+    },
+    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/count": {
+      "$ref": "paths/diff.json#/studiesCompareCount"
+    },
+    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{field}": {
+      "$ref": "paths/diff.json#/studiesCompareCSV"
     },
     "/devices": {
-      "$ref": "paths/devices.json"
+      "$ref": "paths/devices.json#/-"
+    },
+    "/devices/{DeviceName}": {
+      "$ref": "paths/devices.json#/device"
+    },
+    "/devices/{deviceName}/vendordata": {
+      "$ref": "paths/devices.json#/vendorData"
+    },
+    "/unique/aets": {
+      "$ref": "paths/unique.json#/aets"
+    },
+    "/unique/aets/{aet}": {
+      "$ref": "paths/unique.json#/aet"
+    },
+    "/unique/webAppNames": {
+      "$ref": "paths/unique.json#/webApps"
+    },
+    "/unique/aets/{webAppName}": {
+      "$ref": "paths/unique.json#/webApp"
+    },
+    "/unique/hl7apps": {
+      "$ref": "paths/unique.json#/hl7Apps"
+    },
+    "/unique/aets/{hl7AppName}": {
+      "$ref": "paths/unique.json#/hl7App"
     },
     "/devicename": {
       "$ref": "paths/deviceName.json"
-    },
-    "/devices/{DeviceName}": {
-      "$ref": "paths/device.json"
     },
     "/aes": {
       "$ref": "paths/aes.json"
@@ -401,32 +431,11 @@
     "/aets": {
       "$ref": "paths/aets.json"
     },
-    "/unique/aets": {
-      "$ref": "paths/uniqueAETs.json"
-    },
-    "/unique/aets/{aet}": {
-      "$ref": "paths/uniqueAET.json"
-    },
     "/webapps": {
       "$ref": "paths/webapps.json"
     },
-    "/unique/webAppNames": {
-      "$ref": "paths/uniqueWebApps.json"
-    },
-    "/unique/aets/{webAppName}": {
-      "$ref": "paths/uniqueWebApp.json"
-    },
     "/hl7apps": {
       "$ref": "paths/hl7Apps.json"
-    },
-    "/unique/hl7apps": {
-      "$ref": "paths/uniqueHL7Apps.json"
-    },
-    "/unique/aets/{hl7AppName}": {
-      "$ref": "paths/uniqueHL7App.json"
-    },
-    "/devices/{deviceName}/vendordata": {
-      "$ref": "paths/vendorData.json"
     },
     "/attribute-filter/{entity}": {
       "$ref": "paths/attributeFilter.json"
@@ -444,16 +453,16 @@
       "$ref": "paths/rejectionNotes.json"
     },
     "/monitor/associations": {
-      "$ref": "paths/associations.json"
+      "$ref": "paths/associations.json#/-"
     },
     "/monitor/associations/{serialNo}": {
-      "$ref": "paths/associationsAbort.json"
+      "$ref": "paths/associations.json#/abortAssociation"
     },
     "/metrics": {
-      "$ref": "paths/metrics.json"
+      "$ref": "paths/metrics.json#/-"
     },
     "/metrics/{name}": {
-      "$ref": "paths/metric.json"
+      "$ref": "paths/metrics.json#/metric"
     },
     "/monitor/serverTime": {
       "$ref": "paths/serverTime.json"
@@ -844,15 +853,6 @@
     },
     "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "$ref": "paths/matchingInstancesOfSeriesStorageVerificationLegacy.json"
-    },
-    "/aets/{aet}/dimse/{findscp}/diff/{secondaryFindSCP}/studies": {
-      "$ref": "paths/studiesCompare.json"
-    },
-    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/count": {
-      "$ref": "paths/studiesCompareCount.json"
-    },
-    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{field}": {
-      "$ref": "paths/studiesCompareCSV.json"
     },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
       "$ref": "paths/studyExport.json"

@@ -1,51 +1,289 @@
 {
-  "get": {
-    "tags": [
-      "CONFIG-RS"
-    ],
-    "summary": "List devices",
-    "operationId": "listDevices",
-    "parameters": [
-      {
-        "$ref": "../parameters.json#/dicomDeviceName"
-      },
-      {
-        "$ref": "../parameters.json#/dicomDescription"
-      },
-      {
-        "$ref": "../parameters.json#/dicomManufacturer"
-      },
-      {
-        "$ref": "../parameters.json#/dicomManufacturerModelName"
-      },
-      {
-        "$ref": "../parameters.json#/dicomStationName"
-      },
-      {
-        "$ref": "../parameters.json#/dicomPrimaryDeviceType"
-      },
-      {
-        "$ref": "../parameters.json#/dicomInstitutionName"
-      },
-      {
-        "$ref": "../parameters.json#/dicomInstitutionDepartmentName"
-      },
-      {
-        "$ref": "../parameters.json#/dicomInstalled"
-      },
-      {
-        "$ref": "../parameters.json#/dicomSoftwareVersion"
-      },
-      {
-        "$ref": "../parameters.json#/hasArcDevExt"
+  "-": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List devices",
+      "operationId": "listDevices",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDescription"
+        },
+        {
+          "$ref": "../parameters.json#/dicomManufacturer"
+        },
+        {
+          "$ref": "../parameters.json#/dicomManufacturerModelName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomStationName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomPrimaryDeviceType"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstitutionName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstitutionDepartmentName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstalled"
+        },
+        {
+          "$ref": "../parameters.json#/dicomSoftwareVersion"
+        },
+        {
+          "$ref": "../parameters.json#/hasArcDevExt"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/deviceList"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
       }
-    ],
-    "responses": {
-      "200": {
-        "$ref": "../responses.json#/deviceList"
+    }
+  },
+  "device": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Device",
+      "operationId": "getDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Device",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../../assets/schema/device.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Device configuration not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Create Device",
+      "operationId": "createDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "requestBody": {
+        "description": "new device",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../assets/schema/device.schema.json"
+            }
+          }
+        }
       },
-      "500": {
-        "description": "Internal Server Error."
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+        },
+        "404": {
+          "description": "Referenced devices/configuration not found"
+        },
+        "409": {
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Update Device",
+      "operationId": "updateDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "requestBody": {
+        "description": "updated device",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../assets/schema/device.schema.json"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+        },
+        "404": {
+          "description": "Device not found or referenced device/configuration not found"
+        },
+        "409": {
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Delete Device",
+      "operationId": "deleteDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "vendorData": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Device Vendor Data",
+      "operationId": "getDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "file"
+              }
+            }
+          }
+        },
+        "204": {
+          "description": "successful operation - device has no vendor data"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Update Device Vendor Data",
+      "operationId": "updateDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "requestBody": {
+        "description": "Vendor Data",
+        "required": true,
+        "content": {
+          "application/zip": {
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Delete Device Vendor Data",
+      "operationId": "deleteDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
       }
     }
   }
