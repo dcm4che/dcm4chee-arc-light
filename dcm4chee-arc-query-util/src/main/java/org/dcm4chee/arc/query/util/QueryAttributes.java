@@ -117,7 +117,6 @@ public class QueryAttributes {
                 case "priority":
                 case "withoutstudies":
                 case "fuzzymatching":
-                case "returnempty":
                 case "retrievefailed":
                 case "compressionfailed":
                 case "patientVerificationStatus":

@@ -111,10 +111,6 @@ public class QidoRS {
     @PathParam("AETitle")
     private String aet;
 
-    @QueryParam("returnempty")
-    @Pattern(regexp = "true|false")
-    private String returnempty;
-
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -504,7 +500,6 @@ public class QidoRS {
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
-        queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));

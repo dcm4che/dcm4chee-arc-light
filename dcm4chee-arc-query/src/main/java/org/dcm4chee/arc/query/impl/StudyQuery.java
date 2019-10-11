@@ -150,7 +150,7 @@ class StudyQuery extends AbstractQuery {
         QueryParam queryParam = context.getQueryParam();
         if (numberOfInstancesI != null) {
             numberOfStudyRelatedInstances = numberOfInstancesI;
-            if (numberOfStudyRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
+            if (numberOfStudyRelatedInstances == 0) {
                 return null;
             }
             numberOfStudyRelatedSeries = results.get(studyQueryAttributes.get(StudyQueryAttributes_.numberOfSeries));
@@ -162,7 +162,7 @@ class StudyQuery extends AbstractQuery {
             StudyQueryAttributes studyView = context.getQueryService()
                     .calculateStudyQueryAttributes(studyPk, queryParam.getQueryRetrieveView());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
-            if (numberOfStudyRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
+            if (numberOfStudyRelatedInstances == 0) {
                 return null;
             }
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();

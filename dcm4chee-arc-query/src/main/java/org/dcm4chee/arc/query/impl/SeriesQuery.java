@@ -167,7 +167,7 @@ class SeriesQuery extends AbstractQuery {
         QueryParam queryParam = context.getQueryParam();
         if (numberOfInstancesI != null) {
             numberOfSeriesRelatedInstances = numberOfInstancesI;
-            if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
+            if (numberOfSeriesRelatedInstances == 0) {
                 return null;
             }
             retrieveAETs = results.get(seriesQueryAttributes.get(SeriesQueryAttributes_.retrieveAETs));
@@ -176,7 +176,7 @@ class SeriesQuery extends AbstractQuery {
             SeriesQueryAttributes seriesView = context.getQueryService()
                     .calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam.getQueryRetrieveView());
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
-            if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
+            if (numberOfSeriesRelatedInstances == 0) {
                 return null;
             }
             retrieveAETs = seriesView.getRetrieveAETs();
