@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -177,6 +178,8 @@ class UpdateStudyAccessMatching {
                     StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
                     ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
                     ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
+                    ctx.setAttributes(match);
+                    ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
                     studyService.updateAccessControlID(ctx);
                     count++;
                 }

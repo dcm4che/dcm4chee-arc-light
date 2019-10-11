@@ -49,7 +49,6 @@ import org.dcm4chee.arc.entity.Patient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -154,10 +153,13 @@ class ParticipantObjectID {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
         List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
         if (auditInfo.getField(AuditInfo.EXPIRATION_DATE) != null)
-            participantObjectDetails.add(
-                    AuditMessages.createParticipantObjectDetail(
-                            "Expiration Date",
-                            auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
+            participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
+                    "Expiration Date",
+                    auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
+        if (auditInfo.getField(AuditInfo.STUDY_ACCESS_CTRL_ID) != null)
+            participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
+                    "Study Access Control ID",
+                    auditInfo.getField(AuditInfo.STUDY_ACCESS_CTRL_ID)));
         studyPatParticipants[0] = studyPOI(auditInfo)
                 .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
                 .detail(participantObjectDetails.toArray(new ParticipantObjectDetail[0]))
@@ -289,7 +291,7 @@ class ParticipantObjectID {
                 null)
                 .detail(AuditMessages.createParticipantObjectDetail("Alert Description",
                         !reader.getInstanceLines().isEmpty()
-                                ? reader.getInstanceLines().stream().collect(Collectors.joining("\n"))
+                                ? String.join("\n", reader.getInstanceLines())
                                 : null))
                 .build();
     }

@@ -65,9 +65,10 @@ class StudyRecordAuditService {
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(studyMgtCtx.getRemoteHostName())
                 .studyUIDAccNumDate(studyMgtCtx.getAttributes(), arcDev)
-                .pIDAndName(studyMgtCtx.getStudy().getPatient().getAttributes(), arcDev)
+                .pIDAndName(studyMgtCtx.getAttributes(), arcDev)
                 .outcome(outcome(studyMgtCtx.getException()))
-                .expirationDate(ctx.getExpirationDate() != null ? ctx.getExpirationDate().toString() : null);
+                .expirationDate(ctx.getExpirationDate() != null ? ctx.getExpirationDate().toString() : null)
+                .studyAccessCtrlID(ctx.getAccessControlID());
     }
 
     AuditInfoBuilder getStudyUpdateAuditInfo() {
