@@ -59,6 +59,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -416,12 +417,7 @@ public class WadoRS {
     }
 
     private void initAcceptableMediaTypes() {
-        if (accept != null && !accept.isEmpty()) {
-            headers.getRequestHeaders().put("Accept",
-                    accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
-                            .collect(Collectors.toList()));
-        }
-        acceptableMediaTypes = headers.getAcceptableMediaTypes();
+        acceptableMediaTypes = MediaTypeUtils.acceptableMediaTypesOf(headers, accept);
         acceptableMultipartRelatedMediaTypes = acceptableMediaTypes.stream()
                 .map(MediaTypes::getMultiPartRelatedType)
                 .filter(Objects::nonNull)

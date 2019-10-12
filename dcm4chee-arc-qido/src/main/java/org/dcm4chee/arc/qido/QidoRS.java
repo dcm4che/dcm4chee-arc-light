@@ -59,6 +59,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -459,12 +460,7 @@ public class QidoRS {
     }
 
     private Output selectMediaType() {
-        if (!accept.isEmpty()) {
-            headers.getRequestHeaders().put("Accept",
-                    accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
-                            .collect(Collectors.toList()));
-        }
-        List<MediaType> acceptableMediaTypes = headers.getAcceptableMediaTypes();
+        List<MediaType> acceptableMediaTypes = MediaTypeUtils.acceptableMediaTypesOf(headers, accept);
         if (acceptableMediaTypes.stream()
                 .anyMatch(
                         ((Predicate<MediaType>) MediaTypes.APPLICATION_DICOM_JSON_TYPE::isCompatible)

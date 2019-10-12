@@ -56,6 +56,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.rs.client.RSClient;
+import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.validation.constraints.ValidList;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -195,7 +196,7 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    public Response listRetrieveTasks(@QueryParam("accept") String accept) {
+    public Response listRetrieveTasks(@QueryParam("accept") List<String> accept) {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
@@ -515,11 +516,9 @@ public class RetrieveTaskRS {
         return count;
     }
 
-    private Output selectMediaType(String accept) {
-        if (accept != null)
-            httpHeaders.getRequestHeaders().putSingle("Accept", accept);
-
-        return httpHeaders.getAcceptableMediaTypes().stream()
+    private Output selectMediaType(List<String> accept) {
+        return MediaTypeUtils.acceptableMediaTypesOf(httpHeaders, accept)
+                .stream()
                 .map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()

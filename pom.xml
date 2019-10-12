@@ -523,6 +523,7 @@
     <module>dcm4chee-arc-retrieve-scu</module>
     <module>dcm4chee-arc-retrieve-xdsi</module>
     <module>dcm4chee-arc-rs-client</module>
+    <module>dcm4chee-arc-rs-util</module>
     <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-stgcmt</module>
     <module>dcm4chee-arc-stgcmt-rs</module>

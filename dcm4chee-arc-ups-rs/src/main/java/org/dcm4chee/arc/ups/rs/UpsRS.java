@@ -54,6 +54,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -490,12 +491,8 @@ public class UpsRS {
     }
 
     private ResponseMediaType getResponseMediaType () {
-        if (accept != null) {
-            for (String mediaType : accept) {
-                headers.getRequestHeaders().add("Accept", mediaType);
-            }
-        }
-        return headers.getAcceptableMediaTypes().stream()
+        return MediaTypeUtils.acceptableMediaTypesOf(headers, accept)
+                .stream()
                 .map(UpsRS::selectResponseMediaType)
                 .filter(Objects::nonNull)
                 .findFirst()

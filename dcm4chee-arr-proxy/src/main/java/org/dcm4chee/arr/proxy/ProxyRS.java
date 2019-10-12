@@ -43,6 +43,7 @@ package org.dcm4chee.arr.proxy;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.jboss.resteasy.core.Headers;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -119,8 +120,13 @@ public class ProxyRS {
         String targetURL = arrURL.charAt(arrURL.length()-1) != '/' ? arrURL + "/" + path : arrURL + path;
         WebTarget target = ClientBuilder.newBuilder().build().target(targetURL);
         MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
-        if (removeContentLength)
-            headers.remove("Content-Length");
+        if (removeContentLength) {
+            Headers<String> newHeaders = new Headers<>();
+            headers.entrySet().stream()
+                    .filter(e -> !e.getKey().equalsIgnoreCase("Content-Length"))
+                    .forEach(e -> newHeaders.addAll(e.getKey(), e.getValue()));
+            headers = newHeaders;
+        }
         return target.request().headers((MultivaluedMap) headers);
     }
 }
