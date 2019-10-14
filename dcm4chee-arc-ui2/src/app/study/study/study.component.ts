@@ -58,6 +58,7 @@ import {SelectionActionElement} from "./selection-action-element.models";
 import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 import {MwlDicom} from "../../models/mwl-dicom";
 import {ChangeDetectorRef} from "@angular/core";
+import {Observable} from "rxjs/Observable";
 
 
 @Component({
@@ -214,7 +215,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     };
     internal = true;
     checkboxFunctions = false;
-
+    currentWebAppClass = "QIDO_RS";
 
     constructor(
         private route:ActivatedRoute,
@@ -238,6 +239,11 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         this.route.params.subscribe(params => {
             this.patients = [];
             this.studyConfig.tab = params.tab;
+            if(this.studyConfig.tab === "diff"){
+                this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
+            }else{
+                this.currentWebAppClass = "QIDO_RS";
+            }
             this.studyConfig.title = this.tabToTitleMap(params.tab);
             if(this.studyConfig.tab === "diff"){
                 this.getApplicationEntities();
@@ -263,7 +269,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             Object.keys(object).forEach(key=>{
                 if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
                     this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
-                        if(webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1 && object.webApp.dcmWebAppName === webApp.dcmWebAppName){
+                        if(object.webApp.dcmWebAppName === webApp.dcmWebAppName){
                             this.filter.filterModel["webApp"] = webApp;
                         }
                     });
@@ -953,7 +959,8 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     };
     viewInstance(inst) {
         let token;
-        let url;
+        // let url:string;
+        let urlObservable:Observable<string>;
         let contentType;
         this._keycloakService.getToken().subscribe((response)=>{
             if(!this.appService.global.notSecure){
@@ -962,18 +969,18 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             // this.select_show = false;
             if(inst.video || inst.image || inst.numberOfFrames || inst.gspsQueryParams.length){
                 if (inst.gspsQueryParams.length){
-                    url =  this.service.wadoURL(this.studyWebService,inst.gspsQueryParams[inst.view - 1]);
+                    urlObservable =  this.service.wadoURL(this.studyWebService,inst.gspsQueryParams[inst.view - 1]);
                 }
                 if (inst.numberOfFrames || (inst.image && !inst.video)){
                     contentType = 'image/jpeg';
-                    url =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'image/jpeg'});
+                    urlObservable =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'image/jpeg'});
                 }
                 if (inst.video){
                     contentType = 'video/*';
-                    url =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'video/*' });
+                    urlObservable =  this.service.wadoURL(this.studyWebService,inst.wadoQueryParams, { contentType: 'video/*' });
                 }
             }else{
-                url = this.service.wadoURL(this.studyWebService,inst.wadoQueryParams);
+                urlObservable = this.service.wadoURL(this.studyWebService,inst.wadoQueryParams);
             }
             if(!contentType){
                 if(_.hasIn(inst,"attrs.00420012.Value.0") && inst.attrs['00420012'].Value[0] != ''){
@@ -982,24 +989,28 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             }
             if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
-                if(!this.appService.global.notSecure){
-                    console.log("te",this.service.renderURL(this.studyWebService, inst));
-                    WindowRefService.nativeWindow.open(this.service.renderURL(this.studyWebService, inst) + `&access_token=${token}`);
-                }else{
-                    WindowRefService.nativeWindow.open(this.service.renderURL(this.studyWebService, inst));
-                }
-            }else{
-                this.config.viewContainerRef = this.viewContainerRef;
-                this.dialogRef = this.dialog.open(ViewerComponent, {
-                    height: 'auto',
-                    width: 'auto',
-                    panelClass:"viewer_dialog"
+                this.service.renderURL(this.studyWebService, inst).subscribe(renderUrl=>{
+                    if(!this.appService.global.notSecure){
+                        // console.log("te",this.service.renderURL(this.studyWebService, inst));
+                        WindowRefService.nativeWindow.open(renderUrl+ `&access_token=${token}`);
+                    }else{
+                        WindowRefService.nativeWindow.open(renderUrl);
+                    }
                 });
-                this.dialogRef.componentInstance.views = inst.views;
-                this.dialogRef.componentInstance.view = inst.view;
-                this.dialogRef.componentInstance.contentType = contentType;
-                this.dialogRef.componentInstance.url = url;
-                this.dialogRef.afterClosed().subscribe();
+            }else{
+                urlObservable.subscribe(url=>{
+                    this.config.viewContainerRef = this.viewContainerRef;
+                    this.dialogRef = this.dialog.open(ViewerComponent, {
+                        height: 'auto',
+                        width: 'auto',
+                        panelClass:"viewer_dialog"
+                    });
+                    this.dialogRef.componentInstance.views = inst.views;
+                    this.dialogRef.componentInstance.view = inst.view;
+                    this.dialogRef.componentInstance.contentType = contentType;
+                    this.dialogRef.componentInstance.url = url;
+                    this.dialogRef.afterClosed().subscribe();
+                })
             }
             // window.open(this.renderURL(inst));
         });
@@ -1073,7 +1084,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     };
     downloadURL(inst, transferSyntax?:string) {
         let token;
-        let url = "";
+        let url:string = "";
         let fileName = "dcm4che.dcm";
         this._keycloakService.getToken().subscribe((response)=>{
             if(!this.appService.global.notSecure){
@@ -1087,17 +1098,19 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             console.log("keys",Object.keys(inst.wadoQueryParams));
             console.log("keys",Object.getOwnPropertyNames(inst.wadoQueryParams));
             console.log("keys",inst.wadoQueryParams);
-            if(!this.appService.global.notSecure){
-                // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
-                url = this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`;
-            }else{
-                // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
-                url = this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams);
-            }
-            if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
-                fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
-            }
-            j4care.downloadFile(url,fileName);
+            this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp:string)=>{
+                if(!this.appService.global.notSecure){
+                    // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                    url = urlWebApp + `&access_token=${token}`;
+                }else{
+                    // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
+                    url = urlWebApp;
+                }
+                if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
+                    fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
+                }
+                j4care.downloadFile(url,fileName);
+            })
         });
     };
 
@@ -1855,7 +1868,7 @@ trigger_diff*/
             this.applicationEntities.aes,
             this._filter.quantityText,
             'main',
-            this.studyWebService.webServices.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
+            this.studyWebService.webServices //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
         );
         this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
@@ -2540,95 +2553,96 @@ trigger_diff*/
         }*/
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-                let batchID = "";
-                let params = {};
-                if(result.batchID)
-                    batchID = `batchID=${result.batchID}&`;
-                $this.cfpLoadingBar.start();
-                if(mode === "multiple-retrieve"){
-                     urlRest = `${
-                        j4care.getUrlFromDcmWebApplication(
-                            this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
-                                this.studyWebService, 
-                                "MOVE_MATCHING", 
-                                "MOVE_MATCHING"
-                            )
-                        )}/studies/export/dicom:${
-                            result.selectedAet
-                        }?${
-                            batchID
-                        }${
-                            this.appService.param(this.createStudyFilterParams())
-                        }`;
-                }else{
-                    if(mode === 'multipleExport'){
-                        let checkbox = `${
-                            (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
-                        }${
-                            (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
-                        }`;
-                        if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
-                            checkbox = '&' + checkbox;
-                        urlRest = `${
-                            this.service.getDicomURL("export",this.studyWebService.selectedWebService)
-                        }/${
-                            result.selectedExporter
-                        }?${
-                            batchID
-                        }${
-                            this.appService.param(this.createStudyFilterParams())
-                        }${
-                            checkbox
-                        }`;
+                this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                    this.studyWebService,
+                    "MOVE_MATCHING",
+                    "MOVE_MATCHING"
+                ).subscribe(webApp=>{
+                    let batchID = "";
+                    let params = {};
+                    if(result.batchID)
+                        batchID = `batchID=${result.batchID}&`;
+                    $this.cfpLoadingBar.start();
+                    if(mode === "multiple-retrieve"){
+                         urlRest = `${
+                                j4care.getUrlFromDcmWebApplication(webApp)
+                            }/studies/export/dicom:${
+                                result.selectedAet
+                            }?${
+                                batchID
+                            }${
+                                this.appService.param(this.createStudyFilterParams())
+                            }`;
                     }else{
-                        //SINGLE
-                        if(!this.internal){
-                            if(result.dcmQueueName){
-                                params['dcmQueueName'] = result.dcmQueueName
-                            }
-                            singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
-                            // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                        if(mode === 'multipleExport'){
+                            let checkbox = `${
+                                (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
+                            }${
+                                (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
+                            }`;
+                            if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
+                                checkbox = '&' + checkbox;
+                            urlRest = `${
+                                this.service.getDicomURL("export",this.studyWebService.selectedWebService)
+                            }/${
+                                result.selectedExporter
+                            }?${
+                                batchID
+                            }${
+                                this.appService.param(this.createStudyFilterParams())
+                            }${
+                                checkbox
+                            }`;
                         }else{
-                            if (result.exportType === 'dicom'){
-                                id = 'dicom:' + result.selectedAet;
+                            //SINGLE
+                            if(!this.internal){
+                                if(result.dcmQueueName){
+                                    params['dcmQueueName'] = result.dcmQueueName
+                                }
+                                singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                                // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                             }else{
-                                id = result.selectedExporter;
+                                if (result.exportType === 'dicom'){
+                                    id = 'dicom:' + result.selectedAet;
+                                }else{
+                                    id = result.selectedExporter;
+                                }
+                                // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                                singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                             }
-                            // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
-                            singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                         }
                     }
-                }
-                if(multipleObjects.size > 0){
-                    this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
-                        console.log("res",res);
-                        $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
-                        $this.cfpLoadingBar.complete();
-                    }, err=>{
-                        console.log("err",err);
-                        $this.cfpLoadingBar.complete();
-                    });
-                }else{
-                    if(singleUrlSuffix){
-                        urlRest = url + singleUrlSuffix;
-                    }
-                    this.service.export(urlRest)
-                        .subscribe(
-                        (result) => {
+                    if(multipleObjects.size > 0){
+                        this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                            console.log("res",res);
                             $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
                             $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
+                        }, err=>{
                             console.log("err",err);
-                            $this.appService.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': $this.service.getMsgFromResponse(err),
-                                'status': 'error'
-                            });
                             $this.cfpLoadingBar.complete();
+                        });
+                    }else{
+                        if(singleUrlSuffix){
+                            urlRest = url + singleUrlSuffix;
                         }
-                    );
-                }
+                        this.service.export(urlRest)
+                            .subscribe(
+                            (result) => {
+                                $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                                $this.cfpLoadingBar.complete();
+                            },
+                            (err) => {
+                                console.log("err",err);
+                                $this.appService.setMessage({
+                                    'title': 'Error ' + err.status,
+                                    'text': $this.service.getMsgFromResponse(err),
+                                    'status': 'error'
+                                });
+                                $this.cfpLoadingBar.complete();
+                            }
+                        );
+                    }
+                });
             }
         });
     }
@@ -2888,7 +2902,10 @@ trigger_diff*/
                 aetsTemp = aets;
             })
             .switchMap(()=>{
-                return this.service.getWebApps()
+                let filter = {
+                    dcmWebServiceClass: this.currentWebAppClass
+                };
+                return this.service.getWebApps(filter)
             })
             .subscribe(
                 (webApps:DcmWebApp[])=> {

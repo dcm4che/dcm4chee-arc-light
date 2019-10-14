@@ -62,8 +62,8 @@ export class StudyService {
         private permissionService: PermissionService
     ) {}
 
-    getWebApps() {
-        return this.webAppListService.getWebApps();
+    getWebApps(filter?:any) {
+        return this.webAppListService.getWebApps(filter);
     }
 
     getEntrySchema(devices, aetWebService): { schema: FilterSchema, lineLength: number } {
@@ -570,20 +570,23 @@ export class StudyService {
         }
     }
 
-    wadoURL(webService: StudyWebService, ...args: any[]): any {
-        let i,
-            url = `${j4care.getUrlFromDcmWebApplication(this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI"))}?requestType=WADO`;
-        for (i = 1; i < arguments.length; i++) {
-            _.forEach(arguments[i], (value, key) => {
-                url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
-                    return p2;
-                }) + '=' + value;
-            });
-        }
-        return url;
+    wadoURL(webService: StudyWebService, ...args: any[]): Observable<string> {
+        let arg = arguments;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").map(webApp=>{
+            let i,
+                url = `${j4care.getUrlFromDcmWebApplication(webApp)}?requestType=WADO`;
+            for (i = 1; i < arg.length; i++) {
+                _.forEach(arg[i], (value, key) => {
+                    url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
+                        return p2;
+                    }) + '=' + value;
+                });
+            }
+            return url;
+        });
     }
 
-    renderURL(webService: StudyWebService,inst) {
+    renderURL(webService: StudyWebService,inst):Observable<string> {
         if (inst.video)
             return this.wadoURL(webService, inst.wadoQueryParams, {contentType: 'video/*'});
         if (inst.numberOfFrames)
@@ -2248,53 +2251,64 @@ export class StudyService {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
             return Observable.throw({error:"Multi patient merge is not supported!"});
         }else{
-            const url = this.getModifyPatientUrl(deviceWebservice);
-            console.log("url",url);
-            return this.$http.put(
-                `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
-                selectedElements.postActionElements.getAttrs("patient"),
-                this.jsonHeader
-            )
+            this.getModifyPatientUrl(deviceWebservice)
+            .switchMap((url:string)=>{
+                console.log("url",url);
+                return this.$http.put(
+                    `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
+                    selectedElements.postActionElements.getAttrs("patient"),
+                    this.jsonHeader
+                )
+            })
         }
     };
 
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
-        const url = this.getModifyPatientUrl(deviceWebservice);
-        if (url) {
-            if (patientId) {
-                //Change patient;
-                return this.$http.put(`${url}/${patientId}`, patientObject);
-            } else {
-                //Create new patient
-                return this.$http.post(url, patientObject);
-            }
-        }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        // const url = this.getModifyPatientUrl(deviceWebservice);
+        return this.getModifyPatientUrl(deviceWebservice)
+            .switchMap((url:string)=>{
+                if (url) {
+                    if (patientId) {
+                        //Change patient;
+                        return this.$http.put(`${url}/${patientId}`, patientObject);
+                    } else {
+                        //Create new patient
+                        return this.$http.post(url, patientObject);
+                    }
+                }
+                return Observable.throw({error: "Error on getting the WebApp URL"});
+            })
     }
 
     getModifyPatientUrl(deviceWebService: StudyWebService) {
         return this.getDicomURLFromWebService(deviceWebService, "patient");
     }
 
-    getModifyPatientWebApp(deviceWebService: StudyWebService): DcmWebApp {
+    getModifyPatientWebApp(deviceWebService: StudyWebService): Observable<DcmWebApp> {
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "DCM4CHEE_ARC_AET", "PAM_RS");
     }
 
     getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
-        return this.getDicomURL(mode, this.getModifyPatientWebApp(deviceWebService));
+        return this.getModifyPatientWebApp(deviceWebService).map((webApp:DcmWebApp)=>{
+            return this.getDicomURL(mode, webApp);
+        })
     }
 
-    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string) {
+    getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string):Observable<DcmWebApp> {
         if (_.hasIn(deviceWebService, "selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1) {
-            return deviceWebService.selectedWebService;
+            return Observable.of(deviceWebService.selectedWebService);
         } else {
             try {
-                return deviceWebService.webServices.filter((webService: DcmWebApp) => {
+                return this.webAppListService.getWebApps({
+                    dcmWebServiceClass: alternativeWebServiceClass,
+                    dicomAETitle: deviceWebService.selectedWebService.dicomAETitle
+                }).map((webApps:DcmWebApp[])=>webApps[0]);
+/*                return deviceWebService.webServices.filter((webService: DcmWebApp) => { //TODO change this to observable to get the needed webservice from server
                     if (webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle) {
                         return true;
                     }
                     return false;
-                })[0];
+                })[0];*/
             } catch (e) {
                 j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
                 return undefined;
