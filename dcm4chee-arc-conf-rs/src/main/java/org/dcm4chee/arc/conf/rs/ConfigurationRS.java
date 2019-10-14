@@ -102,7 +102,19 @@ public class ConfigurationRS {
     private String register;
 
     @QueryParam("dcmWebServiceClass")
-    @Pattern(regexp = "WADO_URI|WADO_RS|STOW_RS|QIDO_RS|UPS_RS|DCM4CHEE_ARC|DCM4CHEE_ARC_AET|DCM4CHEE_ARC_AET_DIFF")
+    @Pattern(regexp = "WADO_URI|" +
+            "WADO_RS|" +
+            "STOW_RS|" +
+            "QIDO_RS|" +
+            "UPS_RS|" +
+            "DCM4CHEE_ARC|" +
+            "DCM4CHEE_ARC_AET|" +
+            "DCM4CHEE_ARC_AET_DIFF|" +
+            "PAM|" +
+            "MOVE|" +
+            "MOVE_MATCHING|" +
+            "REJECT|" +
+            "ELASTICSEARCH")
     private String dcmWebServiceClass;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
