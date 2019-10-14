@@ -4,14 +4,17 @@
       "tags": [
         "QIDO-RS"
       ],
-      "summary": "Search for Series of Study",
-      "operationId": "SearchForStudySeries",
+      "summary": "Search for Instances of Series of Study",
+      "operationId": "SearchForStudySeriesInstances",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
         },
         {
           "$ref": "../parameters.json#/accept"
@@ -116,14 +119,17 @@
       "tags": [
         "STAT-RS"
       ],
-      "summary": "Count Series of Study",
-      "operationId": "CountStudySeries",
+      "summary": "Count Instances of Series of Study",
+      "operationId": "CountStudySeriesInstances",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -202,64 +208,13 @@
       }
     }
   },
-  "ian": {
-    "post": {
-      "tags": [
-        "IAN-RS"
-      ],
-      "summary": "Send Instance Availability Notification of Series to external Instance Availability Notification SCP",
-      "operationId": "SendInstanceAvailabilityNotificationOfSeriesExternal",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/archiveAETPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/studyPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/seriesPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/ianSCPPathParam"
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
-              }
-            }
-          }
-        },
-        "404": {
-          "description": "No such Archive AE Title, Study, Series or Instance Availability Notification SCP AE Title"
-        },
-        "500": {
-          "description": "Internal Server Error."
-        },
-        "502": {
-          "description": "Instance Availability Notification SCP Failure",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
-              }
-            }
-          }
-        }
-      }
-    }
-  },
   "stgCmt": {
     "post": {
       "tags": [
         "STGCMT-RS"
       ],
-      "summary": "Request Storage Commitment of Series from external Storage Commitment SCP",
-      "operationId": "RequestStorageCommitmentOfSeriesExternal",
+      "summary": "Request Storage Commitment of Instance from external Storage Commitment SCP",
+      "operationId": "RequestStorageCommitmentOfInstanceExternal",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -269,6 +224,9 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
         },
         {
           "$ref": "../parameters.json#/stgCmtSCPPathParam"
@@ -286,7 +244,7 @@
           }
         },
         "404": {
-          "description": "No such Archive AE Title, Study, Series or external AE Title"
+          "description": "No such Archive AE Title, Study, Series, SOPInstance or external AE Title"
         },
         "500": {
           "description": "Internal Server Error"
@@ -309,8 +267,8 @@
       "tags": [
         "IOCM-RS"
       ],
-      "summary": "Reject Series",
-      "operationId": "RejectSeries",
+      "summary": "Reject Instance",
+      "operationId": "RejectInstance",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -320,6 +278,9 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
         },
         {
           "$ref": "../parameters.json#/codeValuePathParam"
@@ -339,59 +300,16 @@
           "$ref": "../responses.json#/countResults"
         },
         "202": {
-          "description": "Rejection of Series queued"
+          "description": "Rejection of Instance queued"
         },
         "404": {
-          "description": "No such Archive AE Title, Study, Series or Rejection Note"
+          "description": "No such Archive AE Title, Study, Series, Instance or Rejection Note"
         },
         "500": {
           "description": "Internal Server Error"
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"
-        }
-      }
-    }
-  },
-  "expire": {
-    "put": {
-      "tags": [
-        "IOCM-RS"
-      ],
-      "summary": "Update Series Expiration Date",
-      "operationId": "UpdateSeriesExpirationDate",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/archiveAETPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/studyPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/seriesPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/expirationDatePathParam"
-        },
-        {
-          "$ref": "../parameters.json#/ExporterID"
-        },
-        {
-          "$ref": "../parameters.json#/FreezeExpirationDate"
-        }
-      ],
-      "responses": {
-        "204": {
-          "description": "successful operation"
-        },
-        "400": {
-          "description": "Expiration Date cannot be parsed or Revoke expiration for Series not allowed."
-        },
-        "404": {
-          "description": "No such Application Entity, Study or Series"
-        },
-        "500": {
-          "description": "Internal Server Error."
         }
       }
     }
@@ -414,6 +332,9 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
           "$ref": "../parameters.json#/storageVerificationPolicy"
         },
         {
@@ -425,17 +346,7 @@
       ],
       "responses": {
         "200": {
-          "description": "Storage Verification successful for all objects of the Series",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "../schemas.json#/attributes"
-              }
-            }
-          }
-        },
-        "202": {
-          "description": "Storage Verification successful for some objects of the Series, but failures exist for others.",
+          "description": "Storage Verification successful for SOP Instance",
           "content": {
             "application/json": {
               "schema": {
@@ -448,10 +359,10 @@
           "description": "Validation for one of the query parameters failed."
         },
         "404": {
-          "description": "No such Archive AE title, Study or Series"
+          "description": "No such Archive AE title, Study, Series or SOP Instance"
         },
         "409": {
-          "description": "Storage Verification failed for all objects of the Series",
+          "description": "Storage Verification failed for SOP Instance",
           "content": {
             "application/json": {
               "schema": {
@@ -471,8 +382,8 @@
       "tags": [
         "EXPORT-RS"
       ],
-      "summary": "Export Series",
-      "operationId": "exportSeries",
+      "summary": "Export Instance",
+      "operationId": "exportInstance",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -482,6 +393,9 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
         },
         {
           "$ref": "../parameters.json#/ExporterIDPathParam"
@@ -510,7 +424,7 @@
           "description": "Validation for one of the query parameters failed."
         },
         "404": {
-          "description": "No such Archive AE Title or Study or Series or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          "description": "No such Archive AE Title or Study or Series or Instance or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
           "description": "Internal Server Error"
@@ -520,6 +434,60 @@
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "ian": {
+    "post": {
+      "tags": [
+        "IAN-RS"
+      ],
+      "summary": "Send Instance Availability Notification of Instance to external Instance Availability Notification SCP",
+      "operationId": "SendInstanceAvailabilityNotificationOfInstanceExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ianSCPPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/ianscu.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study, Series, SOPInstance or Instance Availability Notification SCP AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Instance Availability Notification SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/ianscu.schema.json"
+              }
+            }
+          }
         }
       }
     }

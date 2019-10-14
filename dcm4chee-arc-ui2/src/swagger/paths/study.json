@@ -1,0 +1,553 @@
+{
+  "reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Study",
+      "operationId": "RejectStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Study queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "updateStudyAccessCtrlID": {
+    "post": {
+      "tags": [
+        "ACCESS-RS"
+      ],
+      "summary": "Update Study Access Control ID",
+      "operationId": "UpdateStudyAccessControlID",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accessControlIDPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "importImpaxReport": {
+    "post": {
+      "tags": [
+        "IMPAX-REPORT-RS"
+      ],
+      "summary": "Import Reports of Study",
+      "operationId": "importReportsOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "no such Archive AET or Study"
+        },
+        "409": {
+          "description": "Impax Report Service returns no report for the study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection to remote side fails"
+        }
+      }
+    }
+  },
+  "ian": {
+    "post": {
+      "tags": [
+        "IAN-RS"
+      ],
+      "summary": "Send Instance Availability Notification of Study to external Instance Availability Notification SCP",
+      "operationId": "SendInstanceAvailabilityNotificationOfStudyExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ianSCPPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Instance Availability Notification request accepted by external Instance Availability Notification SCP ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/ianscu.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Instance Availability Notification SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/ianscu.schema.json"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "stgCmt": {
+    "post": {
+      "tags": [
+        "STGCMT-RS"
+      ],
+      "summary": "Request Storage Commitment of Study from external Storage Commitment SCP",
+      "operationId": "RequestStorageCommitmentOfStudyExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/stgCmtSCPPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Storage Commitment request accepted by external Storage Commitment SCP ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/stgcmtscu.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study or external AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "Storage Commitment SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/stgcmtscu.schema.json"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "delete": {
+    "delete": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Delete Study Permanently",
+      "operationId": "DeleteStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "403": {
+          "description": "Study is not empty."
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "copy": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Copy Instances to Study",
+      "operationId": "CopyInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+      },
+      "responses": {
+        "200": {
+          "description": "All referenced instances copied to target study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some Instances were copied to target study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity, Study."
+        },
+        "409": {
+          "description": "Copy Instances to target study failed for all.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "move": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Move Instances to Study",
+      "operationId": "MoveInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+      },
+      "responses": {
+        "200": {
+          "description": "All referenced instances moved to target study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some Instances were moved to target study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity, Study or Rejection Note."
+        },
+        "409": {
+          "description": "Move Instances to target study failed for all.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "expire": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Study Expiration Date",
+      "operationId": "UpdateStudyExpirationDate",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/expirationDatePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterID"
+        },
+        {
+          "$ref": "../parameters.json#/FreezeExpirationDate"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Expiration Date cannot be parsed."
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "stgVer": {
+    "post": {
+      "tags": [
+        "STGVER-RS"
+      ],
+      "summary": "Verify Storage of Study",
+      "operationId": "VerifyStorageOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationPolicy"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationUpdateLocationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationStorageID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Storage Verification successful for all objects of the Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Storage Verification successful for some objects of the Study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "No such Archive AE title or Study"
+        },
+        "409": {
+          "description": "Storage Verification failed for all objects of the Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "export": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Study",
+      "operationId": "exportStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/exported"
+        },
+        "202": {
+          "description": "successful operation"
+        },
+        "206": {
+          "$ref": "../responses.json#/exported"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception or Export of all instances failed"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  }
+}

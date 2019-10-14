@@ -194,6 +194,69 @@
     "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "$ref": "paths/patients.json#/changePatientIDLegacy"
     },
+    "/aets/{aet}/rs/studies": {
+      "$ref": "paths/studies.json#/-"
+    },
+    "/aets/{aet}/rs/studies/count": {
+      "$ref": "paths/studies.json#/count"
+    },
+    "/aets/{aet}/rs/studies/size": {
+      "$ref": "paths/studies.json#/size"
+    },
+    "/aets/{aet}/rs/studies/stgcmt/{stgCmtSCP}": {
+      "$ref": "paths/matchingStudies.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/access/{accessControlID}": {
+      "$ref": "paths/matchingStudies.json#/updateStudyAccessCtrlID"
+    },
+    "/aets/{aet}/rs/studies/ian/{ianscp}": {
+      "$ref": "paths/matchingStudies.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/matchingStudies.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/stgver": {
+      "$ref": "paths/matchingStudies.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/export/{exporterID}/": {
+      "$ref": "paths/matchingStudies.json#/export"
+    },
+    "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
+      "$ref": "paths/matchingStudies.json#/exportFromCSV"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/study.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/access/{accessControlID}": {
+      "$ref": "paths/study.json#/updateStudyAccessCtrlID"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/reports": {
+      "$ref": "paths/study.json#/importImpaxReport"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/ian/dicom:{ianscp}": {
+      "$ref": "paths/study.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "$ref": "paths/study.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
+      "$ref": "paths/study.json#/delete"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/copy": {
+      "$ref": "paths/study.json#/copy"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/move/{CodeValue}^{CodingSchemeDesignator}": {
+      "$ref": "paths/study.json#/move"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/expire/{expirationDate}": {
+      "$ref": "paths/study.json#/expire"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
+      "$ref": "paths/study.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
+      "$ref": "paths/study.json#/export"
+    },
     "/aets/{aet}/rs/series": {
       "$ref": "paths/series.json#/-"
     },
@@ -215,8 +278,44 @@
     "/aets/{aet}/rs/series/export/{exporterID}": {
       "$ref": "paths/series.json#/matchingExport"
     },
-    "/aets/{aet}/rs/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/instancesOfSeriesSearch.json"
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series": {
+      "$ref": "paths/seriesOfStudy.json#/-"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/count": {
+      "$ref": "paths/seriesOfStudy.json#/count"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/ian/dicom:{ianscp}": {
+      "$ref": "paths/seriesOfStudy.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "$ref": "paths/seriesOfStudy.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/seriesOfStudy.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/expire/{expirationDate}": {
+      "$ref": "paths/seriesOfStudy.json#/expire"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver": {
+      "$ref": "paths/seriesOfStudy.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/{exporterID}": {
+      "$ref": "paths/seriesOfStudy.json#/export"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/ian/{ianscp}": {
+      "$ref": "paths/matchingSeriesOfStudy.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgcmt/{stgCmtSCP}": {
+      "$ref": "paths/matchingSeriesOfStudy.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/matchingSeriesOfStudy.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgver": {
+      "$ref": "paths/matchingSeriesOfStudy.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/export/{exporterID}": {
+      "$ref": "paths/matchingSeriesOfStudy.json#/export"
     },
     "/aets/{aet}/rs/instances": {
       "$ref": "paths/instances.json#/-"
@@ -241,6 +340,63 @@
     },
     "/aets/{aet}/rs/instances/export/{exporterID}": {
       "$ref": "paths/instances.json#/matchingExport"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances": {
+      "$ref": "paths/instancesOfStudy.json#/-"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/count": {
+      "$ref": "paths/instancesOfStudy.json#/count"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
+      "$ref": "paths/instancesOfStudy.json#/matchingStgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/ian/{ianscp}": {
+      "$ref": "paths/instancesOfStudy.json#/matchingIAN"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/instancesOfStudy.json#/matchingReject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgver": {
+      "$ref": "paths/instancesOfStudy.json#/matchingStgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/export/{exporterID}": {
+      "$ref": "paths/instancesOfStudy.json#/matchingExport"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{series}/instances": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/-"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{series}/instances/count": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/count"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/{exporterID}": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/export"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instance/{SOPInstanceUID}/ian/dicom:{ianscp}": {
+      "$ref": "paths/instancesOfSeriesOfStudy.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian/{ianscp}": {
+      "$ref": "paths/matchingInstancesOfSeriesOfStudy.json#/ian"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
+      "$ref": "paths/matchingInstancesOfSeriesOfStudy.json#/stgCmt"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/matchingInstancesOfSeriesOfStudy.json#/reject"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgver": {
+      "$ref": "paths/matchingInstancesOfSeriesOfStudy.json#/stgVer"
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{exporterID}": {
+      "$ref": "paths/matchingInstancesOfSeriesOfStudy.json#/export"
     },
     "/aets/{aet}/rs/workitems": {
       "$ref": "paths/workitems.json#/-"
@@ -307,30 +463,6 @@
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}/thumbnail": {
       "$ref": "paths/retrieveInstanceOfSeriesOfStudy.json#/frameThumbnail"
-    },
-    "/aets/{aet}/rs/studies": {
-      "$ref": "paths/studiesSearchOrStore.json"
-    },
-    "/aets/{aet}/rs/studies/{study}/series": {
-      "$ref": "paths/seriesOfStudy.json"
-    },
-    "/aets/{aet}/rs/studies/{study}/instances": {
-      "$ref": "paths/instancesOfStudySearch.json"
-    },
-    "/aets/{aet}/rs/studies/count": {
-      "$ref": "paths/studiesCount.json"
-    },
-    "/aets/{aet}/rs/studies/{study}/series/count": {
-      "$ref": "paths/seriesOfStudyCount.json"
-    },
-    "/aets/{aet}/rs/studies/{study}/instances/count": {
-      "$ref": "paths/instancesOfStudyCount.json"
-    },
-    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/count": {
-      "$ref": "paths/instancesOfSeriesCount.json"
-    },
-    "/aets/{aet}/rs/studies/size": {
-      "$ref": "paths/studiesSize.json"
     },
     "/modalities": {
       "$ref": "paths/modalities.json"
@@ -451,6 +583,9 @@
     },
     "/reject": {
       "$ref": "paths/reject.json#/-"
+    },
+    "/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/reject.json#/deleteRejected"
     },
     "/monitor/associations": {
       "$ref": "paths/associations.json#/-"
@@ -596,35 +731,17 @@
     "/ctrl/status": {
       "$ref": "paths/archiveControl.json#/status"
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/access/{accessControlID}": {
-      "$ref": "paths/updateStudyAccessControlID.json"
-    },
     "/aets/{aet}/access/{accessControlID}/studies": {
       "$ref": "paths/updateStudyAccessControlIDMatchingLegacy.json"
     },
-    "/aets/{aet}/rs/studies/access/{accessControlID}": {
-      "$ref": "paths/updateStudyAccessControlIDMatching.json"
-    },
     "/impax/reports/studies/{StudyInstanceUID}": {
       "$ref": "paths/queryImpaxReport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/impax/reports": {
-      "$ref": "paths/importReports.json"
     },
     "/aets/{aet}/dimse/{externalAET}": {
       "$ref": "paths/echoAE.json"
     },
     "/xroad/RR441/{patientID}": {
       "$ref": "paths/xroad.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/ian/dicom:{ianscp}": {
-      "$ref": "paths/studyIAN.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/ian/dicom:{ianscp}": {
-      "$ref": "paths/seriesOfStudyIAN.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instance/{SOPInstanceUID}/ian/dicom:{ianscp}": {
-      "$ref": "paths/instanceOfSeriesIAN.json"
     },
     "/aets/{aet}/ian/{ianscp}/studies": {
       "$ref": "paths/ianMatchingLegacy.json#/studies"
@@ -644,29 +761,17 @@
     "/aets/{aet}/ian/{ianscp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "$ref": "paths/ianMatchingLegacy.json#/instancesOfSeriesOfStudy"
     },
-    "/aets/{aet}/rs/studies/ian/{ianscp}": {
-      "$ref": "paths/studiesMatchingIAN.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/ian/{ianscp}": {
-      "$ref": "paths/matchingSeriesOfStudyIAN.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/ian/{ianscp}": {
-      "$ref": "paths/matchingInstancesOfStudyIAN.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/ian/{ianscp}": {
-      "$ref": "paths/matchingInstancesOfSeriesIAN.json"
-    },
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients": {
-      "$ref": "paths/patientExternalLegacy.json"
+      "$ref": "paths/patientExternalLegacy.json#/-"
     },
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/merge": {
-      "$ref": "paths/patientExternalMergeLegacy.json"
+      "$ref": "paths/patientExternalLegacy.json#/merge"
     },
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/changeid": {
-      "$ref": "paths/patientExternalChangeIDLegacy.json"
+      "$ref": "paths/patientExternalLegacy.json#/changeID"
     },
     "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}": {
-      "$ref": "paths/patientExternalUpdate.json"
+      "$ref": "paths/patientExternalLegacy.json#/update"
     },
     "/pdq/{PDQServiceID}/patients/{patientID}": {
       "$ref": "paths/patientDemographicsQuery.json"
@@ -675,19 +780,10 @@
       "$ref": "paths/patientDemographicsCompare.json"
     },
     "/stgcmt": {
-      "$ref": "paths/storageCommitments.json"
+      "$ref": "paths/storageCommitments.json#/-"
     },
     "/stgcmt/{transactionUID}": {
-      "$ref": "paths/storageCommitmentDelete.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
-      "$ref": "paths/studyStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
-      "$ref": "paths/seriesOfStudyStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt/dicom:{stgCmtSCP}": {
-      "$ref": "paths/instanceOfSeriesStgCmtExternal.json"
+      "$ref": "paths/storageCommitments.json#/deleteStgCmt"
     },
     "/aets/{aet}/stgcmt/{stgCmtSCP}/studies": {
       "$ref": "paths/stgCmtExternalLegacy.json#/studies"
@@ -707,89 +803,38 @@
     "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
       "$ref": "paths/stgCmtExternalLegacy.json#/instancesOfSeriesOfStudy"
     },
-    "/aets/{aet}/rs/studies/stgcmt/{stgCmtSCP}": {
-      "$ref": "paths/matchingStudiesStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgcmt/{stgCmtSCP}": {
-      "$ref": "paths/matchingSeriesOfStudyStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
-      "$ref": "paths/matchingInstancesOfStudyStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgcmt/{stgCmtSCP}": {
-      "$ref": "paths/matchingInstancesOfSeriesStgCmtExternal.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/reject.json#/study"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/reject.json#/seriesOfStudy"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/reject.json#/instanceOfSeriesOfStudy"
-    },
-    "/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/reject.json#/deleteRejected"
-    },
     "/aets/{aet}/rs/expire/series": {
       "$ref": "paths/applyRetentionPolicy.json"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies": {
-      "$ref": "paths/matchingStudiesRejectLegacy.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/studies"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/series": {
-      "$ref": "paths/matchingSeriesRejectLegacy.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/series"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/instances": {
-      "$ref": "paths/matchingInstancesRejectLegacy.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/instances"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series": {
-      "$ref": "paths/matchingSeriesOfStudyRejectLegacy.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/seriesOfStudy"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfStudyRejectLegacy.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/instancesOfStudy"
     },
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfSeriesRejectLegacy.json"
-    },
-    "/aets/{aet}/rs/studies/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/matchingStudiesReject.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/matchingSeriesOfStudyReject.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/matchingInstancesOfStudyReject.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/matchingInstancesOfSeriesReject.json"
+      "$ref": "paths/rejectMatchingLegacy.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/rejectStudyExternal.json"
+      "$ref": "paths/rejectExternalLegacy.json#/study"
     },
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/rejectSeriesExternal.json"
+      "$ref": "paths/rejectExternalLegacy.json#/seriesOfStudy"
     },
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/rejectInstanceExternal.json"
+      "$ref": "paths/rejectExternalLegacy.json#/instanceOfSeriesOfStudy"
     },
     "/aets/{aet}/rs/studies_": {
-      "$ref": "paths/studies.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
-      "$ref": "paths/studyDelete.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/copy": {
-      "$ref": "paths/studyCopy.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/move/{CodeValue}^{CodingSchemeDesignator}": {
-      "$ref": "paths/studyMove.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/expire/{expirationDate}": {
-      "$ref": "paths/studyExpire.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/expire/{expirationDate}": {
-      "$ref": "paths/seriesExpire.json"
+      "$ref": "paths/studies_.json"
     },
     "/queue": {
       "$ref": "paths/queues.json#/-"
@@ -815,89 +860,44 @@
     "/queue/{queueName}/{taskID}": {
       "$ref": "paths/queues.json#/deleteQueueMsg"
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgver": {
-      "$ref": "paths/studyStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver": {
-      "$ref": "paths/seriesStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgver": {
-      "$ref": "paths/instanceStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/stgver": {
-      "$ref": "paths/matchingStudiesStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/stgver": {
-      "$ref": "paths/matchingSeriesOfStudyStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/stgver": {
-      "$ref": "paths/matchingInstancesOfStudyStorageVerification.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/stgver": {
-      "$ref": "paths/matchingInstancesOfSeriesStorageVerification.json"
-    },
     "/aets/{aet}/stgver/studies": {
-      "$ref": "paths/matchingStudiesStorageVerificationLegacy.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/studies"
     },
     "/aets/{aet}/stgver/series": {
-      "$ref": "paths/matchingSeriesStorageVerificationLegacy.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/series"
     },
     "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series": {
-      "$ref": "paths/matchingSeriesOfStudyStorageVerificationLegacy.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/seriesOfStudy"
     },
     "/aets/{aet}/stgver/instances": {
-      "$ref": "paths/matchingInstancesStorageVerificationLegacy.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/instances"
     },
     "/aets/{aet}/stgver/studies/{StudyInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfStudyStorageVerificationLegacy.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/instancesOfStudy"
     },
     "/aets/{aet}/stgver/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfSeriesStorageVerificationLegacy.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/export/{exporterID}": {
-      "$ref": "paths/studyExport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/{exporterID}": {
-      "$ref": "paths/seriesExport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/{exporterID}": {
-      "$ref": "paths/instanceExport.json"
-    },
-    "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
-      "$ref": "paths/studiesExportCSV.json"
+      "$ref": "paths/stgVerMatchingLegacy.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/export/{ExporterID}/studies/csv:{field}": {
-      "$ref": "paths/studiesExportCSVLegacy.json"
-    },
-    "/aets/{aet}/rs/studies/export/{exporterID}/": {
-      "$ref": "paths/matchingStudiesExport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/export/{exporterID}": {
-      "$ref": "paths/matchingSeriesOfStudyExport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/export/{exporterID}": {
-      "$ref": "paths/matchingInstancesOfStudyExport.json"
-    },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{exporterID}": {
-      "$ref": "paths/matchingInstancesOfSeriesExport.json"
+      "$ref": "paths/exportMatchingLegacy.json#/studiesFromCSV"
     },
     "/aets/{aet}/export/{exporterID}/studies": {
-      "$ref": "paths/matchingStudiesExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/studies"
     },
     "/aets/{aet}/export/{exporterID}/series": {
-      "$ref": "paths/matchingSeriesExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/series"
     },
     "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series": {
-      "$ref": "paths/matchingSeriesOfStudyExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/seriesOfStudy"
     },
     "/aets/{aet}/export/{exporterID}/instances": {
-      "$ref": "paths/matchingInstancesExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/instances"
     },
     "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfStudyExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/instancesOfStudy"
     },
     "/aets/{aet}/export/{exporterID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
-      "$ref": "paths/matchingInstancesOfSeriesExportLegacy.json"
+      "$ref": "paths/exportMatchingLegacy.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}": {
       "$ref": "paths/retrieveFromExternal.json#/study"
@@ -942,40 +942,40 @@
       "$ref": "paths/queryCFindRetrieveExternal.json#/markMatchingInstancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryRetrieveMatchingStudies.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/studies"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryRetrieveMatchingSeriesOfStudy.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/seriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryRetrieveMatchingInstanceOfSeries.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryMarkForRetrieveMatchingStudies.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/markStudies"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryMarkForRetrieveMatchingSeriesOfStudy.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/markSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryMarkForRetrieveMatchingInstanceOfSeries.json"
+      "$ref": "paths/retrieveFromExternalMatching.json#/markInstancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindRetrieveMatchingStudiesLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/studies"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{findscp}/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindRetrieveMatchingSeriesOfStudyLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/seriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{findscp}/export/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindRetrieveMatchingInstanceOfSeriesLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/instancesOfSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindMarkForRetrieveMatchingStudiesLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/markStudies"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindMarkForRetrieveMatchingSeriesOfStudyLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/markSeriesOfStudy"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{findscp}/mark4retrieve/dicom:{destinationAET}": {
-      "$ref": "paths/queryCFindMarkForRetrieveMatchingInstanceOfSeriesLegacy.json"
+      "$ref": "paths/queryCFindRetrieveExternalLegacy.json#/markInstancesOfSeriesOfStudy"
     }
   }
 }
