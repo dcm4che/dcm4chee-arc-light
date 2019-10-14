@@ -42,6 +42,7 @@
         "DCM4CHEE_ARC_AET",
         "DCM4CHEE_ARC_AET_DIFF",
         "PAM",
+        "REJECT",
         "MOVE",
         "MOVE_MATCHING",
         "ELASTICSEARCH"
