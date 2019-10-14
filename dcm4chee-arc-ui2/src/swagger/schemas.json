@@ -33,13 +33,18 @@
     "items": {
       "type": "string",
       "enum": [
-        "WADO_URI",
-        "WADO_RS",
-        "STOW_RS",
         "QIDO_RS",
+        "STOW_RS",
+        "WADO_RS",
+        "WADO_URI",
         "UPS_RS",
         "DCM4CHEE_ARC",
-        "DCM4CHEE_ARC_AET"
+        "DCM4CHEE_ARC_AET",
+        "DCM4CHEE_ARC_AET_DIFF",
+        "PAM",
+        "MOVE",
+        "MOVE_MATCHING",
+        "ELASTICSEARCH"
       ]
     }
   },

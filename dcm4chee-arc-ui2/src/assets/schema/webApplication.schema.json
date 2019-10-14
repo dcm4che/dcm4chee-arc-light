@@ -46,11 +46,11 @@
           "UPS_RS",
           "DCM4CHEE_ARC",
           "DCM4CHEE_ARC_AET",
+          "DCM4CHEE_ARC_AET_DIFF",
           "PAM",
           "MOVE",
           "MOVE_MATCHING",
-          "ELASTICSEARCH",
-          "DCM4CHEE_ARC_AET_DIFF"
+          "ELASTICSEARCH"
         ]
       }
     },
