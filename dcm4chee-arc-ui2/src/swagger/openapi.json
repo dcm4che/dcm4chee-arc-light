@@ -468,109 +468,109 @@
       "$ref": "paths/serverTime.json"
     },
     "/monitor/export": {
-      "$ref": "paths/exportTasks.json"
+      "$ref": "paths/exportMonitoring.json#/-"
     },
     "/monitor/export/{taskPK}": {
-      "$ref": "paths/exportTaskDelete.json"
+      "$ref": "paths/exportMonitoring.json#/deleteTask"
     },
     "/monitor/export/count": {
-      "$ref": "paths/exportTasksCount.json"
+      "$ref": "paths/exportMonitoring.json#/count"
     },
     "/monitor/export/{taskPK}/cancel": {
-      "$ref": "paths/exportTaskCancel.json"
+      "$ref": "paths/exportMonitoring.json#/cancelTask"
     },
     "/monitor/export/cancel": {
-      "$ref": "paths/exportTasksCancel.json"
+      "$ref": "paths/exportMonitoring.json#/cancelTasks"
     },
     "/monitor/export/{taskPK}/reschedule/{exporterID}": {
-      "$ref": "paths/exportTaskReschedule.json"
+      "$ref": "paths/exportMonitoring.json#/rescheduleTask"
     },
     "/monitor/export/reschedule": {
-      "$ref": "paths/exportTasksReschedule.json"
+      "$ref": "paths/exportMonitoring.json#/rescheduleTasks"
     },
     "/monitor/export/reschedule/{newExporterID}": {
-      "$ref": "paths/exportTasksRescheduleToExporter.json"
+      "$ref": "paths/exportMonitoring.json#/rescheduleTasksToNewExporter"
     },
     "/monitor/export/batch": {
-      "$ref": "paths/exportBatches.json"
+      "$ref": "paths/exportMonitoring.json#/batches"
     },
     "/monitor/retrieve": {
-      "$ref": "paths/retrieveTasks.json"
+      "$ref": "paths/retrieveMonitoring.json#/-"
     },
     "/monitor/retrieve/{taskPK}": {
-      "$ref": "paths/retrieveTaskDelete.json"
+      "$ref": "paths/retrieveMonitoring.json#/deleteTask"
     },
     "/monitor/retrieve/count": {
-      "$ref": "paths/retrieveTasksCount.json"
+      "$ref": "paths/retrieveMonitoring.json#/count"
     },
     "/monitor/retrieve/{taskPK}/cancel": {
-      "$ref": "paths/retrieveTaskCancel.json"
+      "$ref": "paths/retrieveMonitoring.json#/cancelTask"
     },
     "/monitor/retrieve/cancel": {
-      "$ref": "paths/retrieveTasksCancel.json"
+      "$ref": "paths/retrieveMonitoring.json#/cancelTasks"
     },
     "/monitor/retrieve/{taskPK}/reschedule": {
-      "$ref": "paths/retrieveTaskReschedule.json"
+      "$ref": "paths/retrieveMonitoring.json#/rescheduleTask"
     },
     "/monitor/retrieve/reschedule": {
-      "$ref": "paths/retrieveTasksReschedule.json"
+      "$ref": "paths/retrieveMonitoring.json#/rescheduleTasks"
     },
     "/monitor/retrieve/batch": {
-      "$ref": "paths/retrieveBatches.json"
+      "$ref": "paths/retrieveMonitoring.json#/batches"
     },
     "/monitor/stgver": {
-      "$ref": "paths/stgverTasks.json"
+      "$ref": "paths/stgverMonitoring.json#/-"
     },
     "/monitor/stgver/{taskPK}": {
-      "$ref": "paths/stgverTaskDelete.json"
+      "$ref": "paths/stgverMonitoring.json#/deleteTask"
     },
     "/monitor/stgver/count": {
-      "$ref": "paths/stgverTasksCount.json"
+      "$ref": "paths/stgverMonitoring.json#/count"
     },
     "/monitor/stgver/{taskPK}/cancel": {
-      "$ref": "paths/stgverTaskCancel.json"
+      "$ref": "paths/stgverMonitoring.json#/cancelTask"
     },
     "/monitor/stgver/cancel": {
-      "$ref": "paths/stgverTasksCancel.json"
+      "$ref": "paths/stgverMonitoring.json#/cancelTasks"
     },
     "/monitor/stgver/{taskPK}/reschedule": {
-      "$ref": "paths/stgverTaskReschedule.json"
+      "$ref": "paths/stgverMonitoring.json#/rescheduleTask"
     },
     "/monitor/stgver/reschedule": {
-      "$ref": "paths/stgverTasksReschedule.json"
+      "$ref": "paths/stgverMonitoring.json#/rescheduleTasks"
     },
     "/monitor/stgver/batch": {
-      "$ref": "paths/stgverBatches.json"
+      "$ref": "paths/stgverMonitoring.json#/batches"
     },
     "/monitor/diff": {
-      "$ref": "paths/diffTasks.json"
+      "$ref": "paths/diffMonitoring.json#/-"
     },
     "/monitor/diff/{taskPK}": {
-      "$ref": "paths/diffTaskDelete.json"
+      "$ref": "paths/diffMonitoring.json#/deleteTask"
     },
     "/monitor/diff/count": {
-      "$ref": "paths/diffTasksCount.json"
+      "$ref": "paths/diffMonitoring.json#/count"
     },
     "/monitor/diff/{taskPK}/cancel": {
-      "$ref": "paths/diffTaskCancel.json"
+      "$ref": "paths/diffMonitoring.json#/cancelTask"
     },
     "/monitor/diff/cancel": {
-      "$ref": "paths/diffTasksCancel.json"
+      "$ref": "paths/diffMonitoring.json#/cancelTasks"
     },
     "/monitor/diff/{taskPK}/reschedule": {
-      "$ref": "paths/diffTaskReschedule.json"
+      "$ref": "paths/diffMonitoring.json#/rescheduleTask"
     },
     "/monitor/diff/reschedule": {
-      "$ref": "paths/diffTasksReschedule.json"
+      "$ref": "paths/diffMonitoring.json#/rescheduleTasks"
     },
     "/monitor/diff/{taskPK}/studies": {
-      "$ref": "paths/diffTaskResult.json"
+      "$ref": "paths/diffMonitoring.json#/diffTaskResult"
     },
     "/monitor/diff/batch": {
-      "$ref": "paths/diffBatches.json"
+      "$ref": "paths/diffMonitoring.json#/batches"
     },
     "/monitor/diff/batch/{batchID}/studies": {
-      "$ref": "paths/diffBatchResult.json"
+      "$ref": "paths/diffMonitoring.json#/batchResult"
     },
     "/storage": {
       "$ref": "paths/storages.json"
