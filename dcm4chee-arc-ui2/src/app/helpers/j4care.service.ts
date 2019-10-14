@@ -889,6 +889,22 @@ export class j4care {
         }
         return outputStr;
     }
+
+
+    /*
+    * Input
+    * date:Date - javascript date
+    * output:
+    * timezone suffix like '+0200'
+    * */
+    static getTimezoneOffset(date:Date) {
+        function z(n){return (n<10? '0' : '') + n}
+        var offset = date.getTimezoneOffset();
+        var sign = offset < 0? '+' : '-';
+        offset = Math.abs(offset);
+        return sign + z(offset/60 | 0) + z(offset%60);
+    }
+
     /*
     * Input:
     * date:Date - javascript date
@@ -904,7 +920,7 @@ export class j4care {
     * ss - second
     * SSS - milliseconds
     * */
-    static formatDate(date:Date, format:string):string{
+    static formatDate(date:Date, format:string, appendTimezoneOffset?:boolean):string{
         try{
             format = format || 'yyyyMMdd';
             return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
@@ -922,7 +938,7 @@ export class j4care {
                     return this.setZeroPrefix(`${date.getSeconds()}`);
                 if(g8)
                     return `${date.getMilliseconds()}`;
-            });
+            }) + (appendTimezoneOffset ? j4care.getTimezoneOffset(date) : '');
         }catch (e) {
             this.log(`Error on formatting date, date=${date}, format=${format}`,e);
             return "";
