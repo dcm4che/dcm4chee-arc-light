@@ -1,0 +1,215 @@
+{
+  "-": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Rejection Notes",
+      "operationId": "listRejectionNotes",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dcmRevokeRejection"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Rejection Notes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/rejectionNotes.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "deleteRejected": {
+    "delete": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Delete Rejected Instances Permanently",
+      "operationId": "deleteRejectedInstancesPermanently",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/rejectedBefore"
+        },
+        {
+          "$ref": "../parameters.json#/keepRejectionNote"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/deletedCount"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "study": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Study",
+      "operationId": "RejectStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Study queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "seriesOfStudy": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Series",
+      "operationId": "RejectSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Series queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study, Series or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instanceOfSeriesOfStudy": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Instance",
+      "operationId": "RejectInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Instance queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study, Series, Instance or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  }
+}
