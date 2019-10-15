@@ -1172,16 +1172,16 @@ export class j4care {
     * */
     static getHTTPProtocolFromDicomNetworkConnection(conn:DicomNetworkConnection):string{
         try{
-            if(_.hasIn(conn,"dcmNetworkConnection.dcmProtocol")){
-                if(conn.dcmNetworkConnection.dcmProtocol === "HTTP"){
-                    if(_.hasIn(conn, "dicomTLSCipherSuite") && conn.dicomTLSCipherSuite && conn.dicomTLSCipherSuite.length > 0){
+            let pathToConn = '';
+            if(_.hasIn(conn, "dcmNetworkConnection.dicomHostname")){
+                pathToConn = "dcmNetworkConnection.";
+            }
+            if((_.hasIn(conn,`${pathToConn}dcmProtocol`) && _.get(conn,`${pathToConn}dcmProtocol`) === "HTTP") || !_.hasIn(conn,`${pathToConn}dcmProtocol`)){
+                    if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
                         return "https";
                     }else{
                         return "http";
                     }
-                }else{
-                    return '';
-                }
             }
             return '';
         }catch (e) {
