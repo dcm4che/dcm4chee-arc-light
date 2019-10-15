@@ -310,7 +310,7 @@ public class UPSServiceImpl implements UPSService {
                     ae -> ejb.statusChangeEvents(ae.getAEExtensionNotNull(ArchiveAEExtension.class), eventInformation)
                             .forEach(upsEvent::fire));
         } catch (Exception e) {
-            LOG.warn("Failed to send StatusChange Event Reports\n", e);
+            LOG.info("Failed to send StatusChange Event Reports\n", e);
         }
     }
 
