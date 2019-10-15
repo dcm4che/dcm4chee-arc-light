@@ -23,7 +23,7 @@
               <input *ngIf="patients && patients.length > 0" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList" placeholder="Search current list">
             </div>
           </div>
-          <div class="filter_block" *ngIf="(patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff')">
+          <div class="filter_block">
             <div class="line">
               <dcm-drop-down
                   [placeholder]="moreFunctionConfig.placeholder"
@@ -34,7 +34,7 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="(studyWebService && studyWebService.selectedWebService) || (studyConfig && studyConfig.tab === 'diff')"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService)"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
@@ -46,7 +46,7 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="(studyWebService && studyWebService.selectedWebService) && !(studyConfig && studyConfig.tab === 'diff')"
+                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && studyConfig.tab === 'diff')"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down

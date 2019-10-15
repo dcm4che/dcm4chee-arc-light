@@ -274,19 +274,26 @@ export class StudyService {
                 placeholder: "Web App Service",
                 cssClass: 'study_order',
                 showSearchField: true
-
             });
-            schema.push(
-                {
-                    tag: "button",
-                    id: "submit",
-                    text: "SUBMIT",
-                    description: "Query Studies"
-                });
-            schema.push(
-                {
+            schema.push({
+                tag: "button",
+                id: "submit",
+                text: "SUBMIT",
+                description: "Query Studies"
+            });
+            if(tab != "diff"){
+                schema.push({
                     tag: "dummy"
-                },
+                })
+            }else{
+                schema.push({
+                    tag: "button",
+                    id: "trigger",
+                    text: "TRIGGER",
+                    description: "TRIGGER DIFF"
+                });
+            }
+            schema.push(
                 {
                     tag: "button",
                     id: "count",
@@ -294,14 +301,17 @@ export class StudyService {
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     description: "QUERY ONLY THE COUNT"
-                }, {
+            });
+            if(tab != "diff"){
+                schema.push({
                     tag: "button",
                     id: "size",
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     text: quantityText.size,
                     description: "QUERY ONLY THE SIZE"
-                });
+                })
+            }
         }
         return {
             lineLength: lineLength,

@@ -1865,20 +1865,24 @@ trigger_diff*/
     }
 
     setSchema(){
-        this._filter.filterSchemaMain.lineLength = undefined;
-        this._filter.filterSchemaExpand.lineLength = undefined;
-        this._filter.filterSchemaMain  = this.service.getFilterSchema(
-            this.studyConfig.tab,
-            this.applicationEntities.aes,
-            this._filter.quantityText,
-            'main',
-            this.studyWebService.webServices //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
-        );
-        this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
-        this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
-        this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
-        this.filterButtonPath.count.pop();
-        this.filterButtonPath.size.pop();
+        try{
+            this._filter.filterSchemaMain.lineLength = undefined;
+            this._filter.filterSchemaExpand.lineLength = undefined;
+            this._filter.filterSchemaMain  = this.service.getFilterSchema(
+                this.studyConfig.tab,
+                this.applicationEntities.aes,
+                this._filter.quantityText,
+                'main',
+                this.studyWebService.webServices //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
+            );
+            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
+            this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
+            this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
+            this.filterButtonPath.count.pop();
+            this.filterButtonPath.size.pop();
+        }catch (e) {
+            j4care.log("Error on schema set",e);
+        }
     }
 
     accessLocationChange(e){
