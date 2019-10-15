@@ -2247,7 +2247,7 @@ export class StudyService {
     }
 
 
-    mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService) => {
+    mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
             return Observable.throw({error:"Multi patient merge is not supported!"});
         }else{
