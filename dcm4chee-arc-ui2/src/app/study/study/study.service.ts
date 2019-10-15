@@ -2316,7 +2316,7 @@ export class StudyService {
         }
     }
 
-    getUploadFileWebApp(deviceWebService: StudyWebService) {
+    getUploadFileWebApp(deviceWebService: StudyWebService):Observable<DcmWebApp> {
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "STOW_RS", "STOW_RS");
     }
 

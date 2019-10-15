@@ -732,78 +732,82 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         });
     }
     uploadFile(object,mode){
-        if(mode === "mwl"){
-            //perpare mwl object for study upload
-            let newObject = {
-                "00400275":{
-                    "Value":[{}],
-                    "vr":"SQ"
-                }
-            };
-            let inSequenceCodes = [
-                "00401001",
-                "00321060",
-                "00400009",
-                "00400007",
-                "00400008"
-            ];
-            let mapCodes = {
-                "00401001":{
-                    "code":"00200010",
-                    "vr":"SH"
-                },
-                "00321060":{
-                    "code":"00081030",
-                    "vr":"LO"
-                },
-                "00400100":[
-                    {
-                        "map":"Value[0]['00400002']",
-                        "code":"00080020",
-                        "vr":"DA"
+        this.service.getUploadFileWebApp(this.studyWebService).subscribe((webApp:DcmWebApp)=>{
+
+
+            if(mode === "mwl"){
+                //perpare mwl object for study upload
+                let newObject = {
+                    "00400275":{
+                        "Value":[{}],
+                        "vr":"SQ"
+                    }
+                };
+                let inSequenceCodes = [
+                    "00401001",
+                    "00321060",
+                    "00400009",
+                    "00400007",
+                    "00400008"
+                ];
+                let mapCodes = {
+                    "00401001":{
+                        "code":"00200010",
+                        "vr":"SH"
                     },
-                    {
-                        "map":"Value[0]['00400003']",
-                        "code":"00080030",
-                        "vr":"TM"
-                    }
-                ]
-            };
-            let removeCode = [
-                "00401001",
-                "00400100",
-                "00321060",
-                "00321064"
-            ];
-            _.forEach(object.attrs,(m,i)=>{
-                if(_.indexOf(inSequenceCodes,i) > -1){
-                    newObject["00400275"].Value[0][i] = m;
-                    this.service.mapCode(m,i,newObject,mapCodes);
-                }else{
-                    if(_.indexOf(removeCode,i) === -1){
-                        newObject[i] = m;
-                    }else{
+                    "00321060":{
+                        "code":"00081030",
+                        "vr":"LO"
+                    },
+                    "00400100":[
+                        {
+                            "map":"Value[0]['00400002']",
+                            "code":"00080020",
+                            "vr":"DA"
+                        },
+                        {
+                            "map":"Value[0]['00400003']",
+                            "code":"00080030",
+                            "vr":"TM"
+                        }
+                    ]
+                };
+                let removeCode = [
+                    "00401001",
+                    "00400100",
+                    "00321060",
+                    "00321064"
+                ];
+                _.forEach(object.attrs,(m,i)=>{
+                    if(_.indexOf(inSequenceCodes,i) > -1){
+                        newObject["00400275"].Value[0][i] = m;
                         this.service.mapCode(m,i,newObject,mapCodes);
+                    }else{
+                        if(_.indexOf(removeCode,i) === -1){
+                            newObject[i] = m;
+                        }else{
+                            this.service.mapCode(m,i,newObject,mapCodes);
+                        }
                     }
+                });
+
+                object.attrs = newObject;
+            }
+            this.config.viewContainerRef = this.viewContainerRef;
+            this.dialogRef = this.dialog.open(UploadFilesComponent, {
+                height: 'auto',
+                width: '900px'
+            });
+    /*        this.dialogRef.componentInstance.aes = this.aes;
+            this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
+            this.dialogRef.componentInstance.fromExternalWebApp = webApp;
+            this.dialogRef.componentInstance.dicomObject = object;
+            this.dialogRef.componentInstance.mode = mode;
+            this.dialogRef.afterClosed().subscribe((result) => {
+                console.log('result', result);
+                if (result){
                 }
             });
-
-            object.attrs = newObject;
-        }
-        this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(UploadFilesComponent, {
-            height: 'auto',
-            width: '900px'
-        });
-/*        this.dialogRef.componentInstance.aes = this.aes;
-        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
-        this.dialogRef.componentInstance.fromExternalWebApp = this.service.getUploadFileWebApp(this.studyWebService);
-        this.dialogRef.componentInstance.dicomObject = object;
-        this.dialogRef.componentInstance.mode = mode;
-        this.dialogRef.afterClosed().subscribe((result) => {
-            console.log('result', result);
-            if (result){
-            }
         });
     }
 
