@@ -1098,12 +1098,250 @@ export class Globalvar {
                 tag:"range-picker",
                 type:"text",
                 filterKey:"StudyReceiveDateTime",
-                description:"Study created"
+                description:"Study Received"
             },{
                 tag:"range-picker",
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:"Study Access"
+            }
+        ];
+    }
+    static DIFF_FILTER_SCHEMA(aets, attributeSet, hidden?):FilterSchema{
+        if(hidden){
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"InstitutionName",
+                    description:"Institution name",
+                    placeholder:"Institution name"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StationName",
+                    description:"Station name",
+                    placeholder:"Station name"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SOPClassesInStudy",
+                    description:"SOP classes in study",
+                    placeholder:"SOP classes in study"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SeriesDescription",
+                    description:"Series description",
+                    placeholder:"Series description"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"incomplete",
+                    text:"Only incomplete",
+                    description:"Only incomplete studies"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyDescription",
+                    description:"Study description",
+                    placeholder:"Study description"
+                },{
+                    tag:"select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET",
+                    description:"Retrievable from external retrieve AET",
+                    placeholder:"External retrieve AET"
+                },{
+                    tag:"select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET!",
+                    description:"Not retrievable from external retrieve AET",
+                    placeholder:"Not retrievable from AET"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"BodyPartExamined",
+                    description:"Body part examined",
+                    placeholder:"Body part examined"
+                }
+                ,
+                {
+                    tag:"checkbox",
+                    filterKey:"retrievefailed",
+                    text:"Only failed retrieving",
+                    description:"Only failed to be retrieved"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:"Verification Failed",
+                    description:"Storage Verification Failed"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ResponsiblePerson",
+                    description:"Responsible Person",
+                    placeholder:"Responsible Person"
+                },{
+                    tag:"p-calendar",
+                    type:"text",
+                    filterKey:"PatientsBirthDate",
+                    description:"Patient's Birth Date",
+                    placeholder:"Birth Date"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"StudyReceiveDateTime",
+                    description:"Study Received"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"StudyAccessDateTime",
+                    description:"Study Access"
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyInstanceUID",
+                    description:"Study Instance UID",
+                    placeholder:"Study Instance UID"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyID",
+                    description:"Study ID",
+                    placeholder:"Study ID"
+                }
+            ];
+        }
+        return [
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientName",
+                description:"Patient name",
+                placeholder:"Patient name"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"fuzzymatching",
+                text:"Fuzzy Matching"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientID",
+                description:"Patient ID",
+                placeholder:"Patient ID"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfPatientID",
+                description:"Issuer of patient",
+                placeholder:"Issuer of patient"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"AccessionNumber",
+                description:"Accession number",
+                placeholder:"Accession number"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                description:"Issuer of accession number",
+                placeholder:"Issuer of accession number"
+            },
+            {
+                tag:"modality",
+                type:"text",
+                filterKey:"ModalitiesInStudy",
+                placeholder:"Modality",
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"ReferringPhysicianName",
+                description:"Referring physician name",
+                placeholder:"Referring physician name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionalDepartmentName",
+                description:"Institutional Department Name",
+                placeholder:"Institutional Department Name"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"SendingApplicationEntityTitleOfSeries",
+                description:"Sending Application Entity Title of Series",
+                placeholder:"Sending AET of Series"
+            },{
+                tag:"range-picker-limit",
+                type:"text",
+                filterKey:"StudyDate",
+                description:"Study date"
+            },{
+                tag:"range-picker-time",
+                type:"text",
+                filterKey:"StudyTime",
+                description:"Study time"
+            },
+            {
+                tag:"input",
+                type:"number",
+                filterKey:"limit",
+                description:"Limit",
+                placeholder:"Limit of studies"
+            },{
+                tag:"select",
+                filterKey:"includefield",
+                options:[
+                    new SelectDropdown("", "dicom","Search Response Payload according DICOM PS 3.18"),
+                    new SelectDropdown("all", "all", "all available attributes")
+                ],
+                description:"Include field",
+                placeholder:"Include field",
+            },
+            {
+                tag:"checkbox",
+                filterKey:"diffQueue",
+                text:"Queued"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"missing",
+                text:"Missing Studies"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"different",
+                text:"Different Studies"
+            },{
+                tag:"select",
+                filterKey:"comparefield",
+                options:attributeSet,
+                description:"Attribute Set",
+                placeholder:"Attribute Set",
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"taskPK",
+                description:"Pk of task",
+                placeholder:"Pk of task"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"batchID",
+                description:"Bash ID",
+                placeholder:"Bash ID"
             }
         ];
     }

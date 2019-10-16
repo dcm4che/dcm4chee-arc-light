@@ -3,7 +3,7 @@ import {
     AccessLocation,
     DicomLevel,
     DicomMode,
-    DicomResponseType,
+    DicomResponseType, DiffAttributeSet,
     FilterSchema,
     SelectDropdown, SelectedDetailObject,
     UniqueSelectIdObject
@@ -219,7 +219,7 @@ export class StudyService {
         return dropdown;
     };
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[]) {
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[], attributeSet?:SelectDropdown<DiffAttributeSet>[]) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -234,10 +234,10 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "diff":
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
+                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
-                lineLength = filterMode === "expand" ? 2 : 3;
+                // lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
                 schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
@@ -279,24 +279,24 @@ export class StudyService {
                 tag: "button",
                 id: "submit",
                 text: "SUBMIT",
-                description: "Query Studies"
+                description: tab === "diff" ? "Show DIFFs" : "Query Studies"
             });
             if(tab != "diff"){
                 schema.push({
                     tag: "dummy"
                 })
             }else{
-                schema.push({
+/*                schema.push({
                     tag: "button",
-                    id: "trigger",
-                    text: "TRIGGER",
-                    description: "TRIGGER DIFF"
-                });
+                    id: "trigger_diff",
+                    text: "TRIGGER DIFF",
+                    description: "Trigger DIFFs"
+                });*/
             }
             schema.push(
                 {
                     tag: "button",
-                    id: "count",
+                    id: tab === "diff" ? "diff_count" : "count",
                     text: quantityText.count,
                     showRefreshIcon: true,
                     showDynamicLoader: false,
@@ -336,20 +336,32 @@ export class StudyService {
         )
     }
 
-    getDiff(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+    getDiff(filterModel, studyWebService: StudyWebService, responseType?: DicomResponseType): Observable<any> {
+        //http://shefki-lifebook:8080/dcm4chee-arc/monitor/diff/batch/testnew34/studies
         let header: HttpHeaders;
         if (!responseType || responseType === "object") {
             header = this.dicomHeader
         }
-        let params = j4care.objToUrlParams(filterModel);
-        params = params ? `?${params}` : params;
-
-        return this.$http.get(
-            `${this.getDicomURL("diff", dcmWebApp, responseType)}${params || ''}`,
-            header,
-            false,
-            dcmWebApp
-        )
+        let batchID;
+        if(_.hasIn(filterModel,"batchID")){
+            batchID = _.get(filterModel,"batchID");
+            delete filterModel["batchID"];
+        }
+        if(batchID){
+            return this.$http.get(
+                `../monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`,
+                header
+            )
+        }else{
+            return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF").map(webApp=>{
+                return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
+            }).switchMap(url=>{
+                return this.$http.get(
+                    `${url}${j4care.param(filterModel) || ''}`,
+                    header
+                )
+            });
+        }
     }
 
     getDiffHeader(study,code){
@@ -630,15 +642,17 @@ export class StudyService {
         return this.$http.get(
             `${baseUrl || '..'}/attribute-filter/${entity || "Patient"}`
         )
-            .map(res => j4care.redirectOnAuthResponse(res))
-            .map(res => {
-                if ((!entity || entity === "Patient") && res.dcmTag) {
-                    let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
-                    res.dcmTag.push(...privateAttr);
-                }
-                return res;
-            });
+        .map(res => j4care.redirectOnAuthResponse(res))
+        .map(res => {
+            if ((!entity || entity === "Patient") && res.dcmTag) {
+                let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
+                res.dcmTag.push(...privateAttr);
+            }
+            return res;
+        });
     }
+
+    getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl || '..'}/attribute-set/DIFF_RS`);
 
     getAets = () => this.aeListService.getAets();
 
@@ -1096,7 +1110,6 @@ export class StudyService {
                 })
             ],
             studies: [
-
                 new TableSchemaElement({
                     type: "index",
                     header: '',
@@ -2148,6 +2161,95 @@ export class StudyService {
                     pathToValue: "00400100.Value[0].00400001.Value[0]",
                     headerDescription: "Scheduled Station AE Title",
                     widthWeight: 1.5,
+                    calculatedWidth: "20%"
+                })
+            ],
+            diff:[
+                new TableSchemaElement({
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study ID",
+                    pathToValue: "[00200010].Value[0]",
+                    headerDescription: "Study ID",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study Instance UID",
+                    pathToValue: "[0020000D].Value[0]",
+                    headerDescription: "Study Instance UID",
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study Date",
+                    pathToValue: "[00080020].Value[0]",
+                    headerDescription: "Study Date",
+                    widthWeight: 0.6,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study Time",
+                    pathToValue: "[00080030].Value[0]",
+                    headerDescription: "Study Time",
+                    widthWeight: 0.6,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SP Physician's Name",
+                    pathToValue: "00400100.Value[0].00400006.Value[0]",
+                    headerDescription: "Scheduled Performing Physician's Name",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Accession Number",
+                    pathToValue: "[00080050].Value[0]",
+                    headerDescription: "Accession Number",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Modalities",
+                    pathToValue: "[00080061].Value[0]",
+                    headerDescription: "Modalities in Study",
+                    widthWeight: 0.5,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Study Description",
+                    pathToValue: "[00081030].Value[0]",
+                    headerDescription: "Study Description",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "#S",
+                    pathToValue: "[00201206].Value[0]",
+                    headerDescription: "Number of Study Related Series",
+                    widthWeight: 0.2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "#I",
+                    pathToValue: "[00201208].Value[0]",
+                    headerDescription: "Number of Study Related Instances",
+                    widthWeight: 0.2,
                     calculatedWidth: "20%"
                 })
             ]

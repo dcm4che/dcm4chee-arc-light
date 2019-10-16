@@ -9,7 +9,14 @@ export class DiffDicom {
     private _showPaginations:boolean
 
 
-    constructor(patient: PatientDicom, offset: number, hasMore: boolean, attrs: any[], showAttributes: boolean, showPaginations: boolean) {
+    constructor(
+        attrs: any[],
+        patient: PatientDicom,
+        offset: number,
+        hasMore?: boolean,
+        showPaginations?: boolean,
+        showAttributes?: boolean
+    ){
         this._patient = patient;
         this._offset = offset || 0;
         this._hasMore = hasMore || false;

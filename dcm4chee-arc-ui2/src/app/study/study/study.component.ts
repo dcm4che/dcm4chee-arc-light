@@ -15,7 +15,7 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType,
+    DicomResponseType, DiffAttributeSet,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -59,6 +59,7 @@ import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-tr
 import {MwlDicom} from "../../models/mwl-dicom";
 import {ChangeDetectorRef} from "@angular/core";
 import {Observable} from "rxjs/Observable";
+import {DiffDicom} from "../../models/diff-dicom";
 
 
 @Component({
@@ -216,6 +217,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     internal = true;
     checkboxFunctions = false;
     currentWebAppClass = "QIDO_RS";
+    diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
 
     constructor(
         private route:ActivatedRoute,
@@ -246,7 +248,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             }
             this.studyConfig.title = this.tabToTitleMap(params.tab);
             if(this.studyConfig.tab === "diff"){
-                this.getApplicationEntities();
+                this.getDiffAttributeSet(this, ()=>{
+                    this.getApplicationEntities();
+                });
             }
             this.more = false;
             this._filter.filterModel.offset = 0;
@@ -1200,9 +1204,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     search(mode:('next'|'prev'|'current'), e){
         console.log("e",e);
         console.log("this",this.filter);
-        if(this.studyWebService.selectedWebService){
+        let filterModel =  this.getFilterClone();
+        if(this.studyWebService.selectedWebService || (this.studyConfig.tab === "diff" && _.hasIn(filterModel, "batchID"))){
 
-            let filterModel =  this.getFilterClone();
             if(filterModel.limit){
                 filterModel.limit++;
             }
@@ -1228,6 +1232,13 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             if(e.id === "size"){
                 console.log("filter",this._filter.filterSchemaMain);
                 this.getQuantity("size")
+            }
+            if(e.id === "show_diff"){
+                //
+            }
+            if(e.id === "trigger_diff"){
+/*                filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
+                this.submit(filterModel);*/
             }
     /*        }else{
                 this.appService.showError("Calling AET is missing!");
@@ -1280,7 +1291,8 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             mode = 'batch';
             filter['batchID'] = this.batchID;
         }*/
-        this.service.getDiff(filterModel,this.studyWebService.selectedWebService).subscribe(res=>{
+        delete filterModel.orderby;
+        this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
             console.log("res",res);
             this.patients = [];
 /*            this.morePatients = undefined;
@@ -1305,6 +1317,43 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         });
     }
 
+/*    getDiffTaskResults(params,offset?){
+/!*        let filter = Object.assign({},params);
+        filter['offset'] = offset ? offset:0;
+        filter['limit'] = this.limit + 1;
+        let mode = 'pk';
+        this.cfpLoadingBar.start();
+        if(this.taskPK != ''){
+            filter['pk'] = this.taskPK;
+        }else{
+            mode = 'batch';
+            filter['batchID'] = this.batchID;
+        }*!/
+        this.service.gitDiffTaskResults(filter,mode).subscribe(res=>{
+            console.log("res",res);
+            this.patients = [];
+/!*            this.morePatients = undefined;
+            this.moreDiffs = undefined;
+            this.moreStudies = undefined;*!/
+
+            if (_.size(res) > 0) {
+                // this.moreDiffs = res.length > this.limit;
+                this.prepareDiffData(res, offset);
+            }else{
+                this.appService.setMessage({
+                    'title': 'Info',
+                    'text': 'No Diff Results found!',
+                    'status': 'info'
+                });
+            }
+            this.cfpLoadingBar.complete();
+        },err=>{
+            this.patients = [];
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
+        });
+    }*/
+
     prepareDiffData(res, offset){
         let haederCodes = [
             "00200010",
@@ -1323,29 +1372,37 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             index++;
         }
         this.patientAttributes.dcmTag.splice(index, 0, '00201200');
-
-        let pat, study, patAttrs, tags = this.patientAttributes.dcmTag;
+        let patient: PatientDicom;
+        let diff, patAttrs, tags = this.patientAttributes.dcmTag;
         console.log('res', res);
         res.forEach((studyAttrs, index)=> {
             patAttrs = {};
             this.service.extractAttrs(studyAttrs, tags, patAttrs);
-            if (!(pat && this.service.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
-                pat = {
-                    attrs: patAttrs,
-                    studies: [],
-                    showAttributes: false,
-                    showStudies:true
-                };
-                // this.$apply(function () {
-                this.patients.push(pat);
-                // });
+            if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                patient = new PatientDicom(
+                    patAttrs,
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    [],
+                    true
+                );
+                this.patients.push(patient);
             }
             let showBorder = false;
             let diffHeaders = {};
             _.forEach(haederCodes,(m)=>{
                 diffHeaders[m] = this.service.getDiffHeader(studyAttrs,m);
             });
-            study = {
+            diff = new DiffDicom(
+                studyAttrs,
+                patient,
+                this._filter.filterModel.offset + index
+            );
+/*            study = {
                 patient: pat,
                 offset: offset + index,
                 moreSeries: false,
@@ -1356,14 +1413,13 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                 selected: false,
                 showBorder:false,
                 diffHeaders:diffHeaders
-            };
-            pat.studies.push(study);
+            };*/
+            patient.diffs.push(diff);
             // this.extendedFilter(false);
-            //                   this.studies.push(study); //sollte weg kommen
         });
         if (this.more = (res.length > this._filter.filterModel.limit)) {
-            pat.studies.pop();
-            if (pat.studies.length === 0) {
+            patient.studies.pop();
+            if (patient.studies.length === 0) {
                 this.patients.pop();
             }
             // this.studies.pop();
@@ -1647,7 +1703,6 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                     this.appService.showMsg("No Studies found!");
                 }
                 this.cfpLoadingBar.complete();
-                console.log("this.patients", this.patients);
             }, err => {
                 j4care.log("Something went wrong on search", err);
                 this.httpErrorHandler.handleError(err);
@@ -1873,7 +1928,8 @@ trigger_diff*/
                 this.applicationEntities.aes,
                 this._filter.quantityText,
                 'main',
-                this.studyWebService.webServices //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
+                this.studyWebService.webServices, //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
+                this.diffAttributeSets
             );
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
             this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
@@ -1898,13 +1954,14 @@ trigger_diff*/
             this.httpErrorHandler.handleError(err);
         });
     }
-    diffOptions:{
+
+/*    diffOptions:{
         aes:SelectDropdown<Aet>[],
         primaryAET?:any,
         secondaryAET?:any
     } = {
         aes:[],
-    };
+    };*/
     getApplicationEntities(){
         // if(!this.applicationEntities.aetsAreSet){
 /*            Observable.forkJoin(
@@ -1921,7 +1978,7 @@ trigger_diff*/
                       this.applicationEntities.aetsAreSet = true;
                     })
                 });*/
-                this.diffOptions.aes = aes.map((ae:Aet)=>{
+                this.applicationEntities.aes = aes.map((ae:Aet)=>{
                     return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                 });
                 console.log("filter",this.filter);
@@ -3030,6 +3087,18 @@ trigger_diff*/
             this.httpErrorHandler.handleError(err);
         })
     }
+
+    getDiffAttributeSet($this, callback?:Function){
+        this.service.getDiffAttributeSet().subscribe((attributeSets:DiffAttributeSet[])=>{
+            this.diffAttributeSets = attributeSets.map((attributeSet:DiffAttributeSet)=>{
+                return new SelectDropdown(attributeSet.id, attributeSet.title, attributeSet.description, undefined, undefined, attributeSet);
+            });
+            callback.call($this);
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+
     testSecure(){
         this.appService.isSecure().subscribe((res)=>{
             console.log("secured",res);

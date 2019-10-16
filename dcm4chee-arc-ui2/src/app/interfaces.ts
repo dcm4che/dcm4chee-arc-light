@@ -269,3 +269,12 @@ export interface MetricsDescriptors{
 }
 
 export type SelectionAction = "copy" | "move" | "merge" | "cut";
+
+export interface DiffAttributeSet {
+    actions: string;
+    description: string;
+    groupButtons: string;
+    id: string;
+    title: string;
+    type: string;
+}
