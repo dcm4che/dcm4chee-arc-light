@@ -23,6 +23,8 @@ export class TableSchemaElement {
     menu?:ActionsMenu;
     showIf:Function;
     private _elementId:string;
+    showBorder?:boolean;
+    showBorderPath?:string;
 
     constructor(
         options:{
@@ -40,7 +42,9 @@ export class TableSchemaElement {
             title?:string,
             menu?:ActionsMenu,
             description?:string,
-            showIf?:Function
+            showIf?:Function,
+            showBorder?:boolean,
+            showBorderPath?:string
         } = {}
     ){
         this.type = options.type;
@@ -58,6 +62,8 @@ export class TableSchemaElement {
         this.menu = options.menu;
         this.description = options.description;
         this.showIf = options.showIf;
+        this.showBorder = options.showBorder;
+        this.showBorderPath = options.showBorderPath;
 
         this.calculateElementID();
     }

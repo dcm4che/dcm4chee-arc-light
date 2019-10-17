@@ -352,7 +352,7 @@
                          [ngStyle]="{width: diff_table.calculatedWidth}"
                          [ngSwitch]="diff_table.type"
                          (mouseenter)="active_td = diff_table.elementId"
-                         tooltip="{{ diff_table.type === 'value' ? _.get(diff.attrs, diff_table.pathToValue) : (diff_table.type === 'pipe' ? (diff.attrs | dynamicPipe:diff_table.pipe):'')}}"
+                         tooltip="{{ diff_table.type === 'value' ? _.get(diff.diffHeaders, diff_table.pathToValue) : (diff_table.type === 'pipe' ? (diff.diffHeaders | dynamicPipe:diff_table.pipe):'')}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{diff.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -378,8 +378,17 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{diff.attrs | dynamicPipe:diff_table.pipe}}</ng-container>
-                        <ng-container *ngSwitchCase="'value'">{{_.get(diff.attrs, diff_table.pathToValue) || '&nbsp;'}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{diff.diffHeaders | dynamicPipe:diff_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">
+                            <ng-container *ngIf="_.get(diff.diffHeaders, diff_table.showBorderPath)">
+<!--                                <pre>diffHeaders:{{diff.diffHeaders|json}}</pre>
+                                <pre>diff_tablepathtovalue:{{diff_table.pathToValue|json}}</pre>-->
+                                <span class="red_border">{{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}</span>
+                            </ng-container>
+                            <ng-container *ngIf="!_.get(diff.diffHeaders, diff_table.showBorderPath)">
+                                {{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}
+                            </ng-container>
+                        </ng-container>
                     </div>
                     <attribute-list *ngIf="diff.showAttributes" [attrs]="diff.attrs"></attribute-list>
                 </div>

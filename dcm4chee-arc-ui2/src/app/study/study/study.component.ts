@@ -1401,8 +1401,10 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             diff = new DiffDicom(
                 studyAttrs,
                 patient,
-                this._filter.filterModel.offset + index
+                this._filter.filterModel.offset + index,
+                diffHeaders
             );
+            console.log("diffHeaders",diffHeaders);
 /*            study = {
                 patient: pat,
                 offset: offset + index,

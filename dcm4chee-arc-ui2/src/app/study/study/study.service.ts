@@ -374,18 +374,18 @@ export class StudyService {
                     sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0,"Alphabetic"]);
                     if(value === sqValue){
                         return {
-                            value: value,
+                            Value: [value],
                             showBorder:false
                         }
                     }else{
                         return {
-                            value: value + "/" + sqValue,
+                            Value: [value + "/" + sqValue],
                             showBorder:true
                         }
                     }
                 }else{
                     return {
-                        value: study[code].Value[0].Alphabetic,
+                        Value: [study[code].Value[0].Alphabetic],
                         showBorder:false
                     }
                 }
@@ -400,12 +400,12 @@ export class StudyService {
                             // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code, "Value",0]);
                             if(value === sqValue){
                                 return {
-                                    value: value,
+                                    Value: [value],
                                     showBorder:false
                                 }
                             }else{
                                 return {
-                                    value: value + "/" + sqValue,
+                                    Value: [value + "/" + sqValue],
                                     showBorder:true
                                 }
                             }
@@ -419,12 +419,12 @@ export class StudyService {
                             // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
                             if(value === sqValue){
                                 return {
-                                    value: value,
+                                    Value: [value],
                                     showBorder:false
                                 }
                             }else{
                                 return {
-                                    value: value + "/" + sqValue,
+                                    Value: [value + "/" + sqValue],
                                     showBorder:true
                                 }
                             }
@@ -438,12 +438,12 @@ export class StudyService {
                             // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
                             if(value === sqValue){
                                 return {
-                                    value: value,
+                                    Value: [value],
                                     showBorder:false
                                 }
                             }else{
                                 return {
-                                    value: value + "/" + sqValue,
+                                    Value: [value + "/" + sqValue],
                                     showBorder:true
                                 }
                             }
@@ -455,12 +455,12 @@ export class StudyService {
                             sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
                             if(value === sqValue){
                                 return {
-                                    value: value,
+                                    Value: [value],
                                     showBorder:false
                                 }
                             }else{
                                 return {
-                                    value: value + "/" + sqValue,
+                                    Value: [value + "/" + sqValue],
                                     showBorder:true
                                 }
                             }
@@ -468,12 +468,12 @@ export class StudyService {
                 }
             }
             return {
-                value: study[code].Value[0],
+                Value: [study[code].Value[0]],
                 showBorder:false
             }
         }else{
             return {
-                value: "",
+                Value: [""],
                 showBorder:false
             }
         }
@@ -2210,6 +2210,7 @@ export class StudyService {
                     type: "value",
                     header: "Study ID",
                     pathToValue: "[00200010].Value[0]",
+                    showBorderPath:"[00200010].showBorder",
                     headerDescription: "Study ID",
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
@@ -2219,6 +2220,7 @@ export class StudyService {
                     type: "value",
                     header: "Study Instance UID",
                     pathToValue: "[0020000D].Value[0]",
+                    showBorderPath:"[0020000D].showBorder",
                     headerDescription: "Study Instance UID",
                     widthWeight: 3,
                     calculatedWidth: "20%"
@@ -2227,6 +2229,7 @@ export class StudyService {
                     type: "value",
                     header: "Study Date",
                     pathToValue: "[00080020].Value[0]",
+                    showBorderPath:"[00080020].showBorder",
                     headerDescription: "Study Date",
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
@@ -2235,6 +2238,7 @@ export class StudyService {
                     type: "value",
                     header: "Study Time",
                     pathToValue: "[00080030].Value[0]",
+                    showBorderPath:"[00080030].showBorder",
                     headerDescription: "Study Time",
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
@@ -2243,6 +2247,7 @@ export class StudyService {
                     type: "value",
                     header: "SP Physician's Name",
                     pathToValue: "00400100.Value[0].00400006.Value[0]",
+                    showBorderPath:"00400100.Value[0].00400006.showBorder",
                     headerDescription: "Scheduled Performing Physician's Name",
                     widthWeight: 2,
                     calculatedWidth: "20%"
@@ -2251,6 +2256,7 @@ export class StudyService {
                     type: "value",
                     header: "Accession Number",
                     pathToValue: "[00080050].Value[0]",
+                    showBorderPath:"[00080050].showBorder",
                     headerDescription: "Accession Number",
                     widthWeight: 1,
                     calculatedWidth: "20%"
@@ -2259,6 +2265,7 @@ export class StudyService {
                     type: "value",
                     header: "Modalities",
                     pathToValue: "[00080061].Value[0]",
+                    showBorderPath:"[00080061].showBorder",
                     headerDescription: "Modalities in Study",
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
@@ -2267,6 +2274,7 @@ export class StudyService {
                     type: "value",
                     header: "Study Description",
                     pathToValue: "[00081030].Value[0]",
+                    showBorderPath:"[00081030].showBorder",
                     headerDescription: "Study Description",
                     widthWeight: 2,
                     calculatedWidth: "20%"
@@ -2275,16 +2283,18 @@ export class StudyService {
                     type: "value",
                     header: "#S",
                     pathToValue: "[00201206].Value[0]",
+                    showBorderPath:"[00201206].showBorder",
                     headerDescription: "Number of Study Related Series",
-                    widthWeight: 0.2,
+                    widthWeight: 0.4,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
                     header: "#I",
                     pathToValue: "[00201208].Value[0]",
+                    showBorderPath:"[00201208].showBorder",
                     headerDescription: "Number of Study Related Instances",
-                    widthWeight: 0.2,
+                    widthWeight: 0.4,
                     calculatedWidth: "20%"
                 })
             ]

@@ -6,13 +6,17 @@ export class DiffDicom {
     private _hasMore:boolean;
     private _attrs:any[];
     private _showAttributes:boolean;
-    private _showPaginations:boolean
+    private _showPaginations:boolean;
+    private _showBorder:boolean;
+    private _diffHeaders:any;
 
 
     constructor(
         attrs: any[],
         patient: PatientDicom,
         offset: number,
+        diffHeaders?: any,
+        showBorder?:boolean,
         hasMore?: boolean,
         showPaginations?: boolean,
         showAttributes?: boolean
@@ -20,7 +24,9 @@ export class DiffDicom {
         this._patient = patient;
         this._offset = offset || 0;
         this._hasMore = hasMore || false;
+        this._showBorder = showBorder || false;
         this._attrs = attrs;
+        this._diffHeaders = diffHeaders;
         this._showAttributes = showAttributes || false;
         this._showPaginations = showPaginations || false;
     }
@@ -71,5 +77,22 @@ export class DiffDicom {
 
     set showPaginations(value: boolean) {
         this._showPaginations = value;
+    }
+
+    get showBorder(): boolean {
+        return this._showBorder;
+    }
+
+    set showBorder(value:boolean) {
+        this._showBorder = value;
+    }
+
+
+    get diffHeaders(): any {
+        return this._diffHeaders;
+    }
+
+    set diffHeaders(value: any) {
+        this._diffHeaders = value;
     }
 }
