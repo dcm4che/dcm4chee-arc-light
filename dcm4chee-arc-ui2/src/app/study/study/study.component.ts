@@ -1295,9 +1295,10 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
             console.log("res",res);
             this.patients = [];
-/*            this.morePatients = undefined;
-            this.moreDiffs = undefined;
-            this.moreStudies = undefined;*/
+            this._filter.filterModel.offset = filterModel.offset;
+            /*            this.morePatients = undefined;
+                        this.moreDiffs = undefined;
+                        this.moreStudies = undefined;*/
 
             if (_.size(res) > 0) {
                 // this.moreDiffs = res.length > this.limit;
@@ -1418,8 +1419,8 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             // this.extendedFilter(false);
         });
         if (this.more = (res.length > this._filter.filterModel.limit)) {
-            patient.studies.pop();
-            if (patient.studies.length === 0) {
+            patient.diffs.pop();
+            if (patient.diffs.length === 0) {
                 this.patients.pop();
             }
             // this.studies.pop();

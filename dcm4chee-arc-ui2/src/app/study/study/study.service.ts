@@ -1003,11 +1003,15 @@ export class StudyService {
                                 if(options.studyConfig.tab === "mwl") {
                                     e.showMwls = !e.showMwls;
                                 }else{
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "patient",
-                                        action: "toggle_studies"
-                                    }, e);
+                                    if(options.studyConfig.tab === "diff") {
+                                        e.showDiffs = !e.showDiffs;
+                                    }else{
+                                        actions.call($this, {
+                                            event: "click",
+                                            level: "patient",
+                                            action: "toggle_studies"
+                                        }, e);
+                                    }
                                 }
                             },
                             title: (options.studyConfig.tab === "mwl") ? "Hide MWLs":"Hide Studies",
@@ -1015,7 +1019,11 @@ export class StudyService {
                                 if(options.studyConfig.tab === "mwl"){
                                     return e.showMwls;
                                 }else{
-                                    return e.showStudies;
+                                    if(options.studyConfig.tab === "diff") {
+                                        return e.showDiffs;
+                                    }else{
+                                        return e.showStudies;
+                                    }
                                 }
                             }
                         }, {
@@ -1030,11 +1038,15 @@ export class StudyService {
                                 if(options.studyConfig.tab === "mwl") {
                                     e.showMwls = !e.showMwls;
                                 }else{
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "patient",
-                                        action: "toggle_studies"
-                                    }, e);
+                                    if(options.studyConfig.tab === "diff") {
+                                        e.showDiffs = !e.showDiffs;
+                                    }else{
+                                        actions.call($this, {
+                                            event: "click",
+                                            level: "patient",
+                                            action: "toggle_studies"
+                                        }, e);
+                                    }
                                 }
                                 // actions.call(this, 'study_arrow',e);
                             },
@@ -1043,7 +1055,11 @@ export class StudyService {
                                 if(options.studyConfig.tab === "mwl") {
                                     return !e.showMwls
                                 }else{
-                                    return !e.showStudies
+                                    if(options.studyConfig.tab === "diff") {
+                                        return !e.showDiffs;
+                                    }else{
+                                        return !e.showStudies
+                                    }
                                 }
                             }
                         }
@@ -2169,6 +2185,25 @@ export class StudyService {
                     type: "index",
                     header: '',
                     pathToValue: '',
+                    pxWidth: 40
+                }), new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title: 'Show attributes'
+                        }
+                    ],
+                    headerDescription: "Actions",
                     pxWidth: 40
                 }),
                 new TableSchemaElement({

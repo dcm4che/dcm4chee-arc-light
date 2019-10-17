@@ -23,6 +23,9 @@ $pink:rgba(82, 36, 88, 0.85);
     &.instance{
       padding-left: 50px;
     }
+    &.diff{
+      padding-left: 42px;
+    }
     .td{
       float: left;
       //border-right: 1px solid white;
@@ -139,7 +142,7 @@ $pink:rgba(82, 36, 88, 0.85);
         background:rgba(67, 139, 173, 0.88);
       }
     }
-    &.study_block, &.mwl_block{
+    &.study_block, &.mwl_block, &.diff_block{
       -webkit-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
       -moz-box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
       box-shadow:   2px 3px 10px 0px rgba(68, 68, 68, 0.7);
@@ -152,6 +155,9 @@ $pink:rgba(82, 36, 88, 0.85);
       &.selected{
         background:rgba(67, 139, 173, 0.78);
       }
+    }
+    &.diff_block{
+      padding-left: 42px;
     }
     &.series_block{
       -webkit-box-shadow:  1px 1px 8px 0px rgba(68, 68, 68, 0.7);
