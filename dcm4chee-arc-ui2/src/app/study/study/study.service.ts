@@ -293,17 +293,15 @@ export class StudyService {
                     description: "Trigger DIFFs"
                 });*/
             }
-            schema.push(
-                {
+            if(tab != "diff"){
+                schema.push({
                     tag: "button",
-                    id: tab === "diff" ? "diff_count" : "count",
+                    id: "count",
                     text: quantityText.count,
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     description: "QUERY ONLY THE COUNT"
-            });
-            if(tab != "diff"){
-                schema.push({
+                },{
                     tag: "button",
                     id: "size",
                     showRefreshIcon: true,
@@ -343,13 +341,22 @@ export class StudyService {
             header = this.dicomHeader
         }
         let batchID;
-        if(_.hasIn(filterModel,"batchID")){
-            batchID = _.get(filterModel,"batchID");
+        let taskPK;
+        let url;
+        if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskPK") && _.get(filterModel,"taskPK") != "")){
+            if(_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != ""){
+                batchID = _.get(filterModel,"batchID");
+                url = `../monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
+            }else{
+                taskPK = _.get(filterModel,"taskPK");
+                url = `../monitor/diff/${taskPK}/studies${j4care.param(filterModel)}`
+            }
             delete filterModel["batchID"];
+            delete filterModel["taskPK"];
         }
-        if(batchID){
+        if(batchID || taskPK){
             return this.$http.get(
-                `../monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`,
+                url,
                 header
             )
         }else{

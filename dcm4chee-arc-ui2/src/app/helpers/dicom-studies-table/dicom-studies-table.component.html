@@ -381,8 +381,6 @@
                         <ng-container *ngSwitchCase="'pipe'">{{diff.diffHeaders | dynamicPipe:diff_table.pipe}}</ng-container>
                         <ng-container *ngSwitchCase="'value'">
                             <ng-container *ngIf="_.get(diff.diffHeaders, diff_table.showBorderPath)">
-<!--                                <pre>diffHeaders:{{diff.diffHeaders|json}}</pre>
-                                <pre>diff_tablepathtovalue:{{diff_table.pathToValue|json}}</pre>-->
                                 <span class="red_border">{{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}</span>
                             </ng-container>
                             <ng-container *ngIf="!_.get(diff.diffHeaders, diff_table.showBorderPath)">
