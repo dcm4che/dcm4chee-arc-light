@@ -1,11 +1,11 @@
 {
-  "-": {
-    "get": {
+  "study": {
+    "post": {
       "tags": [
-        "QIDO-RS"
+        "EXPORT-RS"
       ],
-      "summary": "Search for Instances of of Study",
-      "operationId": "SearchForStudyInstances",
+      "summary": "Export Study",
+      "operationId": "exportStudy",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -14,110 +14,53 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/accept"
+          "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/only-stgcmt"
         },
         {
-          "$ref": "../parameters.json#/includefield"
+          "$ref": "../parameters.json#/only-ian"
         },
         {
-          "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/limit"
-        },
-        {
-          "$ref": "../parameters.json#/offset"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/patientVerificationStatus"
-        },
-        {
-          "$ref": "../parameters.json#/incomplete"
-        },
-        {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
         "200": {
-          "$ref": "../responses.json#/searchResultsCSV"
+          "$ref": "../responses.json#/exported"
         },
-        "204": {
-          "description": "The search completed successfully, but there were zero results."
+        "202": {
+          "description": "successful operation"
+        },
+        "206": {
+          "$ref": "../responses.json#/exported"
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "Validation for one of the query parameters failed."
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title."
+          "description": "No such Archive AE Title or Study or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
-          "description": "Internal Server Error."
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception or Export of all instances failed"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
   },
-  "count": {
-    "get": {
+  "series1": {
+    "post": {
       "tags": [
-        "STAT-RS"
+        "EXPORT-RS"
       ],
-      "summary": "Count Instances of of Study",
-      "operationId": "CountStudyInstances",
+      "summary": "Export Series",
+      "operationId": "exportSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -126,98 +69,235 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/fuzzymatching"
+          "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/patientVerificationStatus"
+          "$ref": "../parameters.json#/only-stgcmt"
         },
         {
-          "$ref": "../parameters.json#/incomplete"
+          "$ref": "../parameters.json#/only-ian"
         },
         {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
         "200": {
+          "$ref": "../responses.json#/exported"
+        },
+        "202": {
+          "description": "successful operation"
+        },
+        "206": {
+          "$ref": "../responses.json#/exported"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study or Series or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception or Export of all instances failed"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instance": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Instance",
+      "operationId": "exportInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/exported"
+        },
+        "202": {
+          "description": "successful operation"
+        },
+        "206": {
+          "$ref": "../responses.json#/exported"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study or Series or Instance or Exporter with specified exporterID not configured or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception or Export of all instances failed"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Matching Studies",
+      "operationId": "exportMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "202": {
           "$ref": "../responses.json#/countResults"
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title."
+          "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
           "description": "Internal Server Error."
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
   },
-  "matchingStgCmt": {
+  "studies.series": {
     "post": {
       "tags": [
-        "STGCMT-RS"
+        "EXPORT-RS"
       ],
-      "summary": "Schedule Storage Commitment of matching Instances of Study from external Storage Commitment SCP",
-      "operationId": "ScheduleStorageCommitmentOfMatchingInstancesOfStudyExternal",
+      "summary": "Export Matching Series of Study",
+      "operationId": "exportMatchingSeriesOfStudy",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/stgCmtSCPPathParam"
+          "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -278,6 +358,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -288,10 +371,10 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, Storage Commitment SCP AE Title or Study"
+          "description": "No such Archive AE Title or Exporter or Study or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
-          "description": "Internal Server Error"
+          "description": "Internal Server Error."
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"
@@ -299,22 +382,25 @@
       }
     }
   },
-  "matchingIAN": {
+  "series": {
     "post": {
       "tags": [
-        "IAN-RS"
+        "EXPORT-RS"
       ],
-      "summary": "Schedule Instance Availability Notification of matching Instances of Study to external Instance Availability Notification SCP",
-      "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingInstancesOfStudyExternal",
+      "summary": "Export Matching Series",
+      "operationId": "exportMatchingSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/studyPathParam"
+          "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/ianSCPPathParam"
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -375,6 +461,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -385,10 +474,10 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, Study or Instance Availability Notification SCP AE Title"
+          "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
-          "description": "Internal Server Error"
+          "description": "Internal Server Error."
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"
@@ -396,25 +485,31 @@
       }
     }
   },
-  "matchingReject": {
+  "studies.series.instances": {
     "post": {
       "tags": [
-        "IOCM-RS"
+        "EXPORT-RS"
       ],
-      "summary": "Reject Matching Instances of Study",
-      "operationId": "rejectMatchingInstancesOfStudy",
+      "summary": "Export Matching Instances of Series",
+      "operationId": "exportMatchingInstancesOfSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/codeValuePathParam"
-        },
-        {
-          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+          "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -475,6 +570,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -485,10 +583,10 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, Rejection Note or Study"
+          "description": "No such Archive AE Title or Exporter or Study or Series or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
         },
         "500": {
-          "description": "Internal Server Error"
+          "description": "Internal Server Error."
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"
@@ -496,101 +594,7 @@
       }
     }
   },
-  "matchingStgVer": {
-    "post": {
-      "tags": [
-        "STGVER-RS"
-      ],
-      "summary": "Schedule Storage Verification of Instances of Study",
-      "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/archiveAETPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/studyPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/filter"
-        },
-        {
-          "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/patientVerificationStatus"
-        },
-        {
-          "$ref": "../parameters.json#/incomplete"
-        },
-        {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
-        }
-      ],
-      "responses": {
-        "202": {
-          "$ref": "../responses.json#/countResults"
-        },
-        "400": {
-          "description": "Validation for one of the query parameters failed"
-        },
-        "404": {
-          "description": "No such Archive AE Title or Study"
-        },
-        "500": {
-          "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
-        }
-      }
-    }
-  },
-  "matchingExport": {
+  "studies.instances": {
     "post": {
       "tags": [
         "EXPORT-RS"
@@ -689,6 +693,164 @@
         },
         "500": {
           "description": "Internal Server Error."
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instances": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Matching Instances",
+      "operationId": "exportMatchingInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/only-stgcmt"
+        },
+        {
+          "$ref": "../parameters.json#/only-ian"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.csv": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Studies specified in CSV",
+      "operationId": "ExportStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "requestBody": {
+        "description": "CSV File containing Study Instance UIDs",
+        "required": true,
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+        },
+        "400": {
+          "description": "CSV field for Study Instance UID is specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Exporter with specified exporterID not configured"
+        },
+        "500": {
+          "description": "Internal Server Error"
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"

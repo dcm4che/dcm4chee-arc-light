@@ -1,0 +1,848 @@
+{
+  "studies": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Study",
+      "operationId": "RetrieveStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Study does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "STOW-RS"
+      ],
+      "summary": "Store Instances to a Study",
+      "operationId": "StoreInstancesToStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/storeInstances"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/storeInstancesSuccessful"
+        },
+        "204": {
+          "$ref": "../responses.json#/storeInstancesWarnings"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Delete Study Permanently",
+      "operationId": "DeleteStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "403": {
+          "description": "Study is not empty."
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Series",
+      "operationId": "RetrieveSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Study or Series does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Retrieve Instance",
+      "operationId": "RetrieveInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedThumbnail"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "frames": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Frames",
+      "operationId": "RetrieveFrames",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/framesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveFramesAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedFrames"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Frames does not exists."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "bulkdata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Bulkdata",
+      "operationId": "RetrieveIBulkdata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/bulkdataPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveBulkdataAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedBulkdata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Bulkdata does not exists."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.metadata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Study Metadata",
+      "operationId": "RetrieveStudyMetadata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedMetadata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Study does not exists."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.metadata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Series Metadata",
+      "operationId": "RetrieveSeriesMetadata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedMetadata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.metadata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Instance Metadata",
+      "operationId": "RetrieveInstanceMetadata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedMetadata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.rendered": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Rendered Study",
+      "operationId": "RetrieveRenderedStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveRenderedAccept"
+        },
+        {
+          "$ref": "../parameters.json#/charset"
+        },
+        {
+          "$ref": "../parameters.json#/annotation"
+        },
+        {
+          "$ref": "../parameters.json#/quality"
+        },
+        {
+          "$ref": "../parameters.json#/viewport"
+        },
+        {
+          "$ref": "../parameters.json#/window"
+        },
+        {
+          "$ref": "../parameters.json#/iccprofile"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedRenderedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.rendered": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Rendered Series",
+      "operationId": "RetrieveRenderedSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveRenderedAccept"
+        },
+        {
+          "$ref": "../parameters.json#/charset"
+        },
+        {
+          "$ref": "../parameters.json#/annotation"
+        },
+        {
+          "$ref": "../parameters.json#/quality"
+        },
+        {
+          "$ref": "../parameters.json#/viewport"
+        },
+        {
+          "$ref": "../parameters.json#/window"
+        },
+        {
+          "$ref": "../parameters.json#/iccprofile"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedRenderedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.rendered": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Rendered Instance",
+      "operationId": "RetrieveRenderedInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveRenderedAccept"
+        },
+        {
+          "$ref": "../parameters.json#/charset"
+        },
+        {
+          "$ref": "../parameters.json#/annotation"
+        },
+        {
+          "$ref": "../parameters.json#/quality"
+        },
+        {
+          "$ref": "../parameters.json#/viewport"
+        },
+        {
+          "$ref": "../parameters.json#/window"
+        },
+        {
+          "$ref": "../parameters.json#/iccprofile"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedRenderedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "frames.rendered": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Rendered Frames",
+      "operationId": "RetrieveRenderedFrames",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/framesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveRenderedFramesAccept"
+        },
+        {
+          "$ref": "../parameters.json#/charset"
+        },
+        {
+          "$ref": "../parameters.json#/annotation"
+        },
+        {
+          "$ref": "../parameters.json#/quality"
+        },
+        {
+          "$ref": "../parameters.json#/viewport"
+        },
+        {
+          "$ref": "../parameters.json#/window"
+        },
+        {
+          "$ref": "../parameters.json#/iccprofile"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedRenderedFrames"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.thumbnail": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Study Thumbnail",
+      "operationId": "RetrieveStudyThumbnail",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveThumbnailAccept"
+        },
+        {
+          "$ref": "../parameters.json#/thumbnailViewport"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedThumbnail"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.thumbnail": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Series Thumbnail",
+      "operationId": "RetrieveSeriesThumbnail",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveThumbnailAccept"
+        },
+        {
+          "$ref": "../parameters.json#/thumbnailViewport"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedThumbnail"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.thumbnail": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Instance Thumbnail",
+      "operationId": "RetrieveInstanceThumbnail",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveThumbnailAccept"
+        },
+        {
+          "$ref": "../parameters.json#/thumbnailViewport"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedThumbnail"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "frames.thumbnail": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Frames Thumbnail",
+      "operationId": "RetrieveFramesThumbnail",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/framesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveThumbnailAccept"
+        },
+        {
+          "$ref": "../parameters.json#/thumbnailViewport"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedThumbnail"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "uri": {
+    "get": {
+      "tags": [
+        "WADO-URI"
+      ],
+      "summary": "Retrieve Instance by WADO-URI",
+      "operationId": "RetrieveInstanceByWADOURI",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/requestType"
+        },
+        {
+          "$ref": "../parameters.json#/studyUID"
+        },
+        {
+          "$ref": "../parameters.json#/seriesUID"
+        },
+        {
+          "$ref": "../parameters.json#/objectUID"
+        },
+        {
+          "$ref": "../parameters.json#/contentType"
+        },
+        {
+          "$ref": "../parameters.json#/transferSyntax"
+        },
+        {
+          "$ref": "../parameters.json#/charset"
+        },
+        {
+          "$ref": "../parameters.json#/anonymize"
+        },
+        {
+          "$ref": "../parameters.json#/annotation"
+        },
+        {
+          "$ref": "../parameters.json#/rows"
+        },
+        {
+          "$ref": "../parameters.json#/columns"
+        },
+        {
+          "$ref": "../parameters.json#/region"
+        },
+        {
+          "$ref": "../parameters.json#/windowCenter"
+        },
+        {
+          "$ref": "../parameters.json#/windowWidth"
+        },
+        {
+          "$ref": "../parameters.json#/frameNumber"
+        },
+        {
+          "$ref": "../parameters.json#/imageQuality"
+        },
+        {
+          "$ref": "../parameters.json#/presentationUID"
+        },
+        {
+          "$ref": "../parameters.json#/presentationSeriesUID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedInstance"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Instance does not exists."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}

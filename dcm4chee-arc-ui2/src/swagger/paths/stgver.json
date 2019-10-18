@@ -1,214 +1,214 @@
 {
-  "-": {
-    "get": {
+  "study": {
+    "post": {
       "tags": [
-        "QIDO-RS"
+        "STGVER-RS"
       ],
-      "summary": "Search for Series",
-      "operationId": "SearchForSeries",
+      "summary": "Verify Storage of Study",
+      "operationId": "VerifyStorageOfStudy",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/accept"
+          "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/storageVerificationPolicy"
         },
         {
-          "$ref": "../parameters.json#/includefield"
+          "$ref": "../parameters.json#/storageVerificationUpdateLocationStatus"
         },
         {
-          "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/limit"
-        },
-        {
-          "$ref": "../parameters.json#/offset"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/patientVerificationStatus"
-        },
-        {
-          "$ref": "../parameters.json#/incomplete"
-        },
-        {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
+          "$ref": "../parameters.json#/storageVerificationStorageID"
         }
       ],
       "responses": {
         "200": {
-          "$ref": "../responses.json#/searchResultsCSV"
+          "description": "Storage Verification successful for all objects of the Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
         },
-        "204": {
-          "description": "The search completed successfully, but there were zero results."
+        "202": {
+          "description": "Storage Verification successful for some objects of the Study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "Validation for one of the query parameters failed."
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title."
+          "description": "No such Archive AE title or Study"
+        },
+        "409": {
+          "description": "Storage Verification failed for all objects of the Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
         },
         "500": {
-          "description": "Internal Server Error."
+          "description": "Internal Server Error"
         }
       }
     }
   },
-  "count": {
-    "get": {
+  "series1": {
+    "post": {
       "tags": [
-        "STAT-RS"
+        "STGVER-RS"
       ],
-      "summary": "Count Series",
-      "operationId": "CountSeries",
+      "summary": "Verify Storage of Series",
+      "operationId": "VerifyStorageOfSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/fuzzymatching"
+          "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/patientVerificationStatus"
+          "$ref": "../parameters.json#/storageVerificationPolicy"
         },
         {
-          "$ref": "../parameters.json#/incomplete"
+          "$ref": "../parameters.json#/storageVerificationUpdateLocationStatus"
         },
         {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
+          "$ref": "../parameters.json#/storageVerificationStorageID"
         }
       ],
       "responses": {
         "200": {
-          "$ref": "../responses.json#/countResults"
+          "description": "Storage Verification successful for all objects of the Series",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Storage Verification successful for some objects of the Series, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "Validation for one of the query parameters failed."
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title."
+          "description": "No such Archive AE title, Study or Series"
+        },
+        "409": {
+          "description": "Storage Verification failed for all objects of the Series",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
         },
         "500": {
-          "description": "Internal Server Error."
+          "description": "Internal Server Error"
         }
       }
     }
   },
-  "matchingIAN": {
+  "instance": {
     "post": {
       "tags": [
-        "IAN-RS"
+        "STGVER-RS"
       ],
-      "summary": "Schedule Instance Availability Notification of matching Series to external Instance Availability Notification SCP",
-      "operationId": "ScheduleInstanceAvailabilityNotificationOfMatchingSeriesExternal",
+      "summary": "Verify Storage of Instance",
+      "operationId": "VerifyStorageOfInstance",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/ianSCPPathParam"
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationPolicy"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationUpdateLocationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationStorageID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Storage Verification successful for SOP Instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "No such Archive AE title, Study, Series or SOP Instance"
+        },
+        "409": {
+          "description": "Storage Verification failed for SOP Instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "studies": {
+    "post": {
+      "tags": [
+        "STGVER-RS"
+      ],
+      "summary": "Schedule Storage Verification of Studies",
+      "operationId": "ScheduleStorageVerificationOfStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -279,7 +279,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or Instance Availability Notification SCP AE Title"
+          "description": "No such Archive AE Title"
         },
         "500": {
           "description": "Internal Server Error"
@@ -290,19 +290,19 @@
       }
     }
   },
-  "matchingStgCmt": {
+  "studies.series": {
     "post": {
       "tags": [
-        "STGCMT-RS"
+        "STGVER-RS"
       ],
-      "summary": "Schedule Storage Commitment of matching Series from external Storage Commitment SCP",
-      "operationId": "ScheduleStorageCommitmentOfMatchingSeriesExternal",
+      "summary": "Schedule Storage Verification of Series of Study",
+      "operationId": "ScheduleStorageVerificationOfSeriesOfStudy",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/stgCmtSCPPathParam"
+          "$ref": "../parameters.json#/studyPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -373,7 +373,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or Storage Commitment SCP AE Title"
+          "description": "No such Archive AE Title or Study"
         },
         "500": {
           "description": "Internal Server Error"
@@ -384,104 +384,7 @@
       }
     }
   },
-  "matchingReject": {
-    "post": {
-      "tags": [
-        "IOCM-RS"
-      ],
-      "summary": "Reject Matching Series",
-      "operationId": "rejectMatchingSeries",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/archiveAETPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/codeValuePathParam"
-        },
-        {
-          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/filter"
-        },
-        {
-          "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/patientVerificationStatus"
-        },
-        {
-          "$ref": "../parameters.json#/incomplete"
-        },
-        {
-          "$ref": "../parameters.json#/retrievefailed"
-        },
-        {
-          "$ref": "../parameters.json#/storageVerificationFailed"
-        },
-        {
-          "$ref": "../parameters.json#/compressionfailed"
-        },
-        {
-          "$ref": "../parameters.json#/metadataUpdateFailed"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudySizeInKB"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET"
-        },
-        {
-          "$ref": "../parameters.json#/ExternalRetrieveAET!"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationDate"
-        },
-        {
-          "$ref": "../parameters.json#/ExpirationState"
-        },
-        {
-          "$ref": "../parameters.json#/allOfModalitiesInStudy"
-        },
-        {
-          "$ref": "../parameters.json#/storageID"
-        },
-        {
-          "$ref": "../parameters.json#/storageClustered"
-        },
-        {
-          "$ref": "../parameters.json#/storageExported"
-        }
-      ],
-      "responses": {
-        "202": {
-          "$ref": "../responses.json#/countResults"
-        },
-        "400": {
-          "description": "Validation for one of the query parameters failed"
-        },
-        "404": {
-          "description": "No such Archive AE Title or Rejection Note"
-        },
-        "500": {
-          "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
-        }
-      }
-    }
-  },
-  "matchingStgVer": {
+  "series": {
     "post": {
       "tags": [
         "STGVER-RS"
@@ -572,25 +475,22 @@
       }
     }
   },
-  "matchingExport": {
+  "studies.series.instances": {
     "post": {
       "tags": [
-        "EXPORT-RS"
+        "STGVER-RS"
       ],
-      "summary": "Export Matching Series",
-      "operationId": "exportMatchingSeries",
+      "summary": "Schedule Storage Verification of Instances of Series",
+      "operationId": "ScheduleStorageVerificationOfInstancesOfSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/ExporterIDPathParam"
+          "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
+          "$ref": "../parameters.json#/seriesPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -651,9 +551,6 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -664,10 +561,195 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or Exporter or Exporter configuration does not consist of IAN Destinations or Storage Commitment SCPs"
+          "description": "No such Archive AE Title, Study or Series"
         },
         "500": {
-          "description": "Internal Server Error."
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.instances": {
+    "post": {
+      "tags": [
+        "STGVER-RS"
+      ],
+      "summary": "Schedule Storage Verification of Instances of Study",
+      "operationId": "ScheduleStorageVerificationOfInstancesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instances": {
+    "post": {
+      "tags": [
+        "STGVER-RS"
+      ],
+      "summary": "Schedule Storage Verification of Instances",
+      "operationId": "ScheduleStorageVerificationOfInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error"
         },
         "503": {
           "description": "Maximal number of Tasks in Queue reached"

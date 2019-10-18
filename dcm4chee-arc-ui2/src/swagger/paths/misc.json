@@ -1,0 +1,490 @@
+{
+  "start": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Start Archive",
+      "operationId": "start",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "archive started"
+        }
+      }
+    }
+  },
+  "stop": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Stop Archive",
+      "operationId": "stop",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "archive stopped"
+        }
+      }
+    }
+  },
+  "reload": {
+    "post": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Reload Archive Configuration",
+      "operationId": "reload",
+      "parameters": [],
+      "responses": {
+        "204": {
+          "description": "configuration reloaded"
+        }
+      }
+    }
+  },
+  "status": {
+    "get": {
+      "tags": [
+        "CTRL-RS"
+      ],
+      "summary": "Get Archive Status",
+      "operationId": "status",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/Status"
+        }
+      }
+    }
+  },
+  "dimse": {
+    "post": {
+      "tags": [
+        "ECHO-RS"
+      ],
+      "summary": "Verify DICOM Connection",
+      "operationId": "verifyConnection",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/host"
+        },
+        {
+          "$ref": "../parameters.json#/port"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Verification Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/echo.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity or Remote Application Entity"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "reject": {
+    "delete": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Delete Rejected Instances Permanently",
+      "operationId": "deleteRejectedInstancesPermanently",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/rejectedBefore"
+        },
+        {
+          "$ref": "../parameters.json#/keepRejectionNote"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/deletedCount"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "modalities": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "List Distinct Modalities",
+      "operationId": "listDistinctModalities",
+      "description": "List distinct values for Modality (0008,0060) of received Series",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/modalities"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "token.keycloak": {
+    "get": {
+      "tags": [
+        "AUTH-RS"
+      ],
+      "summary": "Get Access token from Keycloak",
+      "operationId": "getAccessTokenFromKeycloak",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/keycloakIDPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/AccessToken"
+        },
+        "404": {
+          "description": "No such Keycloak Server in Archive Device configuration"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "token.webapp": {
+    "get": {
+      "tags": [
+        "AUTH-RS"
+      ],
+      "summary": "Get Access token from Keycloak for given Web Application",
+      "operationId": "getAccessToken",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/webAppPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/AccessToken"
+        },
+        "204": {
+          "description": "No Keycloak Client ID configured for Web Application"
+        },
+        "404": {
+          "description": "No such Web Application or Keycloak Client for given Web Application identifier in Device configuration"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.access": {
+    "post": {
+      "tags": [
+        "ACCESS-RS"
+      ],
+      "summary": "Update Study Access Control ID",
+      "operationId": "UpdateStudyAccessControlID",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accessControlIDPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.access": {
+    "post": {
+      "tags": [
+        "ACCESS-RS"
+      ],
+      "summary": "Update Study Access Control ID of matching studies",
+      "operationId": "UpdateStudyAccessControlIDOfMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accessControlIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.impax.reports": {
+    "post": {
+      "tags": [
+        "IMPAX-REPORT-RS"
+      ],
+      "summary": "Import Reports of Study",
+      "operationId": "importReportsOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "no such Archive AET or Study"
+        },
+        "409": {
+          "description": "Impax Report Service returns no report for the study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection to remote side fails"
+        }
+      }
+    }
+  },
+  "impax.reports.study": {
+    "get": {
+      "tags": [
+        "IMPAX-REPORT-RS"
+      ],
+      "summary": "Query report by Study Instance UID",
+      "operationId": "queryReportByStudyUID",
+      "parameters": [
+
+      ],
+      "responses": {
+        "200": {
+          "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+          "content": {
+            "multipart/related;type=text/xml": {
+              "schema": {
+                "type": "file"
+              }
+            }
+          }
+        },
+        "409": {
+          "description": "Impax Report Service returns no report for the study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection to remote side fails"
+        }
+      }
+    }
+  },
+  "xroad": {
+    "get": {
+      "tags": [
+        "X-ROAD-RS"
+      ],
+      "summary": "x-road RR441",
+      "operationId": "xroadRR441",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "no patient found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "x-road RR441 returns error response"
+        }
+      }
+    }
+  },
+  "import": {
+    "post": {
+      "tags": [
+        "IMPORT-RS"
+      ],
+      "summary": "Import Instances",
+      "operationId": "ImportInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storageIDPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/importInstances"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/storeInstancesSuccessful"
+        },
+        "204": {
+          "$ref": "../responses.json#/storeInstancesWarnings"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or no Storage with the specified StorageID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}

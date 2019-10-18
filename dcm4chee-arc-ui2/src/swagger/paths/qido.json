@@ -1,0 +1,1328 @@
+{
+  "studies": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Studies",
+      "operationId": "SearchForStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "STOW-RS"
+      ],
+      "summary": "Store Instances",
+      "operationId": "StoreInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/storeInstances"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/storeInstancesSuccessful"
+        },
+        "204": {
+          "$ref": "../responses.json#/storeInstancesWarnings"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.series": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Series of Study",
+      "operationId": "SearchForStudySeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Series",
+      "operationId": "SearchForSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.series.instances": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Instances of Series of Study",
+      "operationId": "SearchForStudySeriesInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.instances": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Instances of of Study",
+      "operationId": "SearchForStudyInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Instances",
+      "operationId": "SearchForInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Studies",
+      "operationId": "CountStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.series.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Series of Study",
+      "operationId": "CountStudySeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Series",
+      "operationId": "CountSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.series.instances.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Instances of Series of Study",
+      "operationId": "CountStudySeriesInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.instances.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Instances of of Study",
+      "operationId": "CountStudyInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Instances",
+      "operationId": "CountInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.size": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Size of Studies",
+      "operationId": "SizeOfStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/Size"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,890 @@
+{
+  "devicename": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Archive Device",
+      "operationId": "getArchiveDevice",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/DeviceName"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "keycloak": {
+    "get": {
+      "tags": [
+        "AUTH-RS"
+      ],
+      "summary": "Get Keycloak adapter configuration for UI application",
+      "operationId": "getKeycloakJSON",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/KeycloakJSON"
+        }
+      }
+    }
+  },
+  "devices": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List devices",
+      "operationId": "listDevices",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDescription"
+        },
+        {
+          "$ref": "../parameters.json#/dicomManufacturer"
+        },
+        {
+          "$ref": "../parameters.json#/dicomManufacturerModelName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomStationName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomPrimaryDeviceType"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstitutionName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstitutionDepartmentName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomInstalled"
+        },
+        {
+          "$ref": "../parameters.json#/dicomSoftwareVersion"
+        },
+        {
+          "$ref": "../parameters.json#/hasArcDevExt"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/deviceList"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "device": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Device",
+      "operationId": "getDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Device",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../../assets/schema/device.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Device configuration not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Create Device",
+      "operationId": "createDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "requestBody": {
+        "description": "new device",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../assets/schema/device.schema.json"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+        },
+        "404": {
+          "description": "Referenced devices/configuration not found"
+        },
+        "409": {
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Update Device",
+      "operationId": "updateDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "requestBody": {
+        "description": "updated device",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../assets/schema/device.schema.json"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+        },
+        "404": {
+          "description": "Device not found or referenced device/configuration not found"
+        },
+        "409": {
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Delete Device",
+      "operationId": "deleteDevice",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/register"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "vendorData": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Device Vendor Data",
+      "operationId": "getDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/zip": {
+              "schema": {
+                "type": "file"
+              }
+            }
+          }
+        },
+        "204": {
+          "description": "successful operation - device has no vendor data"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Update Device Vendor Data",
+      "operationId": "updateDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "requestBody": {
+        "description": "Vendor Data",
+        "required": true,
+        "content": {
+          "application/zip": {
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Delete Device Vendor Data",
+      "operationId": "deleteDeviceVendorData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/devicePathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Device not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.aets": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Registered Application Entity Titles",
+      "operationId": "listRegisteredAETs",
+      "responses": {
+        "200": {
+          "description": "Registered Application Entity Titles",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.aet": {
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Register Application Entity Title",
+      "operationId": "registerAET",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/aetPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "409": {
+          "description": "AE Title already registered"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Unregister Application Entity Title",
+      "operationId": "unregisterAET",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/aetPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "AE Title not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.webAppNames": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Registered Web Application Names",
+      "operationId": "listRegisteredWebAppNames",
+      "responses": {
+        "200": {
+          "description": "Registered Web Application Names",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.webAppName": {
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Register Web Application Name",
+      "operationId": "registerWebApp",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/webAppPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "409": {
+          "description": "Web Application already registered"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Unregister Web Application Name",
+      "operationId": "unregisterWebApp",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/webAppPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "Web Application not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.hl7apps": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Registered HL7 Application and Facility Names",
+      "operationId": "listRegisteredHL7Apps",
+      "responses": {
+        "200": {
+          "description": "Registered HL7 Application and Facility Names",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "unique.hl7app": {
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Register HL7 Application Name",
+      "operationId": "registerHL7App",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/hl7AppPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "409": {
+          "description": "HL7 Application already registered"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Unregister HL7 Application Name",
+      "operationId": "unregisterHL7App",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/hl7AppPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "HL7 Application not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "aes": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Application Entities",
+      "operationId": "listApplicationEntities",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDescription"
+        },
+        {
+          "$ref": "../parameters.json#/dicomAETitle"
+        },
+        {
+          "$ref": "../parameters.json#/dicomAssociationAcceptor"
+        },
+        {
+          "$ref": "../parameters.json#/dicomAssociationInitiator"
+        },
+        {
+          "$ref": "../parameters.json#/dicomApplicationCluster"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/aeList"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "aets": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Archive AE Titles",
+      "operationId": "listArchiveAETs",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "Archive AE Titles",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/aets.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "webapps": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Web Applications",
+      "operationId": "listWebApplications",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDescription"
+        },
+        {
+          "$ref": "../parameters.json#/dcmWebAppName"
+        },
+        {
+          "$ref": "../parameters.json#/dcmWebServicePath"
+        },
+        {
+          "$ref": "../parameters.json#/dcmWebServiceClass"
+        },
+        {
+          "$ref": "../parameters.json#/dicomAETitle"
+        },
+        {
+          "$ref": "../parameters.json#/dcmKeycloakClientID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomApplicationCluster"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/webAppList"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "hl7apps": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List HL7 Applications",
+      "operationId": "listHL7Applications",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/hl7ApplicationName"
+        },
+        {
+          "$ref": "../parameters.json#/dicomApplicationCluster"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/hl7AppList"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "pdq": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List PDQ Services",
+      "operationId": "listPDQServices",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "PDQ Services",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/pdqServices.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "attribute-filter": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Attribute Filter",
+      "operationId": "getAttributeFilter",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/entityPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Attribute Filter of Entity",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../../assets/schema/attributeFilter.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "entity not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "attribute-set": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Attribute Set",
+      "operationId": "getAttributeSet",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/typePathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Attribute Set of Type",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/attributeSets.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Attribute Set type not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "queues": {
+    "get": {
+      "tags": [
+        "QUEUE-RS"
+      ],
+      "summary": "List Configured Queues",
+      "operationId": "listQueues",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "Queues",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/queueList.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "export": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Exporters",
+      "operationId": "listExporters",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "Exporter Descriptors",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/exporters.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "reject": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List Rejection Notes",
+      "operationId": "listRejectionNotes",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dcmRevokeRejection"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Rejection Notes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/rejectionNotes.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "storage": {
+    "get": {
+      "tags": [
+        "STORAGE-RS"
+      ],
+      "summary": "List Storage Systems",
+      "operationId": "listStorageSystems",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/uriScheme"
+        },
+        {
+          "$ref": "../parameters.json#/dicomAETitle"
+        },
+        {
+          "$ref": "../parameters.json#/usage"
+        },
+        {
+          "$ref": "../parameters.json#/storageClusterID"
+        },
+        {
+          "$ref": "../parameters.json#/usableSpaceBelow"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Storage Systems",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/storageList.schema.json"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}

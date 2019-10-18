@@ -1,0 +1,1457 @@
+{
+  "studies": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "description": "URL shall be without '_'. Open API does not allow matching URLs with same HTTP request methods to be defined twice! Clashes with STOW-RS URL",
+      "summary": "Create Or Update Study",
+      "operationId": "CreateOrUpdateStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/studyAttributes"
+      },
+      "responses": {
+        "200": {
+          "description": "Created / Updated Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Patient ID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Study",
+      "operationId": "RejectStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Study queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "series1.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Series",
+      "operationId": "RejectSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Series queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study, Series or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instance.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Instance",
+      "operationId": "RejectInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Instance queued"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Study, Series, Instance or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Studies",
+      "operationId": "rejectMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.series.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Series of Study",
+      "operationId": "rejectMatchingSeriesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Rejection Note or Study"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "series.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Series",
+      "operationId": "rejectMatchingSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.series.instances.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Instances of Series",
+      "operationId": "rejectMatchingInstancesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Rejection Note, Study or Series"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.instances.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Instances of Study",
+      "operationId": "rejectMatchingInstancesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, Rejection Note or Study"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instances.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Matching Instances",
+      "operationId": "rejectMatchingInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "study.copy": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Copy Instances to Study",
+      "operationId": "CopyInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+      },
+      "responses": {
+        "200": {
+          "description": "All referenced instances copied to target study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some Instances were copied to target study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity, Study."
+        },
+        "409": {
+          "description": "Copy Instances to target study failed for all.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.move": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Move Instances to Study",
+      "operationId": "MoveInstances",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/HierarchicalSOPInstanceReference"
+      },
+      "responses": {
+        "200": {
+          "description": "All referenced instances moved to target study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "This indicates that some Instances were moved to target study, but failures exist for others.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity, Study or Rejection Note."
+        },
+        "409": {
+          "description": "Move Instances to target study failed for all.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.expire": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Study Expiration Date",
+      "operationId": "UpdateStudyExpirationDate",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/expirationDatePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterID"
+        },
+        {
+          "$ref": "../parameters.json#/FreezeExpirationDate"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Expiration Date cannot be parsed."
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series1.expire": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Series Expiration Date",
+      "operationId": "UpdateSeriesExpirationDate",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/expirationDatePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterID"
+        },
+        {
+          "$ref": "../parameters.json#/FreezeExpirationDate"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Expiration Date cannot be parsed or Revoke expiration for Series not allowed."
+        },
+        "404": {
+          "description": "No such Application Entity, Study or Series"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.expire": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Apply Retention Policy",
+      "operationId": "applyRetentionPolicy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "dimse.study.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Study external",
+      "operationId": "RejectStudyExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescp"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, External Application Entity, Study or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dimse.series1.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Series external",
+      "operationId": "RejectSeriesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescp"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, External Application Entity, Study, Series or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dimse.instance.reject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Instance external",
+      "operationId": "RejectInstanceExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescp"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, External Application Entity, Study, Series, Instance or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/reject.schema.json"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "diff.studies": {
+    "get": {
+      "tags": [
+        "DIFF-RS"
+      ],
+      "summary": "Compare Studies",
+      "operationId": "CompareStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/secondaryFindSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/different"
+        },
+        {
+          "$ref": "../parameters.json#/missing"
+        },
+        {
+          "$ref": "../parameters.json#/ForceQueryByStudyUID"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/comparefields"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "204": {
+          "description": "No matching Study found at primary C-FIND SCP"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception"
+        }
+      }
+    }
+  },
+  "diff.studies.count": {
+    "get": {
+      "tags": [
+        "DIFF-RS"
+      ],
+      "summary": "Compare Studies Count",
+      "operationId": "CompareStudiesCount",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/secondaryFindSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/different"
+        },
+        {
+          "$ref": "../parameters.json#/missing"
+        },
+        {
+          "$ref": "../parameters.json#/ForceQueryByStudyUID"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/comparefields"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/compareStudiesCount"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "DICOM Service Exception"
+        }
+      }
+    }
+  },
+  "diff.studies.csv": {
+    "post": {
+      "tags": [
+        "DIFF-RS"
+      ],
+      "summary": "Compares Studies specified in CSV",
+      "operationId": "CompareStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/secondaryFindSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/different"
+        },
+        {
+          "$ref": "../parameters.json#/missing"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/comparefields"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "requestBody": {
+        "description": "CSV File containing Study Instance UIDs",
+        "required": true,
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID is specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  }
+}

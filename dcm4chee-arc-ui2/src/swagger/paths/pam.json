@@ -1,0 +1,612 @@
+{
+  "patients": {
+    "get": {
+      "tags": [
+        "QIDO-RS"
+      ],
+      "summary": "Search for Patients",
+      "operationId": "SearchForPatients",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/withoutstudies"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsCSV"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Create Patient",
+      "operationId": "CreatePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/PatientID"
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patients.count": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "Count Patients",
+      "operationId": "CountPatients",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/withoutstudies"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patient": {
+    "put": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Update, Create, Merge or Change Patient ID of patient",
+      "operationId": "UpdatePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/merge"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "409": {
+          "description": "Patient Tracking Not Allowed or Circular Patient Merge exception"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Delete Patient Permanently",
+      "operationId": "DeletePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "403": {
+          "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Non Unique Patient or Patient is already merged exception."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patients.merge": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Merge Patients",
+      "operationId": "MergePatients",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/PriorPatientIDs"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "JSON request body was not well formed"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patient.merge": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Merge Patient",
+      "operationId": "MergePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priorPatientPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patient.changeid": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Change Patient ID",
+      "operationId": "ChangePatientID",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priorPatientPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "diff.pdq.patients": {
+    "get": {
+      "tags": [
+        "PDQ-RS"
+      ],
+      "summary": "Compare Patient Demographics",
+      "operationId": "comparePatientDemographics",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/pdqServiceIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/withoutstudies"
+        },
+        {
+          "$ref": "../parameters.json#/different"
+        },
+        {
+          "$ref": "../parameters.json#/missing"
+        },
+        {
+          "$ref": "../parameters.json#/orderBy"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "different/missing patients as JSON array with DICOM JSON objects - may be empty if no patient differs",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "204": {
+          "description": "No matching Patient found at Archive AE"
+        },
+        "400": {
+          "description": "Request entity too large"
+        },
+        "404": {
+          "description": "AE Title of Archive or PDQ Service not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "patient.pdq": {
+    "post": {
+      "tags": [
+        "PDQ-RS"
+      ],
+      "summary": "Update Patient Demographics",
+      "operationId": "updatePatientDemographics",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/pdqServiceIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/adjustIssuerOfPatientID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "title": "action",
+                    "description": "Event Action Code",
+                    "type": "string",
+                    "enum": [ "C", "R", "U"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Patient was not found by the specified PDQ Service"
+        },
+        "404": {
+          "description": "no such PDQ Service"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "PDQ Service failure"
+        }
+      }
+    }
+  },
+  "pdq.patient": {
+    "get": {
+      "tags": [
+        "PDQ-RS"
+      ],
+      "summary": "Query Patient Demographics",
+      "operationId": "queryPatientDemographics",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/pdqServiceIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful Operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such PDQ Service or Patient was not found by the specified PDQ Service"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "Query of PDQ Service fails"
+        }
+      }
+    }
+  },
+  "hl7.patients": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Create Patient in external archive",
+      "operationId": "CreatePatientExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/hl7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/externalHL7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "204": {
+          "description": "Message accepted by Receiving HL7 Application"
+        },
+        "400": {
+          "description": "JSON request body was not well formed."
+        },
+        "404": {
+          "description": "HL7 Application or External HL7 Application not configured"
+        },
+        "409": {
+          "$ref": "../responses.json#/HL7ACK"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+        },
+        "504": {
+          "description": "Failed to connect to Receiving HL7 Application"
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Update Patient in external archive Legacy",
+      "operationId": "UpdatePatientExternalLegacy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/hl7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/externalHL7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "204": {
+          "description": "Message accepted by Receiving HL7 Application"
+        },
+        "400": {
+          "description": "JSON request body was not well formed."
+        },
+        "404": {
+          "description": "HL7 Application or External HL7 Application not configured"
+        },
+        "409": {
+          "$ref": "../responses.json#/HL7ACK"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+        },
+        "504": {
+          "description": "Failed to connect to Receiving HL7 Application"
+        }
+      }
+    }
+  },
+  "hl7.patient": {
+    "put": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Update, Merge or Change Patient ID of Patient in external archive",
+      "operationId": "UpdatePatientExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/hl7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/externalHL7AppPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/merge"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "204": {
+          "description": "Message accepted by Receiving HL7 Application"
+        },
+        "400": {
+          "description": "JSON request body was not well formed or Circular merge of patients not allowed."
+        },
+        "404": {
+          "description": "HL7 Application or External HL7 Application not configured"
+        },
+        "409": {
+          "$ref": "../responses.json#/HL7ACK"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+        },
+        "504": {
+          "description": "Failed to connect to Receiving HL7 Application"
+        }
+      }
+    }
+  }
+}

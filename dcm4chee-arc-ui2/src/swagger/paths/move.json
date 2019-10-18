@@ -1,0 +1,1258 @@
+{
+  "studies": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Retrieve Study from external C-MOVE SCP",
+      "operationId": "RetrieveStudyExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "206": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "series": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Retrieve Series from external C-MOVE SCP",
+      "operationId": "RetrieveSeriesExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "206": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "instances": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Retrieve Instance from external C-MOVE SCP",
+      "operationId": "RetrieveInstanceExternal",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "202": {
+          "description": "Request successfully queued for processing"
+        },
+        "206": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Export Result",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/export.schema.json"
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Mark Study for retrieve from external C-MOVE SCP",
+      "operationId": "MarkStudyForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Retrieve Task created for Study"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Mark Series from external C-MOVE SCP",
+      "operationId": "MarkSeriesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Retrieve Task created for Series"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Mark Instance from external C-MOVE SCP",
+      "operationId": "MarkInstanceForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Retrieve Task created for Instance"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.csv": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Retrieve Studies specified in CSV from external C-MOVE SCP",
+      "operationId": "RetrieveStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "studies.csv.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Mark Studies for Retrieve specified in CSV from external C-MOVE SCP",
+      "operationId": "MarkForRetrieveStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "find.studies": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Retrieve matching Studies from external C-MOVE SCP",
+      "operationId": "QueryRetrieveMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find.series": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Retrieve matching Series of Study from external C-MOVE SCP",
+      "operationId": "QueryRetrieveMatchingSeriesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find.instances": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Retrieve matching Instances of Series from external C-MOVE SCP",
+      "operationId": "QueryRetrieveMatchingInstancesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find.studies.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Mark matching Studies for retrieve from external C-MOVE SCP",
+      "operationId": "QueryAndMarkMatchingStudiesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  },
+  "find.series.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Mark matching Series for retrieve from external C-MOVE SCP",
+      "operationId": "QueryAndMarkMatchingSeriesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  },
+  "find.instances.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query and Mark matching Instances for retrieve from external C-MOVE SCP",
+      "operationId": "QueryAndMarkMatchingInstancesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  },
+  "find2.studies": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Retrieve matching Studies from external C-MOVE SCP",
+      "operationId": "QueryCFindRetrieveMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find2.series": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Retrieve matching Series of Study from external C-MOVE SCP",
+      "operationId": "QueryCFindRetrieveMatchingSeriesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find2.instances": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Retrieve matching Instances of Series from external C-MOVE SCP",
+      "operationId": "QueryCFindRetrieveMatchingInstancesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
+  "find2.studies.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Mark matching Studies for retrieve from external C-MOVE SCP",
+      "operationId": "QueryCFindMarkMatchingStudiesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  },
+  "find2.series.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Mark matching Series for retrieve from external C-MOVE SCP",
+      "operationId": "QueryCFindMarkMatchingSeriesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  },
+  "find2.instances.mark4retrieve": {
+    "post": {
+      "tags": [
+        "MOVE-RS"
+      ],
+      "summary": "Query from C-FIND SCP and Mark matching Instances for retrieve from external C-MOVE SCP",
+      "operationId": "QueryCFindMarkMatchingInstancesForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueNameRetrieve"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or C-FIND SCP AE Title or Retrieve queue"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "$ref": "../responses.json#/countResults"
+        }
+      }
+    }
+  }
+}
