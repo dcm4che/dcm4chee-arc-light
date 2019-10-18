@@ -503,7 +503,7 @@
           "description": "Performed Operations in this Association",
           "type": "array",
           "items": {
-            "$ref": "operation.schema.json"
+            "$ref": "#/operation"
           }
         },
         "invokedOps": {
@@ -511,7 +511,7 @@
           "description": "Invoked Operations in this Association",
           "type": "array",
           "items": {
-            "$ref": "operation.schema.json"
+            "$ref": "#/operation"
           }
         },
         "<other-property>": {
@@ -1595,37 +1595,37 @@
     "type": "object",
     "properties": {
       "C-STORE": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "C-GET": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "C-FIND": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "C-MOVE": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "C-ECHO": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-EVENT-REPORT": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-GET": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-SET": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-ACTION": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-CREATE": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       },
       "N-DELETE": {
-        "$ref": "rq_rsp.schema.json"
+        "$ref": "#/rq_rsp"
       }
     }
   },
