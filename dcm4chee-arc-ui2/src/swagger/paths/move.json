@@ -38,7 +38,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -51,7 +51,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -70,7 +70,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -123,7 +123,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -136,7 +136,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -155,7 +155,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -211,7 +211,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -224,7 +224,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }
@@ -243,7 +243,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/export.schema.json"
+                "$ref": "../schemas.json#/export"
               }
             }
           }

@@ -38,7 +38,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtList.schema.json"
+                "$ref": "../schemas.json#/stgcmtList"
               }
             }
           }
@@ -121,7 +121,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }
@@ -137,7 +137,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }
@@ -172,7 +172,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }
@@ -188,7 +188,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }
@@ -226,7 +226,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }
@@ -242,7 +242,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgcmtscu.schema.json"
+                "$ref": "../schemas.json#/stgcmtscu"
               }
             }
           }

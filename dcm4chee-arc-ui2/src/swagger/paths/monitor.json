@@ -15,7 +15,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/associations.schema.json"
+                "$ref": "../schemas.json#/associations"
               }
             }
           }
@@ -114,7 +114,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/metrics.schema.json"
+                "$ref": "../schemas.json#/metrics"
               }
             }
           }
@@ -195,7 +195,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/exportTaskList.schema.json"
+                "$ref": "../schemas.json#/exportTaskList"
               }
             }
           }
@@ -572,7 +572,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/exportBatchList.schema.json"
+                "$ref": "../schemas.json#/exportBatchList"
               }
             }
           }
@@ -643,7 +643,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/retrieveTaskList.schema.json"
+                "$ref": "../schemas.json#/retrieveTaskList"
               }
             }
           }
@@ -1016,7 +1016,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/retrieveBatchList.schema.json"
+                "$ref": "../schemas.json#/retrieveBatchList"
               }
             }
           }
@@ -1078,7 +1078,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgverTaskList.schema.json"
+                "$ref": "../schemas.json#/stgverTaskList"
               }
             }
           }
@@ -1400,7 +1400,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/stgverBatchList.schema.json"
+                "$ref": "../schemas.json#/stgverBatchList"
               }
             }
           }
@@ -1474,7 +1474,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/diffTaskList.schema.json"
+                "$ref": "../schemas.json#/diffTaskList"
               }
             }
           }
@@ -1900,7 +1900,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/diffBatchList.schema.json"
+                "$ref": "../schemas.json#/diffBatchList"
               }
             }
           }
@@ -2030,7 +2030,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/messageList.schema.json"
+                "$ref": "../schemas.json#/messageList"
               }
             }
           }

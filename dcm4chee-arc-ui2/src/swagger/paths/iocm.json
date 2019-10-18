@@ -1072,7 +1072,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }
@@ -1088,7 +1088,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }
@@ -1135,7 +1135,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }
@@ -1151,7 +1151,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }
@@ -1201,7 +1201,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }
@@ -1217,7 +1217,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/reject.schema.json"
+                "$ref": "../schemas.json#/reject"
               }
             }
           }

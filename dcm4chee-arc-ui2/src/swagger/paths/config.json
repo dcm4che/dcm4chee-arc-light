@@ -596,7 +596,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/aets.schema.json"
+                "$ref": "../schemas.json#/aets"
               }
             }
           }
@@ -692,7 +692,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/pdqServices.schema.json"
+                "$ref": "../schemas.json#/pdqServices"
               }
             }
           }
@@ -753,7 +753,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/attributeSets.schema.json"
+                "$ref": "../schemas.json#/attributeSets"
               }
             }
           }
@@ -781,7 +781,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/queueList.schema.json"
+                "$ref": "../schemas.json#/queueList"
               }
             }
           }
@@ -806,7 +806,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/exporters.schema.json"
+                "$ref": "../schemas.json#/exporters"
               }
             }
           }
@@ -835,7 +835,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/rejectionNotes.schema.json"
+                "$ref": "../schemas.json#/rejectionNotes"
               }
             }
           }
@@ -876,7 +876,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/storageList.schema.json"
+                "$ref": "../schemas.json#/storageList"
               }
             }
           }

@@ -23,7 +23,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }
@@ -39,7 +39,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }
@@ -74,7 +74,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }
@@ -90,7 +90,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }
@@ -128,7 +128,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }
@@ -144,7 +144,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/ianscu.schema.json"
+                "$ref": "../schemas.json#/ianscu"
               }
             }
           }

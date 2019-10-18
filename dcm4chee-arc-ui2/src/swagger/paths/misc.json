@@ -86,7 +86,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/echo.schema.json"
+                "$ref": "../schemas.json#/echo"
               }
             }
           }
