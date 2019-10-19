@@ -519,10 +519,10 @@
     "/devices": {
       "$ref": "paths/config.json#/devices"
     },
-    "/devices/{DeviceName}": {
+    "/devices/{device}": {
       "$ref": "paths/config.json#/device"
     },
-    "/devices/{deviceName}/vendordata": {
+    "/devices/{device}/vendordata": {
       "$ref": "paths/config.json#/vendorData"
     },
     "/unique/aets": {

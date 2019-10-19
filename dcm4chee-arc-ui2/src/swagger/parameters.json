@@ -1,6 +1,6 @@
 {
   "devicePathParam": {
-    "name": "DeviceName",
+    "name": "device",
     "in": "path",
     "description": "Device Name",
     "required": true,
