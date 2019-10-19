@@ -102,7 +102,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../../assets/schema/device.schema.json"
+                "$ref": "../schemas.json#/device"
               }
             }
           }
@@ -135,7 +135,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "../../assets/schema/device.schema.json"
+              "$ref": "../schemas.json#/device"
             }
           }
         }
@@ -178,7 +178,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "../../assets/schema/device.schema.json"
+              "$ref": "../schemas.json#/device"
             }
           }
         }
@@ -770,7 +770,7 @@
   "queues": {
     "get": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "List Configured Queues",
       "operationId": "listQueues",
@@ -849,7 +849,7 @@
   "storage": {
     "get": {
       "tags": [
-        "STORAGE-RS"
+        "CONFIG-RS"
       ],
       "summary": "List Storage Systems",
       "operationId": "listStorageSystems",

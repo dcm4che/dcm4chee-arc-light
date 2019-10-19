@@ -107,8 +107,8 @@
       "type": "string"
     }
   },
-  "destinationAETPathParam": {
-    "name": "DestinationAET",
+  "destinationPathParam": {
+    "name": "destination",
     "in": "path",
     "description": "Destination AE Title",
     "required": true,
@@ -1387,8 +1387,8 @@
       "type": "string"
     }
   },
-  "destinationAET": {
-    "name": "destinationAET",
+  "destination": {
+    "name": "destination",
     "in": "query",
     "description": "Destination AE Title to filter by",
     "schema": {

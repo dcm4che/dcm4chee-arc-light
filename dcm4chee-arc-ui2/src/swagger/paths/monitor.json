@@ -1988,7 +1988,7 @@
   "queue": {
     "get": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "List Tasks in Queue",
       "operationId": "listTasks",
@@ -2048,7 +2048,7 @@
     },
     "delete": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Delete Tasks in Queue",
       "operationId": "deleteTasks",
@@ -2094,7 +2094,7 @@
   "queueCount": {
     "get": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Count Tasks in Queue",
       "operationId": "countTasks",
@@ -2140,7 +2140,7 @@
   "queueCancel": {
     "post": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Cancel Tasks in Queue",
       "operationId": "cancelTasks",
@@ -2189,7 +2189,7 @@
   "queueTaskCancel": {
     "post": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Cancel Task",
       "operationId": "cancelTask",
@@ -2220,7 +2220,7 @@
   "queueReschedule": {
     "post": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Reschedule Tasks in Queue",
       "operationId": "rescheduleTasks",
@@ -2275,7 +2275,7 @@
   "queueTaskReschedule": {
     "post": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Reschedule Task",
       "operationId": "rescheduleTask",
@@ -2309,7 +2309,7 @@
   "queueTask": {
     "delete": {
       "tags": [
-        "QUEUE-RS"
+        "MONITOR-RS"
       ],
       "summary": "Delete Task",
       "operationId": "deleteTask",
