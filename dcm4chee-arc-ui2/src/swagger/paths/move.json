@@ -17,7 +17,7 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -102,7 +102,7 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -190,7 +190,7 @@
           "$ref": "../parameters.json#/instancePathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -272,7 +272,7 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -321,7 +321,7 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -373,7 +373,7 @@
           "$ref": "../parameters.json#/instancePathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -419,7 +419,7 @@
           "$ref": "../parameters.json#/csvFieldPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -474,7 +474,7 @@
           "$ref": "../parameters.json#/csvFieldPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -520,7 +520,7 @@
           "$ref": "../parameters.json#/moveSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -584,7 +584,7 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -651,7 +651,7 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -712,7 +712,7 @@
           "$ref": "../parameters.json#/moveSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -770,7 +770,7 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -831,7 +831,7 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -889,7 +889,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -956,7 +956,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -1026,7 +1026,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -1090,7 +1090,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -1151,7 +1151,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -1215,7 +1215,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"

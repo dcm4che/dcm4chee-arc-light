@@ -610,7 +610,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"
@@ -679,7 +679,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"
@@ -756,7 +756,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"
@@ -836,7 +836,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"
@@ -922,7 +922,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"
@@ -986,7 +986,7 @@
           "$ref": "../parameters.json#/remoteAET"
         },
         {
-          "$ref": "../parameters.json#/destinationAET"
+          "$ref": "../parameters.json#/destination"
         },
         {
           "$ref": "../parameters.json#/dcmQueueName"

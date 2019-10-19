@@ -3006,7 +3006,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -3073,7 +3073,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -3143,7 +3143,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -3207,7 +3207,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -3268,7 +3268,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
@@ -3332,7 +3332,7 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationAETPathParam"
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/dcmQueueNameRetrieve"
