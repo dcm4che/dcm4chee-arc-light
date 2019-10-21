@@ -2680,7 +2680,7 @@ trigger_diff*/
                             }
                         }
                     }
-                    if(multipleObjects.size > 0){
+                    if(multipleObjects && multipleObjects.size > 0){
                         this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
                             console.log("res",res);
                             $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
