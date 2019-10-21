@@ -10,6 +10,7 @@ import {j4care} from "../../../helpers/j4care.service";
 import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 import {StudyDicom} from "../../../models/study-dicom";
 import {StudyService} from "../../../study/study/study.service";
+import {DcmWebApp} from "../../../models/dcm-web-app";
 
 // declare var uuidv4: any;
 
@@ -33,6 +34,7 @@ export class UploadFilesComponent implements OnInit {
     private _selectedAe;
     private _dicomObject;
     private _fromExternalWebApp;
+    private _preselectedWebApp:DcmWebApp;
     mode;
     file;
     fileList: File[];
@@ -454,12 +456,27 @@ export class UploadFilesComponent implements OnInit {
     set fromExternalWebApp(value) {
         this._fromExternalWebApp = value;
     }
+
+    get preselectedWebApp():DcmWebApp {
+        return this._preselectedWebApp;
+    }
+
+    set preselectedWebApp(value:DcmWebApp) {
+        this._preselectedWebApp = value;
+    }
+
     getWebApps(){
         this.studyService.getWebApps({dcmWebServiceClass:"WADO_RS"}).subscribe((res)=>{
             this.webApps = res;
-            this.webApps.forEach(webApp=>{
-                if(webApp.dicomAETitle === this._selectedAe)
-                    this.selectedWebApp = webApp;
+            this.webApps.forEach((webApp:DcmWebApp)=>{
+                if(this._preselectedWebApp){
+                    if(webApp.dcmWebAppName = this._preselectedWebApp.dcmWebAppName){
+                        this.selectedWebApp = webApp;
+                    }
+                }else{
+                    if(webApp.dicomAETitle === this._selectedAe)
+                        this.selectedWebApp = webApp;
+                }
             });
         },(err)=>{
 

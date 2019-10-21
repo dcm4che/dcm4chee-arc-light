@@ -804,7 +804,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             });
     /*        this.dialogRef.componentInstance.aes = this.aes;
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
-            // this.dialogRef.componentInstance.fromExternalWebApp = webApp;
+            this.dialogRef.componentInstance.preselectedWebApp = webApp;
             this.dialogRef.componentInstance.dicomObject = object;
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {
