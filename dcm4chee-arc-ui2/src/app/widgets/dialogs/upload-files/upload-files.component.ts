@@ -466,11 +466,11 @@ export class UploadFilesComponent implements OnInit {
     }
 
     getWebApps(){
-        this.studyService.getWebApps({dcmWebServiceClass:"WADO_RS"}).subscribe((res)=>{
+        this.studyService.getWebApps({dcmWebServiceClass:"STOW_RS"}).subscribe((res)=>{
             this.webApps = res;
             this.webApps.forEach((webApp:DcmWebApp)=>{
                 if(this._preselectedWebApp){
-                    if(webApp.dcmWebAppName = this._preselectedWebApp.dcmWebAppName){
+                    if(webApp.dcmWebAppName === this._preselectedWebApp.dcmWebAppName){
                         this.selectedWebApp = webApp;
                     }
                 }else{

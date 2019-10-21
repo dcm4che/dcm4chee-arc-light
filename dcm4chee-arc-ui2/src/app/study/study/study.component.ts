@@ -736,7 +736,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         });
     }
     uploadFile(object,mode){
-        this.service.getUploadFileWebApp(this.studyWebService).subscribe((webApp:DcmWebApp)=>{
+        // this.service.getUploadFileWebApp(this.studyWebService).subscribe((webApp:DcmWebApp)=>{
 
 
             if(mode === "mwl"){
@@ -804,7 +804,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             });
     /*        this.dialogRef.componentInstance.aes = this.aes;
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
-            this.dialogRef.componentInstance.preselectedWebApp = webApp;
+            this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
             this.dialogRef.componentInstance.dicomObject = object;
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {
@@ -812,7 +812,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
                 if (result){
                 }
             });
-        });
+        // });
     }
 
     deleteMWL(mwl){
