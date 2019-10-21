@@ -455,7 +455,7 @@ export class UploadFilesComponent implements OnInit {
         this._fromExternalWebApp = value;
     }
     getWebApps(){
-        this.studyService.getWebApps().subscribe((res)=>{
+        this.studyService.getWebApps({dcmWebServiceClass:"WADO_RS"}).subscribe((res)=>{
             this.webApps = res;
             this.webApps.forEach(webApp=>{
                 if(webApp.dicomAETitle === this._selectedAe)
