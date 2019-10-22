@@ -17,6 +17,8 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
 import {HttpHeaders} from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {j4care} from "../../helpers/j4care.service";
+import {SelectDropdown} from "../../interfaces";
 
 @Component({
   selector: 'app-devices',
@@ -30,18 +32,7 @@ export class DevicesComponent implements OnInit{
     advancedConfig = false;
     showDeviceList= true;
     devicefilter = '';
-    filter = {
-        dicomDeviceName: undefined,
-        dicomDescription: undefined,
-        dicomManufacturer: undefined,
-        dicomManufacturerModelName: undefined,
-        dicomSoftwareVersion: undefined,
-        dicomStationName: undefined,
-        dicomPrimaryDeviceType: undefined,
-        dicomInstitutionName: undefined,
-        dicomInstitutionDepartmentName: undefined,
-        dicomInstalled: undefined
-    };
+    filter = {};
     moreDevices = {
         limit: 30,
         start: 0,
@@ -49,6 +40,16 @@ export class DevicesComponent implements OnInit{
     };
     aes;
     dialogRef: MatDialogRef<any>;
+    filterSchema;
+    filterHeight = 2;
+    moreFunctionConfig = {
+        placeholder: "More functions",
+        options:[
+            new SelectDropdown("create_exporter","Create exporter"),
+            new SelectDropdown("create_device","create_device")
+        ],
+        model:undefined
+    };
 
     constructor(
         public $http:J4careHttpService,
@@ -65,6 +66,7 @@ export class DevicesComponent implements OnInit{
     ) {}
     ngOnInit(){
         this.initCheck(10);
+        this.filterSchema = this.service.getFiltersSchema();
     }
     initCheck(retries){
         let $this = this;
@@ -106,6 +108,15 @@ export class DevicesComponent implements OnInit{
             this.loadMoreDevices();
         }
     }
+    moreFunctionChanged(e){
+        if(e === "create_exporter")
+            this.createExporter();
+        if(e === "create_device")
+            this.createDevice();
+        setTimeout(()=>{
+            this.moreFunctionConfig.model = undefined;
+        },1);
+    }
     editDevice(devicename){
         if (devicename && devicename != ''){
             this.router.navigateByUrl('/device/edit/' + devicename);
@@ -122,13 +133,8 @@ export class DevicesComponent implements OnInit{
     searchDevices(){
         this.cfpLoadingBar.start();
         let $this = this;
-        let urlParam = this.mainservice.param(this.filter);
-        // urlParam = urlParam.join("&");
-        if (urlParam){
-            urlParam = '?' + urlParam;
-        }
         this.$http.get(
-            '../devices' + urlParam
+            `../devices${j4care.param(this.filter)}`
         )
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {

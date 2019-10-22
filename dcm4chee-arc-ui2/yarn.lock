@@ -756,10 +756,6 @@ boom@2.x.x:
   dependencies:
     hoek "2.x.x"
 
-bootstrap@3.3.7:
-  version "3.3.7"
-  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-3.3.7.tgz#5a389394549f23330875a3b150656574f8a9eb71"
-
 boxen@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/boxen/-/boxen-1.0.0.tgz#b2694baf1f605f708ff0177c12193b22f29aaaab"
@@ -2607,6 +2603,11 @@ globule@^1.0.0:
     glob "~7.1.1"
     lodash "~4.17.4"
     minimatch "~3.0.2"
+
+glyphicons-only-bootstrap@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/glyphicons-only-bootstrap/-/glyphicons-only-bootstrap-1.0.1.tgz#a04f9a25a20c4613f98f970b07af40918a11ef7c"
+  integrity sha1-oE+aJaIMRhP5j5cLB69AkYoR73w=
 
 got@^6.7.1:
   version "6.7.1"
