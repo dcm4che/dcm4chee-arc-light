@@ -67,7 +67,7 @@
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
     <keycloak.version>7.0.0</keycloak.version>
-    <jclouds.version>2.1.2</jclouds.version>
+    <jclouds.version>2.2.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <jakarta.json.version>1.1.6</jakarta.json.version>
