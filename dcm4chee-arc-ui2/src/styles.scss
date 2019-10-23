@@ -179,6 +179,10 @@ h1, h2, h3 {
   margin-top: 20px;
   margin-bottom: 10px;
 }
+h4, h5, h6 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 a {
   background-color: transparent;
   text-decoration: none;
@@ -200,6 +204,16 @@ caption {
 
 th {
   text-align: left
+}
+.close {
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: .2;
 }
 .table-bordered{
   border: 1px solid #ddd;
