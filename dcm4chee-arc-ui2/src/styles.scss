@@ -205,6 +205,19 @@ caption {
 th {
   text-align: left
 }
+.table{
+    &>tbody>tr>td,
+    &>tbody>tr>th,
+    &>tfoot>tr>td,
+    &>tfoot>tr>th,
+    &>thead>tr>td,
+    &>thead>tr>th {
+      padding: 8px;
+      line-height: 1.42857143;
+      vertical-align: top;
+      border-top: 1px solid #ddd;
+  }
+}
 .close {
   float: right;
   font-size: 21px;
@@ -3628,7 +3641,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   duration-picker{
     color: black;
   }
-  .table.table-bordered.table-condensed, table.table-inverse, .j4care-table{
+  .table.table-bordered.table-condensed, table.table-inverse, .j4care-table, .table.table-inverse, .table{
     -webkit-box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     -moz-box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
