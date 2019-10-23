@@ -20,13 +20,10 @@ export class Hl7ApplicationsComponent implements OnInit {
         loaderActive: false
     };
     advancedConfig = false;
-    filter = {
-        dicomDeviceName: undefined,
-        hl7ApplicationName: undefined,
-        dicomApplicationCluster: undefined,
-    };
+    filter = {};
     devicefilter = '';
     urlParam = "";
+    filterSchema;
     constructor(
         private service:Hl7ApplicationsService,
         private mainservice:AppService,
@@ -35,6 +32,7 @@ export class Hl7ApplicationsComponent implements OnInit {
     ) { }
     ngOnInit(){
         this.initCheck(10);
+        this.filterSchema = this.service.getFiltersSchema();
     }
     initCheck(retries){
         let $this = this;
@@ -69,16 +67,7 @@ export class Hl7ApplicationsComponent implements OnInit {
         this.moreHl7.limit += 20;
         this.moreHl7.loaderActive = false;
     }
-    searchHl7Applications(){
-        this.urlParam = this.mainservice.param(this.filter);
-        // urlParam = urlParam.join("&");
-        if (this.urlParam){
-            this.urlParam = '?' + this.urlParam;
-        }else{
-            this.urlParam = "";
-        }
-        this.getHl7ApplicationsList(0);
-    }
+
     clearForm(){
         let $this = this;
         _.forEach($this.filter, (m, i) => {
@@ -92,7 +81,7 @@ export class Hl7ApplicationsComponent implements OnInit {
     }
     getHl7ApplicationsList(retries){
         let $this = this;
-        this.service.getHl7ApplicationsList(this.urlParam).subscribe(
+        this.service.getHl7ApplicationsList(this.filter).subscribe(
             (res)=>{
                 $this.hl7Applications = res;
                 console.log("res",res);

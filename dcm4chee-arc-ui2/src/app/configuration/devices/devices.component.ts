@@ -41,7 +41,7 @@ export class DevicesComponent implements OnInit{
     aes;
     dialogRef: MatDialogRef<any>;
     filterSchema;
-    filterHeight = 2;
+    w = 2;
     moreFunctionConfig = {
         placeholder: "More functions",
         options:[

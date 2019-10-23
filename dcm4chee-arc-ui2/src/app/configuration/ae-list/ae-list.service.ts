@@ -53,4 +53,52 @@ export class AeListService {
             }
         }
     }
+
+    getFiltersSchema(){
+        return j4care.prepareFlatFilterObject([
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"dicomDeviceName",
+                description:"Device name",
+                placeholder:"Device name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomAETitle",
+                description:"AE Title",
+                placeholder:"AE Title"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomDescription",
+                description:"Description",
+                placeholder:"Description"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomAssociationInitiator",
+                description:"Association Initiator",
+                placeholder:"Association Initiator"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomAssociationAcceptor",
+                description:"Association Acceptor",
+                placeholder:"Association Acceptor"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomApplicationCluster",
+                description:"Application Cluster",
+                placeholder:"Application Cluster"
+            },
+            {
+                tag: "button",
+                id: "submit",
+                text: "SUBMIT",
+                description: "Query AE List"
+            }
+        ],2)
+    }
 }

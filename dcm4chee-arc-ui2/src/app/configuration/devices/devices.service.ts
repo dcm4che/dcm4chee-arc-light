@@ -7,6 +7,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {HttpHeaders} from "@angular/common/http";
+import {SelectDropdown} from "../../interfaces";
 
 @Injectable()
 export class DevicesService {
@@ -199,6 +200,16 @@ export class DevicesService {
                 filterKey:"dicomInstitutionDepartmentName",
                 description:"Institution department name",
                 placeholder:"Institution department name"
+            },{
+                tag:"select",
+                options:[
+                    new SelectDropdown("true","Installed"),
+                    new SelectDropdown("false","Not installed"),
+                ],
+                showStar:true,
+                filterKey:"dicomInstalled",
+                description:"Device installed",
+                placeholder:"Installed"
             },
             {
                 tag: "button",
