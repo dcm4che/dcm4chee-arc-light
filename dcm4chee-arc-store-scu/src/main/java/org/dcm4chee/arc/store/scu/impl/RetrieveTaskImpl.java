@@ -61,6 +61,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -76,6 +78,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private final RetrieveContext ctx;
     private final Association storeas;
     private final ArchiveAEExtension aeExt;
+    private final BlockingQueue<InstanceLocations> queue = new LinkedBlockingQueue<>();
     private Dimse dimserq;
     private Association rqas;
     private PresentationContext pc;
