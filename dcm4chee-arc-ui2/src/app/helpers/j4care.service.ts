@@ -1242,4 +1242,14 @@ export class j4care {
         let guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
         return `2.25.${bigInt(guidBytes,16).toString()}`;       //Output the previous parsed integer as string by adding `2.25.` as prefix
     }
+
+    static position(element, behavior?:("auto"  | "smooth")){
+        let pos = {};
+        if(behavior)
+            pos["behavior"] = behavior;
+        pos["top"] = element.offsetTop;
+        pos["left"] = element.offsetLeft;
+        console.log("pos",pos);
+        return pos;
+    };
 }

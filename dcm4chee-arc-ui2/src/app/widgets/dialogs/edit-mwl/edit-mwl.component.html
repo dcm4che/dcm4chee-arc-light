@@ -3,7 +3,7 @@
         <h3 [innerHtml]="titleLabel"></h3>
         <input autocomplete="off" id="addmwlAttribut" class="addmwlAttribut" [(ngModel)]="addmwlAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
         <div class="dropdown" *ngIf="opendropdown" (keydown)="pressedKey($event)">
-            <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addmwlAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
+            <a class="dropdown_element" [ngClass]="{'selected':m.selected}" name="{{m.code}}" *ngFor="let m of dropdown | search:addmwlAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
         <div mat-dialog-content>
             <iod-form-generator [object]="mwl.attrs" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>

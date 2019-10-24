@@ -125,6 +125,15 @@ $hoverBlue:#5293C1;
   border: none;
   background: transparent;
 }
+.fade-in {
+  opacity: 1;
+  transition: opacity 400ms;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 400ms;
+}
 /*Bootstrap replace*/
 *, :after, :before{
   -webkit-box-sizing: border-box;

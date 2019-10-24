@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {Router} from "@angular/router";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-hl7-applications',
@@ -54,10 +55,10 @@ export class Hl7ApplicationsComponent implements OnInit {
 
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
-        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-            hH = $('.load_more').outerHeight(),
-            wH = $(window).height(),
-            wS = window.pageYOffset;
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+            hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+            wH = WindowRefService.nativeWindow.innerHeight,
+            wS = WindowRefService.nativeWindow.pageYOffset;
         if (wS > (hT + hH - wH)){
             this.loadMoreDevices();
         }
@@ -84,7 +85,6 @@ export class Hl7ApplicationsComponent implements OnInit {
         this.service.getHl7ApplicationsList(this.filter).subscribe(
             (res)=>{
                 $this.hl7Applications = res;
-                console.log("res",res);
             },
             (err)=>{
                 if(retries){
