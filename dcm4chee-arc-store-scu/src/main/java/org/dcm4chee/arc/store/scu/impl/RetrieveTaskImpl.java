@@ -76,7 +76,6 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private final RetrieveContext ctx;
     private final Association storeas;
     private final ArchiveAEExtension aeExt;
-    private final String hostName;
     private Dimse dimserq;
     private Association rqas;
     private PresentationContext pc;
@@ -95,7 +94,6 @@ final class RetrieveTaskImpl implements RetrieveTask {
         this.ctx = ctx;
         this.storeas = storeas;
         this.aeExt = ctx.getArchiveAEExtension();
-        this.hostName = ReverseDNS.hostNameOf(storeas.getSocket().getInetAddress());
     }
 
     void setRequestAssociation(Dimse dimserq, Association rqas, PresentationContext pc, Attributes rqCmd) {
