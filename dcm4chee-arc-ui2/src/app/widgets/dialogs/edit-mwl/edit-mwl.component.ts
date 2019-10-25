@@ -12,7 +12,9 @@ import {j4care} from "../../../helpers/j4care.service";
     selector: 'app-edit-mwl',
     templateUrl: './edit-mwl.component.html',
     styles: [`
-
+        .dropdown{
+            margin-top: 0;
+        }
     `]
 })
 export class EditMwlComponent {
@@ -181,25 +183,16 @@ export class EditMwlComponent {
             let element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
             let dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
             try{
-                // console.log("position",j4care.position(WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0]));
-                dropdownElement.scrollTo(j4care.position(element, "smooth"));
-/*                WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });*/
-            }catch (e) {
-                try{
-                    setTimeout(()=>{
-                        element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
-                        dropdownElement.scrollTo(j4care.position(element, "smooth"));
-                        /*                WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });*/
-                    },10)
-                }catch (e) {
+                setTimeout(()=>{
+                    element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+                    dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                },10)
 
-                }
+            }catch (e) {
 
             }
 /*            setTimeout(()=>{
@@ -237,6 +230,39 @@ export class EditMwlComponent {
         //Arrow up pressed
         if (code === 38){
             this.opendropdown = true;
+
+/*            let i = this.dropdown.length-1;
+            while(i > 0){
+                if(this.dropdown[i].selected){
+                    this.dropdown[i].selected = false;
+                    if(i === 0){
+                        this.dropdown[this.dropdown.length-1].selected = true;
+                    }else{
+                        this.dropdown[i-1].selected = true;
+                    }
+                    i = 0;
+                }else{
+                    if(i === this.dropdown.length-1){
+                        this.dropdown[this.dropdown.length-1].selected = true;
+                    }
+                    i--;
+                }
+            }
+            let element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+            let dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+            try{
+                setTimeout(()=>{
+                    element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+                    dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                },10)
+
+            }catch (e) {
+
+            }*/
             // if (!$('.dropdown_element.selected').length){
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length === 0){
                 WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[0].previousElementSibling.classList.add('selected');
