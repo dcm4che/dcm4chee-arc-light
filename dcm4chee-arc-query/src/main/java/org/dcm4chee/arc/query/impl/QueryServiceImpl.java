@@ -50,10 +50,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.SeriesQueryAttributes;
-import org.dcm4chee.arc.entity.StudyQueryAttributes;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -66,6 +63,7 @@ import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -271,14 +269,37 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes queryExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
+    public Attributes queryExportTaskInfo(ExportTask exportTask, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        if (seriesIUID == null || seriesIUID.equals("*"))
-            return ejb.queryStudyExportTaskInfo(studyIUID, qrView);
-        Attributes attrs = ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, qrView);
-        if (sopIUID != null && !sopIUID.equals("*"))
-            attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
-        return attrs;
+        ArchiveDeviceExtension arcDev = ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                if (exportTask.getSeriesInstanceUID().equals("*")) {
+                    return ejb.queryStudyExportTaskInfo(exportTask.getStudyInstanceUID(), qrView);
+                }
+                Attributes attrs = ejb.querySeriesExportTaskInfo(
+                        exportTask.getStudyInstanceUID(),
+                        exportTask.getSeriesInstanceUID(),
+                        qrView);
+                if (!exportTask.getSopInstanceUID().equals("*")) {
+                    attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
+                }
+                return attrs;
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to query Export Task Info for {} - retry:\n", exportTask, e);
+                } else {
+                    LOG.warn("Failed to query Export Task Info for {}:\n", exportTask, e);
+                    return null;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry to query Export Task Info for {}:\n", exportTask, e);
+            }
+        }
     }
 
     @Override

@@ -465,9 +465,9 @@
     },
     "dcmExportTaskFetchSize": {
       "title": "Export Task Fetch Size",
-      "description": "Maximal number of Export Tasks scheduled in one transaction.",
+      "description": "Limit result set of DB query for Export Tasks ready for processing.",
       "type": "integer",
-      "default": 5,
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },

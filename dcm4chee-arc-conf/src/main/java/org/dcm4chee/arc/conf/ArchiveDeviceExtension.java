@@ -132,7 +132,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
     private volatile Duration exportTaskPollingInterval;
-    private volatile int exportTaskFetchSize = 5;
+    private volatile int exportTaskFetchSize = 100;
     private volatile Duration deleteRejectedPollingInterval;
     private volatile int deleteRejectedFetchSize = 100;
     private volatile Duration purgeStoragePollingInterval;

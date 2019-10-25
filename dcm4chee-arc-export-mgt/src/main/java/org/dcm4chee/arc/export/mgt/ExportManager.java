@@ -66,7 +66,9 @@ public interface ExportManager {
     void createOrUpdateInstanceExportTask(
             String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime);
 
-    int scheduleExportTasks(int fetchSize);
+    List<Long> findExportTasksToSchedule(int fetchSize);
+
+    boolean scheduleExportTask(Long pk);
 
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
                             HttpServletRequestInfo httpServletRequestInfo, String batchID)

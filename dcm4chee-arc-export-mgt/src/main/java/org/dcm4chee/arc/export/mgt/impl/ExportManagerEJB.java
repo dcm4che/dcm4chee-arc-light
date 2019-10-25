@@ -181,25 +181,27 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int scheduleExportTasks(int fetchSize) {
-        final List<ExportTask> resultList = em.createNamedQuery(
-                ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME, ExportTask.class)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public List<Long> findExportTasksToSchedule(int fetchSize) {
+        return em.createNamedQuery(
+                ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME, Long.class)
                 .setParameter(1, device.getDeviceName())
                 .setMaxResults(fetchSize)
                 .getResultList();
+    }
+
+    @Override
+    public boolean scheduleExportTask(Long pk) {
+        ExportTask exportTask = em.find(ExportTask.class, pk);
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        int count = 0;
-        for (ExportTask exportTask : resultList) {
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            try {
-                scheduleExportTask(exportTask, exporter, null, null);
-            } catch (QueueSizeLimitExceededException e) {
-                LOG.info(e.getLocalizedMessage() + " - retry to schedule Export Tasks");
-                return count;
-            }
-            count++;
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
+        try {
+            scheduleExportTask(exportTask, exporter, null, null);
+        } catch (QueueSizeLimitExceededException e) {
+            LOG.info(e.getLocalizedMessage() + " - retry to schedule Export Tasks");
+            return false;
         }
-        return count;
+        return true;
     }
 
     @Override
@@ -256,22 +258,15 @@ public class ExportManagerEJB implements ExportManager {
                 exporter.getPriority(),
                 batchID, 0L);
         exportTask.setQueueMessage(queueMessage);
-        try {
-            Attributes attrs = queryService.queryExportTaskInfo(
-                    exportTask.getStudyInstanceUID(),
-                    exportTask.getSeriesInstanceUID(),
-                    exportTask.getSopInstanceUID(),
-                    device.getApplicationEntity(exporter.getAETitle(), true));
-            if (attrs == null) {
-                LOG.info("No Export Task Info found for {}", exportTask);
-                return;
-            }
-            exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
-            exportTask.setNumberOfInstances(
-                    Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
-        } catch (Exception e) {
-            LOG.info("Failed to query Export Task Info for {} - ", exportTask, e);
+        Attributes attrs = queryService.queryExportTaskInfo(
+                exportTask, device.getApplicationEntity(exporter.getAETitle(), true));
+        if (attrs == null) {
+            LOG.info("No Export Task Info found for {}", exportTask);
+            return;
         }
+        exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
+        exportTask.setNumberOfInstances(
+                Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
     }
 
     private ObjectMessage createMessage(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
