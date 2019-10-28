@@ -356,24 +356,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             });
         }
     }
-    scrollToDialog(){
-        let counter = 0;
-        let i = setInterval(function(){
-            if (($('.md-overlay-pane').length > 0)) {
-                clearInterval(i);
-                $('html, body').animate({
-                    scrollTop: ($('.md-overlay-pane').offset().top)
-                }, 200);
-            }
-            if (counter > 200){
-                clearInterval(i);
-            }else{
-                counter++;
-            }
-        }, 50);
-    }
     confirm(confirmparameters){
-        this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',

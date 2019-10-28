@@ -132,7 +132,6 @@ export class EditMwlComponent {
             }
             console.log('filtered', filtered);
             let attrcode: any;
-            WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length
             // if ($('.dropdown_element.selected').length){
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
                 attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
@@ -195,44 +194,12 @@ export class EditMwlComponent {
             }catch (e) {
 
             }
-/*            setTimeout(()=>{
-                console.log("WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')",WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected'));
-                try{
-                }catch (e) {
-
-                }
-            },10);*/
-/*            if(this.dropdown.filter(d=>d.selected).length > 0){
-            }else{
-                this.dropdown[0].selected = true;
-            }*/
-            /*if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length === 0){
-                WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[0].classList.add("selected");
-                // $('.dropdown_element').first().addClass('selected');
-            }else{
-                if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].nextElementSibling.length > 0){
-                // if ($('.dropdown_element.selected').next().length){
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].classList.remove("selected").nextElementSibling.classList.add("selected");
-                    // $('.dropdown_element.selected').removeClass('selected').next().addClass('selected');
-                }else{
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].classList.remove("selected");
-                    // $('.dropdown_element.selected').removeClass('selected');
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[0].classList.add("selected");
-                    // $('.dropdown_element').first().addClass('selected');
-                }
-            }
-
-
-            if ($('.dropdown_element.selected').position()){
-                $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
-            }*/
         }
         //Arrow up pressed
         if (code === 38){
             this.opendropdown = true;
-
-/*            let i = this.dropdown.length-1;
-            while(i > 0){
+            let i = 0;
+            while(i < this.dropdown.length){
                 if(this.dropdown[i].selected){
                     this.dropdown[i].selected = false;
                     if(i === 0){
@@ -240,13 +207,13 @@ export class EditMwlComponent {
                     }else{
                         this.dropdown[i-1].selected = true;
                     }
-                    i = 0;
+                    break;
                 }else{
                     if(i === this.dropdown.length-1){
                         this.dropdown[this.dropdown.length-1].selected = true;
                     }
-                    i--;
                 }
+                i++;
             }
             let element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
             let dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
@@ -262,25 +229,7 @@ export class EditMwlComponent {
 
             }catch (e) {
 
-            }*/
-            // if (!$('.dropdown_element.selected').length){
-            if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length === 0){
-                WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[0].previousElementSibling.classList.add('selected');
-                // $('.dropdown_element').prev().addClass('selected');
-            }else{
-
-                // if ($('.dropdown_element.selected').index() === 0){
-                if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[0].classList.contains("selected")){
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].classList.remove("selected");
-                    // $('.dropdown_element.selected').removeClass('selected');
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element')[WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element').length-1].classList.add("selected");
-                    // $('.dropdown_element').last().addClass('selected');
-                }else{
-                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].classList.remove("selected").previousElementSibling.classList.add("selected");
-                    // $('.dropdown_element.selected').removeClass('selected').prev().addClass('selected');
-                }
             }
-            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
         }
         if (code === 27 || code === 9){
             this.opendropdown = false;

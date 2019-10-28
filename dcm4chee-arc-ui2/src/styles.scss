@@ -332,7 +332,11 @@ fieldset {
   background-color: #fff;
   border-color: #ccc;
 }
-
+.btn-link, .btn-link.active, .btn-link:active, .btn-link[disabled], fieldset[disabled] .btn-link {
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
 .btn {
   display: inline-block;
   padding: 6px 12px;
