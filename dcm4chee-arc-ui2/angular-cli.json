@@ -22,6 +22,7 @@
         "../node_modules/primeng/resources/primeng.min.css",
         "../node_modules/primeng/resources/themes/omega/theme.scss",
         "../node_modules/font-awesome/css/font-awesome.min.css",
+        "../node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css",
         "styles.scss",
         "assets/scss/old_style.scss",
         "assets/scss/old_mobile.scss"

@@ -3,6 +3,7 @@ import {AppService} from '../../app.service';
 import {Subscription} from 'rxjs';
 import {InfoComponent} from '../dialogs/info/info.component';
 import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
+import {WindowRefService} from "../../helpers/window-ref.service";
 @Component({
   selector: 'app-messaging',
   template: `
@@ -71,9 +72,11 @@ export class MessagingComponent implements OnDestroy{
             });
         }
         if (isInArray) { //If the same message is already in the array, then just put the class pulse (To simulate a pulse) and remove it again
-            $('.msg_' + presentId).removeClass('slideInRight').addClass('pulse');
+            let element = WindowRefService.nativeWindow.document.getElementsByClassName('msg_' + presentId)[0];
+            element.classList.remove("slideInRight");
+            element.classList.add("pulse");
             setTimeout(function() {
-                $('.msg_' + presentId).removeClass('pulse');
+                element.classList.remove('pulse')
             }, 500);
         } else {
             let id = this.getUniqueRandomId();
@@ -93,17 +96,24 @@ export class MessagingComponent implements OnDestroy{
 
     private msgCounter(id, timeout) {
         let cssClass = '.msg_' + id;
+        let cssClassWithoutDot = 'msg_' + id;
         let x = 0;
         let $this = this;
         let interval = setInterval(function() {
-            $(cssClass).find('.progress').css('width', (x * 10000 / timeout) + '%');
-            if (x === (timeout / 100)) {
+            try{
+                let element = WindowRefService.nativeWindow.document.getElementsByClassName(cssClassWithoutDot)[0];
+                (<HTMLElement>element.querySelectorAll('.progress').item(0)).style.width = (x * 10000 / timeout) + '%';
+                if (x === (timeout / 100)) {
                     clearInterval(interval);
-                $('.msg_container li.' + 'msg_' + id).fadeOut('400', function() {
-                    $this.removeMsgFromArray(id);
-                });
+                    element.classList.add("fade-out");
+                    setTimeout(()=>{
+                        $this.removeMsgFromArray(id);
+                    },400);
+                }
+                x++;
+            }catch (e) {
+                clearInterval(interval);
             }
-            x++;
         }, 100);
     };
 

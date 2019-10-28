@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {Router} from "@angular/router";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-hl7-applications',
@@ -20,13 +21,10 @@ export class Hl7ApplicationsComponent implements OnInit {
         loaderActive: false
     };
     advancedConfig = false;
-    filter = {
-        dicomDeviceName: undefined,
-        hl7ApplicationName: undefined,
-        dicomApplicationCluster: undefined,
-    };
+    filter = {};
     devicefilter = '';
     urlParam = "";
+    filterSchema;
     constructor(
         private service:Hl7ApplicationsService,
         private mainservice:AppService,
@@ -35,6 +33,7 @@ export class Hl7ApplicationsComponent implements OnInit {
     ) { }
     ngOnInit(){
         this.initCheck(10);
+        this.filterSchema = this.service.getFiltersSchema();
     }
     initCheck(retries){
         let $this = this;
@@ -56,10 +55,10 @@ export class Hl7ApplicationsComponent implements OnInit {
 
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
-        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-            hH = $('.load_more').outerHeight(),
-            wH = $(window).height(),
-            wS = window.pageYOffset;
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+            hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+            wH = WindowRefService.nativeWindow.innerHeight,
+            wS = WindowRefService.nativeWindow.pageYOffset;
         if (wS > (hT + hH - wH)){
             this.loadMoreDevices();
         }
@@ -69,16 +68,7 @@ export class Hl7ApplicationsComponent implements OnInit {
         this.moreHl7.limit += 20;
         this.moreHl7.loaderActive = false;
     }
-    searchHl7Applications(){
-        this.urlParam = this.mainservice.param(this.filter);
-        // urlParam = urlParam.join("&");
-        if (this.urlParam){
-            this.urlParam = '?' + this.urlParam;
-        }else{
-            this.urlParam = "";
-        }
-        this.getHl7ApplicationsList(0);
-    }
+
     clearForm(){
         let $this = this;
         _.forEach($this.filter, (m, i) => {
@@ -92,10 +82,9 @@ export class Hl7ApplicationsComponent implements OnInit {
     }
     getHl7ApplicationsList(retries){
         let $this = this;
-        this.service.getHl7ApplicationsList(this.urlParam).subscribe(
+        this.service.getHl7ApplicationsList(this.filter).subscribe(
             (res)=>{
                 $this.hl7Applications = res;
-                console.log("res",res);
             },
             (err)=>{
                 if(retries){

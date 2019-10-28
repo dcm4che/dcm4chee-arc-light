@@ -5,12 +5,16 @@ import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {SearchPipe} from '../../../pipes/search.pipe';
+import {WindowRefService} from "../../../helpers/window-ref.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
     selector: 'app-edit-mwl',
     templateUrl: './edit-mwl.component.html',
     styles: [`
-
+        .dropdown{
+            margin-top: 0;
+        }
     `]
 })
 export class EditMwlComponent {
@@ -128,8 +132,10 @@ export class EditMwlComponent {
             }
             console.log('filtered', filtered);
             let attrcode: any;
-            if ($('.dropdown_element.selected').length){
-                attrcode = $('.dropdown_element.selected').attr('name');
+            // if ($('.dropdown_element.selected').length){
+            if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
+                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
+                // attrcode = $('.dropdown_element.selected').attr('name');
             }else{
                 attrcode = filtered[0].code;
             }
@@ -156,35 +162,74 @@ export class EditMwlComponent {
         //Arrow down pressed
         if (code === 40){
             this.opendropdown = true;
-            if (!$('.dropdown_element.selected').length){
-                $('.dropdown_element').first().addClass('selected');
-            }else{
-                if ($('.dropdown_element.selected').next().length){
-                    $('.dropdown_element.selected').removeClass('selected').next().addClass('selected');
+            let i = 0;
+            while(i < this.dropdown.length){
+                if(this.dropdown[i].selected){
+                    this.dropdown[i].selected = false;
+                    if(i === this.dropdown.length-1){
+                        this.dropdown[0].selected = true;
+                    }else{
+                        this.dropdown[i+1].selected = true;
+                    }
+                    i = this.dropdown.length;
                 }else{
-                    $('.dropdown_element.selected').removeClass('selected');
-                    $('.dropdown_element').first().addClass('selected');
+                    if(i === this.dropdown.length-1){
+                        this.dropdown[0].selected = true;
+                    }
+                    i++;
                 }
             }
+            let element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+            let dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+            try{
+                setTimeout(()=>{
+                    element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+                    dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                },10)
 
-            if ($('.dropdown_element.selected').position()){
-                $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
+            }catch (e) {
+
             }
         }
         //Arrow up pressed
         if (code === 38){
             this.opendropdown = true;
-            if (!$('.dropdown_element.selected').length){
-                $('.dropdown_element').prev().addClass('selected');
-            }else{
-                if ($('.dropdown_element.selected').index() === 0){
-                    $('.dropdown_element.selected').removeClass('selected');
-                    $('.dropdown_element').last().addClass('selected');
+            let i = 0;
+            while(i < this.dropdown.length){
+                if(this.dropdown[i].selected){
+                    this.dropdown[i].selected = false;
+                    if(i === 0){
+                        this.dropdown[this.dropdown.length-1].selected = true;
+                    }else{
+                        this.dropdown[i-1].selected = true;
+                    }
+                    break;
                 }else{
-                    $('.dropdown_element.selected').removeClass('selected').prev().addClass('selected');
+                    if(i === this.dropdown.length-1){
+                        this.dropdown[this.dropdown.length-1].selected = true;
+                    }
                 }
+                i++;
             }
-            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
+            let element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+            let dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+            try{
+                setTimeout(()=>{
+                    element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
+                    dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
+                    WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                },10)
+
+            }catch (e) {
+
+            }
         }
         if (code === 27 || code === 9){
             this.opendropdown = false;

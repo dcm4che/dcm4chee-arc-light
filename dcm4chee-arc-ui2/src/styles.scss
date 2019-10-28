@@ -125,6 +125,241 @@ $hoverBlue:#5293C1;
   border: none;
   background: transparent;
 }
+.fade-in {
+  opacity: 1;
+  transition: opacity 400ms;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 400ms;
+}
+/*Bootstrap replace*/
+*, :after, :before{
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*{
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+}
+body{
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: inherit;
+}
+
+h1 {
+  font-size: 36px
+}
+
+h2 {
+  font-size: 30px
+}
+
+h3 {
+  font-size: 24px;
+}
+
+h4 {
+  font-size: 18px
+}
+
+h5 {
+  font-size: 14px
+}
+
+h6 {
+  font-size: 12px
+}
+
+p {
+  margin: 0 0 10px
+}
+h1, h2, h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+h4, h5, h6 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+a {
+  background-color: transparent;
+  text-decoration: none;
+}
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  background-color: transparent;
+  td, th {
+    padding: 0;
+  }
+}
+caption {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: #777;
+  text-align: left
+}
+
+th {
+  text-align: left
+}
+.table{
+    &>tbody>tr>td,
+    &>tbody>tr>th,
+    &>tfoot>tr>td,
+    &>tfoot>tr>th,
+    &>thead>tr>td,
+    &>thead>tr>th {
+      padding: 8px;
+      line-height: 1.42857143;
+      vertical-align: top;
+      border-top: 1px solid #ddd;
+  }
+}
+.close {
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: .2;
+}
+.table-bordered{
+  border: 1px solid #ddd;
+}
+
+.table-condensed{
+  tr{
+    td{
+      padding: 5px;
+    }
+  }
+}
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px
+}
+.nav {
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+  &>li {
+    position: relative;
+    display: block;
+    &>a {
+      position: relative;
+      display: block;
+      padding: 10px 15px;
+    }
+  }
+}
+.nav-tabs {
+  float: left;
+  width: 100%;
+  margin: 0;
+  &>li {
+    float: left;
+    margin-bottom: -1px;
+    &>a {
+      margin-right: 2px;
+      line-height: 1.42857143;
+      border: 1px solid transparent;
+      border-radius: 4px 4px 0 0;
+    }
+  }
+}
+fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+
+.btn-group, .btn-group-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+.btn-group, .btn-group-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn-breadcrumb .btn:first-child {
+  padding: 6px 6px 6px 10px;
+}
+.btn-breadcrumb .btn:last-child:hover{
+  background: transparent;
+}
+.btn-group>.btn:first-child {
+  margin-left: 0;
+}
+.btn-breadcrumb .btn {
+  padding: 6px 12px 6px 24px;
+  border-radius: 0;
+  border: 1px solid #ccc;
+  margin-left: -4px;
+}
+.prev_breadcrumb {
+  position: relative;
+}
+.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+.btn-link, .btn-link.active, .btn-link:active, .btn-link[disabled], fieldset[disabled] .btn-link {
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+/*~Bootstrap replace*/
+
 
 /*progress{
   background: rgba(6, 29, 47, 0.84);
@@ -1851,14 +2086,16 @@ mat-dialog-container{
   .btn:not(:last-child):hover{
     background:$lightBlueNoTransparence;
     color:white;
+    border-top: 1px solid $lightBlueNoTransparence;
+    border-bottom: 1px solid $lightBlueNoTransparence;
     i.breadcrumb_icon{
       color:white;
     }
   }
   .btn:last-child:hover{
-    background:white;
+/*    background:white;
     border-color: #cccccc;
-    z-index: 99;
+    z-index: 99;*/
   }
 
 .btn:after {
@@ -3417,7 +3654,10 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   duration-picker{
     color: black;
   }
-  .table.table-bordered.table-condensed, table.table-inverse{
+  .table.table-bordered.table-condensed, table.table-inverse, .j4care-table, .table.table-inverse, .table{
+    -webkit-box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    -moz-box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     tr{
       th{
         background: rgba(28, 36, 43, 0.92);

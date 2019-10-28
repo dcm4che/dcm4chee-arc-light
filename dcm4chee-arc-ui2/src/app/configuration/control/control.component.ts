@@ -7,6 +7,10 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {AppService} from "../../app.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import "rxjs/add/observable/forkJoin";
+import {Observable} from "rxjs/Observable";
+import {DevicesService} from "../devices/devices.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
@@ -17,11 +21,17 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 export class ControlComponent implements OnInit{
     status: any;
     message = '';
+    devices = {};
+    allDevices;
+    Object = Object;
+    tableSchema;
     constructor(
         public $http:J4careHttpService,
         public appservices: AppService,
         private cfpLoadingBar: LoadingBarService,
-        private service: ControlService
+        private service: ControlService,
+        private devicesService:DevicesService,
+        public httpErrorHandler:HttpErrorHandler
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -41,59 +51,94 @@ export class ControlComponent implements OnInit{
         }
     }
     init(){
-        this.fetchStatus();
+        this.getDevices();
+        this.tableSchema = this.service.getTableSchema();
+        this.calculateWidthOfTable("tableSchema");
     }
-    // reverse = false;
     fetchStatus() {
-        let $this = this;
-        this.$http.get('/dcm4chee-arc/ctrl/status')
-            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-            .subscribe( (res) => {
-                $this.status = res['status'];
-                $this.message = '';
-                $this.appservices.setMessage({
+        Object.keys(this.devices).forEach((device)=>{
+            this.service.fetchStatus(this.devices[device].dcmuiDeviceURL).subscribe(res=>{
+                this.devices[device].status = res.status;
+                this.appservices.setMessage({
                     'title': 'Info',
-                    'text': 'Status:' + $this.status,
+                    'text': `Status of ${this.devices[device].dcmuiDeviceURLName} was successfully refetched!`,
                     'status': 'info'
                 });
-            });
-    };
-    start(){
-        let $this = this;
-        this.$http.post('/dcm4chee-arc/ctrl/start', {}).subscribe((res) => {
-            $this.status = 'STARTED';
-            $this.message = '';
-            $this.appservices.setMessage({
-                'title': 'Info',
-                'text': 'Status:' + $this.status,
-                'status': 'info'
-            });
+            },err=>{
+                console.error("Status not fetchable",err);
+                this.httpErrorHandler.handleError(err);
+            })
         });
     };
-    stop() {
-        console.log('stop');
-        let $this = this;
-        this.$http.post('/dcm4chee-arc/ctrl/stop', {}).subscribe((res) => {
-            $this.status = 'STOPPED';
-            $this.message = '';
-            $this.appservices.setMessage({
+    start(object){
+        this.cfpLoadingBar.start();
+        this.service.startArchive(object.dcmuiDeviceURL).subscribe((res) => {
+            this.fetchStatus();
+            this.appservices.setMessage({
                 'title': 'Info',
-                'text': 'Status:' + $this.status,
+                'text': `Archive ${object.dcmuiDeviceURLName} started successfully`,
                 'status': 'info'
             });
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
         });
     };
-    reload() {
-        let $this = this;
+    stop(object) {
+        this.cfpLoadingBar.start();
+        this.service.stopArchive(object.dcmuiDeviceURL).subscribe((res) => {
+            this.fetchStatus();
+            this.appservices.setMessage({
+                'title': 'Info',
+                'text': `Archive ${object.dcmuiDeviceURLName} stoped successfully`,
+                'status': 'info'
+            });
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    };
+    reload(object) {
+        this.cfpLoadingBar.start();
         this.service.reloadArchive().subscribe((res) => {
-            console.log('res', res);
-                // $this.message = 'Reload successful';
-            $this.appservices.setMessage({
+            this.appservices.setMessage({
                 'title': 'Info',
-                'text': 'Reload successful',
+                'text': `Archive ${object.dcmuiDeviceURLName} reloaded successfully`,
                 'status': 'info'
             });
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
         });
     };
+    toggleState(object){
+        if(object.status && object.status === "STARTED"){
+            this.stop(object);
+        }else{
+            this.start(object);
+        }
+    }
 
+    getDevices(){
+        this.devicesService.getDevices().subscribe((devices)=>{
+            this.service.getMyArchivesFromConfig(this, devices,(devices)=>{
+                this.devices = devices;
+                this.fetchStatus();
+            });
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+    calculateWidthOfTable(tableName){
+        let summ = 0;
+        _.forEach(this[tableName],(m,i)=>{
+            summ += m.widthWeight;
+        });
+        _.forEach(this[tableName],(m,i)=>{
+            m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
+        });
+    };
 }

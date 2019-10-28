@@ -1,5 +1,6 @@
 import {Component, HostListener, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash';
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'dicom-list',
@@ -106,18 +107,21 @@ export class DicomFlatListComponent implements OnInit {
         this.resetMoreCheck();
     }
     loadMoreCheck(){
-        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-        hH = $('.load_more').outerHeight(),
-        wH = $(window).height(),
-        wS = window.pageYOffset;
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+        hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+        wH = WindowRefService.nativeWindow.innerHeight,
+        wS = WindowRefService.nativeWindow.pageYOffset;
         //ws
         if (wS > (hT + hH - wH)){
             this.loadMoreStudies();
         }
     }
     resetMoreCheck(){
-        let hT = ($('.load_more_start').offset()) ? $('.load_more_start').offset().top : 0,
-            hH = $('.load_more_start').outerHeight(),
+
+        // let hT = ($('.load_more_start').offset()) ? $('.load_more_start').offset().top : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0].offsetTop : 0,
+            hH =  WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0].offsetHeight,
+            // hH = $('.load_more_start').outerHeight(),
             // wH = $(window).height(),
             wS = window.pageYOffset;
         console.log("reset (hT + hH - wH)",(hT + hH));

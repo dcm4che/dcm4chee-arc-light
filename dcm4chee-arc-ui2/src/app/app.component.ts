@@ -182,9 +182,11 @@ export class AppComponent implements OnInit {
         }
     }
     scrollUp(){
-        $('html, body').animate({
-            scrollTop: 0
-        }, 300);
+        window.scrollTo({
+            top:0,
+            left:0,
+            behavior: 'smooth'
+        });
     }
     createPatient(){
         this.mainservice.createPatient({});

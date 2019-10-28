@@ -7,6 +7,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {HttpHeaders} from "@angular/common/http";
+import {SelectDropdown} from "../../interfaces";
 
 @Injectable()
 export class DevicesService {
@@ -142,4 +143,80 @@ export class DevicesService {
         this.dialogRef.componentInstance.parameters = parameters;
         return this.dialogRef.afterClosed();
     };
+
+    getFiltersSchema(){
+        return j4care.prepareFlatFilterObject([
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"dicomDeviceName",
+                description:"Device name",
+                placeholder:"Device name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomDeviceDescription",
+                description:"Device description",
+                placeholder:"Device description"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomManufacturer",
+                description:"Manufacturer",
+                placeholder:"Manufacturer"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomManufacturerModelName",
+                description:"Manufacturer model name",
+                placeholder:"Manufacturer model name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomSoftwareVersion",
+                description:"Software version",
+                placeholder:"Software version"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomStationName",
+                description:"Station name",
+                placeholder:"Station name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomPrimaryDeviceType",
+                description:"Primary device type",
+                placeholder:"Primary device type"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomInstitutionName",
+                description:"Institution name",
+                placeholder:"Institution name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"dicomInstitutionDepartmentName",
+                description:"Institution department name",
+                placeholder:"Institution department name"
+            },{
+                tag:"select",
+                options:[
+                    new SelectDropdown("true","Installed"),
+                    new SelectDropdown("false","Not installed"),
+                ],
+                showStar:true,
+                filterKey:"dicomInstalled",
+                description:"Device installed",
+                placeholder:"Installed"
+            },
+            {
+                tag: "button",
+                id: "submit",
+                text: "SUBMIT",
+                description: "Query Devices"
+            }
+        ],2)
+    }
 }

@@ -4,6 +4,7 @@ import {
 declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {SearchPipe} from "../../pipes/search.pipe";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'dictionary-picker',
@@ -49,7 +50,8 @@ export class DictionaryPickerComponent implements OnInit {
         }
     }
     ngAfterViewInit() {
-        $('.dictionary_widget_search').focus();
+        WindowRefService.nativeWindow.document.getElementsByClassName("dictionary_widget_search")[0].focus();
+        // $('.dictionary_widget_search').focus();
     }
     addSelectedElement(element){
         this.onValueSet.emit(element.key);

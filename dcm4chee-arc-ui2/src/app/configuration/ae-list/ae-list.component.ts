@@ -40,6 +40,7 @@ export class AeListComponent implements OnInit{
     };
     devices;
     dialogRef: MatDialogRef<any>;
+    filterSchema;
 
     constructor(
       public $http:J4careHttpService,
@@ -54,6 +55,7 @@ export class AeListComponent implements OnInit{
   ){}
     ngOnInit(){
         this.initCheck(10);
+        this.filterSchema = this.service.getFiltersSchema();
     }
     initCheck(retries){
         let $this = this;
@@ -95,9 +97,11 @@ export class AeListComponent implements OnInit{
         // console.debug("Scroll Event", window.pageYOffset );
         // console.log("scrollevent",event);
         // $(window).scroll(function() {
-        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-            hH = $('.load_more').outerHeight(),
-            wH = $(window).height(),
+        // let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+            hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+            // wH = $(window).height(),
+            wH = WindowRefService.nativeWindow.innerHeight,
             wS = window.pageYOffset;
         // console.log("hT",hT);
         // console.log("hH",hH);
@@ -118,12 +122,8 @@ export class AeListComponent implements OnInit{
     }
     searchAes(){
         this.cfpLoadingBar.start();
-        let urlParam = this.mainservice.param(this.filter);
-        if (urlParam){
-            urlParam = '?' + urlParam;
-        }
         let $this = this;
-        this.$http.get('../aes' + urlParam)
+        this.$http.get(`../aes${j4care.param(this.filter)}`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
