@@ -89,7 +89,7 @@
                                         <span>False</span>
                                     </label>
                                 </div>
-                                <span class="description checkbox">A unique name for this device</span>
+                                <span class="description checkbox">Boolean to indicate whether this device is presently installed on the network</span>
                             </div>
                         </div>
                         <h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  <span *ngIf="newAetModel && newAetModel.dicomNetworkConnection && newAetModel.dicomNetworkConnection[0] && newAetModel.dicomNetworkConnection[0].cn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
