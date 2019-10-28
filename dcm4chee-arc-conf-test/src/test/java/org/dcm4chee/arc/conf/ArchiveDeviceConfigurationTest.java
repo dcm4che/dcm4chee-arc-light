@@ -85,7 +85,7 @@ public class ArchiveDeviceConfigurationTest {
         ArchiveDeviceFactory.ConfigType configType =
                 ArchiveDeviceFactory.ConfigType.valueOf(
                         System.getProperty("configType", ArchiveDeviceFactory.ConfigType.DEFAULT.name()));
-        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
+        Device arrDevice = ArchiveDeviceFactory.createARRDevice(configType);
         Device[] otherDevices = new Device[ArchiveDeviceFactory.OTHER_DEVICES.length];
         EnumSet<DicomConfiguration.Option> register = EnumSet.of(DicomConfiguration.Option.REGISTER);
         config.persist(arrDevice, register);

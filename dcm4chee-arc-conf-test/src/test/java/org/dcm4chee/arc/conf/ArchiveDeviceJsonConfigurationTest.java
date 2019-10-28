@@ -70,8 +70,7 @@ public class ArchiveDeviceJsonConfigurationTest {
     public void testJsonPersist() throws Exception {
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc",
                 ArchiveDeviceFactory.ConfigType.SAMPLE,
-                ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                        ArchiveDeviceFactory.ConfigType.SAMPLE),
+                ArchiveDeviceFactory.createARRDevice(ArchiveDeviceFactory.ConfigType.SAMPLE),
                 ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.SCHEDULED_STATION_INDEX),
                 ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.STORESCU_INDEX),
                 ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.MPPSSCU_INDEX));
@@ -93,8 +92,7 @@ public class ArchiveDeviceJsonConfigurationTest {
         public Device findDevice(String name) throws ConfigurationException {
             switch (name) {
                 case "logstash":
-                    return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                            ArchiveDeviceFactory.ConfigType.SAMPLE);
+                    return ArchiveDeviceFactory.createARRDevice(ArchiveDeviceFactory.ConfigType.SAMPLE);
                 case "scheduledstation":
                     return ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.SCHEDULED_STATION_INDEX);
                 case "storescu":

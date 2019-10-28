@@ -115,12 +115,23 @@ dcmProtocol: SYSLOG_UDP
 dcmClientBindAddress: 0.0.0.0
 cn: syslog
 
+dn: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
 dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
 
 dn: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -131,9 +142,21 @@ objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
 cn: syslog
 
+dn: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+dicomPort: 6514
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
 dn: cn=Audit Record Repository,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditRecordRepository
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Record Repository
 
 dn: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -165,6 +188,17 @@ dcmMaxOpsPerformed: 0
 dcmClientBindAddress: 0.0.0.0
 cn: dicom
 
+dn: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+dicomPort: 8443
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: HTTP
+cn: https
+
 dn: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 objectClass: dicomNetworkConnection
@@ -172,6 +206,43 @@ objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
 dcmClientBindAddress: 0.0.0.0
 cn: syslog
+
+dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmClientBindAddress: 0.0.0.0
+dicomInstalled: FALSE
+dcmBindAddress: 0.0.0.0
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: HL7
+cn: hl7-tls
+dicomHostname: localhost
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dicomPort: 12575
+
+dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmClientBindAddress: 0.0.0.0
+dicomInstalled: FALSE
+dcmMaxOpsInvoked: 0
+dcmBindAddress: 0.0.0.0
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmMaxOpsPerformed: 0
+cn: dicom-tls
+dicomHostname: localhost
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dicomPort: 2762
+
+dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
 
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
@@ -358,6 +429,7 @@ dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=
 dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
 
 dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -679,6 +751,7 @@ objectClass: hl7Application
 objectClass: dcmArchiveHL7Application
 dicomAETitle: DCM4CHEE
 dicomNetworkConnectionReference: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7AcceptedMessageType: ADT^A01
 hl7AcceptedMessageType: ADT^A02
 hl7AcceptedMessageType: ADT^A03
@@ -725,6 +798,7 @@ dcmJndiName: jms/queue/RSClient
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: hideRejected
 dicomDescription: Hide instances rejected for Quality Reasons
 dicomAssociationInitiator: TRUE
@@ -905,6 +979,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
@@ -988,6 +1063,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dicomAssociationAcceptor: TRUE
 
@@ -1003,6 +1079,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dcmWebAppName: AS_RECEIVED
 dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/rs
@@ -1017,6 +1094,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dicomAssociationAcceptor: TRUE
 
@@ -1029,6 +1107,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dicomAssociationAcceptor: TRUE
 
@@ -1039,6 +1118,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dcmWebAppName: IOCM_EXPIRED
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/rs
@@ -1050,6 +1130,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dcmWebAppName: IOCM_QUALITY
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_QUALITY/rs
@@ -1059,6 +1140,7 @@ dicomDescription: Forward Reschedule Task(s)
 dcmWebServiceClass: DCM4CHEE_ARC
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmWebAppName: dcm4chee-arc
 dcmWebServicePath: /dcm4chee-arc
 
@@ -1073,6 +1155,7 @@ dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/wado
@@ -1086,6 +1169,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dicomAssociationAcceptor: TRUE
 
@@ -1112,6 +1196,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dcmWebAppName: IOCM_WRONG_MWL
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/rs
@@ -1125,6 +1210,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
 
@@ -1149,6 +1235,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dcmWebAppName: IOCM_PAT_SAFETY
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs
@@ -1162,6 +1249,7 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
 
@@ -1176,6 +1264,7 @@ dicomDescription: Retrieve instances as received
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dcmWebAppName: AS_RECEIVED-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/wado
@@ -1187,6 +1276,7 @@ dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dcmWebAppName: IOCM_REGULAR_USE
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/rs
@@ -1207,6 +1297,7 @@ dicomDescription: Only show instances rejected for Data Retention Expired
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dcmWebAppName: IOCM_EXPIRED-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/wado
@@ -1216,6 +1307,7 @@ dicomDescription: Only show instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dcmWebAppName: IOCM_QUALITY-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_QUALITY/wado
@@ -1244,6 +1336,7 @@ dicomDescription: Only show instances rejected for Incorrect Modality Worklist E
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dcmWebAppName: IOCM_WRONG_MWL-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/wado
@@ -1258,6 +1351,7 @@ dicomDescription: Only show instances rejected for Patient Safety Reasons
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dcmWebAppName: IOCM_PAT_SAFETY-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado
@@ -1272,6 +1366,7 @@ dicomDescription: Show instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
 objectClass: dcmWebApp
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dcmWebAppName: IOCM_REGULAR_USE-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/wado

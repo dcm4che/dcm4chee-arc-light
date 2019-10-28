@@ -1250,15 +1250,26 @@ class ArchiveDeviceFactory {
         System.setProperty("jboss.server.temp.url", "file:///opt/wildfly/standalone/tmp");
     }
 
-    public static Device createARRDevice(String name, Connection.Protocol protocol, int port, ConfigType configType) {
-        Device arrDevice = new Device(name);
+    public static Device createARRDevice(ConfigType configType) {
+        Device arrDevice = new Device("logstash");
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
+
         String syslogHost = configType == ConfigType.DOCKER ? "syslog-host" : "localhost";
-        Connection syslog = new Connection("syslog", syslogHost, port);
-        syslog.setProtocol(protocol);
+        Connection syslog = new Connection("syslog", syslogHost, 514);
+        syslog.setProtocol(Connection.Protocol.SYSLOG_UDP);
         arrDevice.addConnection(syslog);
         arr.addConnection(syslog);
+
+        Connection syslogTLS = new Connection("syslog-tls", syslogHost, 6514);
+        syslogTLS.setProtocol(Connection.Protocol.SYSLOG_TLS);
+        syslogTLS.setTlsCipherSuites(
+                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+        syslogTLS.setInstalled(Boolean.FALSE);
+        arrDevice.addConnection(syslogTLS);
+        arr.addConnection(syslogTLS);
+
         arrDevice.setPrimaryDeviceTypes("LOG");
         return arrDevice ;
     }
@@ -1353,26 +1364,25 @@ class ArchiveDeviceFactory {
         http.setProtocol(Connection.Protocol.HTTP);
         device.addConnection(http);
 
-        Connection dicomTLS = null;
-        Connection https = null;
-        if (configType == configType.SAMPLE) {
-            dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
-            dicomTLS.setBindAddress("0.0.0.0");
-            dicomTLS.setClientBindAddress("0.0.0.0");
-            dicomTLS.setMaxOpsInvoked(0);
-            dicomTLS.setMaxOpsPerformed(0);
-            dicomTLS.setTlsCipherSuites(
-                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-            device.addConnection(dicomTLS);
+        Connection dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
+        dicomTLS.setBindAddress("0.0.0.0");
+        dicomTLS.setClientBindAddress("0.0.0.0");
+        dicomTLS.setMaxOpsInvoked(0);
+        dicomTLS.setMaxOpsPerformed(0);
+        dicomTLS.setTlsCipherSuites(
+                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+        dicomTLS.setInstalled(Boolean.FALSE);
+        device.addConnection(dicomTLS);;
 
-            https = new Connection("https", archiveHost, 8443);
-            https.setProtocol(Connection.Protocol.HTTP);
-            https.setTlsCipherSuites(
-                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-            device.addConnection(https);
-        }
+        Connection https = new Connection("https", archiveHost, 8443);
+        https.setProtocol(Connection.Protocol.HTTP);
+        https.setTlsCipherSuites(
+                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+        https.setInstalled(Boolean.FALSE);
+        device.addConnection(https);;
+
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
         addHL7DeviceExtension(device, configType, archiveHost);
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
@@ -1526,9 +1536,20 @@ class ArchiveDeviceFactory {
         syslog.setClientBindAddress("0.0.0.0");
         syslog.setProtocol(Connection.Protocol.SYSLOG_UDP);
         device.addConnection(syslog);
+
+        Connection syslogTLS = new Connection("syslog-tls", hostname);
+        syslog.setClientBindAddress("0.0.0.0");
+        syslogTLS.setProtocol(Connection.Protocol.SYSLOG_TLS);
+        syslogTLS.setTlsCipherSuites(
+                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+        syslogTLS.setInstalled(Boolean.FALSE);
+        device.addConnection(syslogTLS);
+
         AuditLoggerDeviceExtension ext = new AuditLoggerDeviceExtension();
         AuditLogger auditLogger = new AuditLogger("Audit Logger");
         auditLogger.addConnection(syslog);
+        auditLogger.addConnection(syslogTLS);
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
         auditLogger.setSpoolDirectoryURI(AUDIT_LOGGER_SPOOL_DIR_URI);
@@ -1565,17 +1586,16 @@ class ArchiveDeviceFactory {
         device.addConnection(hl7);
         hl7App.addConnection(hl7);
 
-        if (configType == configType.SAMPLE) {
-            Connection hl7TLS = new Connection("hl7-tls", archiveHost, 12575);
-            hl7TLS.setBindAddress("0.0.0.0");
-            hl7TLS.setClientBindAddress("0.0.0.0");
-            hl7TLS.setProtocol(Connection.Protocol.HL7);
-            hl7TLS.setTlsCipherSuites(
-                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-            device.addConnection(hl7TLS);
-            hl7App.addConnection(hl7TLS);
-        }
+        Connection hl7TLS = new Connection("hl7-tls", archiveHost, 12575);
+        hl7TLS.setBindAddress("0.0.0.0");
+        hl7TLS.setClientBindAddress("0.0.0.0");
+        hl7TLS.setProtocol(Connection.Protocol.HL7);
+        hl7TLS.setTlsCipherSuites(
+                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+        hl7TLS.setInstalled(Boolean.FALSE);
+        device.addConnection(hl7TLS);
+        hl7App.addConnection(hl7TLS);
     }
 
     private static void addArchiveDeviceExtension(Device device, ConfigType configType,

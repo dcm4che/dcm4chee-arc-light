@@ -417,12 +417,23 @@ dcmProtocol: SYSLOG_UDP
 dcmClientBindAddress: 0.0.0.0
 cn: syslog
 
+dn: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
 dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
 
 dn: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -433,9 +444,21 @@ objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
 cn: syslog
 
+dn: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+dicomPort: 6514
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
 dn: cn=Audit Record Repository,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditRecordRepository
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Record Repository
 
 dn: cn=dicom,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -541,6 +564,7 @@ dcmClientBindAddress: 0.0.0.0
 cn: dicom
 
 dn: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomHostname: localhost
 dicomPort: 8443
 objectClass: dicomNetworkConnection
@@ -559,19 +583,21 @@ dcmClientBindAddress: 0.0.0.0
 cn: syslog
 
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomHostname: localhost
+dcmClientBindAddress: 0.0.0.0
+dicomInstalled: FALSE
 dcmBindAddress: 0.0.0.0
-dicomPort: 12575
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
+dcmProtocol: HL7
+cn: hl7-tls
+dicomHostname: localhost
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
-dcmProtocol: HL7
-dcmClientBindAddress: 0.0.0.0
-cn: hl7-tls
+dicomPort: 12575
 
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
+dicomInstalled: FALSE
 dcmMaxOpsInvoked: 0
 dcmBindAddress: 0.0.0.0
 objectClass: dicomNetworkConnection
@@ -619,6 +645,16 @@ objectClass: dcmArchiveAttributeCoercion
 dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
 cn: Nullify PN
+
+dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
 
 dn: cn=THIN_SLICE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExpireSeriesIndividually: TRUE
@@ -822,6 +858,7 @@ dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=
 dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
 
 dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
