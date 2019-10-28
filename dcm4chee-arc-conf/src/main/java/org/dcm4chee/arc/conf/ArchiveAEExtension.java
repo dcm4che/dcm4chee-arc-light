@@ -139,6 +139,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean stowExcludeAPPMarkers;
     private RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities;
     private int[] rejectConflictingPatientAttribute = {};
+    private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1380,6 +1381,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getRestrictRetrieveAccordingTransferCapabilities();
     }
 
+    public MultipleStoreAssociations[] getMultipleStoreAssociations() {
+        return multipleStoreAssociations;
+    }
+
+    public void setMultipleStoreAssociations(String[] ss) {
+        multipleStoreAssociations = MultipleStoreAssociations.of(ss);
+    }
+
+    public int maxStoreAssociationsTo(String aet) {
+        return MultipleStoreAssociations.maxTo(aet,
+                multipleStoreAssociations,
+                getArchiveDeviceExtension().getMultipleStoreAssociations());
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1460,6 +1475,7 @@ public class ArchiveAEExtension extends AEExtension {
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
         restrictRetrieveAccordingTransferCapabilities = aeExt.restrictRetrieveAccordingTransferCapabilities;
+        multipleStoreAssociations = aeExt.multipleStoreAssociations;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

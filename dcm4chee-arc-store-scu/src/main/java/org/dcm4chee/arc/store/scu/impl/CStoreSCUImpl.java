@@ -62,10 +62,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
 
@@ -183,20 +180,40 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        Association storeas = openAssociation(ctx);
-        ctx.setStoreAssociation(storeas);
-        return new RetrieveTaskImpl(ctx, storeas, retrieveStart, retrieveEnd);
+        return new RetrieveTaskImpl(ctx, retrieveStart, retrieveEnd, openMultipleAssocations(ctx));
     }
 
     @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        Association storeas = openAssociation(ctx);
-        ctx.setStoreAssociation(storeas);
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, storeas, retrieveStart, retrieveEnd);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, retrieveStart, retrieveEnd,
+                openMultipleAssocations(ctx));
         retrieveTask.setRequestAssociation(Dimse.C_MOVE_RQ, as, pc, rq);
         return retrieveTask;
+    }
+
+    private Association[] openMultipleAssocations(RetrieveContext ctx) throws DicomServiceException {
+        Association storeas = openAssociation(ctx);
+        ctx.setStoreAssociation(storeas);
+        Association[] storeass = new Association[Math.min(
+                ctx.getArchiveAEExtension().maxStoreAssociationsTo(ctx.getDestinationAETitle()),
+                ctx.getNumberOfMatches())];
+        storeass[0] = storeas;
+        ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+        ApplicationEntity destinationAE = ctx.getDestinationAE();
+        AAssociateRQ acrq = storeas.getAAssociateRQ();
+        int count = 0;
+        while (++count < storeass.length) {
+            try {
+                storeass[count] = localAE.connect(destinationAE, acrq);
+            } catch (Exception e) {
+                LOG.warn("failed to open additional association to {}:\n",
+                        ctx.getDestinationAETitle());
+                return Arrays.copyOf(storeass, count);
+            }
+        }
+        return storeass;
     }
 
     @Override
@@ -204,7 +221,7 @@ public class CStoreSCUImpl implements CStoreSCU {
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
         ctx.setStoreAssociation(as);
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as, retrieveStart, retrieveEnd);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, retrieveStart, retrieveEnd, as);
         retrieveTask.setRequestAssociation(Dimse.C_GET_RQ, as, pc, rq);
         return retrieveTask;
     }

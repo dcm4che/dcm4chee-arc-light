@@ -280,6 +280,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorePermissionServiceErrorCodePattern(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmReturnRetrieveAET", ext.getReturnRetrieveAETitles());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMultipleStoreAssociations", ext.getMultipleStoreAssociations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination",
                 ext.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiImagingDocumentSourceAETitle",
@@ -555,6 +556,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setReturnRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmReturnRetrieveAET")));
+        ext.setMultipleStoreAssociations(LdapUtils.stringArray(attrs.get("dcmMultipleStoreAssociations")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setXDSiImagingDocumentSourceAETitle(LdapUtils.stringValue(attrs.get("dcmXDSiImagingDocumentSourceAETitle"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
@@ -928,6 +930,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
         LdapUtils.storeDiff(ldapObj, mods, "dcmReturnRetrieveAET",
                 aa.getReturnRetrieveAETitles(), bb.getReturnRetrieveAETitles());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMultipleStoreAssociations",
+                aa.getMultipleStoreAssociations(), bb.getMultipleStoreAssociations());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiImagingDocumentSourceAETitle",
@@ -1337,6 +1341,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorePermissionServiceErrorCodePattern(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmReturnRetrieveAET", ext.getReturnRetrieveAETitles());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMultipleStoreAssociations", ext.getMultipleStoreAssociations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination",
                 ext.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
@@ -1461,6 +1466,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setReturnRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmReturnRetrieveAET")));
+        ext.setMultipleStoreAssociations(LdapUtils.stringArray(attrs.get("dcmMultipleStoreAssociations")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(
                 attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setAcceptedMoveDestinations(LdapUtils.stringArray(attrs.get("dcmAcceptedMoveDestination")));
@@ -1641,6 +1647,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
         LdapUtils.storeDiff(ldapObj, mods, "dcmReturnRetrieveAET",
                 aa.getReturnRetrieveAETitles(), bb.getReturnRetrieveAETitles());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMultipleStoreAssociations",
+                aa.getMultipleStoreAssociations(), bb.getMultipleStoreAssociations());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(),
                 bb.getExternalRetrieveAEDestination(), null);

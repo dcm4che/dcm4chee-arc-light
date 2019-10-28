@@ -896,6 +896,15 @@
       },
       "format": "dcmArchiveAETitle"
     },
+    "dcmMultipleStoreAssociations": {
+      "title": "Multiple Store Associations",
+      "description": "Number of Storage Associations used for retrieve of Composite Objects. C-STORE SCP specific numbers can be specified by prefix '<AETitle>:'. If absent, only one Association will be used. May be supplemented by configured Multiple Store Associations for particular Archive Network AEs.",
+        "type": "array",
+        "items": {
+        "type": "string"
+      },
+      "format": "dcmMultipleStoreAssociations"
+    },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. May be overwritten by configured values for particular Archive Network AEs.",

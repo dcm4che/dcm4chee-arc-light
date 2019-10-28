@@ -391,6 +391,15 @@
       },
       "format": "dcmArchiveAETitle"
     },
+    "dcmMultipleStoreAssociations": {
+      "title": "Multiple Store Associations",
+      "description": "Number of Storage Associations used for retrieve of Composite Objects. C-STORE SCP specific numbers can be specified by prefix '<AETitle>:'. Supplements Multiple Store Associations specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmMultipleStoreAssociations"
+    },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. Overwrites value specified on Device level.",
@@ -604,7 +613,7 @@
     },
     "dcmStoreAccessControlIDRule": {
       "title": "Store Access Control Rules",
-      "description": "Store Access Control Rules applied to Studies received by this AE. Supplements Store Access Control Rules specified on Device level",
+      "description": "Store Access Control Rules applied to Studies received by this AE. Supplements Store Access Control Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
