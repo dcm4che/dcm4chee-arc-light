@@ -465,9 +465,9 @@
     },
     "dcmExportTaskFetchSize": {
       "title": "Export Task Fetch Size",
-      "description": "Maximal number of Export Tasks scheduled in one transaction.",
+      "description": "Limit result set of DB query for Export Tasks ready for processing.",
       "type": "integer",
-      "default": 5,
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -895,6 +895,15 @@
         "type": "string"
       },
       "format": "dcmArchiveAETitle"
+    },
+    "dcmMultipleStoreAssociations": {
+      "title": "Multiple Store Associations",
+      "description": "Number of Storage Associations used for retrieve of Composite Objects. C-STORE SCP specific numbers can be specified by prefix '<AETitle>:'. If absent, only one Association will be used. May be supplemented by configured Multiple Store Associations for particular Archive Network AEs.",
+        "type": "array",
+        "items": {
+        "type": "string"
+      },
+      "format": "dcmMultipleStoreAssociations"
     },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",

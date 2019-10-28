@@ -132,7 +132,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
     private volatile Duration exportTaskPollingInterval;
-    private volatile int exportTaskFetchSize = 5;
+    private volatile int exportTaskFetchSize = 100;
     private volatile Duration deleteRejectedPollingInterval;
     private volatile int deleteRejectedFetchSize = 100;
     private volatile Duration purgeStoragePollingInterval;
@@ -256,6 +256,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowExcludeAPPMarkers = false;
     private volatile RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities
             = RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION;
+    private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
@@ -2346,6 +2347,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
+    public MultipleStoreAssociations[] getMultipleStoreAssociations() {
+        return multipleStoreAssociations;
+    }
+
+    public void setMultipleStoreAssociations(String[] ss) {
+        multipleStoreAssociations = MultipleStoreAssociations.of(ss);
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -2682,6 +2691,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
         restrictRetrieveAccordingTransferCapabilities = arcdev.restrictRetrieveAccordingTransferCapabilities;
+        multipleStoreAssociations = arcdev.multipleStoreAssociations;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

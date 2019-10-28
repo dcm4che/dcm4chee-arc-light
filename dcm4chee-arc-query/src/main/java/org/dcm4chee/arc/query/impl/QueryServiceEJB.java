@@ -56,6 +56,8 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -246,6 +248,7 @@ public class QueryServiceEJB {
         }
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Attributes queryStudyExportTaskInfo(String studyIUID, QueryRetrieveView qrView) {
         String viewID = qrView.getViewID();
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -284,6 +287,7 @@ public class QueryServiceEJB {
         return attrs;
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Attributes querySeriesExportTaskInfo(String studyIUID, String seriesIUID, QueryRetrieveView qrView) {
         String viewID = qrView.getViewID();
         CriteriaBuilder cb = em.getCriteriaBuilder();

@@ -67,6 +67,7 @@ public class FileSystemStorage extends AbstractStorage {
     private final URI rootURI;
     private final AttributesFormat pathFormat;
     private final Path checkMountFilePath;
+    private final OpenOption[] openOptions;
 
     public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         super(descriptor, metricsService);
@@ -74,6 +75,10 @@ public class FileSystemStorage extends AbstractStorage {
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         String checkMountFile = descriptor.getProperty("checkMountFile", null);
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
+        String fileOpenOption = descriptor.getProperty("fileOpenOption", null);
+        openOptions = fileOpenOption != null
+                ? new OpenOption[]{ StandardOpenOption.CREATE_NEW, StandardOpenOption.valueOf(fileOpenOption) }
+                : new OpenOption[]{ StandardOpenOption.CREATE_NEW };
     }
 
     private URI ensureTrailingSlash(URI uri) {
@@ -122,7 +127,7 @@ public class FileSystemStorage extends AbstractStorage {
         OutputStream stream = null;
         while (stream == null)
             try {
-                stream = Files.newOutputStream(path, StandardOpenOption.CREATE_NEW);
+                stream = Files.newOutputStream(path, openOptions);
             } catch (FileAlreadyExistsException e) {
                 path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
             }

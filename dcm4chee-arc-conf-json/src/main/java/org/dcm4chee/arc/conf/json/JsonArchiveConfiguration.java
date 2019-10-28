@@ -135,7 +135,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP(), null);
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval(), null);
-        writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
+        writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 100);
         writer.writeNotNullOrDef("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval(), null);
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
         writer.writeNotNullOrDef("dcmFailedToDeletePollingInterval", arcDev.getFailedToDeletePollingInterval(), null);
@@ -215,6 +215,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
         writer.writeNotEmpty("dcmReturnRetrieveAET", arcDev.getReturnRetrieveAETitles());
+        writer.writeNotEmpty("dcmMultipleStoreAssociations", arcDev.getMultipleStoreAssociations());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination(),
                 null);
         writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(),
@@ -885,6 +886,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
                 arcAE.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmReturnRetrieveAET", arcAE.getReturnRetrieveAETitles());
+        writer.writeNotEmpty("dcmMultipleStoreAssociations", arcAE.getMultipleStoreAssociations());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination",
                 arcAE.getExternalRetrieveAEDestination(), null);
         writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
@@ -1272,6 +1274,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmReturnRetrieveAET":
                     arcDev.setReturnRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmMultipleStoreAssociations":
+                    arcDev.setMultipleStoreAssociations(reader.stringArray());
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcDev.setExternalRetrieveAEDestination(reader.stringValue());
@@ -2825,6 +2830,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmReturnRetrieveAET":
                     arcAE.setReturnRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmMultipleStoreAssociations":
+                    arcAE.setMultipleStoreAssociations(reader.stringArray());
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcAE.setExternalRetrieveAEDestination(reader.stringValue());

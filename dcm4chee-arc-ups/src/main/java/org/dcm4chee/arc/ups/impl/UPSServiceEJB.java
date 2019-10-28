@@ -538,7 +538,7 @@ public class UPSServiceEJB {
     }
 
     public List<GlobalSubscription> findGlobalSubscriptions() {
-        return em.createNamedQuery(GlobalSubscription.FIND_ALL_EAGER).getResultList();
+        return em.createNamedQuery(GlobalSubscription.FIND_ALL_EAGER, GlobalSubscription.class).getResultList();
     }
 
     public GlobalSubscription createOrUpdateGlobalSubscription(UPSContext ctx, List<Attributes> notSubscribedUPS) {

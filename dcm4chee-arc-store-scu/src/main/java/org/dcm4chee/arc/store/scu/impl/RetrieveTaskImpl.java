@@ -48,10 +48,11 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -61,6 +62,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,13 +74,15 @@ import java.util.concurrent.TimeUnit;
 final class RetrieveTaskImpl implements RetrieveTask {
 
     static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskImpl.class);
+    private static InstanceLocations NO_MORE_MATCHES = new NoMoreMatches();
 
     private final Event<RetrieveContext> retrieveStart;
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
-    private final Association storeas;
+    private final Association[] storeass;
     private final ArchiveAEExtension aeExt;
-    private final String hostName;
+    private final BlockingQueue<InstanceLocations> matches = new LinkedBlockingQueue<>();
+    private final CountDownLatch doneSignal;
     private Dimse dimserq;
     private Association rqas;
     private PresentationContext pc;
@@ -84,18 +90,16 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private int msgId;
     private boolean pendingRSP;
     private Duration pendingRSPInterval;
-    private final Collection<InstanceLocations> outstandingRSP =
-            Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private volatile boolean canceled;
 
-    RetrieveTaskImpl(RetrieveContext ctx, Association storeas,
-                     Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
+    RetrieveTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd,
+            Association... storeass) {
         this.retrieveStart = retrieveStart;
         this.retrieveEnd = retrieveEnd;
         this.ctx = ctx;
-        this.storeas = storeas;
+        this.storeass = storeass;
         this.aeExt = ctx.getArchiveAEExtension();
-        this.hostName = ReverseDNS.hostNameOf(storeas.getSocket().getInetAddress());
+        this.doneSignal = new CountDownLatch(storeass.length);
     }
 
     void setRequestAssociation(Dimse dimserq, Association rqas, PresentationContext pc, Attributes rqCmd) {
@@ -120,23 +124,28 @@ final class RetrieveTaskImpl implements RetrieveTask {
             rqas.addCancelRQHandler(msgId, this);
         }
         try {
-            if (ctx.getFallbackAssociation() == null)
-                startWritePendingRSP();
+            if (ctx.getFallbackAssociation() == null) startWritePendingRSP();
+            if (storeass.length > 1) startStoreOperations();
             for (InstanceLocations match : ctx.getMatches()) {
-                if (canceled)
-                    break;
-
-                if (!ctx.copyToRetrieveCache(match))
-                    store(match);
+                if (!ctx.copyToRetrieveCache(match)) {
+                    matches.offer(match);
+                }
             }
             ctx.copyToRetrieveCache(null);
-            InstanceLocations match;
-            while ((match = ctx.copiedToRetrieveCache()) != null && !canceled)
-                store(match);
-
-            waitForOutstandingCStoreRSP();
+            if (storeass.length == 1) {
+                matches.offer(NO_MORE_MATCHES);
+                runStoreOperations(storeass[0]);
+            } else {
+                InstanceLocations match;
+                while ((match = ctx.copiedToRetrieveCache()) != null && !canceled) {
+                    matches.offer(match);
+                }
+                for (int i = 0; i < storeass.length; i++) {
+                    matches.offer(NO_MORE_MATCHES);
+                }
+            }
+            waitForPendingStoreOperations();
         } finally {
-            releaseStoreAssociation();
             waitForPendingCMoveForward();
             waitForPendingCStoreForward();
             updateCompleteness();
@@ -151,8 +160,53 @@ final class RetrieveTaskImpl implements RetrieveTask {
         retrieveEnd.fire(ctx);
     }
 
-    private void store(InstanceLocations inst) {
-        CStoreRSPHandler rspHandler = new CStoreRSPHandler(inst);
+    private void startStoreOperations() {
+        Device device = ctx.getArchiveAEExtension().getApplicationEntity().getDevice();
+        for (Association storeas : storeass) {
+            device.execute(() -> runStoreOperations(storeas));
+        }
+    }
+
+    private void waitForPendingStoreOperations() {
+        try {
+            doneSignal.await();
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to wait for outstanding store operations", rqas, e);
+        }
+    }
+
+    private void runStoreOperations(Association storeas) {
+        Collection<InstanceLocations> outstandingRSPs = Collections.synchronizedList(new ArrayList<>());
+        try {
+            InstanceLocations match = null;
+            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES) {
+                store(match, storeas, outstandingRSPs);
+                waitForNonBlockingInvoke(storeas);
+            }
+            while (!canceled && (match = ctx.copiedToRetrieveCache()) != null) {
+                store(match, storeas, outstandingRSPs);
+            }
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to fetch next match from queue:\n",
+                    rqas, storeas.getRemoteAET(), e);
+        } finally {
+            waitForOutstandingCStoreRSP(storeas, outstandingRSPs);
+            releaseStoreAssociation(storeas);
+            doneSignal.countDown();
+        }
+    }
+
+    private void waitForNonBlockingInvoke(Association storeas) {
+        try {
+            storeas.waitForNonBlockingInvoke();
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}:\n",
+                    rqas, storeas.getRemoteAET(), e);
+        }
+    }
+
+    private void store(InstanceLocations inst, Association storeas, Collection<InstanceLocations> outstandingRSP) {
+        CStoreRSPHandler rspHandler = new CStoreRSPHandler(inst, storeas, outstandingRSP);
         String iuid = inst.getSopInstanceUID();
         String cuid = inst.getSopClassUID();
         int priority = ctx.getPriority();
@@ -254,7 +308,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                             0, pendingRSPInterval.getSeconds(), TimeUnit.SECONDS));
     }
 
-    private void waitForOutstandingCStoreRSP() {
+    private void waitForOutstandingCStoreRSP(Association storeas, Collection<InstanceLocations> outstandingRSP) {
         try {
             LOG.debug("{}: wait for outstanding C-STORE RSP(s) on association to {}",
                     rqas, storeas.getRemoteAET());
@@ -284,14 +338,15 @@ final class RetrieveTaskImpl implements RetrieveTask {
             ctx.getRetrieveService().updateCompleteness(ctx);
     }
 
-    private void removeOutstandingRSP(InstanceLocations inst) {
+    private void removeOutstandingRSP(InstanceLocations inst,
+            Association storeas, Collection<InstanceLocations> outstandingRSP) {
         outstandingRSP.remove(inst);
         synchronized (outstandingRSP) {
             outstandingRSP.notifyAll();
         }
     }
 
-    protected void releaseStoreAssociation() {
+    protected void releaseStoreAssociation(Association storeas) {
         if (dimserq != Dimse.C_GET_RQ)
             try {
                 storeas.release();
@@ -299,14 +354,18 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 LOG.warn("{}: failed to release association to {}", rqas, storeas.getRemoteAET(), e);
             }
     }
-
     private final class CStoreRSPHandler extends DimseRSPHandler {
 
         private final InstanceLocations inst;
+        private final Association storeas;
+        private final Collection<InstanceLocations> outstandingRSP;
 
-        public CStoreRSPHandler(InstanceLocations inst) {
+        public CStoreRSPHandler(InstanceLocations inst, Association storeas,
+                Collection<InstanceLocations> outstandingRSP) {
             super(storeas.nextMessageID());
             this.inst = inst;
+            this.storeas = storeas;
+            this.outstandingRSP = outstandingRSP;
         }
 
         @Override
@@ -323,13 +382,94 @@ final class RetrieveTaskImpl implements RetrieveTask {
             }
             if (pendingRSP)
                 writePendingRSP();
-            removeOutstandingRSP(inst);
+            removeOutstandingRSP(inst, storeas, outstandingRSP);
         }
 
         @Override
         public void onClose(Association as) {
             super.onClose(as);
-            removeOutstandingRSP(inst);
+            removeOutstandingRSP(inst, storeas, outstandingRSP);
+        }
+    }
+
+    private static final class NoMoreMatches implements InstanceLocations {
+        @Override
+        public Long getInstancePk() {
+            return null;
+        }
+
+        @Override
+        public void setInstancePk(Long pk) {
+        }
+
+        @Override
+        public String getSopInstanceUID() {
+            return null;
+        }
+
+        @Override
+        public String getSopClassUID() {
+            return null;
+        }
+
+        @Override
+        public List<Location> getLocations() {
+            return null;
+        }
+
+        @Override
+        public Attributes getAttributes() {
+            return null;
+        }
+
+        @Override
+        public String getRetrieveAETs() {
+            return null;
+        }
+
+        @Override
+        public String getExternalRetrieveAET() {
+            return null;
+        }
+
+        @Override
+        public Availability getAvailability() {
+            return null;
+        }
+
+        @Override
+        public Date getCreatedTime() {
+            return null;
+        }
+
+        @Override
+        public Date getUpdatedTime() {
+            return null;
+        }
+
+        @Override
+        public Attributes getRejectionCode() {
+            return null;
+        }
+
+        @Override
+        public boolean isContainsMetadata() {
+            return false;
+        }
+
+        @Override
+        public boolean isImage() {
+            return false;
+        }
+
+        @Override
+        public boolean isVideo() {
+            return false;
+        }
+
+        @Override
+        public boolean isMultiframe() {
+            return false;
         }
     }
 

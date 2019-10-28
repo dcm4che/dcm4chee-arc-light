@@ -14,6 +14,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,8 +48,18 @@ public class ExportScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getExportTaskFetchSize();
-        while (getPollingInterval() != null && ejb.scheduleExportTasks(fetchSize) == fetchSize)
-            ;
+        List<Long> exportTasksToSchedule;
+        do {
+            exportTasksToSchedule = ejb.findExportTasksToSchedule(fetchSize);
+            for (Long pk : exportTasksToSchedule) {
+                try {
+                    if (!ejb.scheduleExportTask(pk)) return;
+                } catch (Exception e) {
+                    LOG.warn("Failed to schedule ExportTask[pk={}}]\n:", pk, e);
+                }
+            }
+        }
+        while (getPollingInterval() != null && exportTasksToSchedule.size() == fetchSize);
     }
 
     public void onStore(@Observes StoreContext ctx) {

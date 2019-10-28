@@ -49,6 +49,7 @@ import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -122,8 +123,7 @@ public interface QueryService {
 
     Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
 
-    Attributes queryExportTaskInfo(
-            String studyUID, String seriesUID, String sopIUID, ApplicationEntity ae);
+    Attributes queryExportTaskInfo(ExportTask exportTask, ApplicationEntity ae);
 
     Attributes getStudyAttributes(String studyUID);
 
