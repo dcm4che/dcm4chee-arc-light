@@ -1,6 +1,7 @@
 import {Component, HostListener, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'dicom-list',
@@ -85,6 +86,7 @@ export class DicomFlatListComponent implements OnInit {
             calculatedWidth:"20%"
         }
       ];
+    loadMoreAudit;
     constructor() { }
     moreStudies = {
         limit: 30,
@@ -107,7 +109,7 @@ export class DicomFlatListComponent implements OnInit {
         this.resetMoreCheck();
     }
     loadMoreCheck(){
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
         hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
         wH = WindowRefService.nativeWindow.innerHeight,
         wS = WindowRefService.nativeWindow.pageYOffset;
@@ -119,7 +121,7 @@ export class DicomFlatListComponent implements OnInit {
     resetMoreCheck(){
 
         // let hT = ($('.load_more_start').offset()) ? $('.load_more_start').offset().top : 0,
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0].offsetTop : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0]).top : 0,
             hH =  WindowRefService.nativeWindow.document.getElementsByClassName("load_more_start")[0].offsetHeight,
             // hH = $('.load_more_start').outerHeight(),
             // wH = $(window).height(),

@@ -7,6 +7,7 @@ import {Router} from "@angular/router";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'app-hl7-applications',
@@ -55,7 +56,7 @@ export class Hl7ApplicationsComponent implements OnInit {
 
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
             hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
             wH = WindowRefService.nativeWindow.innerHeight,
             wS = WindowRefService.nativeWindow.pageYOffset;

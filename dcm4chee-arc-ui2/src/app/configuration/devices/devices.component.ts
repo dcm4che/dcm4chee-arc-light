@@ -101,7 +101,7 @@ export class DevicesComponent implements OnInit{
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
         // let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
             hH =  WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
             wH = WindowRefService.nativeWindow.innerHeight,
             wS = window.pageYOffset;

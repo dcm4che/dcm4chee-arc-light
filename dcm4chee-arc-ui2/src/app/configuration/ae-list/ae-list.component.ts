@@ -98,7 +98,7 @@ export class AeListComponent implements OnInit{
         // console.log("scrollevent",event);
         // $(window).scroll(function() {
         // let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetTop : 0,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
             hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
             // wH = $(window).height(),
             wH = WindowRefService.nativeWindow.innerHeight,
