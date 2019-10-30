@@ -640,9 +640,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmDIMSE", aac.getDIMSE(), null);
             writer.writeNotNullOrDef("dicomTransferRole", aac.getRole(), null);
             writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
-            writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
-            writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotEmpty("dcmProperty", toStrings(aac.getConditions().getMap()));
             writer.writeNotDef("dcmRetrieveAsReceived", aac.isRetrieveAsReceived(), false);
             writer.writeNotEmpty("dcmDeIdentification", aac.getDeIdentification());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
@@ -2193,14 +2192,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmRulePriority":
                         aac.setPriority(reader.intValue());
                         break;
-                    case "dcmAETitle":
-                        aac.setAETitles(reader.stringArray());
-                        break;
-                    case "dcmHostname":
-                        aac.setHostNames(reader.stringArray());
-                        break;
                     case "dcmSOPClass":
                         aac.setSOPClasses(reader.stringArray());
+                        break;
+                    case "dcmProperty":
+                        aac.setConditions(new Conditions(reader.stringArray()));
                         break;
                     case "dcmRetrieveAsReceived":
                         aac.setRetrieveAsReceived(reader.booleanValue());

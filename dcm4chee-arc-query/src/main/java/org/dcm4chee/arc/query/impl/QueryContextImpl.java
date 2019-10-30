@@ -50,13 +50,13 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.Storage;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,7 +66,7 @@ import java.util.List;
  */
 class QueryContextImpl implements QueryContext {
     private Association as;
-    private HttpServletRequest httpRequest;
+    private HttpServletRequestInfo httpRequest;
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
     private final QueryService queryService;
@@ -93,7 +93,7 @@ class QueryContextImpl implements QueryContext {
         return this;
     }
 
-    QueryContextImpl qido(HttpServletRequest httpRequest, String searchMethod) {
+    QueryContextImpl qido(HttpServletRequestInfo httpRequest, String searchMethod) {
         this.httpRequest = httpRequest;
         this.searchMethod = searchMethod;
         return this;
@@ -130,7 +130,7 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
+    public HttpServletRequestInfo getHttpRequest() {
         return httpRequest;
     }
 
@@ -151,7 +151,12 @@ class QueryContextImpl implements QueryContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : ReverseDNS.hostNameOf(as.getSocket().getInetAddress());
+        return httpRequest != null ? httpRequest.requesterHost : ReverseDNS.hostNameOf(as.getSocket().getInetAddress());
+    }
+
+    @Override
+    public String getLocalHostName() {
+        return httpRequest != null ? httpRequest.localHost : ReverseDNS.hostNameOf(as.getSocket().getLocalAddress());
     }
 
     @Override

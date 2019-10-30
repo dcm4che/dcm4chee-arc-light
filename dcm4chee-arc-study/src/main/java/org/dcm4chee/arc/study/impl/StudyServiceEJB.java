@@ -136,7 +136,11 @@ public class StudyServiceEJB {
         study.setRejectionState(RejectionState.EMPTY);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         study.setAccessControlID(ctx.getArchiveAEExtension().storeAccessControlID(
-                ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
+                ctx.getRemoteHostName(),
+                null,
+                ctx.getLocalHostName(),
+                ctx.getApplicationEntity().getAETitle(),
+                ctx.getAttributes()));
         study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));

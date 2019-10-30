@@ -64,6 +64,8 @@ public interface MPPSContext {
 
     String getRemoteHostName();
 
+    String getLocalHostName();
+
     String getSopInstanceUID();
 
     void setSopInstanceUID(String sopInstanceUID);

@@ -13,37 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-validation</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-query</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-ian-scu</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-qmgt</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-conf</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-query-util</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -55,7 +25,43 @@
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-ian-scu</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-keycloak</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-query</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-qmgt</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-query-util</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
             <artifactId>dcm4chee-arc-service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dcm4che.dcm4chee-arc</groupId>
+            <artifactId>dcm4chee-arc-validation</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

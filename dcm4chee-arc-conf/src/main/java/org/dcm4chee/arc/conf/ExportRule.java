@@ -131,9 +131,10 @@ public class ExportRule {
         this.exportDelay = exportDelay;
     }
 
-    public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
+    public boolean match(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
         return ScheduleExpression.emptyOrAnyContains(cal, schedules)
-                && conditions.match(hostName, sendingAET, receivingAET, attrs);
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     public boolean isExportPreviousEntity() {

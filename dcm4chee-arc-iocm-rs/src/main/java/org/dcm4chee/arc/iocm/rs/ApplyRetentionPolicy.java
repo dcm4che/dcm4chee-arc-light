@@ -53,6 +53,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.entity.ExpirationState;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -146,6 +147,7 @@ public class ApplyRetentionPolicy {
                                 arcAE.findStudyRetentionPolicy(
                                         null,
                                         attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries),
+                                        null,
                                         aet,
                                         attrs);
 
@@ -219,7 +221,7 @@ public class ApplyRetentionPolicy {
 
     private QueryContext queryContext(ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                request, "applyRetentionPolicy", ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), "applyRetentionPolicy", ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
@@ -245,7 +247,7 @@ public class ApplyRetentionPolicy {
             StudyRetentionPolicy policy) throws Exception {
         LOG.info("Applying {} with ExpirationDate[={}] to Study[UID={}], Series[UID={}]",
                 policy, expirationDate, studyIUID, seriesIUID);
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(HttpServletRequestInfo.valueOf(request), ae);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(policy.protectStudy() ? null : expirationDate);

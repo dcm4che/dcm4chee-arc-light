@@ -27,7 +27,7 @@
     },
     "dcmProperty": {
       "title": "Conditions",
-      "description": "Conditions in format {attributeID}[!]={regEx}",
+      "description": "Conditions in format (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{attributeID})[!]={regEx}",
       "type": "array",
       "items": {
         "type": "string"

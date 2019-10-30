@@ -46,6 +46,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.Storage;
@@ -64,7 +65,7 @@ public interface QueryContext {
 
     Association getAssociation();
 
-    HttpServletRequest getHttpRequest();
+    HttpServletRequestInfo getHttpRequest();
 
     ApplicationEntity getLocalApplicationEntity();
 
@@ -79,6 +80,8 @@ public interface QueryContext {
     void setSOPClassUID(String sopClassUID);
 
     String getSearchMethod();
+
+    String getLocalHostName();
 
     ArchiveAEExtension getArchiveAEExtension();
 

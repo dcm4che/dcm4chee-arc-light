@@ -60,8 +60,7 @@ public class ArchiveAttributeCoercion {
     private Dimse dimse;
     private TransferCapability.Role role;
     private String[] sopClasses = {};
-    private String[] aeTitles = {};
-    private String[] hostNames = {};
+    private Conditions conditions = new Conditions();
     private boolean retrieveAsReceived;
     private DeIdentifier.Option[] deIdentification = {};
     private String xsltStylesheetURI;
@@ -130,21 +129,31 @@ public class ArchiveAttributeCoercion {
         return this;
     }
 
-    public String[] getAETitles() {
-        return aeTitles;
+    public Conditions getConditions() {
+        return conditions;
     }
 
-    public ArchiveAttributeCoercion setAETitles(String... aeTitles) {
-        this.aeTitles = aeTitles;
+    public void setConditions(Conditions conditions) {
+        this.conditions = conditions;
+    }
+
+    public ArchiveAttributeCoercion setSendingHostname(String hostname) {
+        conditions.setSendingHostname(hostname);
         return this;
     }
 
-    public String[] getHostNames() {
-        return hostNames;
+    public ArchiveAttributeCoercion setSendingAETitle(String aet) {
+        conditions.setSendingAETitle(aet);
+        return this;
     }
 
-    public ArchiveAttributeCoercion setHostNames(String... hostNames) {
-        this.hostNames = hostNames;
+    public ArchiveAttributeCoercion setReceivingHostname(String hostname) {
+        conditions.setReceivingHostname(hostname);
+        return this;
+    }
+
+    public ArchiveAttributeCoercion setReceivingAETitle(String aet) {
+        conditions.setReceivingAETitle(aet);
         return this;
     }
 
@@ -282,11 +291,10 @@ public class ArchiveAttributeCoercion {
         this.issuerOfPatientIDFormat = issuerOfPatientIDFormat;
     }
 
-    public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
-        return this.role == role && this.dimse == dimse
-                && isEmptyOrContains(hostNames, hostName)
-                && isEmptyOrContains(aeTitles, aet)
-                && isEmptyOrContains(sopClasses, sopClass);
+    public boolean match(Dimse dimse, TransferCapability.Role role, String sopClass,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
+        return this.role == role && this.dimse == dimse && isEmptyOrContains(sopClasses, sopClass)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     private static boolean isEmptyOrContains(Object[] a, Object o) {
@@ -369,9 +377,8 @@ public class ArchiveAttributeCoercion {
                 + ", priority=" + priority
                 + ", DIMSE=" + dimse
                 + ", role=" + role
-                + ", aets=" + Arrays.toString(aeTitles)
-                + ", hostNames=" + Arrays.toString(hostNames)
                 + ", cuids=" + Arrays.toString(sopClasses)
+                + ", conditions=" + conditions.toString()
                 + ", retrieveAsReceived=" + retrieveAsReceived
                 + ", deIdentification=" + Arrays.toString(deIdentification)
                 + ", xslturi=" + xsltStylesheetURI

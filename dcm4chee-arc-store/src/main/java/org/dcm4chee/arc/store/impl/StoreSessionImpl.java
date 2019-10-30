@@ -232,6 +232,13 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public String getLocalHostName() {
+        return httpRequest != null ? httpRequest.localHost
+                : socket != null ? ReverseDNS.hostNameOf(socket.getLocalAddress())
+                : null;
+    }
+
+    @Override
     public Study getCachedStudy(String studyInstanceUID) {
         return isStudyCached(studyInstanceUID) ? cachedStudy : null;
     }

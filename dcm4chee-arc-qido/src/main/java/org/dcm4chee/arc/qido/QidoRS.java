@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -513,7 +514,8 @@ public class QidoRS {
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         if (expirationState != null)
             queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
-        QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
+        QueryContext ctx = service.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), method, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         ctx.setSOPClassUID(model.getSOPClassUID());
         Attributes keys = queryAttrs.getQueryKeys();

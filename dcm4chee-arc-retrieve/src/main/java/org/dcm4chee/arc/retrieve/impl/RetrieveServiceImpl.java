@@ -759,8 +759,14 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                ctx.getDestinationHostName(), ctx.getDestinationAETitle(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
-                inst.getSopClassUID());
+                Dimse.C_STORE_RQ,
+                TransferCapability.Role.SCP,
+                inst.getSopClassUID(),
+                ctx.getDestinationHostName(),
+                ctx.getLocalAETitle(),
+                ctx.getRequestorHostName(),
+                ctx.getDestinationAETitle(),
+                inst.getAttributes());
         if (rule == null)
             return new MergeAttributesCoercion(instAttributes, AttributesCoercion.NONE);
 

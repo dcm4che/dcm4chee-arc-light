@@ -51,6 +51,7 @@ import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -127,7 +128,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public QueryContext newQueryContextQIDO(
-            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
+            HttpServletRequestInfo httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
         return new QueryContextImpl(ae, queryParam, this).qido(httpRequest, searchMethod);
     }
 
@@ -437,8 +438,14 @@ class QueryServiceImpl implements QueryService {
     public AttributesCoercion getAttributesCoercion(QueryContext ctx) {
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                ctx.getRemoteHostName(), ctx.getCallingAET(), TransferCapability.Role.SCU, Dimse.C_FIND_RSP,
-                ctx.getSOPClassUID());
+                Dimse.C_FIND_RSP,
+                TransferCapability.Role.SCU,
+                ctx.getSOPClassUID(),
+                ctx.getRemoteHostName(),
+                ctx.getCallingAET(),
+                ctx.getLocalHostName(),
+                ctx.getCalledAET(),
+                ctx.getQueryKeys());
         if (rule == null)
             return null;
 

@@ -53,9 +53,9 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.time.LocalDate;
 
@@ -67,7 +67,7 @@ import java.time.LocalDate;
 public class StudyMgtContextImpl implements StudyMgtContext {
     private final AttributeFilter studyAttributeFilter;
     private final FuzzyStr fuzzyStr;
-    private HttpServletRequest httpRequest;
+    private HttpServletRequestInfo httpRequest;
     private ArchiveAEExtension arcAE;
     private Socket socket;
     private UnparsedHL7Message msg;
@@ -95,7 +95,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
         return this;
     }
 
-    StudyMgtContextImpl withHttpRequest(HttpServletRequest httpRequest) {
+    StudyMgtContextImpl withHttpRequest(HttpServletRequestInfo httpRequest) {
         this.httpRequest = httpRequest;
         return this;
     }
@@ -120,7 +120,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
+    public HttpServletRequestInfo getHttpRequest() {
         return httpRequest;
     }
 
@@ -132,9 +132,17 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public String getRemoteHostName() {
         return httpRequest != null
-                ? httpRequest.getRemoteHost()
+                ? httpRequest.requesterHost
                 : socket != null
                 ? ReverseDNS.hostNameOf(socket.getInetAddress()) : null;
+    }
+
+    @Override
+    public String getLocalHostName() {
+        return httpRequest != null
+                ? httpRequest.localHost
+                : socket != null
+                ? ReverseDNS.hostNameOf(socket.getLocalAddress()) : null;
     }
 
     @Override

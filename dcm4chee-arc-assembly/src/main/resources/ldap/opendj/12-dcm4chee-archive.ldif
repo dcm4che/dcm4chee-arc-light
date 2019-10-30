@@ -1937,6 +1937,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
+    dcmProperty $
     dcmRetrieveAsReceived $
     dcmDeIdentification $
     dcmURI $

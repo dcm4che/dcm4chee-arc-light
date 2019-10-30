@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -175,7 +176,8 @@ class UpdateStudyAccessMatching {
                     if (match == null)
                         continue;
 
-                    StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
+                    StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                            HttpServletRequestInfo.valueOf(request), ae);
                     ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
                     ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
                     ctx.setAttributes(match);
@@ -194,7 +196,7 @@ class UpdateStudyAccessMatching {
 
     private QueryContext queryContext(ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                request, "matchingStudyUpdateAccessControl", ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), "matchingStudyUpdateAccessControl", ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();

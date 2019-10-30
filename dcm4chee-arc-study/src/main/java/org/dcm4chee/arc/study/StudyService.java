@@ -42,8 +42,8 @@ package org.dcm4chee.arc.study;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -52,7 +52,7 @@ import java.net.Socket;
  * @since Jun 2016
  */
 public interface StudyService {
-    StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
+    StudyMgtContext createStudyMgtContextWEB(HttpServletRequestInfo httpRequest, ApplicationEntity ae);
 
     StudyMgtContext createStudyMgtContextHL7(Socket socket, UnparsedHL7Message msg);
 

@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -62,11 +63,13 @@ public interface StudyMgtContext {
 
     FuzzyStr getFuzzyStr();
 
-    HttpServletRequest getHttpRequest();
+    HttpServletRequestInfo getHttpRequest();
 
     UnparsedHL7Message getUnparsedHL7Message();
 
     String getRemoteHostName();
+
+    String getLocalHostName();
 
     ApplicationEntity getApplicationEntity();
 

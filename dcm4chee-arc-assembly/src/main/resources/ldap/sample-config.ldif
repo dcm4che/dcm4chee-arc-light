@@ -611,18 +611,18 @@ dicomPort: 2762
 
 dn: cn=Merge MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmAETitle: MERGE_MWL
 dicomTransferRole: SCU
 dcmMergeMWLMatchingKey: StudyInstanceUID
 dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
+dcmProperty: SendingApplicationEntityTitle=MERGE_MWL
 objectClass: dcmArchiveAttributeCoercion
 dcmNoKeywords: TRUE
 cn: Merge MWL
 
 dn: cn=Correct VR,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmAETitle: CORRECT_VR
 dicomTransferRole: SCP
+dcmProperty: ReceivingApplicationEntityTitle=CORRECT_VR
 objectClass: dcmArchiveAttributeCoercion
 dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl
@@ -630,8 +630,8 @@ cn: Correct VR
 
 dn: cn=Ensure PID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmAETitle: ENSURE_PID
 dicomTransferRole: SCU
+dcmProperty: SendingApplicationEntityTitle=ENSURE_PID
 objectClass: dcmArchiveAttributeCoercion
 dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl
@@ -639,8 +639,8 @@ cn: Ensure PID
 
 dn: cn=Nullify PN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmAETitle: NULLIFY_PN
 dicomTransferRole: SCP
+dcmProperty: ReceivingApplicationEntityTitle=NULLIFY_PN
 objectClass: dcmArchiveAttributeCoercion
 dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
@@ -1021,8 +1021,8 @@ cn: Forward to WADO
 dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ
-dcmAETitle: MPPSSCU
 dicomTransferRole: SCU
+dcmProperty: SendingApplicationEntityTitle=MPPSSCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement MPPS
@@ -1586,8 +1586,8 @@ cn: Image Writer Factory
 
 dn: cn=Supplement Composite,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmAETitle: STORESCU
 dicomTransferRole: SCU
+dcmProperty: SendingApplicationEntityTitle=STORESCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
@@ -1639,8 +1639,8 @@ dcmJndiName: jms/queue/Retrieve13
 dn: cn=Leading DCMQRSCP FIND,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_FIND_RSP
 dcmLeadingCFindSCP: DCMQRSCP
-dcmAETitle: LEADING_DCMQRSCP
 dicomTransferRole: SCU
+dcmProperty: SendingApplicationEntityTitle=LEADING_DCMQRSCP
 objectClass: dcmArchiveAttributeCoercion
 cn: Leading DCMQRSCP FIND
 
@@ -1671,8 +1671,8 @@ dicomAssociationAcceptor: TRUE
 dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dcmLeadingCFindSCP: DCMQRSCP
-dcmAETitle: LEADING_DCMQRSCP
 dicomTransferRole: SCP
+dcmProperty: ReceivingApplicationEntityTitle=LEADING_DCMQRSCP
 objectClass: dcmArchiveAttributeCoercion
 cn: Leading DCMQRSCP STORE
 

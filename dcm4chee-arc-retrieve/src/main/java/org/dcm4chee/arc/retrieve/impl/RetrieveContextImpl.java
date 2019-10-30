@@ -299,6 +299,15 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public String getLocalHostName() {
+        return httpServletRequestInfo != null
+                    ? httpServletRequestInfo.localHost
+                    : storeAssociation != null
+                        ? ReverseDNS.hostNameOf(storeAssociation.getSocket().getLocalAddress())
+                        : null;
+    }
+
+    @Override
     public IDWithIssuer[] getPatientIDs() {
         return patientIDs;
     }

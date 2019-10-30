@@ -258,8 +258,6 @@ class Assert {
             assertEquals(expectedAAC.getDIMSE(), actualAAC.getDIMSE());
             assertEquals(expectedAAC.getXSLTStylesheetURI(), actualAAC.getXSLTStylesheetURI());
             assertEquals(expectedAAC.getPriority(), actualAAC.getPriority());
-            assertArrayEquals(expectedAAC.getAETitles(), actualAAC.getAETitles());
-            assertArrayEquals(expectedAAC.getHostNames(), actualAAC.getHostNames());
             assertArrayEquals(expectedAAC.getSOPClasses(), actualAAC.getSOPClasses());
             assertEquals(expectedAAC.isNoKeywords(), actualAAC.isNoKeywords());
         }

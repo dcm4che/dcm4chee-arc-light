@@ -56,17 +56,23 @@ public class HttpServletRequestInfo {
     public final String requesterUserID;
     public final String requesterHost;
     public final String requestURI;
+    public final String queryString;
+    public final String localHost;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
         requesterUserID = KeycloakContext.valueOf(request).getUserName();
         requesterHost = request.getRemoteHost();
         requestURI = request.getRequestURI();
+        queryString = request.getQueryString();
+        localHost = hostOfURI(requestURI);
     }
 
     private HttpServletRequestInfo(String requesterUserID, String requesterHost, String requestURI) {
         this.requesterUserID = requesterUserID;
         this.requesterHost = requesterHost;
         this.requestURI = requestURI;
+        this.queryString = null;
+        this.localHost = hostOfURI(requestURI);
     }
 
     public static HttpServletRequestInfo valueOf(HttpServletRequest request) {
@@ -99,5 +105,18 @@ public class HttpServletRequestInfo {
     public static void copyTo(HttpServletRequestInfo requestInfo, Message msg) {
         if (requestInfo != null)
             requestInfo.copyTo(msg);
+    }
+
+    private static String hostOfURI(String requestURI) {
+        try {
+            int beginIndex = requestURI.indexOf(':') + 1;
+            while (requestURI.charAt(++beginIndex) == '/');
+            int endIndex = beginIndex;
+            char ch;
+            while ((ch = requestURI.charAt(endIndex)) != '/' && ch != ':') endIndex++;
+            return requestURI.substring(beginIndex, endIndex);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 }

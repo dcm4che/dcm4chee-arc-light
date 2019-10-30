@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
@@ -235,7 +236,8 @@ public class DiffPatientDemographicsRS {
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
-        QueryContext ctx = queryService.newQueryContextQIDO(request, "GET", ae, queryParam);
+        QueryContext ctx = queryService.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), "GET", ae, queryParam);
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
         ctx.setSOPClassUID(UID.PatientRootQueryRetrieveInformationModelFIND);
         Attributes keys = queryAttrs.getQueryKeys();

@@ -98,6 +98,11 @@ public class MPPSContextImpl implements MPPSContext {
     }
 
     @Override
+    public String getLocalHostName() {
+        return ReverseDNS.hostNameOf(as.getSocket().getLocalAddress());
+    }
+
+    @Override
     public String getSopInstanceUID() {
         return sopInstanceUID;
     }

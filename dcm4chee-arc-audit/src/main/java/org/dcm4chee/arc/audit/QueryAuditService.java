@@ -45,10 +45,9 @@ import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.ParticipantObjectIdentificationBuilder;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -78,13 +77,13 @@ class QueryAuditService {
     }
 
     private static AuditInfoBuilder createAuditInfoForQIDO(QueryContext ctx) {
-        HttpServletRequest httpRequest = ctx.getHttpRequest();
+        HttpServletRequestInfo httpRequest = ctx.getHttpRequest();
         return new AuditInfoBuilder.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingUserID(KeycloakContext.valueOf(ctx.getHttpRequest()).getUserName())
-                        .calledUserID(httpRequest.getRequestURI())
+                        .callingUserID(httpRequest.requesterUserID)
+                        .calledUserID(httpRequest.requestURI)
                         .queryPOID(ctx.getSearchMethod())
-                        .queryString(httpRequest.getQueryString())
+                        .queryString(httpRequest.queryString)
                         .build();
     }
 

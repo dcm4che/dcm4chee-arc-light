@@ -84,6 +84,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Inet4Address;
 import java.net.Socket;
 import java.util.*;
 import java.util.function.Function;
@@ -501,11 +502,14 @@ class StoreServiceImpl implements StoreService {
     private void coerceAttributes(StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAttributeCoercion rule = session.getArchiveAEExtension().findAttributeCoercion(
+                Dimse.C_STORE_RQ,
+                TransferCapability.Role.SCU,
+                ctx.getSopClassUID(),
                 session.getRemoteHostName(),
                 session.getCallingAET(),
-                TransferCapability.Role.SCU,
-                Dimse.C_STORE_RQ,
-                ctx.getSopClassUID());
+                session.getLocalHostName(),
+                session.getCalledAET(),
+                ctx.getAttributes());
         if (rule == null)
             return;
 
@@ -724,11 +728,12 @@ class StoreServiceImpl implements StoreService {
             return null;
 
         StoreSession session = storeContext.getStoreSession();
-        String hostname = session.getRemoteHostName();
-        String callingAET = session.getCallingAET();
-        String calledAET = session.getCalledAET();
-        ArchiveCompressionRule rule = session.getArchiveAEExtension()
-                .findCompressionRule(hostname, callingAET, calledAET, storeContext.getAttributes());
+        ArchiveCompressionRule rule = session.getArchiveAEExtension().findCompressionRule(
+                session.getRemoteHostName(),
+                session.getCallingAET(),
+                session.getLocalHostName(),
+                session.getCalledAET(),
+                storeContext.getAttributes());
         if (rule != null && imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
             LOG.info("Compression of multi-frame image with embedded overlays not supported");
             return null;

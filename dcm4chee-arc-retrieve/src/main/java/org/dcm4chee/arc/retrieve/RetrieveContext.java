@@ -133,6 +133,8 @@ public interface RetrieveContext extends Closeable {
 
     String getDestinationHostName();
 
+    String getLocalHostName();
+
     IDWithIssuer[] getPatientIDs();
 
     void setPatientIDs(IDWithIssuer... patientIDs);

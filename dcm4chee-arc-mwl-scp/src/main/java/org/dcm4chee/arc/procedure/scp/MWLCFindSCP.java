@@ -115,11 +115,14 @@ public class MWLCFindSCP extends BasicCFindSCP {
 
     private void coerceAttributes(QueryContext ctx) {
         ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
+                Dimse.C_FIND_RQ,
+                TransferCapability.Role.SCU,
+                ctx.getSOPClassUID(),
                 ctx.getRemoteHostName(),
                 ctx.getCallingAET(),
-                TransferCapability.Role.SCU,
-                Dimse.C_FIND_RQ,
-                ctx.getSOPClassUID());
+                ctx.getLocalHostName(),
+                ctx.getCalledAET(),
+                ctx.getQueryKeys());
         if (rule == null)
             return;
 

@@ -1914,7 +1914,7 @@ class ArchiveDeviceFactory {
                     .setCommonName("Ensure PID")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
-                    .setAETitles("ENSURE_PID")
+                    .setSendingAETitle("ENSURE_PID")
                     .setXSLTStylesheetURI(ENSURE_PID)
                     .setNoKeywords(true));
 
@@ -1922,7 +1922,7 @@ class ArchiveDeviceFactory {
                     .setCommonName("Merge MWL")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
-                    .setAETitles("MERGE_MWL")
+                    .setSendingAETitle("MERGE_MWL")
                     .setMergeMWLMatchingKey(MergeMWLMatchingKey.StudyInstanceUID)
                     .setMergeMWLTemplateURI(MERGE_MWL)
                     .setNoKeywords(true));
@@ -1931,7 +1931,7 @@ class ArchiveDeviceFactory {
                     .setCommonName("Nullify PN")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
-                    .setAETitles("NULLIFY_PN")
+                    .setReceivingAETitle("NULLIFY_PN")
                     .setXSLTStylesheetURI(NULLIFY_PN)
                     .setNoKeywords(true));
 
@@ -1939,7 +1939,7 @@ class ArchiveDeviceFactory {
                     .setCommonName("Correct VR")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
-                    .setAETitles("CORRECT_VR")
+                    .setReceivingAETitle("CORRECT_VR")
                     .setXSLTStylesheetURI(CORRECT_VR)
                     .setNoKeywords(true));
 
@@ -1947,28 +1947,28 @@ class ArchiveDeviceFactory {
                     .setCommonName("Leading DCMQRSCP STORE")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
-                    .setAETitles("LEADING_DCMQRSCP")
+                    .setReceivingAETitle("LEADING_DCMQRSCP")
                     .setLeadingCFindSCP("DCMQRSCP"));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
                     .setCommonName("Leading DCMQRSCP FIND")
                     .setDIMSE(Dimse.C_FIND_RSP)
                     .setRole(SCU)
-                    .setAETitles("LEADING_DCMQRSCP")
+                    .setSendingAETitle("LEADING_DCMQRSCP")
                     .setLeadingCFindSCP("DCMQRSCP"));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
                     .setCommonName("Supplement Composite")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
-                    .setAETitles("STORESCU")
+                    .setSendingAETitle("STORESCU")
                     .setSupplementFromDevice(storescu));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
                     .setCommonName("Supplement MPPS")
                     .setDIMSE(Dimse.N_CREATE_RQ)
                     .setRole(SCU)
-                    .setAETitles("MPPSSCU")
+                    .setSendingAETitle("MPPSSCU")
                     .setSOPClasses(UID.ModalityPerformedProcedureStepSOPClass)
                     .setSupplementFromDevice(mppsscu));
 

@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 public class Conditions {
 
     public static final String RECEIVING_APPLICATION_ENTITY_TITLE = "ReceivingApplicationEntityTitle";
+    public static final String RECEIVING_HOSTNAME = "ReceivingHostname";
     public static final String SENDING_APPLICATION_ENTITY_TITLE = "SendingApplicationEntityTitle";
     public static final String SENDING_HOSTNAME = "SendingHostname";
 
@@ -35,6 +36,14 @@ public class Conditions {
 
     public void setNotReceivingAETitle(String value) {
         setCondition(RECEIVING_APPLICATION_ENTITY_TITLE + '!', value);
+    }
+
+    public void setReceivingHostname(String value) {
+        setCondition(RECEIVING_HOSTNAME, value);
+    }
+
+    public void setNotReceivingHostname(String value) {
+        setCondition(RECEIVING_HOSTNAME + '!', value);
     }
 
     public void setSendingAETitle(String value) {
@@ -62,7 +71,8 @@ public class Conditions {
         return map;
     }
 
-    public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+    public boolean match(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs) {
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
@@ -75,14 +85,19 @@ public class Conditions {
                            : (receivingAET == null || !pattern.matcher(receivingAET).matches()))
                         return false;
                     break;
+                case RECEIVING_HOSTNAME:
+                    if (ne ? (receivingHost != null && pattern.matcher(receivingHost).matches())
+                            : (receivingHost == null || !pattern.matcher(receivingHost).matches()))
+                        return false;
+                    break;
                 case SENDING_APPLICATION_ENTITY_TITLE:
                     if (ne ? (sendingAET != null && pattern.matcher(sendingAET).matches())
                            : (sendingAET == null || !pattern.matcher(sendingAET).matches()))
                         return false;
                     break;
                 case SENDING_HOSTNAME:
-                    if (ne ? (hostName != null && pattern.matcher(hostName).matches())
-                           : (hostName == null || !pattern.matcher(hostName).matches()))
+                    if (ne ? (sendingHost != null && pattern.matcher(sendingHost).matches())
+                           : (sendingHost == null || !pattern.matcher(sendingHost).matches()))
                         return false;
                     break;
                 default:

@@ -94,6 +94,8 @@ public interface StoreSession extends Closeable {
 
     String getRemoteHostName();
 
+    String getLocalHostName();
+
     Study getCachedStudy(String studyInstanceUID);
 
     Series getCachedSeries(String studyInstanceUID, String seriesIUID);

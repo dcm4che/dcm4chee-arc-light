@@ -106,6 +106,7 @@ public class ExportPriorsScheduler {
                         .and(rule -> rule.match(
                                 session.getRemoteHostName(),
                                 session.getCallingAET(),
+                                session.getLocalHostName(),
                                 session.getCalledAET(),
                                 ctx.getAttributes(), now)))
                 .forEach(rule -> {

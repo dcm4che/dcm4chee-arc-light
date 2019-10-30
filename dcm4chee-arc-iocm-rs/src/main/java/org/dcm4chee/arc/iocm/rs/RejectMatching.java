@@ -239,7 +239,8 @@ class RejectMatching {
     private QueryContext queryContext(
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID,
             ApplicationEntity ae) {
-        QueryContext ctx = queryService.newQueryContextQIDO(request, method, ae, queryParam(ae));
+        QueryContext ctx = queryService.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), method, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(qrlevel);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();

@@ -1146,7 +1146,11 @@ public class StoreServiceEJB {
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
         study.setAccessControlID(arcAE.storeAccessControlID(
-                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
+                session.getRemoteHostName(),
+                session.getCallingAET(),
+                session.getLocalHostName(),
+                session.getCalledAET(),
+                ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         setStudyAttributes(ctx, study);
@@ -1357,8 +1361,12 @@ public class StoreServiceEJB {
         LocalDate studyExpirationDate = study.getExpirationDate();
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
-                session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
+        StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(
+                session.getRemoteHostName(),
+                session.getCallingAET(),
+                session.getLocalHostName(),
+                session.getCalledAET(),
+                ctx.getAttributes());
 
         if (retentionPolicy != null && retentionPolicy.isFreezeExpirationDate() && retentionPolicy.isRevokeExpiration()) {
             LOG.info("Protect Study[UID={}] from being expired, triggered by {}. Set ExpirationDate[=null] and " +

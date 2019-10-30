@@ -100,11 +100,14 @@ public class MPPSServiceImpl implements MPPSService {
 
     private void coerceAttributes(MPPSContext ctx, Dimse dimse) {
         ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
+                dimse,
+                TransferCapability.Role.SCU,
+                UID.ModalityPerformedProcedureStepSOPClass,
                 ctx.getRemoteHostName(),
                 ctx.getCallingAET(),
-                TransferCapability.Role.SCU,
-                dimse,
-                UID.ModalityPerformedProcedureStepSOPClass);
+                ctx.getLocalHostName(),
+                ctx.getCalledAET(),
+                ctx.getAttributes());
         if (rule == null)
             return;
 

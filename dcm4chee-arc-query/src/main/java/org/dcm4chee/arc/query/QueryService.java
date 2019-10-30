@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
@@ -72,7 +73,7 @@ public interface QueryService {
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(
-            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
+            HttpServletRequestInfo httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
 
     QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
 

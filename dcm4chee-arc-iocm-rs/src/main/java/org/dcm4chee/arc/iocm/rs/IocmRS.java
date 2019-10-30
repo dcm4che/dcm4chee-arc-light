@@ -500,7 +500,8 @@ public class IocmRS {
             if (!studyIUIDPresent)
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
@@ -523,7 +524,8 @@ public class IocmRS {
             @PathParam("accessControlID") String accessControlID) {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -563,7 +565,8 @@ public class IocmRS {
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
             boolean revokeExpiration = expirationDate.equals("never");
             if (revokeExpiration && seriesUID != null)

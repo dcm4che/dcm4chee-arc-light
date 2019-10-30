@@ -46,10 +46,9 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 
 /**
@@ -84,10 +83,10 @@ class StudyRecordAuditService {
     }
 
     private AuditInfoBuilder studyExpiredByWeb() {
-        HttpServletRequest request = studyMgtCtx.getHttpRequest();
+        HttpServletRequestInfo request = studyMgtCtx.getHttpRequest();
         return infoBuilder
-                .callingUserID(KeycloakContext.valueOf(request).getUserName())
-                .calledUserID(request.getRequestURI())
+                .callingUserID(request.requesterUserID)
+                .calledUserID(request.requestURI)
                 .build();
     }
 

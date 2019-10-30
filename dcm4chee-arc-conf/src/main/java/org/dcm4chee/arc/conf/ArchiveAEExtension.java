@@ -1501,12 +1501,12 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Map<String, ExportRule> findExportRules(
-            String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
         HashMap<String, ExportRule> result = new HashMap<>();
         for (Collection<ExportRule> rules
                 : new Collection[]{exportRules, getArchiveDeviceExtension().getExportRules() })
             for (ExportRule rule : rules)
-                if (rule.match(hostName, sendingAET, receivingAET, attrs, cal))
+                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs, cal))
                     for (String exporterID : rule.getExporterIDs()) {
                         ExportRule rule1 = result.get(exporterID);
                         if (rule1 == null || rule1.getEntity().compareTo(rule.getEntity()) > 0)
@@ -1529,50 +1529,51 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public ArchiveCompressionRule findCompressionRule(
-            String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+    public ArchiveCompressionRule findCompressionRule(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs) {
         ArchiveCompressionRule rule1 = null;
         for (Collection<ArchiveCompressionRule> rules
                 : new Collection[]{ compressionRules, getArchiveDeviceExtension().getCompressionRules() })
             for (ArchiveCompressionRule rule : rules)
-                if (rule.match(hostName, sendingAET, receivingAET, attrs))
+                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                     if (rule1 == null || rule1.getPriority() < rule.getPriority())
                         rule1 = rule;
         return rule1;
     }
 
-    public ArchiveAttributeCoercion findAttributeCoercion(
-            String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
+    public ArchiveAttributeCoercion findAttributeCoercion(Dimse dimse, TransferCapability.Role role, String sopClass,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
         ArchiveAttributeCoercion coercion1 = null;
         for (Collection<ArchiveAttributeCoercion> coercions
                 : new Collection[]{ attributeCoercions, getArchiveDeviceExtension().getAttributeCoercions() })
             for (ArchiveAttributeCoercion coercion : coercions)
-                if (coercion.match(hostName, aet, role, dimse, sopClass))
+                if (coercion.match(dimse, role, sopClass, sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                     if (coercion1 == null || coercion1.getPriority() < coercion.getPriority())
                         coercion1 = coercion;
         return coercion1;
     }
 
-    public StudyRetentionPolicy findStudyRetentionPolicy(
-            String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+    public StudyRetentionPolicy findStudyRetentionPolicy(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs) {
         StudyRetentionPolicy policy1 = null;
         for (Collection<StudyRetentionPolicy> policies
                 : new Collection[]{ studyRetentionPolicies, getArchiveDeviceExtension().getStudyRetentionPolicies() })
             for (StudyRetentionPolicy policy : policies)
-                if (policy.match(hostName, sendingAET, receivingAET, attrs))
+                if (policy.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                     if (policy1 == null || policy1.getPriority() < policy.getPriority())
                         policy1 = policy;
         return policy1;
     }
 
-    public String storeAccessControlID(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+    public String storeAccessControlID(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs) {
         StoreAccessControlIDRule rule1 = null;
         for (Collection<StoreAccessControlIDRule> rules : new Collection[]{
                 storeAccessControlIDRules,
                     getArchiveDeviceExtension().getStoreAccessControlIDRules()
         }) {
             for (StoreAccessControlIDRule rule : rules)
-                if (rule.match(hostName, sendingAET, receivingAET, attrs))
+                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                     if (rule1 == null || rule.getPriority() < rule.getPriority())
                         rule1 = rule;
         }

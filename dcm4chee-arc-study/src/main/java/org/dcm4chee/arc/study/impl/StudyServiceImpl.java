@@ -43,13 +43,13 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -69,7 +69,7 @@ public class StudyServiceImpl implements StudyService {
     private Event<StudyMgtContext> updateStudyEvent;
 
     @Override
-    public StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
+    public StudyMgtContext createStudyMgtContextWEB(HttpServletRequestInfo httpRequest, ApplicationEntity ae) {
         return new StudyMgtContextImpl(device).withHttpRequest(httpRequest).withApplicationEntity(ae);
     }
 

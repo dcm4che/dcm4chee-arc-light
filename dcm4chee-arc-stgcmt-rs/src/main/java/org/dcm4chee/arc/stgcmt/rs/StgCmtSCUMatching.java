@@ -52,6 +52,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -213,7 +214,8 @@ class StgCmtSCUMatching {
 
     private QueryContext queryContext(String method, QueryRetrieveLevel2 qrlevel, String studyUID,
                                          String seriesUID, ApplicationEntity ae) {
-        QueryContext ctx = queryService.newQueryContextQIDO(request, method, ae, queryParam(ae));
+        QueryContext ctx = queryService.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), method, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(qrlevel);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();

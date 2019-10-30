@@ -18,6 +18,13 @@
       "description": "Arbitrary/Meaningful name of the Archive Attribute Coercion",
       "type": "string"
     },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
     "dcmDIMSE": {
       "title": "DIMSE",
       "description": "DICOM Message Element on which this Attribute Coercion shall be applied",
@@ -38,29 +45,6 @@
         "SCP"
       ]
     },
-    "dcmRulePriority": {
-      "title": "Rule Priority",
-      "description": "Rule Priority.",
-      "type": "integer",
-      "default" : 0,
-      "minimum": 0
-    },
-    "dcmAETitle": {
-      "title": "AE Title",
-      "description": "Application Entity (AE) title of peer DICOM AE for which this Attribute Coercion shall be applied. Apply on any if absent.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "dcmHostname": {
-      "title": "Hostname",
-      "description": "DNS hostname of peer DICOM AE for which this Attribute Coercion shall be applied. Apply on any if absent.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "dcmSOPClass": {
       "title": "SOP Class UID",
       "description": "UID of SOP Class for which this Attribute Coercion shall be applied. Apply on any if absent.",
@@ -69,6 +53,14 @@
         "type": "string"
       },
       "format": "dcmSOPClass"
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{attributeID})[!]={regEx}",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "dcmRetrieveAsReceived": {
       "title": "Retrieve as Received",
