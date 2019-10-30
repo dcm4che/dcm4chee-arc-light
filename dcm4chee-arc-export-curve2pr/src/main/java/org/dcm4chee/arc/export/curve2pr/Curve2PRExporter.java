@@ -263,13 +263,12 @@ public class Curve2PRExporter extends AbstractExporter {
     private static String seriesInstanceUID(RetrieveContext ctx, List<Attributes> results) {
         return !results.isEmpty() ? results.get(0).getString(Tag.SeriesInstanceUID)
                 : UIDUtils.createNameBasedUID(
-                (ctx.getStudyInstanceUID() + ctx.getSeriesInstanceUID() + ctx.getSopInstanceUID())
-                        .getBytes(StandardCharsets.UTF_8));
+                        ctx.getSeriesInstanceUID().getBytes());
     }
 
     private static String sopInstanceUID(String instanceNumber, String seriesInstanceUID) {
         return UIDUtils.createNameBasedUID(
-                (seriesInstanceUID + instanceNumber).getBytes(StandardCharsets.UTF_8));
+                (seriesInstanceUID + instanceNumber).getBytes());
     }
 
     private Attributes graphicLayerItem() {
