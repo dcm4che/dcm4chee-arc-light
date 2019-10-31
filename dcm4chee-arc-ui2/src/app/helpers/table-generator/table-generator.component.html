@@ -19,7 +19,7 @@
                 </span>
                 <ng-container *ngIf="table_element.type === 'model'">
                     <ng-container *ngIf="table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.key)">{{table_element.modifyData(_.get(model,table_element.key))}}</span>
+                        <span *ngIf="_.hasIn(model,table_element.key)">{{table_element.modifyData(_.get(model,table_element.key),model)}}</span>
                     </ng-container>
                     <ng-container *ngIf="!table_element.modifyData">
                         <span *ngIf="_.hasIn(model,table_element.key)" class="text_content" tooltip="{{_.get(model,table_element.key)}}">

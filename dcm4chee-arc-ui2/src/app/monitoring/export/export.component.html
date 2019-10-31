@@ -66,13 +66,13 @@
                     <div class="arrow_block">
                         <button class="btn btn-link btn-xs"
                                 [disabled]="!hasNewer(externalRetrieveEntries)"
-                                (click)="getTasks(newerOffset(externalRetrieveEntries))"
+                                (click)="getCounts(newerOffset(externalRetrieveEntries))"
                                 title="Newer">
                             <span class="glyphicon glyphicon-menu-left"></span>
                         </button>
                         <button class="btn btn-link btn-xs"
                                 [disabled]="!hasOlder(externalRetrieveEntries)"
-                                (click)="getTasks(olderOffset(externalRetrieveEntries))"
+                                (click)="getCounts(olderOffset(externalRetrieveEntries))"
                                 title="Older">
                             <span class="glyphicon glyphicon-menu-right"></span>
                         </button>
@@ -182,9 +182,9 @@
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">
                         <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of match.propertiesAttr | getKey">
-                                <th [innerHtml]="key._KEY"></th>
-                                <td [innerHtml]="key._VALUE"></td>
+                            <tr *ngFor="let key of Object.keys(match.propertiesAttr)">
+                                <th [innerHtml]="key"></th>
+                                <td [innerHtml]="match.propertiesAttr[key]"></td>
                             </tr>
                         </table>
                     </td>

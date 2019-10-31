@@ -1,5 +1,4 @@
 import {Component, ViewContainerRef, HostListener, OnInit} from '@angular/core';
-import {Http, Headers} from '@angular/http';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -25,6 +24,7 @@ export class AeListComponent implements OnInit{
     advancedConfig;
     aets;
     aesfilter = '';
+    filterHeight = 2;
     filter = {
         dicomDeviceName: undefined,
         dicomAETitle: undefined,
@@ -120,7 +120,7 @@ export class AeListComponent implements OnInit{
         // }
         this.moreAes.loaderActive = false;
     }
-    searchAes(){
+    searchAes(e?){
         this.cfpLoadingBar.start();
         let $this = this;
         this.$http.get(`../aes${j4care.param(this.filter)}`)

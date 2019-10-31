@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
 import {
@@ -16,7 +15,6 @@ import {
     MatSelectModule,
     MatRadioModule, MatMenuModule,
 } from '@angular/material';
-import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './configuration/control/control.component';
 import { QueuesComponent } from './monitoring/queues/queues.component';
@@ -33,7 +31,6 @@ import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
 import {AttributeListComponent} from "./helpers/attribute-list/attribute-list.component";
-import {DropdownModule} from 'primeng/components/dropdown/dropdown';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { KeysPipe } from './pipes/keys.pipe';
@@ -92,7 +89,6 @@ import { StorageVerificationComponent } from './monitoring/storage-verification/
 import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
 import { ConfigTabComponent } from './configuration/config-tab.component';
 import {DevicesService} from './configuration/devices/devices.service';
-import {MultiSelectModule} from "primeng/primeng";
 import {StudyTabComponent} from "./study/study-tab.component";
 import { StudyComponent } from './study/study/study.component';
 import {StudyService} from "./study/study/study.service";
@@ -116,7 +112,6 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
 @NgModule({
     declarations: [
         AppComponent,
-        StudiesComponent,
         PageNotFoundComponent,
         ControlComponent,
         QueuesComponent,
@@ -177,7 +172,6 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
     imports: [
         BrowserModule,
         FormsModule,
-        HttpModule,
         HttpClientModule,
         MatDialogModule,
         MatIconModule,
@@ -192,15 +186,13 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
         WidgetsModule,
         CommonModule,
         CalendarModule,
-        DropdownModule,
-        MultiSelectModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
-        LoadingBarModule.forRoot(),
+        LoadingBarModule,
         RouterModule.forRoot([
             {
               path: '',
-              redirectTo: '/studies',
+              redirectTo: '/study/study',
               pathMatch: 'full'
             },
             {
@@ -209,7 +201,6 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
                 pathMatch: 'full',
                 canActivate: [AuthGuard]
             },
-            { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
             { path: 'study/:tab', component: StudyComponent , canActivate: [AuthGuard]},
             { path: 'permission-denied', component: PermissionDeniedComponent},
             { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
@@ -246,7 +237,6 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
         J4careHttpService,
         DatePipe,
         CalendarModule,
-        DropdownModule,
         StorageCommitmentService,
         StorageSystemsService,
         CreateExporterService,

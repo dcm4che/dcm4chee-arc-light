@@ -3,7 +3,6 @@ import {OptionComponent} from "../dropdown/option.component";
 import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 
-
 @Component({
     selector: 'dcm-drop-down',
     templateUrl: './dcm-drop-down.component.html',
@@ -35,6 +34,7 @@ export class DcmDropDownComponent implements OnInit {
     selectedDropdown:SelectDropdown<any>;
     isAllCheck:boolean = false;
     multiSelectValue = [];
+    search = "";
     @Input() placeholder:string;
     @Input() multiSelectMode:boolean = false;
     @Input() showSearchField:boolean = false;

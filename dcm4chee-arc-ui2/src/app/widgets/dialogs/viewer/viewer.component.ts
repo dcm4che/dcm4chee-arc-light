@@ -45,7 +45,7 @@ export class ViewerComponent implements OnInit {
             }
             this.showLoader = true;
             let url = this._url;
-            if(this._contentType != 'video/mpeg'){
+            if(this._contentType != 'video/mpeg' && this._view){
                 url = this._url + `&frameNumber=${this._view}`;
             }
             if(!this._contentType){

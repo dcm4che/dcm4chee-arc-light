@@ -25,7 +25,8 @@ module.exports = function (config) {
             'text/x-typescript': ['ts','tsx']
         },
         coverageIstanbulReporter: {
-            reports: [ 'html', 'lcovonly' ],
+            dir: require('path').join(__dirname, './coverage/dcm4chee-arc-ui2'),
+            reports: [ 'html', 'lcovonly', 'text-summary' ],
             fixWebpackSourcePaths: true
         },
         angularCli: {

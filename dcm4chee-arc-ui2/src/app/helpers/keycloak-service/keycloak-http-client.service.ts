@@ -16,18 +16,6 @@
  */
 
 import {Injectable, InjectionToken, Injector} from '@angular/core';
-import {
-    Http,
-    Request,
-    XHRBackend,
-    ConnectionBackend,
-    RequestOptions,
-    RequestOptionsArgs,
-    Headers,
-    Response
-} from '@angular/http';
-
-import {KeycloakService} from './keycloak.service';
 import {Observable} from 'rxjs/Rx';
 import {
     HTTP_INTERCEPTORS,

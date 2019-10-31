@@ -1,5 +1,4 @@
 import {Injectable, OnInit, OnDestroy} from '@angular/core';
-import {Http} from '@angular/http';
 import {Observable, Subject, Subscription} from 'rxjs';
 import {User} from './models/user';
 import * as _ from 'lodash';
@@ -293,4 +292,5 @@ export class AppService implements OnInit, OnDestroy{
             return Observable.of({})
         }
     }
+
 }

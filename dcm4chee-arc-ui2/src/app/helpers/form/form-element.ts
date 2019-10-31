@@ -10,8 +10,23 @@ export class FormElement<T>{
     order: number;
     description: string;
     controlType: string;
+    url: string;
+    msg: string;
+    addUrl: string;
+    materialIconName: string;
+    title: string;
     show: boolean;
     format: string;
+    downloadUrl:string;
+    deviceName:string;
+    type:string;
+    showPicker:boolean;
+    showPickerTooltipp:boolean;
+    showTimePicker:boolean;
+    showDurationPicker:boolean;
+    showSchedulePicker:boolean;
+    showCharSetPicker:boolean;
+    options:any;
     constructor(options: {
         value?: T,
         key?: string,

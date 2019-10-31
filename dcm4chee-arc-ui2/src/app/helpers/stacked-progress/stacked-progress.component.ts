@@ -16,15 +16,19 @@ export class StackedProgressComponent implements OnInit {
 
     ngOnInit() {
         this.getTotalCount();
-        this.progress = this.model.map(part=>{
-            let key = Object.keys(part)[0];
-            console.log("diffModel",this.diffModel);
-            return {
-               cssClass:key,
-               width:(parseInt(part[key].toString())*100)/this.totalCount,
-               title:`${key}: ${part[key]}${this.setDiffTitle(key)}`
-            }
-        })
+        try{
+            this.progress = this.model.map(part=>{
+                let key = Object.keys(part)[0];
+                console.log("diffModel",this.diffModel);
+                return {
+                   cssClass:key,
+                   width:(parseInt(part[key].toString())*100)/this.totalCount,
+                   title:`${key}: ${part[key]}${this.setDiffTitle(key)}`
+                }
+            })
+        }catch (e) {
+            console.warn(e);
+        }
     }
     setDiffTitle(key){
         if(this.diffModel){

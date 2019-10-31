@@ -2,8 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../../app.service';
-import {Http} from '@angular/http';
-import {WindowRefService} from "../../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {LoadingBarService} from '@ngx-loading-bar/core';

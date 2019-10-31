@@ -1,5 +1,4 @@
 import {Injectable, OnInit} from '@angular/core';
-import {Http} from '@angular/http';
 import * as _ from 'lodash';
 import {InputText} from '../../helpers/form/input-text';
 import {RadioButtons} from '../../helpers/form/radio-buttons';
@@ -215,9 +214,7 @@ export class DeviceConfiguratorService{
         console.log('this.device', this.device);
     }
     getDevice(devicename:string){
-        // return this.$http.get('./assets/dummydata/dcm4chee-arc.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         return this.$http.get('../devices/' + devicename)
-            //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
     }
     getSchema(schema){
         return this.$http.get('./assets/schema/' + schema)
@@ -844,7 +841,7 @@ export class DeviceConfiguratorService{
                         let url = '';
                         if (_.hasIn(m, 'items.$ref')) {
                             if (value && _.isObject(value)){
-                                if (value.length === 0){
+                                if (Object.keys(value).length === 0){
                                     url = '/device/edit/' + params.device;
                                     url = url +  ((params.devicereff) ? '/' + params.devicereff + '.' + i + '[0]' : '/' + i + '[0]');
                                     url = url +  ((params.schema) ? '/' + params.schema + '.' + propertiesPath + '.' + i : '/properties.' + i);
@@ -912,7 +909,7 @@ export class DeviceConfiguratorService{
                                 });
                             }
                         }else{
-                            if (value && _.isObject(value) && (value.length > 0 && _.isObject(value[0]))){
+                            if (value && _.isObject(value) && (Object.keys(value).length > 0 && _.isObject(value[0]))){
                                 options = [];
                                 let maxVali = 0;
                                 _.forEach(value, (valm, vali) => {

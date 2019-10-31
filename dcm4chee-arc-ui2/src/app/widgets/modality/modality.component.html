@@ -2,7 +2,7 @@
 <div class="modality_selector [hidden]" *ngIf="showModalitySelector"  (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['form-group','more_block','more','input_field', 'no-closing-on-click']">
   <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
   <div class="common">
-    <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+    <a href="" *ngFor="let key of Object.keys(modalities.common)" (click)="$event.preventDefault();selectModality(key)" title="{{modalities.common[key]}}">{{key}}</a>
   </div>
   <button (click)="clear()" class="clear custom_button">Clear</button>
   <!-- <div class="col-md-12"></div> -->
@@ -16,7 +16,7 @@
   </a>
   <div class="more_block" *ngIf="showMore">
     <div class="more_buttons_block">
-      <a href="" *ngFor="let value of modalities.more | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+      <a href="" *ngFor="let key of Object.keys(modalities.more)" (click)="$event.preventDefault();selectModality(key)" title="{{modalities.more[key]}}">{{key}}</a>
     </div>
     <div class="form-group">
       <label>Custom modality code:</label>

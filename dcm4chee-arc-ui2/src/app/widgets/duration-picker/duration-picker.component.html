@@ -1,9 +1,9 @@
 <div class="durationpicker" (keyup)="onModelChange($event)">
     <div class="close duration-picker-element" (click)="close()"><span class="glyphicon glyphicon-remove duration-picker-element"></span></div>
     <!--<ng-container class="form-horizontal" *ngIf="mode === 'dcmDuration'">-->
-        <h5 *ngIf="mode === 'dcmPeriod'">Add period</h5>
-        <h5 *ngIf="mode === 'dcmDuration'">Add duration</h5>
-        <h5 *ngIf="mode === 'datePicker'">Add Max. Range</h5>
+        <h6 *ngIf="mode === 'dcmPeriod'">Add period</h6>
+        <h6 *ngIf="mode === 'dcmDuration'">Add duration</h6>
+        <h6 *ngIf="mode === 'datePicker'">Add Max. Range</h6>
         <div class="form-group" *ngIf="mode === 'dcmPeriod'" (keydown)="noWeekChange()">
             <label class="control-label text-right col-md-5" for="year">year:</label>
             <div class="col-md-7">

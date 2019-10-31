@@ -1,5 +1,5 @@
 <div (keydown)="keyDown($event)" (keyup)="keyUp($event)">
-    <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
+    <input class="search_form" placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
     <!--<div (click)="form.disable()">disable</div>-->
     <form  [formGroup]="form">
         <div *ngFor="let formelement of formelements" class="form-row">

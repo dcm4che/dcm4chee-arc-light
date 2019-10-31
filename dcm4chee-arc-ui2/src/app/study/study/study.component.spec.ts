@@ -8,7 +8,6 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {StudyService} from "./study.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {AppService} from "../../app.service";
-import {HttpModule} from "@angular/http";
 import {RouterTestingModule} from "@angular/router/testing";*/
 
 // describe('StudyComponent', () => {

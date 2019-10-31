@@ -562,7 +562,7 @@ export class Globalvar {
             "in-process",
             "scheduled",
             "canceled"
-        ];;
+        ];
     }
     public static get DYNAMIC_FORMATER(): any{
         return {
@@ -740,12 +740,11 @@ export class Globalvar {
             "/monitoring/metrics":{
                 permissionsAction:"tab-monitoring->metrics"
             },
-            "/statistics/all":{
-                permissionsAction:"tab-statistics->statistics",
-                nextCheck:"/statistics/studies-stored"
+            "/statistics/studies-stored/simple":{
+                permissionsAction:"tab-statistics->studies-stored-simple"
             },
-            "/statistics/studies-stored":{
-                permissionsAction:"tab-statistics->studies-stored"
+            "/statistics/studies-stored/detailed":{
+                permissionsAction:"tab-statistics->studies-stored-detailed"
             },
             "/correct-data/diff":{
                 permissionsAction:"tab-correct_data->diff"
@@ -1463,5 +1462,4 @@ export class Globalvar {
             onLoad: 'login-required'
         };
     }
-
 }

@@ -78,7 +78,7 @@
                     </th>
                 </tr>
 
-                <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse">
+                <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse" [ngClass]="{'danger':value.tooLong === true}">
                     <ng-container *ngIf="value.initiated">
                          <td>{{value.localAETitle}}</td>
                          <td><span class="glyphicon glyphicon-arrow-right"></span></td>
@@ -90,13 +90,13 @@
                         <td>{{value.remoteAETitle}}</td>
                     </ng-container>
                     <td>
-                        <div *ngFor="let m of value?.invokedOps | getKey">
-                            {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                        <div *ngFor="let key of Object.keys(value?.invokedOps)">
+                            {{key}}-RQ/RSP : {{value.invokedOps[key].RQ}}/{{value.invokedOps[key].RSP}}
                         </div>
                     </td>
                     <td>
-                        <div *ngFor="let m of value?.performedOps | getKey">
-                            {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                        <div *ngFor="let key of Object.keys(value.performedOps)">
+                            {{key}}-RQ/RSP : {{value.performedOps[key].RQ}}/{{value.performedOps[key].RSP}}
                         </div>
                     </td>
                     <td class="text-right" [innerHtml]="value.connectTime"></td>

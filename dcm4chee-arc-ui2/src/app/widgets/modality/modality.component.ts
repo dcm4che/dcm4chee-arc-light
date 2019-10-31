@@ -14,7 +14,7 @@ export class ModalityComponent implements OnInit {
 
     @Input() model;
     @Output() modelChange = new EventEmitter();
-
+    Object = Object;
     showModalitySelector = false;
     showMore = false;
     modalities = Globalvar.MODALITIES;
@@ -29,7 +29,7 @@ export class ModalityComponent implements OnInit {
         this.modelChange.emit(this.model);
         this.showModalitySelector = false;
     }
-    closeFromOutside(e){
+    closeFromOutside(){
         this.showModalitySelector = false;
     }
     add(){

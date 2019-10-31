@@ -2,18 +2,16 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormElement} from '../../helpers/form/form-element';
 import {DeviceConfiguratorService} from './device-configurator.service';
-import {Http} from '@angular/http';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs';
+import { combineLatest} from 'rxjs';
 import {AppService} from '../../app.service';
 import {ControlService} from '../control/control.service';
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
+import {DevicesService} from "../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {DevicesService} from "../devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 
@@ -402,7 +400,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                             });
                         } else {
 
-                            Observable.combineLatest(
+                            combineLatest(
                                 $this.service.getDevice(params['device']),
                                 $this.$http.get('./assets/schema/device.schema.json')
                                     // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})

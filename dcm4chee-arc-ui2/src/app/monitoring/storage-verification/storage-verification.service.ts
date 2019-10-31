@@ -5,7 +5,6 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
-import {Headers} from "@angular/http";
 import {HttpHeaders} from "@angular/common/http";
 
 @Injectable()

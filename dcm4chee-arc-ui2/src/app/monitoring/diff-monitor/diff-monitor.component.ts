@@ -24,8 +24,8 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 })
 export class DiffMonitorComponent implements OnInit {
 
-    filterObject = {};
-    filterSchema;
+    filterObject:any = {};
+    filterSchema = [];
     urlParam;
     aes;
     aets;

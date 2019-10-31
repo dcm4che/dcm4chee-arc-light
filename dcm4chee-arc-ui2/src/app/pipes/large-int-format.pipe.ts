@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import * as _ from "lodash";
 
 @Pipe({
   name: 'largeIntFormat'
@@ -7,7 +8,11 @@ export class LargeIntFormatPipe implements PipeTransform {
 
   transform(value: any, args?: any): any {
     try {
-      value = value.toString() || value;
+      if(_.hasIn(value,"value")){
+        value = value.value.toString() || value;
+      }else{
+        value = value.toString() || value;
+      }
       if(value && value.length > 3 && value.indexOf('.') === -1){
         let result = '';
         while(value.length > 3){

@@ -3,10 +3,10 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {TestBed} from "@angular/core/testing";
 import {AppService} from "../../app.service";
 import {DeviceConfiguratorService} from "./device-configurator.service";
+import {DevicesService} from "../devices/devices.service";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../../constants/globalvar";
-import {DevicesService} from "../devices/devices.service";
 
 class MyServiceDependencyStub {
 }

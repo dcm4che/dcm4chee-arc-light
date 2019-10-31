@@ -1,6 +1,5 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
@@ -23,6 +22,7 @@ export class StorageCommitmentComponent implements OnInit {
     exporters;
     exporterID;
     exportTasks = [];
+    Object = Object;
     filters = {
         ExporterID: undefined,
         offset: undefined,

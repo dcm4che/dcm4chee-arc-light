@@ -120,11 +120,11 @@
                 <tr *ngIf="match.showProperties">
                     <td colspan="10">
                         <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of match.properties | getKey">
-                                <th [innerHtml]="key._KEY"></th>
-                                <td *ngIf="key._KEY === 'createdTime' || key._KEY === 'updatedTime' || key._KEY === 'scheduledTime' || key._KEY === 'processingStartTime' || key._KEY === 'processingEndTime';else nodate_content" [innerHtml]="key._VALUE | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                            <tr *ngFor="let key of Object.keys(match.properties)">
+                                <th [innerHtml]="key"></th>
+                                <td *ngIf="key === 'createdTime' || key === 'updatedTime' || key === 'scheduledTime' || key === 'processingStartTime' || key === 'processingEndTime';else nodate_content" [innerHtml]="match.properties[key]| date:'yyyy-MM-dd HH:mm:ss'"></td>
                                 <ng-template #nodate_content>
-                                    <td [innerHtml]="key._VALUE"></td>
+                                    <td [innerHtml]="match.properties[key]"></td>
                                 </ng-template>
                             </tr>
                         </table>

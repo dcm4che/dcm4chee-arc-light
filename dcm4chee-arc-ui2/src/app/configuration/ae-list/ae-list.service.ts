@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import {Http} from "@angular/http";
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {DevicesService} from "../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -13,7 +11,7 @@ export class AeListService {
       private devicesService:DevicesService
     ) { }
 
-    getAes(){
+    getAes(filters?){
       return this.$http.get(
           '../aes'
       ).map(res => j4care.redirectOnAuthResponse(res));
@@ -22,7 +20,6 @@ export class AeListService {
        return this.$http.get(
             '../aets'
         ).map(res => j4care.redirectOnAuthResponse(res));
-
     }
     getDevices(){
         return this.devicesService.getDevices();

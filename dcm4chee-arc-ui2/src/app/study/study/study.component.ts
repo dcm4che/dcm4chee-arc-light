@@ -166,7 +166,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
 /*    private _selectedWebAppService:DcmWebApp;
     webApps:DcmWebApp[];*/
 
-
+    showClipboardContent:boolean = false;
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
     moreFunctionConfig = {
@@ -208,7 +208,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
     queues;
 
     searchCurrentList = '';
-    @ViewChild('stickyHeader') stickyHeaderView: ElementRef;
+    @ViewChild('stickyHeader', {static: true}) stickyHeaderView: ElementRef;
     largeIntFormat;
     filterButtonPath = {
         count:[],
@@ -310,7 +310,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         }
     }
 
-    @HostListener("window:scroll", [])
+    @HostListener("window:scroll", ['$event'])
     onWindowScroll(e) {
         let html = document.documentElement;
         if(html.scrollTop > 63){

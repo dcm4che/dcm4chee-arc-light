@@ -1,0 +1,147 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "dcm4chee-arc-ui2": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "target/webapp",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.app.json",
+            "aot": false,
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/animate.css/animate.min.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeng/resources/themes/nova-light/theme.css",
+              "node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css",
+              "node_modules/jspdf/dist/jspdf.min.js",
+              "node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js",
+              "src/styles.scss",
+              "src/assets/scss/old_style.scss",
+              "src/assets/scss/old_mobile.scss"
+            ],
+            "scripts": [
+              "node_modules/keycloak-js/dist/keycloak.js",
+              "node_modules/big-integer/BigInteger.min.js",
+              "node_modules/file-saver/dist/FileSaver.min.js",
+              "src/app/constants/dcm4che-dict-names.js",
+              "src/app/constants/dcm4chee-arc-dict-names.js",
+              "src/app/constants/elscint-dict-names.js",
+              "src/app/constants/dcm4che-dict-cuids.js",
+              "src/app/constants/dcm4che-dict-tsuids.js",
+              "src/app/constants/elscint-dict-names.js"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "5mb",
+                  "maximumError": "8mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "dcm4chee-arc-ui2:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "dcm4chee-arc-ui2:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "dcm4chee-arc-ui2:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "tsconfig.app.json",
+              "tsconfig.spec.json",
+              "e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "e2e/protractor.conf.js",
+            "devServerTarget": "dcm4chee-arc-ui2:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "dcm4chee-arc-ui2:serve:production"
+            }
+          }
+        }
+      }
+    }},
+  "defaultProject": "dcm4chee-arc-ui2"
+}

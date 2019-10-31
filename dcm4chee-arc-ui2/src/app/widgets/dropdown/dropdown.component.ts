@@ -61,7 +61,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
             this.setSelectedElement();
         }
     }
-    @ContentChild(OptionComponent) template: OptionComponent;
+    @ContentChild(OptionComponent, {static: true}) template: OptionComponent;
     @ContentChildren(OptionComponent) children:QueryList<OptionComponent>;
 
     @Output() modelChange =  new EventEmitter();
@@ -89,9 +89,10 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
                        this.multiSelectValue = [];
                        this.isAllCheck = false;
                    }else{
-                       if(this.multiSelectValue.indexOf(e.value) > -1){
+                       if(this.multiSelectValue && this.multiSelectValue.indexOf(e.value) > -1){
                            this.multiSelectValue.splice(this.multiSelectValue.indexOf(e.value),1);
                        }else{
+                           this.multiSelectValue = this.multiSelectValue || [];
                            this.multiSelectValue.push(e.value);
                        }
                    }

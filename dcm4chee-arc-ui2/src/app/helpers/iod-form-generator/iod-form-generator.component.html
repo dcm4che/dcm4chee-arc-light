@@ -18,13 +18,13 @@
                     <option value="UNALTERED">Unaltered</option>
                 </select>
                 <specific-char-picker [(model)]="object[o].Value[i]" (modelChange)="charChange($event)" *ngIf="o === '00080005'"></specific-char-picker>
-                <div [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:true,iod:iod}" (click)="removeAttr(o, i)" *ngIf="o != '00104000' && !prefix" class="glyphicon glyphicon-remove {{o}}"></div>
+                <div [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:true,iod:iod}" (click)="removeAttr(o)" *ngIf="o != '00104000' && !prefix" class="glyphicon glyphicon-remove {{o}}"></div>
             </div>
             <div class="multi_input" *ngIf="object[o].vr === 'PN'">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Alphabetic" [(ngModel)]="object[o].Value[i]['Alphabetic']">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Ideographic" [(ngModel)]="object[o].Value[i]['Ideographic']">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Phonetic" [(ngModel)]="object[o].Value[i]['Phonetic']">
-                <div (click)="removeAttr(o, i)" *ngIf="o != '00104000' && o != '00080005' && !prefix" class="glyphicon glyphicon-remove"></div>
+                <div (click)="removeAttr(o)" *ngIf="o != '00104000' && o != '00080005' && !prefix" class="glyphicon glyphicon-remove"></div>
             </div>
         </div>
     </div>

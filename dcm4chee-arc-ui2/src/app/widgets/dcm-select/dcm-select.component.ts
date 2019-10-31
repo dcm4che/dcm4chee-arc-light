@@ -6,7 +6,7 @@ import {Component, Input, OnInit, TemplateRef, ContentChild} from '@angular/core
   styleUrls: ['./dcm-select.component.scss']
 })
 export class DcmSelectComponent implements OnInit {
-    @ContentChild(TemplateRef) templ;
+    @ContentChild(TemplateRef, {static: true}) templ;
   @Input() options;
   @Input() placeholder;
   selectOpen = false;

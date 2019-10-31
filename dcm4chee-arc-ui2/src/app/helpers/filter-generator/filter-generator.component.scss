@@ -46,12 +46,20 @@
     position: absolute;
     right: 66px;
     top: 6px;
+    max-width: 350px;
+    max-height: 215px;
+    overflow: auto;
     //display: none;
+    background:rgba(255, 255, 255, 0.85);
+    -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.28);
+    -moz-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.28);
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.28);
     ul.templates{
+      margin: 0;
       //background: white;
       background: rgba(255, 255, 255, 0.85);
       color: rgba(0, 0, 0, 0.61);
-      min-width: 150px;
+      min-width: 250px;
       padding: 0;
       list-style: none;
       position: relative;
@@ -75,11 +83,16 @@
         }
         .glyphicon-remove{
           float: right;
-          width: 15%;
+          line-height: 20px;
+          width: calc(15% - 17px);
           display: inline-block;
           text-align: center;
         }
+
       }
     }
+  }
+  mat-radio-group{
+    min-height: 60px;
   }
 }

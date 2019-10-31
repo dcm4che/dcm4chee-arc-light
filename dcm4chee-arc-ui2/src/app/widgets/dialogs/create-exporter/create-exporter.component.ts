@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {Http} from '@angular/http';
 import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash';
@@ -108,6 +107,7 @@ export class CreateExporterComponent implements OnInit{
         private service: CreateExporterService,
         private httpErrorHandler:HttpErrorHandler,
         public deviceConfigService:DeviceConfiguratorService,
+        // private deviceConfiguratiorComponent:DeviceConfiguratorComponent
     ) {
     }
     ngOnInit(){

@@ -5,8 +5,6 @@ import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/share';
-
-import {Http} from '@angular/http';
 import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
 import {HostListener} from '@angular/core';
 import {WindowRefService} from "./helpers/window-ref.service";
@@ -46,7 +44,7 @@ export class AppComponent implements OnInit {
     currentClockTime;
     clockInterval;
     j4care = j4care;
-    @ViewChild(MessagingComponent) msg;
+    @ViewChild(MessagingComponent, {static: true}) msg;
     clockUnExtended = true;
     myDeviceName = '';
     timeZone;
@@ -58,7 +56,6 @@ export class AppComponent implements OnInit {
         public config: MatDialogConfig,
         public mainservice: AppService,
         private $http:J4careHttpService,
-        private nativeHttp:Http,
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService

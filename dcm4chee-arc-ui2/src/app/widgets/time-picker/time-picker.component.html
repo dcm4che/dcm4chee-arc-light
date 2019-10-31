@@ -1,7 +1,7 @@
 <div class="input_block" *ngIf="cohereMode"><input type="text" [ngClass]="{'ng-invalid':(!validString)}"  [(ngModel)]="model" placeholder="{{placeholder}}" (ngModelChange)="change($event)"/><span (click)="toggle()" class="glyphicon glyphicon-time"></span></div>
 <div class="timepicker" [ngClass]="{'cohere':cohereMode}" *ngIf="timepickerOpen">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <h4>Select time (hh:mm:ss)</h4>
+    <h6>Select time (hh:mm:ss)</h6>
     <div class="timers_block">
         <select [(ngModel)]="hh">
             <option value="{{h}}" *ngFor="let h of hhArray">{{h}}</option>

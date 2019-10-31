@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Headers } from '@angular/http';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import * as _ from 'lodash';

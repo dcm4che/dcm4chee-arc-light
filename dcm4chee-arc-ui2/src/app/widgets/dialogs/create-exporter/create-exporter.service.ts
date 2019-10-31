@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import {Http} from '@angular/http';
-import {WindowRefService} from "../../../helpers/window-ref.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";

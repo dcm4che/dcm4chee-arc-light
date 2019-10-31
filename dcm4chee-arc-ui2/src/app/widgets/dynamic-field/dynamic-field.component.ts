@@ -21,7 +21,7 @@ export class DynamicFieldComponent implements OnInit {
     @Input() mode;
     @Output() onValueChange = new EventEmitter();
     @Input() type;
-    @ViewChild('checkboxes') elementView: ElementRef;
+    @ViewChild('checkboxes', {static: true}) elementView: ElementRef;
     constructor(
         private service:DynamicFieldService,
         private ref: ChangeDetectorRef
@@ -30,16 +30,16 @@ export class DynamicFieldComponent implements OnInit {
     ngOnInit() {
         switch (this.mode){
             case 'dcmAETitle':
-                this.getObject('getAets');
                 this.key = 'dicomAETitle';
+                this.getObject('getAets');
             break;
             case 'dicomDeviceName':
-                this.getObject('getDevice');
                 this.key = 'dicomDeviceName';
+                this.getObject('getDevice');
             break;
             case 'hl7ApplicationName':
-                this.getObject('getHl7');
                 this.key = 'hl7ApplicationName';
+                this.getObject('getHl7');
             break;
         }
         console.log("elements",this.elements)

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {Globalvar} from "../../constants/globalvar";
-import {Http} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";

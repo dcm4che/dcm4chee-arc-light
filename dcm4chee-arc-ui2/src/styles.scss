@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~material-design-icons/iconfont/material-icons.css";
-@import "~bootstrap/dist/css/bootstrap.min.css";
+//@import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 $green :#2FA6C1;
@@ -13,6 +13,9 @@ $hoverBlue:#5293C1;
   .filter{
     .filter_block{
       width:415px;
+      &.count_blocks .block{
+        width:207px;
+      }
     }
   }
 }
@@ -67,6 +70,9 @@ $hoverBlue:#5293C1;
   .filter{
     .filter_block{
       width:100%;
+      &.count_blocks .block{
+        width:100%;
+      }
     }
   }
   .hideOn600px{
@@ -100,6 +106,9 @@ $hoverBlue:#5293C1;
   .filter{
     .filter_block{
       width:100%;
+      &.count_blocks .block{
+        width:100%;
+      }
       .line{
         float: left;
         width: 100%;
@@ -143,6 +152,11 @@ $hoverBlue:#5293C1;
 *{
   -webkit-font-smoothing: antialiased;
   font-smoothing: antialiased;
+}
+button,input,optgroup,select,textarea {
+  margin: 0;
+  font: inherit;
+  color: inherit
 }
 body{
   font-size: 14px;
@@ -195,6 +209,10 @@ h4, h5, h6 {
 a {
   background-color: transparent;
   text-decoration: none;
+}
+ol, ul {
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 table {
   border-spacing: 0;
@@ -358,6 +376,28 @@ fieldset {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+table-bordered, .table-bordered{
+  &>tbody>tr>td,
+  &>tbody>tr>th,
+  &>tfoot>tr>td,
+  &>tfoot>tr>th,
+  &>thead>tr>td,
+  &>thead>tr>th,
+  & > tr>th{
+    border: 1px solid #ddd;
+  }
+}
+.table-condensed, table-bordered{
+    >tbody>tr>td,
+    >tbody>tr>th,
+    >tfoot>tr>td,
+    >tfoot>tr>th,
+    >thead>tr>td,
+    >thead>tr>th,
+    & > tr>th{
+      padding: 5px;
+    }
+}
 /*~Bootstrap replace*/
 
 
@@ -375,6 +415,12 @@ fieldset {
   &:hover{
     background-image: url("assets/img/icon-xroad.svg");
     background-repeat:no-repeat;
+  }
+}
+.checkbox_filter{
+  input{
+    vertical-align: middle;
+    margin-bottom:5px;
   }
 }
 .nowrap{
@@ -618,12 +664,12 @@ p-calendar{
   margin-right: 10px;
 }
 body{
-    margin: 0;
-    font-family: Robot, sans-serif;
+  margin: 0;
+  font-family: Robot, sans-serif;
 }
 *{
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 mat-sidenav-layout{
     height:100vh;
@@ -701,19 +747,20 @@ mat-grid-list{
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline,
 .mat-option.mat-selected, .mat-option.mat-selected:focus,.mat-option.mat-selected:active,
 .mat-select-arrow,
-  .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }
 .mat-select-trigger{
   border-bottom:1px solid #ccc;
   min-height: 25px;
 }
+
 [mat-icon-button] {
     width: 27px;
     height:27px;
 }
 .icon-20{
-    font-size:20px;
+  font-size:20px;
 }
 .monitoring.export,.monitoring.retrieve{
   .filter{
@@ -749,7 +796,7 @@ mat-grid-list{
       min-height: 37px;
       & > *{
 
-        height:28px;
+        min-height:28px;
         &:last-child{
           float: right;
         }
@@ -774,7 +821,6 @@ mat-grid-list{
       button{
         border:none;
       }
-
     }
     &.auto_reloader{
       padding: 10px 20px;
@@ -880,6 +926,10 @@ mat-grid-list{
       height: 15px!important;
       width: 15px!important;
     }
+  }
+  .mat-checkbox-ripple{
+    width:30px;
+    height:30px;
   }
 }
 .arrow{
@@ -1326,7 +1376,7 @@ p-calendar{
     width: 59%;
     // height: 30px;
     .input input, input, .selectelement{
-       width: 98%;
+      width: 98%;
       min-height: 30px !important;
       height: 30px;
       margin: 1px 0 !important;
@@ -1388,6 +1438,41 @@ mat-dialog-container{
   }
 }
 .filter{
+  &.more_part{
+    width: 100%;
+    float: left;
+    .more{
+      float: left;
+      display: block;
+      background: white;
+      color: black;
+      padding: 3px 7px;
+      width: 49%;
+      border: 1px solid #ccc;
+      text-decoration: none;
+      i.glyphicon{
+        float: right;
+      }
+      &:hover{
+        background:rgba(6, 29, 47, 0.84);
+        color: white;
+        cursor: pointer;
+      }
+      &.right{
+        float: right;
+      }
+    }
+    .right.more{
+      float: right;
+      display: block;
+      background: white;
+      color: black;
+      padding: 3px 7px;
+      width: 49%;
+      border: 1px solid #ccc;
+      text-decoration: none;
+    }
+  }
   label{
     font-weight:normal;
   }
@@ -1677,6 +1762,12 @@ mat-dialog-container{
     padding: 30px 10px 0px 10px;
     border: 1px solid #ccc;
     border-top: none;
+    table{
+      margin-top:35px;
+    }
+    &>h3{
+      margin: 0 0 20px 0;
+    }
     float: left;
     width: 100%;
   }
@@ -1776,14 +1867,14 @@ mat-dialog-container{
       padding: 0;
       margin-top:20px;
       background: $lightBlue;
-/*      &[disabled] {
-        color: #888;
-        background: rgba(6, 29, 47, 0.74);
-        opacity:1;
-        &:hover{
-          background: rgba(6, 29, 47, 0.74);
-        }
-      }*/
+      /*      &[disabled] {
+              color: #888;
+              background: rgba(6, 29, 47, 0.74);
+              opacity:1;
+              &:hover{
+                background: rgba(6, 29, 47, 0.74);
+              }
+            }*/
       &:hover{
         cursor:pointer;
         background:$blue;
@@ -2098,67 +2189,67 @@ mat-dialog-container{
     z-index: 99;*/
   }
 
-.btn:after {
-  content: " ";
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
-  border-left: 10px solid white;
-  position: absolute;
-  top: 50%;
-  margin-top: -17px;
-  left: 100%;
-  z-index: 3;
-}
-.btn:before {
-  content: " ";
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
-  border-left: 10px solid #ccc;
-  position: absolute;
-  top: 50%;
-  margin-top: -17px;
-  margin-left: 1px;
-  left: 100%;
-  z-index: 3;
-}
-
-/** The Spacing **/
-.btn {
-  padding:6px 12px 6px 24px;
-  -webkit-border-radius:0;
-  -moz-border-radius:0;
-  border-radius:0;
-}
-.btn:first-child {
-  padding:6px 6px 6px 10px;
-}
-.btn:last-child {
-  padding:6px 18px 6px 24px;
-}
-
-/** Default button **/
-.btn.btn-default:not(:last-child):after {
-  border-left: 10px solid #fff;
-  &:hover{
-    background:$lightBlueNoTransparence;
-    color:white;
+  .btn:after {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 17px solid transparent;
+    border-bottom: 17px solid transparent;
+    border-left: 10px solid white;
+    position: absolute;
+    top: 50%;
+    margin-top: -17px;
+    left: 100%;
+    z-index: 3;
   }
-}
-.btn.btn-default:before {
-  border-left: 10px solid #ccc;
-}
-.btn.btn-default:not(:last-child):hover:after {
-  border-left: 10px solid $lightBlueNoTransparence;
-}
-.btn.btn-default:not(:last-child):hover:before {
-  border-left: 10px solid $lightBlueNoTransparence;
-}
+  .btn:before {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 17px solid transparent;
+    border-bottom: 17px solid transparent;
+    border-left: 10px solid #ccc;
+    position: absolute;
+    top: 50%;
+    margin-top: -17px;
+    margin-left: 1px;
+    left: 100%;
+    z-index: 3;
+  }
+
+  /** The Spacing **/
+  .btn {
+    padding:6px 12px 6px 24px;
+    -webkit-border-radius:0;
+    -moz-border-radius:0;
+    border-radius:0;
+  }
+  .btn:first-child {
+    padding:6px 6px 6px 10px;
+  }
+  .btn:last-child {
+    padding:6px 18px 6px 24px;
+  }
+
+  /** Default button **/
+  .btn.btn-default:not(:last-child):after {
+    border-left: 10px solid #fff;
+    &:hover{
+      background:$lightBlueNoTransparence;
+      color:white;
+    }
+  }
+  .btn.btn-default:before {
+    border-left: 10px solid #ccc;
+  }
+  .btn.btn-default:not(:last-child):hover:after {
+    border-left: 10px solid $lightBlueNoTransparence;
+  }
+  .btn.btn-default:not(:last-child):hover:before {
+    border-left: 10px solid $lightBlueNoTransparence;
+  }
 
 }
 .pagination{
@@ -2212,7 +2303,7 @@ mat-dialog-container{
   }
   //
 
-//
+  //
   .slash{
     margin:0 3px;
   }
@@ -2249,9 +2340,9 @@ mat-dialog-container{
     .dictionary_widget_search{
       left:0;
     }
-/*    .dictionary_widget{
-      width: 600px;
-    }*/
+    /*    .dictionary_widget{
+          width: 600px;
+        }*/
   }
 }
 .dynamicform{
@@ -2300,8 +2391,8 @@ mat-dialog-container{
         width:calc(100% - 45px);
         position:relative;
         i{
-/*          position: absolute;
-          left: 30%;*/
+          /*          position: absolute;
+                    left: 30%;*/
           margin-right: 4px;
         }
         .text{
@@ -2452,14 +2543,14 @@ mat-dialog-container{
       }
     }
   }
-/*  .dropdown_parent{
-    select{
-      width:100%;
-      float:left;
-      height: 30px;
-      background: transparent;
-    }
-  }*/
+  /*  .dropdown_parent{
+      select{
+        width:100%;
+        float:left;
+        height: 30px;
+        background: transparent;
+      }
+    }*/
 
   .array_parent{
     input{
@@ -2557,9 +2648,9 @@ mat-dialog-container{
     }
   }
   .radio input[type=radio],.checkbox input[type=checkbox]{
-      position:static;
-      margin-left:0;
-      margin-right:5px;
+    position:static;
+    margin-left:0;
+    margin-right:5px;
   }
   .toggle{
     h4{
@@ -2585,9 +2676,37 @@ mat-dialog-container{
     }
   }
 }
+.blue_color{
+  color:$lightBlue;
+}
+.red_color{
+  color:#da3a36;;
+}
 .float_content{
   float: left;
   width: 100%;
+}
+.bluebar{
+  background: $lightBlue;
+  box-shadow: 1px 6px 6px -3px #a3a1a1;
+  color: white !important;
+  display: block;
+  float: left;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  padding: 5px 10px;
+  width: 100%;
+  &:hover{
+    cursor: pointer;
+  }
+  mat-progress-spinner.mat-progress-spinner{
+    height:15px;
+    width:15px;
+    path,circle{
+      color:white;
+      stroke: white;
+    }
+  }
 }
 .dynamic_table{
   .table_header{
@@ -2616,7 +2735,7 @@ mat-dialog-container{
       .td{
         float: left;
         box-sizing: border-box;
-        padding: 5px 2px 5px 7px;
+        padding: 5px 5px 5px 7px;
         word-wrap: break-word;
         span{
           width: 100%;
@@ -2651,6 +2770,20 @@ mat-dialog-container{
     border-left:none;
   }
 }
+.pointer:hover{
+  cursor: pointer;
+}
+.tab_content_with_fixed_header{
+  .j4care_dynamic_table{
+    .th{
+      position: sticky;
+      z-index: 10;
+      top: 186px;
+      //width: calc(100% - 80px) !important;
+    }
+  }
+
+}
 .form-row.submit_button_block{
 
 }
@@ -2671,6 +2804,14 @@ mat-dialog-container{
     .failed{
       background:rgb(142, 0, 0);
       color: white;
+      width: 100%;
+      color: white;
+      margin-bottom: 1px;
+      .mat-select-value {
+        .mat-select-placeholder {
+          color: #777;
+        }
+      }
     }
   }
 }
@@ -2884,18 +3025,13 @@ dicom-list{
 .pointer:hover{
   cursor: pointer;
 }
-.tab_content_with_fixed_header{
-  .j4care_dynamic_table{
-    .th{
-      position: sticky;
-      z-index: 10;
-      top: 186px;
-      //width: calc(100% - 80px) !important;
-    }
-  }
-
+.footnote{
+  font-size: 10px;
+  bottom: 0;
+  width: 100%;
+  float: left;
+  text-align: left;
 }
-
 /* New black and white design*/
 $pink:rgba(82, 36, 88, 0.85);
 $backgroundColor:rgba(28, 36, 43, 0.92);
@@ -3017,6 +3153,9 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
         bottom: 40px;
         width: 7vw;
         height: 28px;
+        input[type=checkbox]{
+          margin-left: 5px;
+        }
       }
       i{
         font-size: 35px;
@@ -3144,6 +3283,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
           }
         }
       }
+
       input:disabled{
         background: transparent;
         border: none;
@@ -3223,8 +3363,8 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     }
     .table_body {
       margin-top: 31px;
-      overflow: auto;
-      max-height: 65vh;
+/*      overflow: auto;
+      max-height: 1000px;*/
       .tr {
         .td{
           .text_content{
@@ -3263,6 +3403,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     &.functions{
       ul{
         padding: 0;
+        margin:0;
         list-style: none;
       }
     }
@@ -3285,7 +3426,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
 
   }
-  export-monitoring{
+  export-monitoring, retrieve-monitoring{
     .filter .filter_block.auto_reloader{
       padding: 1px 20px;
     }
@@ -3543,6 +3684,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
           background-color: rgba(28, 36, 43, 0.92);
           background-repeat: no-repeat;
           background-position: center;
+          &:hover{
+            background-color:  rgb(22, 29, 35);
+          }
         }
       }
     }
@@ -3604,6 +3748,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     .filter_checkbox.active{
       color: rgb(22, 29, 35);
     }
+    input{
+      color:black;
+    }
   }
   .filter_line{
     background:$backgroundColorWhite;
@@ -3621,6 +3768,32 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       .tr {
         background: $backgroundColorWhite;
         .td{
+          a, a span{
+            color: rgba(28, 36, 43, 0.92);
+            &:hover{
+              color:rgb(22, 29, 35);
+            }
+          }
+        }
+      }
+    }
+  }
+  .j4care-table{
+    thead {
+      tr{
+        background: rgba(28, 36, 43, 0.92);
+        th{
+          background: transparent;
+        }
+      }
+    }
+    tbody{
+      margin-top: 31px;
+      overflow: auto;
+      max-height: 65vh;
+      tr {
+        background: $backgroundColorWhite;
+        td{
           a, a span{
             color: rgba(28, 36, 43, 0.92);
             &:hover{
@@ -3825,6 +3998,10 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   min-width: 30px !important;
   max-width: 96px !important;
   overflow: visible;
+  background:transparent;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
   .mat-menu-content{
     padding: 0 !important;
     .dicom_table_buttons{
@@ -3848,4 +4025,3 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
 }
-

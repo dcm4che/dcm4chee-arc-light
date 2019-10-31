@@ -21,7 +21,7 @@ export class SelectionsDicomViewComponent implements OnInit {
     Object = Object;
     _ = _;
     dicomObject = [];
-
+    config;
     tableSchema:TableSchemaElement[];
 
     @Output() onRemoveFromSelection = new EventEmitter();

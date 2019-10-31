@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
-import {Headers, Http} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";

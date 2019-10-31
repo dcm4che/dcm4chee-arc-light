@@ -27,7 +27,7 @@ export class MetricsComponent implements OnInit {
         private service:MetricsService,
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar:LoadingBarService,
-        private appService:AppService
+        public appService:AppService
     ) { }
 
     ngOnInit() {

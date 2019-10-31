@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
-import {Http} from '@angular/http';
 import * as _ from 'lodash';
-import {WindowRefService} from "../../../helpers/window-ref.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({

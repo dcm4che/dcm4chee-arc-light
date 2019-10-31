@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Headers} from '@angular/http';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
@@ -10,7 +9,11 @@ import {HttpHeaders} from "@angular/common/http";
 export class QueuesService{
 
     header = new HttpHeaders({ 'Content-Type': 'application/json' });
-    constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
+    constructor(
+        public $http:J4careHttpService,
+        public mainservice: AppService,
+        private deviceService:DevicesService
+    ) { }
 
     search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
 

@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {Http, Headers} from '@angular/http';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -30,6 +29,7 @@ export class DevicesComponent implements OnInit{
     _ = _;
     devices;
     advancedConfig = false;
+    filterHeight = 2;
     showDeviceList= true;
     devicefilter = '';
     filter = {};
@@ -131,7 +131,7 @@ export class DevicesComponent implements OnInit{
         // }
         this.moreDevices.loaderActive = false;
     }
-    searchDevices(){
+    searchDevices(e?){
         this.cfpLoadingBar.start();
         let $this = this;
         this.$http.get(

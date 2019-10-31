@@ -104,7 +104,7 @@ export class DicomFlatListComponent implements OnInit {
        }
     }
     @HostListener('window:scroll', ['$event'])
-    loadMoreStudiesOnScroll(event) {
+    loadMoreStudiesOnScroll(event?) {
         this.loadMoreCheck();
         this.resetMoreCheck();
     }

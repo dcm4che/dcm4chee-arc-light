@@ -47,7 +47,7 @@
             <li (click)="showDurationPaicker = !showDurationPaicker" class="duration_buttons"></li>
         </ul>
         <div class="include_time_block">
-            <label *ngIf="!(onlyTime || onlyDate)">
+            <label *ngIf="!onlyTime && !onlyDate">
                 <input type="checkbox" [(ngModel)]="includeTime" (change)="toggleTime()"> Include Time
             </label>
         </div>

@@ -7,7 +7,6 @@ import {MatDialogConfig} from '@angular/material';
 import { MessagingComponent } from './messaging/messaging.component';
 import {EditPatientComponent} from './dialogs/edit-patient/edit-patient.component';
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
-import { CopyMoveObjectsComponent } from './dialogs/copy-move-objects/copy-move-objects.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
 import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-instances/delete-rejected-instances.component';
@@ -60,7 +59,6 @@ export const WidgetsComponents = [
     EditMwlComponent,
     EditStudyComponent,
     CreateAeComponent,
-    CopyMoveObjectsComponent,
     ConfirmComponent,
     DeleteRejectedInstancesComponent,
     ProductLabellingComponent,

@@ -1,6 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
@@ -41,6 +40,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     };
     statusValues = {};
     refreshInterval;
+    externalRetrieveEntries;
     interval = 10;
     Object = Object;
     batchGrouped = false;
@@ -175,7 +175,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             }
         }
     }
-    getCounts(){
+    getCounts(offset?){
         let filters = Object.assign({},this.filterObject);
         if(!this.tableHovered)
             this.search(0);

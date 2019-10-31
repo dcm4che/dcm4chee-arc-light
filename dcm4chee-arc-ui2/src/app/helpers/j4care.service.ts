@@ -1,20 +1,14 @@
 import {Injectable} from '@angular/core';
-import {AppService} from "../app.service";
-import {J4careHttpService} from "./j4care-http.service";
-import {Http, ResponseContentType, Headers} from "@angular/http";
 import {Subscriber} from "rxjs/Subscriber";
 import {Observable} from "rxjs/Observable";
-declare var fetch;
 declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
-import localeUs from '@angular/common/locales/es-US';
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
-import {DevicesService} from "../configuration/devices/devices.service";
 import {Router} from "@angular/router";
-import {J4careDateTime, J4careDateTimeMode, RangeObject} from "./j4care";
+import {J4careDateTime, J4careDateTimeMode, RangeObject, RangeUnit, StudyDateMode} from "../interfaces";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
@@ -697,10 +691,9 @@ export class j4care {
     };
 
     static getUrlParams(params){
-        let paramString = jQuery.param(params);
-        return paramString ? '?' + paramString : '';
+        return this.param(params);
     };
-    static objToUrlParams(filter){
+    static objToUrlParams(filter, addQuestionMarktPrefix?:boolean){
         try{
             let filterMaped = Object.keys(filter).map((key) => {
                 if (filter[key] || filter[key] === false || filter[key] === 0){
@@ -708,7 +701,7 @@ export class j4care {
                 }
             });
             let filterCleared = _.compact(filterMaped);
-            return filterCleared.join('&');
+            return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
         }catch (e) {
             return "";
         }
@@ -814,6 +807,9 @@ export class j4care {
                 }
             }
         });
+        if(pxWidths > 0){
+            pxWidths += 1;
+        }
         table.forEach((m)=>{
             if(m){
                 let procentualPart = (m.widthWeight * 100)/sum;
@@ -1032,7 +1028,11 @@ export class j4care {
     }
 
 
-    // getDevices = ()=>this.httpJ4car.get('../devices').map(res => j4care.redirectOnAuthResponse(res));
+
+    modal(schema, callBack){
+        this.openDialog(schema).subscribe(callBack);
+    }
+    // getDevices = ()=>this.httpJ4car.get('./rs/devices').map(res => j4care.redirectOnAuthResponse(res));
 
     openDialog(parameters, width?, height?){
         this.dialogRef = this.dialog.open(ConfirmComponent, {

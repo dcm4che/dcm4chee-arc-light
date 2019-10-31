@@ -83,15 +83,8 @@ export class PermissionService {
         let archiveDeviceName;
         let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked){
-            console.log("*****before keycloakServiceGetUserInfo");
-/*            this._keycloakService.getUserInfo().subscribe(user=>{
-                console.log("in test get user",user);
-            },(err)=>{
-                console.log("in test get error",err);
-            });*/
             return this._keycloakService.getUserInfo()
                 .map(user=>{
-                    console.log("*********in get userinfo",user);
                     userInfo = user; //Extracting userInfo from KeyCloak
                 })
                 .switchMap(res => this.$http.get('../devicename'))

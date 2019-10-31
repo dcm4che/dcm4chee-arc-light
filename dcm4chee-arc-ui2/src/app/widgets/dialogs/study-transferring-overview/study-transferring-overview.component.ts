@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import {CopyMoveObjectsComponent} from "../copy-move-objects/copy-move-objects.component";
 import {MatDialogRef} from "@angular/material";
 import {SelectionActionElement} from "../../../study/study/selection-action-element.models";
 import {SelectDropdown} from "../../../interfaces";

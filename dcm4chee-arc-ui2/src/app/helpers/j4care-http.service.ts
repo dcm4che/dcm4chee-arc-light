@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs';
 import {AppService} from "../app.service";
 import 'rxjs/add/operator/mergeMap';
@@ -16,7 +15,6 @@ import {Globalvar} from "../constants/globalvar";
 @Injectable()
 export class J4careHttpService{
     constructor (
-        public $http:Http,
         private $httpClient:HttpClient,
         public mainservice:AppService,
         public httpErrorHandler:HttpErrorHandler,
@@ -169,7 +167,7 @@ export class J4careHttpService{
                     resjson = res.json();
                     console.log("getRealm Response:",res);
                 }catch (e){
-                    j4care.log("error on extracting json",e);
+                    // j4care.log("error on extracting json",e);
                     if(_.hasIn(e, "message") && e.message.indexOf(".json") > -1){
                         resjson = res;
                     }else{

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import {Input} from '@angular/core';
-import {Http} from '@angular/http';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../window-ref.service";

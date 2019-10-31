@@ -12,7 +12,6 @@ import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {j4care} from "../../helpers/j4care.service";
-import {Headers, Http, RequestOptions} from "@angular/http";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {Observable} from "rxjs/Observable";
 import * as _ from 'lodash'

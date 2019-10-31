@@ -61,7 +61,7 @@ export class IodFormGeneratorComponent implements OnInit {
     onChange(newValue, model) {
         _.set(this, model, newValue);
     }
-    removeAttr(attrcode){
+    removeAttr(attrcode, i?){
         console.log('attrcode', attrcode);
         console.log('arguments', arguments);
         switch (arguments.length) {

@@ -24,11 +24,12 @@ export class Hl7ApplicationsComponent implements OnInit {
     advancedConfig = false;
     filter = {};
     devicefilter = '';
+    filterHeight = 2;
     urlParam = "";
     filterSchema;
     constructor(
         private service:Hl7ApplicationsService,
-        private mainservice:AppService,
+        public mainservice:AppService,
         private router: Router,
         private httpErrorHandler:HttpErrorHandler
     ) { }

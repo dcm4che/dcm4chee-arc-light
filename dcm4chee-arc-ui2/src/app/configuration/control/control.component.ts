@@ -55,7 +55,7 @@ export class ControlComponent implements OnInit{
         this.tableSchema = this.service.getTableSchema();
         this.calculateWidthOfTable("tableSchema");
     }
-    fetchStatus() {
+    fetchStatus(d?) {
         Object.keys(this.devices).forEach((device)=>{
             this.service.fetchStatus(this.devices[device].dcmuiDeviceURL).subscribe(res=>{
                 this.devices[device].status = res.status;

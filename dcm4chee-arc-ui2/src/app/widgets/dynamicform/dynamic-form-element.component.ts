@@ -12,12 +12,9 @@ import {FormElement} from '../../helpers/form/form-element';
 import * as _ from 'lodash';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
-import {CloneSelectorComponent} from '../dialogs/clone-selector/clone-selector.component';
 import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
 import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
-import {Http} from '@angular/http';
-import {RemovePartSelectorComponent} from '../dialogs/remove-part-selector/remove-part-selector.component';
 import {AppService} from '../../app.service';
 import {ControlService} from "../../configuration/control/control.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
@@ -190,7 +187,7 @@ export class DynamicFormElementComponent implements OnDestroy{
             });
         }
     }
-    addElement(element: any, formpart: FormControl[]){
+    addElement(element: any, formpart:any, control?){
         if(!this.readOnlyMode) {
             let globalForm = this.formcomp.getForm();
             let valueObject = globalForm.value;

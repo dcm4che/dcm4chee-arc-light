@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
-import {Http} from '@angular/http';
 import {AppService} from '../../app.service';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -163,7 +162,7 @@ export class StorageSystemsComponent implements OnInit {
                             properties.totalSpace = $this.convertBtoGBorMB(properties.totalSpace);
                         }
                         _.forEach(properties, (l, k) => {
-                            if (_.isObject(l)){
+                            if (_.isArray(l)){
                                 properties[k] = l.join(' | ');
                             }
                         });

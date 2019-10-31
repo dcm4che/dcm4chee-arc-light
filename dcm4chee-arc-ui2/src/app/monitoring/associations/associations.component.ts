@@ -1,12 +1,9 @@
-///<reference path="../../../../node_modules/@angular/core/src/metadata/lifecycle_hooks.d.ts"/>
-import { Component, OnDestroy } from '@angular/core';
-import {Http} from '@angular/http';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import * as FileSaver from 'file-saver';
 import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {LoadingBarService} from "@ngx-loading-bar/core";
@@ -26,6 +23,7 @@ export class AssociationsComponent implements OnDestroy{
     associationStatus;
     pause = false;
     // myValue = 10;
+    Object = Object;
     constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: LoadingBarService, public messaging: MessagingComponent, public httpErrorHandler:HttpErrorHandler) {
     }
 
@@ -41,7 +39,6 @@ export class AssociationsComponent implements OnDestroy{
             'performedOps',
             'invokedOps'
         ];
-        console.log('obj', obj);
         obj.forEach((j, l) => {
             for (let i in j){
                 let m = j[i];
@@ -205,7 +202,6 @@ export class AssociationsComponent implements OnDestroy{
                 }else{
                     csv += m.localAETitle + '←' + m.remoteAETitle;
                 }
-                console.log('m', m);
                 if (m.invokedOps){
                     csv += ',';
                     console.log('m.invokedOps', m.invokedOps);
