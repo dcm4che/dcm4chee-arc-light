@@ -80,6 +80,11 @@ public class DefaultReadContext implements ReadContext {
     }
 
     @Override
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    @Override
     public void incrementSize(long size) {
         this.size += size;
     }

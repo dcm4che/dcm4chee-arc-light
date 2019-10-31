@@ -116,7 +116,7 @@ public abstract class AbstractStorage implements Storage {
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
         }
-        return new FilterOutputStream(stream) {
+        return new FilterOutputStream(new BufferedOutputStream(stream)) {
             @Override
             public void write(int b) throws IOException {
                 try {
@@ -217,7 +217,9 @@ public abstract class AbstractStorage implements Storage {
         if (ctx.getMessageDigest() != null) {
             stream = new DigestInputStream(stream, ctx.getMessageDigest());
         }
-        return new FilterInputStream(stream) {
+        return new FilterInputStream(new BufferedInputStream(stream)) {
+            private long markSize;
+
             @Override
             public int read() throws IOException {
                 int read = 0;
@@ -257,8 +259,15 @@ public abstract class AbstractStorage implements Storage {
             }
 
             @Override
-            public boolean markSupported() {
-                return false;
+            public synchronized void mark(int readlimit) {
+                in.mark(readlimit);
+                markSize = ctx.getSize();
+            }
+
+            @Override
+            public synchronized void reset() throws IOException {
+                in.reset();
+                ctx.setSize(markSize);
             }
 
             @Override
