@@ -131,6 +131,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
         coercion = SupplementAssigningAuthorities.forMWL(rule.getSupplementFromDevice(), coercion);
         coercion = rule.supplementIssuerOfPatientID(coercion);
         coercion = rule.nullifyIssuerOfPatientID(ctx.getQueryKeys(), coercion);
+        coercion = rule.mergeAttributes(coercion);
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);

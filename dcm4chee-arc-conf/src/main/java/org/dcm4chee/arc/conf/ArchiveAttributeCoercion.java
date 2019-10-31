@@ -48,6 +48,8 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.AttributesFormat;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,6 +75,7 @@ public class ArchiveAttributeCoercion {
     private UseCallingAETitleAsCoercion.Type useCallingAETitleAs;
     private int[] nullifyTags = {};
     private NullifyIssuer nullifyIssuerOfPatientID;
+    private MergeAttribute[] mergeAttributes = {};
     private Issuer[] issuerOfPatientIDs = {};
     private Device supplementFromDevice;
     private String issuerOfPatientIDFormat;
@@ -260,6 +263,14 @@ public class ArchiveAttributeCoercion {
         this.nullifyIssuerOfPatientID = nullifyIssuerOfPatientID;
     }
 
+    public MergeAttribute[] getMergeAttributes() {
+        return mergeAttributes;
+    }
+
+    public void setMergeAttributes(String... mergeAttributes) {
+        this.mergeAttributes = MergeAttribute.of(mergeAttributes);
+    }
+
     public Issuer[] getIssuerOfPatientIDs() {
         return issuerOfPatientIDs;
     }
@@ -343,6 +354,28 @@ public class ArchiveAttributeCoercion {
                 && nullifyIssuerOfPatientID.test(Issuer.fromIssuerOfPatientID(attrs), issuerOfPatientIDs);
     }
 
+    public AttributesCoercion mergeAttributes(final AttributesCoercion next) {
+        if (mergeAttributes == null)
+            return next;
+
+        return new AttributesCoercion() {
+            @Override
+            public void coerce(Attributes attrs, Attributes modified) {
+                for (MergeAttribute mergeAttribute : mergeAttributes) {
+                    mergeAttribute.merge(attrs, modified);
+                }
+
+                if (next != null)
+                    next.coerce(attrs, modified);
+            }
+
+            @Override
+            public String remapUID(String uid) {
+                return next != null ? next.remapUID(uid) : uid;
+            }
+        };
+    }
+
     public AttributesCoercion supplementIssuerOfPatientID(final AttributesCoercion next) {
         if (issuerOfPatientIDFormat == null)
             return next;
@@ -390,6 +423,7 @@ public class ArchiveAttributeCoercion {
                 + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet
                 + ", useCallingAETitleAs=" + useCallingAETitleAs
                 + ", nullifyTags=" + Arrays.toString(nullifyTags)
+                + ", nullifyTags=" + Arrays.toString(mergeAttributes)
                 + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
                 + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
                 + ", issuerOfPatientIDFormat=" + issuerOfPatientIDFormat

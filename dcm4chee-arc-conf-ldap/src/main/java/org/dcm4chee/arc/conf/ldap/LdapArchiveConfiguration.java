@@ -4050,6 +4050,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomTransferRole", coercion.getRole(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", coercion.getSOPClasses());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(coercion.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeAttribute", coercion.getMergeAttributes());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveAsReceived", coercion.isRetrieveAsReceived(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
@@ -4088,6 +4089,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(TransferCapability.Role.class, attrs.get("dicomTransferRole"), null));
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 coercion.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                coercion.setMergeAttributes(LdapUtils.stringArray(attrs.get("dcmMergeAttribute")));
                 coercion.setRetrieveAsReceived(LdapUtils.booleanValue(attrs.get("dcmRetrieveAsReceived"), false));
                 coercion.setDeIdentification(LdapUtils.enumArray(DeIdentifier.Option.class, attrs.get("dcmDeIdentification")));
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
@@ -4146,6 +4148,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomTransferRole", prev.getRole(), coercion.getRole(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), coercion.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMergeAttribute",
+                prev.getMergeAttributes(), coercion.getMergeAttributes());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAsReceived",
                 prev.isRetrieveAsReceived(), coercion.isRetrieveAsReceived(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeIdentification", prev.getDeIdentification(), coercion.getDeIdentification());

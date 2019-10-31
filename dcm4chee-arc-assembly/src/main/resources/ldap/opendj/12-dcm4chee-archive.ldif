@@ -1501,6 +1501,10 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.312 NAME 'dcmMultipleStoreAssociations'
   DESC 'Number of Storage Associations used for retrieve of Composite Objects. C-STORE SCP specific numbers can be specified by prefix "<AETitle>:". If absent, only one Association will be used.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.313 NAME 'dcmMergeAttribute'
+  DESC 'Merge DICOM Attribute in format {attributeID}={value}. {attributeID} inside of {value} will be replaced by the value of that attribute in the original dataset.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1949,6 +1953,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmAttributeUpdatePolicy $
     dcmTrimISO2022CharacterSet $
     dcmUseCallingAETitleAs $
+    dcmMergeAttribute $
     dcmNullifyTag $
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $

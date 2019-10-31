@@ -519,6 +519,7 @@ class StoreServiceImpl implements StoreService {
         coercion = SupplementAssigningAuthorities.forInstance(rule.getSupplementFromDevice(), coercion);
         coercion = rule.supplementIssuerOfPatientID(coercion);
         coercion = rule.nullifyIssuerOfPatientID(ctx.getAttributes(), coercion);
+        coercion = rule.mergeAttributes(coercion);
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);

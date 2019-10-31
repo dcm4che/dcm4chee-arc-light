@@ -114,6 +114,7 @@ public class MPPSServiceImpl implements MPPSService {
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = SupplementAssigningAuthorities.forMPPS(rule.getSupplementFromDevice(), coercion);
+        coercion = rule.mergeAttributes(coercion);
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getAttributes(), null);

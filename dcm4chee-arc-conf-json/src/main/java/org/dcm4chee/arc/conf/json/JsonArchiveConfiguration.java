@@ -642,6 +642,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
             writer.writeNotEmpty("dcmProperty", toStrings(aac.getConditions().getMap()));
+            writer.writeNotEmpty("dcmMergeAttribute", aac.getMergeAttributes());
             writer.writeNotDef("dcmRetrieveAsReceived", aac.isRetrieveAsReceived(), false);
             writer.writeNotEmpty("dcmDeIdentification", aac.getDeIdentification());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
@@ -2197,6 +2198,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmProperty":
                         aac.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmMergeAttribute":
+                        aac.setMergeAttributes(reader.stringArray());
                         break;
                     case "dcmRetrieveAsReceived":
                         aac.setRetrieveAsReceived(reader.booleanValue());

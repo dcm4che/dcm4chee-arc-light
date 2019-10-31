@@ -60,7 +60,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmProperty"
     },
     "dcmRetrieveAsReceived": {
       "title": "Retrieve as Received",
@@ -149,6 +150,15 @@
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmTag"
+    },
+    "dcmMergeAttribute": {
+      "title": "Merge Attribute",
+      "description": "Merge DICOM Attribute in format {attributeID}={value}. {attributeID} inside of {value} will be replaced by the value of that attribute in the original dataset.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
     },
     "dcmNullifyIssuerOfPatientID": {
       "title": "Nullify Issuer of Patient ID",

@@ -782,6 +782,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         } catch (TransformerConfigurationException e) {
             LOG.error("{}: Failed to compile XSL: {}", ctx.getLocalAETitle(), xsltStylesheetURI, e);
         }
+        coercion = rule.mergeAttributes(coercion);
+        coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
