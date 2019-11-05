@@ -12,7 +12,8 @@
     "lint": "ng lint",
     "prod": "ng build --aot --prod",
     "dev": "ng build --dev",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "ivy-ngcc"
   },
   "private": true,
   "dependencies": {
@@ -23,6 +24,7 @@
     "@angular/core": "~8.2.12",
     "@angular/forms": "~8.2.12",
     "@angular/material": "^8.2.3",
+    "@angular/material-moment-adapter": "^8.2.3",
     "@angular/platform-browser": "~8.2.12",
     "@angular/platform-browser-dynamic": "~8.2.12",
     "@angular/router": "~8.2.12",
@@ -37,6 +39,7 @@
     "keycloak-js": "^7.0.1",
     "lodash": "^4.17.15",
     "material-design-icons": "^3.0.1",
+    "moment": "^2.24.0",
     "primeng": "^8.1.1",
     "rxjs": "~6.5.3",
     "rxjs-compat": "^6.5.3",

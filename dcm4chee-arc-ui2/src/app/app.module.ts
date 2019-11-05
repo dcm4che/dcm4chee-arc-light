@@ -13,7 +13,13 @@ import {
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatRadioModule, MatMenuModule,
+    MatRadioModule,
+    MatMenuModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MAT_DATE_FORMATS,
+    DateAdapter,
+    MAT_DATE_LOCALE, MatButtonModule,
 } from '@angular/material';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './configuration/control/control.component';
@@ -108,6 +114,8 @@ import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
 import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
 import { SelectionsDicomViewComponent } from './study/study/selections-dicom-view/selections-dicom-view.component';
 import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/selections-dicom-view.service";
+import {MY_FORMATS} from "./constants/globalvar";
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
 
 @NgModule({
     declarations: [
@@ -183,7 +191,9 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
         MatCheckboxModule,
         MatRadioModule,
         MatMenuModule,
-        WidgetsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
         CommonModule,
         CalendarModule,
         ReactiveFormsModule,
@@ -227,8 +237,10 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
     ],
     entryComponents: [WidgetsComponents],
     providers: [
-        MatDialogConfig,
         WidgetsComponents,
+        WidgetsModule,
+        MatDialogConfig,
+        MatDatepickerModule,
         AppService,
         ControlService,
         QueuesService,
@@ -265,7 +277,13 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
         MetricsService,
         WebAppsListService,
         SelectionsDicomViewService,
-        {provide: LOCALE_ID, useValue: 'en-US' }
+        {provide: LOCALE_ID, useValue: 'en-US' },
+        {
+            provide: DateAdapter,
+            useClass: MomentDateAdapter,
+            deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+        },
+        {provide: MAT_DATE_FORMATS, useValue: MY_FORMATS},
     ],
     bootstrap: [AppComponent],
     exports:[ArrayToStringPipe]

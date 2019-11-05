@@ -1,73 +1,179 @@
-<div class="range_picker" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['set_time','smart_picker','duration-picker-element']">
+<div
+    class="range_picker"
+    (clickOutside)="closeFromOutside()"
+    [clickOutsideExceptionClass]="[
+        'set_time',
+        'smart_picker',
+        'duration-picker-element',
+        'mat-calendar-body-cell-content',
+        'mat-button-wrapper',
+        'mat-button',
+        'mat-calendar-arrow',
+        'mat-button-base',
+        'mat-calendar-table-header',
+        'mat-overlay-transparent-backdrop',
+        'ng-star-inserted',
+        'mat-calendar-table',
+        'mat-calendar-content']"
+>
     <div class="main_input_block" title="{{title}}">
         <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()">
         <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
         <span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
     </div>
-    <div class="picker" *ngIf="showPicker">
-        <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-        <h5>{{header}}</h5>
-        <div class="left {{mode}}_mode" *ngIf="!onlyTime">
-            <p-calendar (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar *ngIf="mode === 'range' || mode === 'rightOpen'" dataType="string" [(ngModel)]="fromModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="from (yyyymmdd)" showIcon="true" showOnFocus="false" monthNavigator="true" showButtonBar="true"></p-calendar>
-            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
+    <ng-container *ngIf="datePickerMode">
+        <mat-form-field class="example-full-width"  class="material_calendar single_date_mode"  [floatLabel]="'never'">
+            <input matInput
+                   [matDatepicker]="picker"
+                   placeholder="Date (yyyymmdd)"
+                   [(ngModel)]="singleDateModel"
+                   (dateInput)="setSingeDatePicker('singleDateModel', $event)"
+                   (dateChange)="setSingeDatePicker('singleDateModel', $event)"
+            >
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="!datePickerMode">
+        <div class="picker" *ngIf="showPicker">
+            <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+            <h5>{{header}}</h5>
+            <div class="left {{mode}}_mode" *ngIf="!onlyTime">
+                <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'rightOpen'"  [floatLabel]="'never'">
+                    <input matInput
+                           [matDatepicker]="picker"
+                           placeholder="from (yyyymmdd)"
+                           [(ngModel)]="fromModel"
+                           (dateInput)="addEvent('fromModel', $event)"
+                           (dateChange)="addEvent('fromModel', $event)"
+                    >
+                    <mat-datepicker-toggle matSuffix [for]="picker">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <!--            <p-calendar
+                                    (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar
+                                    *ngIf="mode === 'range' || mode === 'rightOpen'"
+                                    dataType="string"
+                                    [(ngModel)]="fromModel"
+                                    dateFormat="{{dateFormat}}"
+                                    monthNavigator="true"
+                                    yearNavigator="true"
+                                    yearRange="1800:2100"
+                                    placeholder="from (yyyymmdd)"
+                                    showIcon="true"
+                                    showOnFocus="false"
+                                    monthNavigator="true"
+                                    showButtonBar="true"></p-calendar>-->
+                <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span *ngIf="mode != 'single'">-</span>
-            <p-calendar (onFocus)="closeCalendar('toCalendarObject')" #toCalendar  *ngIf="mode === 'range' || mode === 'leftOpen'" dataType="string" [(ngModel)]="toModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="to (yyyymmdd)" showOnFocus="false" showIcon="true"></p-calendar>
-            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
-            <p-calendar (onFocus)="closeCalendar('singleCalendarObject')" #singleCalendar  *ngIf="mode === 'single'"  dataType="string" [(ngModel)]="singleDateModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Date (yyyymmdd)" showIcon="true"></p-calendar>
-        </div>
-        <ul *ngIf="!onlyTime" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
-            <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
-            <li *ngIf="!smartPickerActive" (click)="thisMonth()">This Month</li>
-            <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
-            <li *ngIf="!smartPickerActive" class="select_parent">
-                <ul class="j4care_select" (clickOutside)="closeSelectOptions()">
-                    <li class="placeholder" (click)="toggleSelectOption()">Fast Picker</li>
-                    <ng-container *ngIf="showSelectOptions">
-                        <li (click)="fastPicker('yesterday')">Yesterday</li>
-                        <li (click)="fastPicker('this_week')">This Week</li>
-                        <li (click)="fastPicker('last_week')">Last Week</li>
-                        <li (click)="fastPicker('last_month')">Last Month</li>
-                        <li (click)="fastPicker('this_quarter')">This Quarter</li>
-                        <li (click)="fastPicker('last_quarter')">Last Quarter</li>
-                        <li (click)="fastPicker('this_year')">This Year</li>
-                        <li (click)="fastPicker('last_year')">Last Year</li>
-                    </ng-container>
-                </ul>
-            </li>
-            <li *ngIf="smartPickerActive" class="smart_input"><input type="text" title="Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range substracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y => one year back, 2y3m => 2 years and 3 months back, t2h12m => 2 hours and 12 minutes from now etc." placeholder="Hover for more Info" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)"></li>
-            <li (click)="smartPicker()">
-                <span class="smart_picker" *ngIf="!smartPickerActive">Smart Picker</span>
-                <span class="smart_picker" *ngIf="smartPickerActive">Fast Picker</span>
-            </li>
-        </ul>
-        <ul *ngIf="dateRange" class="fast_picker smart_active duration">
-            <li class="smart_input"><input type="text" placeholder="Maximal Study Date Range" [(ngModel)]="SplitStudyDateRange"></li>
-            <duration-picker *ngIf="showDurationPaicker" [mode]="'datePicker'" (onValueSet)="setDuration($event)" [value]="SplitStudyDateRange"></duration-picker>
-            <li (click)="SplitStudyDateRange = ''" class="glyphicon glyphicon-remove duration_buttons"></li>
-            <li (click)="showDurationPaicker = !showDurationPaicker" class="duration_buttons"></li>
-        </ul>
-        <div class="include_time_block">
-            <label *ngIf="!onlyTime && !onlyDate">
-                <input type="checkbox" [(ngModel)]="includeTime" (change)="toggleTime()"> Include Time
-            </label>
-        </div>
-        <div class="left {{mode}}_mode" *ngIf="includeTime || onlyTime" >
-            <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="fromTimeModel = $event" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
-            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
+                <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'leftOpen'"  [floatLabel]="'never'">
+                    <input matInput
+                           [matDatepicker]="picker"
+                           placeholder="to (yyyymmdd)"
+                           [(ngModel)]="toModel"
+                           (dateInput)="addEvent('toModel', $event)"
+                           (dateChange)="addEvent('toModel', $event)"
+                    >
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <!--            <p-calendar
+                                    (onFocus)="closeCalendar('toCalendarObject')"
+                                    #toCalendar
+                                    *ngIf="mode === 'range' || mode === 'leftOpen'"
+                                    dataType="string"
+                                    [(ngModel)]="toModel"
+                                    dateFormat="{{dateFormat}}"
+                                    monthNavigator="true"
+                                    yearNavigator="true"
+                                    yearRange="1800:2100"
+                                    placeholder="to (yyyymmdd)"
+                                    showOnFocus="false"
+                                    showIcon="true"
+                            ></p-calendar>-->
+
+
+                <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
+                <mat-form-field class="material_calendar single_datepicker"  *ngIf="mode === 'single'"  [floatLabel]="'never'">
+                    <input matInput
+                           [matDatepicker]="picker"
+                           placeholder="Date (yyyymmdd)"
+                           [(ngModel)]="singleDateModel"
+                           (dateInput)="addEvent('toModel', $event)"
+                           (dateChange)="addEvent('toModel', $event)"
+                    >
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <!--            <p-calendar
+                                    (onFocus)="closeCalendar('singleCalendarObject')"
+                                    #singleCalendar
+                                    *ngIf="mode === 'single'"
+                                    dataType="string"
+                                    [(ngModel)]="singleDateModel"
+                                    dateFormat="{{dateFormat}}"
+                                    monthNavigator="true"
+                                    yearNavigator="true"
+                                    yearRange="1800:2100"
+                                    placeholder="Date (yyyymmdd)"
+                                    showIcon="true"
+                            ></p-calendar>-->
+            </div>
+            <ul *ngIf="!onlyTime" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
+                <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
+                <li *ngIf="!smartPickerActive" (click)="thisMonth()">This Month</li>
+                <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
+                <li *ngIf="!smartPickerActive" class="select_parent">
+                    <ul class="j4care_select" (clickOutside)="closeSelectOptions()">
+                        <li class="placeholder" (click)="toggleSelectOption()">Fast Picker</li>
+                        <ng-container *ngIf="showSelectOptions">
+                            <li (click)="fastPicker('yesterday')">Yesterday</li>
+                            <li (click)="fastPicker('this_week')">This Week</li>
+                            <li (click)="fastPicker('last_week')">Last Week</li>
+                            <li (click)="fastPicker('last_month')">Last Month</li>
+                            <li (click)="fastPicker('this_quarter')">This Quarter</li>
+                            <li (click)="fastPicker('last_quarter')">Last Quarter</li>
+                            <li (click)="fastPicker('this_year')">This Year</li>
+                            <li (click)="fastPicker('last_year')">Last Year</li>
+                        </ng-container>
+                    </ul>
+                </li>
+                <li *ngIf="smartPickerActive" class="smart_input"><input type="text" title="Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range subtracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y => one year back, 2y3m => 2 years and 3 months back, t2h12m => 2 hours and 12 minutes from now etc." placeholder="Hover for more Info" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)"></li>
+                <li (click)="smartPicker()">
+                    <span class="smart_picker" *ngIf="!smartPickerActive">Smart Picker</span>
+                    <span class="smart_picker" *ngIf="smartPickerActive">Fast Picker</span>
+                </li>
+            </ul>
+            <ul *ngIf="dateRange" class="fast_picker smart_active duration">
+                <li class="smart_input"><input type="text" placeholder="Maximal Study Date Range" [(ngModel)]="SplitStudyDateRange"></li>
+                <duration-picker *ngIf="showDurationPaicker" [mode]="'datePicker'" (onValueSet)="setDuration($event)" [value]="SplitStudyDateRange"></duration-picker>
+                <li (click)="SplitStudyDateRange = ''" class="glyphicon glyphicon-remove duration_buttons"></li>
+                <li (click)="showDurationPaicker = !showDurationPaicker" class="duration_buttons"></li>
+            </ul>
+            <div class="include_time_block">
+                <label *ngIf="!onlyTime && !onlyDate">
+                    <input type="checkbox" [(ngModel)]="includeTime" (change)="toggleTime()"> Include Time
+                </label>
+            </div>
+            <div class="left {{mode}}_mode" *ngIf="includeTime || onlyTime" >
+                <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="fromTimeModel = $event" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
+                <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span *ngIf="mode != 'single'">-</span>
-            <time-picker [model]="toTimeModel" *ngIf="mode === 'range' || mode === 'leftOpen'" cohereMode="true" (onValueSet)="toTimeModel = $event" placeholder="to (hh:mm:ss)"></time-picker>
-            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
-            <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="singleTimeModel = $event" placeholder="(hh:mm:ss)"></time-picker>
+                <time-picker [model]="toTimeModel" *ngIf="mode === 'range' || mode === 'leftOpen'" cohereMode="true" (onValueSet)="toTimeModel = $event" placeholder="to (hh:mm:ss)"></time-picker>
+                <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
+                <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="singleTimeModel = $event" placeholder="(hh:mm:ss)"></time-picker>
+            </div>
+            <ul class="interval">
+                <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">Between</li>
+                <li class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')">Single Date</li>
+                <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">After</li>
+                <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')">Before</li>
+            </ul>
+            <!--        <div class="right">
+                    </div>-->
+            <button (click)="setRange()">Set</button>
+            <button class="clear" (click)="clear()">Clear</button>
         </div>
-        <ul class="interval">
-            <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">Between</li>
-            <li class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')">Single Date</li>
-            <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">After</li>
-            <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')">Before</li>
-        </ul>
-<!--        <div class="right">
-        </div>-->
-        <button (click)="setRange()">Set</button>
-        <button class="clear" (click)="clear()">Clear</button>
-    </div>
+    </ng-container>
 </div>

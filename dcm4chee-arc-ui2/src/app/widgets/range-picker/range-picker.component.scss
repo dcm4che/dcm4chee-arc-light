@@ -9,7 +9,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       margin-top:0;
     }
     .glyphicon-calendar{
-      width: 27px;
+      width: 26px;
       display: inline-block;
       height: 26px;
       color: #ffffff;
@@ -25,6 +25,15 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
     }
     &:hover .clear_picker{
       display: block;
+    }
+  }
+  .material_calendar{
+    &.single_date_mode{
+      .mat-form-field-wrapper{
+        .mat-form-field-infix{
+          display: none;
+        }
+      }
     }
   }
   .picker{
@@ -56,6 +65,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
         -webkit-box-shadow: 3px 3px 6px 0px #666;
         -moz-box-shadow: 3px 3px 6px 0px #666;
         box-shadow: 3px 3px 6px 0px #666;
+        padding:3px 10px 3px 11px;
         &:hover{
           cursor: pointer;
         }
@@ -67,7 +77,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       }
     }
     .left{
-      height: 30px;
+      height: 50px;
       //float: left;
       //width:60%;
       display: -webkit-box;
@@ -78,6 +88,21 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       margin: 10px 0;
       -webkit-flex-flow: row wrap;
       justify-content: space-around;
+      .material_calendar{
+        float: left;
+        width: 45%;
+        input{
+          border:none;
+        }
+        &.single_datepicker{
+          width: 100%;
+        }
+        &.single_date_mode{
+          .mat-form-field-infix{
+            display: none;
+          }
+        }
+      }
       p-calendar{
         //width: 41%;
         margin-right: 28px;
@@ -106,9 +131,9 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       span{
         display: inline-block;
         width: 6%;
-        height: 26px;
+        height: 50px;
         text-align: center;
-        line-height: 26px;
+        line-height: 50px;
       }
     }
     .right{
@@ -315,4 +340,7 @@ ul.j4care_select{
       background: rgb(48, 91, 123);
     }
   }
+}
+.mat-form-field-appearance-legacy.single_date_mode .mat-form-field-infix{
+  display: none;
 }

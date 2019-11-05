@@ -1,11 +1,12 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
+import {Moment} from "moment";
 
 @Component({
-  selector: 'range-picker',
-  templateUrl: './range-picker.component.html',
-  styleUrls: ['./range-picker.component.scss']
+    selector: 'range-picker',
+    templateUrl: './range-picker.component.html',
+    styleUrls: ['./range-picker.component.scss']
 })
 export class RangePickerComponent implements OnInit {
     @Input() model;
@@ -15,6 +16,7 @@ export class RangePickerComponent implements OnInit {
     @Input() dateFormat;
     @Input() onlyTime;
     @Input() onlyDate;
+    @Input() datePickerMode:boolean;
     @Input() dateRange;
     @Input() mode:"leftOpen"|"rightOpen"|"range"|"single"|string;
     @Output() modelChange = new EventEmitter();
@@ -23,6 +25,7 @@ export class RangePickerComponent implements OnInit {
     @ViewChild('fromTimeCalendar', {static: true}) fromTimeCalendarObject;
     @ViewChild('toCalendar', {static: true}) toCalendarObject;
     @ViewChild('singleCalendar', {static: true}) singleCalendarObject;
+    @ViewChild('picker', {static: false}) picker;
     SplitStudyDateRange;
     fromModel;
     fromTimeModel;
@@ -40,18 +43,32 @@ export class RangePickerComponent implements OnInit {
     maiInputValid = true;
     showSelectOptions = false;
     showRangePicker = false;
+    dateComponent = {
+        minDate: new Date(2000, 0, 1),
+        maxDate: new Date()
+    };
     constructor(
         private service:RangePickerService
     ) {}
     ngOnInit(){
         this.mode = this.mode || "range";
         this.header = this.header || "Range picker";
+        if(this.datePickerMode){
+            this.mode = "single";
+        }
         for(let i=0;i<60;i++){
             if(i<25){
                 this.HH.push({value:i,label:(i<10)?`0${i}`:i});
             }
             this.mm.push({value:i,label:(i<10)?`0${i}`:i});
         }
+    }
+    addEvent(mode, e){
+        this[mode] = (<Moment>e.value).format("YYYYMMDD");
+    }
+    setSingeDatePicker(mode, e){
+        this[mode] = (<Moment>e.value).format("YYYYMMDD");
+        this.setRange();
     }
     closeCalendar(clanedarName){
         this[clanedarName].overlayVisible = false;
@@ -94,7 +111,12 @@ export class RangePickerComponent implements OnInit {
         this.showSelectOptions = false;
     }
     togglePicker(){
-        this.showPicker = !this.showPicker;
+        if(this.datePickerMode){
+            console.log("this.datePicker",this.picker);
+            this.picker.open();
+        }else{
+            this.showPicker = !this.showPicker;
+        }
     }
     close(){
         this.showPicker = false;

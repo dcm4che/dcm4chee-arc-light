@@ -3,6 +3,18 @@ import {DicomTableSchema, DynamicPipe} from "../helpers/dicom-studies-table/dico
 import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 
+export const MY_FORMATS = {
+    parse: {
+        dateInput: 'YYYYMMDD',
+    },
+    display: {
+        dateInput: 'YYYYMMDD',
+        monthYearLabel: 'MM YYYY',
+        dateA11yLabel: 'LL',
+        monthYearA11yLabel: 'MM YYYY',
+    },
+};
+
 export class Globalvar {
     public static get MODALITIES(): any {
         return {

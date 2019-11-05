@@ -1410,6 +1410,56 @@ mat-dialog-container{
     max-width:100% !important;
   }
 }
+
+mat-form-field{
+  &.mat-form-field-appearance-legacy {
+    .mat-form-field-wrapper{
+      padding-bottom: 0;
+    }
+  }
+  .mat-form-field-flex{
+    padding-bottom: 0px;
+  }
+  .mat-form-field-infix{
+    border-top-width: 0px;
+  }
+  .mat-form-field-underline{
+    display: none;
+  }
+  .mat-form-field-wrapper{
+    padding: 0;
+  }
+  .mat-form-field-flex{
+    .mat-form-field-infix{
+      input{
+        border: none;
+        border-bottom: 1px solid #ccc;
+      }
+    }
+  }
+  .mat-form-field-label-wrapper{
+
+  }
+  .mat-button-wrapper{
+    .mat-icon{
+      height: 40px;
+      .glyphicon.glyphicon-calendar{
+        background: rgba(28, 36, 43, 0.92);
+        color: white;
+        height: 25px;
+        line-height: 25px;
+        width: 26px;
+      }
+    }
+  }
+}
+.mat-form-field-prefix .mat-icon-button .mat-icon, .mat-form-field-suffix .mat-icon-button .mat-icon{
+  height: 40px;
+}
+.mat-calendar-body-selected {
+  background-color: rgba(6, 29, 47, 0.84);
+  color: #fff;
+}
 /*.cdk-overlay-container{
   .cdk-global-overlay-wrapper{
     top: 5% !important;

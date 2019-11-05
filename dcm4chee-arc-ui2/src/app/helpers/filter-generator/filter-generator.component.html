@@ -119,7 +119,52 @@
                     <mat-radio-group [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
                         <mat-radio-button *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description}}">{{option.text}}</mat-radio-button>
                     </mat-radio-group>
-                    <p-calendar [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
+<!--                    <p-calendar
+                            [disabled]="line[index].disabled"
+                            [ngStyle]="line[index].style"
+                            (ngModelChange)="model[line[index].filterKey] = $event.value.format('YYYYMMDD');filterChange($event)"
+                            [(ngModel)]="model[line[index].filterKey]"
+                            *ngSwitchCase="'p-calendar'"
+                            dataType="string"
+                            dateFormat="yymmdd"
+                            monthNavigator="true"
+                            yearNavigator="true"
+                            yearRange="1800:2100"
+                            placeholder="{{line[index].description || line[index].placeholder}}"
+                            title="{{line[index]?.description}}"
+                    ></p-calendar>-->
+<!--                      <mat-form-field
+                              class="material_calendar"
+                              *ngSwitchCase="'p-calendar'"
+                              [floatLabel]="'never'"
+                              [ngStyle]="line[index].style"
+
+                      >
+                          <input matInput
+                                 [disabled]="line[index].disabled"
+                                 [matDatepicker]="picker"
+                                 placeholder="{{line[index].description || line[index].placeholder}}"
+                                 title="{{line[index]?.description}}"
+                                 [(ngModel)]="model[line[index].filterKey]"
+                          >
+                          <mat-datepicker-toggle matSuffix [for]="picker">
+                              <mat-icon matDatepickerToggleIcon>
+                                  <span class="glyphicon glyphicon-calendar"></span>
+                              </mat-icon>
+                          </mat-datepicker-toggle>
+                          <mat-datepicker #picker></mat-datepicker>
+                      </mat-form-field>-->
+                      <range-picker
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'p-calendar'"
+                              [onlyDate]="line[index].onlyDate"
+                              [model]="model[line[index]?.filterKey]"
+                              (modelChange)="dateChanged(line[index]?.filterKey, $event)"
+                              [datePickerMode]="true"
+                              placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                              dateFormat="yymmdd"
+                              title="{{line[index]?.description}}"
+                      ></range-picker>
                     <range-picker
                             [ngStyle]="line[index].style"
                             *ngSwitchCase="'range-picker'"
