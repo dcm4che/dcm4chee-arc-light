@@ -1480,6 +1480,9 @@ mat-form-field{
     }
   }
 }
+.single_date_mode .mat-form-field-wrapper .mat-form-field-infix > *{
+  display: none;
+}
 .vex.vex-theme-os{
   h5{
     font-size: 22px;

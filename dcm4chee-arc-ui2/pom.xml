@@ -54,8 +54,8 @@
 
   <properties>
     <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
-    <node.version>v6.12.0</node.version>
-    <yarn.version>v1.3.2</yarn.version>
+    <node.version>v12.13.0</node.version>
+    <yarn.version>v1.19.1</yarn.version>
     <yarn.run>prod</yarn.run>
   </properties>
 

@@ -93,6 +93,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
         width: 45%;
         input{
           border:none;
+          border-bottom: 1px solid #cccccc;
         }
         &.single_datepicker{
           width: 100%;
@@ -128,12 +129,22 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
           width: 47%;
         }
       }
-      span{
+      span.dash{
         display: inline-block;
         width: 6%;
-        height: 50px;
+        height: 30px;
         text-align: center;
-        line-height: 50px;
+        line-height: 30px;
+      }
+      .mat-icon-button{
+        .mat-button-wrapper{
+          .mat-icon{
+            span.glyphicon-calendar{
+              width: 26px;
+              height: 26px;
+            }
+          }
+        }
       }
     }
     .right{
@@ -341,6 +352,6 @@ ul.j4care_select{
     }
   }
 }
-.mat-form-field-appearance-legacy.single_date_mode .mat-form-field-infix{
-  display: none;
+.single_date_mode .mat-form-field-wrapper .mat-form-field-infix{
+  display: none !important;
 }

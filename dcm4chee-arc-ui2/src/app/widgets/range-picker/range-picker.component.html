@@ -47,7 +47,9 @@
                            (dateChange)="addEvent('fromModel', $event)"
                     >
                     <mat-datepicker-toggle matSuffix [for]="picker">
-                        <span class="glyphicon glyphicon-calendar"></span>
+                        <mat-icon matDatepickerToggleIcon>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </mat-icon>
                     </mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
@@ -66,7 +68,7 @@
                                     monthNavigator="true"
                                     showButtonBar="true"></p-calendar>-->
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
-                <span *ngIf="mode != 'single'">-</span>
+                <span class="dash" *ngIf="mode != 'single'">-</span>
                 <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'leftOpen'"  [floatLabel]="'never'">
                     <input matInput
                            [matDatepicker]="picker"
@@ -75,7 +77,11 @@
                            (dateInput)="addEvent('toModel', $event)"
                            (dateChange)="addEvent('toModel', $event)"
                     >
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle matSuffix [for]="picker">
+                        <mat-icon matDatepickerToggleIcon>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </mat-icon>
+                    </mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
                 <!--            <p-calendar
@@ -103,7 +109,11 @@
                            (dateInput)="addEvent('toModel', $event)"
                            (dateChange)="addEvent('toModel', $event)"
                     >
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle matSuffix [for]="picker">
+                        <mat-icon matDatepickerToggleIcon>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </mat-icon>
+                    </mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
                 <!--            <p-calendar
@@ -159,7 +169,7 @@
             <div class="left {{mode}}_mode" *ngIf="includeTime || onlyTime" >
                 <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="fromTimeModel = $event" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
-                <span *ngIf="mode != 'single'">-</span>
+                <span *ngIf="mode != 'single'" class="dash">-</span>
                 <time-picker [model]="toTimeModel" *ngIf="mode === 'range' || mode === 'leftOpen'" cohereMode="true" (onValueSet)="toTimeModel = $event" placeholder="to (hh:mm:ss)"></time-picker>
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
                 <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="singleTimeModel = $event" placeholder="(hh:mm:ss)"></time-picker>

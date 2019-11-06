@@ -5,7 +5,7 @@
     "types": []
   },
   "angularCompilerOptions": {
-    "enableIvy": true,
+    "enableIvy": false,
     "allowEmptyCodegenFiles": true
   },
   "files": [
