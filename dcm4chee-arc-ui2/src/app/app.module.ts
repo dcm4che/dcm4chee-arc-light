@@ -75,7 +75,6 @@ import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {j4care} from "./helpers/j4care.service";
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
-import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 import {AuthGuard} from "./helpers/permissions/auth.guard";
@@ -195,7 +194,6 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
         MatNativeDateModule,
         MatButtonModule,
         CommonModule,
-        CalendarModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
         LoadingBarModule,
@@ -248,7 +246,6 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
         ExportService,
         J4careHttpService,
         DatePipe,
-        CalendarModule,
         StorageCommitmentService,
         StorageSystemsService,
         CreateExporterService,

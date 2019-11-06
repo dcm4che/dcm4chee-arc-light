@@ -40,7 +40,7 @@
                 </ng-container>
                 <ng-container *ngSwitchCase="'actions-menu'">
                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons patient'">
+                    <mat-menu #menu="matMenu" class="study_action_buttons patient">
 <!--                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
                             <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
                             <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
@@ -95,7 +95,7 @@
                                 </ng-container>
                             </div>-->
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons study'" (click)="$event.stopPropagation()">
+                            <mat-menu #menu="matMenu" class="study_action_buttons study" (click)="$event.stopPropagation()">
 <!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
                                     <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                     <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
@@ -140,7 +140,7 @@
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'actions-menu'">
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                    <mat-menu #menu="matMenu" [classList]="'study_action_buttons series'">
+                                    <mat-menu #menu="matMenu" class="study_action_buttons series">
 <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                             <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                             <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
@@ -188,7 +188,7 @@
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'actions-menu'">
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                            <mat-menu #menu="matMenu" [classList]="'study_action_buttons instance'">
+                                            <mat-menu #menu="matMenu" class="study_action_buttons instance">
 <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                     <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                     <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
@@ -307,7 +307,7 @@
                         </ng-container>
                         <ng-container *ngSwitchCase="'actions-menu'">
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                            <mat-menu #menu="matMenu" [classList]="'mwl_action_buttons'" (click)="$event.stopPropagation()">
+                            <mat-menu #menu="matMenu" class="mwl_action_buttons" (click)="$event.stopPropagation()">
                                 <ng-container *ngFor="let action of mwl_table.menu.actions">
                                     <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
@@ -369,7 +369,7 @@
                         </ng-container>
                         <ng-container *ngSwitchCase="'actions-menu'">
                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                            <mat-menu #menu="matMenu" [classList]="'diff_action_buttons'" (click)="$event.stopPropagation()">
+                            <mat-menu #menu="matMenu" class="diff_action_buttons" (click)="$event.stopPropagation()">
                                 <ng-container *ngFor="let action of diff_table.menu.actions">
                                     <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>

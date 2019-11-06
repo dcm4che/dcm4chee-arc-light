@@ -1,12 +1,31 @@
 <div class="listblock" *ngFor="let o of getKeys(object); let i=index; trackBy:trackByFn" [ngClass]="{'firstlevel':!prefix,'sq':object[o].vr === 'SQ'}">
     <div class="form_code">{{prefix}} {{o}}</div>
     <div class="form_name">{{DCM4CHE.elementName.forTag(o,privateCreator(o))}}</div>
-    <div (click)="removeAttr(o)" *ngIf="object[o].vr === 'SQ' && !prefix " class="glyphicon glyphicon-remove"></div>
+    <div (click)="removeAttr(o)" *ngIf="object[o].vr === 'SQ' && !prefix " class="iod_remove glyphicon glyphicon-remove"></div>
     <div class="form_input" *ngIf="object[o].vr != 'SQ'">
         <div  *ngFor="let v of object[o].Value; let i=index; trackBy:trackByFn">
             <div *ngIf="object[o].vr != 'PN'" class="ariod">
                 <input class="{{o}}" [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:false,iod:iod,externalInternalAetMode:externalInternalAetMode}" *ngIf="object[o].vr != 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"  [(ngModel)]="object[o].Value[i]">
-                <p-calendar class="{{o}}" *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'" dataType="string" [(ngModel)]="object[o].Value[i]" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100"></p-calendar>
+<!--                <p-calendar
+                        class="{{o}}"
+                        *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
+                        dataType="string"
+                        [(ngModel)]="object[o].Value[i]"
+                        dateFormat="yymmdd"
+                        monthNavigator="true"
+                        yearNavigator="true"
+                        yearRange="1800:2100"
+                ></p-calendar>-->
+
+                <range-picker
+                        class="{{o}}"
+                        *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
+                        [model]="object[o].Value[i]"
+                        (modelChange)="object[o].Value[i] = $event"
+                        [datePickerMode]="true"
+                        dateFormat="YYYYMMDD"
+                ></range-picker>
+
                 <select class="selectelement {{o}}" *ngIf="o === '00100040' && o != '00102203'"
                         [ngModel]="object[o].Value[0]"
                         (ngModelChange)="onChange($event, 'object.00100040.Value[0]')"
@@ -18,19 +37,19 @@
                     <option value="UNALTERED">Unaltered</option>
                 </select>
                 <specific-char-picker [(model)]="object[o].Value[i]" (modelChange)="charChange($event)" *ngIf="o === '00080005'"></specific-char-picker>
-                <div [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:true,iod:iod}" (click)="removeAttr(o)" *ngIf="o != '00104000' && !prefix" class="glyphicon glyphicon-remove {{o}}"></div>
+                <div [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:true,iod:iod}" (click)="removeAttr(o)" *ngIf="o != '00104000' && !prefix" class="iod_remove glyphicon glyphicon-remove {{o}}"></div>
             </div>
             <div class="multi_input" *ngIf="object[o].vr === 'PN'">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Alphabetic" [(ngModel)]="object[o].Value[i]['Alphabetic']">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Ideographic" [(ngModel)]="object[o].Value[i]['Ideographic']">
                 <input placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Phonetic" [(ngModel)]="object[o].Value[i]['Phonetic']">
-                <div (click)="removeAttr(o)" *ngIf="o != '00104000' && o != '00080005' && !prefix" class="glyphicon glyphicon-remove"></div>
+                <div (click)="removeAttr(o)" *ngIf="o != '00104000' && o != '00080005' && !prefix" class="iod_remove glyphicon glyphicon-remove"></div>
             </div>
         </div>
     </div>
     <div *ngIf="object[o].vr === 'SQ'">
         <div *ngFor="let io of object[o].Value; let i=index; trackBy:trackByFn" class="sqiod">
-            <div (click)="removeAttr(o,i)" *ngIf="(!prefix || prefix==='') && object[o].Value.length > 1" class="glyphicon glyphicon-remove"></div>
+            <div (click)="removeAttr(o,i)" *ngIf="(!prefix || prefix==='') && object[o].Value.length > 1" class="iod_remove glyphicon glyphicon-remove"></div>
             <iod-form-generator  [object]="object[o].Value[i]" [mode]="mode" [prefix]="'>'+ (prefix || '')"></iod-form-generator>
         </div>
     </div>

@@ -70,19 +70,19 @@
                             <span class="glyphicon glyphicon-duplicate"></span>
                         </a>
                     </td>
-                    <td><div *ngIf="device.dicomDeviceName" >
-                        <a title="Edit {{device.dicomDeviceName}}" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
-                            {{device.dicomDeviceName}}
+                    <td><div *ngIf="device['dicomDeviceName']" >
+                        <a title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
+                            {{device['dicomDeviceName']}}
                         </a>
                     </div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomInstitutionDepartmentName[0]')" >{{device.dicomInstitutionDepartmentName[0]}}</div></td>
-                    <td><div *ngIf="device.dicomDescription" >{{device.dicomDescription}}</div></td>
-                    <td><div *ngIf="device.dicomManufacturer" >{{device.dicomManufacturer}}</div></td>
-                    <td><div *ngIf="device.dicomManufacturerModelName" >{{device.dicomManufacturerModelName}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomPrimaryDeviceType[0]')" >{{device.dicomPrimaryDeviceType[0]}}</div></td>
-                    <td><div *ngIf="device.dicomStationName" >{{device.dicomStationName}}</div></td>
-                    <td *ngIf="device.dicomInstalled === false">false</td>
-                    <td *ngIf="device.dicomInstalled != false">true</td>
+                    <td><div *ngIf="_.hasIn(device,'dicomInstitutionDepartmentName[0]')" >{{device['dicomInstitutionDepartmentName'][0]}}</div></td>
+                    <td><div *ngIf="_.hasIn(device,'dicomDescription')" >{{_.get(device,"dicomDescription")}}</div></td>
+                    <td><div *ngIf="_.hasIn(device,'dicomManufacturer')" >{{_.get(device,"dicomManufacturer")}}</div></td>
+                    <td><div *ngIf="_.hasIn(device,'dicomManufacturerModelName')" >{{_.get(device,"dicomManufacturerModelName")}}</div></td>
+                    <td><div *ngIf="_.hasIn(device,'dicomPrimaryDeviceType[0]')" >{{_.get(device,"dicomPrimaryDeviceType[0]")}}</div></td>
+                    <td><div *ngIf="_.hasIn(device,'dicomStationName')" >{{device['dicomStationName']}}</div></td>
+                    <td *ngIf="device['dicomInstalled']=== false">false</td>
+                    <td *ngIf="device['dicomInstalled']!= false">true</td>
                 </tr>
                 </tbody>
             </table>

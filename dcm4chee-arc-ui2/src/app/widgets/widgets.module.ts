@@ -10,7 +10,6 @@ import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
 import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-instances/delete-rejected-instances.component';
-import {CalendarModule} from 'primeng/components/calendar/calendar';
 import { CreateAeComponent } from './dialogs/create-ae/create-ae.component';
 import { ProductLabellingComponent } from './dialogs/product-labelling/product-labelling.component';
 import { CreateExporterComponent } from './dialogs/create-exporter/create-exporter.component';
@@ -45,8 +44,7 @@ import { StudyTransferringOverviewComponent } from './dialogs/study-transferring
     imports: [
         CommonModule,
         BrowserModule,
-        FormsModule,
-        CalendarModule
+        FormsModule
     ],
     declarations: [WidgetsComponent],
     exports: [WidgetsComponent],

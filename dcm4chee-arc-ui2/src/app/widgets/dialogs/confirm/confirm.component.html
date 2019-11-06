@@ -6,7 +6,21 @@
             </h3>
             <div class="inputpart" *ngIf="parameters.pCalendar">
                 <ng-container *ngFor="let calendar of parameters.pCalendar;let index = index;">
-                    <p-calendar [(ngModel)]="parameters.result.pCalendar[index]" dateFormat="{{calendar.dateFormat}}" monthNavigator="{{calendar.monthNavigator}}" yearNavigator="{{calendar.yearNavigator}}" yearRange="{{calendar.yearRange}}" placeholder="{{calendar.placeholder}}"></p-calendar>
+<!--                    <p-calendar
+                            [(ngModel)]="parameters.result.pCalendar[index]"
+                            dateFormat="{{calendar.dateFormat}}"
+                            monthNavigator="{{calendar.monthNavigator}}"
+                            yearNavigator="{{calendar.yearNavigator}}"
+                            yearRange="{{calendar.yearRange}}"
+                            placeholder="{{calendar.placeholder}}"
+                    ></p-calendar>-->
+                    <range-picker
+                            [model]="parameters.result.pCalendar[index]"
+                            (modelChange)="parameters.result.pCalendar[index] = $event"
+                            [datePickerMode]="true"
+                            [placeholder]="calendar.placeholder"
+                            dateFormat="YYYYMMDD"
+                    ></range-picker>
                 </ng-container>
             </div>
             <div class="dropdownpart" *ngIf="parameters.select">
@@ -29,7 +43,22 @@
                 </div>
             </ng-container>
             <div *ngIf="parameters.date" class="datepicker">
-                <p-calendar dataType="string" [(ngModel)]="parameters.result.date" dateFormat="{{ parameters.date.format }}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{parameters.date.placeholder}}"></p-calendar>
+<!--                <p-calendar
+                        dataType="string"
+                        [(ngModel)]="parameters.result.date"
+                        dateFormat="{{ parameters.date.format }}"
+                        monthNavigator="true"
+                        yearNavigator="true"
+                        yearRange="1800:2100"
+                        placeholder="{{parameters.date.placeholder}}"
+                ></p-calendar>-->
+                <range-picker
+                        [model]="parameters.result.date"
+                        (modelChange)="parameters.result.date = $event"
+                        [datePickerMode]="true"
+                        [placeholder]="parameters.date.placeholder"
+                        dateFormat="YYYYMMDD"
+                ></range-picker>
             </div>
             <div *ngIf="parameters.warningOn && parameters.warningOn.message">
                 <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>

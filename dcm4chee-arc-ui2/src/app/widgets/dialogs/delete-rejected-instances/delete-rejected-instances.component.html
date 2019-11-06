@@ -9,7 +9,22 @@
         <div class="form-group">
         <label>Maximum reject date of instances to delete</label>
             <!--<input [(ngModel)]="rejectedBefore.date" autocomplete="off" class="form-control" (click)="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" close-text="Close"/>-->
-            <p-calendar dataType="string" [(ngModel)]="results.rejectedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Delete all instances before this date"></p-calendar>
+<!--            <p-calendar
+                    dataType="string"
+                    [(ngModel)]="results.rejectedBefore"
+                    dateFormat="yy-mm-dd"
+                    monthNavigator="true"
+                    yearNavigator="true"
+                    yearRange="1800:2100"
+                    placeholder=" Delete all instances before this date"
+            ></p-calendar>-->
+            <range-picker
+                    [model]="results.rejectedBefore"
+                    (modelChange)="results.rejectedBefore = $event"
+                    [datePickerMode]="true"
+                    dateFormat="YYYY-MM-DD"
+                    placeholder="Delete all instances before this date"
+            ></range-picker>
         </div>
         <div class="checkbox">
         <label>

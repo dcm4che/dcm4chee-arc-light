@@ -40,7 +40,6 @@
     "lodash": "^4.17.15",
     "material-design-icons": "^3.0.1",
     "moment": "^2.24.0",
-    "primeng": "^8.1.1",
     "rxjs": "~6.5.3",
     "rxjs-compat": "^6.5.3",
     "tslib": "^1.10.0",
@@ -49,7 +48,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.803.16",
-    "@angular/cli": "^8.3.16",
+    "@angular/cli": "^8.3.17",
     "@angular/compiler-cli": "^8.2.13",
     "@angular/language-service": "^8.2.13",
     "@types/jasmine": "~3.3.8",

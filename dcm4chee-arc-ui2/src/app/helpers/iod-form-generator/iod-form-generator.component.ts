@@ -5,8 +5,7 @@ declare var DCM4CHE: any;
 
 @Component({
   selector: 'iod-form-generator',
-  templateUrl: './iod-form-generator.component.html',
-  styles: []
+  templateUrl: './iod-form-generator.component.html'
 })
 export class IodFormGeneratorComponent implements OnInit {
     @Input() object;

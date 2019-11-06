@@ -54,7 +54,7 @@
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="arrayobject" *ngSwitchCase="'arrayobject'"  [formArrayName]="formelement.key">
-                    <div *ngFor="let item of formelement.options; let i=index" name="" [formGroupName]="i" >
+                    <div *ngFor="let item of formelement.options; let i=index" name="" [formGroupName]="i.toString()">
                         <div *ngFor="let element of item.element">
                             <df-element [formelement]="element" [form]="form['controls'][formelement.key]['controls'][i]" [formelements]="formelements"></df-element>
                         </div>

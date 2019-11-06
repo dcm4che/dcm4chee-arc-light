@@ -29,8 +29,6 @@
             ],
             "styles": [
               "node_modules/animate.css/animate.min.css",
-              "node_modules/primeng/resources/primeng.min.css",
-              "node_modules/primeng/resources/themes/nova-light/theme.css",
               "node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css",
               "node_modules/jspdf/dist/jspdf.min.js",
               "node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js",

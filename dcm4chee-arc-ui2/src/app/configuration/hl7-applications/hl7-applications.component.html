@@ -37,15 +37,15 @@
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
                     </td>
-                    <td><div *ngIf="device.dicomDeviceName" >
-                        <a title="Edit device" href="" routerLink="/device/edit/{{device.dicomDeviceName}}">
-                            {{device.dicomDeviceName}}
+                    <td><div *ngIf="device['dicomDeviceName']" >
+                        <a title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
+                            {{device['dicomDeviceName']}}
                         </a>
                     </div></td>
-                    <td><div *ngIf="device.dicomDescription" >{{device.dicomDescription}}</div></td>
-                    <td><div *ngIf="device.hl7ApplicationName" >{{device.hl7ApplicationName}}</div></td>
+                    <td><div *ngIf="device['dicomDescription']" >{{device['dicomDescription']}}</div></td>
+                    <td><div *ngIf="device['hl7ApplicationName']" >{{device['hl7ApplicationName']}}</div></td>
                     <td>
-                        <connection-formater [dicomNetworkConnection]="device.dicomNetworkConnection"></connection-formater>
+                        <connection-formater [dicomNetworkConnection]="device['dicomNetworkConnection']"></connection-formater>
                     </td>
                 </tr>
                 </tbody>

@@ -162,7 +162,7 @@
                               (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                               [datePickerMode]="true"
                               placeholder="{{line[index]?.description || line[index]?.placeholder}}"
-                              dateFormat="yymmdd"
+                              dateFormat="YYYYMMDD"
                               title="{{line[index]?.description}}"
                       ></range-picker>
                     <range-picker
@@ -173,7 +173,6 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
-                            dateFormat="yymmdd"
                             title="{{line[index]?.description}}"
                     ></range-picker>
                     <range-picker
@@ -184,7 +183,6 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
-                            dateFormat="yymmdd"
                             title="{{line[index]?.description}}"
                             dateRange="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
@@ -197,7 +195,6 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
-                            dateFormat="yymmdd"
                             title="{{line[index]?.description}}"
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"

@@ -597,7 +597,15 @@ p-calendar{
   &.csv_icon{
     background-image: url("assets/img/csv_icon.png");
     background-repeat:no-repeat;
-    height:100%;
+    height:26px;
+    width:30px;
+    background-position: center center;
+    float: left;
+  }
+  &.pdf_icon{
+    background-image: url("assets/img/pdf_icon.png");
+    background-repeat:no-repeat;
+    height:26px;
     width:30px;
     background-position: center center;
     float: left;
@@ -1314,7 +1322,7 @@ p-calendar{
   padding:3px 8px;
   &.firstlevel{
     padding-left:5%;
-    &>.glyphicon.glyphicon-remove{
+    &>.glyphicon.glyphicon-remove.iod_remove{
       right:15px;
     }
     &.sq{
@@ -1334,13 +1342,13 @@ p-calendar{
   &:hover{
     background:#ddd;
   }
-  & > .glyphicon.glyphicon-remove{
+  & > .glyphicon.glyphicon-remove.iod_remove{
     right: 15px;
   }
   input{
     padding-left:7px;
   }
-  .glyphicon.glyphicon-remove {
+  .glyphicon.glyphicon-remove.iod_remove {
     position: absolute;
     right: 15px;
     top: 9px;
@@ -1354,7 +1362,7 @@ p-calendar{
       right: 23px;
     }
   }
-  &:hover .glyphicon.glyphicon-remove {
+  &:hover .glyphicon.glyphicon-remove.iod_remove {
     display: inline-block;
   }
   .form_name.sq {
@@ -1386,10 +1394,21 @@ p-calendar{
       .input,.no-close-button {
         width: 97%;
       }
-      &>.glyphicon.glyphicon-remove{
+      &>.glyphicon.glyphicon-remove.iod_remove{
         right:-10px;
       }
     }
+  }
+  .range_picker{
+    width: 98%;
+  }
+  .range_picker .mat-form-field {
+    display: inline-block;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    width: 0px;
   }
 
 }
@@ -3613,6 +3632,84 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     }
     .ui-state-highlight{
       border-radius: 0;
+    }
+  }
+
+  j4care-option{
+    float: left;
+    width: 100%;
+    .option{
+      float: left;
+      width: 100%;
+      color: #000;
+      input[type=checkbox]{
+        float: left;
+        margin: 4px 10px 0 3px;
+        box-sizing: border-box;
+        padding: 0;
+      }
+      .html_label{
+        float: left;
+      }
+    }
+  }
+  p-multiselect{
+
+    .multi_select{
+      .ui-multiselect-label{
+        height: 24px;
+        overflow: hidden;
+      }
+    }
+  }
+  .text_info_block{
+    //padding: 13px 20px;
+    position: relative;
+    .close{
+      position: absolute;
+      right: 8px;
+      top: 3px;
+      color: white;
+      font-size: 15px;
+    }
+    ul{
+      padding: 0;
+      list-style: none;
+      float: left;
+      &.filter_block{
+        padding: 10px 0;
+      }
+      li{
+        label.text_label{
+          width: 48%;
+          text-align: right;
+        }
+        span.text_value{
+          margin-left: 10px;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  table.table{
+    tr{
+      td{
+        table.status_subtable{
+          margin: 0;
+          tbody{
+            &>tr{
+              &>td{
+                padding:0px 5px;
+                background: transparent !important;
+                border:none !important;
+                &:first-child{
+                  text-align: right;
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
   .study_order{

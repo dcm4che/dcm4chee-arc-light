@@ -122,6 +122,10 @@ $pink:rgba(82, 36, 88, 0.85);
         width: 25px;
         display: block;
         text-align: center;
+        min-width: 25px;
+        height: 20px;
+        line-height: 12px;
+        padding: 0;
       }
       .red_border{
         border-bottom: 1px solid red;

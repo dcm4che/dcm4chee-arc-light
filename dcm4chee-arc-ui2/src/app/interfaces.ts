@@ -35,6 +35,7 @@ export class SelectDropdown<T,S={}> {
     private _htmlLabel:string;
     private _wholeObject:T;
     private _selected;
+    private _description:string;
     constructor(value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:T, selected?:boolean){
         this._value = value;
         this._text = text || value;
@@ -101,6 +102,14 @@ export class SelectDropdown<T,S={}> {
     set selected(value) {
         this._selected = value;
     }
+
+    get description(): string {
+        return this._description;
+    }
+
+    set description(value: string) {
+        this._description = value;
+    }
 }
 export type Quantity = "count"|"size"|string;
 export type StudyDateMode = "StudyReceiveDateTime"|"StudyDate"|string;
@@ -133,7 +142,7 @@ export interface FilterSchemaElement {
 
 
 export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
-export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff";
+export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | string;
 export type AccessLocation = "internal" | "external";
 export type PaginationDirection = "prev" | "next";
 export interface StudyFilterConfig {

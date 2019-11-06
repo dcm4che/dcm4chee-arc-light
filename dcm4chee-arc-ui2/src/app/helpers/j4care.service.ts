@@ -1141,10 +1141,10 @@ export class j4care {
             //If there are more than 1 than check if there is one with https protocol and return the first what you find.
             if(filteredConnections.length > 1){
                 selectedConnection = filteredConnections.filter(conn=>{
-                    return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https";
+                    return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https" && !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
                 })[0];
             }
-            selectedConnection = selectedConnection || filteredConnections[0];
+            selectedConnection = selectedConnection || filteredConnections.filter(conn=>!(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false))[0];
             if(selectedConnection){
                 return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
             }else{

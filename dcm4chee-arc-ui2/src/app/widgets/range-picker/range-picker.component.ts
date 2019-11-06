@@ -67,7 +67,8 @@ export class RangePickerComponent implements OnInit {
         this[mode] = (<Moment>e.value).format("YYYYMMDD");
     }
     setSingeDatePicker(mode, e){
-        this[mode] = (<Moment>e.value).format("YYYYMMDD");
+        let format = this.dateFormat || "YYYYMMDD";
+        this[mode] = (<Moment>e.value).format(format);
         this.setRange();
     }
     closeCalendar(clanedarName){

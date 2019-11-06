@@ -51,25 +51,25 @@
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
                 </td>
-                <td>{{ae.dicomAETitle}}</td>
+                <td>{{ae['dicomAETitle']}}</td>
                 <td>
-                    <a title="Edit device" href="" routerLink="/device/edit/{{ae.dicomDeviceName}}">
-                        {{ae.dicomDeviceName}}
+                    <a title="Edit device" href="" routerLink="/device/edit/{{ae['dicomDeviceName']}}">
+                        {{ae['dicomDeviceName']}}
                     </a>
                 </td>
                 <td>
-                    <span *ngFor="let otherae of ae.dcmOtherAETitle">{{otherae}}<br></span>
+                    <span *ngFor="let otherae of ae['dcmOtherAETitle']">{{otherae}}<br></span>
                 </td>
-                <td>{{ae.dicomDescription}}</td>
-                <td>{{ae.dicomAssociationInitiator}}</td>
-                <td>{{ae.dicomAssociationAcceptor}}</td>
+                <td>{{ae['dicomDescription']}}</td>
+                <td>{{ae['dicomAssociationInitiator']}}</td>
+                <td>{{ae['dicomAssociationAcceptor']}}</td>
                 <td>
-                    <span *ngFor="let cluster of ae.dicomApplicationCluster">{{cluster}}<br></span>
+                    <span *ngFor="let cluster of ae['dicomApplicationCluster']">{{cluster}}<br></span>
                 </td>
-                <td *ngIf="ae.dicomInstalled === false">false</td>
-                <td *ngIf="ae.dicomInstalled != false" [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
+                <td *ngIf="ae['dicomInstalled']=== false">false</td>
+                <td *ngIf="ae['dicomInstalled']!= false" [innerHtml]="ae['dicomInstalled']|| 'inherit'"></td>
                 <td>
-                    <connection-formater [dicomNetworkConnection]="ae.dicomNetworkConnection"></connection-formater>
+                    <connection-formater [dicomNetworkConnection]="ae['dicomNetworkConnection']"></connection-formater>
                 </td>
             </tr>
             </tbody>
