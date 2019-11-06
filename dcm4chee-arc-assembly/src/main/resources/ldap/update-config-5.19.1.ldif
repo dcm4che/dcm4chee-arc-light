@@ -39,6 +39,40 @@ dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dcmProtocol: HTTP
 cn: https
 
+dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
+dn: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
+dn: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: localhost
+dicomPort: 6514
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 replace: dicomNetworkConnectionReference
@@ -176,3 +210,21 @@ changetype: modify
 replace: dicomNetworkConnectionReference
 dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Record Repository,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
