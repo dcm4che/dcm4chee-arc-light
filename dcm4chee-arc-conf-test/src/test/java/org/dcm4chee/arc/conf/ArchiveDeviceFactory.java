@@ -1372,7 +1372,6 @@ class ArchiveDeviceFactory {
         dicomTLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        dicomTLS.setInstalled(Boolean.FALSE);
         device.addConnection(dicomTLS);;
 
         Connection https = new Connection("https", archiveHost, 8443);
@@ -1380,7 +1379,9 @@ class ArchiveDeviceFactory {
         https.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        https.setInstalled(Boolean.FALSE);
+        if (configType != ConfigType.DOCKER) {
+            https.setInstalled(Boolean.FALSE);
+        }
         device.addConnection(https);;
 
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
@@ -1593,7 +1594,6 @@ class ArchiveDeviceFactory {
         hl7TLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        hl7TLS.setInstalled(Boolean.FALSE);
         device.addConnection(hl7TLS);
         hl7App.addConnection(hl7TLS);
     }

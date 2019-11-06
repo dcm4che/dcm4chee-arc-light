@@ -3,14 +3,13 @@ version: 1
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmClientBindAddress: 0.0.0.0
-dicomInstalled: FALSE
 dcmMaxOpsInvoked: 0
 dcmBindAddress: 0.0.0.0
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmMaxOpsPerformed: 0
 cn: dicom-tls
-dicomHostname: archive-host
+dicomHostname: localhost
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dicomPort: 2762
@@ -18,13 +17,12 @@ dicomPort: 2762
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmClientBindAddress: 0.0.0.0
-dicomInstalled: FALSE
 dcmBindAddress: 0.0.0.0
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmProtocol: HL7
 cn: hl7-tls
-dicomHostname: archive-host
+dicomHostname: localhost
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dicomPort: 12575
@@ -32,7 +30,7 @@ dicomPort: 12575
 dn: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dicomInstalled: FALSE
-dicomHostname: archive-host
+dicomHostname: localhost
 dicomPort: 8443
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection

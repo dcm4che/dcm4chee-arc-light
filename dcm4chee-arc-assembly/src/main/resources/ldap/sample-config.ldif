@@ -584,7 +584,6 @@ cn: syslog
 
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
-dicomInstalled: FALSE
 dcmBindAddress: 0.0.0.0
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
@@ -597,7 +596,6 @@ dicomPort: 12575
 
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
-dicomInstalled: FALSE
 dcmMaxOpsInvoked: 0
 dcmBindAddress: 0.0.0.0
 objectClass: dicomNetworkConnection
