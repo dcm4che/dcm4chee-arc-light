@@ -1786,6 +1786,10 @@ class ArchiveDeviceFactory {
         studySeriesQueryAttrExportRule.setExporterIDs(CALC_QUERY_ATTRS_EXPORTER_ID);
         ext.addExportRule(studySeriesQueryAttrExportRule);
 
+        if (configType == configType.DOCKER) {
+            ext.setInvokeImageDisplayPatientURL("x");
+            ext.setInvokeImageDisplayStudyURL("x");
+        }
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
