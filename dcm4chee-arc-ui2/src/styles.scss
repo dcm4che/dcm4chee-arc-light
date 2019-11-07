@@ -356,6 +356,9 @@ fieldset {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+.btn-group .btn+.btn, .btn-group .btn+.btn-group, .btn-group .btn-group+.btn, .btn-group .btn-group+.btn-group {
+  margin-left: -1px;
+}
 .btn {
   display: inline-block;
   padding: 6px 12px;
@@ -376,6 +379,12 @@ fieldset {
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
+}
+label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: 700;
 }
 table-bordered, .table-bordered{
   &>tbody>tr>td,

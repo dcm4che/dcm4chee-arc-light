@@ -909,12 +909,13 @@ export class Globalvar {
                     filterKey:"incomplete",
                     text:"Only incomplete",
                     description:"Only incomplete studies"
-                },{
+                },
+                {
                     tag:"input",
                     type:"text",
-                    filterKey:"StudyDescription",
-                    description:"Study description",
-                    placeholder:"Study description"
+                    filterKey:"StudyInstanceUID",
+                    description:"Study Instance UID",
+                    placeholder:"Study Instance UID"
                 },{
                     tag:"select",
                     options:aets,
@@ -1023,13 +1024,6 @@ export class Globalvar {
             {
                 tag:"input",
                 type:"text",
-                filterKey:"StudyInstanceUID",
-                description:"Study Instance UID",
-                placeholder:"Study Instance UID"
-            },
-            {
-                tag:"input",
-                type:"text",
                 filterKey:"IssuerOfPatientID",
                 description:"Issuer of patient",
                 placeholder:"Issuer of patient"
@@ -1047,6 +1041,12 @@ export class Globalvar {
                 filterKey:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
                 description:"Issuer of accession number",
                 placeholder:"Issuer of accession number"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"StudyDescription",
+                description:"Study description",
+                placeholder:"Study description"
             },
             {
                 tag:"modality",
