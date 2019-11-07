@@ -1549,13 +1549,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values();
     }
 
-    public List<StorageDescriptor> getStorageDescriptors(String[] storageIDs) {
+    public List<StorageDescriptor> getFreeStorageDescriptors(String[] storageIDs) {
+        return getStorageDescriptors(storageIDs, false);
+    }
+
+    public List<StorageDescriptor> getFullStorageDescriptors(String[] storageIDs) {
+        return getStorageDescriptors(storageIDs, true);
+    }
+
+    private List<StorageDescriptor> getStorageDescriptors(String[] storageIDs, boolean storageThresholdExceeded) {
         List<StorageDescriptor> list = new ArrayList<>(storageIDs.length);
         for (String storageID : storageIDs) {
             StorageDescriptor descriptor = storageDescriptorMap.get(storageID);
             if (descriptor == null)
                 throw new IllegalArgumentException("No Storage configured with ID:" + storageID);
-            list.add(descriptor);
+            if (descriptor.isStorageThresholdExceeded() == storageThresholdExceeded) {
+                list.add(descriptor);
+            }
         }
         return list;
     }

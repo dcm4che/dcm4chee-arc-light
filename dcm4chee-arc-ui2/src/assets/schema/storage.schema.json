@@ -8,6 +8,7 @@
     "dcmInstanceAvailability",
     "dcmRetrieveCacheMaxParallel",
     "dcmReadOnly",
+    "dcmStorageThresholdExceedsPermanently",
     "dcmNoDeletionConstraint",
     "dcmDeleterThreads",
     "dcmStorageDuration"
@@ -69,12 +70,6 @@
       "type": "boolean",
       "default": false
     },
-    "dcmNoDeletionConstraint": {
-      "title": "No Deletion Constraint",
-      "description": "Delete Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured.",
-      "type": "boolean",
-      "default": false
-    },
     "dcmStorageClusterID": {
       "title": "Storage Cluster ID",
       "description": "Identifies a Storage to belong to a Storage Cluster. Objects of one Study may be distributed over Storage Systems of one Storage Cluster. Used by threshold triggered deletion.",
@@ -82,8 +77,25 @@
     },
     "dcmStorageThreshold": {
       "title": "Storage Threshold",
-      "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
+      "description": "Minimal Usable Space on Storage System. If the usable space falls below that value the Storage System will be marked as full by setting Storage Threshold Exceeds to the current time and - if Storage Threshold Exceeds Permanently is true - the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
       "type": "string"
+    },
+    "dcmStorageThresholdExceedsPermanently": {
+      "title": "Storage Threshold Exceeds Permanently",
+      "description": "Indicates to removed the Storage System from the list of configured Storage Systems of the Network AE requesting that Storage System when the Storage Threshold exceeds.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmStorageThresholdExceeds": {
+      "title": "Storage Threshold Exceeds",
+      "description": "Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.",
+      "type": "string"
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "No Deletion Constraint",
+      "description": "Delete Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured.",
+      "type": "boolean",
+      "default": false
     },
     "dcmDeleterThreshold": {
       "title": "Deleter Threshold",

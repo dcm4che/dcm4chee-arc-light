@@ -1015,7 +1015,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.170 NAME 'dcmAudit2XmlFhirTemplateURI'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.171 NAME 'dcmStorageThreshold'
-  DESC 'Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)'
+  DESC 'Minimal Usable Space on Storage System. If the usable space falls below that value the Storage System will be marked as full by setting dmcStorageThresholdExceeds to the current time and - if dcmStorageThresholdExceedsPermanently is true or absent - the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1808,6 +1808,18 @@ attributetype ( 1.2.40.0.13.1.15.110.3.313 NAME 'dcmMergeAttribute'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.314 NAME 'dcmStorageThresholdExceedsPermanently'
+  DESC 'Indicates to removed the Storage System from the list of configured Storage Systems of the Network AE requesting that Storage System when the Storage Threshold exceeds; true if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.315 NAME 'dcmStorageThresholdExceeds'
+  DESC 'Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2152,6 +2164,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmInstanceAvailability $
     dcmStorageClusterID $
     dcmStorageThreshold $
+    dcmStorageThresholdExceeds $
+    dcmStorageThresholdExceedsPermanently $
     dcmDeleterThreshold $
     dcmDeleteStudiesOlderThan $
     dcmDeleteStudiesReceivedBefore $

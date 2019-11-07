@@ -125,6 +125,9 @@ public class StorageRS {
                     writer.writeNotNullOrDef("dcmStorageDuration", desc.getStorageDuration(), StorageDuration.PERMANENT);
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
                     writer.writeNotDef("dcmNoDeletionConstraint", desc.isNoDeletionConstraint(), false);
+                    writer.writeNotDef("dcmStorageThresholdExceedsPermanently",
+                            desc.isStorageThresholdExceedsPermanently(), true);
+                    writer.writeNotNull("dcmStorageThresholdExceeds", desc.getStorageThresholdExceeds());
                     writer.writeNotDef("dcmDeleterThreads", desc.getDeleterThreads(), 1);
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());

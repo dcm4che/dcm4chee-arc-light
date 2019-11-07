@@ -9,9 +9,10 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.io.Closeable;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -30,16 +31,46 @@ public class StorageFactory {
         return provider.openStorage(descriptor);
     }
 
-    public Storage getUsableStorage(List<StorageDescriptor> descriptors) throws IOException {
-        Iterator<StorageDescriptor> iter = descriptors.iterator();
-        while (iter.hasNext()) {
-            Storage storage = getStorage(iter.next());
+    public UsableStorage getUsableStorage(List<StorageDescriptor> free,  List<StorageDescriptor> full)
+            throws IOException {
+        Iterator<StorageDescriptor> freeIter = free.iterator();
+        Iterator<StorageDescriptor> fullIter = null;
+        Date now = null;
+        while (freeIter.hasNext()) {
+            StorageDescriptor desc = freeIter.next();
+            Storage storage = getStorage(desc);
             if (hasMinUsableSpace(storage)) {
-                return storage;
+                return new UsableStorage(storage, now == null ? null : updateStorageIDs(free, full));
             }
-            LOG.info("No space left on {}", storage);
+            LOG.info(desc.isStorageThresholdExceedsPermanently()
+                    ? "No space left on {} - disable storage"
+                    : "No space left on {} - suspend storage", storage);
             storage.close();
-            iter.remove();
+            if (now == null) {
+                now = new Date();
+            }
+            desc.setStorageThresholdExceeds(now);
+            if (desc.isStorageThresholdExceedsPermanently()) {
+                freeIter.remove();
+            }
+            if (fullIter == null) {
+                Collections.sort(full, Comparator.comparing(StorageDescriptor::getStorageThresholdExceeds));
+                fullIter = full.iterator();
+                while (fullIter.hasNext()) {
+                    desc = fullIter.next();
+                    storage = getStorage(desc);
+                    if (hasMinUsableSpace(storage)) {
+                        LOG.info("Free space on {} - resume storage", storage);
+                        desc.setStorageThresholdExceeds(null);
+                        return new UsableStorage(storage, updateStorageIDs(free, full));
+                    }
+                    storage.close();
+                    desc.setStorageThresholdExceeds(now);
+                    if (desc.isStorageThresholdExceedsPermanently()) {
+                        fullIter.remove();
+                    }
+                }
+            }
         }
         throw new IOException("No space left on configured storage systems");
     }
@@ -52,5 +83,27 @@ public class StorageFactory {
 
         long usableSpace = storage.getUsableSpace();
         return usableSpace < 0 || usableSpace >= storageThreshold.getMinUsableDiskSpace();
+    }
+
+    private static String[] updateStorageIDs(List<StorageDescriptor> free, List<StorageDescriptor> full) {
+        return Stream.of(free, full)
+                .flatMap(List::stream)
+                .map(StorageDescriptor::getStorageID)
+                .toArray(String[]::new);
+    }
+
+    public static class UsableStorage implements Closeable  {
+        public final Storage storage;
+        public final String[] updateStorageIDs;
+
+        public UsableStorage(Storage storage, String[] updateStorageIDs) {
+            this.storage = storage;
+            this.updateStorageIDs = updateStorageIDs;
+        }
+
+        @Override
+        public void close() throws IOException {
+            storage.close();
+        }
     }
 }

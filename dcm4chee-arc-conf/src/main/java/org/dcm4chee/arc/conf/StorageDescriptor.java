@@ -69,6 +69,8 @@ public final class StorageDescriptor {
     private String[] externalRetrieveAETitles = {};
     private boolean readOnly;
     private boolean noDeletionConstraint;
+    private boolean storageThresholdExceedsPermanently = true;
+    private Date storageThresholdExceeds;
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
@@ -189,6 +191,26 @@ public final class StorageDescriptor {
         this.noDeletionConstraint = noDeletionConstraint;
     }
 
+    public boolean isStorageThresholdExceedsPermanently() {
+        return storageThresholdExceedsPermanently;
+    }
+
+    public void setStorageThresholdExceedsPermanently(boolean storageThresholdExceedsPermanently) {
+        this.storageThresholdExceedsPermanently = storageThresholdExceedsPermanently;
+    }
+
+    public Date getStorageThresholdExceeds() {
+        return storageThresholdExceeds;
+    }
+
+    public void setStorageThresholdExceeds(Date storageThresholdExceeds) {
+        this.storageThresholdExceeds = storageThresholdExceeds;
+    }
+
+    public boolean isStorageThresholdExceeded() {
+        return storageThresholdExceeds != null;
+    }
+
     public StorageThreshold getStorageThreshold() {
         return storageThreshold;
     }
@@ -295,14 +317,6 @@ public final class StorageDescriptor {
     @Override
     public String toString() {
         return "Storage[id=" + storageID + ", uri=" + storageURI + ']';
-    }
-
-    public static String[] storageIDsOf(List<StorageDescriptor> descriptors) {
-        String[] storageIDs = new String[descriptors.size()];
-        for (int i = 0; i < storageIDs.length; i++) {
-            storageIDs[i] = descriptors.get(i).getStorageID();
-        }
-        return storageIDs;
     }
 
     public String getStorageClusterID() {

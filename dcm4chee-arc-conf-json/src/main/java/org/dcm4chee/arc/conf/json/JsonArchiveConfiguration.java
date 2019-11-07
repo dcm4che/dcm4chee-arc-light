@@ -415,10 +415,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmStorageID", st.getStorageID(), null);
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
-            writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
+            writer.writeNotNullOrDef("dcmInstanceAvailability",
+                    st.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotNullOrDef("dcmStorageDuration", st.getStorageDuration(), StorageDuration.PERMANENT);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
+            writer.writeNotDef("dcmStorageThresholdExceedsPermanently",
+                    st.isStorageThresholdExceedsPermanently(), true);
+            writer.writeNotNull("dcmStorageThresholdExceeds", st.getStorageThresholdExceeds());
+            writer.writeNotNullOrDef("dcmStorageThresholdExceeds", st.getStorageThresholdExceeds(), null);
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
@@ -428,9 +433,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmExportStorageID", st.getExportStorageID(), null);
             writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
             writer.writeNotDef("dcmRetrieveCacheMaxParallel", st.getRetrieveCacheMaxParallel(), 10);
-            writer.writeNotEmpty("dcmDeleteStudiesOlderThan", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
-            writer.writeNotEmpty("dcmDeleteStudiesReceivedBefore", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
-            writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince", st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
+            writer.writeNotEmpty("dcmDeleteStudiesOlderThan",
+                    st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
+            writer.writeNotEmpty("dcmDeleteStudiesReceivedBefore",
+                    st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
+            writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince",
+                    st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1699,6 +1707,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmNoDeletionConstraint":
                         st.setNoDeletionConstraint(reader.booleanValue());
+                        break;
+                    case "dcmStorageThresholdExceedsPermanently":
+                        st.setStorageThresholdExceedsPermanently(reader.booleanValue());
+                        break;
+                    case "dcmStorageThresholdExceeds":
+                        st.setStorageThresholdExceeds(reader.dateTimeValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());

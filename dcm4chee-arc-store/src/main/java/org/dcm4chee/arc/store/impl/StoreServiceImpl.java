@@ -649,21 +649,22 @@ class StoreServiceImpl implements StoreService {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         String[] storageIDs = arcAE.getObjectStorageIDs();
-        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
-        int storageCount = Math.min(arcAE.getObjectStorageCount(), descriptors.size());
+        List<StorageDescriptor> freeStorages = arcDev.getFreeStorageDescriptors(storageIDs);
+        List<StorageDescriptor> fullStorages = arcDev.getFullStorageDescriptors(storageIDs);
+        int storageCount = Math.min(arcAE.getObjectStorageCount(), freeStorages.size());
         if (storageCount > 1) {
             int index = session.getSerialNo() % storageCount;
-            descriptors.add(0, descriptors.remove(index));
+            freeStorages.add(0, freeStorages.remove(index));
         }
-        Storage storage = storageFactory.getUsableStorage(descriptors);
-        String storageID = storage.getStorageDescriptor().getStorageID();
-        session.putStorage(storageID, storage);
+        StorageFactory.UsableStorage usableStorage = storageFactory.getUsableStorage(freeStorages, fullStorages);
+        String storageID = usableStorage.storage.getStorageDescriptor().getStorageID();
+        session.putStorage(storageID, usableStorage.storage);
         session.withObjectStorageID(storageID);
-        if (descriptors.size() < storageIDs.length) {
-            arcAE.setObjectStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
+        if (usableStorage.updateStorageIDs != null) {
+            arcAE.setObjectStorageIDs(usableStorage.updateStorageIDs);
             updateDeviceConfiguration(arcDev);
         }
-        return storage;
+        return usableStorage.storage;
     }
 
     private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
@@ -689,16 +690,17 @@ class StoreServiceImpl implements StoreService {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         String[] storageIDs = arcAE.getMetadataStorageIDs();
-        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
-        Storage storage = storageFactory.getUsableStorage(descriptors);
-        String storageID = storage.getStorageDescriptor().getStorageID();
-        session.putStorage(storageID, storage);
+        List<StorageDescriptor> freeStorages = arcDev.getFreeStorageDescriptors(storageIDs);
+        List<StorageDescriptor> fullStorages = arcDev.getFullStorageDescriptors(storageIDs);
+        StorageFactory.UsableStorage usableStorage = storageFactory.getUsableStorage(freeStorages, fullStorages);
+        String storageID = usableStorage.storage.getStorageDescriptor().getStorageID();
+        session.putStorage(storageID, usableStorage.storage);
         session.setMetadataStorageID(storageID);
-        if (descriptors.size() < storageIDs.length) {
-            arcAE.setMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
+        if (usableStorage.updateStorageIDs != null) {
+            arcAE.setMetadataStorageIDs(usableStorage.updateStorageIDs);
             updateDeviceConfiguration(arcDev);
         }
-        return storage;
+        return usableStorage.storage;
     }
 
 

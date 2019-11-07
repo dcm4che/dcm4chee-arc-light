@@ -129,7 +129,6 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (storageIDs.length == 0)
             return;
 
-        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
         int fetchSize = arcDev.getSeriesMetadataFetchSize();
         int threads = arcDev.getSeriesMetadataThreads();
         Semaphore semaphore = threads > 1 ? new Semaphore(threads) : null;
@@ -145,15 +144,21 @@ public class UpdateMetadataScheduler extends Scheduler {
             LOG.info("Start Creating/Updating Metadata of {} Series", metadataUpdates.size());
             AtomicInteger success = new AtomicInteger();
             AtomicInteger skipped = new AtomicInteger();
-            try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
+            try (StorageFactory.UsableStorage usableStorage = storageFactory.getUsableStorage(
+                    arcDev.getFreeStorageDescriptors(storageIDs),
+                    arcDev.getFullStorageDescriptors(storageIDs))) {
+                if (usableStorage.updateStorageIDs != null) {
+                    arcDev.setSeriesMetadataStorageIDs(usableStorage.updateStorageIDs);
+                    updateDeviceConfiguration(arcDev);
+                }
                 for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
                     if (semaphore == null) {
-                        updateMetadata(arcDev, storage, metadataUpdate, success, skipped);
+                        updateMetadata(arcDev, usableStorage.storage, metadataUpdate, success, skipped);
                     } else {
                         semaphore.acquire();
                         device.execute(() -> {
                             try {
-                                updateMetadata(arcDev, storage, metadataUpdate, success, skipped);
+                                updateMetadata(arcDev, usableStorage.storage, metadataUpdate, success, skipped);
                             } finally {
                                 semaphore.release();
                             }
@@ -173,10 +178,6 @@ public class UpdateMetadataScheduler extends Scheduler {
             }
         }
         while (metadataUpdates.size() == fetchSize);
-        if (descriptors.size() < storageIDs.length) {
-            arcDev.setSeriesMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            updateDeviceConfiguration(arcDev);
-        }
     }
 
     private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
