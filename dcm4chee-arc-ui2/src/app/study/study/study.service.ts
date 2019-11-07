@@ -968,6 +968,27 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-eye-open',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "open_viewer"
+                                    }, e);
+                                },
+                                title: 'Open patient in the viewer',
+                                permission: {
+                                    id: 'action-studies-viewer',
+                                    param: 'visible'
+                                },
+                                showIf: (e, config) => {
+                                    return _.hasIn(options,"selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayPatientURL");
+                                }
                             }
                         ]
                     },
@@ -1364,6 +1385,27 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-eye-open',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "open_viewer"
+                                    }, e);
+                                },
+                                title: 'Open study in the viewer',
+                                permission: {
+                                    id: 'action-studies-viewer',
+                                    param: 'visible'
+                                },
+                                showIf: (e, config) => {
+                                    return _.hasIn(options,"selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayStudyURL");
                                 }
                             }
                         ]

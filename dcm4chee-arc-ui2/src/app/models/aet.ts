@@ -14,6 +14,8 @@ export class Aet {
     private _value;
     private _text;
     private _title;
+    private _dcmInvokeImageDisplayStudyURL:string;
+    private _dcmInvokeImageDisplayPatientURL:string;
 
     constructor(aetObject){
         if(typeof aetObject === "string"){
@@ -126,5 +128,21 @@ export class Aet {
 
     get title() {
         return this._dicomDescription || this._dicomAETitle;
+    }
+
+    get dcmInvokeImageDisplayStudyURL(): string {
+        return this._dcmInvokeImageDisplayStudyURL;
+    }
+
+    set dcmInvokeImageDisplayStudyURL(value: string) {
+        this._dcmInvokeImageDisplayStudyURL = value;
+    }
+
+    get dcmInvokeImageDisplayPatientURL(): string {
+        return this._dcmInvokeImageDisplayPatientURL;
+    }
+
+    set dcmInvokeImageDisplayPatientURL(value: string) {
+        this._dcmInvokeImageDisplayPatientURL = value;
     }
 }

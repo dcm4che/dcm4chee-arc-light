@@ -686,6 +686,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             if(id.action === "download_csv"){
                 this.downloadCSV(model.attrs, id.level);
             }
+            if(id.action === "open_viewer"){
+                this.openViewer(model.attrs, id.level);
+            }
             if(id.action === "upload_file"){
 /*                switch (id.level) {
                     case "patient":
@@ -964,6 +967,42 @@ export class StudyComponent implements OnInit, AfterContentChecked{
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
+    };
+    openViewer(model, mode){
+        try {
+            let token;
+            let target;
+            let url;
+            let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayStudyURL : this.studyWebService.selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayPatientURL;
+            this._keycloakService.getToken().subscribe((response) => {
+                if (!this.appService.global.notSecure) {
+                    token = response.token;
+                }
+                url = configuredUrlString.replace(/(&)(\w*)=(\{\}|_self|_blank)/g, (match, p1, p2, p3, offset, string) => {
+                    switch (p2) {
+                        case "studyUID":
+                            return `${p1}${p2}=${model['0020000D'].Value[0]}`;
+                        case "patientID":
+                            return `${p1}${p2}=${this.service.getPatientId(model)}`;
+                        case "access_token":
+                            return `${p1}${p2}=${token}`;
+                        case "target":
+                            target = `${p3}`;
+                            return "";
+                    }
+                }).trim();
+                console.log("Prepared URL: ", url);
+                console.groupEnd();
+                if (target) {
+                    window.open(url, target);
+                } else {
+                    window.open(url);
+                }
+            });
+        }catch(e){
+            j4care.log("Something went wrong while opening the Viewer",e);
+            this.appService.showError("Something went wrong while opening the Viewer open the inspect to see more details");
+        }
     };
     viewInstance(inst) {
         let token;
