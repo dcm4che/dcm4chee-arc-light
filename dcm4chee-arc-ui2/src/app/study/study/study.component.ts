@@ -619,6 +619,9 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             if(id.action === "edit_patient"){
                 this.editPatient(model);
             }
+            if(id.action === "delete_patient"){
+                this.deletePatient(model);
+            }
             if(id.action === "pdq_patient"){
                 this.queryNationalPatientRegister(model);
             }
@@ -817,7 +820,34 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             });
         // });
     }
-
+    deletePatient(patient){
+        // console.log("study",study);
+        if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
+            this.appService.showError('Cannot delete patient with empty Patient ID!');
+            this.cfpLoadingBar.complete();
+        }else{
+            let $this = this;
+            this.confirm({
+                content: 'Are you sure you want to delete this patient?'
+            }).subscribe(result => {
+                if (result){
+                    $this.cfpLoadingBar.start();
+                    this.service.deletePatient(this.studyWebService.selectedWebService, encodeURIComponent(this.service.getPatientId(patient.attrs))).subscribe(
+                        (response) => {
+                            $this.appService.showMsg('Patient deleted successfully!');
+                            // patients.splice(patientkey,1);
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.httpErrorHandler.handleError(err);
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
+            });
+        }
+    };
     deleteMWL(mwl){
         let $this = this;
         this.confirm({

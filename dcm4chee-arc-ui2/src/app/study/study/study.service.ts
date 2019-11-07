@@ -485,6 +485,10 @@ export class StudyService {
         }
     }
 
+    deletePatient(dcmWebApp: DcmWebApp, patientId:string){
+        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`);
+    }
+
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
         return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
     }
@@ -913,7 +917,36 @@ export class StudyService {
                                     id: 'action-studies-patient',
                                     param: 'edit'
                                 }
-                            }, {
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-remove',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "delete_patient"
+                                    }, e);
+                                },
+                                title: 'Delete this Patient',
+                                permission: {
+                                    id: 'action-studies-patient',
+                                    param: 'delete'
+                                },
+                                showIf: (e, config) => {
+                                    return (
+                                        (
+                                            _.hasIn(e,'attrs.00201200.Value[0]') &&
+                                            _.isEqual(e.attrs['00201200'].Value[0], 0) &&
+                                            !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
+                                        ) ||
+                                        (_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "ALWAYS")
+                                    );
+                                }
+                            },{
                                 icon: {
                                     tag: 'span',
                                     cssClass: 'glyphicon glyphicon-plus',
