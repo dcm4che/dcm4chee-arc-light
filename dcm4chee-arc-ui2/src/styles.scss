@@ -232,13 +232,14 @@ caption {
 th {
   text-align: left
 }
-.table{
+.table, table.table{
     &>tbody>tr>td,
     &>tbody>tr>th,
     &>tfoot>tr>td,
     &>tfoot>tr>th,
     &>thead>tr>td,
-    &>thead>tr>th {
+    &>thead>tr>th,
+    td,th{
       padding: 8px;
       line-height: 1.42857143;
       vertical-align: top;

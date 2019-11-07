@@ -696,7 +696,6 @@ export class ExportComponent implements OnInit, OnDestroy {
     getAets(){
         this.aeListService.getAets()
             .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))
-            .retry(3)
             .subscribe(aets=>{
                 this.aets = aets.map(ae=>{
                     return {
