@@ -1144,6 +1144,9 @@ export class j4care {
                     return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https" && !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
                 })[0];
             }
+            console.log("filter",filteredConnections.filter(conn=>{
+                return !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
+            }));
             selectedConnection = selectedConnection || filteredConnections.filter(conn=>!(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false))[0];
             if(selectedConnection){
                 return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
