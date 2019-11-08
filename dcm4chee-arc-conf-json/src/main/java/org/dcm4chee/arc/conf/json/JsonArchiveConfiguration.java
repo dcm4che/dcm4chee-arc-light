@@ -422,8 +422,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
             writer.writeNotDef("dcmStorageThresholdExceedsPermanently",
                     st.isStorageThresholdExceedsPermanently(), true);
-            writer.writeNotNull("dcmStorageThresholdExceeds", st.getStorageThresholdExceeds());
-            writer.writeNotNullOrDef("dcmStorageThresholdExceeds", st.getStorageThresholdExceeds(), null);
+            writer.writeNotNull("dcmStorageThresholdExceeded", st.getStorageThresholdExceeded());
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
@@ -1711,8 +1710,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmStorageThresholdExceedsPermanently":
                         st.setStorageThresholdExceedsPermanently(reader.booleanValue());
                         break;
-                    case "dcmStorageThresholdExceeds":
-                        st.setStorageThresholdExceeds(reader.dateTimeValue());
+                    case "dcmStorageThresholdExceeded":
+                        st.setStorageThresholdExceeded(reader.dateTimeValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());

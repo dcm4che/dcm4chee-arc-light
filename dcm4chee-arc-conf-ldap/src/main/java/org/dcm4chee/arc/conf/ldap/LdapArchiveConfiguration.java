@@ -2077,8 +2077,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isNoDeletionConstraint(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStorageThresholdExceedsPermanently",
                 descriptor.isStorageThresholdExceedsPermanently(), true);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThresholdExceeds",
-                descriptor.getStorageThresholdExceeds(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThresholdExceeded",
+                descriptor.getStorageThresholdExceeded(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleterThreads",
                 descriptor.getDeleterThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID",
@@ -2132,8 +2132,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmNoDeletionConstraint"), false));
                 desc.setStorageThresholdExceedsPermanently(
                         LdapUtils.booleanValue(attrs.get("dcmStorageThresholdExceedsPermanently"), true));
-                desc.setStorageThresholdExceeds(
-                        LdapUtils.dateTimeValue(attrs.get("dcmStorageThresholdExceeds")));
+                desc.setStorageThresholdExceeded(
+                        LdapUtils.dateTimeValue(attrs.get("dcmStorageThresholdExceeded")));
                 desc.setDeleterThreads(LdapUtils.intValue(attrs.get("dcmDeleterThreads"), 1));
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
@@ -2207,8 +2207,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isNoDeletionConstraint(), desc.isNoDeletionConstraint(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStorageThresholdExceedsPermanently",
                 prev.isStorageThresholdExceedsPermanently(), desc.isStorageThresholdExceedsPermanently(), true);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThresholdExceeds",
-                prev.getStorageThresholdExceeds(), desc.getStorageThresholdExceeds(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThresholdExceeded",
+                prev.getStorageThresholdExceeded(), desc.getStorageThresholdExceeded(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreads",
                 prev.getDeleterThreads(), desc.getDeleterThreads(), 1);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",

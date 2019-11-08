@@ -70,7 +70,7 @@ public final class StorageDescriptor {
     private boolean readOnly;
     private boolean noDeletionConstraint;
     private boolean storageThresholdExceedsPermanently = true;
-    private Date storageThresholdExceeds;
+    private Date storageThresholdExceeded;
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
@@ -199,16 +199,16 @@ public final class StorageDescriptor {
         this.storageThresholdExceedsPermanently = storageThresholdExceedsPermanently;
     }
 
-    public Date getStorageThresholdExceeds() {
-        return storageThresholdExceeds;
+    public Date getStorageThresholdExceeded() {
+        return storageThresholdExceeded;
     }
 
-    public void setStorageThresholdExceeds(Date storageThresholdExceeds) {
-        this.storageThresholdExceeds = storageThresholdExceeds;
+    public void setStorageThresholdExceeded(Date storageThresholdExceeded) {
+        this.storageThresholdExceeded = storageThresholdExceeded;
     }
 
     public boolean isStorageThresholdExceeded() {
-        return storageThresholdExceeds != null;
+        return storageThresholdExceeded != null;
     }
 
     public StorageThreshold getStorageThreshold() {

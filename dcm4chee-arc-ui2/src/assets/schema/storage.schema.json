@@ -80,16 +80,16 @@
       "description": "Minimal Usable Space on Storage System. If the usable space falls below that value the Storage System will be marked as full by setting Storage Threshold Exceeds to the current time and - if Storage Threshold Exceeds Permanently is true - the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
       "type": "string"
     },
+    "dcmStorageThresholdExceeded": {
+      "title": "Storage Threshold Exceeded",
+      "description": "Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.",
+      "type": "string"
+    },
     "dcmStorageThresholdExceedsPermanently": {
       "title": "Storage Threshold Exceeds Permanently",
       "description": "Indicates to removed the Storage System from the list of configured Storage Systems of the Network AE requesting that Storage System when the Storage Threshold exceeds.",
       "type": "boolean",
       "default": true
-    },
-    "dcmStorageThresholdExceeds": {
-      "title": "Storage Threshold Exceeds",
-      "description": "Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.",
-      "type": "string"
     },
     "dcmNoDeletionConstraint": {
       "title": "No Deletion Constraint",

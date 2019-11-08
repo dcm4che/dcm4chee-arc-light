@@ -49,23 +49,23 @@ public class StorageFactory {
             if (now == null) {
                 now = new Date();
             }
-            desc.setStorageThresholdExceeds(now);
+            desc.setStorageThresholdExceeded(now);
             if (desc.isStorageThresholdExceedsPermanently()) {
                 freeIter.remove();
             }
             if (fullIter == null) {
-                Collections.sort(full, Comparator.comparing(StorageDescriptor::getStorageThresholdExceeds));
+                Collections.sort(full, Comparator.comparing(StorageDescriptor::getStorageThresholdExceeded));
                 fullIter = full.iterator();
                 while (fullIter.hasNext()) {
                     desc = fullIter.next();
                     storage = getStorage(desc);
                     if (hasMinUsableSpace(storage)) {
                         LOG.info("Free space on {} - resume storage", storage);
-                        desc.setStorageThresholdExceeds(null);
+                        desc.setStorageThresholdExceeded(null);
                         return new UsableStorage(storage, updateStorageIDs(free, full));
                     }
                     storage.close();
-                    desc.setStorageThresholdExceeds(now);
+                    desc.setStorageThresholdExceeded(now);
                     if (desc.isStorageThresholdExceedsPermanently()) {
                         fullIter.remove();
                     }

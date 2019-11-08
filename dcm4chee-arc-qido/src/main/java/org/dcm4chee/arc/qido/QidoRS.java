@@ -729,6 +729,7 @@ public class QidoRS {
             throws DicomServiceException {
         final List<Attributes> matches = matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
+                LOG.debug("Enter StreamingOutput.write");
                 JsonGenerator gen = Json.createGenerator(out);
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
@@ -736,6 +737,7 @@ public class QidoRS {
                     writer.write(match);
                 gen.writeEnd();
                 gen.flush();
+                LOG.debug("Leave StreamingOutput.write");
         };
     }
 

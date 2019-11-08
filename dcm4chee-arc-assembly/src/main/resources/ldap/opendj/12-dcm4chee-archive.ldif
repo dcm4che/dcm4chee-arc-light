@@ -1510,7 +1510,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.314 NAME 'dcmStorageThresholdExceedsPer
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.315 NAME 'dcmStorageThresholdExceeds'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.315 NAME 'dcmStorageThresholdExceeded'
   DESC 'Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
@@ -1855,7 +1855,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmInstanceAvailability $
     dcmStorageClusterID $
     dcmStorageThreshold $
-    dcmStorageThresholdExceeds $
+    dcmStorageThresholdExceeded $
     dcmStorageThresholdExceedsPermanently $
     dcmDeleterThreshold $
     dcmDeleteStudiesOlderThan $
