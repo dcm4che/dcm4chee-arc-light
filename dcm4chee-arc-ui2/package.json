@@ -12,7 +12,8 @@
     "lint": "ng lint",
     "prod": "ng build --aot --prod",
     "dev": "ng build",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "ivy-ngcc"
   },
   "private": true,
   "dependencies": {
