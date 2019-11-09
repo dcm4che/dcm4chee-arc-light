@@ -179,7 +179,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>${maven-war-plugin.version}</version>
         <configuration>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>

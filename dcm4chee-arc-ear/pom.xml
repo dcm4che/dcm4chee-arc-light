@@ -453,7 +453,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
-        <version>3.0.1</version>
         <configuration>
           <classifier>${classifier}</classifier>
           <version>7</version>

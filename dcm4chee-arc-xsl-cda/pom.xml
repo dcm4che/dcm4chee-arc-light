@@ -59,7 +59,6 @@
       <plugin>
         <groupId>com.googlecode.maven-download-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
-        <version>${download-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>wget</id>
@@ -76,8 +75,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>${maven-assembly-plugin.version}</version>
-        <configuration>
+       <configuration>
           <descriptors>
             <descriptor>src/main/assembly/war.xml</descriptor>
           </descriptors>

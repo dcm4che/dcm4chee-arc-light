@@ -56,22 +56,13 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
     <wildfly-jakartaee8.version>18.0.0.Final</wildfly-jakartaee8.version>
-    <jbossws-cxf-client.version>5.3.0.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.3.3</apache-cxf.version>
-    <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
-    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-    <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
-    <download-maven-plugin.version>1.4.0</download-maven-plugin.version>
-    <jaxws-tools-maven-plugin.version>1.2.1.Final</jaxws-tools-maven-plugin.version>
-    <!-- Versions -->
+      <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
     <keycloak.version>7.0.0</keycloak.version>
     <jclouds.version>2.2.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
-    <jakarta.json.version>1.1.6</jakarta.json.version>
-    <junit.version>4.12</junit.version>
 
     <!-- JPA -->
     <ds>java:/PacsDS</ds>
@@ -143,12 +134,12 @@
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-simple</artifactId>
-        <version>${apache-cxf.version}</version>
+        <version>3.3.3</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.ws.cxf</groupId>
         <artifactId>jbossws-cxf-client</artifactId>
-        <version>${jbossws-cxf-client.version}</version>
+        <version>5.3.0.Final</version>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.com.sun.httpserver</groupId>
@@ -309,7 +300,7 @@
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.json</artifactId>
-      <version>${jakarta.json.version}</version>
+      <version>1.1.6</version>
       <scope>provided</scope>
     </dependency>
 
@@ -442,7 +433,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-      <version>${junit.version}</version>
+      <version>4.12</version>
     </dependency>
 
   </dependencies>
@@ -558,9 +549,85 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-ssh</artifactId>
-        <version>2.10</version>
+        <version>3.3.2</version>
       </extension>
     </extensions>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-remote-resources-plugin</artifactId>
+          <version>1.6.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M3</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-ear-plugin</artifactId>
+          <version>3.0.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>properties-maven-plugin</artifactId>
+          <version>1.0-alpha-2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>xml-maven-plugin</artifactId>
+          <version>1.0.2</version>
+        </plugin>
+        <plugin>
+          <groupId>io.github.divinespear</groupId>
+          <artifactId>jpa-schema-maven-plugin</artifactId>
+          <version>0.1.12</version>
+        </plugin>
+        <plugin>
+          <groupId>pl.project13.maven</groupId>
+          <artifactId>git-commit-id-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>1.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jboss.ws.plugins</groupId>
+          <artifactId>jaxws-tools-maven-plugin</artifactId>
+          <version>1.2.1.Final</version>
+        </plugin>
+        <plugin>
+          <groupId>com.googlecode.maven-download-plugin</groupId>
+          <artifactId>download-maven-plugin</artifactId>
+          <version>1.4.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <profiles>

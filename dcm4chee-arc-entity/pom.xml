@@ -75,7 +75,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.6</version>
         <executions>
           <execution>
             <id>default-jar</id>
@@ -124,7 +123,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
         <executions>
           <execution>
             <phase>initialize</phase>
@@ -142,7 +140,6 @@
       <plugin>
         <groupId>io.github.divinespear</groupId>
         <artifactId>jpa-schema-maven-plugin</artifactId>
-        <version>0.1.12</version>
         <executions>
           <execution>
             <goals>
