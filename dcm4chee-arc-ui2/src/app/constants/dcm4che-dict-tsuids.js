@@ -1,4 +1,4 @@
-var DCM4CHE = DCM4CHE || {};
+qvar DCM4CHE = DCM4CHE || {};
 DCM4CHE.TransferSyntax = (function (dictionary) {
   var nameOf = function (uid) {
       if(uid === "all"){
