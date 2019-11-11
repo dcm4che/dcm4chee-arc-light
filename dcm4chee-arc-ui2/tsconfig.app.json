@@ -5,8 +5,7 @@
     "types": []
   },
   "angularCompilerOptions": {
-    "enableIvy": false,
-    "strictMetadataEmit" : true
+    "enableIvy": true
   },
   "files": [
     "src/main.ts",
