@@ -39,6 +39,8 @@
  */
 package org.dcm4chee.arc.export.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -91,6 +93,9 @@ public class ExportTaskRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IDeviceCache deviceCache;
 
     @Inject
     private RSClient rsClient;
@@ -165,7 +170,7 @@ public class ExportTaskRS {
                                     exportTaskQueryParam(deviceName, updatedTime),
                                     parseInt(offset),
                                     parseInt(limit)),
-                            arcDev()),
+                            deviceCache),
                     output.type)
                     .build();
         } catch (IllegalStateException e) {
@@ -443,11 +448,11 @@ public class ExportTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache) {
                 return (StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen, localAETitleOf(arcDev, task)));
+                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen, localAETitleOf(deviceCache, task)));
                     gen.writeEnd();
                     gen.flush();
                 };
@@ -455,18 +460,18 @@ public class ExportTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     ExportTask.writeCSVHeader(writer, delimiter);
-                    tasks.forEachRemaining(task -> writeTaskToCSV(arcDev, writer, task));
+                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task, deviceCache));
                     writer.flush();
                 };
             }
 
-            private void writeTaskToCSV(ArchiveDeviceExtension arcDev, Writer writer, ExportTask task) {
+            private void writeTaskToCSV(Writer writer, ExportTask task, IDeviceCache deviceCache) {
                 try {
-                    task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
+                    task.writeAsCSVTo(writer, delimiter, localAETitleOf(deviceCache, task));
                 } catch (IOException e) {
                     LOG.warn("{}", e);
                 }
@@ -489,21 +494,25 @@ public class ExportTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                            && type.getParameters().keySet().contains("delimiter")
+                            && type.getParameters().containsKey("delimiter")
                             && type.getParameters().get("delimiter").equals("semicolon")
                         ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(final Iterator<ExportTask> tasks, ArchiveDeviceExtension arcDev);
-    }
-
-    private static String localAETitleOf(ArchiveDeviceExtension arcDev, ExportTask task) {
-        try {
-            return arcDev.getExporterDescriptorNotNull(task.getExporterID()).getAETitle();
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
+        private static String localAETitleOf(IDeviceCache deviceCache, ExportTask task) {
+            try {
+                return deviceCache.findDevice(task.getDeviceName())
+                        .getDeviceExtension(ArchiveDeviceExtension.class)
+                        .getExporterDescriptorNotNull(task.getExporterID())
+                        .getAETitle();
+            } catch (ConfigurationException | IllegalArgumentException e) {
+                LOG.info(e.getMessage());
+            }
+            return null;
         }
+
+        abstract Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache);
     }
 
     private QueueMessage.Status status() {
