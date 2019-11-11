@@ -201,8 +201,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
-    private volatile String invokeImageDisplayPatientURL;
-    private volatile String invokeImageDisplayStudyURL;
     private volatile String[] hl7ADTReceivingApplication = {};
     private volatile String hl7ADTSendingApplication;
     private volatile int queueTasksFetchSize = 100;
@@ -2029,22 +2027,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditSoftwareConfigurationVerbose = auditSoftwareConfigurationVerbose;
     }
 
-    public String getInvokeImageDisplayPatientURL() {
-        return invokeImageDisplayPatientURL;
-    }
-
-    public void setInvokeImageDisplayPatientURL(String invokeImageDisplayPatientURL) {
-        this.invokeImageDisplayPatientURL = invokeImageDisplayPatientURL;
-    }
-
-    public String getInvokeImageDisplayStudyURL() {
-        return invokeImageDisplayStudyURL;
-    }
-
-    public void setInvokeImageDisplayStudyURL(String invokeImageDisplayStudyURL) {
-        this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
-    }
-
     public String[] getHL7ADTReceivingApplication() {
         return hl7ADTReceivingApplication;
     }
@@ -2647,8 +2629,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = arcdev.linkMWLEntryUpdatePolicy;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
-        invokeImageDisplayPatientURL = arcdev.invokeImageDisplayPatientURL;
-        invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
         hl7ScheduledProtocolCodeInOrder = arcdev.hl7ScheduledProtocolCodeInOrder;

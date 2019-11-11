@@ -125,8 +125,6 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean hl7PSUMWL;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
-    private String invokeImageDisplayPatientURL;
-    private String invokeImageDisplayStudyURL;
     private StorageVerificationPolicy storageVerificationPolicy;
     private Boolean storageVerificationUpdateLocationStatus;
     private String[] storageVerificationStorageIDs = {};
@@ -1183,34 +1181,6 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getLinkMWLEntryUpdatePolicy();
     }
 
-    public String getInvokeImageDisplayPatientURL() {
-        return invokeImageDisplayPatientURL;
-    }
-
-    public void setInvokeImageDisplayPatientURL(String invokeImageDisplayPatientURL) {
-        this.invokeImageDisplayPatientURL = invokeImageDisplayPatientURL;
-    }
-
-    public String invokeImageDisplayPatientURL() {
-        return invokeImageDisplayPatientURL != null
-                ? invokeImageDisplayPatientURL
-                : getArchiveDeviceExtension().getInvokeImageDisplayPatientURL();
-    }
-
-    public String getInvokeImageDisplayStudyURL() {
-        return invokeImageDisplayStudyURL;
-    }
-
-    public void setInvokeImageDisplayStudyURL(String invokeImageDisplayStudyURL) {
-        this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
-    }
-
-    public String invokeImageDisplayStudyURL() {
-        return invokeImageDisplayStudyURL != null
-                ? invokeImageDisplayStudyURL
-                : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
-    }
-
     public StorageVerificationPolicy getStorageVerificationPolicy() {
         return storageVerificationPolicy;
     }
@@ -1461,8 +1431,6 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
-        invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
-        invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;

@@ -66,7 +66,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeStartObject("dcmArchiveHL7Application");
         writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
-        writer.writeNotEmpty("hl7ImportReportTemplateParam", JsonArchiveConfiguration.descriptorProperties(ext.getImportReportTemplateParams()));
+        writer.writeNotEmpty("hl7ImportReportTemplateParam", ext.getImportReportTemplateParams());
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);

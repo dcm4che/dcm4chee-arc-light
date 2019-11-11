@@ -944,16 +944,6 @@
       "description": "Specifies URI for the style sheet to transcode Audit Message to a FHIR XML Resource Audit Event",
       "type": "string"
     },
-    "dcmInvokeImageDisplayPatientURL": {
-      "title": "Invoke Image Display Patient URL",
-      "description": "URL to launch external Image Display for a Patient. {} will be replaced by the Patient ID formatted as HL7 CX data type. E.g.: http(s)://<viewer-host>:<viewer-port>/IHEInvokeImageDisplay?requestType=PATIENT&patientID={}. May be overwritten by configured value for particular Archive Network AEs.",
-      "type": "string"
-    },
-    "dcmInvokeImageDisplayStudyURL": {
-      "title": "Invoke Image Display Study URL",
-      "description": "URL to launch external Image Display for a Study. {} will be replaced by the Study Instance UID. E.g.: http(s)://<viewer-host>:<viewer-port>/IHEInvokeImageDisplay?requestType=STUDY&studyUID={}. May be overwritten by configured value for particular Archive Network AEs.",
-      "type": "string"
-    },
     "dcmCopyMoveUpdatePolicy": {
       "title": "Copy Move Update Policy",
       "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. May be overwritten by configured values for particular Archive Network AEs.",

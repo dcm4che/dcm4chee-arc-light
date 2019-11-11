@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapUtils;
@@ -71,7 +70,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ImportReportTemplateParam",
-                LdapArchiveConfiguration.toStrings(ext.getImportReportTemplateParams()));
+                ext.getImportReportTemplateParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI",
                 ext.getScheduleProcedureTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern",
@@ -142,7 +141,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     }
 
     @Override
-    public void loadChilds(HL7Application hl7App, String appDN) throws NamingException, ConfigurationException {
+    public void loadChilds(HL7Application hl7App, String appDN) throws NamingException {
         ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (ext == null)
@@ -180,7 +179,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
-        LdapArchiveConfiguration.storeDiffProperties(ldapObj, mods, "hl7ImportReportTemplateParam",
+        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7ImportReportTemplateParam",
                 aa.getImportReportTemplateParams(), bb.getImportReportTemplateParams());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduleProcedureTemplateURI",
                 aa.getScheduleProcedureTemplateURI(),

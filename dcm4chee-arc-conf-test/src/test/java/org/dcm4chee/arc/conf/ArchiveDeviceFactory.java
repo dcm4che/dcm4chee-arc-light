@@ -1423,12 +1423,18 @@ class ArchiveDeviceFactory {
                         .setRetrieveAsReceived(true),
                 configType, ONLY_ADMIN));
 
-        device.addWebApplication(createWebApp("DCM4CHEE", AE_TITLE_DESC,
+        WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
-                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
+        if (configType == configType.DOCKER) {
+            webapp.setProperty("IID_PATIENT_URL", "");
+            webapp.setProperty("IID_STUDY_URL", "");
+        }
+        device.addWebApplication(webapp);
+
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
                 WebApplication.ServiceClass.WADO_URI));
@@ -1786,10 +1792,6 @@ class ArchiveDeviceFactory {
         studySeriesQueryAttrExportRule.setExporterIDs(CALC_QUERY_ATTRS_EXPORTER_ID);
         ext.addExportRule(studySeriesQueryAttrExportRule);
 
-        if (configType == configType.DOCKER) {
-            ext.setInvokeImageDisplayPatientURL("x");
-            ext.setInvokeImageDisplayStudyURL("x");
-        }
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
