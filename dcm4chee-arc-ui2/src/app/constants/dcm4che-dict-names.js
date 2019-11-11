@@ -1,3 +1,44 @@
+/*
+ * **** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ * Java(TM), hosted at https://github.com/dcm4che.
+ *
+ * The Initial Developer of the Original Code is
+ * J4Care.
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ * See @authors listed below
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * **** END LICENSE BLOCK *****
+ *
+ */
+
 var DCM4CHE = DCM4CHE || {};
 DCM4CHE.elementName = (function (dictionary) {
   var tables = [dictionary],
@@ -107,6 +148,9 @@ DCM4CHE.elementName = (function (dictionary) {
 "00020016":"Source Application Entity Title",
 "00020017":"Sending Application Entity Title",
 "00020018":"Receiving Application Entity Title",
+"00020026":"Source Presentation Address",
+"00020027":"Sending Presentation Address",
+"00020028":"Receiving Presentation Address",
 "00020031":"RTV Meta Information Version",
 "00020032":"RTV Communication SOP Class UID",
 "00020033":"RTV Communication SOP Instance UID",
@@ -329,6 +373,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "0008225A":"Anatomic Structure Space Or Region Modifier Code Sequence (Trial)",
 "0008225C":"On Axis Background Anatomic Structure Code Sequence (Trial)",
 "00083001":"Alternate Representation Sequence",
+"00083002":"Available Transfer Syntax UID",
 "00083010":"Irradiation Event UID",
 "00083011":"Source Irradiation Event Sequence",
 "00083012":"Radiopharmaceutical Administration Event UID",
@@ -4317,6 +4362,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "300A0423":"General Accessory Type",
 "300A0424":"General Accessory Number",
 "300A0425":"Source to General Accessory Distance",
+"300A0426":"Isocenter to General Accessory Distance",
 "300A0431":"Applicator Geometry Sequence",
 "300A0432":"Applicator Aperture Shape",
 "300A0433":"Applicator Opening",
@@ -4565,6 +4611,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "3010002C":"Segment Annotation Type Code Sequence",
 "3010002D":"Device Label",
 "3010002E":"Device Type Code Sequence",
+"3010002F":"Segment Annotation Type Modifier Code Sequence",
 "30100030":"Patient Equipment Relationship Code Sequence",
 "30100031":"Referenced Fiducials UID",
 "30100032":"Patient Treatment Orientation Sequence",
@@ -4653,6 +4700,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "30100086":"Intended Start Day of Week",
 "30100087":"Weekday Fraction Pattern Sequence",
 "30100088":"Delivery Time Structure Code Sequence",
+"30100089":"Treatment Site Modifier Code Sequence",
 "40000010":"Arbitrary",
 "40004000":"Text Comments",
 "40080040":"Results ID",
