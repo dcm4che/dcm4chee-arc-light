@@ -208,16 +208,16 @@ dcmClientBindAddress: 0.0.0.0
 cn: syslog
 
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmClientBindAddress: 0.0.0.0
+dicomHostname: localhost
 dcmBindAddress: 0.0.0.0
+dicomPort: 12575
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
-dcmProtocol: HL7
-cn: hl7-tls
-dicomHostname: localhost
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
-dicomPort: 12575
+dcmProtocol: HL7
+dcmClientBindAddress: 0.0.0.0
+cn: hl7-tls
 
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
@@ -5083,6 +5083,18 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Unified Procedure Step - Event SOP Class SCP
+
+dn: cn=Unified Procedure Step - Query SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.5
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Query SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
 
 dn: cn=Unified Procedure Step - Watch SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmFuzzySemanticMatching: TRUE

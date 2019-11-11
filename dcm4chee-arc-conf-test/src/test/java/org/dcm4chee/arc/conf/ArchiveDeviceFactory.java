@@ -2057,7 +2057,8 @@ class ArchiveDeviceFactory {
         if (upsSCP) {
             addTCs(ae, allQueryOpts, SCP, new String[] {
                             UID.UnifiedProcedureStepPullSOPClass,
-                            UID.UnifiedProcedureStepWatchSOPClass
+                            UID.UnifiedProcedureStepWatchSOPClass,
+                            UID.UnifiedProcedureStepQuerySOPClass
                     },
                     UID.ImplicitVRLittleEndian);
             addTCs(ae, null, SCP, new String[]{
