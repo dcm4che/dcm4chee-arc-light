@@ -2,6 +2,7 @@
   "name": "dcm4chee-arc-ui2",
   "version": "3.0.0",
   "license": "MIT",
+  "author": "Shefki Esadi",
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
