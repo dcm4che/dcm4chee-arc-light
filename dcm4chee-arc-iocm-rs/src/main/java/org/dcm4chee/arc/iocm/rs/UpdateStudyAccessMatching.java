@@ -58,7 +58,6 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
-import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,6 @@ import java.io.StringWriter;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
-@InvokeValidate(type = UpdateStudyAccessMatching.class)
 class UpdateStudyAccessMatching {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateStudyAccessMatching.class);
 

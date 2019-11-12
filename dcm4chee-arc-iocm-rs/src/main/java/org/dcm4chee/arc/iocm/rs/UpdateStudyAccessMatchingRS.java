@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -50,6 +52,7 @@ import javax.ws.rs.core.Response;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
+@InvokeValidate(type = UpdateStudyAccessMatchingRS.class)
 public class UpdateStudyAccessMatchingRS extends UpdateStudyAccessMatching {
 
     @PathParam("AETitle")

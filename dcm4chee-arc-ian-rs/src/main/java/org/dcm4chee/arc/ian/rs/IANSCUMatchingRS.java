@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.ian.rs;
 
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
@@ -52,6 +53,7 @@ import javax.ws.rs.core.Response;
  */
 @RequestScoped
 @Path("aets/{aet}/rs")
+@InvokeValidate(type = IANSCUMatchingRS.class)
 public class IANSCUMatchingRS extends IANSCUMatching {
 
     @PathParam("aet")

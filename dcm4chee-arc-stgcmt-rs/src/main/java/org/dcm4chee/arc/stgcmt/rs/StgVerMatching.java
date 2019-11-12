@@ -161,6 +161,11 @@ class StgVerMatching {
         return request.getRequestURI() + '?' + request.getQueryString();
     }
 
+    public void validate() {
+        logRequest();
+        new QueryAttributes(uriInfo, null);
+    }
+
     Response verifyStorageOf(String aet,
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
         logRequest();

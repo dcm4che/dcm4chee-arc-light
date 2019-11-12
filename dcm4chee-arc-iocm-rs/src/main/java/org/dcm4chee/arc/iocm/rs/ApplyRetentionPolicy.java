@@ -62,6 +62,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +86,7 @@ import java.util.Collections;
  */
 @Path("aets/{AETitle}/rs/expire")
 @RequestScoped
+@InvokeValidate(type = ApplyRetentionPolicy.class)
 public class ApplyRetentionPolicy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplyRetentionPolicy.class);
@@ -117,6 +119,11 @@ public class ApplyRetentionPolicy {
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
+    }
+
+    public void validate() {
+        logRequest();
+        new QueryAttributes(uriInfo, null);
     }
 
     @POST

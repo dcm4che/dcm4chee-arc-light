@@ -55,7 +55,6 @@ import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,6 @@ import java.io.StringWriter;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
-@InvokeValidate(type = RejectMatching.class)
 class RejectMatching {
 
     private static final Logger LOG = LoggerFactory.getLogger(RejectMatching.class);

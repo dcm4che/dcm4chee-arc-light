@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
@@ -54,6 +55,7 @@ import javax.ws.rs.core.Response;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
+@InvokeValidate(type = StgVerMatchingRS.class)
 public class StgVerMatchingRS extends StgVerMatching {
 
     @PathParam("AETitle")
