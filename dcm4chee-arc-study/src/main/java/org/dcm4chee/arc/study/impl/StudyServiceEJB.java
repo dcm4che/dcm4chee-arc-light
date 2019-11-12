@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyMissingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class StudyServiceEJB {
     @Inject
     private Device device;
 
-    public void updateStudy(StudyMgtContext ctx) {
+    public void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
         AttributeFilter filter = ctx.getStudyAttributeFilter();
         Study study = findStudy(ctx);
         Attributes attrs = study.getAttributes();
@@ -116,39 +117,14 @@ public class StudyServiceEJB {
                 .executeUpdate();
     }
 
-    private Study findStudy(StudyMgtContext ctx) {
-        Study study;
+    private Study findStudy(StudyMgtContext ctx) throws StudyMissingException {
         try {
-            study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
+            return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .getSingleResult();
         } catch (NoResultException e) {
-            study = createStudy(ctx);
+            throw new StudyMissingException("Study to be updated does not exist: " + ctx.getStudyInstanceUID());
         }
-        return study;
-    }
-
-    private Study createStudy(StudyMgtContext ctx) {
-        Attributes attrs = new Attributes(ctx.getAttributes(), ctx.getStudyAttributeFilter().getSelection());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
-        Study study = new Study();
-        study.setCompleteness(Completeness.COMPLETE);
-        study.setRejectionState(RejectionState.EMPTY);
-        study.setExpirationState(ExpirationState.UPDATEABLE);
-        study.setAccessControlID(ctx.getArchiveAEExtension().storeAccessControlID(
-                ctx.getRemoteHostName(),
-                null,
-                ctx.getLocalHostName(),
-                ctx.getApplicationEntity().getAETitle(),
-                ctx.getAttributes()));
-        study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
-        study.setIssuerOfAccessionNumber(
-                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-        setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
-        study.setPatient(ctx.getPatient());
-        ctx.setStudy(study);
-        em.persist(study);
-        return study;
     }
 
     private void updateStudyExpirationDate(StudyMgtContext ctx) {

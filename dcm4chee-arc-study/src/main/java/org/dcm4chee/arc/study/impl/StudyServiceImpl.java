@@ -44,7 +44,9 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -79,7 +81,7 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public void updateStudy(StudyMgtContext ctx) {
+    public void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
         try {
             ejb.updateStudy(ctx);
         } catch (RuntimeException e) {

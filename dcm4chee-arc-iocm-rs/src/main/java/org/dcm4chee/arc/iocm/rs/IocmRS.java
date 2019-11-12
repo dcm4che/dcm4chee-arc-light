@@ -69,6 +69,7 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -486,9 +487,10 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null)
+        if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID))
             throw new WebApplicationException(
-                    errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+                    errResponse("missing Patient ID or Study Instance UID in message body",
+                            Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
@@ -496,10 +498,6 @@ public class IocmRS {
                     errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND));
 
         try {
-            boolean studyIUIDPresent = attrs.containsValue(Tag.StudyInstanceUID);
-            if (!studyIUIDPresent)
-                attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
@@ -511,6 +509,10 @@ public class IocmRS {
                         new JSONWriter(gen).write(attrs);
                     }
             };
+        } catch (StudyMissingException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (PatientMismatchException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

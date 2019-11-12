@@ -1,5 +1,4 @@
-/*
- * *** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -16,8 +15,8 @@
  * Java(TM), hosted at https://github.com/dcm4che.
  *
  * The Initial Developer of the Original Code is
- * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013-2019
+ * J4Care GmbH.
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,31 +34,22 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
- */
+ * ***** END LICENSE BLOCK ***** */
 
 package org.dcm4chee.arc.study;
 
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.patient.PatientMismatchException;
-
-import java.net.Socket;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @since Nov 2019
  */
-public interface StudyService {
-    StudyMgtContext createStudyMgtContextWEB(HttpServletRequestInfo httpRequest, ApplicationEntity ae);
 
-    StudyMgtContext createStudyMgtContextHL7(Socket socket, UnparsedHL7Message msg);
+public class StudyMissingException extends Exception {
 
-    void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException;
+    public StudyMissingException() {
+    }
 
-    void updateExpirationDate(StudyMgtContext ctx) throws Exception;
-
-    int updateAccessControlID(StudyMgtContext ctx) throws Exception;
+    public StudyMissingException(String message) {
+        super(message);
+    }
 }
