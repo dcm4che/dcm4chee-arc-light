@@ -47,7 +47,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
@@ -530,12 +529,11 @@ public class IocmRS {
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            if (studyService.updateAccessControlID(ctx) == 0)
-                return errResponse("Study not found. " + studyUID, Response.Status.NOT_FOUND);
-
+            studyService.updateAccessControlID(ctx);
             rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
             return Response.noContent().build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

@@ -156,10 +156,6 @@ class ParticipantObjectID {
             participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
                     "Expiration Date",
                     auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
-        if (auditInfo.getField(AuditInfo.STUDY_ACCESS_CTRL_ID) != null)
-            participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
-                    "Study Access Control ID",
-                    auditInfo.getField(AuditInfo.STUDY_ACCESS_CTRL_ID)));
         studyPatParticipants[0] = studyPOI(auditInfo)
                 .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
                 .detail(participantObjectDetails.toArray(new ParticipantObjectDetail[0]))

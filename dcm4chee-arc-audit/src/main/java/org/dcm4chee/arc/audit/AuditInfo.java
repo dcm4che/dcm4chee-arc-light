@@ -85,7 +85,6 @@ class AuditInfo {
     static final int IMPAX_ENDPOINT = 34;
     static final int FAILED = 35;
     static final int EXPIRATION_DATE = 36;
-    static final int STUDY_ACCESS_CTRL_ID = 37;
 
     private final String[] fields;
 
@@ -127,8 +126,7 @@ class AuditInfo {
                 i.pdqServiceURI,
                 i.impaxEndpoint,
                 String.valueOf(i.failed),
-                i.expirationDate,
-                i.studyAccessCtrlID
+                i.expirationDate
         };
     }
 

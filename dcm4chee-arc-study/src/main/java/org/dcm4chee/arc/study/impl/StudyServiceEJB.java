@@ -237,11 +237,20 @@ public class StudyServiceEJB {
         updateStudyExpirationDate(ctx);
     }
 
-    public int updateAccessControlID(StudyMgtContext ctx) {
-        return em.createNamedQuery(Study.UPDATE_ACCESS_CONTROL_ID)
+    public void updateAccessControlID(StudyMgtContext ctx) throws StudyMissingException {
+        if (ctx.getAttributes() != null) {
+            em.createNamedQuery(Study.UPDATE_ACCESS_CONTROL_ID)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .setParameter(2, ctx.getAccessControlID())
                     .executeUpdate();
+            return;
+        }
+
+        Study study = findStudy(ctx);
+        ctx.setAttributes(study.getAttributes());
+        ctx.setPatient(study.getPatient());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        study.setAccessControlID(ctx.getAccessControlID());
     }
 
     private void setCodes(Collection<CodeEntity> codes, Sequence seq) {
