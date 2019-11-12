@@ -12,7 +12,7 @@
                 <span class="minus">-</span>
                 <input class="max" type="text" min="1" [(ngModel)]="value.max" placeholder="max"/>
             </div>
-            <mat-select class="unit" [(ngModel)]="value.unit" placeholder="Unit" (change)="onInputChange()">
+            <mat-select class="unit" [(ngModel)]="value.unit" placeholder="Unit" (selectionChange)="onInputChange()">
                 <mat-option value="">*</mat-option>
                 <mat-option *ngFor="let option of units" value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
             </mat-select>

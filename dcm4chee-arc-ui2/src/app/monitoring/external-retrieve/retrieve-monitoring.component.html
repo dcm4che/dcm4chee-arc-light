@@ -44,7 +44,7 @@
           </div>
           <div class="filter_block">
             <div class="line">
-              <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+              <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                 <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
               </mat-select>
               <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="externalRetrieveEntries = []">Batch ID grouped</mat-checkbox></div>
