@@ -46,7 +46,7 @@
          version="3.1">
   <enterprise-beans>
     <message-driven>
-      <ejb-name>StgCmtSCPMDB</ejb-name>
+      <ejb-name>RejectionServiceMDB</ejb-name>
       <ejb-class>org.dcm4chee.arc.delete.impl.RejectionServiceMDB</ejb-class>
       <activation-config>
         <activation-config-property>
