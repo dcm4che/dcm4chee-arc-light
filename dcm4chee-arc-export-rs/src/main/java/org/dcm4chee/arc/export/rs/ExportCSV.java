@@ -38,9 +38,11 @@
 
 package org.dcm4chee.arc.export.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -86,8 +88,6 @@ class ExportCSV {
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
-    private char csvDelimiter = ',';
-
     Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in) {
         logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
@@ -105,25 +105,21 @@ class ExportCSV {
             if (exporter == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
 
-            if ("semicolon".equals(contentType.getParameters().get("delimiter")))
-                csvDelimiter = ';';
-
             int count = 0;
             String warning = null;
             int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
             List<String> studyUIDs = new ArrayList<>();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line = reader.readLine();
+            try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    CSVParser parser = new CSVParser(reader, CSVFormat.newFormat(csvDelimiter()).withQuote('"'))
+            ) {
                 boolean header = true;
-                while (line != null) {
-                    if (line.chars().allMatch(Character::isWhitespace)) {
-                        line = reader.readLine();
+                for (CSVRecord csvRecord : parser) {
+                    if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                         continue;
-                    }
 
-                    String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
-                    line = reader.readLine();
+                    String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
                     if (header && studyUID.chars().allMatch(Character::isLetter)) {
                         header = false;
                         continue;
@@ -132,16 +128,12 @@ class ExportCSV {
                     if (!arcDev.isValidateUID() || validateUID(studyUID))
                         studyUIDs.add(studyUID);
 
-                    if (studyUIDs.size() == csvUploadChunkSize || line == null) {
-                        exportManager.scheduleStudyExportTasks(
-                                exporter,
-                                HttpServletRequestInfo.valueOf(request),
-                                batchID,
-                                studyUIDs.toArray(new String[0]));
-                        count += studyUIDs.size();
-                        studyUIDs.clear();
-                    }
+                    if (studyUIDs.size() == csvUploadChunkSize)
+                        count = scheduleExportTasks(exporter, count, studyUIDs);
                 }
+                if (!studyUIDs.isEmpty())
+                    count = scheduleExportTasks(exporter, count, studyUIDs);
+
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
@@ -169,11 +161,26 @@ class ExportCSV {
         }
     }
 
+    private int scheduleExportTasks(ExporterDescriptor exporter, int count, List<String> studyUIDs) {
+        exportManager.scheduleStudyExportTasks(
+                exporter,
+                HttpServletRequestInfo.valueOf(request),
+                batchID,
+                studyUIDs.toArray(new String[0]));
+        count += studyUIDs.size();
+        studyUIDs.clear();
+        return count;
+    }
+
     private boolean validateUID(String studyUID) {
         boolean valid = UIDUtils.isValid(studyUID);
         if (!valid)
             LOG.warn("Invalid UID in CSV file: " + studyUID);
         return valid;
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
     }
 
     private void logRequest() {
