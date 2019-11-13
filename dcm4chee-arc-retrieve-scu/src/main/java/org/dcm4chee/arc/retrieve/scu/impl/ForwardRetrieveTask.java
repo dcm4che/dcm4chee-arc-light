@@ -119,7 +119,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     public void forwardMoveRQ() throws DicomServiceException {
         try {
             fwdas.invoke(fwdas.pcFor(cuid, null), rqCmd, new DataWriterAdapter(keys), rspHandler,
-                    fwdas.getConnection().getRetrieveTimeout());
+                    fwdas.getConnection().getSendTimeout(), fwdas.getConnection().getRetrieveTimeout());
         } catch (Exception e) {
             LOG.info("{}: failed to forward C-MOVE-RQ on association to {}", rqas, fwdas.getRemoteAET(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
