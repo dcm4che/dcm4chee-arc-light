@@ -264,6 +264,7 @@ public class DiffRS {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line = reader.readLine();
+            boolean header = true;
             while (line != null) {
                 if (line.chars().allMatch(Character::isWhitespace)) {
                     line = reader.readLine();
@@ -272,12 +273,12 @@ public class DiffRS {
 
                 String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
                 line = reader.readLine();
-                if (count == 0 && studyUID.chars().allMatch(Character::isLetter))
+                if (header && studyUID.chars().allMatch(Character::isLetter)) {
+                    header = false;
                     continue;
+                }
 
-                if (count > 0
-                        || !arcDev.isValidateUID()
-                        || validateUID(studyUID))
+                if (!arcDev.isValidateUID() || validateUID(studyUID))
                     studyUIDs.add(studyUID);
 
                 if (studyUIDs.size() == csvUploadChunkSize || line == null) {
