@@ -47,7 +47,6 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -62,6 +61,9 @@ import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.CSVFormat;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -401,7 +403,6 @@ public class QueryRetrieveRS {
                 return errResponse(
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
 
-            char csvDelimiter = csvDelimiter();
             priorityAsInt = parseInt(priority, 0);
             int count = 0;
             String warning = null;
@@ -409,17 +410,16 @@ public class QueryRetrieveRS {
             int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
             List<String> studyUIDs = new ArrayList<>();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line = reader.readLine();
+            try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    CSVParser parser = new CSVParser(reader, CSVFormat.newFormat(csvDelimiter()).withQuote('"'))
+            ) {
                 boolean header = true;
-                while (line != null) {
-                    if (line.chars().allMatch(Character::isWhitespace)) {
-                        line = reader.readLine();
+                for (CSVRecord csvRecord : parser) {
+                    if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                         continue;
-                    }
 
-                    String studyUID = StringUtils.split(line, csvDelimiter)[field - 1].replaceAll("\"", "");
-                    line = reader.readLine();
+                    String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
                     if (header && studyUID.chars().allMatch(Character::isLetter)) {
                         header = false;
                         continue;
@@ -428,17 +428,18 @@ public class QueryRetrieveRS {
                     if (!arcDev.isValidateUID() || validateUID(studyUID))
                         studyUIDs.add(studyUID);
 
-                    if (studyUIDs.size() == csvUploadChunkSize || line == null) {
+                    if (studyUIDs.size() == csvUploadChunkSize) {
                         count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
                         studyUIDs.clear();
                     }
                 }
+                if (!studyUIDs.isEmpty())
+                    count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed.";
                     status = Response.Status.NO_CONTENT;
                 }
-
             } catch (QueueSizeLimitExceededException e) {
                 status = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();

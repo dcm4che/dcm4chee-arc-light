@@ -75,6 +75,8 @@
             <module name="org.keycloak.keycloak-core" export="TRUE" services="export"/>
             <module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
             <module name="org.keycloak.admin-client" export="TRUE"/>
+            <!-- apache commons csv -->
+            <module name="org.apache.commons.csv" export="TRUE"/>
             <!-- emc-ecs modules -->
             <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>
