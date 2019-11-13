@@ -1020,7 +1020,7 @@ export class StudyService {
                                     param: 'visible'
                                 },
                                 showIf: (e, config) => {
-                                    return _.hasIn(options,"selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayPatientURL");
+                                    return _.hasIn(options,"selectedWebService.IID_PATIENT_URL");
                                 }
                             }
                         ]
@@ -1438,7 +1438,7 @@ export class StudyService {
                                     param: 'visible'
                                 },
                                 showIf: (e, config) => {
-                                    return _.hasIn(options,"selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayStudyURL");
+                                    return _.hasIn(options,"selectedWebService.IID_STUDY_URL");
                                 }
                             }
                         ]
@@ -2874,5 +2874,19 @@ export class StudyService {
             return Observable.throw(e);
         }
     };
+
+    convertStringLDAPParamToObject(object:any, path:string, keys:string[]){
+        try{
+            _.get(object,path).forEach(param=>{
+                keys.forEach(key=>{
+                    if(param.indexOf(key) > -1){
+                        object[key] = param.replace(key + '=','');
+                    }
+                })
+            })
+        }catch (e) {
+
+        }
+    }
 
 }

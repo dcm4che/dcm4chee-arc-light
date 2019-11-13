@@ -1003,7 +1003,7 @@ export class StudyComponent implements OnInit, AfterContentChecked{
             let token;
             let target;
             let url;
-            let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayStudyURL : this.studyWebService.selectedWebService.dicomAETitleObject.dcmInvokeImageDisplayPatientURL;
+            let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
             this._keycloakService.getToken().subscribe((response) => {
                 if (!this.appService.global.notSecure) {
                     token = response.token;
@@ -3053,6 +3053,7 @@ trigger_diff*/
                                     webApp.dicomAETitleObject = aet;
                                 }
                             });
+                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL','IID_PATIENT_URL']);
                             return webApp;
                         })
                     });
