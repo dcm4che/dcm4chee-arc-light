@@ -44,10 +44,7 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.SSLManagerFactory;
-import org.dcm4che3.util.ResourceLocator;
 import org.dcm4chee.arc.conf.ldap.LdapArchiveConfigurationFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -90,6 +87,7 @@ public class ArchiveDeviceConfigurationTest {
         EnumSet<DicomConfiguration.Option> register = EnumSet.of(DicomConfiguration.Option.REGISTER);
         config.persist(arrDevice, register);
         config.persist(otherDevices[0] = ArchiveDeviceFactory.createOtherDevice(0), register);
+        config.persist(ArchiveDeviceFactory.createStoreSCPDevice(), register);
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 1; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++) {
                 config.persist(otherDevices[i] = ArchiveDeviceFactory.createOtherDevice(i), register);
@@ -132,6 +130,7 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterAETitle("IOCM_WRONG_MWL");
         config.unregisterAETitle("AS_RECEIVED");
         config.unregisterAETitle("SCHEDULEDSTATION");
+        config.unregisterAETitle("STORESCP");
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         config.unregisterWebAppName("DCM4CHEE");
         config.unregisterWebAppName("DCM4CHEE-WADO");
@@ -161,6 +160,9 @@ public class ArchiveDeviceConfigurationTest {
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("scheduledstation", null);
+        } catch (ConfigurationNotFoundException e) {}
+        try {
+            config.removeDevice("storescp", null);
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("hl7rcv", null);

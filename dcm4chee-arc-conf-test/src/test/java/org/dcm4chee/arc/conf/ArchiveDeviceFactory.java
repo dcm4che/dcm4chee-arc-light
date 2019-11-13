@@ -110,7 +110,6 @@ class ArchiveDeviceFactory {
             "scheduledstation",
             "dcmqrscp",
             "stgcmtscu",
-            "storescp",
             "mppsscp",
             "ianscp",
             "storescu",
@@ -124,7 +123,6 @@ class ArchiveDeviceFactory {
             null,
             "ARCHIVE",
             "CT",
-            "WSD",
             "DSS",
             "DSS",
             "CT",
@@ -138,7 +136,6 @@ class ArchiveDeviceFactory {
             "SCHEDULEDSTATION",
             "DCMQRSCP",
             "STGCMTSCU",
-            "STORESCP",
             "MPPSSCP",
             "IANSCP",
             "STORESCU",
@@ -148,8 +145,8 @@ class ArchiveDeviceFactory {
             "MOVESCU"
     };
     static final int SCHEDULED_STATION_INDEX = 0;
-    static final int STORESCU_INDEX = 6;
-    static final int MPPSSCU_INDEX = 7;
+    static final int STORESCU_INDEX = 5;
+    static final int MPPSSCU_INDEX = 6;
     static final Issuer SITE_A =
             new Issuer("Site A", "1.2.40.0.13.1.1.999.111.1111", "ISO");
     static final Issuer SITE_B =
@@ -162,7 +159,6 @@ class ArchiveDeviceFactory {
             null, // SCHEDULEDSTATION
             SITE_B, // DCMQRSCP
             null, // STGCMTSCU
-            SITE_A, // STORESCP
             SITE_A, // MPPSSCP
             null, // IANSCP
             SITE_A, // STORESCU
@@ -176,7 +172,6 @@ class ArchiveDeviceFactory {
             null, // SCHEDULEDSTATION
             INST_B, // DCMQRSCP
             null, // STGCMTSCU
-            null, // STORESCP
             null, // MPPSSCP
             null, // IANSCP
             INST_A, // STORESCU
@@ -190,7 +185,6 @@ class ArchiveDeviceFactory {
             104, -2, // SCHEDULEDSTATION
             11113, 2763, // DCMQRSCP
             11114, 2765, // STGCMTSCU
-            11115, 2766, // STORESCP
             11116, 2767, // MPPSSCP
             11117, 2768, // IANSCP
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // STORESCU
@@ -779,7 +773,9 @@ class ArchiveDeviceFactory {
             UID.PositronEmissionTomographyImageStorage,
             UID.LegacyConvertedEnhancedPETImageStorage,
             UID.EnhancedPETImageStorage,
-            UID.RTImageStorage,
+            UID.RTImageStorage
+    };
+    static final String[] PRIVATE_IMAGE_CUIDS = {
             UID.PrivateFujiCRImageStorage,
             UID.PrivateGEDicomCTImageInfoObject,
             UID.PrivateGEDicomDisplayImageInfoObject,
@@ -931,6 +927,9 @@ class ArchiveDeviceFactory {
             UID.CArmPhotonElectronRadiationStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
+    };
+
+    static final String[] PRIVATE_CUIDS = {
             UID.PrivateAgfaArrivalTransaction,
             UID.PrivateAgfaBasicAttributePresentationState,
             UID.PrivateAgfaDictationTransaction,
@@ -1348,6 +1347,17 @@ class ArchiveDeviceFactory {
                     Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
             device.addConnection(dicomTLS);
             ae.addConnection(dicomTLS);
+        }
+        return device;
+    }
+
+    public static Device createStoreSCPDevice() {
+        Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
+        ApplicationEntity ae = device.getApplicationEntity("STORESCP");
+        addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        String[][] CUIDS = { IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS };
+        for (int i = 0; i < CUIDS.length; i++) {
+            addTCs(ae, null, SCP, CUIDS[i], OTHER_TSUIDS);
         }
         return device;
     }
@@ -2102,8 +2112,8 @@ class ArchiveDeviceFactory {
                     },
                     UID.ImplicitVRLittleEndian);
         }
-        String[][] CUIDS = { IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS };
-        String[][] TSUIDS = { IMAGE_TSUIDS, VIDEO_TSUIDS, SR_TSUIDS, OTHER_TSUIDS };
+        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
+        String[][] TSUIDS = { IMAGE_TSUIDS, IMAGE_TSUIDS, VIDEO_TSUIDS, SR_TSUIDS, OTHER_TSUIDS, OTHER_TSUIDS };
         if (storeSCU) {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
             for (int i = 0; i < CUIDS.length; i++)
