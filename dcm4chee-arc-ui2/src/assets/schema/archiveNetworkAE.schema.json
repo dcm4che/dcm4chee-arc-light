@@ -419,7 +419,7 @@
     },
     "dcmLinkMWLEntryUpdatePolicy": {
       "title": "Link MWL Entry Update Policy",
-      "description": "SSpecifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Overwrites value specified on Device level.",
+      "description": "Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
         "SUPPLEMENT",
