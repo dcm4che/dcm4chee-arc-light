@@ -670,6 +670,12 @@ public class AuditService {
 
     private void spoolIncomingHL7Msg(HL7ConnectionEvent hl7ConnEvent) {
         try {
+            HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
+            if (pid == null) {
+                LOG.info("Missing PID segment. Abort patient audit of incoming HL7 message.");
+                return;
+            }
+
             PatientRecordAuditService patRecAuditService = new PatientRecordAuditService(hl7ConnEvent, getArchiveDevice());
             UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
             AuditUtils.EventType eventType = AuditUtils.EventType.forHL7IncomingPatRec(hl7ResponseMessage);
