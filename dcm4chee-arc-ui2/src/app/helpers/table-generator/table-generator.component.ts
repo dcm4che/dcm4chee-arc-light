@@ -20,6 +20,10 @@ export class TableGeneratorComponent implements OnInit {
         console.log("model",this.models);
     }
     ngOnInit() {
+        if(!this.config || !_.hasIn(this.config,"search")){
+            this.config = this.config || {};
+            this.config.search = "";
+        }
         if(this.stringifyDetailAttributes){
             this.models.map(model=>{
                 model.tableGeneratorDetailAttributes = Object.assign({},model);

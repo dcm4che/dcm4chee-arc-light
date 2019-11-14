@@ -5,7 +5,7 @@
     </div>
   </div>
   <div class="table_body">
-      <ng-container *ngFor="let model of models;let i = index">
+      <ng-container *ngFor="let model of models|search:config.search;let i = index">
         <div class="tr">
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
                 <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
