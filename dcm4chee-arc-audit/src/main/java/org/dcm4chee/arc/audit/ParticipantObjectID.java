@@ -150,7 +150,9 @@ class ParticipantObjectID {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);
 
-        ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
+        boolean hasPatient = auditInfo.getField(AuditInfo.P_ID) != null;
+        ParticipantObjectIdentificationBuilder[] studyPatParticipants
+                = new ParticipantObjectIdentificationBuilder[hasPatient ? 2 : 1];
         List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
         if (auditInfo.getField(AuditInfo.EXPIRATION_DATE) != null)
             participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
@@ -160,7 +162,7 @@ class ParticipantObjectID {
                 .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
                 .detail(participantObjectDetails.toArray(new ParticipantObjectDetail[0]))
                 .build();
-        if (auditInfo.getField(AuditInfo.P_ID) != null)
+        if (hasPatient)
             studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
         return studyPatParticipants;
     }
