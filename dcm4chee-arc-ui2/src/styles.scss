@@ -3448,6 +3448,9 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
 /*      overflow: auto;
       max-height: 1000px;*/
       .tr {
+        &.selected{
+          background:rgba(67, 139, 173, 0.88);
+        }
         .td{
           .text_content{
             position: relative;

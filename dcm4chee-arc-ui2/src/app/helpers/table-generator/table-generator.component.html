@@ -6,7 +6,7 @@
   </div>
   <div class="table_body">
       <ng-container *ngFor="let model of models|search:config.search;let i = index">
-        <div class="tr">
+        <div class="tr" [ngClass]="{'selected':model.selected}">
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
                 <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
                 <div *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
@@ -38,10 +38,12 @@
                     </ng-container>
                 </ng-container>
                 <ng-container *ngIf="table_element.type === 'actions'">
-                    <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(model)" *ngFor="let action of table_element.actions">
-                        <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                        <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                    </a>
+                    <ng-container  *ngFor="let action of table_element.actions">
+                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(model)">
+                            <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                            <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                        </a>
+                    </ng-container>
                 </ng-container>
             </div>
         </div>
