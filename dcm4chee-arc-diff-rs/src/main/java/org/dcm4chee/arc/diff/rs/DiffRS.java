@@ -261,7 +261,7 @@ public class DiffRS {
 
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                CSVParser parser = new CSVParser(reader, CSVFormat.newFormat(csvDelimiter()).withQuote('"'))
+                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
         ) {
             boolean header = true;
             for (CSVRecord csvRecord : parser) {
