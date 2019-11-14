@@ -46,6 +46,7 @@ import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -137,6 +138,18 @@ public class RejectMatchingRS extends RejectMatching {
                 QueryRetrieveLevel2.IMAGE,
                 studyInstanceUID,
                 seriesInstanceUID);
+    }
+
+    @POST
+    @Path("/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response retrieveMatchingStudiesFromCSV(
+            @PathParam("field") int field,
+            @PathParam("codeValue") String codeValue,
+            @PathParam("codingSchemeDesignator") String designator,
+            InputStream in) {
+        return rejectStudiesFromCSV(aet, field, codeValue, designator, in);
     }
 
 }

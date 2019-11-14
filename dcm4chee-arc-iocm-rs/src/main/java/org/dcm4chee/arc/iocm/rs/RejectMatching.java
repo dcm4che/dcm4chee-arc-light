@@ -40,10 +40,15 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -63,10 +68,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -154,6 +161,9 @@ class RejectMatching {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
+
     public void validate() {
         logRequest();
         new QueryAttributes(uriInfo, null);
@@ -161,14 +171,10 @@ class RejectMatching {
 
     Response rejectMatching(String aet, String codeValue, String designator,
             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
-
         try {
-            Code rjNoteCode;
-            if (codeValue == null
-                    || (rjNoteCode = toRejectionNote(codeValue, designator).getRejectionNoteCode()) == null)
+            ApplicationEntity ae = validateAE(aet);
+            Code rjNoteCode = validateRejectionNote(codeValue, designator);
+            if (rjNoteCode == null)
                 return errResponse(
                         "No such Rejection Note : " + codeValue + "^" + designator, Response.Status.NOT_FOUND);
 
@@ -202,11 +208,111 @@ class RejectMatching {
                 builder.header("Warning", warning);
             }
             return builder.entity("{\"count\":" + count + '}').build();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    Response rejectStudiesFromCSV(String aet, int field, String codeValue, String designator, InputStream in) {
+        try {
+            validateAE(aet);
+            Response.Status status = Response.Status.BAD_REQUEST;
+            if (field < 1)
+                return errResponse(
+                        "CSV field for Study Instance UID should be greater than or equal to 1", status);
+
+            Code rjNoteCode = validateRejectionNote(codeValue, designator);
+            if (rjNoteCode == null)
+                return errResponse(
+                        "No such Rejection Note : " + codeValue + "^" + designator, Response.Status.NOT_FOUND);
+
+            int count = 0;
+            String warning = null;
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
+            List<String> studyUIDs = new ArrayList<>();
+
+            try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
+            ) {
+                boolean header = true;
+                for (CSVRecord csvRecord : parser) {
+                    if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
+                        continue;
+
+                    String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
+                    if (header && studyUID.chars().allMatch(Character::isLetter)) {
+                        header = false;
+                        continue;
+                    }
+
+                    if (!arcDev.isValidateUID() || validateUID(studyUID))
+                        studyUIDs.add(studyUID);
+
+                    if (studyUIDs.size() == csvUploadChunkSize)
+                        count = scheduleStudyRejectTasks(aet, count, rjNoteCode, studyUIDs);
+                }
+                if (!studyUIDs.isEmpty())
+                    count = scheduleStudyRejectTasks(aet, count, rjNoteCode, studyUIDs);
+
+                if (count == 0) {
+                    warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
+                    status = Response.Status.NO_CONTENT;
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
+
+            if (warning == null && count > 0)
+                return Response.accepted(count(count)).build();
+
+            LOG.warn("Response {} caused by {}", status, warning);
+            Response.ResponseBuilder builder = Response.status(status)
+                    .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+
+            return builder.build();
+
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        }
+    }
+
+    private ApplicationEntity validateAE(String aet) throws ConfigurationException {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new ConfigurationException(
+                    "No such Application Entity: " + aet + " found in device: " + device.getDeviceName());
+
+        return ae;
+    }
+
+    private Code validateRejectionNote(String codeValue, String designator) {
+        Code rjNoteCode;
+        if (codeValue == null
+                || (rjNoteCode = toRejectionNote(codeValue, designator).getRejectionNoteCode()) == null)
+            return null;
+
+        return rjNoteCode;
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
+    private boolean validateUID(String studyUID) {
+        boolean valid = UIDUtils.isValid(studyUID);
+        if (!valid)
+            LOG.warn("Invalid UID in CSV file: " + studyUID);
+        return valid;
     }
 
     private void logRequest() {
@@ -228,6 +334,17 @@ class RejectMatching {
                 rjNoteCode,
                 httpRequestInfo,
                 batchID);
+    }
+
+    private int scheduleStudyRejectTasks(String aet, int count, Code rjNoteCode, List<String> studyUIDs) {
+        rejectionService.scheduleStudyRejectTasks(aet,
+                studyUIDs,
+                rjNoteCode,
+                HttpServletRequestInfo.valueOf(request),
+                batchID);
+        count += studyUIDs.size();
+        studyUIDs.clear();
+        return count;
     }
 
     private RejectionNote toRejectionNote(String codeValue, String designator) {
@@ -292,6 +409,10 @@ class RejectMatching {
 
     private ArchiveDeviceExtension arcDev() {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
+    private static String count(int count) {
+        return "{\"count\":" + count + '}';
     }
 
     private Response errResponse(String msg, Response.Status status) {

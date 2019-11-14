@@ -216,6 +216,9 @@
     "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
       "$ref": "paths/export.json#/studies.csv"
     },
+    "/aets/{aet}/rs/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/iocm.json#/study.reject.csv"
+    },
     "/aets/{aet}/rs/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.reject"
     },

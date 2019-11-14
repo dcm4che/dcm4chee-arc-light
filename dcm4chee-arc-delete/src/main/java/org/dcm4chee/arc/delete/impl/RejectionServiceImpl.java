@@ -65,6 +65,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -152,6 +153,13 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
                                HttpServletRequestInfo httpRequest, String batchID)
             throws QueueSizeLimitExceededException {
         ejb.scheduleRejection(aet, studyIUID, seriesIUID, sopIUID, code, httpRequest, batchID);
+    }
+
+    @Override
+    public void scheduleStudyRejectTasks(
+            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequest, String batchID)
+            throws QueueSizeLimitExceededException {
+        ejb.scheduleStudyRejectTasks(aet, studyUIDs, code, httpRequest, batchID);
     }
 
     private static int countInstances(Attributes attrs) {

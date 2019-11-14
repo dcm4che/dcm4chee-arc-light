@@ -38,6 +38,52 @@
       }
     }
   },
+  "study.reject.csv": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Reject Studies specified in CSV",
+      "operationId": "RejectStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "description": "Rejection of Studies queued"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "503": {
+          "description": "Maximal number of Tasks in Queue reached"
+        }
+      }
+    }
+  },
   "study.reject": {
     "post": {
       "tags": [
