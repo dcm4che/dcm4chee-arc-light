@@ -1142,7 +1142,7 @@
       }
     }
   },
-  "dimse.series1.reject": {
+  "dimse.series.reject": {
     "post": {
       "tags": [
         "IOCM-RS"

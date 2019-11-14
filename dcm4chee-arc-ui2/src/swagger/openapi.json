@@ -318,7 +318,7 @@
     "/aets/{aet}/rs/instances/ian/{ianscp}": {
       "$ref": "paths/ian.json#/instances"
     },
-    "/aets/{aet}/rs/instances/storage/{StorageID}": {
+    "/aets/{aet}/rs/instances/storage/{storageID}": {
       "$ref": "paths/misc.json#/import"
     },
     "/aets/{aet}/rs/instances/stgcmt/{stgCmtSCP}": {
@@ -729,7 +729,7 @@
     "/impax/reports/studies/{study}": {
       "$ref": "paths/misc.json#/impax.reports.study"
     },
-    "/aets/{aet}/dimse/{externalAET}": {
+    "/aets/{aet}/dimse/{remoteAET}": {
       "$ref": "paths/misc.json#/dimse"
     },
     "/xroad/RR441/{patientID}": {
@@ -753,22 +753,22 @@
     "/aets/{aet}/ian/{ianscp}/studies/{study}/series/{series}/instances": {
       "$ref": "paths/legacy.json#/ian.studies.series.instances"
     },
-    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients": {
+    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients": {
       "$ref": "paths/pam.json#/hl7.patients"
     },
-    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/merge": {
+    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}/merge": {
       "$ref": "paths/legacy.json#/hl7.patient.merge"
     },
-    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}/changeid": {
+    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}/changeid": {
       "$ref": "paths/legacy.json#/hl7.patient.changeID"
     },
-    "/hl7apps/{hl7App}/hl7/{externalHL7AppName}/patients/{priorPatientID}": {
+    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}": {
       "$ref": "paths/pam.json#/hl7.patient"
     },
-    "/pdq/{PDQServiceID}/patients/{patientID}": {
+    "/pdq/{pdqServiceID}/patients/{patientID}": {
       "$ref": "paths/pam.json#/pdq.patient"
     },
-    "/aets/{aet}/diff/pdq/{PDQServiceID}/patients": {
+    "/aets/{aet}/diff/pdq/{pdqServiceID}/patients": {
       "$ref": "paths/pam.json#/diff.pdq.patients"
     },
     "/stgcmt": {
@@ -816,13 +816,13 @@
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series/{series}/instances": {
       "$ref": "paths/legacy.json#/reject.studies.series.instances"
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.study.reject"
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/iocm.json#/dimse.series1.reject"
+    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/iocm.json#/dimse.series.reject"
     },
-    "/aets/{aet}/dimse/{externalAET}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.instance.reject"
     },
     "/aets/{aet}/rs/studies_": {
@@ -870,7 +870,7 @@
     "/aets/{aet}/stgver/studies/{study}/series/{series}/instances": {
       "$ref": "paths/legacy.json#/stgver.studies.series.instances"
     },
-    "/aets/{aet}/export/{ExporterID}/studies/csv:{field}": {
+    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
       "$ref": "paths/legacy.json#/export.studies.csv"
     },
     "/aets/{aet}/export/{exporterID}/studies": {

@@ -36,7 +36,7 @@
     }
   },
   "hl7AppPathParam": {
-    "name": "hl7AppName",
+    "name": "hl7AppNameWithFacility",
     "in": "path",
     "description": "HL7 Application Name",
     "required": true,
@@ -45,7 +45,7 @@
     }
   },
   "externalHL7AppPathParam": {
-    "name": "externalHL7AppName",
+    "name": "externalHL7AppNameWithFacility",
     "in": "path",
     "description": "External HL7 Application Name",
     "required": true,
@@ -54,7 +54,7 @@
     }
   },
   "findSCPPathParam": {
-    "name": "ExternalAET",
+    "name": "findscp",
     "in": "path",
     "description": "AE Title of primary C-FIND SCP",
     "required": true,
@@ -63,7 +63,7 @@
     }
   },
   "secondaryFindSCPPathParam": {
-    "name": "OriginalAET",
+    "name": "secondaryFindSCP",
     "in": "path",
     "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
     "required": true,
@@ -81,7 +81,7 @@
     }
   },
   "stgCmtSCPPathParam": {
-    "name": "stgcmtscp",
+    "name": "stgCmtSCP",
     "in": "path",
     "description": "Storage Commitment SCP AE Title",
     "required": true,
@@ -90,7 +90,7 @@
     }
   },
   "moveSCPPathParam": {
-    "name": "ExternalAET",
+    "name": "movescp",
     "in": "path",
     "description": "AE Title of C-MOVE SCP",
     "required": true,
@@ -99,7 +99,7 @@
     }
   },
   "remoteAETPathParam": {
-    "name": "externalAET",
+    "name": "remoteAET",
     "in": "path",
     "description": "Remote AE Title",
     "required": true,
@@ -197,15 +197,6 @@
       "type": "string"
     }
   },
-  "subscriptionPathParam": {
-    "name": "workitem",
-    "in": "path",
-    "description": "Workitem UID, or 1.2.840.10008.5.1.4.34.5 for Global Subscription, or 1.2.840.10008.5.1.4.34.5.1 for Filtered Global Subscription",
-    "required": true,
-    "schema": {
-      "type": "string"
-    }
-  },
   "subscriberPathParam": {
     "name": "subscriber",
     "in": "path",
@@ -225,7 +216,7 @@
     }
   },
   "entityPathParam": {
-    "name": "Entity",
+    "name": "entity",
     "in": "path",
     "description": "Entity of which Attribute Filter is to be returned",
     "required": true,
@@ -234,7 +225,7 @@
     }
   },
   "typePathParam": {
-    "name": "Attribute Set Type",
+    "name": "type",
     "in": "path",
     "description": "Type of which Attribute Set is to be returned",
     "required": true,
@@ -247,7 +238,7 @@
     }
   },
   "serialNoPathParam": {
-    "name": "Association Serial No",
+    "name": "serialNo",
     "in": "path",
     "description": "Association Serial No",
     "required": true,
@@ -364,7 +355,7 @@
     }
   },
   "ExporterIDPathParam": {
-    "name": "ExporterID",
+    "name": "exporterID",
     "in": "path",
     "description": "Exporter ID",
     "required": true,
