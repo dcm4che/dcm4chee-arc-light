@@ -7,6 +7,7 @@ export class SelectionsDicomObjects {
     private _study:any;
     private _series:any;
     private _instance:any;
+    private _mwl:any;
     private _currentIndexes;
     size:number;
 
@@ -14,7 +15,8 @@ export class SelectionsDicomObjects {
         patient?:any,
         study?:any,
         series?:any,
-        instance?:any
+        instance?:any,
+        mwl?:any
     }={}){
         this.size = 0;
         if(object.patient){
@@ -40,6 +42,12 @@ export class SelectionsDicomObjects {
             this.size += Object.keys(object.instance).length
         }else{
             this._instance = {};
+        }
+        if(object.mwl){
+            this.mwl = object.mwl;
+            this.size += Object.keys(object.mwl).length
+        }else{
+            this._mwl = {};
         }
     }
 
@@ -134,5 +142,13 @@ export class SelectionsDicomObjects {
 
     set currentIndexes(value) {
         this._currentIndexes = value;
+    }
+
+    get mwl(): any {
+        return this._mwl;
+    }
+
+    set mwl(value: any) {
+        this._mwl = value;
     }
 }

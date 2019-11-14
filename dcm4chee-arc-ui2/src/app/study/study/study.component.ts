@@ -5,7 +5,7 @@ import {
     OnInit,
     ViewChild,
     ViewContainerRef,
-    AfterContentChecked,
+    AfterContentChecked, OnDestroy,
 } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
@@ -88,7 +88,7 @@ import {DiffDicom} from "../../models/diff-dicom";
         ])
     ]
 })
-export class StudyComponent implements OnInit, AfterContentChecked{
+export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     test = Globalvar.ORDERBY;
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
@@ -236,7 +236,11 @@ export class StudyComponent implements OnInit, AfterContentChecked{
 
     ngOnInit() {
         this.largeIntFormat = new LargeIntFormatPipe();
-        this.selectedElements = new SelectionActionElement({});
+        if(this.service.selectedElements){
+            this.selectedElements = this.service.selectedElements;
+        }else{
+            this.selectedElements = new SelectionActionElement({});
+        }
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
@@ -3207,4 +3211,9 @@ trigger_diff*/
         this.studyWebService.selectedWebService = value;
         this.setTrash();
     }*/
+   ngOnDestroy(){
+       if(this.selectedElements){
+           this.service.selectedElements = this.selectedElements;
+       }
+   }
 }

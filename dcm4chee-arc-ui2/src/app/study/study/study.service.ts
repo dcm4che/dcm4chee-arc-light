@@ -52,6 +52,7 @@ export class StudyService {
     dicomHeader = new HttpHeaders({'Content-Type': 'application/dicom+json'});
     jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
 
+    selectedElements:SelectionActionElement;
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
