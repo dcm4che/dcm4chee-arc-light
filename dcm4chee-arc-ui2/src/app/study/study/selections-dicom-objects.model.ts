@@ -101,7 +101,8 @@ export class SelectionsDicomObjects {
             ..._.values(this._patient),
             ..._.values(this._study),
             ..._.values(this._series),
-            ..._.values(this._instance)
+            ..._.values(this._instance),
+            ..._.values(this._mwl)
         ]
     }
     get patient(): any {

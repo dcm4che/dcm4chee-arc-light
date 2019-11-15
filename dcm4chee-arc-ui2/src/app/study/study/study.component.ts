@@ -232,7 +232,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         private config: MatDialogConfig,
         private _keycloakService:KeycloakService,
         private changeDetector: ChangeDetectorRef
-    ) {}
+    ) {
+        console.log("in construct",this.service.selectedElements);
+    }
 
     ngOnInit() {
         this.largeIntFormat = new LargeIntFormatPipe();
@@ -244,6 +246,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
+            console.log("this.selectedElements",this.selectedElements);
             this.studyConfig.tab = params.tab;
             if(this.studyConfig.tab === "diff"){
                 this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
@@ -258,7 +261,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             this.more = false;
             this._filter.filterModel.offset = 0;
-            this.initWebApps();
+            if(!this.studyWebService){
+                this.initWebApps();
+            }else{
+                this.setSchema();
+                this.initExporters(2);
+                this.initRjNotes(2);
+                this.getQueueNames();
+            }
         });
         this.moreFunctionConfig.options.filter(option=>{
             if(option.value === "retrieve_multiple"){
