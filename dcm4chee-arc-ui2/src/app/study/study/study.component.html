@@ -85,10 +85,11 @@
     <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-            <li><button (click)="selectionAction('copy')"><i class="material-icons">content_copy</i></button></li>
-            <li><button (click)="selectionAction('move')"><i class="material-icons">content_cut</i></button></li>
-            <li><button (click)="selectionAction('patient_merge')"><i class="material-icons">supervisor_account</i></button></li>
-            <li><button (click)="selectionAction('paste')"><i class="material-icons">content_paste</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('copy')" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('move')" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('link')" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
+            <li><button (click)="selectionAction('paste')" title="Start the process of coping/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
         </ul>
         <ul *ngIf="checkboxFunctions" class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')">Remove all selections</button></li>

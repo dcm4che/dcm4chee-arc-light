@@ -1,5 +1,5 @@
 <h3>{{title}}</h3>
-<div *ngIf="selectedElements.action === 'move'">
+<div *ngIf="selectedElements.action === 'move' || selectedElements.action === 'link'">
     <div class="line_block">
         <span class="line_element">Select rejected type:</span>
         <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
@@ -29,7 +29,7 @@
     </div>
 </ng-container>
 
-<ng-container  *ngFor="let level of ['patient','study','series','instance']">
+<ng-container  *ngFor="let level of ['patient','study','series','instance','mwl']">
   <selections-dicom-view *ngIf="selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0" [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
 </ng-container>
 <div class="dialogbuttons">

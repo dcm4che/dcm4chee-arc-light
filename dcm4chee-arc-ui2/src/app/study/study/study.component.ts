@@ -409,6 +409,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
+            case "link":{
+                this.setSelectedElementAction(id);
+                this.resetSetSelectionObject(undefined, undefined, true);
+                break;
+            }
             case "patient_merge":{
                 this.setSelectedElementAction("merge");
                 this.resetSetSelectionObject(undefined, undefined, true);
@@ -471,49 +476,50 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                     this.dialogRef.componentInstance.selectedElements = this.selectedElements;
                     this.dialogRef.componentInstance.rjnotes = select;
+                    this.dialogRef.componentInstance.title = j4care.firstLetterToUpperCase(this.selectedElements.action);
                     this.dialogRef.afterClosed().subscribe(result => {
                         console.log("result",result);
                         console.log("selectedElements",this.selectedElements);
                         if (result) {
                             this.cfpLoadingBar.start();
-                            if (this.selectedElements.action === 'merge') {
-                                this.service.mergePatients(this.selectedElements,this.studyWebService)
-                                    .subscribe((response) => {
-                                        this.appService.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Patients merged successfully!',
-                                            'status': 'info'
+                            switch (this.selectedElements.action) {
+                                case 'merge':
+                                    this.service.mergePatients(this.selectedElements,this.studyWebService)
+                                        .subscribe((response) => {
+                                            this.appService.showMsg('Patients merged successfully!');
+                                            this.clearClipboard();
+                                            this.cfpLoadingBar.complete();
+                                        }, (response) => {
+                                            this.cfpLoadingBar.complete();
+                                            this.httpErrorHandler.handleError(response);
                                         });
+                                    break;
+                                case 'link':
+                                    break;
+                                default:
+                                    this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
+                                        try{
+                                            console.log("res",res);
+                                            const errorCount = res.filter(result=>result.isError).length;
+                                            const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nErrors: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
+                                            if(errorCount === res.length){
+                                                this.appService.showError(msg);
+                                            }else{
+                                                if(errorCount > 0){
+                                                    this.appService.showWarning(msg);
+                                                }else{
+                                                    this.appService.showMsg(msg);
+                                                }
+                                            }
+                                        }catch (e) {
+                                            this.httpErrorHandler.handleError(res);
+                                        }
                                         this.clearClipboard();
                                         this.cfpLoadingBar.complete();
-                                    }, (response) => {
+                                    },err=>{
                                         this.cfpLoadingBar.complete();
-                                        this.httpErrorHandler.handleError(response);
+                                        this.httpErrorHandler.handleError(err);
                                     });
-                            }else{
-                                this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
-                                    try{
-                                        console.log("res",res);
-                                        const errorCount = res.filter(result=>result.isError).length;
-                                        const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nErrors: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
-                                        if(errorCount === res.length){
-                                            this.appService.showError(msg);
-                                        }else{
-                                            if(errorCount > 0){
-                                                this.appService.showWarning(msg);
-                                            }else{
-                                                this.appService.showMsg(msg);
-                                            }
-                                        }
-                                    }catch (e) {
-                                        this.httpErrorHandler.handleError(res);
-                                    }
-                                    this.clearClipboard();
-                                    this.cfpLoadingBar.complete();
-                                },err=>{
-                                    this.cfpLoadingBar.complete();
-                                    this.httpErrorHandler.handleError(err);
-                                });
                             }
                         }else{
                             this.clearClipboard();

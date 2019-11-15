@@ -2485,6 +2485,42 @@ export class StudyService {
         }
     }
 
+    copyMove(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode?):Observable<any>{
+        try{
+            const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
+            let studyInstanceUID;
+            let patientParams = {};
+            let observables = [];
+
+            if(!_.hasIn(target,"requestReady.StudyInstanceUID")){
+                studyInstanceUID = j4care.generateOIDFromUUID();
+                if(target.dicomLevel === "patient"){
+                    patientParams["PatientID"] = _.get(target.object, "attrs.00100020.Value[0]");
+                    patientParams["IssuerOfPatientID"] = _.get(target.object, "attrs.00100021.Value[0]");
+                }
+            }else{
+                studyInstanceUID = _.get(target,"requestReady.StudyInstanceUID");
+            }
+            let url = `${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}/${selectedElements.action}`;
+            if(selectedElements.action === "move"){
+                url += `/` + rejectionCode;
+            }
+            url += j4care.param(patientParams);
+            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
+                observables.push(this.$http.post(url,object.requestReady).pipe(
+                    catchError(err => of({isError: true, error: err})),
+                ));
+            });
+            return forkJoin(observables);
+        }catch (e) {
+            return Observable.throw(e);
+        }
+    };
+
+    linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode){
+        //TODO
+//   url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+    }
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
@@ -2843,38 +2879,6 @@ export class StudyService {
     getRejectNotes = (params?: any) => this.$http.get(`../reject/${j4care.param(params)}`);
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
-
-    copyMove(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode?):Observable<any>{
-        try{
-            const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
-            let studyInstanceUID;
-            let patientParams = {};
-            let observables = [];
-
-            if(!_.hasIn(target,"requestReady.StudyInstanceUID")){
-                studyInstanceUID = j4care.generateOIDFromUUID();
-                if(target.dicomLevel === "patient"){
-                    patientParams["PatientID"] = _.get(target.object, "attrs.00100020.Value[0]");
-                    patientParams["IssuerOfPatientID"] = _.get(target.object, "attrs.00100021.Value[0]");
-                }
-            }else{
-                studyInstanceUID = _.get(target,"requestReady.StudyInstanceUID");
-            }
-            let url = `${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}/${selectedElements.action}`;
-            if(selectedElements.action === "move"){
-                url += `/` + rejectionCode;
-            }
-            url += j4care.param(patientParams);
-            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
-                observables.push(this.$http.post(url,object.requestReady).pipe(
-                    catchError(err => of({isError: true, error: err})),
-                ));
-            });
-            return forkJoin(observables);
-        }catch (e) {
-            return Observable.throw(e);
-        }
-    };
 
     convertStringLDAPParamToObject(object:any, path:string, keys:string[]){
         try{

@@ -77,6 +77,12 @@
          &:hover, &.active{
            color: white;
          }
+         &:disabled{
+           color: rgba(68, 68, 68, 0.93);
+         }
+         .glyphicon{
+           font-size: 20px;
+         }
        }
      }
    }

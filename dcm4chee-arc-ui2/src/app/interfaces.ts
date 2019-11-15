@@ -142,7 +142,7 @@ export interface FilterSchemaElement {
 
 
 export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
-export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | string;
+export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
 export type AccessLocation = "internal" | "external";
 export type PaginationDirection = "prev" | "next";
 export interface StudyFilterConfig {
@@ -277,7 +277,7 @@ export interface MetricsDescriptors{
     dicomDescription:string;
 }
 
-export type SelectionAction = "copy" | "move" | "merge" | "cut";
+export type SelectionAction = "copy" | "move" | "merge" | "cut" | "link";
 
 export interface DiffAttributeSet {
     actions: string;
