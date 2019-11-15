@@ -836,7 +836,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    this.service.deletePatient(this.studyWebService.selectedWebService, encodeURIComponent(this.service.getPatientId(patient.attrs))).subscribe(
+                    this.service.deletePatient(this.studyWebService.selectedWebService, this.service.getPatientId(patient.attrs)).subscribe(
                         (response) => {
                             $this.appService.showMsg('Patient deleted successfully!');
                             // patients.splice(patientkey,1);
