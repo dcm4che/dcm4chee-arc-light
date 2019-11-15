@@ -5,8 +5,7 @@
   "required": [
     "dcmWebAppName",
     "dcmWebServicePath",
-    "dcmWebServiceClass",
-    "dicomNetworkConnectionReference"
+    "dcmWebServiceClass"
   ],
   "properties": {
     "dcmWebAppName": {
