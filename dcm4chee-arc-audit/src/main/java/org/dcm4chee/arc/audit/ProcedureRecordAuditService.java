@@ -54,7 +54,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
-import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
@@ -69,6 +68,7 @@ class ProcedureRecordAuditService {
     private ProcedureContext procCtx;
     private HL7ConnectionEvent hl7ConnEvent;
     private AuditInfoBuilder.Builder infoBuilder;
+    private HL7Segment pid;
 
     ProcedureRecordAuditService(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
         procCtx = ctx;
@@ -82,6 +82,7 @@ class ProcedureRecordAuditService {
     ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
         this.arcDev = arcDev;
         this.hl7ConnEvent = hl7ConnEvent;
+        this.pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
     }
 
     AuditInfoBuilder getProcUpdateAuditInfo() {
@@ -91,17 +92,18 @@ class ProcedureRecordAuditService {
     AuditInfoBuilder getHL7IncomingOrderInfo() {
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(hl7ConnEvent.getConnection().getHostname())
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
                 .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
                 .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
-                .patID(pid.getField(3, null), arcDev)
-                .patName(pid.getField(5, null), arcDev)
                 .outcome(outcome(hl7ConnEvent.getException()));
-        return HL7AuditUtils.isOrderProcessed(hl7ConnEvent) ? orderProcessed() : orderAcknowledged();
+        if (hasPIDSegment())
+            infoBuilder
+                .patID(pid.getField(3, null), arcDev)
+                .patName(pid.getField(5, null), arcDev);
+        return HL7AuditUtils.isOrderProcessed(hl7ConnEvent) ? orderProcessed() : infoBuilder.build();
     }
 
     AuditInfoBuilder getHL7OutgoingOrderInfo() {
@@ -121,6 +123,10 @@ class ProcedureRecordAuditService {
                 .outgoingHL7Sender(sendingApplicationWithFacility)
                 .outgoingHL7Receiver(receivingApplicationWithFacility);
         return pid != null ? procRecForward(pid) : infoBuilder.build();
+    }
+
+    boolean hasPIDSegment() {
+        return pid != null;
     }
 
     private AuditInfoBuilder procUpdatedByMPPS() {
@@ -150,10 +156,6 @@ class ProcedureRecordAuditService {
                     .accNum(attrs.getString(Tag.AccessionNumber));
         }
         return infoBuilder.build();
-    }
-
-    private AuditInfoBuilder orderAcknowledged() {
-        return infoBuilder.studyIUID(arcDev.auditUnknownStudyInstanceUID()).build();
     }
 
     private AuditInfoBuilder procRecForward(HL7Segment pid) {

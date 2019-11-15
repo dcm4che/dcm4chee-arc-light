@@ -670,14 +670,21 @@ public class AuditService {
 
     private void spoolIncomingHL7Msg(HL7ConnectionEvent hl7ConnEvent) {
         try {
-            HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-            if (pid == null) {
-                LOG.info("Missing PID segment. Abort patient audit of incoming HL7 message.");
-                return;
+            UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
+            if (HL7AuditUtils.isOrderMessage(hl7ConnEvent)) {
+                ProcedureRecordAuditService procedureRecordAuditService
+                        = new ProcedureRecordAuditService(hl7ConnEvent, getArchiveDevice());
+                writeSpoolFile(
+                        procedureRecordAuditService.getHL7IncomingOrderInfo(),
+                        AuditUtils.EventType.forHL7IncomingOrderMsg(hl7ResponseMessage),
+                        hl7ConnEvent);
+                if (!procedureRecordAuditService.hasPIDSegment()) {
+                    LOG.info("Missing PID segment. Abort patient audit of incoming HL7 order message.");
+                    return;
+                }
             }
 
             PatientRecordAuditService patRecAuditService = new PatientRecordAuditService(hl7ConnEvent, getArchiveDevice());
-            UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
             AuditUtils.EventType eventType = AuditUtils.EventType.forHL7IncomingPatRec(hl7ResponseMessage);
             writeSpoolFile(
                     patRecAuditService.getHL7IncomingPatInfo(),
@@ -689,12 +696,6 @@ public class AuditService {
                 writeSpoolFile(
                         patRecAuditService.getHL7IncomingPrevPatInfo(mrg),
                         AuditUtils.EventType.PAT_DELETE,
-                        hl7ConnEvent);
-
-            if (HL7AuditUtils.isOrderMessage(hl7ConnEvent))
-                writeSpoolFile(
-                        new ProcedureRecordAuditService(hl7ConnEvent, getArchiveDevice()).getHL7IncomingOrderInfo(),
-                        AuditUtils.EventType.forHL7IncomingOrderMsg(hl7ResponseMessage),
                         hl7ConnEvent);
         } catch (Exception e) {
             LOG.warn("Failed to spool HL7 Incoming for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
