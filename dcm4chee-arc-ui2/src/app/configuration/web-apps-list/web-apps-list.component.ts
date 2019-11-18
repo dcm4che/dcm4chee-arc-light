@@ -39,9 +39,13 @@ export class WebAppsListComponent implements OnInit {
         this.cfpLoadingBar.start();
         this.service.getWebApps(this.filterObject).subscribe(webApps=>{
             this.webApps = webApps.map(webApp=>{
-                webApp["url"] = webApp.dicomNetworkConnection.map((networkConnection:DicomNetworkConnection)=>{
-                    return `${j4care.getUrlFromDicomNetworkConnection(networkConnection)}${j4care.meyGetString(webApp,"dcmWebServicePath")}`;
-                });
+                try {
+                    webApp["url"] = webApp.dicomNetworkConnection.map((networkConnection:DicomNetworkConnection)=>{
+                        return `${j4care.getUrlFromDicomNetworkConnection(networkConnection)}${j4care.meyGetString(webApp,"dcmWebServicePath")}`;
+                    });
+                }catch (e) {
+                    j4care.log("Error on getting url from network",e);
+                }
                 return webApp;
             });
             this.cfpLoadingBar.complete();
