@@ -2728,93 +2728,97 @@ trigger_diff*/
                     "MOVE_MATCHING",
                     "MOVE_MATCHING"
                 ).subscribe(webApp=>{
-                    let batchID = "";
-                    let params = {};
-                    if(result.batchID)
-                        batchID = `batchID=${result.batchID}&`;
-                    $this.cfpLoadingBar.start();
-                    if(mode === "multiple-retrieve"){
-                         urlRest = `${
-                                j4care.getUrlFromDcmWebApplication(webApp)
-                            }/studies/export/dicom:${
-                                result.selectedAet
-                            }?${
-                                batchID
-                            }${
-                                this.appService.param(this.createStudyFilterParams(true,true))
-                            }`;
-                    }else{
-                        if(mode === 'multipleExport'){
-                            let checkbox = `${
-                                (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
-                            }${
-                                (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
-                            }`;
-                            if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
-                                checkbox = '&' + checkbox;
-                            urlRest = `${
-                                this.service.getDicomURL("export",this.studyWebService.selectedWebService)
-                            }/${
-                                result.selectedExporter
-                            }?${
-                                batchID
-                            }${
-                                this.appService.param(this.createStudyFilterParams(true,true))
-                            }${
-                                checkbox
-                            }`;
+                    if(webApp){
+                        let batchID = "";
+                        let params = {};
+                        if(result.batchID)
+                            batchID = `batchID=${result.batchID}&`;
+                        $this.cfpLoadingBar.start();
+                        if(mode === "multiple-retrieve"){
+                             urlRest = `${
+                                    j4care.getUrlFromDcmWebApplication(webApp)
+                                }/studies/export/dicom:${
+                                    result.selectedAet
+                                }?${
+                                    batchID
+                                }${
+                                    this.appService.param({...this.createStudyFilterParams(true,true),...{batchID:result.batchID}})
+                                }`;
                         }else{
-                            //SINGLE
-                            if(!this.internal){
-                                if(result.dcmQueueName){
-                                    params['dcmQueueName'] = result.dcmQueueName
-                                }
-                                delete params['limit'];
-                                delete params['offset'];
-                                delete params['includefield'];
-                                delete params['orderby'];
-                                singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
-                                // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                            if(mode === 'multipleExport'){
+                                let checkbox = `${
+                                    (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
+                                }${
+                                    (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
+                                }`;
+                                if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
+                                    checkbox = '&' + checkbox;
+                                urlRest = `${
+                                    this.service.getDicomURL("export",this.studyWebService.selectedWebService)
+                                }/${
+                                    result.selectedExporter
+                                }?${
+                                    batchID
+                                }${
+                                    this.appService.param(this.createStudyFilterParams(true,true))
+                                }${
+                                    checkbox
+                                }`;
                             }else{
-                                if (result.exportType === 'dicom'){
-                                    id = 'dicom:' + result.selectedAet;
+                                //SINGLE
+                                if(!this.internal){
+                                    if(result.dcmQueueName){
+                                        params['dcmQueueName'] = result.dcmQueueName
+                                    }
+                                    delete params['limit'];
+                                    delete params['offset'];
+                                    delete params['includefield'];
+                                    delete params['orderby'];
+                                    singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                                    // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                 }else{
-                                    id = result.selectedExporter;
+                                    if (result.exportType === 'dicom'){
+                                        id = 'dicom:' + result.selectedAet;
+                                    }else{
+                                        id = result.selectedExporter;
+                                    }
+                                    // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                                    singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                                 }
-                                // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
-                                singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                             }
                         }
-                    }
-                    if(multipleObjects && multipleObjects.size > 0){
-                        this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
-                            console.log("res",res);
-                            $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
-                            $this.cfpLoadingBar.complete();
-                        }, err=>{
-                            console.log("err",err);
-                            $this.cfpLoadingBar.complete();
-                        });
-                    }else{
-                        if(singleUrlSuffix){
-                            urlRest = url + singleUrlSuffix;
-                        }
-                        this.service.export(urlRest)
-                            .subscribe(
-                            (result) => {
+                        if(multipleObjects && multipleObjects.size > 0){
+                            this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                                console.log("res",res);
                                 $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
                                 $this.cfpLoadingBar.complete();
-                            },
-                            (err) => {
+                            }, err=>{
                                 console.log("err",err);
-                                $this.appService.setMessage({
-                                    'title': 'Error ' + err.status,
-                                    'text': $this.service.getMsgFromResponse(err),
-                                    'status': 'error'
-                                });
                                 $this.cfpLoadingBar.complete();
+                            });
+                        }else{
+                            if(singleUrlSuffix){
+                                urlRest = url + singleUrlSuffix;
                             }
-                        );
+                            this.service.export(urlRest)
+                                .subscribe(
+                                (result) => {
+                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                                    $this.cfpLoadingBar.complete();
+                                },
+                                (err) => {
+                                    console.log("err",err);
+                                    $this.appService.setMessage({
+                                        'title': 'Error ' + err.status,
+                                        'text': $this.service.getMsgFromResponse(err),
+                                        'status': 'error'
+                                    });
+                                    $this.cfpLoadingBar.complete();
+                                }
+                            );
+                        }
+                    }else{
+                        this.appService.showError("Web Application Service with the web service class 'MOVE_MATCHING' not found!")
                     }
                 });
             }

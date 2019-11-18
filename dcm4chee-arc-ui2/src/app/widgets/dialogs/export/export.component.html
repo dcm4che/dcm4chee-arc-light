@@ -82,6 +82,12 @@
                 <mat-select class="aes" [(ngModel)]="result.selectedAet">
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
+                <br>
+                <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
+                    <p>Batch ID:</p>
+                    <input type="text" [(ngModel)]="result.batchID" placeholder="Batch ID">
+                </div>
+                <br>
             </div>
             <div class="dicomBlock">
                 <p *ngIf="mode ==='single' && !newStudyPage">Select the external AETitle (C-MOVE SCP):</p>
