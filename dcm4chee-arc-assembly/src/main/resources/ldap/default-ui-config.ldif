@@ -23,14 +23,6 @@ dcmuiActionParam: visible
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
-dcmuiAction: menu-studies
-
-dn: dcmuiPermissionName=Menu - Study [new],dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Menu - Study [new]
-dcmuiActionParam: accessible
-dcmuiActionParam: visible
-objectClass: dcmuiPermission
-dcmAcceptedUserRole: j4care
 dcmuiAction: menu-study
 
 dn: dcmuiPermissionName=Tab - Study - Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -38,7 +30,8 @@ dcmuiPermissionName: Tab - Study - Study
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
-dcmAcceptedUserRole: j4care
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 dcmuiAction: tab-study-study
 
 dn: dcmuiPermissionName=Tab - Study - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -46,7 +39,8 @@ dcmuiPermissionName: Tab - Study - Patient
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
-dcmAcceptedUserRole: j4care
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 dcmuiAction: tab-study-patient
 
 dn: dcmuiPermissionName=Tab - Study - Mwl,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -54,7 +48,8 @@ dcmuiPermissionName: Tab - Study - Mwl
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
-dcmAcceptedUserRole: j4care
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 dcmuiAction: tab-study-mwl
 
 dn: dcmuiPermissionName=Tab - Study - Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -62,7 +57,8 @@ dcmuiPermissionName: Tab - Study - Diff
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
-dcmAcceptedUserRole: j4care
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 dcmuiAction: tab-study-diff
 
 dn: dcmuiPermissionName=Menu - Monitoring,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
