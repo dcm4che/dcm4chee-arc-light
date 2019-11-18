@@ -2518,8 +2518,15 @@ export class StudyService {
     };
 
     linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode){
-        //TODO
-//   url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+        try{
+            const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
+            return this.$http.post(
+                `${this.getDicomURL("mwl", dcmWebApp)}/${target.object.attrs['0020000D'].Value[0]}/${_.get(target.object.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${rejectionCode}`,
+                selectedElements.preActionElements.getAllAsArray()[0].requestReady,
+                this.jsonHeader)
+        }catch (e) {
+            return Observable.throwError(e);
+        }
     }
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {

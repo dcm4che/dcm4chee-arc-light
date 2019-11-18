@@ -495,6 +495,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         });
                                     break;
                                 case 'link':
+                                    this.service.linkStudyToMwl(this.selectedElements, this.studyWebService.selectedWebService, result.reject).subscribe(res=>{
+                                        this.appService.showMsg('Study and MWL linked successfully!');
+                                        this.clearClipboard();
+                                        this.cfpLoadingBar.complete();
+                                    },err=>{
+                                        this.cfpLoadingBar.complete();
+                                        this.httpErrorHandler.handleError(err);
+                                    });
                                     break;
                                 default:
                                     this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
@@ -539,7 +547,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     }
     setSelectedElementAction(id){
-        if(this.selectedElements.postActionElements || this.selectedElements.preActionElements){
+        if((this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0) || (this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0)){
             this.selectedElements.action = id;
         }
     }
