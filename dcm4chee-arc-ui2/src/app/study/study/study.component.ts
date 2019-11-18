@@ -1236,7 +1236,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         return params;
     }
-    createStudyFilterParams(withoutPagination?:boolean) {
+    createStudyFilterParams(withoutPagination?:boolean, withoutDefaultQueryStudyParam?:boolean) {
         let filter = this.getFilterClone();
         // delete filter["allAttributes"];
         delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
@@ -1248,6 +1248,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(withoutPagination){
             delete filter["size"];
             delete filter["offset"];
+        }
+        if(withoutDefaultQueryStudyParam){
+            delete filter["orderby"];
+            delete filter["includefield"];
+            delete filter["limit"];
         }
         return filter;
     }
@@ -2736,7 +2741,7 @@ trigger_diff*/
                             }?${
                                 batchID
                             }${
-                                this.appService.param(this.createStudyFilterParams())
+                                this.appService.param(this.createStudyFilterParams(true,true))
                             }`;
                     }else{
                         if(mode === 'multipleExport'){
@@ -2745,7 +2750,7 @@ trigger_diff*/
                             }${
                                 (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
                             }`;
-                            if(checkbox != '' && this.appService.param(this.createStudyFilterParams()) != '')
+                            if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
                                 checkbox = '&' + checkbox;
                             urlRest = `${
                                 this.service.getDicomURL("export",this.studyWebService.selectedWebService)
@@ -2754,7 +2759,7 @@ trigger_diff*/
                             }?${
                                 batchID
                             }${
-                                this.appService.param(this.createStudyFilterParams())
+                                this.appService.param(this.createStudyFilterParams(true,true))
                             }${
                                 checkbox
                             }`;
@@ -2764,6 +2769,10 @@ trigger_diff*/
                                 if(result.dcmQueueName){
                                     params['dcmQueueName'] = result.dcmQueueName
                                 }
+                                delete params['limit'];
+                                delete params['offset'];
+                                delete params['includefield'];
+                                delete params['orderby'];
                                 singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                 // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                             }else{
