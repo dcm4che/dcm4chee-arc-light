@@ -38,6 +38,7 @@ import { DropdownComponent } from './dropdown/dropdown.component';
 import {OptionComponent} from "./dropdown/option.component";
 import { DcmDropDownComponent } from './dcm-drop-down/dcm-drop-down.component';
 import { StudyTransferringOverviewComponent } from './dialogs/study-transferring-overview/study-transferring-overview.component';
+import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.component';
 
 
 @NgModule({
@@ -85,5 +86,6 @@ export const WidgetsComponents = [
     DropdownComponent,
     OptionComponent,
     DcmDropDownComponent,
-    StudyTransferringOverviewComponent
+    StudyTransferringOverviewComponent,
+    MediaViewerComponent
 ];
