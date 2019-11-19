@@ -127,5 +127,4 @@ public class ExportMatchingRS extends ExportMatching {
                 studyInstanceUID,
                 seriesInstanceUID);
     }
-
 }

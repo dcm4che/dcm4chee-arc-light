@@ -167,12 +167,12 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         try {
             if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
                 exportManager.scheduleExportTask(
-                        series.getStudy().getStudyInstanceUID(),
                         series.getSeriesInstanceUID(),
                         null,
                         exporter,
                         null,
-                        null);
+                        null,
+                        series.getStudy().getStudyInstanceUID());
         } catch (QueueSizeLimitExceededException e) {
             LOG.warn(e.getMessage());
         }
@@ -218,12 +218,12 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         try {
             if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
                 exportManager.scheduleExportTask(
-                        study.getStudyInstanceUID(),
                         null,
                         null,
                         exporter,
                         null,
-                        null);
+                        null,
+                        study.getStudyInstanceUID());
         } catch (QueueSizeLimitExceededException e) {
             LOG.warn(e.getMessage());
         }
