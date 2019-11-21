@@ -62,7 +62,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -89,7 +88,7 @@ class ExportCSV {
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
-    Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in, Function<ExportContext, Integer> action) {
+    Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in) {
         logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
         try {
@@ -129,13 +128,11 @@ class ExportCSV {
                     if (!arcDev.isValidateUID() || validateUID(studyUID))
                         studyUIDs.add(studyUID);
 
-                    if (studyUIDs.size() == csvUploadChunkSize) {
-                        count += action.apply(new ExportContext(exporter, studyUIDs));
-                        studyUIDs.clear();
-                    }
+                    if (studyUIDs.size() == csvUploadChunkSize)
+                        count = scheduleExportTasks(exporter, count, studyUIDs);
                 }
                 if (!studyUIDs.isEmpty())
-                    count += action.apply(new ExportContext(exporter, studyUIDs));
+                    count = scheduleExportTasks(exporter, count, studyUIDs);
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -162,6 +159,17 @@ class ExportCSV {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private int scheduleExportTasks(ExporterDescriptor exporter, int count, List<String> studyUIDs) {
+        exportManager.scheduleExportTask(null, null,
+                exporter,
+                HttpServletRequestInfo.valueOf(request),
+                batchID,
+                studyUIDs.toArray(new String[0]));
+        count += studyUIDs.size();
+        studyUIDs.clear();
+        return count;
     }
 
     private boolean validateUID(String studyUID) {
@@ -204,39 +212,5 @@ class ExportCSV {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    int createExportTask(ExportContext ctx) {
-        return exportManager.createExportTask(
-                ctx.getExporter(),
-                HttpServletRequestInfo.valueOf(request),
-                batchID,
-                ctx.getStudyUIDs());
-    }
-
-    int scheduleExportTask(ExportContext ctx) {
-        return exportManager.scheduleExportTask(
-                ctx.getExporter(),
-                HttpServletRequestInfo.valueOf(request),
-                batchID,
-                ctx.getStudyUIDs());
-    }
-
-    static class ExportContext {
-        ExporterDescriptor exporter;
-        List<String> studyUIDs;
-
-        ExportContext(ExporterDescriptor exporter, List<String> studyUIDs) {
-            this.exporter = exporter;
-            this.studyUIDs = studyUIDs;
-        }
-
-        ExporterDescriptor getExporter() {
-            return exporter;
-        }
-
-        String[] getStudyUIDs() {
-            return studyUIDs.toArray(new String[0]);
-        }
     }
 }

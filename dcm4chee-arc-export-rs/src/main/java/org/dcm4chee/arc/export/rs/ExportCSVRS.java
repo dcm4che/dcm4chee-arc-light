@@ -63,17 +63,7 @@ public class ExportCSVRS extends ExportCSV {
             @PathParam("ExporterID") String exporterID,
             @PathParam("field") int field,
             InputStream in) {
-        return exportStudiesFromCSV(aet, exporterID, field, in, this::scheduleExportTask);
-    }
+        return exportStudiesFromCSV(aet, exporterID, field, in);
 
-    @POST
-    @Path("/studies/csv:{field}/mark4export/{ExporterID}")
-    @Consumes("text/csv")
-    @Produces("application/json")
-    public Response mark4ExportStudies(
-            @PathParam("ExporterID") String exporterID,
-            @PathParam("field") int field,
-            InputStream in) {
-        return exportStudiesFromCSV(aet, exporterID, field, in, this::createExportTask);
     }
 }

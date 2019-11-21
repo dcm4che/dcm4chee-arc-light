@@ -220,21 +220,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int scheduleExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                String batchID, String... studyUIDs) {
-        scheduleExportTask(null, null, exporter, httpServletRequestInfo, batchID, studyUIDs);
-        return studyUIDs.length;
-    }
-
-    @Override
-    public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                String batchID, String... studyUIDs) {
-        for (String studyUID : studyUIDs)
-            createExportTask(exporter.getExporterID(), studyUID, "*", "*", new Date());
-        return studyUIDs.length;
-    }
-
-    @Override
     public boolean scheduleStudyExport(
             String studyUID, ExporterDescriptor exporter, Date notExportedAfter, String batchID) {
         try {
