@@ -1403,10 +1403,6 @@ class ArchiveDeviceFactory {
         dicom.setMaxOpsPerformed(0);
         device.addConnection(dicom);
 
-        Connection http = new Connection("http", archiveHost, 8080);
-        http.setProtocol(Connection.Protocol.HTTP);
-        device.addConnection(http);
-
         Connection dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
         dicomTLS.setBindAddress("0.0.0.0");
         dicomTLS.setClientBindAddress("0.0.0.0");
@@ -1416,16 +1412,6 @@ class ArchiveDeviceFactory {
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(dicomTLS);;
-
-        Connection https = new Connection("https", archiveHost, 8443);
-        https.setProtocol(Connection.Protocol.HTTP);
-        https.setTlsCipherSuites(
-                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        if (configType != ConfigType.DOCKER) {
-            https.setInstalled(Boolean.FALSE);
-        }
-        device.addConnection(https);;
 
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
         addHL7DeviceExtension(device, configType, archiveHost);
@@ -1467,7 +1453,7 @@ class ArchiveDeviceFactory {
                 configType, ONLY_ADMIN));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, http, https,
+                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
@@ -1479,73 +1465,70 @@ class ArchiveDeviceFactory {
         device.addWebApplication(webapp);
 
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, http, https,
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
-                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", http, https,
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", IOCM_REGULAR_USE_DESC,
-                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
-                "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED", http, https,
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_EXPIRED-WADO", IOCM_EXPIRED_DESC,
-                "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED", http, https,
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_QUALITY", IOCM_QUALITY_DESC,
-                "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY", http, https,
+                "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_QUALITY-WADO", IOCM_QUALITY_DESC,
-                "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY", http, https,
+                "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
-                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY", http, https,
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-WADO", IOCM_PAT_SAFETY_DESC,
-                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY", http, https,
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
-                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL", http, https,
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL-WADO", IOCM_WRONG_MWL_DESC,
-                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL", http, https,
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("AS_RECEIVED", AS_RECEIVED_DESC,
-                "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED", http, https,
+                "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED",
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("AS_RECEIVED-WADO", AS_RECEIVED_DESC,
-                "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED", http, https,
+                "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED",
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("dcm4chee-arc", "Forward Reschedule Task(s)",
-                "/dcm4chee-arc", null, http, https,
+                "/dcm4chee-arc", null,
                 WebApplication.ServiceClass.DCM4CHEE_ARC));
         return device;
     }
 
     private static WebApplication createWebApp(
-            String name, String desc, String path, String aet, Connection http, Connection https,
+            String name, String desc, String path, String aet,
             WebApplication.ServiceClass... serviceClasses) {
         WebApplication webapp = new WebApplication(name);
         webapp.setDescription(desc);
         webapp.setServicePath(path);
         webapp.setAETitle(aet);
         webapp.setServiceClasses(serviceClasses);
-        webapp.addConnection(http);
-        if (https != null) webapp.addConnection(https);
-
         return webapp;
     }
 
