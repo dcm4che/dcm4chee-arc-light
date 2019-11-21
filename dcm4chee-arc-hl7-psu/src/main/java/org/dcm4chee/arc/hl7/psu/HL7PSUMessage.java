@@ -121,22 +121,24 @@ class HL7PSUMessage {
     }
 
     private void setPlacerOrder(Attributes attrs) {
-        String value = IDWithIssuer.valueOf(
-                attrs, Tag.PlacerOrderNumberImagingServiceRequest, Tag.OrderPlacerIdentifierSequence).toString();
+        IDWithIssuer placer = IDWithIssuer.valueOf(
+                attrs, Tag.PlacerOrderNumberImagingServiceRequest, Tag.OrderPlacerIdentifierSequence);
+        String value = placer != null ? placer.toString() : null;
         orc.setField(2,  value);
         obr.setField(2,  value);
     }
 
     private void setFillerOrder(Attributes attrs) {
-        String value = IDWithIssuer.valueOf(
-                attrs, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence).toString();
+        IDWithIssuer filler = IDWithIssuer.valueOf(
+                attrs, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence);
+        String value = filler != null ? filler.toString() : null;
         orc.setField(3,  value);
         obr.setField(3,  value);
     }
 
     private void setAccessionNumber(Attributes attrs) {
-        obr.setField(18,
-                IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence).toString());
+        IDWithIssuer accession = IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+        obr.setField(18, accession != null ? accession.toString() : null);
     }
 
     private void setRequestedProcedureID(Attributes attrs) {
