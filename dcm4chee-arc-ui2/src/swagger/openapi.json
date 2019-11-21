@@ -213,9 +213,6 @@
     "/aets/{aet}/rs/studies/export/{exporterID}/": {
       "$ref": "paths/export.json#/studies"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/mark4export/{exporterID}": {
-      "$ref": "paths/export.json#/studies.csv.mark4export"
-    },
     "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
       "$ref": "paths/export.json#/studies.csv"
     },
