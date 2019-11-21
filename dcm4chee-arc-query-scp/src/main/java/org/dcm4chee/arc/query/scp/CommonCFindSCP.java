@@ -100,7 +100,9 @@ class CommonCFindSCP extends BasicCFindSCP {
         LOG.info("{}: Process C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
-        QueryRetrieveLevel2 qrLevel = validateQueryIdentifier(as, keys, queryOpts.contains(QueryOption.RELATIONAL));
+        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(keys, qrLevels,
+                queryOpts.contains(QueryOption.RELATIONAL),
+                relationalQueryNegotiationLenient(as));
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
         ctx.setQueryRetrieveLevel(qrLevel);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
@@ -113,21 +115,6 @@ class CommonCFindSCP extends BasicCFindSCP {
         ctx.setReturnKeys(createReturnKeys(keys));
         coerceAttributes(ctx);
         return new ArchiveQueryTask(as, pc, rq, keys, ctx, runInTx);
-    }
-
-    private QueryRetrieveLevel2 validateQueryIdentifier(Association as, Attributes keys, boolean relational)
-            throws DicomServiceException {
-        QueryRetrieveLevel2 qrLevel;
-        try {
-            qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(keys, qrLevels, relational);
-        } catch (DicomServiceException e) {
-            if (relational || !relationalQueryNegotiationLenient(as))
-                throw e;
-
-            qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(keys, qrLevels, true);
-            LOG.info("{}: {}", as, e.getMessage());
-        }
-        return qrLevel;
     }
 
     private static boolean relationalQueryNegotiationLenient(Association as) {
