@@ -883,7 +883,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                let studyInstanceUID = j4care.valueOf(mwl.attrs['00100021']);
+                let studyInstanceUID = j4care.valueOf(mwl.attrs['0020000D']);
                 let scheduledProcedureStepID = (<string>_.get(mwl.attrs, "['00400100'].Value[0]['00400009'].Value[0]"));
                 if(studyInstanceUID && scheduledProcedureStepID){
                     this.service.deleteMWL(this.studyWebService.selectedWebService, studyInstanceUID, scheduledProcedureStepID).subscribe(

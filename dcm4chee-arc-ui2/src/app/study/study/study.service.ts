@@ -491,7 +491,7 @@ export class StudyService {
     }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
-        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
+        return this.$http.delete(`${this.getDicomURL("mwl", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
     }
 
     getPatients(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
