@@ -877,23 +877,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     };
     deleteMWL(mwl){
-        let $this = this;
         this.confirm({
             content: 'Are you sure you want to delete this MWL?'
         }).subscribe(result => {
             if (result){
-                $this.cfpLoadingBar.start();
+                this.cfpLoadingBar.start();
                 let studyInstanceUID = j4care.valueOf(mwl.attrs['0020000D']);
                 let scheduledProcedureStepID = (<string>_.get(mwl.attrs, "['00400100'].Value[0]['00400009'].Value[0]"));
                 if(studyInstanceUID && scheduledProcedureStepID){
                     this.service.deleteMWL(this.studyWebService.selectedWebService, studyInstanceUID, scheduledProcedureStepID).subscribe(
                         (response) => {
-                            $this.appService.showMsg('MWL deleted successfully!');
-                            $this.cfpLoadingBar.complete();
+                            this.appService.showMsg('MWL deleted successfully!');
+                            this.cfpLoadingBar.complete();
+                            this.search("current",{id:"submit"});
                         },
                         (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            $this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                            this.cfpLoadingBar.complete();
                         }
                     );
                 }else{
@@ -1303,6 +1303,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         delete filterModel.webApp;
         return filterModel;
     }
+
     search(mode:('next'|'prev'|'current'), e){
         console.log("e",e);
         console.log("this",this.filter);
