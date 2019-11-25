@@ -81,32 +81,56 @@
     <dependency>
       <groupId>org.dcm4che</groupId>
       <artifactId>dcm4che-jboss-modules</artifactId>
-      <version>${dcm4che.version}</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
       <artifactId>ecs-object-client-jboss-modules</artifactId>
-      <version>${ecs-object-client.version}</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
       <artifactId>jclouds-jboss-modules</artifactId>
-      <version>${jclouds.version}-noguava</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
       <artifactId>jai_imageio-jboss-modules</artifactId>
-      <version>${jai_imageio.version}</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
-      <artifactId>jdbc-jboss-modules</artifactId>
-      <classifier>${db}</classifier>
-      <version>${jdbc-jboss-modules.version}</version>
+      <artifactId>jdbc-jboss-modules-db2</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-firebird</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-h2</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-mysql</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-oracle</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-psql</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-sqlserver</artifactId>
       <type>zip</type>
     </dependency>
   </dependencies>

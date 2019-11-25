@@ -58,12 +58,10 @@
     <wildfly-jakartaee8.version>18.0.0.Final</wildfly-jakartaee8.version>
       <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
-    <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
-    <keycloak.version>7.0.0</keycloak.version>
+    <keycloak.version>8.0.0</keycloak.version>
     <apache-commons-csv.version>1.7</apache-commons-csv.version>
     <jclouds.version>2.2.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
-    <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
 
     <!-- JPA -->
     <ds>java:/PacsDS</ds>
@@ -159,6 +157,72 @@
         <artifactId>commons-csv</artifactId>
         <version>${apache-commons-csv.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>dcm4che-jboss-modules</artifactId>
+        <version>${dcm4che.version}</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>ecs-object-client-jboss-modules</artifactId>
+        <version>${ecs-object-client.version}</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jclouds-jboss-modules</artifactId>
+        <version>${jclouds.version}-noguava</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jai_imageio-jboss-modules</artifactId>
+        <version>1.2-pre-dr-b04</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-db2</artifactId>
+        <version>db2jcc4</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-firebird</artifactId>
+        <version>3.0.7</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-h2</artifactId>
+        <version>1.4.200</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-mysql</artifactId>
+        <version>8.0.18</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-oracle</artifactId>
+        <version>12.2.0.1</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-psql</artifactId>
+        <version>42.2.8</version>
+        <type>zip</type>
+      </dependency>
+      <dependency>
+        <groupId>org.dcm4che</groupId>
+        <artifactId>jdbc-jboss-modules-sqlserver</artifactId>
+        <version>7.4.1.jre11</version>
+        <type>zip</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
