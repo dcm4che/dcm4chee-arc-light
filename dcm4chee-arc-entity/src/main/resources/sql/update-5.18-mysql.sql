@@ -18,7 +18,6 @@ insert into rejected_instance (created_time, sop_cuid, sop_iuid, reject_code_fk,
          where i.reject_code_fk is not null);
 
 create index UK_owm55at56tdjitsncsrhr93xj on rejected_instance (created_time);
-create index FK_iafiq2ugv5rd6fonwd0vd7xdx on rejected_instance (reject_code_fk) ;
 
 -- part 2: shall be applied on stopped archive before starting 5.18
 insert into rejected_instance (created_time, sop_cuid, sop_iuid, reject_code_fk, series_iuid, study_iuid)
