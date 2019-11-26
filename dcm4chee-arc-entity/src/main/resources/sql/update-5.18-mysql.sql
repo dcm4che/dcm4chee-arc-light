@@ -1,6 +1,6 @@
 -- part 1: can be applied on archive running archive 5.17
 create table rejected_instance (
-    pk bigint not null AUTO_INCREMENT,
+    pk bigint not null auto_increment,
     created_time datetime not null,
     series_iuid varchar(255) not null,
     sop_cuid varchar(255) not null,
