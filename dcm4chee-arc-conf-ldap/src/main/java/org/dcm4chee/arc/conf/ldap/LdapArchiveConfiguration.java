@@ -1160,6 +1160,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeHL7OrderSPSStatus(diffs, arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
         storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
         storeMetricsDescriptors(diffs, arcDev.getMetricsDescriptors(), deviceDN);
+        storeUPSOnStoreList(diffs, arcDev.listUPSOnStore(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1194,6 +1195,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
         loadKeycloakServers(arcdev, deviceDN);
         loadMetricsDescriptors(arcdev, deviceDN);
+        loadUPSOnStoreList(arcdev.listUPSOnStore(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1238,6 +1240,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeHL7OrderSPSStatus(diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
         mergeKeycloakServers(diffs, aa.getKeycloakServers(), bb.getKeycloakServers(), deviceDN);
         mergeMetricsDescriptors(diffs, aa.getMetricsDescriptors(), bb.getMetricsDescriptors(), deviceDN);
+        mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1703,6 +1706,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeCoercions(diffs, aeExt.getAttributeCoercions(), aeDN);
         storeStudyRetentionPolicies(diffs, aeExt.getStudyRetentionPolicies(), aeDN);
         storeRSForwardRules(diffs, aeExt.getRSForwardRules(), aeDN);
+        storeUPSOnStoreList(diffs, aeExt.listUPSOnStore(), aeDN);
     }
 
     @Override
@@ -1718,6 +1722,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, ae.getDevice());
         loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
         loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
+        loadUPSOnStoreList(aeExt.listUPSOnStore(), aeDN);
     }
 
     @Override
@@ -1740,6 +1745,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
         mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
         mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
+        mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), aeDN);
     }
 
     private void storeAttributeFilter(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
@@ -2541,6 +2547,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeUPSOnStoreList(
+            ConfigurationChanges diffs, Collection<UPSOnStore> upsOnStoreList, String parentDN) throws NamingException {
+        for (UPSOnStore upsOnStore : upsOnStoreList) {
+            String dn = LdapUtils.dnOf("cn", upsOnStore.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, upsOnStore, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ExportRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmExportRule");
         attrs.put("cn", rule.getCommonName());
@@ -2552,6 +2568,42 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportReoccurredInstances",
                 rule.getExportReoccurredInstances(), ExportReoccurredInstances.REPLACE);
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UPSOnStore upsOnStore, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmUPSOnStore");
+        attrs.put("cn", upsOnStore.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel", upsOnStore.getProcedureStepLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority", upsOnStore.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
+                upsOnStore.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel", upsOnStore.getWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnStore.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
+                upsOnStore.getIncludeInputInformation(), UPSOnStore.IncludeInputInformation.APPEND);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeStudyInstanceUID",
+                upsOnStore.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationNameCode", upsOnStore.getScheduledStationName(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationClassCode", upsOnStore.getScheduledStationClass(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationLocationCode", upsOnStore.getScheduledStationLocation(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode", upsOnStore.getScheduledHumanPerformer(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledHumanPerformerName", upsOnStore.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSScheduledHumanPerformerOrganization",
+                upsOnStore.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnStore.getConditions().getMap());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", upsOnStore.getSchedules());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", upsOnStore.getScheduleDelay(), null);
         return attrs;
     }
 
@@ -2572,6 +2624,52 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(ExportReoccurredInstances.class, attrs.get("dcmExportReoccurredInstances"),
                                 ExportReoccurredInstances.REPLACE));
                 exportRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadUPSOnStoreList(Collection<UPSOnStore> upsOnStoreList, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmUPSOnStore)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UPSOnStore upsOnStore = new UPSOnStore(LdapUtils.stringValue(attrs.get("cn"), null));
+                upsOnStore.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
+                upsOnStore.setUPSPriority(
+                        LdapUtils.enumValue(UPSPriority.class,
+                                attrs.get("dcmUPSPriority"),
+                                UPSPriority.MEDIUM));
+                upsOnStore.setInputReadinessState(
+                        LdapUtils.enumValue(InputReadinessState.class,
+                                attrs.get("dcmUPSInputReadinessState"),
+                                InputReadinessState.READY));
+                upsOnStore.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+                upsOnStore.setInstanceUIDBasedOnName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
+                upsOnStore.setIncludeInputInformation(
+                        LdapUtils.enumValue(UPSOnStore.IncludeInputInformation.class,
+                                attrs.get("dcmUPSIncludeInputInformation"),
+                                UPSOnStore.IncludeInputInformation.APPEND));
+                upsOnStore.setIncludeStudyInstanceUID(
+                        LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
+                upsOnStore.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
+                upsOnStore.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnStore.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnStore.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnStore.setScheduledHumanPerformer(LdapUtils.codeValue(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnStore.setScheduledHumanPerformerName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
+                upsOnStore.setScheduledHumanPerformerOrganization(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerOrganization"), null));
+                upsOnStore.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                upsOnStore.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
+                upsOnStore.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                upsOnStore.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                upsOnStore.setScheduleDelay(toDuration(attrs.get("dcmDuration"), null));
+                upsOnStoreList.add(upsOnStore);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -2777,6 +2875,37 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeUPSOnStoreList(
+            ConfigurationChanges diffs, Collection<UPSOnStore> prevUPSOnStoreList, Collection<UPSOnStore> upsOnStoreList,
+            String parentDN)
+            throws NamingException {
+        for (UPSOnStore prevUPSOnStore : prevUPSOnStoreList) {
+            String cn = prevUPSOnStore.getCommonName();
+            if (findUPSOnStoreByCN(upsOnStoreList, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UPSOnStore rule : upsOnStoreList) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            UPSOnStore prevUPSOnStore = findUPSOnStoreByCN(prevUPSOnStoreList, cn);
+            if (prevUPSOnStore == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUPSOnStore, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
             ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
@@ -2792,10 +2921,64 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                              UPSOnStore prev, UPSOnStore upsOnStore, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmUPSLabel", prev.getProcedureStepLabel(), upsOnStore.getProcedureStepLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
+                prev.getUPSPriority(), upsOnStore.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",
+                prev.getInputReadinessState(), upsOnStore.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmUPSWorklistLabel", prev.getWorklistLabel(), upsOnStore.getWorklistLabel(), null);
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmUPSInstanceUIDBasedOnName",
+                prev.getInstanceUIDBasedOnName(), upsOnStore.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
+                prev.getIncludeInputInformation(), upsOnStore.getIncludeInputInformation(),
+                UPSOnStore.IncludeInputInformation.APPEND);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeStudyInstanceUID",
+                prev.isIncludeStudyInstanceUID(), upsOnStore.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
+                prev.getScheduledWorkitemCode(), upsOnStore.getScheduledWorkitemCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationName(), upsOnStore.getScheduledStationName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClass(), upsOnStore.getScheduledStationClass(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocation(), upsOnStore.getScheduledStationLocation(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformer(), upsOnStore.getScheduledHumanPerformer(), null);
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
+                prev.getScheduledHumanPerformerName(), upsOnStore.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
+                prev.getScheduledHumanPerformerOrganization(), upsOnStore.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmURI",
+                prev.getXSLTStylesheetURI(), upsOnStore.getXSLTStylesheetURI(), null);
+        LdapUtils.storeDiff(
+                ldapObj, mods, "dcmNoKeywords", prev.isNoKeywords(), upsOnStore.isNoKeywords(), false);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), upsOnStore.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), upsOnStore.getSchedules());
+        LdapUtils.storeDiffObject(
+                ldapObj, mods, "dcmDuration", prev.getScheduleDelay(), upsOnStore.getScheduleDelay(), null);
+        return mods;
+    }
+
     private ExportRule findExportRuleByCN(Collection<ExportRule> rules, String cn) {
         for (ExportRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
+        return null;
+    }
+
+    private UPSOnStore findUPSOnStoreByCN(Collection<UPSOnStore> upsOnStoreList, String cn) {
+        for (UPSOnStore upsOnStore : upsOnStoreList)
+            if (upsOnStore.getCommonName().equals(cn))
+                return upsOnStore;
         return null;
     }
 

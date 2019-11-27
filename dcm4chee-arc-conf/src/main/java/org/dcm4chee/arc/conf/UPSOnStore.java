@@ -75,6 +75,12 @@ public class UPSOnStore {
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
 
+    public UPSOnStore() {}
+
+    public UPSOnStore(String commonName) {
+        setCommonName(commonName);
+    }
+
     public String getCommonName() {
         return commonName;
     }
