@@ -140,13 +140,14 @@ public class ArchiveAEExtension extends AEExtension {
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
-    private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final ArrayList<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
-    private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
-    private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
-    private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
-    private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
+    private final List<ExportRule> exportRules = new ArrayList<>();
+    private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
+    private final List<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
 
     public String getDefaultCharacterSet() {
         return defaultCharacterSet;
@@ -880,6 +881,22 @@ public class ArchiveAEExtension extends AEExtension {
         return false;
     }
 
+    public void removeUPSOnStore(UPSOnStore rule) {
+        upsOnStoreList.remove(rule);
+    }
+
+    public void clearUPSOnStore() {
+        upsOnStoreList.clear();
+    }
+
+    public void addUPSOnStore(UPSOnStore upsOnStore) {
+        upsOnStoreList.add(upsOnStore);
+    }
+
+    public Collection<UPSOnStore> listUPSOnStore() {
+        return upsOnStoreList;
+    }
+
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -988,7 +1005,7 @@ public class ArchiveAEExtension extends AEExtension {
         storeAccessControlIDRules.add(storeAccessControlIDRule);
     }
 
-    public ArrayList<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
+    public List<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
         return storeAccessControlIDRules;
     }
 
@@ -1448,6 +1465,8 @@ public class ArchiveAEExtension extends AEExtension {
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();
         acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
+        upsOnStoreList.clear();
+        upsOnStoreList.addAll(aeExt.upsOnStoreList);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         exportPriorsRules.clear();

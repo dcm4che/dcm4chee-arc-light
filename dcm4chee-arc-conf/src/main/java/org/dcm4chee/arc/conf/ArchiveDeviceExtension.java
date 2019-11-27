@@ -270,19 +270,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
-    private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final ArrayList<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
-    private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
-    private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
-    private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
-    private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
-    private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
+    private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
+    private final List<ExportRule> exportRules = new ArrayList<>();
+    private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final List<HL7ExportRule> hl7ExportRules = new ArrayList<>();
+    private final List<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
+    private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
+    private final List<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
+    private final List<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
-    private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-    private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
-    private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
-    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
-    private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final List<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final List<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
+    private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
@@ -1690,6 +1691,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exporterDescriptorMap.values();
     }
 
+    public void removeUPSOnStore(UPSOnStore rule) {
+        upsOnStoreList.remove(rule);
+    }
+
+    public void clearUPSOnStore() {
+        upsOnStoreList.clear();
+    }
+
+    public void addUPSOnStore(UPSOnStore upsOnStore) {
+        upsOnStoreList.add(upsOnStore);
+    }
+
+    public Collection<UPSOnStore> listUPSOnStore() {
+        return upsOnStoreList;
+    }
+
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -1894,7 +1911,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeAccessControlIDRules.add(storeAccessControlIDRule);
     }
 
-    public ArrayList<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
+    public List<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
         return storeAccessControlIDRules;
     }
 
@@ -2700,6 +2717,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         pdqServiceDescriptorMap.putAll(arcdev.pdqServiceDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
+        upsOnStoreList.clear();
+        upsOnStoreList.addAll(arcdev.upsOnStoreList);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         exportPriorsRules.clear();

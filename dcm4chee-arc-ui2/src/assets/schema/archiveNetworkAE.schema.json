@@ -609,6 +609,15 @@
       "items" : {
         "$ref": "storeAccessControlIDRule.schema.json"
       }
+    },
+    "dcmUPSOnStore": {
+      "title": "UPS on Store Rule",
+      "description": "UPS on Store Rules applied to DICOM objects received by this AE. Supplements UPS on Store Rules specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "upsOnStore.schema.json"
+      }
     }
   }
 }

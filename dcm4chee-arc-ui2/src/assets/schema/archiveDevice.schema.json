@@ -1521,6 +1521,15 @@
         "$ref": "storeAccessControlIDRule.schema.json"
       }
     },
+    "dcmUPSOnStore": {
+      "title": "UPS on Store Rule",
+      "description": "UPS on Store Rules applied to DICOM objects received by any AE. May be supplemented by configured UPS on Store Rules for particular Archive Network AEs.",
+      "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "upsOnStore.schema.json"
+      }
+    },
     "dcmIDGenerator": {
       "title": "ID Generator",
       "description": "ID Generator",
