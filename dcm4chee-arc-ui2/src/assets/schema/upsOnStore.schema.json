@@ -58,7 +58,7 @@
       ]
     },
     "dcmUPSInputReadinessState": {
-      "title": "Priority",
+      "title": "Input Readiness State",
       "description": "Value of Input Readiness State (0040,4041) of created UPS",
       "type": "string",
       "default": "READY",
