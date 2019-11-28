@@ -32,6 +32,10 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401001']/Value"/>
         </DicomAttribute>
       </xsl:if>
+      <!-- Admission ID -->
+      <xsl:copy-of select="DicomAttribute[@tag='00320010']"/>
+      <!-- Issuer of Admission ID Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00320014']"/>
       <!-- Requesting Service -->
       <xsl:copy-of select="DicomAttribute[@tag='00321033']"/>
       <!-- Requesting Service Code Sequence -->
