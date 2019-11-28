@@ -20,6 +20,12 @@
           <xsl:copy-of select="DicomAttribute[@tag='00321064']/Item"/>
         </DicomAttribute>
       </xsl:if>
+      <!-- Performing Physician's Name from Scheduled Performing Physician's Name -->
+      <xsl:if test="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400006']/PersonName">
+        <DicomAttribute tag="00081050" vr="PN">
+          <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400006']/PersonName"/>
+        </DicomAttribute>
+      </xsl:if>
       <!-- Patient ID -->
       <xsl:copy-of select="DicomAttribute[@tag='00100020']"/>
       <!-- Issuer of Patient ID -->
