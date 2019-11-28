@@ -32,14 +32,14 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401001']/Value"/>
         </DicomAttribute>
       </xsl:if>
-      <!-- Admission ID -->
-      <xsl:copy-of select="DicomAttribute[@tag='00320010']"/>
-      <!-- Issuer of Admission ID Sequence -->
-      <xsl:copy-of select="DicomAttribute[@tag='00320014']"/>
       <!-- Requesting Service -->
       <xsl:copy-of select="DicomAttribute[@tag='00321033']"/>
       <!-- Requesting Service Code Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00321034']"/>
+      <!-- Admission ID -->
+      <xsl:copy-of select="DicomAttribute[@tag='00380010']"/>
+      <!-- Issuer of Admission ID Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00380014']"/>
       <!-- Reason For Performed Procedure Code Sequence from Reason for Requested Procedure Code Sequence -->
       <xsl:if test="DicomAttribute[@tag='0040100A']">
         <DicomAttribute tag="00401012" vr="SQ">
