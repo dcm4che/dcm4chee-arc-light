@@ -235,6 +235,9 @@ public class ArchiveServiceImpl implements ArchiveService {
         aeCache.clear();
         webAppCache.clear();
         hl7AppCache.clear();
+        leadingCFindSCPQueryCache.clear();
+        mergeMWLCache.clear();
+        storePermissionCache.clear();
         configure();
         archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
     }
