@@ -36,6 +36,15 @@ export class DevicesService {
             });
         }
     }
+    changeWebAppOnClone(device,aes){
+        if (_.hasIn(device, 'dcmDevice.dcmWebApp') && _.size(device.dcmDevice.dcmWebApp) > 0){
+            _.forEach(device.dcmDevice.dcmWebApp, (m, i) => {
+                if (_.hasIn(m, 'dcmWebAppName')){
+                    m.dcmWebAppName = this.generateNewTitle(m.dcmWebAppName, aes, "dcmWebAppName");
+                }
+            });
+        }
+    }
     changeHl7ApplicationNameOnClone(device,hl7){
         if (_.hasIn(device, 'dcmDevice.hl7Application') && _.size(device.dcmDevice.hl7Application) > 0){
             _.forEach(device.dcmDevice.hl7Application, (m, i) => {

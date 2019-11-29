@@ -18,6 +18,7 @@ import {HttpHeaders} from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";
+import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 
 @Component({
   selector: 'app-devices',
@@ -62,7 +63,8 @@ export class DevicesComponent implements OnInit{
         private router: Router,
         private hl7service:Hl7ApplicationsService,
         public httpErrorHandler:HttpErrorHandler,
-        private deviceConfigurator:DeviceConfiguratorService
+        private deviceConfigurator:DeviceConfiguratorService,
+        private webAppListService:WebAppsListService
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -86,6 +88,7 @@ export class DevicesComponent implements OnInit{
         this.getDevices();
         this.getAes();
         this.getHl7ApplicationsList(2);
+        this.getWebApps(2);
         console.log("deviceconfiguratorservice paginantion",this.deviceConfigurator.pagination)
         if(this.deviceConfigurator.pagination){
             this.deviceConfigurator.pagination = [
@@ -229,6 +232,7 @@ export class DevicesComponent implements OnInit{
                             console.log('response', device);
                             $this.service.changeAetOnClone(device,$this.aes);
                             $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
+                            $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
                             console.log('device afterchange', device);
                             device.dicomDeviceName = parameters.result.input;
                             this.service.createDevice(parameters.result.input, device)
@@ -263,6 +267,7 @@ export class DevicesComponent implements OnInit{
                                             }, (response) => {
                                                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
                                             });
+                                        $this.getWebApps(0);
                                     },
                                     err => {
                                         console.log('error');
@@ -393,6 +398,29 @@ export class DevicesComponent implements OnInit{
             (err)=>{
                 if(retries){
                     $this.getHl7ApplicationsList(retries - 1);
+                }
+            }
+        );
+    }
+    getWebApps(retries){
+        let $this = this;
+        this.webAppListService.getWebApps().subscribe(
+            (response)=>{
+                if ($this.mainservice.global && !$this.mainservice.global.webApps){
+                    let global = _.cloneDeep($this.mainservice.global); //,...[{hl7:response}]];
+                    global.webApps = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.webApps){
+                        $this.mainservice.global.webApps = response;
+                    }else{
+                        $this.mainservice.setGlobal({webApps: response});
+                    }
+                }
+            },
+            (err)=>{
+                if(retries){
+                    $this.getWebApps(retries - 1);
                 }
             }
         );
