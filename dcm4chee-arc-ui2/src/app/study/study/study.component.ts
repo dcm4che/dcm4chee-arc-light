@@ -2726,7 +2726,7 @@ trigger_diff*/
             if (result){
                 this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                     this.studyWebService,
-                    "MOVE_MATCHING",
+                    "DCM4CHEE_ARC_AET",
                     "MOVE_MATCHING"
                 ).subscribe(webApp=>{
                     if(webApp){
