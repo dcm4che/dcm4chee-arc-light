@@ -227,7 +227,7 @@ export class StudyService {
                 schema = Globalvar.PATIENT_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
-                lineLength = filterMode === "expand" ? 1 : 2;
+                lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mwl":
                 schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
