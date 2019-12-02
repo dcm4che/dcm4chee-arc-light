@@ -41,7 +41,7 @@
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
-<img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
+<img src="assets/img/logo.png" class="logo" title="About" (click)="productLabelling()" >
 <router-outlet ></router-outlet>
 <div
         class="scroll_up glyphicon glyphicon-menu-up animated"
