@@ -32,6 +32,12 @@
       <xsl:copy-of select="DicomAttribute[@tag='00100021']"/>
       <!-- Issuer of Patient ID Qualifiers Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00100024']"/>
+      <!-- Patient's Size -->
+      <xsl:copy-of select="DicomAttribute[@tag='00100020']"/>
+      <!-- Patient's Weight -->
+      <xsl:copy-of select="DicomAttribute[@tag='00100030']"/>
+      <!-- Patient's Sex Neutered -->
+      <xsl:copy-of select="DicomAttribute[@tag='00102203']"/>
       <!-- Study ID from Requested Procedure ID -->
       <xsl:if test="DicomAttribute[@tag='00401001']">
         <DicomAttribute tag="00200010" vr="SH">
