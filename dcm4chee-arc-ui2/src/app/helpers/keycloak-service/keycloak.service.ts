@@ -30,8 +30,6 @@ import {Subject} from "../../../../node_modules/rxjs";
 import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
 import * as _ from 'lodash';
-import {of} from "rxjs/internal/observable/of";
-
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -117,7 +115,7 @@ export class KeycloakService {
     getUserInfo():Observable<any>{
         console.log("**********inget userINFO",this.userInfo);
         if(this.userInfo){
-            return of(this.userInfo);
+            return Observable.of(this.userInfo);
         }else{
             return this.setUserSource.asObservable();
         }

@@ -12,9 +12,6 @@ import {Globalvar} from "../constants/globalvar";
 import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../interfaces";
 import {StorageSystemsService} from "../monitoring/storage-systems/storage-systems.service";
-import {Error} from "tslint/lib/error";
-import {of} from "rxjs/internal/observable/of";
-import {throwError} from "rxjs/internal/observable/throwError";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -431,7 +428,7 @@ export class StudiesService {
 
     getPatientIod(){
         if (this._patientIod) {
-            return of(this._patientIod);
+            return Observable.of(this._patientIod);
         } else {
             return this.$http.get('assets/iod/patient.iod.json')
         }
@@ -439,7 +436,7 @@ export class StudiesService {
     getStudyIod(){
         console.log('_patientIod', this._studyIod);
         if (this._studyIod) {
-            return of(this._studyIod);
+            return Observable.of(this._studyIod);
         } else {
             return this.$http.get('assets/iod/study.iod.json')
         }
@@ -447,7 +444,7 @@ export class StudiesService {
     getMwlIod(){
         console.log('_mwlIod', this._mwlIod);
         if (this._mwlIod) {
-            return of(this._mwlIod);
+            return Observable.of(this._mwlIod);
         } else {
             return this.$http.get(
                 'assets/iod/mwl.iod.json'
@@ -691,7 +688,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     changePatientID(oldPatientID, newPatientID, patientData, aet, sendingHl7App, receivingHl7App, accesMode){
         if(oldPatientID === newPatientID){
-            return of(null);
+            return Observable.of(null);
         }else{
             if(accesMode === 'internal'){
                 return this.$http.post(
@@ -713,7 +710,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         let url;
         if(accesMode === 'external'){
             if(!sendingHl7App || !receivingHl7App){
-                return throwError(new Error('Hl7Applications not found!'));
+                return Observable.throw(new Error('Hl7Applications not found!'));
             }else{
                 url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
             }
@@ -863,9 +860,9 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         return this.$http.get('../attribute-set/DIFF_RS')
     }
     queryNationalPationtRegister(patientID){
-        // return of([{"00081190":{"vr":"UR","Value":["http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/rs"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"test12SELAM"}]},"00100020":{"vr":"LO","Value":["pid1"]},"00100040":{"vr":"CS","Value":["F"]},"00201200":{"vr":"IS","Value":[0]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20180315123826.668"]},"77771011":{"vr":"DT","Value":["20180315125113.826"]}}]);
-        // return of([{"00080052":{"vr":"CS","Value":["PATIENT"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"PROBST^KATHY"}]},"00100020":{"vr":"LO","Value":["ALGO00001"]},"00100030":{"vr":"DA","Value":["19000101"]},"00100040":{"vr":"CS","Value":["F"]}}])
-        // return of([])
+        // return Observable.of([{"00081190":{"vr":"UR","Value":["http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/rs"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"test12SELAM"}]},"00100020":{"vr":"LO","Value":["pid1"]},"00100040":{"vr":"CS","Value":["F"]},"00201200":{"vr":"IS","Value":[0]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20180315123826.668"]},"77771011":{"vr":"DT","Value":["20180315125113.826"]}}]);
+        // return Observable.of([{"00080052":{"vr":"CS","Value":["PATIENT"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"PROBST^KATHY"}]},"00100020":{"vr":"LO","Value":["ALGO00001"]},"00100030":{"vr":"DA","Value":["19000101"]},"00100040":{"vr":"CS","Value":["F"]}}])
+        // return Observable.of([])
        return this.$http.get(`../xroad/RR441/${patientID}`)
     }
     queryPatientDemographics(patientID:string, PDQServiceID:string,url?:string){
@@ -890,7 +887,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
 
     getStorageSystems(){
         if(this.storageSystemList){
-            return of(this.storageSystemList);
+            return Observable.of(this.storageSystemList);
         }else{
             return this.storageSystems.search({},0).map(res=>{
                 this.storageSystemList = res;
