@@ -2015,6 +2015,7 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
+                                e.showFileAttributes = false;
                                 e.showAttributes = !e.showAttributes;
                             },
                             title: 'Show attributes'
@@ -2034,6 +2035,7 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
+                                e.showAttributes = false;
                                 e.showFileAttributes = !e.showFileAttributes;
                             },
                             title: 'Show attributes from file'
