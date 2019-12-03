@@ -37,11 +37,12 @@ import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
 import 'rxjs/add/observable/throw';
 import {forkJoin} from 'rxjs/observable/forkJoin';
-import {catchError} from "rxjs/operators";
+import {catchError, map, switchMap} from "rxjs/operators";
 import {of} from "rxjs/observable/of";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
+import {throwError} from "rxjs/internal/observable/throwError";
 
 @Injectable()
 export class StudyService {
@@ -360,14 +361,17 @@ export class StudyService {
                 header
             )
         }else{
-            return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF").map(webApp=>{
-                return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
-            }).switchMap(url=>{
-                return this.$http.get(
-                    `${url}${j4care.param(filterModel) || ''}`,
-                    header
-                )
-            });
+            return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF").pipe(
+                map(webApp=>{
+                    return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
+                })
+                ,switchMap(url=>{
+                    return this.$http.get(
+                        `${url}${j4care.param(filterModel) || ''}`,
+                        header
+                    )
+                })
+            );
         }
     }
 
@@ -605,18 +609,20 @@ export class StudyService {
 
     wadoURL(webService: StudyWebService, ...args: any[]): Observable<string> {
         let arg = arguments;
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").map(webApp=>{
-            let i,
-                url = `${j4care.getUrlFromDcmWebApplication(webApp)}?requestType=WADO`;
-            for (i = 1; i < arg.length; i++) {
-                _.forEach(arg[i], (value, key) => {
-                    url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
-                        return p2;
-                    }) + '=' + value;
-                });
-            }
-            return url;
-        });
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").pipe(
+            map(webApp=>{
+                let i,
+                    url = `${j4care.getUrlFromDcmWebApplication(webApp)}?requestType=WADO`;
+                for (i = 1; i < arg.length; i++) {
+                    _.forEach(arg[i], (value, key) => {
+                        url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
+                            return p2;
+                        }) + '=' + value;
+                    });
+                }
+                return url;
+            })
+        );
     }
 
     renderURL(webService: StudyWebService,inst):Observable<string> {
@@ -2450,7 +2456,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, study, header);
         }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        return throwError({error: "Error on getting the WebApp URL"});
     }
 
     getModifyStudyUrl(deviceWebservice: StudyWebService) {
@@ -2470,7 +2476,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, mwl, header);
         }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        return throwError({error: "Error on getting the WebApp URL"});
     }
 
     getModifyMWLUrl(deviceWebservice: StudyWebService) {
@@ -2513,7 +2519,7 @@ export class StudyService {
             });
             return forkJoin(observables);
         }catch (e) {
-            return Observable.throw(e);
+            return throwError(e);
         }
     };
 
@@ -2525,30 +2531,31 @@ export class StudyService {
                 selectedElements.preActionElements.getAllAsArray()[0].requestReady,
                 this.jsonHeader)
         }catch (e) {
-            return Observable.throwError(e);
+            return throwError(e);
         }
     }
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
-            return Observable.throw({error:"Multi patient merge is not supported!"});
+            return throwError({error:"Multi patient merge is not supported!"});
         }else{
-            this.getModifyPatientUrl(deviceWebservice)
-            .switchMap((url:string)=>{
-                console.log("url",url);
-                return this.$http.put(
-                    `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
-                    selectedElements.postActionElements.getAttrs("patient"),
-                    this.jsonHeader
-                )
-            })
+            this.getModifyPatientUrl(deviceWebservice).pipe(
+                switchMap((url:string)=>{
+                    console.log("url",url);
+                    return this.$http.put(
+                        `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
+                        selectedElements.postActionElements.getAttrs("patient"),
+                        this.jsonHeader
+                    )
+                })
+            );
         }
     };
 
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
-        return this.getModifyPatientUrl(deviceWebservice)
-            .switchMap((url:string)=>{
+        return this.getModifyPatientUrl(deviceWebservice).pipe(
+            switchMap((url:string)=>{
                 if (url) {
                     if (patientId) {
                         //Change patient;
@@ -2558,8 +2565,9 @@ export class StudyService {
                         return this.$http.post(url, patientObject);
                     }
                 }
-                return Observable.throw({error: "Error on getting the WebApp URL"});
+                return throwError({error: "Error on getting the WebApp URL"});
             })
+        )
     }
 
     getModifyPatientUrl(deviceWebService: StudyWebService) {
@@ -2571,20 +2579,20 @@ export class StudyService {
     }
 
     getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
-        return this.getModifyPatientWebApp(deviceWebService).map((webApp:DcmWebApp)=>{
+        return this.getModifyPatientWebApp(deviceWebService).pipe(map((webApp:DcmWebApp)=>{
             return this.getDicomURL(mode, webApp);
-        })
+        }));
     }
 
     getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string):Observable<DcmWebApp> {
         if (_.hasIn(deviceWebService, "selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1) {
-            return Observable.of(deviceWebService.selectedWebService);
+            return of(deviceWebService.selectedWebService);
         } else {
             try {
                 return this.webAppListService.getWebApps({
                     dcmWebServiceClass: alternativeWebServiceClass,
                     dicomAETitle: deviceWebService.selectedWebService.dicomAETitle
-                }).map((webApps:DcmWebApp[])=>webApps[0]);
+                }).pipe(map((webApps:DcmWebApp[])=>webApps[0]));
 /*                return deviceWebService.webServices.filter((webService: DcmWebApp) => { //TODO change this to observable to get the needed webservice from server
                     if (webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle) {
                         return true;
@@ -2620,7 +2628,7 @@ export class StudyService {
     getIod(fileIodName:string){
         fileIodName = fileIodName || "study";
         if(this.iod[fileIodName]){
-            return Observable.of(this.iod[fileIodName]);
+            return of(this.iod[fileIodName]);
         }else{
             return this.$http.get(`assets/iod/${fileIodName}.iod.json`).map(iod=>{
                 this.iod[fileIodName] = iod;
@@ -2786,7 +2794,7 @@ export class StudyService {
     deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 
     rejectRestoreMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, rejectionCode: string) {
-        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
+        return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
             return this.$http.post(
                 `${this.getURL(element.object.attrs, selectedWebService, element.dicomLevel)}/reject/${rejectionCode}`,
                 {},
@@ -2871,7 +2879,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, {}, this.jsonHeader);
         } else {
-            return Observable.forkJoin(objects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
+            return forkJoin(objects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
                 return this.$http.post(
                     this.getURL(element.object.attrs, selectedWebService, element.dicomLevel) + urlSuffix,
                     {},

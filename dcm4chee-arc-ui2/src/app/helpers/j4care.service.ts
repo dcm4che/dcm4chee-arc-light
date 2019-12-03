@@ -623,7 +623,17 @@ export class j4care {
         else
             return defaultVal || '';
     }
-
+    static removeElementFromObject(object, keys:string[]){
+        this.traverse(object,(m,i)=>{
+            keys.forEach(key=>{
+                if(i === key){
+                    delete object[i];
+                }else{
+                    return m;
+                }
+            });
+        });
+    }
 /*    download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;

@@ -11,6 +11,9 @@ import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
 import {KeycloakService} from "./keycloak-service/keycloak.service";
 import {Globalvar} from "../constants/globalvar";
+import {of} from "rxjs/internal/observable/of";
+import {catchError, flatMap} from "rxjs/operators";
+import {throwError} from "rxjs/internal/observable/throwError";
 
 @Injectable()
 export class J4careHttpService{
@@ -98,20 +101,23 @@ export class J4careHttpService{
     }
     private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        return $this.refreshToken().flatMap((response)=>{
+        return $this.refreshToken().pipe(
+            flatMap((response)=>{
                 $this.setHeader(param.header, dcmWebApp);
                 param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
-            }).catch(res=>{
-                j4care.log("In catch",res);
-                if(res.statusText === "Unauthorized"){
-                    return $this.refreshToken().flatMap((resp)=>{
-                        // this.setGlobalToken(resp,param);
-                        return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
-                    });
-                }
-                return Observable.throw(res);
-        });
+            }),
+            catchError(res=>{
+                    j4care.log("In catch",res);
+                    if(res.statusText === "Unauthorized"){
+                        return $this.refreshToken().flatMap((resp)=>{
+                            // this.setGlobalToken(resp,param);
+                            return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
+                        });
+                    }
+                    return throwError(res);
+            })
+        );
     }
     getParamAsArray(param:any){
         let httpParam = [];
@@ -196,10 +202,10 @@ export class J4careHttpService{
                         return this.getRealm();
                     }
                 }
-                return Observable.of([]);
+                return of([]);
             }
         }
-        return Observable.of([]);
+        return of([]);
 
     }
     tokenValid(){

@@ -10,7 +10,7 @@ import {Globalvar} from "../../constants/globalvar";
 
 class MyServiceDependencyStub {
 }
-const DEVICE = {
+const DEVICE:any = {
     dicomDeviceName:"dcm4chee-arc",
     dicomInstalled:true,
     dicomManufacturer:"dcm4che.org",
