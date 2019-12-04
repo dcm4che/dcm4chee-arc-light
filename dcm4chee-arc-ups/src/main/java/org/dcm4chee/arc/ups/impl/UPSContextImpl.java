@@ -47,7 +47,9 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
 
@@ -62,6 +64,7 @@ public class UPSContextImpl implements UPSContext {
     private final Association as;
     private final HttpServletRequestInfo httpRequestInfo;
     private final ArchiveAEExtension archiveAEExtension;
+    private final Patient patient;
     private Attributes attributes;
     private String upsInstanceUID;
     private String requesterAET;
@@ -74,6 +77,7 @@ public class UPSContextImpl implements UPSContext {
         this.as = null;
         this.httpRequestInfo = httpRequestInfo;
         this.archiveAEExtension = archiveAEExtension;
+        this.patient = null;
     }
 
     public UPSContextImpl(Association as) {
@@ -81,6 +85,14 @@ public class UPSContextImpl implements UPSContext {
         this.requesterAET = as.getCallingAET();
         this.httpRequestInfo = null;
         this.archiveAEExtension = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
+        this.patient = null;
+    }
+
+    public UPSContextImpl(StoreContext storeContext) {
+        this.as = storeContext.getStoreSession().getAssociation();
+        this.httpRequestInfo = null;
+        this.archiveAEExtension = storeContext.getStoreSession().getArchiveAEExtension();
+        this.patient = storeContext.getStoredInstance().getSeries().getStudy().getPatient();
     }
 
     @Override
@@ -109,12 +121,12 @@ public class UPSContextImpl implements UPSContext {
     }
 
     @Override
-    public String getUpsInstanceUID() {
+    public String getUPSInstanceUID() {
         return upsInstanceUID;
     }
 
     @Override
-    public void setUpsInstanceUID(String upsInstanceUID) {
+    public void setUPSInstanceUID(String upsInstanceUID) {
         this.upsInstanceUID = upsInstanceUID;
     }
 
@@ -122,6 +134,11 @@ public class UPSContextImpl implements UPSContext {
     public boolean isGlobalSubscription() {
         return upsInstanceUID.equals(UID.UPSGlobalSubscriptionSOPInstance)
                 || upsInstanceUID.equals(UID.UPSFilteredGlobalSubscriptionSOPInstance);
+    }
+
+    @Override
+    public Patient getPatient() {
+        return patient;
     }
 
     @Override

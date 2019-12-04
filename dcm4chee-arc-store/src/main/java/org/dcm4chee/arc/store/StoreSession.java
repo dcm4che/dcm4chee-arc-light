@@ -45,10 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
-import org.dcm4chee.arc.conf.AcceptMissingPatientID;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ExportPriorsRule;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -81,6 +78,8 @@ public interface StoreSession extends Closeable {
     ApplicationEntity getLocalApplicationEntity();
 
     ArchiveAEExtension getArchiveAEExtension();
+
+    ArchiveDeviceExtension getArchiveDeviceExtension();
 
     StoreService getStoreService();
 

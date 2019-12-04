@@ -797,7 +797,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private static void writeUPSOnStoreList(JsonWriter writer, Collection<UPSOnStore> upsOnStoreList) {
-        writer.writeStartArray("dcmUpsOnStore");
+        writer.writeStartArray("dcmUPSOnStore");
         for (UPSOnStore upsOnStore : upsOnStoreList) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", upsOnStore.getCommonName(), null);

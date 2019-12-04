@@ -41,9 +41,15 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4che3.util.UIDUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -153,12 +159,20 @@ public class UPSOnStore {
         this.procedureStepLabel = AttributesFormat.valueOf(procedureStepLabel);
     }
 
+    public String getProcedureStepLabel(Attributes attrs) {
+        return procedureStepLabel != null ? procedureStepLabel.format(attrs) : null;
+    }
+
     public String getWorklistLabel() {
         return Objects.toString(worklistLabel, null);
     }
 
     public void setWorklistLabel(String worklistLabel) {
         this.worklistLabel = AttributesFormat.valueOf(worklistLabel);
+    }
+
+    public String getWorklistLabel(Attributes attrs) {
+        return worklistLabel != null ? worklistLabel.format(attrs) : null;
     }
 
     public String getInstanceUIDBasedOnName() {
@@ -169,6 +183,12 @@ public class UPSOnStore {
         this.instanceUIDBasedOnName = AttributesFormat.valueOf(instanceUIDBasedOnName);
     }
 
+    public String getInstanceUID(Attributes attrs) {
+        return instanceUIDBasedOnName != null
+                ? UIDUtils.createNameBasedUID(instanceUIDBasedOnName.format(attrs).getBytes(StandardCharsets.UTF_8))
+                : UIDUtils.createUID();
+    }
+
     public String getScheduledHumanPerformerName() {
         return Objects.toString(scheduledHumanPerformerName, null);
     }
@@ -177,12 +197,20 @@ public class UPSOnStore {
         this.scheduledHumanPerformerName = AttributesFormat.valueOf(scheduledHumanPerformerName);
     }
 
+    public String getScheduledHumanPerformerName(Attributes attrs) {
+        return scheduledHumanPerformerName != null ? scheduledHumanPerformerName.format(attrs) : null;
+    }
+
     public String getScheduledHumanPerformerOrganization() {
         return Objects.toString(scheduledHumanPerformerOrganization, null);
     }
 
     public void setScheduledHumanPerformerOrganization(String scheduledHumanPerformerOrganization) {
         this.scheduledHumanPerformerOrganization = AttributesFormat.valueOf(scheduledHumanPerformerOrganization);
+    }
+
+    public String getScheduledHumanPerformerOrganization(Attributes attrs) {
+        return scheduledHumanPerformerOrganization != null ? scheduledHumanPerformerOrganization.format(attrs) : null;
     }
 
     public Code getScheduledWorkitemCode() {
@@ -225,6 +253,15 @@ public class UPSOnStore {
         this.scheduledHumanPerformer = scheduledHumanPerformer;
     }
 
+    public Attributes getScheduledHumanPerformerItem(Attributes attrs) {
+        if (scheduledHumanPerformer == null) return null;
+        Attributes item = new Attributes(3);
+        item.newSequence(Tag.HumanPerformerCodeSequence, 1).add(scheduledHumanPerformer.toItem());
+        item.setString(Tag.HumanPerformerOrganization, VR.LO, getScheduledHumanPerformerOrganization(attrs));
+        item.setString(Tag.HumanPerformerName, VR.PN, getScheduledHumanPerformerName(attrs));
+        return item;
+    }
+
     public String getXSLTStylesheetURI() {
         return xsltStylesheetURI;
     }
@@ -239,5 +276,18 @@ public class UPSOnStore {
 
     public void setNoKeywords(boolean noKeywords) {
         this.noKeywords = noKeywords;
+    }
+
+    public boolean match(String sendingHost, String sendingAET,
+            String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
+        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
+    }
+
+    @Override
+    public String toString() {
+        return "UPSOnStore{" +
+                "commonName='" + commonName + '\'' +
+                '}';
     }
 }

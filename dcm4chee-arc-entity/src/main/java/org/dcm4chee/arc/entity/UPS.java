@@ -242,7 +242,7 @@ public class UPS {
         return updatedTime;
     }
 
-    public String getUpsInstanceUID() {
+    public String getUPSInstanceUID() {
         return upsInstanceUID;
     }
 
@@ -279,17 +279,17 @@ public class UPS {
     }
 
     public void setAttributes(Attributes attrs, AttributeFilter filter) {
-        upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority));
+        upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority, "MEDIUM"));
         upsLabel = attrs.getString(Tag.ProcedureStepLabel);
         worklistLabel = attrs.getString(Tag.WorklistLabel);
         scheduledStartDateAndTime = attrs.getString(Tag.ScheduledProcedureStepStartDateTime);
         scheduledProcedureStepExpirationDateTime = attrs.getString(Tag.ScheduledProcedureStepExpirationDateTime, "*");
         expectedCompletionDateAndTime = attrs.getString(Tag.ExpectedCompletionDateTime, "*");
-        inputReadinessState = InputReadinessState.valueOf(attrs.getString(Tag.InputReadinessState));
+        inputReadinessState = InputReadinessState.valueOf(attrs.getString(Tag.InputReadinessState, "READY"));
         admissionID = attrs.getString(Tag.AdmissionID, "*");
         replacedSOPInstanceUID = getString(attrs.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                 Tag.ReferencedSOPInstanceUID, "*");
-        procedureStepState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState));
+        procedureStepState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState, "SCHEDULED"));
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else

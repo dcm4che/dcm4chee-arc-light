@@ -175,7 +175,7 @@ public class UpsRS {
     public Response retrieveUPS(@PathParam("workitem") String iuid) {
         ResponseMediaType responseMediaType = getResponseMediaType();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         try {
             service.findUPS(ctx);
         } catch (DicomServiceException e) {
@@ -218,7 +218,7 @@ public class UpsRS {
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         ctx.setDeletionLock(Boolean.parseBoolean(deletionlock));
         ctx.setAttributes(matchKeys);
@@ -236,7 +236,7 @@ public class UpsRS {
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         try {
             service.deleteSubscription(ctx);
@@ -252,7 +252,7 @@ public class UpsRS {
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         try {
             service.suspendSubscription(ctx);
@@ -281,7 +281,7 @@ public class UpsRS {
 
     private Response createUPS(String iuid, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
+        ctx.setUPSInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
         ctx.setAttributes(attrs);
         try {
             service.createUPS(ctx);
@@ -293,7 +293,7 @@ public class UpsRS {
 
     private Response updateUPS(String iuid, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(attrs);
         try {
             service.updateUPS(ctx);
@@ -305,7 +305,7 @@ public class UpsRS {
 
     private Response changeUPSState(String iuid, String requester, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setRequesterAET(requester);
         ctx.setAttributes(attrs);
         try {
@@ -329,7 +329,7 @@ public class UpsRS {
 
     private Response requestUPSCancel(String iuid, String requester, Attributes attrs) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUpsInstanceUID(iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setRequesterAET(requester);
         ctx.setAttributes(attrs);
         try {
@@ -450,7 +450,7 @@ public class UpsRS {
 
     private URI locationOf(UPSContext ctx) {
         return URI.create(
-                request.getRequestURL().append('/').append(ctx.getUpsInstanceUID()).toString());
+                request.getRequestURL().append('/').append(ctx.getUPSInstanceUID()).toString());
     }
 
     private URI websocketOf(UPSContext ctx) {

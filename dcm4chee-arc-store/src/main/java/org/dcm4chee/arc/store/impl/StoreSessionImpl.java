@@ -198,6 +198,11 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+    }
+
+    @Override
     public StoreService getStoreService() {
         return storeService;
     }

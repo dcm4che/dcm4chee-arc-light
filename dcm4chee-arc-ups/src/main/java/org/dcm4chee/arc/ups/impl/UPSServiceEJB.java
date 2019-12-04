@@ -42,20 +42,27 @@
 package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -63,6 +70,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.xml.transform.TransformerConfigurationException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -88,20 +96,12 @@ public class UPSServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    public UPS createUPS(UPSContext ctx, List<GlobalSubscription> globalSubscriptions) {
+    public UPS createUPS(UPSContext ctx) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
         UPS ups = new UPS();
-        ups.setUpsInstanceUID(ctx.getUpsInstanceUID());
-        PatientMgtContext patMgtCtx = ctx.getAssociation() != null
-                ? patientService.createPatientMgtContextDIMSE(ctx.getAssociation())
-                : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
-        patMgtCtx.setAttributes(attrs);
-        Patient pat = patientService.findPatient(patMgtCtx);
-        if (pat == null) {
-            pat = patientService.createPatient(patMgtCtx);
-        }
-        ups.setPatient(pat);
+        ups.setUpsInstanceUID(ctx.getUPSInstanceUID());
+        ups.setPatient(findOrCreatePatient(ctx));
         ups.setIssuerOfAdmissionID(
                 findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         ups.setScheduledWorkitemCode(
@@ -120,19 +120,34 @@ public class UPSServiceEJB {
         ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
-        for (GlobalSubscription globalSubscription : globalSubscriptions) {
+        for (GlobalSubscription globalSubscription : globalSubscriptions(attrs)) {
             createSubscription(ctx, ups, globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock());
         }
         List<String> subcribers = subscribersOf(ups);
         if (!subcribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
             for (Attributes eventInformation : assigned(attrs,
                     attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
                     attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
-                ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUpsInstanceUID(), eventInformation, subcribers);
+                ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subcribers);
             }
         }
         return ups;
+    }
+
+    private Patient findOrCreatePatient(UPSContext ctx) {
+        Patient pat = ctx.getPatient();
+        if (pat == null) {
+            PatientMgtContext patMgtCtx = ctx.getAssociation() != null
+                    ? patientService.createPatientMgtContextDIMSE(ctx.getAssociation())
+                    : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
+            patMgtCtx.setAttributes(ctx.getAttributes());
+            pat = patientService.findPatient(patMgtCtx);
+            if (pat == null) {
+                pat = patientService.createPatient(patMgtCtx);
+            }
+        }
+        return pat;
     }
 
     public UPS updateUPS(UPSContext ctx) throws DicomServiceException {
@@ -225,22 +240,22 @@ public class UPSServiceEJB {
             return ups;
         }
         if (modified.contains(Tag.InputReadinessState)) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(), stateReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
         }
         boolean progressInformationUpdated = (prevProgressInformation ? modified : attrs)
                 .containsValue(Tag.ProcedureStepProgressInformationSequence);
         if (progressInformationUpdated) {
-            ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUpsInstanceUID(), progressReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUPSInstanceUID(), progressReportOf(attrs), subcribers);
         }
         for (Attributes eventInformation : assigned(attrs, stationNameUpdated, performerUpdated)) {
-            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUpsInstanceUID(), eventInformation, subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subcribers);
         }
         return ups;
     }
 
     public UPS findUPS(UPSContext ctx) throws DicomServiceException {
         try {
-            return findUPS(ctx.getUpsInstanceUID());
+            return findUPS(ctx.getUPSInstanceUID());
         } catch (NoResultException e) {
             throw new DicomServiceException(Status.UPSDoesNotExist,
                     "Specified SOP Instance UID does not exist", false);
@@ -249,7 +264,7 @@ public class UPSServiceEJB {
 
     public boolean exists(UPSContext ctx) {
         return !em.createNamedQuery(UPS.FIND_BY_IUID)
-                .setParameter(1, ctx.getUpsInstanceUID())
+                .setParameter(1, ctx.getUPSInstanceUID())
                 .getResultList().isEmpty();
     }
 
@@ -368,7 +383,7 @@ public class UPSServiceEJB {
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
         List<String> subcribers = subscribersOf(ups);
         if (!subcribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUpsInstanceUID(), stateReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
         }
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
@@ -401,7 +416,7 @@ public class UPSServiceEJB {
             throw new DicomServiceException(Status.UPSPerformerCannotBeContacted,
                     "The performer cannot be contacted");
         }
-        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUpsInstanceUID(), cancelRequestedBy(ctx), subcribers);
+        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUPSInstanceUID(), cancelRequestedBy(ctx), subcribers);
     }
 
     private void cancelUPS(UPSContext ctx, UPS ups) {
@@ -422,7 +437,7 @@ public class UPSServiceEJB {
         List<String> subcribers = subscribersOf(ups);
         if (!subcribers.isEmpty()) {
             ctx.addUPSEvent(UPSEvent.Type.StateReportInProcessAndCanceled,
-                    ctx.getUpsInstanceUID(),
+                    ctx.getUPSInstanceUID(),
                     stateReportOf(attrs),
                     subcribers);
         }
@@ -528,10 +543,10 @@ public class UPSServiceEJB {
 
     public int deleteSubscription(UPSContext ctx) {
         if (em.createNamedQuery(Subscription.DELETE_BY_IUID_AND_AET)
-                .setParameter(1, ctx.getUpsInstanceUID())
+                .setParameter(1, ctx.getUPSInstanceUID())
                 .setParameter(2, ctx.getSubscriberAET())
                 .executeUpdate() > 0) {
-            LOG.info("{}: Delete Subscription[uid={}, aet={}]", ctx, ctx.getUpsInstanceUID(), ctx.getSubscriberAET());
+            LOG.info("{}: Delete Subscription[uid={}, aet={}]", ctx, ctx.getUPSInstanceUID(), ctx.getSubscriberAET());
             return 1;
         }
         return 0;
@@ -635,7 +650,7 @@ public class UPSServiceEJB {
     }
 
     private static void addInitialEvent(UPSContext ctx, UPS ups, String subscriberAET) {
-        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUpsInstanceUID(),
+        ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(),
                 stateReportOf(ups.getAttributes()),
                 Collections.singletonList(subscriberAET));
     }
@@ -700,5 +715,161 @@ public class UPSServiceEJB {
                             "Discontinued for unspecified reason")
                             .toItem());
         }
+    }
+
+    public UPS createOrUpdateOnStore(StoreContext ctx, Calendar now, UPSOnStore rule) {
+        LOG.info("{}: Apply {}", ctx.getStoreSession(), rule);
+        String iuid = rule.getInstanceUID(ctx.getAttributes());
+        try {
+            UPS ups = findUPS(iuid);
+            switch (rule.getIncludeInputInformation()) {
+                case APPEND:
+                    if (ups.getProcedureStepState() == UPSState.SCHEDULED) break;
+                case SINGLE:
+                case NO:
+                    LOG.info("{}: {} already exists", ctx.getStoreSession(), ups);
+                    return null;
+                default:
+                    try {
+                        do {
+                            ups = findUPS(iuid = UIDUtils.createNameBasedUID(iuid.getBytes()));
+                        } while (rule.getIncludeInputInformation()
+                                == UPSOnStore.IncludeInputInformation.SINGLE_OR_CREATE
+                                || ups.getProcedureStepState() != UPSState.SCHEDULED);
+                    } catch (NoResultException e) {
+                        return createOnStore(iuid, ctx, now, rule);
+                    }
+            }
+            LOG.info("{}: update existing {}", ctx.getStoreSession(), ups);
+            updateIncludeInputInformation(ups.getAttributes().getSequence(Tag.InputInformationSequence), ctx);
+            ups.setAttributes(ups.getAttributes(),
+                    ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+            return ups;
+        } catch (NoResultException e) {
+            return createOnStore(iuid, ctx, now, rule);
+        }
+    }
+
+    private UPS createOnStore(String iuid, StoreContext storeCtx, Calendar now, UPSOnStore rule) {
+        UPSContext ctx = new UPSContextImpl(storeCtx);
+        ctx.setUPSInstanceUID(iuid);
+        ctx.setAttributes(createOnStore(storeCtx, now, rule));
+        UPS ups = createUPS(ctx);
+        LOG.info("{}: create {}", storeCtx.getStoreSession(), ups);
+        return ups;
+    }
+
+    private static Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
+        Attributes attrs = applyXSLT(rule, storeCtx);
+        if (rule.isIncludeStudyInstanceUID()) {
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
+        }
+        attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getScheduleDelay()));
+        if (rule.getScheduledHumanPerformer() != null) {
+            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
+                    .add(rule.getScheduledHumanPerformerItem(storeCtx.getAttributes()));
+        }
+        setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
+        setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+        setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+        setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+        attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+        attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
+        attrs.setString(Tag.WorklistLabel, VR.LO, getWorklistLabel(storeCtx, rule));
+        attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(storeCtx.getAttributes()));
+        if (rule.getIncludeInputInformation() != UPSOnStore.IncludeInputInformation.NO) {
+            updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
+        }
+        return attrs;
+    }
+
+    private static String getWorklistLabel(StoreContext storeCtx, UPSOnStore rule) {
+        String worklistLabel = rule.getWorklistLabel(storeCtx.getAttributes());
+        return worklistLabel != null ? worklistLabel
+                : storeCtx.getStoreSession().getArchiveAEExtension().upsWorklistLabel();
+    }
+
+    private static Date add(Calendar now, Duration delay) {
+        return delay != null ? new Date(now.getTimeInMillis() + delay.getSeconds() * 1000) : now.getTime();
+    }
+
+    private static void setCode(Attributes attrs, int sqtag, Code code) {
+        if (code != null) {
+            attrs.newSequence(sqtag, 1).add(code.toItem());
+        }
+    }
+
+    private static Attributes applyXSLT(UPSOnStore upsOnStore, StoreContext ctx) {
+        String uri = upsOnStore.getXSLTStylesheetURI();
+        if (uri != null) {
+            try {
+                return SAXTransformer.transform(
+                        ctx.getAttributes(),
+                        TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri)),
+                        false,
+                        !upsOnStore.isNoKeywords(),
+                        setupTransformer(ctx.getStoreSession()));
+            } catch (SAXException e) {
+                LOG.warn("{}: Failed to apply XSL: {}", ctx.getStoreSession(), uri, e);
+            } catch (TransformerConfigurationException e) {
+                LOG.warn("{}: Failed to compile XSL: {}", ctx.getStoreSession(), uri, e);
+            }
+        }
+        return new Attributes();
+    }
+
+    private static SAXTransformer.SetupTransformer setupTransformer(StoreSession session) {
+        return t -> {
+            t.setParameter("LocalAET", session.getCalledAET());
+            if (session.getCallingAET() != null)
+                t.setParameter("RemoteAET", session.getCallingAET());
+            if (session.getRemoteHostName() != null)
+                t.setParameter("RemoteHost", session.getRemoteHostName());
+        };
+    }
+
+    private List<GlobalSubscription> globalSubscriptions(Attributes attrs) {
+        return findGlobalSubscriptions().stream()
+                .filter(sub -> matches(attrs, sub.getMatchKeys()))
+                .collect(Collectors.toList());
+    }
+
+    private static boolean matches(Attributes attrs, Attributes keys) {
+        return keys == null || attrs.matches(keys, false, false);
+    }
+
+    private static void updateIncludeInputInformation(Sequence sq, StoreContext ctx) {
+        refSOPSequence(sq, ctx).add(toSOPRef(ctx));
+    }
+
+    private static Attributes toSOPRef(StoreContext ctx) {
+        Attributes item = new Attributes(2);
+        item.setString(Tag.RequestedSOPClassUID, VR.UI, ctx.getSopClassUID());
+        item.setString(Tag.RequestedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
+        return item;
+    }
+
+    private static Sequence refSOPSequence(Sequence sq, StoreContext ctx) {
+        for (Attributes item : sq) {
+            if (ctx.getStudyInstanceUID().equals(item.getString(Tag.StudyInstanceUID))
+                && ctx.getSeriesInstanceUID().equals(item.getString(Tag.SeriesInstanceUID))) {
+                return item.getSequence(Tag.ReferencedSOPSequence);
+            }
+        }
+        Attributes item = new Attributes(5);
+        sq.add(item);
+        Sequence refSOPSequence = item.newSequence(Tag.ReferencedSOPSequence, 10);
+        item.setString(Tag.StudyInstanceUID, VR.UI, ctx.getStudyInstanceUID());
+        item.setString(Tag.SeriesInstanceUID, VR.UI, ctx.getSeriesInstanceUID());
+        item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
+        item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(ctx));
+        return refSOPSequence;
+    }
+
+    private static Attributes retrieveAETItem(StoreContext ctx) {
+        Attributes item = new Attributes(1);
+        item.setString(Tag.RetrieveAETitle, VR.AE, ctx.getRetrieveAETs());
+        return item;
     }
 }

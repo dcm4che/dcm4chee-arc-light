@@ -50,7 +50,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.UPSState;
-import org.dcm4chee.arc.entity.GlobalSubscription;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -58,6 +57,8 @@ import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryParam;
+import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
 import org.dcm4chee.arc.ups.UPSService;
@@ -71,8 +72,8 @@ import javax.inject.Inject;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -133,7 +134,7 @@ public class UPSServiceImpl implements UPSService {
             attrs.setString(Tag.WorklistLabel, VR.LO, ctx.getArchiveAEExtension().upsWorklistLabel());
         }
         try {
-            UPS ups = ejb.createUPS(ctx, globalSubscriptions(attrs));
+            UPS ups = ejb.createUPS(ctx);
             fireUPSEvents(ctx);
             return ups;
         } catch (Exception e) {
@@ -220,7 +221,7 @@ public class UPSServiceImpl implements UPSService {
         attrs.addAll(patAttrs);
         attrs.addAll(upsAttrs);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
-        attrs.setString(Tag.SOPInstanceUID, VR.UI, ups.getUpsInstanceUID());
+        attrs.setString(Tag.SOPInstanceUID, VR.UI, ups.getUPSInstanceUID());
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT, ups.getUpdatedTime());
         ctx.setAttributes(attrs);
         return ups;
@@ -231,7 +232,7 @@ public class UPSServiceImpl implements UPSService {
         validateSupportEventReports(ctx);
         try {
             validateSubscriberAET(ctx);
-            switch (ctx.getUpsInstanceUID()) {
+            switch (ctx.getUPSInstanceUID()) {
                 case UID.UPSFilteredGlobalSubscriptionSOPInstance:
                     if (ctx.getAttributes().isEmpty()) {
                         throw new DicomServiceException(Status.InvalidArgumentValue,
@@ -314,6 +315,24 @@ public class UPSServiceImpl implements UPSService {
         }
     }
 
+    public void onStore(@Observes StoreContext ctx) {
+        if (ctx.getStoredInstance() == null
+                || ctx.getException() != null) {
+            return;
+        }
+
+        StoreSession session = ctx.getStoreSession();
+        Calendar now = Calendar.getInstance();
+        session.getArchiveAEExtension().upsOnStoreStream()
+                .filter(upsOnStore -> upsOnStore.match(
+                    session.getRemoteHostName(),
+                    session.getCallingAET(),
+                    session.getLocalHostName(),
+                    session.getCalledAET(),
+                    ctx.getAttributes(), now))
+                .forEach(upsOnStore -> ejb.createOrUpdateOnStore(ctx, now, upsOnStore));
+    }
+
     boolean websocketChannelsExists(String subscriberAET) {
         return websocketChannels.values().stream().anyMatch(ws -> ws.subscriberAET.equals(subscriberAET));
     }
@@ -357,16 +376,6 @@ public class UPSServiceImpl implements UPSService {
                 throw new DicomServiceException(Status.UPSUnknownReceivingAET, e);
             }
         }
-    }
-
-    private List<GlobalSubscription> globalSubscriptions(Attributes attrs) {
-        return ejb.findGlobalSubscriptions().stream()
-                .filter(sub -> matches(attrs, sub.getMatchKeys()))
-                .collect(Collectors.toList());
-    }
-
-    private static boolean matches(Attributes attrs, Attributes keys) {
-        return keys == null || attrs.matches(keys, false, false);
     }
 
     private List<Attributes> searchNotSubscribedUPS(UPSContext ctx) throws DicomServiceException {

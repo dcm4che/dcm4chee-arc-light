@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.List;
@@ -66,11 +67,13 @@ public interface UPSContext {
 
     ArchiveDeviceExtension getArchiveDeviceExtension();
 
-    String getUpsInstanceUID();
+    String getUPSInstanceUID();
 
-    void setUpsInstanceUID(String upsInstanceUID);
+    void setUPSInstanceUID(String upsInstanceUID);
 
     boolean isGlobalSubscription();
+
+    Patient getPatient();
 
     String getRequesterAET();
 

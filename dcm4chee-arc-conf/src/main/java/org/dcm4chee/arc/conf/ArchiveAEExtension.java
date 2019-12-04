@@ -1502,6 +1502,10 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
+    public Stream<UPSOnStore> upsOnStoreStream() {
+        return Stream.concat(upsOnStoreList.stream(), getArchiveDeviceExtension().listUPSOnStore().stream());
+    }
+
     public Stream<ExportPriorsRule> prefetchRules() {
         return Stream.concat(exportPriorsRules.stream(), getArchiveDeviceExtension().getExportPriorsRules().stream());
     }
