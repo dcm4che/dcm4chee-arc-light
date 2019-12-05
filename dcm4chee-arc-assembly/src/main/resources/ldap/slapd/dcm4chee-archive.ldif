@@ -1453,7 +1453,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.301 NAME 'dcmStorePermissionServiceR
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.302 NAME 'dcmUPSWorklistLabel'
-  DESC 'Value of Worklist Label (0074,1202) of created UPS, if the UPS Push SCU or UPS-RS User Agent does not provide a value for this attribute. If absent, the AE Title of the receiving AE will be used.'
+  DESC 'Value of Worklist Label (0074,1202) in created UPS, if the UPS Push SCU or UPS-RS User Agent does not provide a value for this attribute. If absent, the AE Title of the receiving AE will be used.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
@@ -1515,67 +1515,112 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.315 NAME 'dcmStorageThresholdExceede
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.316 NAME 'dcmUPSPriority'
-  DESC 'Value of Scheduled Procedure Step Priority (0074,1200) of created UPS. Enumerated Values: HIGH, MEDIUM, LOW. If absent, MEDIUM will be applied.'
+  DESC 'Value of Scheduled Procedure Step Priority (0074,1200) in created UPS. Enumerated Values: HIGH, MEDIUM, LOW. If absent, MEDIUM will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.317 NAME 'dcmUPSInputReadinessState'
-  DESC 'Value of Input Readiness State (0040,4041) of created UPS. Enumerated Values: INCOMPLETE, UNAVAILABLE, READY. If absent, READY will be applied.'
+  DESC 'Value of Input Readiness State (0040,4041) in created UPS. Enumerated Values: INCOMPLETE, UNAVAILABLE, READY. If absent, READY will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.319 NAME 'dcmUPSLabel'
-  DESC 'Value of Procedure Step Label (0074,1204) of created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.318 NAME 'dcmUPSLabel'
+  DESC 'Value of Procedure Step Label (0074,1204) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.320 NAME 'dcmUPSInstanceUIDBasedOnName'
-  DESC 'Value used to generate name based SOP Instance UID (0008,0018) of created UPS. Typically, the value will include {StudyInstanceUID}, {SeriesInstanceUID} or {SOPInstanceUID} to create a different UPS for each received Study, Series or Object. If absent, a random generated SOP Instance UID (0008,0018) will be used.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.319 NAME 'dcmUPSInstanceUIDBasedOnName'
+  DESC 'Value used to generate name based SOP Instance UID (0008,0018) in created UPS. Typically, the value will include {StudyInstanceUID}, {SeriesInstanceUID} or {SOPInstanceUID} to create a different UPS for each received Study, Series or Object. If absent, a random generated SOP Instance UID (0008,0018) will be used.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.321 NAME 'dcmUPSIncludeStudyInstanceUID'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.320 NAME 'dcmUPSIncludeStudyInstanceUID'
+  DESC 'Indicates if the Study Instance UID (0020,000D) of the received object and the specified Accession Number (0008,0050), Requested Procedure ID (0040,1001) and Requesting Service (0032,1033) shall be included in the item of the Referenced Request Sequence (0040,A370) in the created UPS. If false or absent, an empty Referenced Request Sequence (0040,A370) is included.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.321 NAME 'dcmUPSIncludeReferencedRequest'
   DESC 'Indicates if Study Instance UID (0020,000D) of the received object shall be included in the created UPS; false if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.322 NAME 'dcmUPSIncludeInputInformation'
-  DESC 'Indicates if received objects shall be referenced in the Input Information Sequence (0040,4021) of created UPS. Enumerated Values: NO, SINGLE (= do not updating existing UPS), APPEND (= update existing UPS in state SCHEDULED), SINGLE_OR_CREATE (= if UPS already exists, create new UPS with derived UID), APPEND_OR_CREATE (= if existing UPS is no longer in state SCHEDULED, create new UPS with derived UID). If absent, APPEND_OR_CREATE will be applied.'
+  DESC 'Indicates if received objects shall be referenced in the Input Information Sequence (0040,4021) in created UPS. Enumerated Values: NO, SINGLE (= do not updating existing UPS), APPEND (= update existing UPS in state SCHEDULED), SINGLE_OR_CREATE (= if UPS already exists, create new UPS with derived UID), APPEND_OR_CREATE (= if existing UPS is no longer in state SCHEDULED, create new UPS with derived UID). If absent, APPEND_OR_CREATE will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.323 NAME 'dcmUPSScheduledWorkitemCode'
-  DESC 'Item of Scheduled Workitem Code Sequence (0040,4018) of created UPS in format (CV, CSD, "CM").'
+  DESC 'Item of Scheduled Workitem Code Sequence (0040,4018) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.324 NAME 'dcmUPSScheduledStationNameCode'
-  DESC 'Item of Scheduled Station Name Code Sequence (0040,4025) of created UPS in format (CV, CSD, "CM").'
+  DESC 'Item of Scheduled Station Name Code Sequence (0040,4025) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.325 NAME 'dcmUPSScheduledStationClassCode'
-  DESC 'Item of Scheduled Station Class Code Sequence (0040,4026) of created UPS in format (CV, CSD, "CM").'
+  DESC 'Item of Scheduled Station Class Code Sequence (0040,4026) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.326 NAME 'dcmUPSScheduledStationLocationCode'
-  DESC 'Item of Scheduled Station Geographic Location Code Sequence (0040,4027) of created UPS in format (CV, CSD, "CM").'
+  DESC 'Item of Scheduled Station Geographic Location Code Sequence (0040,4027) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.327 NAME 'dcmUPSScheduledHumanPerformerCode'
-  DESC 'Item of Human Performer Code Sequence (0040,4009) of Item of Scheduled Human Performers Sequence (0040,4034) of created UPS in format (CV, CSD, "CM").'
+  DESC 'Item of Human Performer Code Sequence (0040,4009) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.328 NAME 'dcmUPSScheduledHumanPerformerName'
-  DESC 'Value of Human Performer Name (0040,4037) of Item of Scheduled Human Performers Sequence (0040,4034) of created UPS.'
+  DESC 'Value of Human Performer Name (0040,4037) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.329 NAME 'dcmUPSScheduledHumanPerformerOrganization'
-  DESC 'Value of Human Performer Organization (0040,4036) of Item of Scheduled Human Performers Sequence (0040,4034) of created UPS.'
+  DESC 'Value of Human Performer Organization (0040,4036) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.330 NAME 'dcmUPSStartDateTimeDelay'
+  DESC 'Delay of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS from receive time in format PnDTnHnMn.nS. No delay if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.331 NAME 'dcmUPSCompletionDateTimeDelay'
+  DESC 'Delay of Expected Completion DateTime (0040,4011) in created UPS from receive time in format PnDTnHnMn.nS. If absent, no Expected Completion Date and Time will be set.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.332 NAME 'dcmAdmissionID'
+  DESC 'Value of Admission ID (0038,0010) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.333 NAME 'dcmAccessionNumber'
+  DESC 'Value of Accession Number (0008,0050) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.334 NAME 'dcmRequestedProcedureID'
+  DESC 'Value of Requested Procedure ID (0040,1001) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.335 NAME 'dcmRequestedProcedureDescription'
+  DESC 'Value of Requested Procedure Description (0032,1060) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.336 NAME 'dcmRequestingPhysician'
+  DESC 'Value of Requesting Physician (0032,1032) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.337 NAME 'dcmRequestingService'
+  DESC 'Value of Requesting Service (0032,1033) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
@@ -2236,10 +2281,13 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
   MAY (
     dcmUPSPriority $
     dcmUPSInputReadinessState $
+    dcmUPSStartDateTimeDelay $
+    dcmUPSCompletionDateTimeDelay $
     dcmUPSWorklistLabel $
     dcmUPSInstanceUIDBasedOnName $
     dcmUPSIncludeInputInformation $
     dcmUPSIncludeStudyInstanceUID $
+    dcmUPSIncludeReferencedRequest $
     dcmUPSScheduledWorkitemCode $
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
@@ -2247,8 +2295,15 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmUPSScheduledHumanPerformerCode $
     dcmUPSScheduledHumanPerformerName $
     dcmUPSScheduledHumanPerformerOrganization $
+    dcmAdmissionID $
+    dicomIssuerOfAdmissionID $
+    dcmAccessionNumber $
+    dicomIssuerOfAccessionNumber $
+    dcmRequestedProcedureID $
+    dcmRequestedProcedureDescription $
+    dcmRequestingPhysician $
+    dcmRequestingService $
     dcmURI $
     dcmNoKeywords $
     dcmProperty $
-    dcmSchedule $
-    dcmDuration ) )
+    dcmSchedule ) )

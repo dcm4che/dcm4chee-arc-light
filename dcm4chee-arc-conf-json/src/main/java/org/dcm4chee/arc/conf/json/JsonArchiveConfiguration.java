@@ -45,6 +45,7 @@ import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
@@ -805,6 +806,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnStore.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(
                     "dcmUPSInputReadinessState", upsOnStore.getInputReadinessState(), InputReadinessState.READY);
+            writer.writeNotNullOrDef("dcmUPSStartDateTimeDelay",
+                    upsOnStore.getStartDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmUPSCompletionDateTimeDelay",
+                    upsOnStore.getCompletionDateTimeDelay(), null);
             writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnStore.getWorklistLabel(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSInstanceUIDBasedOnName", upsOnStore.getInstanceUIDBasedOnName(), null);
@@ -814,6 +819,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     UPSOnStore.IncludeInputInformation.APPEND);
             writer.writeNotNullOrDef(
                     "dcmUPSIncludeStudyInstanceUID", upsOnStore.isIncludeStudyInstanceUID(), false);
+            writer.writeNotNullOrDef(
+                    "dcmUPSIncludeReferencedRequest", upsOnStore.isIncludeReferencedRequest(), false);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
             writer.writeNotNullOrDef(
@@ -826,16 +833,24 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSScheduledHumanPerformerCode", upsOnStore.getScheduledHumanPerformer(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledHumanPerformerName", upsOnStore.getScheduledHumanPerformerName(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledHumanPerformerOrganization",
-                    upsOnStore.getScheduledHumanPerformerOrganization(),
-                    null);
+            writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
+                    upsOnStore.getScheduledHumanPerformerOrganization(), null);
+            writer.writeNotNullOrDef("dcmAdmissionID", upsOnStore.getAdmissionID(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAdmissionID", upsOnStore.getIssuerOfAdmissionID(), null);
+            writer.writeNotNullOrDef("dcmAccessionNumber", upsOnStore.getAccessionNumber(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAccessionNumber",
+                    upsOnStore.getIssuerOfAccessionNumber(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureID",
+                    upsOnStore.getRequestedProcedureID(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureDescription",
+                    upsOnStore.getRequestedProcedureDescription(), null);
+            writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnStore.getRequestingPhysician(), null);
+            writer.writeNotNullOrDef("dcmRequestingService", upsOnStore.getRequestingService(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
             writer.writeNotNullOrDef(
                     "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
             writer.writeNotEmpty("dcmProperty", upsOnStore.getConditions().getMap());
             writer.writeNotEmpty("dcmSchedule", upsOnStore.getSchedules());
-            writer.writeNotNullOrDef("dcmDuration", upsOnStore.getScheduleDelay(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2708,6 +2723,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmUPSInputReadinessState":
                         upsOnStore.setInputReadinessState(InputReadinessState.valueOf(reader.stringValue()));
                         break;
+                    case "dcmUPSStartDateTimeDelay":
+                        upsOnStore.setStartDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSCompletionDateTimeDelay":
+                        upsOnStore.setCompletionDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
                     case "dcmUPSWorklistLabel":
                         upsOnStore.setWorklistLabel(reader.stringValue());
                         break;
@@ -2720,6 +2741,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSIncludeStudyInstanceUID":
                         upsOnStore.setIncludeStudyInstanceUID(reader.booleanValue());
+                        break;
+                    case "dcmUPSIncludeReferencedRequest":
+                        upsOnStore.setIncludeReferencedRequest(reader.booleanValue());
                         break;
                     case "dcmUPSScheduledWorkitemCode":
                         upsOnStore.setScheduledWorkitemCode(new Code(reader.stringValue()));
@@ -2742,6 +2766,30 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmUPSScheduledHumanPerformerOrganization":
                         upsOnStore.setScheduledHumanPerformerOrganization(reader.stringValue());
                         break;
+                    case "dcmAdmissionID":
+                        upsOnStore.setAdmissionID(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAdmissionID":
+                        upsOnStore.setIssuerOfAdmissionID(reader.issuerValue());
+                        break;
+                    case "dcmAccessionNumber":
+                        upsOnStore.setAccessionNumber(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAccessionNumber":
+                        upsOnStore.setIssuerOfAccessionNumber(reader.issuerValue());
+                        break;
+                    case "dcmRequestedProcedureID":
+                        upsOnStore.setRequestedProcedureID(reader.stringValue());
+                        break;
+                    case "dcmRequestedProcedureDescription":
+                        upsOnStore.setRequestedProcedureDescription(reader.stringValue());
+                        break;
+                    case "dcmRequestingPhysician":
+                        upsOnStore.setRequestingPhysician(reader.stringValue());
+                        break;
+                    case "dcmRequestingService":
+                        upsOnStore.setRequestingService(reader.stringValue());
+                        break;
                     case "dcmURI":
                         upsOnStore.setXSLTStylesheetURI(reader.stringValue());
                         break;
@@ -2753,9 +2801,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmSchedule":
                         upsOnStore.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
-                        break;
-                    case "dcmDuration":
-                        upsOnStore.setScheduleDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

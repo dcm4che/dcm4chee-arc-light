@@ -761,30 +761,91 @@ public class UPSServiceEJB {
 
     private static Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
         Attributes attrs = applyXSLT(rule, storeCtx);
-        if (rule.isIncludeStudyInstanceUID()) {
+        if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID)) {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         }
-        attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getScheduleDelay()));
-        if (rule.getScheduledHumanPerformer() != null) {
+        if (!attrs.contains(Tag.AdmissionID)) {
+            attrs.setString(Tag.AdmissionID, VR.SH, rule.getAdmissionID(storeCtx.getAttributes()));
+            setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
+        }
+        if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime)) {
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getStartDateTimeDelay()));
+        }
+        if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime)) {
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, rule.getCompletionDateTimeDelay()));
+        }
+        if (rule.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence)) {
             attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
                     .add(rule.getScheduledHumanPerformerItem(storeCtx.getAttributes()));
         }
-        setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
-        setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
-        setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
-        setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
-        attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
+        if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence)) {
+            setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
+        }
+        if (!attrs.contains(Tag.ScheduledStationNameCodeSequence)) {
+            setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+        }
+        if (!attrs.contains(Tag.ScheduledStationClassCodeSequence)) {
+            setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+        }
+        if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence)) {
+            setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+        }
+        if (!attrs.contains(Tag.InputReadinessState)) {
+            attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
+        }
+        if (!attrs.contains(Tag.ReferencedRequestSequence)) {
+            if (rule.isIncludeReferencedRequest()) {
+                attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(referencedRequest(storeCtx, rule));
+            } else {
+                attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
+            }
+        }
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
-        attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
-        attrs.setString(Tag.WorklistLabel, VR.LO, getWorklistLabel(storeCtx, rule));
-        attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(storeCtx.getAttributes()));
-        if (rule.getIncludeInputInformation() != UPSOnStore.IncludeInputInformation.NO) {
+        if (!attrs.contains(Tag.ScheduledProcedureStepPriority)) {
+            attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
+        }
+        if (!attrs.contains(Tag.WorklistLabel)) {
+            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(storeCtx, rule));
+        }
+        if (!attrs.contains(Tag.ProcedureStepLabel)) {
+            attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(storeCtx.getAttributes()));
+        }
+        if (rule.getIncludeInputInformation() != UPSOnStore.IncludeInputInformation.NO
+                && !attrs.contains(Tag.InputInformationSequence)) {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
         return attrs;
     }
 
-    private static String getWorklistLabel(StoreContext storeCtx, UPSOnStore rule) {
+    private static Attributes referencedRequest(StoreContext storeCtx, UPSOnStore rule) {
+        Attributes item = new Attributes(8);
+        item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(storeCtx.getAttributes()));
+        setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        item.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
+        setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(storeCtx.getAttributes()));
+        setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(storeCtx.getAttributes()));
+        item.setString(Tag.RequestedProcedureDescription, VR.LO,
+                rule.getRequestedProcedureDescription(storeCtx.getAttributes()));
+        item.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
+        item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(storeCtx.getAttributes()));
+        return item;
+    }
+
+    private static void setNotNull(Attributes item, int tag, VR vr, String value) {
+        if (value != null) {
+            item.setString(tag, vr, value);
+        }
+    }
+
+    private static void setIssuer(Attributes attrs, int sqtag, Issuer issuer) {
+        if (issuer != null) {
+            attrs.newSequence(sqtag, 1).add(issuer.toItem());
+        } else {
+            attrs.setNull(sqtag, VR.SQ);
+        }
+    }
+
+    private static String worklistLabel(StoreContext storeCtx, UPSOnStore rule) {
         String worklistLabel = rule.getWorklistLabel(storeCtx.getAttributes());
         return worklistLabel != null ? worklistLabel
                 : storeCtx.getStoreSession().getArchiveAEExtension().upsWorklistLabel();
@@ -797,6 +858,8 @@ public class UPSServiceEJB {
     private static void setCode(Attributes attrs, int sqtag, Code code) {
         if (code != null) {
             attrs.newSequence(sqtag, 1).add(code.toItem());
+        } else {
+            attrs.setNull(sqtag, VR.SQ);
         }
     }
 

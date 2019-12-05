@@ -41,11 +41,9 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -66,12 +64,21 @@ public class UPSOnStore {
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
     private IncludeInputInformation includeInputInformation = IncludeInputInformation.APPEND;
-    private Duration scheduleDelay;
+    private Duration startDateTimeDelay;
+    private Duration completionDateTimeDelay;
     private AttributesFormat procedureStepLabel;
     private AttributesFormat worklistLabel;
     private AttributesFormat instanceUIDBasedOnName;
     private AttributesFormat scheduledHumanPerformerName;
     private AttributesFormat scheduledHumanPerformerOrganization;
+    private AttributesFormat admissionID;
+    private AttributesFormat accessionNumber;
+    private AttributesFormat requestedProcedureID;
+    private AttributesFormat requestedProcedureDescription;
+    private AttributesFormat requestingPhysician;
+    private AttributesFormat requestingService;
+    private Issuer issuerOfAdmissionID;
+    private Issuer issuerOfAccessionNumber;
     private Code scheduledWorkitemCode;
     private Code scheduledStationName;
     private Code scheduledStationClass;
@@ -80,6 +87,7 @@ public class UPSOnStore {
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
+    private boolean includeReferencedRequest;
 
     public UPSOnStore() {}
 
@@ -143,12 +151,28 @@ public class UPSOnStore {
         this.includeStudyInstanceUID = includeStudyInstanceUID;
     }
 
-    public Duration getScheduleDelay() {
-        return scheduleDelay;
+    public boolean isIncludeReferencedRequest() {
+        return includeReferencedRequest;
     }
 
-    public void setScheduleDelay(Duration scheduleDelay) {
-        this.scheduleDelay = scheduleDelay;
+    public void setIncludeReferencedRequest(boolean includeReferencedRequest) {
+        this.includeReferencedRequest = includeReferencedRequest;
+    }
+
+    public Duration getStartDateTimeDelay() {
+        return startDateTimeDelay;
+    }
+
+    public void setStartDateTimeDelay(Duration startDateTimeDelay) {
+        this.startDateTimeDelay = startDateTimeDelay;
+    }
+
+    public Duration getCompletionDateTimeDelay() {
+        return completionDateTimeDelay;
+    }
+
+    public void setCompletionDateTimeDelay(Duration completionDateTimeDelay) {
+        this.completionDateTimeDelay = completionDateTimeDelay;
     }
 
     public String getProcedureStepLabel() {
@@ -160,7 +184,7 @@ public class UPSOnStore {
     }
 
     public String getProcedureStepLabel(Attributes attrs) {
-        return procedureStepLabel != null ? procedureStepLabel.format(attrs) : null;
+        return format(procedureStepLabel, attrs);
     }
 
     public String getWorklistLabel() {
@@ -172,7 +196,7 @@ public class UPSOnStore {
     }
 
     public String getWorklistLabel(Attributes attrs) {
-        return worklistLabel != null ? worklistLabel.format(attrs) : null;
+        return format(worklistLabel, attrs);
     }
 
     public String getInstanceUIDBasedOnName() {
@@ -198,7 +222,7 @@ public class UPSOnStore {
     }
 
     public String getScheduledHumanPerformerName(Attributes attrs) {
-        return scheduledHumanPerformerName != null ? scheduledHumanPerformerName.format(attrs) : null;
+        return format(scheduledHumanPerformerName, attrs);
     }
 
     public String getScheduledHumanPerformerOrganization() {
@@ -210,7 +234,95 @@ public class UPSOnStore {
     }
 
     public String getScheduledHumanPerformerOrganization(Attributes attrs) {
-        return scheduledHumanPerformerOrganization != null ? scheduledHumanPerformerOrganization.format(attrs) : null;
+        return format(scheduledHumanPerformerOrganization, attrs);
+    }
+
+    public String getAdmissionID() {
+        return Objects.toString(admissionID, null);
+    }
+
+    public void setAdmissionID(String admissionID) {
+        this.admissionID = AttributesFormat.valueOf(admissionID);
+    }
+
+    public String getAdmissionID(Attributes attrs) {
+        return format(admissionID, attrs);
+    }
+
+    public String getAccessionNumber() {
+        return Objects.toString(accessionNumber, null);
+    }
+
+    public void setAccessionNumber(String accessionNumber) {
+        this.accessionNumber = AttributesFormat.valueOf(accessionNumber);
+    }
+
+    public String getAccessionNumber(Attributes attrs) {
+        return format(accessionNumber, attrs);
+    }
+
+    public String getRequestedProcedureID() {
+        return Objects.toString(requestedProcedureID, null);
+    }
+
+    public void setRequestedProcedureID(String requestedProcedureID) {
+        this.requestedProcedureID = AttributesFormat.valueOf(requestedProcedureID);
+    }
+
+    public String getRequestedProcedureID(Attributes attrs) {
+        return format(requestedProcedureID, attrs);
+    }
+
+    public String getRequestedProcedureDescription() {
+        return Objects.toString(requestedProcedureDescription, null);
+    }
+
+    public void setRequestedProcedureDescription(String requestedProcedureDescription) {
+        this.requestedProcedureDescription = AttributesFormat.valueOf(requestedProcedureDescription);
+    }
+
+    public String getRequestedProcedureDescription(Attributes attrs) {
+        return format(requestedProcedureDescription, attrs);
+    }
+
+    public String getRequestingPhysician() {
+        return Objects.toString(requestingPhysician, null);
+    }
+
+    public void setRequestingPhysician(String requestingPhysician) {
+        this.requestingPhysician = AttributesFormat.valueOf(requestingPhysician);
+    }
+
+    public String getRequestingPhysician(Attributes attrs) {
+        return format(requestingPhysician, attrs);
+    }
+
+    public String getRequestingService() {
+        return Objects.toString(requestingService, null);
+    }
+
+    public void setRequestingService(String requestingService) {
+        this.requestingService = AttributesFormat.valueOf(requestingService);
+    }
+
+    public String getRequestingService(Attributes attrs) {
+        return format(requestingService, attrs);
+    }
+
+    public Issuer getIssuerOfAdmissionID() {
+        return issuerOfAdmissionID;
+    }
+
+    public void setIssuerOfAdmissionID(Issuer issuerOfAdmissionID) {
+        this.issuerOfAdmissionID = issuerOfAdmissionID;
+    }
+
+    public Issuer getIssuerOfAccessionNumber() {
+        return issuerOfAccessionNumber;
+    }
+
+    public void setIssuerOfAccessionNumber(Issuer issuerOfAccessionNumber) {
+        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
     }
 
     public Code getScheduledWorkitemCode() {
@@ -290,4 +402,9 @@ public class UPSOnStore {
                 "commonName='" + commonName + '\'' +
                 '}';
     }
+
+    private static String format(AttributesFormat format, Attributes attrs) {
+        return format != null ? StringUtils.nullify(format.format(attrs), "null") : null;
+    }
+
 }
