@@ -301,7 +301,10 @@ export class StudyService {
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     description: "QUERY ONLY THE COUNT"
-                },{
+                })
+            }
+            if(tab != "diff" && tab != "mwl"){
+                schema.push({
                     tag: "button",
                     id: "size",
                     showRefreshIcon: true,
