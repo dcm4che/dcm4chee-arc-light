@@ -1579,6 +1579,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     getQuantityService(filterModel, quantity:Quantity){
         // let clonedFilters = _.cloneDeep(filters);
+        //this.studyConfig.tab
         delete filterModel.orderby;
         delete filterModel.limit;
         delete filterModel.offset;
@@ -1587,7 +1588,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["quantityText"]], false);
         _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], quantityText);
         _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], true);
-        this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity).subscribe(studyCount=>{
+        this.getService(filterModel, <DicomResponseType>quantity).subscribe(studyCount=>{
             console.log("studyCount",studyCount);
             let value = studyCount[quantity];
             if(quantity === "size"){
@@ -1604,27 +1605,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         })
     }
+    getService(filterModel, quantity){
+        switch (this.studyConfig.tab) {
+            case "mwl":
+                return this.service.getMWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
+            case "patient":
+                return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
+            default:
+                return this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
+        }
+    }
     getMWL(filterModel){
-/*        this.queryMode = 'queryMWL';
-        this.moreStudies = undefined;
-        this.morePatients = undefined;
-        if (offset < 0 || offset === undefined) offset = 0;
-        this.cfpLoadingBar.start();
-        let $this = this;
-        if(this.externalInternalAetMode === 'internal'){
-            this.service.getCount(
-                this.rsURL(),
-                'mwlitems',
-                this.createPatientFilterParams()
-            ).subscribe((res)=>{
-                this.count = res.count;
-            },(err)=>{
-                this.cfpLoadingBar.complete();
-                this.httpErrorHandler.handleError(err);
-            });
-        }else{
-            this.count = "";
-        };*/
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
         this.service.getMWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
@@ -1653,16 +1644,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             patient,
                             this._filter.filterModel.offset + index
                         );
-/*                        mwl = {
-                            patient: pat,
-                            offset: offset + index,
-                            moreSeries: false,
-                            attrs: studyAttrs,
-                            series: null,
-                            showAttributes: false,
-                            fromAllStudies: false,
-                            selected: false
-                        };*/
                         patient.mwls.push(mwl);
                     });
 
@@ -1674,20 +1655,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         // this.studies.pop();
                     }
                     console.log("patient",this.patients);
-/*                    console.log('in mwl patient', this.patients);
-                    this.extendedFilter(false);
-                    if (this.moreMWL = (res.length > this.limit)) {
-                        pat.mwls.pop();
-                        if (pat.mwls.length === 0)
-                            this.patients.pop();
-                        // this.studies.pop();
-                    }*/
-                    // this.mainservice.setGlobal({
-                    //     patients:this.patients,
-                    //     moreMWL:this.moreMWL,
-                    //     morePatients:this.morePatients,
-                    //     moreStudies:this.moreStudies
-                    // });
                 } else {
                     this.appService.showMsg('No matching Modality Worklist Entries found!');
                 }

@@ -303,7 +303,7 @@ export class StudyService {
                     description: "QUERY ONLY THE COUNT"
                 })
             }
-            if(tab != "diff" && tab != "mwl"){
+            if(tab === "study"){
                 schema.push({
                     tag: "button",
                     id: "size",
