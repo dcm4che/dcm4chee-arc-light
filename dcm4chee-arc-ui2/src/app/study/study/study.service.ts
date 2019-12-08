@@ -227,7 +227,7 @@ export class StudyService {
                 schema = Globalvar.PATIENT_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
-                lineLength = filterMode === "expand" ? 1 : 2;
+                lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mwl":
                 schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
@@ -301,7 +301,10 @@ export class StudyService {
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     description: "QUERY ONLY THE COUNT"
-                },{
+                })
+            }
+            if(tab === "study"){
+                schema.push({
                     tag: "button",
                     id: "size",
                     showRefreshIcon: true,
@@ -491,7 +494,7 @@ export class StudyService {
     }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
-        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
+        return this.$http.delete(`${this.getDicomURL("mwl", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
     }
 
     getPatients(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
@@ -2015,6 +2018,7 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
+                                e.showFileAttributes = false;
                                 e.showAttributes = !e.showAttributes;
                             },
                             title: 'Show attributes'
@@ -2034,6 +2038,7 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
+                                e.showAttributes = false;
                                 e.showFileAttributes = !e.showFileAttributes;
                             },
                             title: 'Show attributes from file'

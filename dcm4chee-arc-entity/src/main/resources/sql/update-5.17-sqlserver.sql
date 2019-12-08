@@ -23,10 +23,7 @@ where metadata.pk = metadata_fk;
 update metadata set created_time='2000-01-01 00:00:00' where status != 0 and created_time is null;
 
 create index UK_ln9rs61la03lhvgiv8c2wehnr on queue_msg (batch_id);
-create index UK_djkqk3dls3xkru1n0c3p5rm3 on retrieve_task (device_name);
-create index UK_r866eptnxfw7plhxwtm3vks0e on retrieve_task (queue_name);
 create index UK_ahkqwir2di2jm44jlhi22iw3e on retrieve_task (batch_id);
-create index UK_6xqpk4cvy49wj41p2qwixro8w on series (metadata_update_failures);
 
 -- part 2: shall be applied on stopped archive before starting 5.17
 update queue_msg set batch_id = batchID where batch_id <> batchID;
@@ -46,13 +43,10 @@ update metadata set created_time='2000-01-01 00:00:00' where status != 0 and cre
 -- part 3: can be applied on already running archive 5.17
 drop index UK_2rbj4jw6ffs0ytec06ebv5nld on queue_msg;
 alter table queue_msg drop column batchID;
-drop index UK_djkqk3dls3xkru1n0c3p5rm3 on retrieve_task;
 alter table retrieve_task alter column device_name varchar(255) not null;
 create index UK_djkqk3dls3xkru1n0c3p5rm3 on retrieve_task (device_name);
-drop index UK_r866eptnxfw7plhxwtm3vks0e on retrieve_task;
 alter table retrieve_task alter column queue_name varchar(255) not null;
 create index UK_r866eptnxfw7plhxwtm3vks0e on retrieve_task (queue_name);
-drop index UK_6xqpk4cvy49wj41p2qwixro8w on series;
 alter table series alter column metadata_update_failures int not null;
 create index UK_6xqpk4cvy49wj41p2qwixro8w on series (metadata_update_failures);
-alter table metadata alter created_time set not null;
+alter table metadata alter column created_time datetime2 not null;

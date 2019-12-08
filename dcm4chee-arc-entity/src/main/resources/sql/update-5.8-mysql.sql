@@ -17,6 +17,3 @@ create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);
 create index UK_hwkcpd7yv0nca7o918wm4bn69 on series (metadata_update_time);
 create index UK_a8vyikwd972jomyb3f6brcfh5 on series (inst_purge_time);
 create index UK_er4ife08f6eaki91gt3hxt5e on series (inst_purge_state);
-
---below doesn't work--
-create sequence metadata_pk_seq;

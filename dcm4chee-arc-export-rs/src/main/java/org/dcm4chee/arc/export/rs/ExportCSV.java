@@ -162,7 +162,7 @@ class ExportCSV {
     }
 
     private int scheduleExportTasks(ExporterDescriptor exporter, int count, List<String> studyUIDs) {
-        exportManager.scheduleStudyExportTasks(
+        exportManager.scheduleExportTask(null, null,
                 exporter,
                 HttpServletRequestInfo.valueOf(request),
                 batchID,

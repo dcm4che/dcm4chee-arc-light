@@ -1,6 +1,6 @@
-alter table patient add verification_status int4 not null;
+alter table patient add verification_status integer not null;
 alter table patient add verification_time timestamp;
-alter table patient add failed_verifications int4 not null;
+alter table patient add failed_verifications integer not null;
 
 alter table stgcmt_result add batch_id varchar(255);
 alter table stgcmt_result add msg_id varchar(255);

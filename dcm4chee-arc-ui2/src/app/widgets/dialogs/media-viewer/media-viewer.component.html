@@ -1,0 +1,17 @@
+<h4 *ngIf="title">{{title}}</h4>
+<div class="content">
+    <img *ngIf="contentType && contentType.indexOf('image') > -1" src="{{url}}" />
+    <video *ngIf="contentType && contentType.indexOf('video') > -1" (mouseenter)="onVideoMouseEnter($event)" (mouseleave)="onVideoMouseLeave($event)" autoplay>
+        <source src="{{url}}" type="{{contentType}}">
+        Your browser does not support the video element.
+    </video>
+    <object *ngIf="contentType && contentType.indexOf('pdf') > -1 && pdfUrl" [data]="pdfUrl" type="application/pdf" style="width:100%;height:80vh;"></object>
+    <audio *ngIf="contentType && contentType.indexOf('audio') > -1" controls>
+        <source src="{{url}}" type="{{contentType}}">
+        Your browser does not support the audio element.
+    </audio>
+    <a  *ngIf="contentType && contentType.indexOf('xml') > -1" (click)="printIframe()" class="btn btn-default print_button">
+        <i class="glyphicon glyphicon-print"></i>
+    </a>
+    <div [hidden]="contentType.indexOf('xml') === -1" id="container"  style="width:100%;height:80vh;"></div>
+</div>

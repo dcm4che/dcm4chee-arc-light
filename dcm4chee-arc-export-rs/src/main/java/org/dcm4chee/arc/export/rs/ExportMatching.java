@@ -356,11 +356,11 @@ class ExportMatching {
     private void scheduleExportTask(ExporterDescriptor exporter, Attributes match, QueryRetrieveLevel2 qrlevel)
             throws QueueSizeLimitExceededException {
         exportManager.scheduleExportTask(
-                match.getString(Tag.StudyInstanceUID),
                 qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
                 qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null,
                 exporter,
                 HttpServletRequestInfo.valueOf(request),
-                batchID);
+                batchID,
+                match.getString(Tag.StudyInstanceUID));
     }
 }

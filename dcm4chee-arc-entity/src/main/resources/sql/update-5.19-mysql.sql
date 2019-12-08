@@ -55,10 +55,10 @@ create table ups_req (
     ups_fk bigint,
     primary key (pk));
 
-alter table global_subscription add constraint UK_4n26cxir6d3tksb2cd1kd86ch  unique (subscriber_aet(64));
-alter table subscription add constraint UK_co8q5hn46dehb35qsrtwyys96  unique (subscriber_aet(64), ups_fk);
+alter table global_subscription add constraint UK_4n26cxir6d3tksb2cd1kd86ch  unique (subscriber_aet);
+alter table subscription add constraint UK_co8q5hn46dehb35qsrtwyys96  unique (subscriber_aet, ups_fk);
 alter table ups add constraint UK_3frtpy5cstsoxk5jxw9cutr33  unique (dicomattrs_fk);
-alter table ups add constraint UK_qck03rlxht9myv77sc79a480t  unique (ups_iuid(64));
+alter table ups add constraint UK_qck03rlxht9myv77sc79a480t  unique (ups_iuid);
 
 create index UK_1umoxe7ig9n21q885mncxeq9 on ups (updated_time);
 create index UK_kgwfwmxj3i0n7c404uvhsav1g on ups (ups_priority);
@@ -90,20 +90,6 @@ alter table ups add constraint FK_1retecpk22a2tysmi5o6xcpbh foreign key (ups_cod
 alter table ups_req add constraint FK_gegm1c1ymem7tj2wcm0o7e0pu foreign key (accno_issuer_fk) references issuer (pk);
 alter table ups_req add constraint FK_kocdb2pxx2fymu1modhneb4xm foreign key (req_phys_name_fk) references person_name (pk);
 alter table ups_req add constraint FK_7vt6m05r0hertks2fcngd5wn1 foreign key (ups_fk) references ups (pk);
-
-create index FK_f1l196ykcnh7s2pwo6qnmltw7 on global_subscription (matchkeys_fk) ;
-create index FK_6asj28yy5se9mp443b6ryefd2 on rel_ups_perf_code (perf_code_fk) ;
-create index FK_6m06tt8ku376qxkro94xpteus on rel_ups_perf_code (ups_fk) ;
-create index FK_jadcs2aho4ijh639r67qgk0g0 on subscription (ups_fk) ;
-create index FK_61tpdp9aoy98jwiif5wq82ia3 on ups (admission_issuer_fk) ;
-create index FK_8xiqdli1p8cyw1y4hwyqhimcx on ups (patient_fk) ;
-create index FK_ak183xmw0sai4jg9lib6m14o2 on ups (station_class_fk) ;
-create index FK_ox3hpmd042ywnww3yh33crcoj on ups (station_location_fk) ;
-create index FK_gd2hu9idxg6rd71g1i8r8wyjr on ups (station_name_fk) ;
-create index FK_1retecpk22a2tysmi5o6xcpbh on ups (ups_code_fk) ;
-create index FK_gegm1c1ymem7tj2wcm0o7e0pu on ups_req (accno_issuer_fk) ;
-create index FK_kocdb2pxx2fymu1modhneb4xm on ups_req (req_phys_name_fk) ;
-create index FK_7vt6m05r0hertks2fcngd5wn1 on ups_req (ups_fk) ;
 
 -- part 2: shall be applied on stopped archive before starting 5.19
 

@@ -1,7 +1,7 @@
 update study set ext_retrieve_aet = '*' where ext_retrieve_aet is null;
 alter table study alter ext_retrieve_aet set not null;
 
-alter table study add completeness int4;
+alter table study add completeness integer;
 update study set completeness = 2;
 update study set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
 update study set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
@@ -9,7 +9,7 @@ alter table study alter completeness set not null;
 alter table study drop failed_iuids;
 create index UK_gl5rq54a0tr8nreu27c2t04rb on study (completeness);
 
-alter table series add completeness int4;
+alter table series add completeness integer;
 update series set completeness = 2;
 update series set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
 update series set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
@@ -21,9 +21,9 @@ create index UK_4lnegvfs65fbkjn7nmg9s8usy on series (completeness);
 alter table queue_msg alter queue_name set not null;
 alter table export_task add created_time timestamp;
 alter table export_task add updated_time timestamp;
-alter table export_task add num_instances int4;
+alter table export_task add num_instances integer;
 alter table export_task add modalities varchar(255);
-alter table export_task add queue_msg_fk int8;
+alter table export_task add queue_msg_fk bigint;
 update export_task set created_time = current_timestamp, updated_time = current_timestamp;
 alter table export_task alter created_time set not null;
 alter table export_task alter updated_time set not null;

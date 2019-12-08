@@ -1,6 +1,6 @@
 -- part 1: can be applied on archive running archive 5.18
 create table global_subscription (
-    pk bigint not null,
+    pk bigint identity not null,
     deletion_lock bit not null,
     subscriber_aet varchar(255) not null,
     matchkeys_fk bigint,
@@ -11,14 +11,14 @@ create table rel_ups_perf_code (
     perf_code_fk bigint not null);
 
 create table subscription (
-    pk bigint not null,
+    pk bigint identity not null,
     deletion_lock bit not null,
     subscriber_aet varchar(255) not null,
     ups_fk bigint not null,
     primary key (pk));
 
 create table ups (
-    pk bigint not null,
+    pk bigint identity not null,
     admission_id varchar(255) not null,
     created_time datetime2 not null,
     expected_end_date_time varchar(255) not null,
@@ -45,7 +45,7 @@ create table ups (
     primary key (pk));
 
 create table ups_req (
-    pk bigint not null,
+    pk bigint identity not null,
     accession_no varchar(255) not null,
     req_proc_id varchar(255) not null,
     req_service varchar(255) not null,
@@ -90,25 +90,6 @@ alter table ups add constraint FK_1retecpk22a2tysmi5o6xcpbh foreign key (ups_cod
 alter table ups_req add constraint FK_gegm1c1ymem7tj2wcm0o7e0pu foreign key (accno_issuer_fk) references issuer;
 alter table ups_req add constraint FK_kocdb2pxx2fymu1modhneb4xm foreign key (req_phys_name_fk) references person_name;
 alter table ups_req add constraint FK_7vt6m05r0hertks2fcngd5wn1 foreign key (ups_fk) references ups;
-
-create index FK_f1l196ykcnh7s2pwo6qnmltw7 on global_subscription (matchkeys_fk) ;
-create index FK_6asj28yy5se9mp443b6ryefd2 on rel_ups_perf_code (perf_code_fk) ;
-create index FK_6m06tt8ku376qxkro94xpteus on rel_ups_perf_code (ups_fk) ;
-create index FK_jadcs2aho4ijh639r67qgk0g0 on subscription (ups_fk) ;
-create index FK_61tpdp9aoy98jwiif5wq82ia3 on ups (admission_issuer_fk) ;
-create index FK_8xiqdli1p8cyw1y4hwyqhimcx on ups (patient_fk) ;
-create index FK_ak183xmw0sai4jg9lib6m14o2 on ups (station_class_fk) ;
-create index FK_ox3hpmd042ywnww3yh33crcoj on ups (station_location_fk) ;
-create index FK_gd2hu9idxg6rd71g1i8r8wyjr on ups (station_name_fk) ;
-create index FK_1retecpk22a2tysmi5o6xcpbh on ups (ups_code_fk) ;
-create index FK_gegm1c1ymem7tj2wcm0o7e0pu on ups_req (accno_issuer_fk) ;
-create index FK_kocdb2pxx2fymu1modhneb4xm on ups_req (req_phys_name_fk) ;
-create index FK_7vt6m05r0hertks2fcngd5wn1 on ups_req (ups_fk) ;
-
-create sequence global_subscription_pk_seq;
-create sequence subscription_pk_seq;
-create sequence ups_pk_seq;
-create sequence ups_request_pk_seq;
 
 -- part 2: shall be applied on stopped archive before starting 5.19
 

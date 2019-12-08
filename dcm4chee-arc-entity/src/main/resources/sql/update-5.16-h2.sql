@@ -1,8 +1,8 @@
 -- part 1: can be applied on archive running archive 5.15
-alter table study add expiration_state int4;
+alter table study add expiration_state integer;
 alter table study add expiration_exporter_id varchar(255);
 
-alter table series add expiration_state int4;
+alter table series add expiration_state integer;
 alter table series add expiration_exporter_id varchar(255);
 
 update study set expiration_state = 0;
