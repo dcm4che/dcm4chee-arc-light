@@ -136,6 +136,7 @@ public class StudyServiceEJB {
                     .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
 
         ctx.setStudy(study);
+        ctx.setPatient(study.getPatient());
         ctx.setAttributes(study.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
 
@@ -223,6 +224,7 @@ public class StudyServiceEJB {
         LocalDate studyExpirationDate = study.getExpirationDate();
         seriesExpirationTo(ExpirationOperation.Update, ctx, series);
         ctx.setStudy(study);
+        ctx.setPatient(study.getPatient());
         ctx.setAttributes(study.getAttributes());
         if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate))
             studyExpirationTo(ExpirationOperation.Update, ctx, study);
