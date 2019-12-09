@@ -2,7 +2,7 @@
   "export.studies": {
     "post": {
       "tags": [
-        "EXPORT-RS"
+        "EXPORT-LEGACY-RS"
       ],
       "summary": "Export Matching Studies Legacy",
       "operationId": "exportMatchingStudiesLegacy",
