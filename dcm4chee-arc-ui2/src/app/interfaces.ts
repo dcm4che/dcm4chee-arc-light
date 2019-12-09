@@ -23,7 +23,7 @@ export interface RangeObject {
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "p-calendar" |"multi-select"| "html-select" | "editable-select" |"label"|"label_large"|"dummy"|"combined"|"number"|"size_range_picker";
+export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "code-selector" | "p-calendar" |"multi-select"| "html-select" | "editable-select" |"label"|"label_large"|"dummy"|"combined"|"number"|"size_range_picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
@@ -141,7 +141,7 @@ export interface FilterSchemaElement {
 
 
 
-export type DicomMode = "study" | "patient" | "mwl" | "diff" | "export";
+export type DicomMode = "study" | "patient" | "mwl" | "uwl" | "diff" | "export";
 export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
 export type AccessLocation = "internal" | "external";
 export type PaginationDirection = "prev" | "next";

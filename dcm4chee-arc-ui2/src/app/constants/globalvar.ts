@@ -876,6 +876,59 @@ export class Globalvar {
         }
     }
 
+    static UWL_FILTER_SCHEMA(hidden?):FilterSchema{
+        if(hidden){
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    description:"SPS Status",
+                    placeholder:"SPS Status"
+                },{
+                    tag:"checkbox",
+                    filterKey:"onlyDefault",
+                    text:"Only Default"
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
+                    description:"Scheduled Performing Physician's Name",
+                    placeholder:"SP Physician's Name"
+                }
+            ]
+        }else{
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00741202",
+                    description:"Worklist Label",
+                    placeholder:"Worklist Label"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00741204",
+                    description:"Procedure Step Label",
+                    placeholder:"Procedure Step Label"
+                },{
+                    tag:"code-selector",
+                    filterKey:"00741204",
+/*                    codes:[
+                        {
+                            codeValue:
+                        }
+                        "00404018.00080100",
+                        "00404018.00080102"
+                    ]*/
+                    description:"Scheduled Workitem Code Sequence",
+                    placeholder:"Scheduled Workitem"
+                }
+            ]
+        }
+    }
+
     static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
         if(hidden){
             return [

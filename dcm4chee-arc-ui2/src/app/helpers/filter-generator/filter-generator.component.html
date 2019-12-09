@@ -199,6 +199,10 @@
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
                     ></range-picker>
+                    <code-selector *ngSwitchCase="'code-selector'"
+                        [title]="line[index]?.description"
+                        [codes]="line[index]?.codes"
+                    ></code-selector>
                   </ng-container>
                     <div *ngSwitchCase="'dummy'"></div>
                     <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>

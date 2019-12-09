@@ -233,6 +233,10 @@ export class StudyService {
                 schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
+            case "uwl":
+                schema = Globalvar.UWL_FILTER_SCHEMA( filterMode === "expand");
+                lineLength = filterMode === "expand" ? 1 : 3;
+                break;
             case "diff":
                 schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
@@ -580,6 +584,9 @@ export class StudyService {
                     break;
                 case "mwl":
                     url += '/mwlitems';
+                    break;
+                case "uwl":
+                    url += '/workitems';
                     break;
                 case "export":
                     url += '/studies/export';
@@ -2478,11 +2485,29 @@ export class StudyService {
         return Observable.throw({error: "Error on getting the WebApp URL"});
     }
 
+    modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
+        const url = this.getModifyMWLUrl(deviceWebservice);
+        if (url) {
+            return this.$http.post(url, uwl, header);
+        }
+        return Observable.throw({error: "Error on getting the WebApp URL"});
+    }
+
     getModifyMWLUrl(deviceWebservice: StudyWebService) {
         return this.getDicomURL("mwl", this.getModifyMWLWebApp(deviceWebservice));
     }
+    getModifyUWLUrl(deviceWebservice: StudyWebService) {
+        return this.getDicomURL("uwl", this.getModifyMWLWebApp(deviceWebservice));
+    }
 
     getModifyMWLWebApp(deviceWebservice: StudyWebService): DcmWebApp {
+        if (deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
+            return deviceWebservice.selectedWebService;
+        } else {
+            return undefined;
+        }
+    }
+    getModifyUWLWebApp(deviceWebservice: StudyWebService): DcmWebApp {
         if (deviceWebservice.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
             return deviceWebservice.selectedWebService;
         } else {
