@@ -73,10 +73,11 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2017
  */
 @RequestScoped
-@Path("aets/{AETitle}/dimse/{ExternalAET}")
+@Path("aets/{AETitle}/dimse/{storescp}")
 public class RejectRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RejectRS.class);
@@ -96,10 +97,7 @@ public class RejectRS {
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("ExternalAET")
-    private String externalAET;
-
-    @QueryParam("storescp")
+    @PathParam("storescp")
     private String storescp;
 
     @QueryParam("priority")
@@ -124,7 +122,7 @@ public class RejectRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
-        return reject(studyUID, null, null,codeValue, designator);
+        return reject(studyUID, null, null, codeValue, designator);
     }
 
     @POST
@@ -141,13 +139,49 @@ public class RejectRS {
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     @Produces("application/json")
-    public Response rejectSeries(
+    public Response rejectInstance(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) {
         return reject(studyUID, seriesUID, objectUID, codeValue, designator);
+    }
+
+    @POST
+    @Path("/query:{findscp}/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
+    @Produces("application/json")
+    public Response queryRejectStudy(
+            @PathParam("findscp") String findscp,
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("CodeValue") String codeValue,
+            @PathParam("CodingSchemeDesignator") String designator) {
+        return reject(studyUID, null, null, findscp, codeValue, designator);
+    }
+
+    @POST
+    @Path("/query:{findscp}/studies/{StudyUID}/series/{SeriesUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
+    @Produces("application/json")
+    public Response queryRejectSeries(
+            @PathParam("findscp") String findscp,
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("SeriesUID") String seriesUID,
+            @PathParam("CodeValue") String codeValue,
+            @PathParam("CodingSchemeDesignator") String designator) {
+        return reject(studyUID, seriesUID, null, findscp, codeValue, designator);
+    }
+
+    @POST
+    @Path("/query:{findscp}/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
+    @Produces("application/json")
+    public Response queryRejectInstance(
+            @PathParam("findscp") String findscp,
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("SeriesUID") String seriesUID,
+            @PathParam("ObjectUID") String objectUID,
+            @PathParam("CodeValue") String codeValue,
+            @PathParam("CodingSchemeDesignator") String designator) {
+        return reject(studyUID, seriesUID, objectUID, findscp, codeValue, designator);
     }
 
     private int priority() {
@@ -158,15 +192,17 @@ public class RejectRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private Response reject(String studyUID, String seriesUID, String objectUID,String codeValue, String designator) {
+    private Response reject(String studyUID, String seriesUID, String objectUID, String codeValue, String designator) {
+        return reject(studyUID, seriesUID, objectUID, storescp, codeValue, designator);
+    }
+
+    private Response reject(String studyUID, String seriesUID, String objectUID, String findscp, String codeValue, String designator) {
         logRequest();
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
         try {
-            ApplicationEntity remoteAE = storescp != null
-                    ? aeCache.findApplicationEntity(storescp)
-                    : aeCache.findApplicationEntity(externalAET);
+            ApplicationEntity storescpAE = aeCache.findApplicationEntity(storescp);
             ArchiveDeviceExtension arcDev = localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             Code code = new Code(codeValue, designator, null, "?");
             RejectionNote rjNote = arcDev.getRejectionNote(code);
@@ -175,7 +211,7 @@ public class RejectRS {
 
             List<Attributes> matches;
             try {
-                matches = findSCU.findInstance(localAE, externalAET, priority(),
+                matches = findSCU.findInstance(localAE, findscp, priority(),
                         studyUID, seriesUID, objectUID,
                         Tag.SOPClassUID,
                         Tag.SOPInstanceUID,
@@ -205,12 +241,12 @@ public class RejectRS {
 
             Attributes kos = builder.getAttributes();
             try {
-                Attributes cmd = storeSCU.store(localAE, remoteAE, priority(), kos);
+                Attributes cmd = storeSCU.store(localAE, storescpAE, priority(), kos);
                 int status = cmd.getInt(Tag.Status, -1);
                 String errorComment = cmd.getString(Tag.ErrorComment);
                 boolean studyDeleted = seriesUID == null;
                 rejectionNoteSentEvent.fire(
-                        new RejectionNoteSent(request, localAE, remoteAE, kos, studyDeleted, status, errorComment));
+                        new RejectionNoteSent(request, localAE, storescpAE, kos, studyDeleted, status, errorComment));
                 switch (status) {
                     case Status.Success:
                     case Status.CoercionOfDataElements:

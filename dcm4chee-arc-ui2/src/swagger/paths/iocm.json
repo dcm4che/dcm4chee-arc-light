@@ -1087,14 +1087,14 @@
       "tags": [
         "IOCM-RS"
       ],
-      "summary": "Reject Study external",
-      "operationId": "RejectStudyExternal",
+      "summary": "Reject Study StoreSCP",
+      "operationId": "RejectStudyStoreSCP",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/remoteAETPathParam"
+          "$ref": "../parameters.json#/storescpAETPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
@@ -1104,9 +1104,6 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/storescp"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -1124,7 +1121,7 @@
           }
         },
         "404": {
-          "description": "No such Application Entity, External Application Entity, Study or Rejection Note."
+          "description": "No such Application Entity, Store SCP, Study or Rejection Note."
         },
         "500": {
           "description": "Internal Server Error"
@@ -1147,14 +1144,14 @@
       "tags": [
         "IOCM-RS"
       ],
-      "summary": "Reject Series external",
-      "operationId": "RejectSeriesExternal",
+      "summary": "Reject Series from StoreSCP",
+      "operationId": "RejectSeriesStoreSCP",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/remoteAETPathParam"
+          "$ref": "../parameters.json#/storescpAETPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
@@ -1167,9 +1164,6 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/storescp"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -1187,7 +1181,7 @@
           }
         },
         "404": {
-          "description": "No such Application Entity, External Application Entity, Study, Series or Rejection Note."
+          "description": "No such Application Entity, Store SCP, Study, Series or Rejection Note."
         },
         "500": {
           "description": "Internal Server Error"
@@ -1210,14 +1204,14 @@
       "tags": [
         "IOCM-RS"
       ],
-      "summary": "Reject Instance external",
-      "operationId": "RejectInstanceExternal",
+      "summary": "Reject Instance StoreSCP",
+      "operationId": "RejectInstanceStoreSCP",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/remoteAETPathParam"
+          "$ref": "../parameters.json#/storescpAETPathParam"
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
@@ -1235,7 +1229,64 @@
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
         },
         {
-          "$ref": "../parameters.json#/storescp"
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, Store SCP, Study, Series, Instance or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dimse.study.queryReject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Query FindSCP Reject Study from StoreSCP",
+      "operationId": "QueryFindSCPRejectStudyStoreSCP",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescpAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -1253,7 +1304,136 @@
           }
         },
         "404": {
-          "description": "No such Application Entity, External Application Entity, Study, Series, Instance or Rejection Note."
+          "description": "No such Application Entity, Store SCP, Study or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dimse.series.queryReject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Query FindSCP Reject Series from StoreSCP",
+      "operationId": "QueryFindSCPRejectSeriesStoreSCP",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescpAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, Store SCP, Study, Series or Rejection Note."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "502": {
+          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "dimse.instance.queryReject": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Query FindSCP Reject Instance from StoreSCP",
+      "operationId": "QueryFindSCPRejectInstanceStoreSCP",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/storescpAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codeValuePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "successful operation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/reject"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No such Application Entity, Store SCP, Study, Series, Instance or Rejection Note."
         },
         "500": {
           "description": "Internal Server Error"

@@ -107,6 +107,15 @@
       "type": "string"
     }
   },
+  "storescpAETPathParam": {
+    "name": "storescpAET",
+    "in": "path",
+    "description": "StoreSCP AE Title",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "destinationPathParam": {
     "name": "destination",
     "in": "path",
@@ -1287,14 +1296,6 @@
     "schema": {
       "type": "boolean",
       "default": false
-    }
-  },
-  "storescp": {
-    "name": "storescp",
-    "in": "query",
-    "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
-    "schema": {
-      "type": "string"
     }
   },
   "priority": {

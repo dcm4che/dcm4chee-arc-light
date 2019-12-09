@@ -816,13 +816,22 @@
     "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series/{series}/instances": {
       "$ref": "paths/legacy.json#/reject.studies.series.instances"
     },
-    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{storescp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.study.reject"
     },
-    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{storescp}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.series.reject"
     },
-    "/aets/{aet}/dimse/{remoteAET}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/dimse/{storescp}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/iocm.json#/dimse.instance.reject"
+    },
+    "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/iocm.json#/dimse.study.reject"
+    },
+    "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "$ref": "paths/iocm.json#/dimse.series.reject"
+    },
+    "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.instance.reject"
     },
     "/aets/{aet}/rs/studies_": {
