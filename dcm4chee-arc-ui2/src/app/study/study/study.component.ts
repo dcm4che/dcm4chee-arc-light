@@ -60,6 +60,7 @@ import {MwlDicom} from "../../models/mwl-dicom";
 import {ChangeDetectorRef} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {DiffDicom} from "../../models/diff-dicom";
+import {UwlDicom} from "../../models/uwl-dicom";
 
 
 @Component({
@@ -202,6 +203,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         "study":false,
         "patient":false,
         "mwl":false,
+        "uwl":false,
         "diff":false,
         "export":false
     };
@@ -305,6 +307,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             "study":"Studies",
             "patient":"Patients",
             "mwl":"MWLs",
+            "uwl":"UWLs",
             "diff":"Differences"
         }[tab] || "Studies";
     };
@@ -1374,6 +1377,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "mwl":
                 this.getMWL(filterModel);
+            case "uwl":
+                this.getUWL(filterModel);
                 break;
             case "diff":
                 this.getDiff(filterModel);
@@ -1657,6 +1662,58 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     console.log("patient",this.patients);
                 } else {
                     this.appService.showMsg('No matching Modality Worklist Entries found!');
+                }
+                this.cfpLoadingBar.complete();
+            },
+            (err) => {
+                j4care.log("Something went wrong on search", err);
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            }
+        );
+    };
+    getUWL(filterModel){
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+        this.service.getUWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
+                this.patients = [];
+                //           this.studies = [];
+                this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
+/*                this.morePatients = undefined;
+                this.moreMWL = undefined;*/
+                if (res){
+                    this.setTopToTableHeader();
+                    // let pat, mwl, patAttrs, tags = this.patientAttributes.dcmTag;
+                    let patient: PatientDicom;
+                    let uwl: UwlDicom;
+                    let patAttrs;
+                    let tags = this.patientAttributes.dcmTag;
+                    res.forEach((uwlAttrs, index) => {
+                        patAttrs = {};
+                        this.service.extractAttrs(uwlAttrs, tags, patAttrs);
+                        if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            patient = new PatientDicom(patAttrs, [], false, true, 0, undefined, true,undefined, undefined, []);
+                            this.patients.push(patient);
+                        }
+                        uwl = new UwlDicom(
+                            uwlAttrs,
+                            patient,
+                            this._filter.filterModel.offset + index
+                        );
+                        patient.uwls.push(uwl);
+                    });
+
+                    if (this.more = (res.length > this._filter.filterModel.limit)) {
+                        patient.uwls.pop();
+                        if (patient.uwls.length === 0) {
+                            this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                    console.log("patient",this.patients);
+                } else {
+                    this.appService.showMsg('No matching Unified Worklist Entries found!');
                 }
                 this.cfpLoadingBar.complete();
             },

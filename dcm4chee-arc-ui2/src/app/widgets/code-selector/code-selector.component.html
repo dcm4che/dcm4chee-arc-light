@@ -3,9 +3,7 @@
         <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()">
         <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
         <!--<span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>-->
-<!--        <i class="material-icons">
-            account_tree
-        </i>-->
+        <!--<i class="material-icons" (click)="togglePicker()">account_tree</i>-->
         <i class="material-icons" (click)="togglePicker()">
             subdirectory_arrow_right
         </i>
@@ -14,8 +12,8 @@
             <h5 class="title" *ngIf="title">{{title}}</h5>
             <div class="codes" *ngFor="let code of codes">
                 <div class="code">
-                    <label class="code_label">{{code}}</label>
-                    <input type="text" class="code_model" [(ngModel)]="filterModel[code]">
+                    <label class="code_label">{{code.label}}</label>
+                    <input type="text" class="code_model" [(ngModel)]="filterModel[code.key]">
                 </div>
             </div>
         </div>

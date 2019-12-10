@@ -1,11 +1,13 @@
 import {StudyDicom} from "./study-dicom";
 import {MwlDicom} from "./mwl-dicom";
 import {DiffDicom} from "./diff-dicom";
+import {UwlDicom} from "./uwl-dicom";
 
 export class PatientDicom {
     private _attrs:any[];
     private _studies:StudyDicom[];
     private _mwls:MwlDicom[];
+    private _uwls:UwlDicom[];
     private _diffs:DiffDicom[];
     private _showAttributes:boolean;
     private _showStudies:boolean;
@@ -13,10 +15,11 @@ export class PatientDicom {
     private _showDiffs:boolean;
     private _offset:number;
     private _selected;
-    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean, offset?:number, mwls?:MwlDicom[], showMwls?:boolean, diffs?:DiffDicom[], showDiffs?:boolean){
+    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean, offset?:number, mwls?:MwlDicom[], showMwls?:boolean, diffs?:DiffDicom[], showDiffs?:boolean, uwls?:UwlDicom[]){
         this._attrs = attrs;
         this._studies = studies;
         this._mwls = mwls;
+        this._uwls = uwls;
         this._diffs = diffs;
         this._showAttributes = showAttributes || false;
         this._showStudies = showStudies || false;
@@ -48,6 +51,13 @@ export class PatientDicom {
 
     set mwls(value: MwlDicom[]) {
         this._mwls = value;
+    }
+    get uwls(): UwlDicom[] {
+        return this._uwls;
+    }
+
+    set uwls(value: UwlDicom[]) {
+        this._uwls = value;
     }
 
     get diffs(): DiffDicom[] {

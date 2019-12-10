@@ -342,6 +342,68 @@
             </div>
         </div>
         <!--mwl 2:END;-->
+        <!--uwl 2:-->
+        <div *ngIf="patient.showUwls" class="study_main_block">
+            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let uwl of patient.uwls;let i = index">
+                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'uwl'" [ngClass]="{'selected':uwl.selected}">
+                    <div class="td"
+                         *ngFor="let uwl_table of tableSchema.uwl"
+                         [ngClass]="[config?.cssTdClass || '', uwl_table.type || '']"
+                         [ngStyle]="{width: uwl_table.calculatedWidth}"
+                         [ngSwitch]="uwl_table.type"
+                         (mouseenter)="active_td = uwl_table.elementId"
+                         tooltip="{{ uwl_table.type === 'value' ? _.get(uwl.attrs, uwl_table.pathToValue) : (uwl_table.type === 'pipe' ? (uwl.attrs | dynamicPipe:uwl_table.pipe):'')}}"
+                    >
+                        <ng-container *ngSwitchCase="'index'">{{uwl.offset + 1}}</ng-container>
+                        <ng-container *ngSwitchCase="'actions'">
+                            <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="uwl.selected = !uwl.selected">
+                                                            <span *ngIf="!uwl.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                            <span *ngIf="uwl.selected" class="glyphicon glyphicon-check"></span>
+                                                        </button>-->
+                            <ng-container *ngFor="let action of uwl_table.actions">
+                                <a *ngIf="(!action.showIf || action.showIf(uwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
+                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'actions-menu'">
+                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                            <mat-menu #menu="matMenu" class="uwl_action_buttons" (click)="$event.stopPropagation()">
+                                <ng-container *ngFor="let action of uwl_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(uwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                            </mat-menu>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{uwl.attrs | dynamicPipe:uwl_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;'}}</ng-container>
+                    </div>
+                    <attribute-list *ngIf="uwl.showAttributes" [attrs]="uwl.attrs"></attribute-list>
+                </div>
+            </div>
+            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
+                <div class="instance_block table_item">
+                    <div class="td td_with_centered_child">
+                        <div class="centered_child">
+                            <button
+                                    title="Preview page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'prev')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                            <button
+                                    title="Next page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'next')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--uwl 2:END;-->
         <!--diff 2:-->
         <div *ngIf="patient.showDiffs" class="study_main_block">
             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let diff of patient.diffs;let i = index">

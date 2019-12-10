@@ -341,6 +341,22 @@ export class StudyService {
         )
     }
 
+    getUWL(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("uwl", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        )
+    }
+
     getDiff(filterModel, studyWebService: StudyWebService, responseType?: DicomResponseType): Observable<any> {
         //http://shefki-lifebook:8080/dcm4chee-arc/monitor/diff/batch/testnew34/studies
         let header: HttpHeaders;

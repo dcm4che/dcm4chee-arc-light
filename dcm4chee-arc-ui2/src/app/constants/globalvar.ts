@@ -915,13 +915,15 @@ export class Globalvar {
                 },{
                     tag:"code-selector",
                     filterKey:"00741204",
-/*                    codes:[
+                    codes:[
                         {
-                            codeValue:
+                            key:"00404018.00080100",
+                            label:"Code Value"
+                        },{
+                            key:"00404018.00080102",
+                            label:"Coding scheme designator"
                         }
-                        "00404018.00080100",
-                        "00404018.00080102"
-                    ]*/
+                    ],
                     description:"Scheduled Workitem Code Sequence",
                     placeholder:"Scheduled Workitem"
                 }

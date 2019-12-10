@@ -114,6 +114,10 @@ export class SelectDropdown<T,S={}> {
 export type Quantity = "count"|"size"|string;
 export type StudyDateMode = "StudyReceiveDateTime"|"StudyDate"|string;
 export type FilterSchema = FilterSchemaElement[];
+export interface Code{
+    key:string;
+    label:string;
+}
 
 export interface FilterSchemaElement {
     tag:FilterTag;
@@ -137,7 +141,9 @@ export interface FilterSchemaElement {
     cssClass?:string;
     showRefreshIcon?:boolean;
     showDynamicLoader?:boolean;
+    codes?:Code[];
 }
+
 
 
 
