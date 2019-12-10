@@ -3,7 +3,7 @@ create table content_item (pk bigint not null auto_increment, rel_type varchar(2
 create table dicomattrs (pk bigint not null auto_increment, attrs longblob not null, primary key (pk));
 create table diff_task (pk bigint not null auto_increment, check_different bit not null, check_missing bit not null, compare_fields varchar(255), created_time datetime not null, different integer not null, local_aet varchar(255) not null, matches integer not null, missing integer not null, primary_aet varchar(255) not null, query_str varchar(255) not null, secondary_aet varchar(255) not null, updated_time datetime not null, queue_msg_fk bigint not null, primary key (pk));
 create table diff_task_attrs (diff_task_fk bigint not null, dicomattrs_fk bigint not null);
-create table export_task (pk bigint not null auto_increment, created_time datetime not null, device_name varchar(255) not null, exporter_id varchar(255) not null, modalities varchar(255), num_instances integer, scheduled_time datetime not null, series_iuid varchar(255) not null, sop_iuid varchar(255) not null, study_iuid varchar(255) not null, updated_time datetime not null, version bigint, queue_msg_fk bigint, primary key (pk));
+create table export_task (pk bigint not null auto_increment, batch_id varchar(255), created_time datetime not null, device_name varchar(255) not null, exporter_id varchar(255) not null, modalities varchar(255), num_instances integer, scheduled_time datetime not null, series_iuid varchar(255) not null, sop_iuid varchar(255) not null, study_iuid varchar(255) not null, updated_time datetime not null, version bigint, queue_msg_fk bigint, primary key (pk));
 create table global_subscription (pk bigint not null auto_increment, deletion_lock bit not null, subscriber_aet varchar(255) not null, matchkeys_fk bigint, primary key (pk));
 create table hl7psu_task (pk bigint not null auto_increment, aet varchar(255) not null, created_time datetime not null, device_name varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table ian_task (pk bigint not null auto_increment, calling_aet varchar(255) not null, device_name varchar(255) not null, ian_dests varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
@@ -54,6 +54,7 @@ create index UK_7iil4v32vf234i75edsxkdr8f on export_task (created_time);
 create index UK_p5jjs08sdp9oecvr93r2g0kyq on export_task (updated_time);
 create index UK_j1t0mj3vlmf5xwt4fs5xida1r on export_task (scheduled_time);
 create index UK_q7gmfr3aog1hateydhfeiu7si on export_task (exporter_id(64));
+create index UK_mt8p2iqcmkoxodkjtfcw1635v on export_task (batch_id(64));
 create index UK_hb9rftf7opmg56nkg7dkvsdc8 on export_task (study_iuid(64), series_iuid(64), sop_iuid(64));
 alter table global_subscription add constraint UK_4n26cxir6d3tksb2cd1kd86ch  unique (subscriber_aet);
 alter table hl7psu_task add constraint UK_p5fraoqdbaywmlyumaeo16t56  unique (study_iuid);

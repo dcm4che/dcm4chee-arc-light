@@ -62,6 +62,7 @@ import java.util.Date;
         @Index(columnList = "updated_time"),
         @Index(columnList = "scheduled_time"),
         @Index(columnList = "exporter_id"),
+        @Index(columnList = "batch_id"),
         @Index(columnList = "study_iuid, series_iuid, sop_iuid") }
 )
 @NamedQueries({
@@ -129,6 +130,9 @@ public class ExportTask {
     @Basic(optional = false)
     @Column(name = "exporter_id")
     private String exporterID;
+
+    @Column(name = "batch_id", updatable = false)
+    private String batchID;
 
     @Basic(optional = false)
     @Column(name = "study_iuid", updatable = false)
@@ -203,6 +207,14 @@ public class ExportTask {
 
     public void setExporterID(String exporterID) {
         this.exporterID = exporterID;
+    }
+
+    public String getBatchID() {
+        return batchID;
+    }
+
+    public void setBatchID(String batchID) {
+        this.batchID = batchID;
     }
 
     public String getStudyInstanceUID() {
