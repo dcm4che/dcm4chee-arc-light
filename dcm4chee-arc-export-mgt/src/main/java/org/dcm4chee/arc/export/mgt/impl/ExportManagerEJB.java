@@ -112,7 +112,7 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(exporterID, studyIUID, "*", "*", scheduledTime);
+            createExportTask(exporterID, studyIUID, "*", "*", null, scheduledTime);
         }
     }
 
@@ -128,7 +128,7 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(task, seriesIUID, "*", scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(exporterID, studyIUID, seriesIUID, "*", scheduledTime);
+            createExportTask(exporterID, studyIUID, seriesIUID, "*", null, scheduledTime);
         }
     }
 
@@ -145,7 +145,7 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(task, seriesIUID, sopIUID, scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
+            createExportTask(exporterID, studyIUID, seriesIUID, sopIUID, null, scheduledTime);
         }
     }
 
@@ -167,7 +167,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private ExportTask createExportTask(
-            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime) {
+            String exporterID, String studyIUID, String seriesIUID, String sopIUID, String batchID, Date scheduledTime) {
         ExportTask task = new ExportTask();
         task.setDeviceName(device.getDeviceName());
         task.setExporterID(exporterID);
@@ -175,6 +175,7 @@ public class ExportManagerEJB implements ExportManager {
         task.setSeriesInstanceUID(seriesIUID);
         task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
+        task.setBatchID(batchID);
         em.persist(task);
         LOG.info("Create {}", task);
         return task;
@@ -214,9 +215,25 @@ public class ExportManagerEJB implements ExportManager {
                     studyUID,
                     StringUtils.maskNull(seriesUID, "*"),
                     StringUtils.maskNull(objectUID, "*"),
+                    batchID,
                     new Date());
             scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
         }
+    }
+
+    @Override
+    public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                                String batchID, String... studyUIDs) {
+        for (String studyUID : studyUIDs) 
+            createExportTask(exporter.getExporterID(), studyUID, "*", "*", batchID, futureScheduledTime());
+        
+        return studyUIDs.length;
+    }
+
+    private Date futureScheduledTime() {
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.YEAR, 100);
+        return instance.getTime();
     }
 
     @Override
@@ -233,7 +250,7 @@ public class ExportManagerEJB implements ExportManager {
         } catch (NoResultException e) {
         }
 
-        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, "*", "*", new Date());
+        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, "*", "*", batchID, new Date());
         try {
             scheduleExportTask(task, exporter, null, batchID);
         } catch (QueueSizeLimitExceededException e) {

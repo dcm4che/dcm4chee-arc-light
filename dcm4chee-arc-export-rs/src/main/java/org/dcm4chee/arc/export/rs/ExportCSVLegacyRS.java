@@ -62,7 +62,7 @@ public class ExportCSVLegacyRS extends ExportCSV {
             @PathParam("ExporterID") String exporterID,
             @PathParam("field") int field,
             InputStream in) {
-        return exportStudiesFromCSV(aet, exporterID, field, in);
+        return exportStudiesFromCSV(aet, exporterID, field, in, this::scheduleExportTasks);
     }
 
 }
