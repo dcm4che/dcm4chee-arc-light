@@ -110,6 +110,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         this.msgId = rqCmd.getInt(Tag.MessageID, 0);
         this.pendingRSP = dimserq == Dimse.C_GET_RQ && aeExt.sendPendingCGet();
         this.pendingRSPInterval = dimserq == Dimse.C_MOVE_RQ ? aeExt.sendPendingCMoveInterval() : null;
+        rqas.addCancelRQHandler(msgId, this);
     }
 
     @Override
@@ -120,9 +121,6 @@ final class RetrieveTaskImpl implements RetrieveTask {
     @Override
     public void run() {
         retrieveStart.fire(ctx);
-        if (rqas != null) {
-            rqas.addCancelRQHandler(msgId, this);
-        }
         try {
             if (ctx.getFallbackAssociation() == null) startWritePendingRSP();
             if (storeass.length > 1) startStoreOperations();
@@ -242,8 +240,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
     }
 
     private void writeFinalRSP() {
-        ctx.addFailed(ctx.remaining());
-        writeRSP(ctx.status(), 0, finalRSPDataset());
+        int remaining = ctx.remaining();
+        if (!canceled) {
+            ctx.addFailed(remaining);
+            remaining = 0;
+        }
+        writeRSP(remaining > 0 ? Status.Cancel : ctx.status(), remaining, finalRSPDataset());
     }
 
     private Attributes finalRSPDataset() {
