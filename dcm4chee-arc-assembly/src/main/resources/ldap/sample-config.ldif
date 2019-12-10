@@ -2954,6 +2954,7 @@ dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
@@ -3076,6 +3077,7 @@ dn: dcmWebAppName=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM C
 dicomDescription: Retrieve instances as received
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: AS_RECEIVED
@@ -3113,6 +3115,7 @@ dn: dcmWebAppName=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM 
 dicomDescription: Only show instances rejected for Data Retention Expired
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: IOCM_EXPIRED
@@ -3123,6 +3126,7 @@ dn: dcmWebAppName=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM 
 dicomDescription: Only show instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: IOCM_QUALITY
@@ -3204,6 +3208,7 @@ dn: dcmWebAppName=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICO
 dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: IOCM_WRONG_MWL
@@ -3247,6 +3252,7 @@ dn: dcmWebAppName=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DIC
 dicomDescription: Only show instances rejected for Patient Safety Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: IOCM_PAT_SAFETY
@@ -3284,6 +3290,7 @@ dn: dcmWebAppName=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DI
 dicomDescription: Show instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
 dicomAETitle: IOCM_REGULAR_USE
