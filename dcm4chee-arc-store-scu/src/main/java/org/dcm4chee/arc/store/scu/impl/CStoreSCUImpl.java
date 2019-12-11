@@ -198,7 +198,7 @@ public class CStoreSCUImpl implements CStoreSCU {
         ctx.setStoreAssociation(storeas);
         Association[] storeass = new Association[Math.min(
                 ctx.getArchiveAEExtension().maxStoreAssociationsTo(ctx.getDestinationAETitle()),
-                ctx.getNumberOfMatches())];
+                Math.max(ctx.getNumberOfMatches(), 1))];
         storeass[0] = storeas;
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         ApplicationEntity destinationAE = ctx.getDestinationAE();
