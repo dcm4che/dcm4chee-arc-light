@@ -914,17 +914,16 @@ export class Globalvar {
                     placeholder:"Procedure Step Label"
                 },{
                     tag:"code-selector",
-                    filterKey:"00741204",
                     codes:[
                         {
                             key:"00404018.00080100",
-                            label:"Code Value"
+                            label:"Code Value (0008,0100)"
                         },{
                             key:"00404018.00080102",
-                            label:"Coding scheme designator"
+                            label:"Coding scheme designator (0008,0102)"
                         }
                     ],
-                    description:"Scheduled Workitem Code Sequence",
+                    description:"Scheduled Workitem Code Sequence (0040,4018)",
                     placeholder:"Scheduled Workitem"
                 }
             ]

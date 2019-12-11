@@ -33,7 +33,7 @@
                     </div>
                   <label *ngSwitchCase="'label'">{{line[index].text}}:</label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
-                  <ng-container *ngIf="line[index].filterKey">
+                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector'">
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
@@ -202,6 +202,8 @@
                     <code-selector *ngSwitchCase="'code-selector'"
                         [title]="line[index]?.description"
                         [codes]="line[index]?.codes"
+                        placeholder="{{line[index]?.placeholder || line[index]?.description}}"
+                        (modelChange)="codeChanged(line[index]?.codes, $event)"
                     ></code-selector>
                   </ng-container>
                     <div *ngSwitchCase="'dummy'"></div>

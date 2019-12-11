@@ -4,18 +4,25 @@
         <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
         <!--<span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>-->
         <!--<i class="material-icons" (click)="togglePicker()">account_tree</i>-->
-        <i class="material-icons" (click)="togglePicker()">
-            subdirectory_arrow_right
-        </i>
+        <!--<button class="filter_button">-->
+            <i class="material-icons filter_button" (click)="togglePicker()">
+                subdirectory_arrow_right
+            </i>
+        <!--</button>-->
 
-        <div *ngIf="selectorOpen">
-            <h5 class="title" *ngIf="title">{{title}}</h5>
-            <div class="codes" *ngFor="let code of codes">
-                <div class="code">
-                    <label class="code_label">{{code.label}}</label>
-                    <input type="text" class="code_model" [(ngModel)]="filterModel[code.key]">
-                </div>
+        <ng-container *ngIf="selectorOpen">
+            <div class="overlay" (click)="selectorOpen = false">
             </div>
-        </div>
+            <div class="content_block">
+                <h5 class="title" *ngIf="title">{{title}}</h5>
+                <div class="codes" *ngFor="let code of codes">
+                    <div class="code" title="{{code.key}}">
+                        <label class="code_label">{{code.label}}</label>
+                        <input type="text" class="code_model" [(ngModel)]="filterModel[code.key]">
+                    </div>
+                </div>
+                <button class="set_button" (click)="set()">SET</button>
+            </div>
+        </ng-container>
     </div>
 </div>
