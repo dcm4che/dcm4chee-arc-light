@@ -8663,6 +8663,7 @@ dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionType=LOSSLESS-6
+dcmImageWriteParam: bitsCompressed=16.0
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.70,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
@@ -8670,12 +8671,14 @@ dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionType=LOSSLESS-1
+dcmImageWriteParam: bitsCompressed=16.0
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.80,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeJLSImageWriter
 dcmIIOFormatName: jpeg-ls-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 objectClass: dcmImageWriter
+dcmImageWriteParam: bitsCompressed=16.0
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.81,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeJLSImageWriter
@@ -8690,6 +8693,7 @@ dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionType=LOSSLESS
+dcmImageWriteParam: bitsCompressed=16.0
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeJ2kImageWriter

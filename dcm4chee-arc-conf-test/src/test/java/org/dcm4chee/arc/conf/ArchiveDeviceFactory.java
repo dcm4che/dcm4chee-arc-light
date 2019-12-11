@@ -1417,7 +1417,7 @@ class ArchiveDeviceFactory {
         addHL7DeviceExtension(device, configType, archiveHost);
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
-        device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
+        device.addDeviceExtension(new ImageWriterExtension(imageWriterFactory()));
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
@@ -1526,6 +1526,29 @@ class ArchiveDeviceFactory {
                 "/dcm4chee-arc", null,
                 WebApplication.ServiceClass.DCM4CHEE_ARC));
         return device;
+    }
+
+    private static ImageWriterFactory imageWriterFactory() {
+        ImageWriterFactory writerFactory = ImageWriterFactory.getDefault();
+        Property bitsCompressed16 = new Property("bitsCompressed=16");
+        addImageWriterParam(writerFactory, UID.JPEGLosslessNonHierarchical14, bitsCompressed16);
+        addImageWriterParam(writerFactory, UID.JPEGLossless, bitsCompressed16);
+        addImageWriterParam(writerFactory, UID.JPEGLSLossless, bitsCompressed16);
+        addImageWriterParam(writerFactory, UID.JPEG2000LosslessOnly, bitsCompressed16);
+        return writerFactory;
+    }
+
+    private static void addImageWriterParam(ImageWriterFactory writerFactory, String tsuid, Property prop) {
+        ImageWriterFactory.ImageWriterParam param = writerFactory.remove(tsuid);
+        writerFactory.put(tsuid, new ImageWriterFactory.ImageWriterParam(
+                param.formatName, param.className, param.patchJPEGLS, cat(param.getImageWriteParams(), prop)));
+    }
+
+    private static Property[] cat(Property[] src, Property prop) {
+        Property[] dst = new Property[src.length + 1];
+        System.arraycopy(src, 0, dst, 0, src.length);
+        dst[src.length] = prop;
+        return dst;
     }
 
     private static WebApplication createWebApp(
