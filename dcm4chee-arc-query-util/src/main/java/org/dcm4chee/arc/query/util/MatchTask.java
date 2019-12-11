@@ -172,6 +172,8 @@ public class MatchTask {
     }
 
     public void matchExportTask(List<Predicate> predicates, TaskQueryParam taskQueryParam, Root<ExportTask> exportTask) {
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(exportTask.get(ExportTask_.batchID), taskQueryParam.getBatchID()));
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)

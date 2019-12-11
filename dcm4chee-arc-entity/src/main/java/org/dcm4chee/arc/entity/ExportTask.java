@@ -280,6 +280,7 @@ public class ExportTask {
         writer.writeNotNullOrDef("NumberOfInstances", numberOfInstances, null);
         writer.writeNotEmpty("Modality", getModalities());
         if (queueMessage == null) {
+            writer.writeNotNullOrDef("batchID", batchID, null);
             writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
             writer.writeNotNullOrDef("status", QueueMessage.Status.TO_SCHEDULE.toString(), null);
             writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
@@ -336,13 +337,17 @@ public class ExportTask {
         if (numberOfInstances != null)
             writer.write(numberOfInstances.toString());
         writer.write(delimiter);
-        writer.write(modalities);
+        if (modalities != null)
+            writer.write(modalities);
         writer.write(delimiter);
         if (queueMessage == null) {
             writer.append(delimiter).append(delimiter).write(deviceName);
             writer.append(delimiter).write("TO SCHEDULE");
             writer.append(delimiter).write(df.format(scheduledTime));
-            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter);
+            writer.append(delimiter).append(delimiter);
+            if (batchID != null)
+                writer.write(batchID);
+            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter);
         } else {
             queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
         }

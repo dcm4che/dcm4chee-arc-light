@@ -575,12 +575,12 @@ public class ExportTaskRS {
     private TaskQueryParam queueTaskQueryParam(QueueMessage.Status status) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status);
-        taskQueryParam.setBatchID(batchID);
         return taskQueryParam;
     }
 
     private TaskQueryParam exportTaskQueryParam(String deviceName, String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setBatchID(batchID);
         taskQueryParam.setExporterIDs(exporterIDs);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setCreatedTime(createdTime);
