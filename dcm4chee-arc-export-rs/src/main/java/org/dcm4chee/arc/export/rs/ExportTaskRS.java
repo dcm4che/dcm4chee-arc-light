@@ -52,6 +52,7 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -258,7 +259,7 @@ public class ExportTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            mgr.rescheduleExportTask(pk, exporter(exporterID), queueEvent);
+            mgr.rescheduleExportTask(pk, exporter(exporterID), HttpServletRequestInfo.valueOf(request), queueEvent);
             return Response.noContent().build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -292,8 +293,6 @@ public class ExportTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            return errResponse("Cannot reschedule tasks with status : TO SCHEDULE", Response.Status.CONFLICT);
 
         try {
             ExporterDescriptor newExporter = null;
@@ -331,6 +330,7 @@ public class ExportTaskRS {
             int rescheduled = 0;
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
             do {
                 List<Tuple> exportTasks = mgr.exportTaskPksAndExporterIDs(
                     queueTaskQueryParam(status), exportTaskQueryParam(devName, updatedTime), rescheduleTasksFetchSize);
@@ -339,8 +339,9 @@ public class ExportTaskRS {
                     try {
                         mgr.rescheduleExportTask(pk,
                                 newExporter != null ? newExporter : exporter((String) exportTask.get(1)),
+                                httpServletRequestInfo,
                                 null);
-                    } catch (IllegalTaskStateException e) {
+                    } catch (Exception e) {
                         LOG.warn("Failed rescheduling of task [pk={}]\n", pk, e);
                     }
                 });

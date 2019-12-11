@@ -276,8 +276,7 @@ public class ExportManagerEJB implements ExportManager {
             return;
         }
         exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
-        exportTask.setNumberOfInstances(
-                Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
+        exportTask.setNumberOfInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1));
     }
 
     private ObjectMessage createMessage(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
@@ -347,18 +346,24 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+        rescheduleExportTask(pk, exporter, null, queueEvent);
+    }
+
+    @Override
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                                     QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return;
 
-        if (task.getQueueMessage() == null)
-            throw new IllegalTaskStateException("Cannot reschedule task[pk=" + task.getPk() + "] with status TO SCHEDULE");
-
         task.setExporterID(exporter.getExporterID());
-        queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
-        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
+        if (task.getQueueMessage() == null)
+            scheduleExportTask(task, exporter, httpServletRequestInfo, task.getBatchID());
+        else {
+            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
+            LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
+        }
     }
 
     @Override
@@ -530,11 +535,10 @@ public class ExportManagerEJB implements ExportManager {
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<ExportTask> exportTask = q.from(ExportTask.class);
-        From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
 
         q.multiselect(exportTask.get(ExportTask_.pk), exportTask.get(ExportTask_.exporterID));
 
-        List<Predicate> predicates = matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
+        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
 
@@ -567,8 +571,7 @@ public class ExportManagerEJB implements ExportManager {
             predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
         } else {
             From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
-                    status == null && queueTaskQueryParam.getBatchID() == null
-                            ? JoinType.LEFT : JoinType.INNER);
+                    status == null ? JoinType.LEFT : JoinType.INNER);
             predicates = matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
         }
         return predicates;

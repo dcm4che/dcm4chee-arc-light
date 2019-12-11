@@ -89,6 +89,9 @@ public interface ExportManager {
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
+    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                              QueueMessageEvent queueEvent);
+
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
