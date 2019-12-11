@@ -765,7 +765,7 @@ public class UPSServiceEJB {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         }
         if (!attrs.contains(Tag.AdmissionID)) {
-            attrs.setString(Tag.AdmissionID, VR.SH, rule.getAdmissionID(storeCtx.getAttributes()));
+            attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(storeCtx.getAttributes()));
             setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
         }
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime)) {
