@@ -263,7 +263,7 @@ class AuditInfoBuilder {
             return this;
         }
         Builder errorCode(int val) {
-            errorCode = errorCodeAsString(val);
+            errorCode = val == 0 ? "0" : errorCodeAsString(val);
             return this;
         }
         Builder patMismatchCode(String val) {

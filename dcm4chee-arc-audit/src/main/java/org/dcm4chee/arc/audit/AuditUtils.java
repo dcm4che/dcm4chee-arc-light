@@ -319,6 +319,8 @@ class AuditUtils {
     static AuditMessages.EventTypeCode errorEventTypeCode(String errorCode) {
         AuditMessages.EventTypeCode errorEventTypeCode = null;
         switch (errorCode) {
+            case "0":
+                break;
             case "x0110":
                 errorEventTypeCode = AuditMessages.EventTypeCode.x0110;
                 break;
