@@ -128,10 +128,10 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     }
     codeChanged(codes, e){
         Object.keys(codes).forEach(code=>{
-            if(_.hasIn(e, code)){
-                this.model[code] = e[code];
+            if(_.hasIn(e, codes[code].key)){
+                this.model[codes[code].key] = e[codes[code].key];
             }else{
-                delete this.model[code];
+                delete this.model[codes[code].key];
             }
         });
         this.filterChange(e);

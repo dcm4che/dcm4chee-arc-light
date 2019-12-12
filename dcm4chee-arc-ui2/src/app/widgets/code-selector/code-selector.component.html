@@ -1,6 +1,6 @@
 <div class="code_selector">
     <div class="main_input_block" title="{{title}}">
-        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()">
+        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()" (click)="selectorOpen = true">
         <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
         <!--<span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>-->
         <!--<i class="material-icons" (click)="togglePicker()">account_tree</i>-->
