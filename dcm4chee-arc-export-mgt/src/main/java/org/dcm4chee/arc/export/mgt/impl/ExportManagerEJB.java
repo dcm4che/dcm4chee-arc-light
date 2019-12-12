@@ -386,20 +386,25 @@ public class ExportManagerEJB implements ExportManager {
         return query.getResultStream().map(listExportBatches::toExportBatch).collect(Collectors.toList());
     }
 
-    private Subquery<Long> statusSubquery(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam,
-                                          From<ExportTask, QueueMessage> queueMsg, QueueMessage.Status status) {
+    private Subquery<Long> statusSubquery(TaskQueryParam exportBatchQueryParam,
+                                          Root<ExportTask> exportTask, QueueMessage.Status status) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
-        Subquery<Long> sq = query.subquery(Long.class);
-        Root<ExportTask> exportTask = sq.from(ExportTask.class);
-        Join<ExportTask, QueueMessage> queueMsg1 = sq.correlate(exportTask.join(ExportTask_.queueMessage));
         MatchTask matchTask = new MatchTask(cb);
-        List<Predicate> predicates = matchTask.exportBatchPredicates(
-                queueMsg1, exportTask, queueBatchQueryParam, exportBatchQueryParam);
-        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.batchID), queueMsg.get(QueueMessage_.batchID)));
-        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.status), status));
+        CriteriaQuery<ExportTask> query = cb.createQuery(ExportTask.class);
+        Subquery<Long> sq = query.subquery(Long.class);
+        Root<ExportTask> exportTask1 = sq.from(ExportTask.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        matchTask.matchExportBatch(predicates, exportBatchQueryParam, exportTask1);
+        if (status == QueueMessage.Status.TO_SCHEDULE)
+            predicates.add(exportTask1.get(ExportTask_.queueMessage).isNull());
+        else {
+            Join<ExportTask, QueueMessage> queueMsg1 = sq.correlate(exportTask1.join(ExportTask_.queueMessage));
+            predicates.add(cb.equal(queueMsg1.get(QueueMessage_.status), status));
+        }
+        predicates.add(cb.equal(exportTask1.get(ExportTask_.batchID), exportTask.get(ExportTask_.batchID)));
         sq.where(predicates.toArray(new Predicate[0]));
-        sq.select(cb.count(exportTask));
+        sq.select(cb.count(exportTask1));
         return sq;
     }
 
@@ -408,51 +413,61 @@ public class ExportManagerEJB implements ExportManager {
         final MatchTask matchTask = new MatchTask(cb);
         final CriteriaQuery<Tuple> query = cb.createTupleQuery();
         final Root<ExportTask> exportTask = query.from(ExportTask.class);
-        final From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
-        final Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
-        final Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
-        final Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
-        final Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+        From<ExportTask, QueueMessage> queueMsg;
+        Expression<Date> minProcessingStartTime;
+        Expression<Date> maxProcessingStartTime;
+        Expression<Date> minProcessingEndTime;
+        Expression<Date> maxProcessingEndTime;
         final Expression<Date> minScheduledTime = cb.least(exportTask.get(ExportTask_.scheduledTime));
         final Expression<Date> maxScheduledTime = cb.greatest(exportTask.get(ExportTask_.scheduledTime));
         final Expression<Date> minCreatedTime = cb.least(exportTask.get(ExportTask_.createdTime));
         final Expression<Date> maxCreatedTime = cb.greatest(exportTask.get(ExportTask_.createdTime));
         final Expression<Date> minUpdatedTime = cb.least(exportTask.get(ExportTask_.updatedTime));
         final Expression<Date> maxUpdatedTime = cb.greatest(exportTask.get(ExportTask_.updatedTime));
-        final Path<String> batchIDPath = queueMsg.get(QueueMessage_.batchID);
+        final Path<String> batchIDPath = exportTask.get(ExportTask_.batchID);
         final Expression<Long> completed;
         final Expression<Long> failed;
         final Expression<Long> warning;
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
+        final Expression<Long> toschedule;
         final TaskQueryParam queueBatchQueryParam;
         final TaskQueryParam exportBatchQueryParam;
 
         ListExportBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
             this.queueBatchQueryParam = queueBatchQueryParam;
             this.exportBatchQueryParam = exportBatchQueryParam;
-            this.completed = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.COMPLETED).getSelection();
-            this.failed = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.FAILED).getSelection();
-            this.warning = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.WARNING).getSelection();
-            this.canceled = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.CANCELED).getSelection();
-            this.scheduled = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.SCHEDULED).getSelection();
-            this.inprocess = statusSubquery(queueBatchQueryParam, exportBatchQueryParam,
-                    queueMsg, QueueMessage.Status.IN_PROCESS).getSelection();
-            query.multiselect(batchIDPath,
-                    minProcessingStartTime, maxProcessingStartTime,
-                    minProcessingEndTime, maxProcessingEndTime,
-                    minScheduledTime, maxScheduledTime,
-                    minCreatedTime, maxCreatedTime,
-                    minUpdatedTime, maxUpdatedTime,
-                    completed, failed, warning, canceled, scheduled, inprocess);
-            query.groupBy(queueMsg.get(QueueMessage_.batchID));
-            MatchTask matchTask = new MatchTask(cb);
+            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE) {
+                this.queueMsg = exportTask.join(ExportTask_.queueMessage,
+                        queueBatchQueryParam.getStatus() == null ? JoinType.LEFT : JoinType.INNER);
+                this.minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
+                this.maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
+                this.minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
+                this.maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
+            }
+            this.completed = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.COMPLETED).getSelection();
+            this.failed = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.FAILED).getSelection();
+            this.warning = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.WARNING).getSelection();
+            this.canceled = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.CANCELED).getSelection();
+            this.scheduled = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.SCHEDULED).getSelection();
+            this.inprocess = statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.IN_PROCESS).getSelection();
+            this.toschedule= statusSubquery(exportBatchQueryParam, exportTask, QueueMessage.Status.TO_SCHEDULE).getSelection();
+            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE)
+                query.multiselect(batchIDPath,
+                        minProcessingStartTime, maxProcessingStartTime,
+                        minProcessingEndTime, maxProcessingEndTime,
+                        minScheduledTime, maxScheduledTime,
+                        minCreatedTime, maxCreatedTime,
+                        minUpdatedTime, maxUpdatedTime,
+                        completed, failed, warning, canceled, scheduled, inprocess, toschedule);
+            else
+                query.multiselect(batchIDPath,
+                        minScheduledTime, maxScheduledTime,
+                        minCreatedTime, maxCreatedTime,
+                        minUpdatedTime, maxUpdatedTime,
+                        completed, failed, warning, canceled, scheduled, inprocess, toschedule);
+            query.groupBy(exportTask.get(ExportTask_.batchID));
             List<Predicate> predicates = matchTask.exportBatchPredicates(
                     queueMsg, exportTask, queueBatchQueryParam, exportBatchQueryParam);
             if (!predicates.isEmpty())
@@ -464,12 +479,6 @@ public class ExportManagerEJB implements ExportManager {
         ExportBatch toExportBatch(Tuple tuple) {
             String batchID = tuple.get(batchIDPath);
             ExportBatch exportBatch = new ExportBatch(batchID);
-            exportBatch.setProcessingStartTimeRange(
-                    tuple.get(maxProcessingStartTime),
-                    tuple.get(maxProcessingStartTime));
-            exportBatch.setProcessingEndTimeRange(
-                    tuple.get(minProcessingEndTime),
-                    tuple.get(maxProcessingEndTime));
             exportBatch.setScheduledTimeRange(
                     tuple.get(minScheduledTime),
                     tuple.get(maxScheduledTime));
@@ -479,12 +488,22 @@ public class ExportManagerEJB implements ExportManager {
             exportBatch.setUpdatedTimeRange(
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
+            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE) {
+                exportBatch.setProcessingStartTimeRange(
+                        tuple.get(minProcessingStartTime),
+                        tuple.get(maxProcessingStartTime));
+                exportBatch.setProcessingEndTimeRange(
+                        tuple.get(minProcessingEndTime),
+                        tuple.get(maxProcessingEndTime));
+            }
 
             CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
             Root<ExportTask> exportTask = distinct.from(ExportTask.class);
-            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
+            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
+                    queueBatchQueryParam.getStatus() != null && queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE
+                            ? JoinType.INNER : JoinType.LEFT);
             distinct.where(predicates(queueMsg, exportTask, batchID));
-            exportBatch.setDeviceNames(select(distinct, queueMsg.get(QueueMessage_.deviceName)));
+            exportBatch.setDeviceNames(select(distinct, exportTask.get(ExportTask_.deviceName)));
             exportBatch.setExporterIDs(select(distinct, exportTask.get(ExportTask_.exporterID)));
             exportBatch.setCompleted(tuple.get(completed));
             exportBatch.setCanceled(tuple.get(canceled));
@@ -492,13 +511,14 @@ public class ExportManagerEJB implements ExportManager {
             exportBatch.setFailed(tuple.get(failed));
             exportBatch.setScheduled(tuple.get(scheduled));
             exportBatch.setInProcess(tuple.get(inprocess));
+            exportBatch.setToSchedule(tuple.get(toschedule));
             return exportBatch;
         }
 
         private Predicate[] predicates(Path<QueueMessage> queueMsg, Path<ExportTask> exportTask, String batchID) {
             List<Predicate> predicates = matchTask.exportBatchPredicates(
                     queueMsg, exportTask, queueBatchQueryParam, exportBatchQueryParam);
-            predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
+            predicates.add(cb.equal(exportTask.get(ExportTask_.batchID), batchID));
             return predicates.toArray(new Predicate[0]);
         }
 

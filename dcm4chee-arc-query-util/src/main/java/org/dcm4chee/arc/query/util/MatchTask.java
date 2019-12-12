@@ -93,8 +93,13 @@ public class MatchTask {
             Path<QueueMessage> queueMsg, Path<ExportTask> exportTask,
             TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        matchQueueBatch(predicates, queueBatchQueryParam, queueMsg);
         matchExportBatch(predicates, exportBatchQueryParam, exportTask);
+
+        QueueMessage.Status status = queueBatchQueryParam.getStatus();
+        if (status != null)
+            predicates.add(status == QueueMessage.Status.TO_SCHEDULE
+                    ? exportTask.get(ExportTask_.queueMessage).isNull()
+                    : cb.equal(queueMsg.get(QueueMessage_.status), status));
         return predicates;
     }
 
@@ -357,7 +362,10 @@ public class MatchTask {
 
     }
 
-    private void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<ExportTask> exportTask) {
+    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<ExportTask> exportTask) {
+        predicates.add(exportTask.get(ExportTask_.batchID).isNotNull());
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(exportTask.get(ExportTask_.batchID), taskQueryParam.getBatchID()));
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(exportTask.get(ExportTask_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)

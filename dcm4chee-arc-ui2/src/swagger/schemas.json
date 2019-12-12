@@ -267,6 +267,7 @@
   "queueMsgStatus": {
     "type": "string",
     "enum": [
+      "TO SCHEDULE",
       "SCHEDULED",
       "IN PROCESS",
       "COMPLETED",

@@ -86,7 +86,7 @@ public class ExportBatchRS {
     private String deviceName;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -162,6 +162,7 @@ public class ExportBatchRS {
 
             private void writeTasks(ExportBatch exportBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
+                writer.writeNotNullOrDef("to-schedule", exportBatch.getToSchedule(), 0);
                 writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
                 writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
@@ -217,13 +218,13 @@ public class ExportBatchRS {
     private TaskQueryParam queueBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setStatus(status());
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setDeviceName(deviceName);
         return taskQueryParam;
     }
 
     private TaskQueryParam exportBatchQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setExporterIDs(exporterIDs);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
