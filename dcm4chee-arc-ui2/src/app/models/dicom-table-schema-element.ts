@@ -9,7 +9,7 @@ import {
 export class TableSchemaElement {
     type:TableSchemaElementType;
     header?:string;
-    headerDescription?:string;
+    headerDescription?:string|Function;
     description?:string;
     title?:string;
     pathToValue?:string;/*Path or key of the value how you can find it on the data model*/
@@ -30,7 +30,7 @@ export class TableSchemaElement {
         options:{
             type?:TableSchemaElementType,
             header?:string,
-            headerDescription?:string,
+            headerDescription?:string|Function,
             pathToValue?:string,
             widthWeight?:number,
             cssClass?:string,
@@ -76,7 +76,9 @@ export class TableSchemaElement {
             "headerDescription",
             "pathToValue"
         ].forEach(key=>{
-            id += `${this[key]? (this[key]).replace(/([ \[\]\"\'\.])/mg,'') : ''}`;  //Remove some maybe problematic characters from the passed string and concat the string if not empty
+            if(typeof this[key] === "string"){
+                id += `${this[key]? (this[key]).replace(/([ \[\]\"\'\.])/mg,'') : ''}`;  //Remove some maybe problematic characters from the passed string and concat the string if not empty
+            }
         });
         this._elementId = id
     }

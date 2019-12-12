@@ -1693,7 +1693,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         patAttrs = {};
                         this.service.extractAttrs(uwlAttrs, tags, patAttrs);
                         if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
-                            patient = new PatientDicom(patAttrs, [], false, true, 0, undefined, true,undefined, undefined, []);
+                            patient = new PatientDicom(patAttrs, [], false, false, 0, undefined, false,undefined, undefined, [], true);
                             this.patients.push(patient);
                         }
                         uwl = new UwlDicom(

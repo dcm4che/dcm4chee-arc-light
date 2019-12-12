@@ -878,34 +878,149 @@ export class Globalvar {
 
     static UWL_FILTER_SCHEMA(hidden?):FilterSchema{
         if(hidden){
-            return [
-                {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
-                    description:"SPS Status",
-                    placeholder:"SPS Status"
-                },{
-                    tag:"checkbox",
-                    filterKey:"onlyDefault",
-                    text:"Only Default"
-                },
-                {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
-                    description:"Scheduled Performing Physician's Name",
-                    placeholder:"SP Physician's Name"
-                }
+            return [{
+                tag:"code-selector",
+                codes:[
+                    {
+                        key:"00404025.00080100",
+                        label:"Code Value (0008,0100)"
+                    },{
+                        key:"00404025.00080102",
+                        label:"Coding scheme designator (0008,0102)"
+                    }
+                ],
+                description:"Scheduled Station Name Code Sequence (0040,4025)",
+                placeholder:"Station Name Code"
+            },{
+                tag:"code-selector",
+                codes:[
+                    {
+                        key:"00404026.00080100",
+                        label:"Code Value (0008,0100)"
+                    },{
+                        key:"00404026.00080102",
+                        label:"Coding scheme designator (0008,0102)"
+                    }
+                ],
+                description:"Scheduled Station Class Code Sequence (0040,4026)",
+                placeholder:"Station Class Code"
+            },{
+                tag:"code-selector",
+                codes:[
+                    {
+                        key:"00404027.00080100",
+                        label:"Code Value (0008,0100)"
+                    },{
+                        key:"00404027.00080102",
+                        label:"Coding scheme designator (0008,0102)"
+                    }
+                ],
+                description:"Scheduled Station Geographic Location Code Sequence (0040,4027)",
+                placeholder:"Geographic Location Code"
+            },{
+                tag:"code-selector",
+                codes:[
+                    {
+                        key:"00404034.00404009.00080100",
+                        label:"Code Value (0008,0100)"
+                    },{
+                        key:"00404034.00404009.00080102",
+                        label:"Coding scheme designator (0008,0102)"
+                    }
+                ],
+                description:"Scheduled Human Performers Sequence (0040,4034)",
+                placeholder:"Human Performers"
+            }
             ]
         }else{
             return [
                 {
                     tag:"input",
                     type:"text",
+                    filterKey:"00100010",
+                    description:"Patient's Name",
+                    placeholder:"Patient's Name"
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"fuzzymatching",
+                    text:"Fuzzy Matching"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00100020",
+                    description:"Patient ID",
+                    placeholder:"Patient ID"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00100021",
+                    description:"Issuer of Patient ID",
+                    placeholder:"Issuer of Patient ID"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"00100030",
+                    onlyDate:true,
+                    description:"Patient's Birth Date"
+                },{
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("F","F"),
+                        new SelectDropdown("M","M"),
+                        new SelectDropdown("O","O")
+                    ],
+                    showStar:true,
+                    filterKey:"00100040",
+                    description:"Patient's Sex",
+                    placeholder:"Patient's Sex"
+                },
+                {
+                    tag:"input",
+                    type:"text",
                     filterKey:"00741202",
                     description:"Worklist Label",
                     placeholder:"Worklist Label"
+                },{
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("INCOMPLETE","INCOMPLETE"),
+                        new SelectDropdown("UNAVAILABLE","UNAVAILABLE"),
+                        new SelectDropdown("READY","READY")
+                    ],
+                    showStar:true,
+                    filterKey:"00404041",
+                    description:"Input Readiness State",
+                    placeholder:"Input Readiness State"
+                },{
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("SCHEDULED","SCHEDULED"),
+                        new SelectDropdown("IN PROGRESS","IN PROGRESS"),
+                        new SelectDropdown("CANCELED","CANCELED"),
+                        new SelectDropdown("COMPLETED","COMPLETED")
+                    ],
+                    showStar:true,
+                    filterKey:"00741000",
+                    description:"Procedure Step State",
+                    placeholder:"Procedure Step State"
+                },{
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("LOW","LOW"),
+                        new SelectDropdown("MEDIUM","MEDIUM"),
+                        new SelectDropdown("HIGH","HIGH")
+                    ],
+                    showStar:true,
+                    filterKey:"00741200",
+                    description:"Scheduled Procedure Step Priority",
+                    placeholder:"S. P. Step Priority"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"00404005",
+                    description:"Scheduled Procedure Step Start Date and Time",
+                    placeholder:"S. Procedure Step Date"
                 },{
                     tag:"input",
                     type:"text",
@@ -925,6 +1040,49 @@ export class Globalvar {
                     ],
                     description:"Scheduled Workitem Code Sequence (0040,4018)",
                     placeholder:"Scheduled Workitem"
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"00404011",
+                    description:"Expected Completion Date and Time",
+                    placeholder:"E. Completion Date"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00380010",
+                    description:"Admission ID",
+                    placeholder:"Admission ID"
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"00380014.00400031",
+                    description:"Issuer of Admission ID Sequence",
+                    placeholder:"Issuer of Admission ID Sequence"
+                },{
+                    tag:"code-selector",
+                    codes:[
+                        {
+                            key:"0040A370.0020000D",
+                            label:"Study Instance UID (0020,000D)"
+                        },{
+                            key:"0040A370.00080050",
+                            label:"Accession Number (0008,0050)"
+                        },{
+                            key:"0040A370.00080051.00400031",
+                            label:"Issuer of Accession Number Sequence (0008,0051)"
+                        },{
+                            key:"0040A370.00401001",
+                            label:"Requested Procedure ID (0040,1001)"
+                        },{
+                            key:"0040A370.00321032",
+                            label:"Requesting Physician (0032,1032)"
+                        },{
+                            key:"0040A370.00321033",
+                            label:"Requesting Service  (0032,1033)"
+                        }
+                    ],
+                    description:"Referenced Request Sequence (0040,A370)",
+                    placeholder:"Request Sequence"
                 }
             ]
         }

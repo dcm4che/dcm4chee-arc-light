@@ -62,7 +62,7 @@ export interface StudySchemaOptions{
 export interface TableAction{
     icon:Icon;
     click:Function;
-    title?:string;
+    title?:string|Function;
     permission?:PermissionParam;
     showIf?:Function;
 }

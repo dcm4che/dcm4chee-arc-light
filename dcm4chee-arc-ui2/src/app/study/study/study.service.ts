@@ -285,7 +285,7 @@ export class StudyService {
                 text: "SUBMIT",
                 description: tab === "diff" ? "Show DIFFs" : "Query Studies"
             });
-            if(tab != "diff"){
+            if(tab != "diff" && tab != "uwl"){
                 schema.push({
                     tag: "dummy"
                 })
@@ -297,7 +297,7 @@ export class StudyService {
                     description: "Trigger DIFFs"
                 });*/
             }
-            if(tab != "diff"){
+            if(tab != "diff" && tab != "uwl"){
                 schema.push({
                     tag: "button",
                     id: "count",
@@ -1101,16 +1101,28 @@ export class StudyService {
                                     }
                                 }
                             },
-                            title: (options.studyConfig.tab === "mwl") ? "Hide MWLs":"Hide Studies",
+                            title: () => {
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        return "Hide MWLs";
+                                    case "diff":
+                                        return "Hide DIFFs";
+                                    case "uwl":
+                                        return "Hide UWLs";
+                                    default:
+                                        return "Hide Studies"
+                                }
+                            },
                             showIf: (e) => {
-                                if(options.studyConfig.tab === "mwl"){
-                                    return e.showMwls;
-                                }else{
-                                    if(options.studyConfig.tab === "diff") {
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        return e.showMwls;
+                                    case "diff":
                                         return e.showDiffs;
-                                    }else{
+                                    case "uwl":
+                                        return e.showUwls;
+                                    default:
                                         return e.showStudies;
-                                    }
                                 }
                             }
                         }, {
@@ -1122,36 +1134,60 @@ export class StudyService {
                             click: (e) => {
                                 console.log("e", e);
                                 // e.showStudies = !e.showStudies;
-                                if(options.studyConfig.tab === "mwl") {
-                                    e.showMwls = !e.showMwls;
-                                }else{
-                                    if(options.studyConfig.tab === "diff") {
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        e.showMwls = !e.showMwls;
+                                    case "diff":
                                         e.showDiffs = !e.showDiffs;
-                                    }else{
+                                    case "uwl":
+                                        e.showUwls = !e.showUwls;
+                                    default:
                                         actions.call($this, {
                                             event: "click",
                                             level: "patient",
                                             action: "toggle_studies"
                                         }, e);
-                                    }
                                 }
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title: (options.studyConfig.tab === "mwl") ? "Show MWLs":"Show Studies",
+                            title: () => {
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        return "Show MWLs";
+                                    case "diff":
+                                        return "Show DIFFs";
+                                    case "uwl":
+                                        return "Show UWLs";
+                                    default:
+                                        return "Show Studies"
+                                }
+                            },
                             showIf: (e) => {
-                                if(options.studyConfig.tab === "mwl") {
-                                    return !e.showMwls
-                                }else{
-                                    if(options.studyConfig.tab === "diff") {
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        return !e.showMwls;
+                                    case "diff":
                                         return !e.showDiffs;
-                                    }else{
-                                        return !e.showStudies
-                                    }
+                                    case "uwl":
+                                        return !e.showUwls;
+                                    default:
+                                        return !e.showStudies;
                                 }
                             }
                         }
                     ],
-                    headerDescription: (options.studyConfig.tab === "mwl") ? "Toggle MWLs":"Toggle studies",
+                    headerDescription: () => {
+                        switch (options.studyConfig.tab) {
+                            case "mwl":
+                                return "Toggle MWLs";
+                            case "diff":
+                                return "Toggle DIFFs";
+                            case "uwl":
+                                return "Toggle UWLs";
+                            default:
+                                return "Toggle Studies"
+                        }
+                    },
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -2287,6 +2323,163 @@ export class StudyService {
                     pathToValue: "00400100.Value[0].00400001.Value[0]",
                     headerDescription: "Scheduled Station AE Title",
                     widthWeight: 1.5,
+                    calculatedWidth: "20%"
+                })
+            ],
+            uwl:[
+                new TableSchemaElement({
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
+                }),
+/*                new TableSchemaElement({
+                    type: "actions-menu",
+                    header: "",
+                    menu: {
+                        toggle: (e) => {
+                            console.log("e", e);
+                            e.showMenu = !e.showMenu;
+                        },
+                        actions: [
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "uwl_mwl"
+                                    }, e);
+                                },
+                                title: 'Edit UWL',
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-remove',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "delete_uwl"
+                                    }, e);
+                                },
+                                title: 'Delete UWL',
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'delete'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "upload_file"
+                                    }, e);
+                                },
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'upload'
+                                }
+                            }
+                        ]
+                    },
+                    headerDescription: "Actions",
+                    pxWidth: 35
+                }), */
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title: 'Show attributes'
+                        }
+                    ],
+                    headerDescription: "Actions",
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Worklist Label",
+                    pathToValue: "00741202.Value[0]",
+                    headerDescription: "Worklist Label",
+                    widthWeight: 2,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SOP Class UID",
+                    pathToValue: "00404021.Value[0][00081199].Value[0][00000003].Value[0]",
+                    headerDescription: "Requested SOP Class UID",
+                    widthWeight: 2,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "SOP Instance UID",
+                    pathToValue: "00404021.Value[0][00081199].Value[0][00001001].Value[0]",
+                    headerDescription: "Requested SOP Instance UID",
+                    widthWeight: 4,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Input Readiness",
+                    pathToValue: "00404041.Value[0]",
+                    headerDescription: "Input Readiness State",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Procedure Step",
+                    pathToValue: "00741000.Value[0]",
+                    headerDescription: "Procedure Step State",
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Step Priority",
+                    pathToValue: "00741200.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Priority",
+                    widthWeight: 0.9,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Start Date and Time",
+                    pathToValue: "00404005.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Start Date and Time",
+                    widthWeight: 2,
                     calculatedWidth: "20%"
                 })
             ],

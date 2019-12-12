@@ -12,10 +12,11 @@ export class PatientDicom {
     private _showAttributes:boolean;
     private _showStudies:boolean;
     private _showMwls:boolean;
+    private _showUwls:boolean;
     private _showDiffs:boolean;
     private _offset:number;
     private _selected;
-    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean, offset?:number, mwls?:MwlDicom[], showMwls?:boolean, diffs?:DiffDicom[], showDiffs?:boolean, uwls?:UwlDicom[]){
+    constructor(attrs:any[], studies:StudyDicom[], showAttributes?:boolean, showStudies?:boolean, offset?:number, mwls?:MwlDicom[], showMwls?:boolean, diffs?:DiffDicom[], showDiffs?:boolean, uwls?:UwlDicom[], showUwls?:boolean){
         this._attrs = attrs;
         this._studies = studies;
         this._mwls = mwls;
@@ -26,6 +27,7 @@ export class PatientDicom {
         this._showMwls = showMwls || false;
         this._showDiffs = showDiffs || false;
         this._offset = offset || 0;
+        this._showUwls = showUwls;
     }
 
 
@@ -74,6 +76,15 @@ export class PatientDicom {
 
     set showMwls(value: boolean) {
         this._showMwls = value;
+    }
+
+
+    get showUwls(): boolean {
+        return this._showUwls;
+    }
+
+    set showUwls(value: boolean) {
+        this._showUwls = value;
     }
 
     get showAttributes(): boolean {

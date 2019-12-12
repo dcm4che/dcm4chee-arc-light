@@ -133,6 +133,7 @@ export interface FilterSchemaElement {
     min?:number,
     max?:number,
     title?:string,
+    onlyDate?:boolean,
     options?:SelectDropdown<any>[],
     firstField?:FilterSchemaElement,
     secondField?:FilterSchemaElement,
