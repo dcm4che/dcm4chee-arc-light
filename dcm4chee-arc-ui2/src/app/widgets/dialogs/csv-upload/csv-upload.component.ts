@@ -71,7 +71,7 @@ export class CsvUploadComponent implements OnInit {
                 this.appService.setMessage({
                     "text":msg,
                     "status":"info"
-                })
+                });
                 this.dialogRef.close('ok');
             }else{
                 let msg = 'Upload failed, please try again later!';

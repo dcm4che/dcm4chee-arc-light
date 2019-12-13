@@ -236,6 +236,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                     description:"Use semicolon as delimiter"
                 },
                 {
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"withoutScheduling",
+                    description:"Without Scheduling"
+                },
+                {
                     tag:"select",
                     options:this.aets,
                     showStar:true,
@@ -276,8 +282,14 @@ export class ExportComponent implements OnInit, OnDestroy {
             ],
             prepareUrl:(filter)=>{
                 let clonedFilters = {};
-                if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
-                return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                if(filter['batchID']) {
+                    clonedFilters['batchID'] = filter['batchID'];
+                }
+                if(filter['withoutScheduling']){
+                    return `../aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
+                }else{
+                    return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                }
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
