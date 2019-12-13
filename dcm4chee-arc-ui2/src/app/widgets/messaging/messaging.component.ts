@@ -22,7 +22,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
   `
 })
 export class MessagingComponent implements OnDestroy{
-    private msgTimeout = 10000;
+    private msgTimeout = 20000;
     public msg: Array<any> = [];
     subscription: Subscription;
 
