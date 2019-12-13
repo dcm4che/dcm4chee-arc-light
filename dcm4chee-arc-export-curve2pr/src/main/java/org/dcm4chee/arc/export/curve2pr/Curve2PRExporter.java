@@ -210,7 +210,7 @@ public class Curve2PRExporter extends AbstractExporter {
 
     private Attributes graphicAnnotationItem(RetrieveContext ctx, InstanceLocations inst,
             List<Attributes> results, Attributes metadata) {
-        Attributes pr = createPR(ctx, results, metadata);
+        Attributes pr = createPR(inst, results, metadata);
         imageRef(seriesRef(pr, inst.getAttributes().getString(Tag.SeriesInstanceUID)), inst);
         Attributes voiLUT = new Attributes(metadata, VOI_LUT_TAGS);
         if (!voiLUT.isEmpty()) {
@@ -226,15 +226,15 @@ public class Curve2PRExporter extends AbstractExporter {
         return graphicAnnotationItem;
     }
 
-    private Attributes createPR(RetrieveContext ctx, List<Attributes> results, Attributes metadata) {
+    private Attributes createPR(InstanceLocations inst, List<Attributes> results, Attributes metadata) {
         Attributes modLUT = new Attributes(metadata, MOD_LUT_TAGS);
         for (Attributes pr : results) {
             if (modLUT.equals(new Attributes(pr, MOD_LUT_TAGS)))
                 return pr;
         }
-        String instanceNumber = Integer.toString(results.size() + 1);
-        String seriesInstanceUID = seriesInstanceUID(ctx, results);
-        String sopInstanceUID = sopInstanceUID(instanceNumber, seriesInstanceUID);
+        String instanceNumber = inst.getAttributes().getString(Tag.InstanceNumber, "1");
+        String seriesInstanceUID = seriesInstanceUID(inst, results);
+        String sopInstanceUID = sopInstanceUID(inst, seriesInstanceUID);
         Attributes pr = new Attributes();
         pr.setString(Tag.InstanceNumber, VR.IS, instanceNumber);
         pr.addSelected(metadata, patStudyTags);
@@ -260,15 +260,15 @@ public class Curve2PRExporter extends AbstractExporter {
         pr.setString(tag, dict.vrOf(tag), new AttributesFormat(entry.getValue()).format(metadata));
     }
 
-    private static String seriesInstanceUID(RetrieveContext ctx, List<Attributes> results) {
+    private static String seriesInstanceUID(InstanceLocations inst, List<Attributes> results) {
         return !results.isEmpty() ? results.get(0).getString(Tag.SeriesInstanceUID)
                 : UIDUtils.createNameBasedUID(
-                        ctx.getSeriesInstanceUID().getBytes());
+                        inst.getAttributes().getString(Tag.SeriesInstanceUID).getBytes());
     }
 
-    private static String sopInstanceUID(String instanceNumber, String seriesInstanceUID) {
+    private static String sopInstanceUID(InstanceLocations inst, String seriesInstanceUID) {
         return UIDUtils.createNameBasedUID(
-                (seriesInstanceUID + instanceNumber).getBytes());
+                (seriesInstanceUID + inst.getSopInstanceUID()).getBytes());
     }
 
     private Attributes graphicLayerItem() {
