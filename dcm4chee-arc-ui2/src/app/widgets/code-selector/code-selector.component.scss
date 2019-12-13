@@ -1,5 +1,7 @@
+$height:27px;
 .main_input_block{
   position: relative;
+  height: $height;
   .main_input{
     width: 100%;
     height: 100%;
@@ -13,6 +15,7 @@
     position: absolute;
     top: 0;
     right: 0;
+    height: $height;
     &:hover{
       cursor: pointer;
     }

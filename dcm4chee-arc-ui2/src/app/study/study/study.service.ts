@@ -251,13 +251,29 @@ export class StudyService {
         }
         if (filterMode === "main") {
             if (tab != 'diff') {
-                schema.push({
-                    tag: "html-select",
-                    options: Globalvar.ORDERBY_NEW
+                let orderby;
+                if(tab === "uwl"){
+                    schema.push({
+                        tag: "dummy"
+                    });
+                    orderby = [
+                        new SelectDropdown('00741200', "(asc)  Scheduled Procedure Step Priority"),
+                        new SelectDropdown('-00741200', "(desc) Scheduled Procedure Step Priority"),
+                        new SelectDropdown('00404005', "(asc)  Scheduled Procedure Step Start Date and Time"),
+                        new SelectDropdown('-00404005', "(desc) Scheduled Procedure Step Start Date and Time"),
+                        new SelectDropdown('00404011', "(asc)  Expected Completion Date and Time"),
+                        new SelectDropdown('-00404011', "(desc) Expected Completion Date and Time")
+                    ]
+                }else{
+                    orderby = Globalvar.ORDERBY_NEW
                         .filter(order => order.mode === tab)
                         .map(order => {
                             return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
-                        }),
+                        });
+                }
+                schema.push({
+                    tag: "html-select",
+                    options: orderby,
                     filterKey: 'orderby',
                     text: "Order By",
                     title: "Order By",
@@ -1087,7 +1103,7 @@ export class StudyService {
                             },
                             click: (e) => {
                                 console.log("e", e);
-                                if(options.studyConfig.tab === "mwl") {
+/*                                if(options.studyConfig.tab === "mwl") {
                                     e.showMwls = !e.showMwls;
                                 }else{
                                     if(options.studyConfig.tab === "diff") {
@@ -1099,20 +1115,37 @@ export class StudyService {
                                             action: "toggle_studies"
                                         }, e);
                                     }
-                                }
-                            },
-                            title: () => {
+                                }*/
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
-                                        return "Hide MWLs";
+                                        e.showMwls = !e.showMwls;
+                                        break;
                                     case "diff":
-                                        return "Hide DIFFs";
+                                        e.showDiffs = !e.showDiffs;
+                                        break;
                                     case "uwl":
-                                        return "Hide UWLs";
+                                        e.showUwls = !e.showUwls;
+                                        break;
                                     default:
-                                        return "Hide Studies"
+                                        actions.call($this, {
+                                            event: "click",
+                                            level: "patient",
+                                            action: "toggle_studies"
+                                        }, e);
                                 }
                             },
+                            title:((string,...keys)=> {
+                                let msg = "Studies";
+                                switch (options.studyConfig.tab) {
+                                    case "mwl":
+                                        msg = "MWLs";
+                                    case "diff":
+                                        msg = "DIFFs";
+                                    case "uwl":
+                                        msg = "UWLs";
+                                }
+                                return string[0] + msg;
+                            })`Hide ${''}`,
                             showIf: (e) => {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
@@ -1137,10 +1170,13 @@ export class StudyService {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
                                         e.showMwls = !e.showMwls;
+                                        break;
                                     case "diff":
                                         e.showDiffs = !e.showDiffs;
+                                        break;
                                     case "uwl":
                                         e.showUwls = !e.showUwls;
+                                        break;
                                     default:
                                         actions.call($this, {
                                             event: "click",
@@ -1150,18 +1186,19 @@ export class StudyService {
                                 }
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title: () => {
+                            title: ((string,...keys) => {
+                                let msg = "Studies";
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
-                                        return "Show MWLs";
+                                        msg = "MWLs";
                                     case "diff":
-                                        return "Show DIFFs";
+                                        msg = "DIFFs";
                                     case "uwl":
-                                        return "Show UWLs";
-                                    default:
-                                        return "Show Studies"
+                                        msg = "UWLs";
                                 }
-                            },
+                                return string[0] + msg;
+                            })`Show ${''}`
+                            ,
                             showIf: (e) => {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
@@ -1176,18 +1213,18 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription: () => {
+                    headerDescription: ((string,...keys) => {
+                        let msg = "Studies";
                         switch (options.studyConfig.tab) {
                             case "mwl":
-                                return "Toggle MWLs";
+                                msg = "MWLs";
                             case "diff":
-                                return "Toggle DIFFs";
+                                msg = "DIFFs";
                             case "uwl":
-                                return "Toggle UWLs";
-                            default:
-                                return "Toggle Studies"
+                                msg = "UWLs";
                         }
-                    },
+                        return string[0] + msg;
+                    })`Toggle ${''}`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -2434,28 +2471,10 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SOP Class UID",
-                    pathToValue: "00404021.Value[0][00081199].Value[0][00000003].Value[0]",
-                    headerDescription: "Requested SOP Class UID",
-                    widthWeight: 2,
-                    calculatedWidth: "20%",
-                    cssClass:"border-left"
-                }),
-                new TableSchemaElement({
-                    type: "value",
-                    header: "SOP Instance UID",
-                    pathToValue: "00404021.Value[0][00081199].Value[0][00001001].Value[0]",
-                    headerDescription: "Requested SOP Instance UID",
-                    widthWeight: 4,
-                    calculatedWidth: "20%",
-                    cssClass:"border-left"
-                }),
-                new TableSchemaElement({
-                    type: "value",
                     header: "Input Readiness",
                     pathToValue: "00404041.Value[0]",
                     headerDescription: "Input Readiness State",
-                    widthWeight: 2,
+                    widthWeight: 1.4,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
@@ -2481,6 +2500,33 @@ export class StudyService {
                     headerDescription: "Scheduled Procedure Step Start Date and Time",
                     widthWeight: 2,
                     calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Procedure Step Label",
+                    pathToValue: "00741204.Value[0]",
+                    headerDescription: "Procedure Step Label",
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+
+                new TableSchemaElement({
+                    type: "value",
+                    header: "E. Completion Time",
+                    pathToValue: "00404011.Value[0]",
+                    headerDescription: "Expected Completion Date and Time",
+                    widthWeight: 2,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: "Step M. Date and Time",
+                    pathToValue: "00404010.Value[0]",
+                    headerDescription: "Scheduled Procedure Step Modification Date and Time",
+                    widthWeight: 4,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
                 })
             ],
             diff:[

@@ -25,6 +25,10 @@
         padding-left: 0;
       }
     }
+    .selected_value{
+      max-height: 30px;
+      overflow: hidden;
+    }
     .selected_value.empty_field{
       font-style: italic;
       color: #444;

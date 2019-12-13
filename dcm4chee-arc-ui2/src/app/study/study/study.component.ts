@@ -263,6 +263,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             this.more = false;
             this._filter.filterModel.offset = 0;
+            this.tableParam.tableSchema  = this.getSchema();
             if(!this.studyWebService){
                 this.initWebApps();
             }else{

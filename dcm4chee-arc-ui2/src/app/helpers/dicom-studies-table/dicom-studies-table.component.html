@@ -423,7 +423,7 @@
                                                             <span *ngIf="diff.selected" class="glyphicon glyphicon-check"></span>
                                                         </button>-->
                             <ng-container *ngFor="let action of diff_table.actions">
-                                <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
+                                <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title() || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                 </a>

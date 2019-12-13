@@ -9,7 +9,7 @@ import {
 export class TableSchemaElement {
     type:TableSchemaElementType;
     header?:string;
-    headerDescription?:string|Function;
+    headerDescription?:string;
     description?:string;
     title?:string;
     pathToValue?:string;/*Path or key of the value how you can find it on the data model*/
@@ -30,7 +30,7 @@ export class TableSchemaElement {
         options:{
             type?:TableSchemaElementType,
             header?:string,
-            headerDescription?:string|Function,
+            headerDescription?:string,
             pathToValue?:string,
             widthWeight?:number,
             cssClass?:string,
