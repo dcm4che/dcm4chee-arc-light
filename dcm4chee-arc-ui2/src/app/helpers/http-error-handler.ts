@@ -18,11 +18,20 @@ export class HttpErrorHandler {
                             'status': 'error'
                         });
                     }else{
-                        this.mainservice.setMessage({
-                            'title': 'Error ' + (error.status||''),
-                            'text': error["message"],
-                            'status': 'error'
-                        });
+                        if(_.hasIn(error,"error") && error.error.indexOf("java") > -1){
+                            this.mainservice.setMessage({
+                                'title': 'Error ' + error.status,
+                                'text': error.statusText + '!',
+                                'status': 'error',
+                                'detailError': error.error
+                            });
+                        }else{
+                            this.mainservice.setMessage({
+                                'title': 'Error ' + (error.status||''),
+                                'text': error["message"],
+                                'status': 'error'
+                            });
+                        }
                     }
                 }else{
                     if(_.hasIn(error, "[00000902].Value[0]")){
