@@ -62,7 +62,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -186,7 +185,7 @@ public class Curve2PRExporter extends AbstractExporter {
         for (int offset = 0; (curveData = metadata.getBytes(Tag.CurveData | offset)) != null; offset += 0x20000) {
             if (isConvertable(curveData, metadata, offset)) {
                 if (graphicAnnotationItem == null)
-                    graphicAnnotationItem = graphicAnnotationItem(ctx, inst, results, metadata);
+                    graphicAnnotationItem = graphicAnnotationItem(inst, results, metadata);
                 addPolyline(graphicAnnotationItem, VR.FL.toFloats(curveData, false), pixelSpacing);
             }
         }
@@ -208,7 +207,7 @@ public class Curve2PRExporter extends AbstractExporter {
                 && metadata.getInt(Tag.DataValueRepresentation | offset, -1) == 2;
     }
 
-    private Attributes graphicAnnotationItem(RetrieveContext ctx, InstanceLocations inst,
+    private Attributes graphicAnnotationItem(InstanceLocations inst,
             List<Attributes> results, Attributes metadata) {
         Attributes pr = createPR(inst, results, metadata);
         imageRef(seriesRef(pr, inst.getAttributes().getString(Tag.SeriesInstanceUID)), inst);
