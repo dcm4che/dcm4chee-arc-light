@@ -544,12 +544,14 @@ public class StoreServiceEJB {
     }
 
     private static boolean isExpired(Series series, boolean matchUnset) {
-        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
-        if (studyExpirationDate == null)
+        if (series.getStudy().getExpirationDate() == null)
             return matchUnset;
 
-        LocalDate seriesExpirationDate = series.getExpirationDate();
-        return (seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isBefore(LocalDate.now());
+        LocalDate currentDate = LocalDate.now();
+        LocalDate expirationDate = series.getExpirationDate() != null
+                                    ? series.getExpirationDate()
+                                    : series.getStudy().getExpirationDate();
+        return expirationDate.isBefore(currentDate) || expirationDate.equals(currentDate);
     }
 
     private boolean hasRejectedInstances(Series series) {
