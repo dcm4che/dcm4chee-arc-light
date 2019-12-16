@@ -757,7 +757,7 @@ public class QueryBuilder {
         uidsPredicate(predicates, ups.get(UPS_.replacedSOPInstanceUID),
                 getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                         Tag.ReferencedSOPInstanceUID, "*"));
-        anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::valueOf,
+        anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
         notSubscribedBy(predicates, q, ups, queryParam.getNotSubscribedByAET());
     }
