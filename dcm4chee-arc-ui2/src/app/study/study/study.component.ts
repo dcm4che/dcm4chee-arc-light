@@ -1382,6 +1382,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "mwl":
                 this.getMWL(filterModel);
+                break;
             case "uwl":
                 this.getUWL(filterModel);
                 break;
