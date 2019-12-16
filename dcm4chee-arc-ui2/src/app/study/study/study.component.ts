@@ -177,6 +177,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("upload_dicom","Upload DICOM Object"),
             new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
             new SelectDropdown("export_multiple","Export multiple studies"),
+            new SelectDropdown("reject_multiple","Reject multiple studies"),
             new SelectDropdown("retrieve_multiple","Retrieve multiple studies"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
@@ -357,6 +358,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                break;
             case "export_multiple":
                 this.exportMultipleStudies();
+               break;
+            case "reject_multiple":
+                this.rejectMatchingStudies();
                break;
             case "retrieve_multiple":
                 this.retrieveMultipleStudies();
@@ -2398,7 +2402,43 @@ trigger_diff*/
         });
     };
 
-
+    rejectMatchingStudies(){
+        let select: any = [];
+        const msg = 'Objects rejected successfully!';
+        _.forEach(this.trash.rjnotes, (m, i) => {
+            select.push({
+                title: m.codeMeaning,
+                value: m.codeValue + '^' + m.codingSchemeDesignator,
+                label: m.label
+            });
+        });
+        let parameters: any = {
+            content: 'Select rejected type',
+            select: select,
+            result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+            saveButton: 'REJECT'
+        };
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                console.log("result",result.select);
+                this.cfpLoadingBar.start();
+                this.service.rejectMatchingStudies(this.studyWebService.selectedWebService,result.select,this.createStudyFilterParams(true,true)).subscribe(res=>{
+                    console.log("res",res);
+                    let count = "";
+                    try{
+                        count = res.count;
+                    }catch (e) {
+                        j4care.log("Could not get count from res=",e);
+                    }
+                    this.appService.showMsg(`Objects rejected successfully:<br>Count:${count}`);
+                    this.cfpLoadingBar.complete();
+                },err=>{
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+            }
+        });
+    }
     rejectRestoreMultipleObjects(){
         let msg = "";
         let select: any = [];
@@ -2439,11 +2479,11 @@ trigger_diff*/
         }
 
     }
-    rejectStudy(study) {
+    rejectStudy(study){
         let $this = this;
         if (this.trash.active) {
             //restore
-            this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
             .subscribe(
                 (res) => {
                     $this.appService.setMessage({

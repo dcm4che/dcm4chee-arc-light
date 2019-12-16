@@ -3080,6 +3080,14 @@ export class StudyService {
         }));
     }
 
+    rejectMatchingStudies(webApp: DcmWebApp, rejectionCode, params:any){
+        return this.$http.post(
+            `${this.getDicomURL("study", webApp)}/reject/${rejectionCode}${j4care.param(params)}`,
+            {},
+            this.jsonHeader
+        )
+    }
+
     rejectStudy(studyAttr, webApp: DcmWebApp, rejectionCode) {
         return this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
