@@ -2843,6 +2843,7 @@ trigger_diff*/
                                     delete params['orderby'];
                                     singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                                    //TODO url schould be her overwritten with the 'MOVE' webapp url for external
                                 }else{
                                     if (result.exportType === 'dicom'){
                                         id = 'dicom:' + result.selectedAet;

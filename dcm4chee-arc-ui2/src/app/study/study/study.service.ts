@@ -3090,7 +3090,7 @@ export class StudyService {
 
     rejectStudy(studyAttr, webApp: DcmWebApp, rejectionCode) {
         return this.$http.post(
-            `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`,
+            `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`, //TODO this will work only for internal aets (look this 'DCM4CHEE_ARC_AET' if not found look for this class'REJECT')
             {},
             this.jsonHeader
         )

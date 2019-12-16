@@ -220,7 +220,7 @@ export class UploadFilesComponent implements OnInit {
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
-                        let url = this.uploadDicomService.getUrlFromWebApp(this.selectedWebApp);
+                        let url = this.uploadDicomService.getUrlFromWebApp(this.selectedWebApp); //TODO Upload for external archive will not work 'STOW-RS' https://github.com/dcm4che/dcm4chee-arc-light/issues/2321
                         if (url) {
                             this.percentComplete[file.name] = {};
                             $this.percentComplete[file.name]['showTicker'] = false;
