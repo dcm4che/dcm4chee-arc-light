@@ -1,0 +1,8 @@
+/subsystem=ee:write-attribute(name=jboss-descriptor-property-replacement,value=true)
+/subsystem=ee/managed-executor-service=default:undefine-attribute(name=hung-task-threshold)
+/subsystem=ee/managed-executor-service=default:write-attribute(name=long-running-tasks,value=true)
+/subsystem=ee/managed-executor-service=default:write-attribute(name=core-threads,value=2)
+/subsystem=ee/managed-executor-service=default:write-attribute(name=max-threads,value=100)
+/subsystem=ee/managed-executor-service=default:write-attribute(name=queue-length,value=0)
+/subsystem=ee/managed-scheduled-executor-service=default:undefine-attribute(name=hung-task-threshold)
+/subsystem=ee/managed-scheduled-executor-service=default:write-attribute(name=long-running-tasks,value=true)
