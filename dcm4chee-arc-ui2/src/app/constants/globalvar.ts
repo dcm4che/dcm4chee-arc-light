@@ -930,6 +930,12 @@ export class Globalvar {
                 ],
                 description:"Scheduled Human Performers Sequence (0040,4034)",
                 placeholder:"Human Performers"
+            },{
+                tag:"range-picker",
+                type:"text",
+                filterKey:"00404010",
+                description:"Scheduled Procedure Step Modification Date and Time",
+                placeholder:"Step Modification Time"
             }
             ]
         }else{
