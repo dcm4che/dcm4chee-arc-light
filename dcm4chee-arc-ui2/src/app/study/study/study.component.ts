@@ -2430,7 +2430,7 @@ trigger_diff*/
                     }catch (e) {
                         j4care.log("Could not get count from res=",e);
                     }
-                    this.appService.showMsg(`Objects rejected successfully:<br>Count:${count}`);
+                    this.appService.showMsg(`Objects rejected successfully:<br>Count: ${count}`);
                     this.cfpLoadingBar.complete();
                 },err=>{
                     this.httpErrorHandler.handleError(err);
