@@ -267,7 +267,7 @@ export class DicomNetworkConnection{
     }
 }
 
-export type HttpMethod = "get"|"head"|"post"|"put"|"delete";
+export type HttpMethod = "get"|"head"|"post"|"put"|"delete"|"option";
 
 export interface DcmWebAppRequestParam {
     doNotEncode:boolean;

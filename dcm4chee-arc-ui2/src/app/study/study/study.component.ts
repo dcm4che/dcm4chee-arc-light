@@ -2484,7 +2484,7 @@ trigger_diff*/
         let $this = this;
         if (this.trash.active) {
             //restore
-            this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
+            this.service.rejectStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
             .subscribe(
                 (res) => {
                     $this.appService.setMessage({
@@ -2517,7 +2517,7 @@ trigger_diff*/
             this.confirm(parameters).subscribe(result => {
                 if (result) {
                     $this.cfpLoadingBar.start();
-                    this.service.rejectStudy(study.attrs, this.studyWebService.selectedWebService, parameters.result.select )
+                    this.service.rejectStudy(study.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
                             $this.appService.setMessage({
@@ -2545,7 +2545,7 @@ trigger_diff*/
     rejectSeries(series) {
         let $this = this;
         if (this.trash.active) {
-            this.service.rejectSeries(series.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.rejectSeries(series.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
@@ -2583,7 +2583,7 @@ trigger_diff*/
                     console.log('result', result);
                     console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
-                    this.service.rejectSeries(series.attrs, this.studyWebService.selectedWebService, parameters.result.select )
+                    this.service.rejectSeries(series.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
                             $this.appService.setMessage({
@@ -2611,7 +2611,7 @@ trigger_diff*/
     rejectInstance(instance) {
         let $this = this;
         if (this.trash.active) {
-            this.service.rejectInstance(instance.attrs, this.studyWebService.selectedWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.rejectInstance(instance.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
                 .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
@@ -2649,7 +2649,7 @@ trigger_diff*/
                     console.log('result', result);
                     console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
-                    this.service.rejectInstance(instance.attrs, this.studyWebService.selectedWebService, parameters.result.select ).subscribe(
+                    this.service.rejectInstance(instance.attrs, this.studyWebService, parameters.result.select ).subscribe(
                         (response) => {
                             $this.appService.setMessage({
                                 'title': 'Info',

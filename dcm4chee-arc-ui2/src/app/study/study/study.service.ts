@@ -42,6 +42,8 @@ import {of} from "rxjs/observable/of";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
+import {ErrorObservable} from "rxjs-compat/observable/ErrorObservable";
+import {Error} from "tslint/lib/error";
 
 @Injectable()
 export class StudyService {
@@ -608,40 +610,48 @@ export class StudyService {
 
     getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): string {
         console.log("object", dcmWebApp);
-        try {
-            let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            switch (mode) {
-                case "patient":
-                    url += '/patients';
-                    break;
-                case "mwl":
-                    url += '/mwlitems';
-                    break;
-                case "uwl":
-                    url += '/workitems';
-                    break;
-                case "export":
-                    url += '/studies/export';
-                    break;
-                case "study":
-                    url += '/studies';
-                    break;
-                case "diff":
-                    // url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
-                    //TODO
-                    break;
-                default:
-                    url;
+        if(dcmWebApp){
+            try {
+                let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
+                if(url){
+                    switch (mode) {
+                        case "patient":
+                            url += '/patients';
+                            break;
+                        case "mwl":
+                            url += '/mwlitems';
+                            break;
+                        case "uwl":
+                            url += '/workitems';
+                            break;
+                        case "export":
+                            url += '/studies/export';
+                            break;
+                        case "study":
+                            url += '/studies';
+                            break;
+                        case "diff":
+                            // url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
+                            //TODO
+                            break;
+                        default:
+                            url;
+                    }
+                    if (mode != "diff" && responseType) {
+                        if (responseType === "count")
+                            url += '/count';
+                        if (responseType === "size")
+                            url += '/size';
+                    }
+                    return url;
+                }else{
+                    j4care.log('Url is undefined');
+                }
+            } catch (e) {
+                j4care.log("Error on getting dicomURL in study.service.ts", e);
             }
-            if (mode != "diff" && responseType) {
-                if (responseType === "count")
-                    url += '/count';
-                if (responseType === "size")
-                    url += '/size';
-            }
-            return url;
-        } catch (e) {
-            j4care.log("Error on getting dicomURL in study.service.ts", e);
+        }else{
+            j4care.log("WebApp is undefined");
         }
     }
 
@@ -2798,7 +2808,7 @@ export class StudyService {
             });
             return forkJoin(observables);
         }catch (e) {
-            return Observable.throw(e);
+            return Observable.throwError(e);
         }
     };
 
@@ -2843,7 +2853,7 @@ export class StudyService {
                         return this.$http.post(url, patientObject);
                     }
                 }
-                return Observable.throw({error: "Error on getting the WebApp URL"});
+                return Observable.throwError({error: "Error on getting the needed WebApp (with one of the web service classes \"DCM4CHEE_ARC_AET\" or \"PAM\")"});
             })
     }
 
@@ -2852,7 +2862,7 @@ export class StudyService {
     }
 
     getModifyPatientWebApp(deviceWebService: StudyWebService): Observable<DcmWebApp> {
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "DCM4CHEE_ARC_AET", "PAM_RS");
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "DCM4CHEE_ARC_AET", "PAM");
     }
 
     getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
@@ -3088,28 +3098,58 @@ export class StudyService {
         )
     }
 
-    rejectStudy(studyAttr, webApp: DcmWebApp, rejectionCode) {
-        return this.$http.post(
+    rejectStudy(studyAttr, webService:StudyWebService, rejectionCode) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+            _webApp = webApp;
+            return `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+        }).switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        });
+/*        return
+            this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`, //TODO this will work only for internal aets (look this 'DCM4CHEE_ARC_AET' if not found look for this class'REJECT')
             {},
             this.jsonHeader
-        )
+        )}*/
     }
 
-    rejectSeries(studyAttr, webApp: DcmWebApp, rejectionCode) {
-        return this.$http.post(
-            `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`,
-            {},
-            this.jsonHeader
-        )
+    rejectSeries(studyAttr, webService:StudyWebService, rejectionCode) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+            _webApp = webApp;
+            return `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+        }).switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        });
     }
 
-    rejectInstance(studyAttr, webApp: DcmWebApp, rejectionCode) {
-        return this.$http.post(
-            `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`,
-            {},
-            this.jsonHeader
-        )
+    rejectInstance(studyAttr, webService:StudyWebService, rejectionCode) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+            _webApp = webApp;
+            return `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+        }).switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        });
     }
 
 
@@ -3131,6 +3171,7 @@ export class StudyService {
         let msg;
         let endMsg = '';
         try {
+            //TODO information could be in res.error too
             msg = res.json();
             if (_.hasIn(msg, "completed")) {
                 endMsg = `Completed: ${msg.completed}<br>`;

@@ -38,7 +38,7 @@ export class J4careHttpService{
     head(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            return this.dcmWebAppRequest.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+            return this.dcmWebAppRequest.apply(this,['head', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
@@ -49,7 +49,7 @@ export class J4careHttpService{
     post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            return this.dcmWebAppRequest.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+            return this.dcmWebAppRequest.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
@@ -60,7 +60,7 @@ export class J4careHttpService{
     put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            return this.dcmWebAppRequest.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, data:data}]);
+            return this.dcmWebAppRequest.apply(this,['put', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, data:data}]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
@@ -71,7 +71,7 @@ export class J4careHttpService{
     delete(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            return this.dcmWebAppRequest.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+            return this.dcmWebAppRequest.apply(this,['delete', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
@@ -93,27 +93,27 @@ export class J4careHttpService{
                     'Authorization': `Bearer ${response.token}`
                 })
             };
-            return this.$httpClient[requestFunctionName].apply(this.$httpClient , this.getParamAsArray(param));
+            return this.$httpClient[requestFunctionName].apply(this.$httpClient , this.getParamAsArray(param, requestFunctionName));
         });
     }
-    private request(requestFunctionName, param, dcmWebApp?:DcmWebApp){
+    private request(requestFunctionName:HttpMethod, param, dcmWebApp?:DcmWebApp){
         let $this = this;
         return $this.refreshToken().flatMap((response)=>{
                 $this.setHeader(param.header, dcmWebApp);
                 param.header = {headers:this.header};
-                return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
+                return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
             }).catch(res=>{
                 j4care.log("In catch",res);
                 if(res.statusText === "Unauthorized"){
                     return $this.refreshToken().flatMap((resp)=>{
                         // this.setGlobalToken(resp,param);
-                        return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param));
+                        return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
                     });
                 }
                 return Observable.throw(res);
         });
     }
-    getParamAsArray(param:any){
+    getParamAsArray(param:any, requestFunctionName?:HttpMethod){
         let httpParam = [];
         [
             "url",
@@ -123,6 +123,10 @@ export class J4careHttpService{
         ].forEach(key=>{
             if(_.hasIn(param,key)){
                 httpParam.push(param[key]);
+            }else{
+                if(key === "data" && (requestFunctionName === "post" || requestFunctionName === "put")){
+                    httpParam.push({});
+                }
             }
         });
         return httpParam;
