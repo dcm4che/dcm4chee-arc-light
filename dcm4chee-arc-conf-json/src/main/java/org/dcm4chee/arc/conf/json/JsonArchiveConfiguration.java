@@ -331,9 +331,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStowExcludeAPPMarkers", arcDev.isStowExcludeAPPMarkers(), false);
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcDev.getWadoThumbnailViewPort(),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
-        writer.writeNotNullOrDef("dcmRestrictRetrieveAccordingTransferCapabilities",
-                arcDev.getRestrictRetrieveAccordingTransferCapabilities(),
-                RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION);
+        writer.writeNotDef("dcmRestrictRetrieveSilently", arcDev.isRestrictRetrieveSilently(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -964,8 +962,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowRetiredTransferSyntax", arcAE.getStowRetiredTransferSyntax());
         writer.writeNotNull("dcmStowExcludeAPPMarkers", arcAE.getStowExcludeAPPMarkers());
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
-        writer.writeNotNullOrDef("dcmRestrictRetrieveAccordingTransferCapabilities",
-                arcAE.getRestrictRetrieveAccordingTransferCapabilities(), null);
+        writer.writeNotNull("dcmRestrictRetrieveSilently", arcAE.getRestrictRetrieveSilently());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1548,9 +1545,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmWadoThumbnailViewport":
                     arcDev.setWadoThumbnailViewPort(reader.stringValue());
                     break;
-                case "dcmRestrictRetrieveAccordingTransferCapabilities":
-                    arcDev.setRestrictRetrieveAccordingTransferCapabilities(
-                            RestrictRetrieveAccordingTransferCapabilities.valueOf(reader.stringValue()));
+                case "dcmRestrictRetrieveSilently":
+                    arcDev.setRestrictRetrieveSilently(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3065,9 +3061,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmWadoThumbnailViewport":
                     arcAE.setWadoThumbnailViewPort(reader.stringValue());
                     break;
-                case "dcmRestrictRetrieveAccordingTransferCapabilities":
-                    arcAE.setRestrictRetrieveAccordingTransferCapabilities(
-                            RestrictRetrieveAccordingTransferCapabilities.valueOf(reader.stringValue()));
+                case "dcmRestrictRetrieveSilently":
+                    arcAE.setRestrictRetrieveSilently(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

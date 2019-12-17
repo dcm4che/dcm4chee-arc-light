@@ -115,6 +115,13 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys,
                     fallbackCMoveSCPCallingAET, fallbackCMoveSCP, fallbackCMoveSCPDestination);
         }
+        if (!retrieveService.restrictRetrieveAccordingTransferCapabilities(ctx)) {
+            if (ctx.failed() > 0) {
+                throw new DicomServiceException(Status.UnableToPerformSubOperations)
+                        .setNumberOfCompletedFailedWarningSuboperations(ctx.completed(), ctx.failed(), ctx.warning());
+            }
+            return null;
+        }
         Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
         if (ctx.getMoveOriginatorAETitle().equals(altCMoveSCP)) {

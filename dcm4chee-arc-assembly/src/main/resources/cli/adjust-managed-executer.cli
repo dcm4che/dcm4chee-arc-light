@@ -1,4 +1,4 @@
-/subsystem=ee:write-attribute(name=jboss-descriptor-property-replacement,value=true)
+/subsystem=ee:write-attribute(name=spec-descriptor-property-replacement,value=true)
 /subsystem=ee/managed-executor-service=default:undefine-attribute(name=hung-task-threshold)
 /subsystem=ee/managed-executor-service=default:write-attribute(name=long-running-tasks,value=true)
 /subsystem=ee/managed-executor-service=default:write-attribute(name=core-threads,value=2)

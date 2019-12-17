@@ -250,10 +250,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean relationalRetrieveNegotiationLenient;
     private volatile int[] rejectConflictingPatientAttribute = {};
     private volatile int schedulerMinStartDelay = 60;
-    private volatile boolean stowRetiredTransferSyntax = false;
-    private volatile boolean stowExcludeAPPMarkers = false;
-    private volatile RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities
-            = RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION;
+    private volatile boolean stowRetiredTransferSyntax;
+    private volatile boolean stowExcludeAPPMarkers;
+    private volatile boolean restrictRetrieveSilently;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -2502,13 +2501,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowExcludeAPPMarkers = stowExcludeAPPMarkers;
     }
 
-    public RestrictRetrieveAccordingTransferCapabilities getRestrictRetrieveAccordingTransferCapabilities() {
-        return restrictRetrieveAccordingTransferCapabilities;
+    public boolean isRestrictRetrieveSilently() {
+        return restrictRetrieveSilently;
     }
 
-    public void setRestrictRetrieveAccordingTransferCapabilities(
-            RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities) {
-        this.restrictRetrieveAccordingTransferCapabilities = restrictRetrieveAccordingTransferCapabilities;
+    public void setRestrictRetrieveSilently(boolean restrictRetrieveSilently) {
+        this.restrictRetrieveSilently = restrictRetrieveSilently;
     }
 
     @Override
@@ -2697,7 +2695,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         schedulerMinStartDelay = arcdev.schedulerMinStartDelay;
         stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
-        restrictRetrieveAccordingTransferCapabilities = arcdev.restrictRetrieveAccordingTransferCapabilities;
+        restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

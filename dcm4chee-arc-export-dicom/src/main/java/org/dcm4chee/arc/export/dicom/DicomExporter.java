@@ -82,6 +82,13 @@ public class DicomExporter extends AbstractExporter {
         if (!retrieveService.calculateMatches(retrieveContext))
             return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 
+        if (!retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
+            return new Outcome(
+                    retrieveContext.failed() > 0
+                            ? QueueMessage.Status.WARNING
+                            : QueueMessage.Status.COMPLETED,
+                    outcomeMessage(exportContext, retrieveContext));
+
         String messageID = exportContext.getMessageID();
         RetrieveTask retrieveTask = storeSCU.newRetrieveTaskSTORE(retrieveContext);
         retrieveTaskMap.put(messageID, retrieveTask);
@@ -103,7 +110,8 @@ public class DicomExporter extends AbstractExporter {
 
     @Override
     public void export(RetrieveContext retrieveContext) throws Exception {
-        if (retrieveService.calculateMatches(retrieveContext))
+        if (retrieveService.calculateMatches(retrieveContext)
+                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
             storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
     }
 

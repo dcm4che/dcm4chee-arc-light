@@ -135,7 +135,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean relationalRetrieveNegotiationLenient;
     private Boolean stowRetiredTransferSyntax;
     private Boolean stowExcludeAPPMarkers;
-    private RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities;
+    private Boolean restrictRetrieveSilently;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
@@ -1353,19 +1353,18 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowExcludeAPPMarkers();
     }
 
-    public RestrictRetrieveAccordingTransferCapabilities getRestrictRetrieveAccordingTransferCapabilities() {
-        return restrictRetrieveAccordingTransferCapabilities;
+    public Boolean getRestrictRetrieveSilently() {
+        return restrictRetrieveSilently;
     }
 
-    public void setRestrictRetrieveAccordingTransferCapabilities(
-            RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities) {
-        this.restrictRetrieveAccordingTransferCapabilities = restrictRetrieveAccordingTransferCapabilities;
+    public void setRestrictRetrieveSilently(Boolean restrictRetrieveSilently) {
+        this.restrictRetrieveSilently = restrictRetrieveSilently;
     }
 
-    public RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities() {
-        return restrictRetrieveAccordingTransferCapabilities != null
-                ? restrictRetrieveAccordingTransferCapabilities
-                : getArchiveDeviceExtension().getRestrictRetrieveAccordingTransferCapabilities();
+    public boolean restrictRetrieveSilently() {
+        return restrictRetrieveSilently != null
+                ? restrictRetrieveSilently.booleanValue()
+                : getArchiveDeviceExtension().isRestrictRetrieveSilently();
     }
 
     public MultipleStoreAssociations[] getMultipleStoreAssociations() {
@@ -1459,7 +1458,7 @@ public class ArchiveAEExtension extends AEExtension {
         rejectConflictingPatientAttribute = aeExt.rejectConflictingPatientAttribute;
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
-        restrictRetrieveAccordingTransferCapabilities = aeExt.restrictRetrieveAccordingTransferCapabilities;
+        restrictRetrieveSilently = aeExt.restrictRetrieveSilently;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);

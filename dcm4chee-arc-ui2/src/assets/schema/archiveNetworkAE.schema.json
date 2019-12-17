@@ -514,15 +514,11 @@
       "description": "Indicates to accept C-MOVE and C-GET RQs without unique keys for levels above the query level also if support for relational-queries was not negotiated. Overwrites value specified on Device level. Overwrites value specified on Device level.",
       "type": "boolean"
     },
-    "dcmRestrictRetrieveAccordingTransferCapabilities": {
-      "title": "Restrict Retrieve According Transfer Capabilities",
-      "description": "Indicates if the set of requested objects to retrieve shall be restricted according the Transfer Capabilities of the Retrieve Destination. CONFIGURATION - consider configured Transfer Capabilities of the Destination AE, but treat a non accepted Presentation Context as failure. Overwrites value specified on Device level.",
-      "type": "string",
-      "enum": [
-        "NO",
-        "YES",
-        "CONFIGURATION"
-      ]
+    "dcmRestrictRetrieveSilently": {
+      "title": "Restrict Retrieve Silently",
+      "description": "Indicates if the set of requested objects to retrieve shall be silently (=without counting not transferred object as failures) restricted according the Transfer Capabilities of the Retrieve Destination. Otherwise the number of requested objects for which no Transfer Capability is configured for the Retrieve Destination and therefore are not retrieved is counted as failures. Only effective, if the Retrieve Destination has configured at least one Transfer Capability with SCP role. Overwrites value specified on Device level.",
+      "type": "boolean",
+      "default": false
     },
     "dcmRejectConflictingPatientAttribute": {
       "title": "Reject Conflicting Patient Attribute",
