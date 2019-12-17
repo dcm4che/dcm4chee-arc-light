@@ -132,6 +132,8 @@ public interface RetrieveService {
 
     Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
+    boolean restrictRetrieveAccordingTransferCapabilities(RetrieveContext ctx);
+
     Map<String,Collection<InstanceLocations>> removeNotAccessableMatches(RetrieveContext ctx);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);

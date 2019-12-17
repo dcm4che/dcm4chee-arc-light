@@ -409,9 +409,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowExcludeAPPMarkers", ext.isStowExcludeAPPMarkers(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
                 ext.getWadoThumbnailViewPort(), ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveAccordingTransferCapabilities",
-                ext.getRestrictRetrieveAccordingTransferCapabilities(),
-                RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
+                ext.isRestrictRetrieveSilently(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -662,10 +661,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), false));
         ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
-        ext.setRestrictRetrieveAccordingTransferCapabilities(LdapUtils.enumValue(
-                RestrictRetrieveAccordingTransferCapabilities.class,
-                attrs.get("dcmRestrictRetrieveAccordingTransferCapabilities"),
-                RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION));
+        ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
     }
 
     @Override
@@ -1120,10 +1116,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
                 aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRestrictRetrieveAccordingTransferCapabilities",
-                aa.getRestrictRetrieveAccordingTransferCapabilities(),
-                bb.getRestrictRetrieveAccordingTransferCapabilities(),
-                RestrictRetrieveAccordingTransferCapabilities.CONFIGURATION);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRestrictRetrieveSilently",
+                aa.isRestrictRetrieveSilently(),
+                bb.isRestrictRetrieveSilently(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1377,8 +1373,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStowExcludeAPPMarkers(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
                 ext.getWadoThumbnailViewPort(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveAccordingTransferCapabilities",
-                ext.getRestrictRetrieveAccordingTransferCapabilities(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
+                ext.getRestrictRetrieveSilently(), null);
     }
 
     @Override
@@ -1494,9 +1490,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmStowRetiredTransferSyntax"), null));
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), null));
         ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"), null));
-        ext.setRestrictRetrieveAccordingTransferCapabilities(
-                LdapUtils.enumValue(RestrictRetrieveAccordingTransferCapabilities.class,
-                        attrs.get("dcmRestrictRetrieveAccordingTransferCapabilities"), null));
+        ext.setRestrictRetrieveSilently(
+                LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), null));
     }
 
     @Override
@@ -1684,10 +1679,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStowExcludeAPPMarkers(), bb.getStowExcludeAPPMarkers(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
                 aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRestrictRetrieveAccordingTransferCapabilities",
-                aa.getRestrictRetrieveAccordingTransferCapabilities(),
-                bb.getRestrictRetrieveAccordingTransferCapabilities(),
-                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRestrictRetrieveSilently",
+                aa.getRestrictRetrieveSilently(), bb.getRestrictRetrieveSilently(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

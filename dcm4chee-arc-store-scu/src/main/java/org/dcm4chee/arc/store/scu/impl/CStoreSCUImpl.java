@@ -49,7 +49,6 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.RestrictRetrieveAccordingTransferCapabilities;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -86,34 +85,15 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             try {
                 ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-                RestrictRetrieveAccordingTransferCapabilities restrictRetrieveAccordingTransferCapabilities
-                        = localAE.getAEExtension(ArchiveAEExtension.class).restrictRetrieveAccordingTransferCapabilities();
-                List<InstanceLocations> noPresentationContextOffered = new ArrayList<>();
-                Association storeas = localAE.connect(ctx.getDestinationAE(),
-                        createAARQ(ctx, noPresentationContextOffered));
-                for (InstanceLocations inst : noPresentationContextOffered) {
-                    if (restrictRetrieveAccordingTransferCapabilities
-                            == RestrictRetrieveAccordingTransferCapabilities.NO) {
-                        ctx.incrementFailed();
-                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
-                    } else {
-                        ctx.decrementNumberOfMatches();
-                    }
-                    LOG.info("{}: failed to send {} - no Presentation Context offered",
-                            storeas, inst);
-                }
+                Association storeas = localAE.connect(ctx.getDestinationAE(), createAARQ(ctx));
                 for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
                     InstanceLocations inst = iter.next();
                     if (storeas.getTransferSyntaxesFor(inst.getSopClassUID()).isEmpty()) {
                         iter.remove();
-                        if (restrictRetrieveAccordingTransferCapabilities
-                                != RestrictRetrieveAccordingTransferCapabilities.YES) {
-                            ctx.incrementFailed();
-                            ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
-                        } else
-                            ctx.decrementNumberOfMatches();
-                        LOG.info("{}: failed to send {} - no Presentation Context accepted",
-                                storeas, inst);
+                        ctx.incrementFailed();
+                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                        LOG.info("{}: failed to send {} to {} - no Presentation Context accepted",
+                                ctx.getRequestAssociation(), inst, ctx.getDestinationAETitle());
                     }
                 }
                 return storeas;
@@ -127,31 +107,26 @@ public class CStoreSCUImpl implements CStoreSCU {
         }
     }
 
-    private AAssociateRQ createAARQ(RetrieveContext ctx, List<InstanceLocations> noPresentationContextOffered) {
+    private AAssociateRQ createAARQ(RetrieveContext ctx) {
         AAssociateRQ aarq = new AAssociateRQ();
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
             aarq.setCallingAET(ctx.getLocalAETitle());
-        boolean considerConfiguredTCs = !destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
+        boolean configuredTCs = !destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
             InstanceLocations inst = iter.next();
             String cuid = inst.getSopClassUID();
-            TransferCapability configuredTCs = null;
-            if (considerConfiguredTCs && ((configuredTCs = destAE.getTransferCapabilityFor(cuid, SCP)) == null)) {
-                iter.remove();
-                noPresentationContextOffered.add(inst);
-                continue;
-            }
+            TransferCapability configuredTC = configuredTCs ? destAE.getTransferCapabilityFor(cuid, SCP) : null;
             if (!aarq.containsPresentationContextFor(cuid) && !isVideo(inst)) {
-                addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, configuredTCs);
-                addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, configuredTCs);
+                addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, configuredTC);
+                addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, configuredTC);
             }
             for (Location location : inst.getLocations()) {
                 String tsuid = location.getTransferSyntaxUID();
                 if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
                         !tsuid.equals(UID.ExplicitVRLittleEndian))
-                    addPresentationContext(aarq, cuid, tsuid, configuredTCs);
+                    addPresentationContext(aarq, cuid, tsuid, configuredTC);
             }
         }
         return aarq;

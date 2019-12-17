@@ -96,6 +96,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.dcm4che3.net.TransferCapability.Role.SCP;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -586,6 +588,32 @@ public class RetrieveServiceImpl implements RetrieveService {
             SafeClose.close(lis.stream);
             throw e;
         }
+    }
+
+    @Override
+    public boolean restrictRetrieveAccordingTransferCapabilities(RetrieveContext ctx) {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (ctx.getDestinationAE().getTransferCapabilitiesWithRole(SCP).isEmpty()) {
+            return true;
+        }
+        Collection<InstanceLocations> matches = ctx.getMatches();
+        Iterator<InstanceLocations> iter = matches.iterator();
+        boolean restrictRetrieveSilently = arcAE.restrictRetrieveSilently();
+        while (iter.hasNext()) {
+            InstanceLocations match = iter.next();
+            if (ctx.getDestinationAE().getTransferCapabilityFor(match.getSopClassUID(), SCP) == null) {
+                iter.remove();
+                if (restrictRetrieveSilently) {
+                    ctx.decrementNumberOfMatches();
+                } else {
+                    ctx.incrementFailed();
+                    ctx.addFailedSOPInstanceUID(match.getSopInstanceUID());
+                }
+                LOG.info("{}: failed to send {} to {} - no Presentation Context offered",
+                        ctx.getRequestAssociation(), match, ctx.getDestinationAETitle());
+            }
+        }
+        return !matches.isEmpty();
     }
 
     @Override
