@@ -740,11 +740,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.uploadFile(model, id.level);
 
                 }*/
-                if(id.level === "patient"){
+                this.uploadFile(model, id.level);
+/*                if(id.level === "patient"){
                     this.uploadInPatient(model);
                 }else{
                     this.uploadFile(model, id.level);
-                }
+                }*/
             }
             if(id.action === "view"){
                 this.viewInstance(model);
@@ -846,7 +847,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
     /*        this.dialogRef.componentInstance.aes = this.aes;
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
-            this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
+            // this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
+            this.dialogRef.componentInstance.studyWebService = this.studyWebService;
             this.dialogRef.componentInstance.dicomObject = object;
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {

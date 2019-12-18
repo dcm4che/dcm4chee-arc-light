@@ -23,7 +23,7 @@
                     <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
                     <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                     <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
-                    <div>
+                    <div *ngIf="percentComplete && percentComplete[file.name] && percentComplete[file.name].value">
                         <mat-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></mat-progress-bar>
                     </div>
                 </div>

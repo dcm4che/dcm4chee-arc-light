@@ -10,6 +10,7 @@ import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
+import {StudyService} from "../../../study/study/study.service";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -38,6 +39,7 @@ export class UploadDicomComponent implements OnInit{
         private service: UploadDicomService,
         public mainservice:AppService,
         private studieService:StudiesService,
+        private studyService:StudyService,
         private httpErrorHandler:HttpErrorHandler,
         private _keycloakService: KeycloakService
     ) {
@@ -73,6 +75,14 @@ export class UploadDicomComponent implements OnInit{
 
     }
 
+    getToken(){
+        if(this.selectedWebApp && _.hasIn(this.selectedWebApp, "dcmKeycloakClientID")){
+            return this.$http.getRealm(this.selectedWebApp);
+        }else{
+            return this._keycloakService.getToken();
+        }
+    }
+
     fileChange(event) {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
@@ -81,7 +91,8 @@ export class UploadDicomComponent implements OnInit{
         this.fileList = event.target.files;
 
         if (this.fileList) {
-            this._keycloakService.getToken().subscribe((response) => {
+            console.log("getToken",this.getToken());
+            this.getToken().subscribe((response) => {
                 if(!this.mainservice.global.notSecure){
                     token = response.token;
                 }
@@ -113,7 +124,8 @@ export class UploadDicomComponent implements OnInit{
                         //Some AJAX-y stuff - callbacks, handlers etc.
                         let url;
                         if(this.selectedWebApp){
-                            url = this.service.getUrlFromWebApp(this.selectedWebApp);
+                            // url = this.service.getUrlFromWebApp(this.selectedWebApp);
+                            url = this.studyService.getDicomURL("study",this.selectedWebApp);
                         }else{
                             url = `../aets/${$this._selectedAe}/rs/studies`;
                         }

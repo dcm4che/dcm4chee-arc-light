@@ -11,6 +11,7 @@ import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 import {StudyDicom} from "../../../models/study-dicom";
 import {StudyService} from "../../../study/study/study.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
+import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 // declare var uuidv4: any;
 
@@ -46,6 +47,7 @@ export class UploadFilesComponent implements OnInit {
     showFileList = false;
     isImage = false;
     webApps;
+    studyWebService:StudyWebService;
     selectedWebApp;
     seriesNumber = 0;
     // instanceNumber = 1;
@@ -161,6 +163,14 @@ export class UploadFilesComponent implements OnInit {
         console.log("this._dicomObject.attrs",this._dicomObject.attrs);
         // this._dicomObject.attrs = e.attrs;
     }
+    getToken(){
+        if(this.selectedWebApp && _.hasIn(this.selectedWebApp, "dcmKeycloakClientID")){
+            return this.$http.getRealm(this.selectedWebApp);
+        }else{
+            return this._keycloakService.getToken();
+        }
+    }
+
     upload() {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
@@ -183,7 +193,7 @@ export class UploadFilesComponent implements OnInit {
             }
         });*/
         let seriesInstanceUID;
-        this._keycloakService.getToken().subscribe((response) => {
+        this.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
                 token = response.token;
             }
@@ -219,194 +229,206 @@ export class UploadFilesComponent implements OnInit {
                     if (transfareSyntax || transfareSyntax === "") {
 
                         let xmlHttpRequest = new XMLHttpRequest();
-                        //Some AJAX-y stuff - callbacks, handlers etc.
-                        let url = this.uploadDicomService.getUrlFromWebApp(this.selectedWebApp); //TODO Upload for external archive will not work 'STOW-RS' https://github.com/dcm4che/dcm4chee-arc-light/issues/2321
-                        if (url) {
-                            this.percentComplete[file.name] = {};
-                            $this.percentComplete[file.name]['showTicker'] = false;
-                            $this.percentComplete[file.name]['showLoader'] = true;
-                            xmlHttpRequest.open('POST', url, true);
-                            let dashes = '--';
-                            let crlf = '\r\n';
-                            //Post with the correct MIME type (If the OS can identify one)
-                            /*                        let studyObject = _.pickBy(local, (o, i) => {
-                                                        return (i.toString().indexOf("777") === -1);
-                                                    });          */
-                            let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
-                                return (i.toString().indexOf("777") === -1);
-                            });
-                            if (!$this.description || $this.description === "") {
-                                $this.description = "Imported " + descriptionPart;
-                            }
-                            studyObject["0008103E"] = {
-                                "vr": "LO",
-                                "Value": [
-                                    $this.description
-                                ]
-                            };
-                            studyObject["00200013"] = { //"00200013":"Instance Number"
-                                "vr": "IS",
-                                "Value": [
-                                    i + 1
-                                ]
-                            };
-                            studyObject["00200011"] = { // "00200011":"Series Number"
-                                "vr": "IS",
-                                "Value": [
-                                    this.seriesNumber || 0
-                                ]
-                            };
-                            if (_.hasIn(studyObject, "0020000D.Value[0]")) {
-                                studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
-                                    "vr": "UI",
-                                    "Value": [
-                                        seriesInstanceUID
-                                    ]
-                                };
-                            }
-                            studyObject["00080018"] = {
-                                "vr": "UI",
-                                "Value": [
-                                    j4care.generateOIDFromUUID()
-                                ]
-                            };
-
-                            if (file.type === "application/pdf") {
-                                studyObject["00420011"] = {
-                                    "vr": "OB",
-                                    "BulkDataURI": "file/" + file.name
-                                };
-                                studyObject["00080016"] = {
-                                    "vr": "UI",
-                                    "Value": [
-                                        "1.2.840.10008.5.1.4.1.1.104.1"
-                                    ]
+                        this.studyService.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"DCM4CHEE_ARC_AET","STOW_RS").subscribe(webApp=>{
+                            console.log("webApp",webApp);
+                            let url = this.studyService.getDicomURL('study', webApp);
+                            // let url = this.uploadDicomService.getUrlFromWebApp(this.studyWebService.selectedWebService); //TODO Upload for external archive will not work 'STOW_RS' https://github.com/dcm4che/dcm4chee-arc-light/issues/2321
+                            if (url) {
+                                this.percentComplete[file.name] = {};
+                                $this.percentComplete[file.name]['showTicker'] = false;
+                                $this.percentComplete[file.name]['showLoader'] = true;
+                                xmlHttpRequest.open('POST', url, true);
+                                let dashes = '--';
+                                let crlf = '\r\n';
+                                //Post with the correct MIME type (If the OS can identify one)
+                                /*                        let studyObject = _.pickBy(local, (o, i) => {
+                                                            return (i.toString().indexOf("777") === -1);
+                                                        });          */
+                                let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
+                                    return (i.toString().indexOf("777") === -1);
+                                });
+                                if (!$this.description || $this.description === "") {
+                                    $this.description = "Imported " + descriptionPart;
                                 }
-                                studyObject["00280301"] = {
-                                    "vr": "CS",
-                                    "Value": [
-                                        "YES"
-                                    ]
-                                };
-                                studyObject["00420012"] = {
+                                studyObject["0008103E"] = {
                                     "vr": "LO",
-                                    "Value": [
-                                        "application/pdf"
-                                    ]
-                                };
-                                studyObject["00420010"] = {
-                                    "vr": "ST",
                                     "Value": [
                                         $this.description
                                     ]
                                 };
-                            } else {
-                                if (file.type.indexOf("video") > -1) {
-                                    studyObject["00080016"] = {
-                                        "vr": "UI",
-                                        "Value": [
-                                            "1.2.840.10008.5.1.4.1.1.77.1.4.1"
-                                        ]
-                                    }
-                                } else {
-                                    studyObject["00080016"] = {
-                                        "vr": "UI",
-                                        "Value": [
-                                            $this.selectedSopClass.value
-                                        ]
-                                    }
-                                }
-                                studyObject["7FE00010"] = {
-                                    "vr": "OB",
-                                    "BulkDataURI": "file/" + file.name
-                                }
-                                // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
-                            }
-                            if (file.type === "image/jpeg") {
-                                studyObject["00080008"] = {
-                                    "vr": "CS",
+                                studyObject["00200013"] = { //"00200013":"Instance Number"
+                                    "vr": "IS",
                                     "Value": [
-                                        "ORIGINAL",
-                                        "PRIMARY"
+                                        i + 1
                                     ]
                                 };
-                                if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
-                                    studyObject["00080064"] = {
-                                        "vr": "CS",
+                                studyObject["00200011"] = { // "00200011":"Series Number"
+                                    "vr": "IS",
+                                    "Value": [
+                                        this.seriesNumber || 0
+                                    ]
+                                };
+                                if (_.hasIn(studyObject, "0020000D.Value[0]")) {
+                                    studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
+                                        "vr": "UI",
                                         "Value": [
-                                            "WSD"
+                                            seriesInstanceUID
                                         ]
                                     };
-                                    studyObject["00200020"] = {
-                                        "vr": "CS"
+                                }else{
+                                    studyObject["0020000D"] = {
+                                        "vr": "UI",
+                                        "Value": [
+                                            seriesInstanceUID
+                                        ]
                                     };
                                 }
-                            }
-                            studyObject["00080060"] = {
-                                "vr": "CS",
-                                "Value": [
-                                    $this.modality
-                                ]
-                            };
-                            let object = [{}];
-                            Object.keys(studyObject).forEach(key => {
-                                if (([
-                                    "00080054",
-                                    "00080056",
-                                    "00080061",
-                                    "00080062",
-                                    "00081190",
-                                    "00201200",
-                                    "00201206",
-                                    "00201208"
-                                ].indexOf(key) === -1))
-                                    object[0][key] = studyObject[key];
-                            });
-                            const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(object) + crlf;
+                                studyObject["00080018"] = {
+                                    "vr": "UI",
+                                    "Value": [
+                                        j4care.generateOIDFromUUID()
+                                    ]
+                                };
 
-                            const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
-                            const postDataEnd = crlf + dashes + boundary + dashes;
-
-                            xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
-                            xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                            if (!this.mainservice.global.notSecure) {
-                                xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
-                            }
-                            xmlHttpRequest.upload.onprogress = function (e) {
-                                if (e.lengthComputable) {
-                                    $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
+                                if (file.type === "application/pdf") {
+                                    studyObject["00420011"] = {
+                                        "vr": "OB",
+                                        "BulkDataURI": "file/" + file.name
+                                    };
+                                    studyObject["00080016"] = {
+                                        "vr": "UI",
+                                        "Value": [
+                                            "1.2.840.10008.5.1.4.1.1.104.1"
+                                        ]
+                                    }
+                                    studyObject["00280301"] = {
+                                        "vr": "CS",
+                                        "Value": [
+                                            "YES"
+                                        ]
+                                    };
+                                    studyObject["00420012"] = {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "application/pdf"
+                                        ]
+                                    };
+                                    studyObject["00420010"] = {
+                                        "vr": "ST",
+                                        "Value": [
+                                            $this.description
+                                        ]
+                                    };
+                                } else {
+                                    if (file.type.indexOf("video") > -1) {
+                                        studyObject["00080016"] = {
+                                            "vr": "UI",
+                                            "Value": [
+                                                "1.2.840.10008.5.1.4.1.1.77.1.4.1"
+                                            ]
+                                        }
+                                    } else {
+                                        studyObject["00080016"] = {
+                                            "vr": "UI",
+                                            "Value": [
+                                                $this.selectedSopClass.value
+                                            ]
+                                        }
+                                    }
+                                    studyObject["7FE00010"] = {
+                                        "vr": "OB",
+                                        "BulkDataURI": "file/" + file.name
+                                    }
+                                    // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                                 }
-                            };
-                            xmlHttpRequest.onreadystatechange = () => {
-                                if (xmlHttpRequest.readyState === 4) {
+                                if (file.type === "image/jpeg") {
+                                    studyObject["00080008"] = {
+                                        "vr": "CS",
+                                        "Value": [
+                                            "ORIGINAL",
+                                            "PRIMARY"
+                                        ]
+                                    };
+                                    if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
+                                        studyObject["00080064"] = {
+                                            "vr": "CS",
+                                            "Value": [
+                                                "WSD"
+                                            ]
+                                        };
+                                        studyObject["00200020"] = {
+                                            "vr": "CS"
+                                        };
+                                    }
+                                }
+                                studyObject["00080060"] = {
+                                    "vr": "CS",
+                                    "Value": [
+                                        $this.modality
+                                    ]
+                                };
+                                let object = [{}];
+                                Object.keys(studyObject).forEach(key => {
+                                    if (([
+                                        "00080054",
+                                        "00080056",
+                                        "00080061",
+                                        "00080062",
+                                        "00081190",
+                                        "00201200",
+                                        "00201206",
+                                        "00201208"
+                                    ].indexOf(key) === -1))
+                                        object[0][key] = studyObject[key];
+                                });
+                                const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(object) + crlf;
+
+                                const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+                                const postDataEnd = crlf + dashes + boundary + dashes;
+
+                                xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
+                                xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                                if (!this.mainservice.global.notSecure) {
+                                    xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                                }
+                                xmlHttpRequest.upload.onprogress = function (e) {
+                                    if (e.lengthComputable) {
+                                        $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
+                                    }
+                                };
+                                xmlHttpRequest.onreadystatechange = () => {
+                                    if (xmlHttpRequest.readyState === 4) {
+                                        if (xmlHttpRequest.status === 200) {
+                                            $this.percentComplete[file.name]['showLoader'] = false;
+                                            $this.percentComplete[file.name]['showTicker'] = true;
+                                            console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                        } else {
+                                            $this.percentComplete[file.name]['showLoader'] = false;
+                                            console.log('in respons error', xmlHttpRequest.status);
+                                            console.log('statusText', xmlHttpRequest.statusText);
+                                            $this.percentComplete[file.name]['value'] = 0;
+                                            $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                        }
+                                    }
+                                    // $this.percentComplete[file.name]['showLoader'] = true;
+                                };
+                                xmlHttpRequest.upload.onloadstart = function (e) {
+                                    $this.percentComplete[file.name]['value'] = 1;
+                                };
+                                xmlHttpRequest.upload.onloadend = function (e) {
                                     if (xmlHttpRequest.status === 200) {
                                         $this.percentComplete[file.name]['showLoader'] = false;
                                         $this.percentComplete[file.name]['showTicker'] = true;
-                                        console.log('in response', JSON.parse(xmlHttpRequest.response));
-                                    } else {
-                                        $this.percentComplete[file.name]['showLoader'] = false;
-                                        console.log('in respons error', xmlHttpRequest.status);
-                                        console.log('statusText', xmlHttpRequest.statusText);
-                                        $this.percentComplete[file.name]['value'] = 0;
-                                        $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                        $this.percentComplete[file.name]['value'] = 100;
                                     }
-                                }
-                                // $this.percentComplete[file.name]['showLoader'] = true;
-                            };
-                            xmlHttpRequest.upload.onloadstart = function (e) {
-                                $this.percentComplete[file.name]['value'] = 1;
-                            };
-                            xmlHttpRequest.upload.onloadend = function (e) {
-                                if (xmlHttpRequest.status === 200) {
-                                    $this.percentComplete[file.name]['showLoader'] = false;
-                                    $this.percentComplete[file.name]['showTicker'] = true;
-                                    $this.percentComplete[file.name]['value'] = 100;
-                                }
-                            };
-                            xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
-                        }else{
-                            this.mainservice.showError("A STOW-RS server is missing!")
-                        }
+                                };
+                                xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
+                            }else{
+                                this.mainservice.showError("A STOW-RS server is missing!")
+                            }
+                        },err=>{
+                            console.log("errwebApp",err);
+                        });
                     } else {
                         $this.mainservice.setMessage({
                             'title': 'Error',

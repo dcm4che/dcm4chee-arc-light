@@ -2888,7 +2888,7 @@ export class StudyService {
                 })[0];*/
             } catch (e) {
                 j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
-                return undefined;
+                return Observable.throwError(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`);
             }
         }
     }
