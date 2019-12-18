@@ -11,7 +11,7 @@ import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 import {StudyDicom} from "../../../models/study-dicom";
 import {StudyService} from "../../../study/study/study.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
-import {StudyWebService} from "../../../study/study/study-web-service.model";
+// import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 // declare var uuidv4: any;
 
@@ -47,7 +47,7 @@ export class UploadFilesComponent implements OnInit {
     showFileList = false;
     isImage = false;
     webApps;
-    studyWebService:StudyWebService;
+    // studyWebService:StudyWebService;
     selectedWebApp;
     seriesNumber = 0;
     // instanceNumber = 1;
@@ -229,10 +229,11 @@ export class UploadFilesComponent implements OnInit {
                     if (transfareSyntax || transfareSyntax === "") {
 
                         let xmlHttpRequest = new XMLHttpRequest();
-                        this.studyService.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"DCM4CHEE_ARC_AET","STOW_RS").subscribe(webApp=>{
-                            console.log("webApp",webApp);
-                            let url = this.studyService.getDicomURL('study', webApp);
-                            // let url = this.uploadDicomService.getUrlFromWebApp(this.studyWebService.selectedWebService); //TODO Upload for external archive will not work 'STOW_RS' https://github.com/dcm4che/dcm4chee-arc-light/issues/2321
+                        let url = this.studyService.getDicomURL("study",this.selectedWebApp);
+                        // this.studyService.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"DCM4CHEE_ARC_AET","STOW_RS").subscribe(webApp=>{
+                        //     console.log("webApp",webApp);
+                            // let url = this.studyService.getDicomURL('study', webApp);
+                            // let url = this.uploadDicomService.getUrlFromWebApp(this.studyWebService.selectedWebService);
                             if (url) {
                                 this.percentComplete[file.name] = {};
                                 $this.percentComplete[file.name]['showTicker'] = false;
@@ -426,9 +427,9 @@ export class UploadFilesComponent implements OnInit {
                             }else{
                                 this.mainservice.showError("A STOW-RS server is missing!")
                             }
-                        },err=>{
+/*                        },err=>{
                             console.log("errwebApp",err);
-                        });
+                        });*/
                     } else {
                         $this.mainservice.setMessage({
                             'title': 'Error',
@@ -492,18 +493,30 @@ export class UploadFilesComponent implements OnInit {
     }
 
     getWebApps(){
-        this.studyService.getWebApps({dcmWebServiceClass:"STOW_RS"}).subscribe((res)=>{
-            this.webApps = res;
-            this.webApps.forEach((webApp:DcmWebApp)=>{
-                if(this._preselectedWebApp){
-                    if(webApp.dcmWebAppName === this._preselectedWebApp.dcmWebAppName){
-                        this.selectedWebApp = webApp;
+        console.log("_preselectedWebApp",this._preselectedWebApp);
+        let filters = {
+            dcmWebServiceClass:"STOW_RS"
+        };
+        if(this._preselectedWebApp && _.hasIn(this._preselectedWebApp, "dicomDeviceName")){
+            filters["dicomDeviceName"] = this._preselectedWebApp.dicomDeviceName;
+        }
+        this.studyService.getWebApps(filters).subscribe((res)=>{
+            if(res && res.length > 0){
+                this.webApps = res;
+                this.webApps.forEach((webApp:DcmWebApp)=>{
+                    if(this._preselectedWebApp){
+                        if(webApp.dcmWebAppName === this._preselectedWebApp.dcmWebAppName){
+                            this.selectedWebApp = webApp;
+                        }
+                    }else{
+                        if(webApp.dicomAETitle === this._selectedAe)
+                            this.selectedWebApp = webApp;
                     }
-                }else{
-                    if(webApp.dicomAETitle === this._selectedAe)
-                        this.selectedWebApp = webApp;
-                }
-            });
+                });
+            }else{
+                this.mainservice.showError('No Web Application with the Web Service Class "STOW_RS" found in this device');
+                this.dialogRef.close(null);
+            }
         },(err)=>{
 
         });

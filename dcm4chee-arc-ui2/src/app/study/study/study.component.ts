@@ -847,8 +847,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
     /*        this.dialogRef.componentInstance.aes = this.aes;
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
-            // this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
-            this.dialogRef.componentInstance.studyWebService = this.studyWebService;
+            this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
+            // this.dialogRef.componentInstance.studyWebService = this.studyWebService;
             this.dialogRef.componentInstance.dicomObject = object;
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {
@@ -2018,7 +2018,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 case "export_multiple":
                     return internal && !(studyConfig && studyConfig.tab === "diff");
                 case "upload_dicom":
-                    return internal && !(studyConfig && studyConfig.tab === "diff");
+                    return !(studyConfig && studyConfig.tab === "diff");
                 case "permanent_delete":
                     return internal && !(studyConfig && studyConfig.tab === "diff");
                 case "export_multiple":
