@@ -114,9 +114,9 @@ public class DiffPatientDemographicsRS {
     @PathParam("PDQServiceID")
     private String pdqServiceID;
 
-    @QueryParam("withoutstudies")
+    @QueryParam("onlyWithStudies")
     @Pattern(regexp = "true|false")
-    private String withoutstudies;
+    private String onlyWithStudies;
 
     @QueryParam("patientVerificationStatus")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
@@ -233,7 +233,7 @@ public class DiffPatientDemographicsRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
+        queryParam.setOnlyWithStudies(Boolean.parseBoolean(onlyWithStudies));
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = queryService.newQueryContextQIDO(

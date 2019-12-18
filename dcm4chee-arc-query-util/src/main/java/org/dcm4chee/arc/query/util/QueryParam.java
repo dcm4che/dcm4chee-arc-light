@@ -62,7 +62,7 @@ public class QueryParam {
     private boolean combinedDatetimeMatching;
     private boolean fuzzySemanticMatching;
     private boolean allOfModalitiesInStudy;
-    private boolean withoutStudies = true;
+    private boolean onlyWithStudies;
     private boolean incomplete;
     private boolean retrieveFailed;
     private boolean storageVerificationFailed;
@@ -149,12 +149,12 @@ public class QueryParam {
         this.allOfModalitiesInStudy = allOfModalitiesInStudy;
     }
 
-    public boolean isWithoutStudies() {
-        return withoutStudies;
+    public boolean isOnlyWithStudies() {
+        return onlyWithStudies;
     }
 
-    public void setWithoutStudies(boolean withoutStudies) {
-        this.withoutStudies = withoutStudies;
+    public void setOnlyWithStudies(boolean onlyWithStudies) {
+        this.onlyWithStudies = onlyWithStudies;
     }
 
     public boolean isIncomplete() {

@@ -115,7 +115,7 @@ public class QueryAttributes {
                 case "offset":
                 case "limit":
                 case "priority":
-                case "withoutstudies":
+                case "onlyWithStudies":
                 case "fuzzymatching":
                 case "retrievefailed":
                 case "compressionfailed":

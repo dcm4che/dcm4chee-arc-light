@@ -125,9 +125,9 @@ public class QidoRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
-    @QueryParam("withoutstudies")
+    @QueryParam("onlyWithStudies")
     @Pattern(regexp = "true|false")
-    private String withoutstudies;
+    private String onlyWithStudies;
 
     @QueryParam("incomplete")
     @Pattern(regexp = "true|false")
@@ -497,7 +497,7 @@ public class QidoRS {
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));
-        queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
+        queryParam.setOnlyWithStudies(Boolean.parseBoolean(onlyWithStudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));

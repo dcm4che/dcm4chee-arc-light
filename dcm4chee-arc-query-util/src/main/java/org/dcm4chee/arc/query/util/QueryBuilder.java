@@ -376,7 +376,7 @@ public class QueryBuilder {
 
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
             predicates.add(patient.get(Patient_.mergedWith).isNull());
-            if (!queryParam.isWithoutStudies())
+            if (queryParam.isOnlyWithStudies())
                 predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
         patientIDPredicate(predicates, patient, pids);

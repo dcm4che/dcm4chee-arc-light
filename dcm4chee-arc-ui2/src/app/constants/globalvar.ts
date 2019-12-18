@@ -1610,7 +1610,7 @@ export class Globalvar {
                 },
                 {
                     tag:"checkbox",
-                    filterKey:"withoutstudies",
+                    filterKey:"onlyWithStudies",
                     text:"only with studies"
                 },{
                     tag:"p-calendar",

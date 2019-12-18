@@ -772,13 +772,13 @@
       "default": true
     }
   },
-  "withoutstudies": {
-    "name": "withoutstudies",
+  "onlyWithStudies": {
+    "name": "onlyWithStudies",
     "in": "query",
-    "description": "return Patient w/o Studies (proprietary extension)",
+    "description": "return only those Patients which have Studies (proprietary extension)",
     "schema": {
       "type": "boolean",
-      "default": true
+      "default": false
     }
   },
   "patientVerificationStatus": {

@@ -35,7 +35,7 @@
           "$ref": "../parameters.json#/orderBy"
         },
         {
-          "$ref": "../parameters.json#/withoutstudies"
+          "$ref": "../parameters.json#/onlyWithStudies"
         },
         {
           "$ref": "../parameters.json#/patientVerificationStatus"
@@ -104,7 +104,7 @@
           "$ref": "../parameters.json#/fuzzymatching"
         },
         {
-          "$ref": "../parameters.json#/withoutstudies"
+          "$ref": "../parameters.json#/onlyWithStudies"
         }
       ],
       "responses": {
@@ -330,7 +330,7 @@
           "$ref": "../parameters.json#/limit"
         },
         {
-          "$ref": "../parameters.json#/withoutstudies"
+          "$ref": "../parameters.json#/onlyWithStudies"
         },
         {
           "$ref": "../parameters.json#/different"
