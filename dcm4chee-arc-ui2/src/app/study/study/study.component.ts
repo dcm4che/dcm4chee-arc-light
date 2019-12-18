@@ -1042,7 +1042,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let target;
             let url;
             let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
-            this._keycloakService.getToken().subscribe((response) => {
+            this.service.getTokenService(this.studyWebService).subscribe((response) => {
                 if (!this.appService.global.notSecure) {
                     token = response.token;
                 }
@@ -1077,7 +1077,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // let url:string;
         let urlObservable:Observable<string>;
         let contentType;
-        this._keycloakService.getToken().subscribe((response)=>{
+        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
             if(!this.appService.global.notSecure){
                 token = response.token;
             }
@@ -1122,6 +1122,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                     this.dialogRef.componentInstance.views = inst.views;
                     this.dialogRef.componentInstance.view = inst.view;
+                    this.dialogRef.componentInstance.studyWebService = this.studyWebService;
                     this.dialogRef.componentInstance.contentType = contentType;
                     this.dialogRef.componentInstance.url = url;
                     this.dialogRef.afterClosed().subscribe();
@@ -1143,7 +1144,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 semicolon = true;
             let token;
             let url = this.service.getDicomURL("study",this.studyWebService.selectedWebService);
-            this._keycloakService.getToken().subscribe((response)=>{
+            this.service.getTokenService(this.studyWebService).subscribe((response)=>{
                 if(!this.appService.global.notSecure){
                     token = response.token;
                 }
@@ -1186,7 +1187,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
             fileName = this.service.seriesFileName(object.attrs);
         }
-        this._keycloakService.getToken().subscribe((response)=>{
+        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
             if(!this.appService.global.notSecure){
                 token = response.token;
             }
@@ -1201,7 +1202,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let token;
         let url:string = "";
         let fileName = "dcm4che.dcm";
-        this._keycloakService.getToken().subscribe((response)=>{
+        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
             if(!this.appService.global.notSecure){
                 token = response.token;
             }

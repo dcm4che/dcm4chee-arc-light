@@ -5,6 +5,8 @@ import {MatDialogRef} from "@angular/material";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
+import {StudyService} from "../../../study/study/study.service";
+import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 @Component({
   selector: 'app-viewer',
@@ -20,13 +22,15 @@ export class ViewerComponent implements OnInit {
     renderedUrl;
     xhr = new XMLHttpRequest();
     showLoader;
+    studyWebService:StudyWebService;
     constructor(
         public dialogRef: MatDialogRef<ViewerComponent>,
         private j4care:j4care,
         private mainservice:AppService,
         private $http:J4careHttpService,
         public httpErrorHandler:HttpErrorHandler,
-        private _keycloakService: KeycloakService
+        private _keycloakService: KeycloakService,
+        private studyService:StudyService
     ) { }
 
     ngOnInit() {
@@ -39,7 +43,7 @@ export class ViewerComponent implements OnInit {
     loadImage(){
         let token;
         let $this = this;
-        this._keycloakService.getToken().subscribe((response)=>{
+        this.studyService.getTokenService(this.studyWebService).subscribe((response)=>{
             if(!this.mainservice.global.notSecure){
                 token = response.token;
             }

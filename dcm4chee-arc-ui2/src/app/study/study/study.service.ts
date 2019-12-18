@@ -61,7 +61,8 @@ export class StudyService {
         private storageSystems: StorageSystemsService,
         private devicesService: DevicesService,
         private webAppListService: WebAppsListService,
-        private permissionService: PermissionService
+        private permissionService: PermissionService,
+        private _keycloakService:KeycloakService
     ) {}
 
     getWebApps(filter?:any) {
@@ -72,6 +73,13 @@ export class StudyService {
         return {
             schema: j4care.prepareFlatFilterObject(Globalvar.STUDY_FILTER_ENTRY_SCHEMA(devices, aetWebService), 1),
             lineLength: 1
+        }
+    }
+    getTokenService(studyWebService:StudyWebService){
+        if(studyWebService && studyWebService.selectedWebService && _.hasIn(studyWebService.selectedWebService, "dcmKeycloakClientID")){
+            return this.$http.getRealm(studyWebService.selectedWebService);
+        }else{
+            return this._keycloakService.getToken();
         }
     }
 
