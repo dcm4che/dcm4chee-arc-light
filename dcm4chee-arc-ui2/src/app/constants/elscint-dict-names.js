@@ -228,7 +228,8 @@ DCM4CHE.elementName.addDictionary({
 "5001xx83":"_5001_xx83_",
 "5001xx84":"_5001_xx84_",
 "6001xx10":"Text Overlay Flag",
-"6001xx90":"Overlay Label",
+"6001xx30":"_6001_xx30_",
+"6001xx90":"_6001_xx90_",
 "7FDFxxF0":"_7FDF_xxF0_",
 "7FDFxxFF":"_7FDF_xxFF_"
 });
