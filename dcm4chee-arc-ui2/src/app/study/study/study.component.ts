@@ -249,6 +249,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
+            this.internal = !this.internal;
+            setTimeout(()=>{
+                this.internal = !this.internal;
+            },1);
             console.log("this.selectedElements",this.selectedElements);
             this.studyConfig.tab = params.tab;
             if(this.studyConfig.tab === "diff"){
@@ -2013,37 +2017,37 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
-            switch (option.value) {
-                case "retrieve_multiple":
-                    return !internal && !(studyConfig && studyConfig.tab === "diff");
-                case "export_multiple":
-                    return internal && !(studyConfig && studyConfig.tab === "diff");
-                case "upload_dicom":
-                    return !(studyConfig && studyConfig.tab === "diff");
-                case "permanent_delete":
-                    return internal && !(studyConfig && studyConfig.tab === "diff");
-                case "export_multiple":
-                    return internal && !(studyConfig && studyConfig.tab === "diff");
-                case "trigger_diff":
-                    return studyConfig && studyConfig.tab === "diff";
-            }
-            return true;
-        });
+            if(option.value === "create_patient"){
+                return (studyConfig && studyConfig.tab === "patient")
+            }else{
+                if(!(studyConfig && studyConfig.tab === "patient")){
+                    switch (option.value) {
+                        case "retrieve_multiple":
+                            return !internal && !(studyConfig && studyConfig.tab === "diff");
 
-        /*
-        * create_patient
-upload_dicom
-permanent_delete
-export_multiple
-retrieve_multiple
-storage_verification
-download_studies
-trigger_diff*/
+                        case "export_multiple":
+                            return internal && !(studyConfig && studyConfig.tab === "diff");
+                        case "upload_dicom":
+                            return !(studyConfig && studyConfig.tab === "diff");
+                        case "permanent_delete":
+                            return internal && !(studyConfig && studyConfig.tab === "diff");
+                        case "trigger_diff":
+                            return studyConfig && studyConfig.tab === "diff";
+                        case "reject_multiple":
+                            return studyConfig && studyConfig.tab === "study";
+                    }
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        });
     }
     actionsSelectionsFilterPipe(value, args){
         console.log("args",args);
         let internal = args[0];
         let trashActive = args[1];
+        let studyConfig = args[2];
         return value.filter(option=>{
             if(option.value === "delete_object"){
                 return internal && trashActive;
@@ -2052,7 +2056,10 @@ trigger_diff*/
                 return internal && trashActive;
             }
             if(option.value === "reject_object"){
-                return !trashActive;
+                return !trashActive && studyConfig && studyConfig.tab === "study";
+            }
+            if(option.value === "export_object"){
+                return studyConfig && studyConfig.tab === "study";
             }
             return true;
         });

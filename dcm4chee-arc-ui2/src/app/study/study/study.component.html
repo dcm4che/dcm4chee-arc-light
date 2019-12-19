@@ -34,12 +34,12 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl')))"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mwl')))"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
                       [placeholder]="actionsSelections.placeholder"
-                      [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active"
+                      [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active:studyConfig"
                       [editable]="false"
                       [(model)]="actionsSelections.model"
                       [showSearchField]="false"
