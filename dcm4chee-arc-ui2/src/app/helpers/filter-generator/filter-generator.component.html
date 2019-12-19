@@ -14,6 +14,9 @@
             <span class="loader" *ngIf="!filterTemplates">
                 <i class="fa fa-circle-o-notch fa-spin"></i>
             </span>
+            <ul class="templates not_found" *ngIf="noFilterFound">
+                <li>No filter-templates found!</li>
+            </ul>
             <ul class="templates" *ngIf="filterTemplates">
                 <li *ngFor="let filter of filterTemplates"><a  title="{{filter.dcmuiFilterTemplateDescription}}" (click)="$event.preventDefault();openTemplateFilter(filter)">{{filter.dcmuiFilterTemplateGroupName}}</a><span class="glyphicon glyphicon-remove" (click)="removeFilterTemplate(filter)"></span></li>
             </ul>
@@ -68,8 +71,11 @@
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
                     <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
-                    <!--<p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>--><!--
-                    <j4care-select [(model)]="model[line[index].filterKey]" [ngStyle]="line[index].style" *ngSwitchCase="'html-select'" [placeholder]="line[index]?.placeholder" [ngClass]="line[index].cssClass" (modelChange)="filterChange($event)">
+                    <!--<p-multiSelect [disabled]="line[index].disabled" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)"  [styleClass]="'multi_select'" [maxSelectedLabels]="line[index].maxSelectedLabels || 1" *ngSwitchCase="'multi-select'" [options]="line[index].options" [(ngModel)]="model[line[index].filterKey]" [defaultLabel]="line[index]?.placeholder"></p-multiSelect>-->
+                    <j4care-select [(model)]="model[line[index].filterKey]" [ngStyle]="line[index].style" *ngSwitchCase="'html-multi-select'" [placeholder]="line[index]?.placeholder" [ngClass]="line[index].cssClass" [multiSelectMode]="true" [maxSelectedValueShown]="line[index].maxSelectedValueShown || 1" [showSearchField]="line[index].showSearchField">
+                        <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
+                    </j4care-select>
+<!--                    <j4care-select [(model)]="model[line[index].filterKey]" [ngStyle]="line[index].style" *ngSwitchCase="'html-select'" [placeholder]="line[index]?.placeholder" [ngClass]="line[index].cssClass" (modelChange)="filterChange($event)">
                       <j4care-option *ngIf="line[index].showStar" [value]="''">*</j4care-option>
                       <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
                     </j4care-select>-->
@@ -199,6 +205,11 @@
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
                     ></range-picker>
+                      <input
+                          type="file"
+                          *ngSwitchCase="'file'"
+                          (change)="model[line[index]?.filterKey] = $event.target.files"
+                      >
                     <code-selector *ngSwitchCase="'code-selector'"
                         [title]="line[index]?.description"
                         [codes]="line[index]?.codes"

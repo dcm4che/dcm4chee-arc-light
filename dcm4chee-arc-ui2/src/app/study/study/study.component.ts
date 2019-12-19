@@ -250,33 +250,34 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.route.params.subscribe(params => {
             this.patients = [];
             this.internal = !this.internal;
+            console.log("this.selectedElements",this.selectedElements);
+            this.studyConfig.tab = undefined;
             setTimeout(()=>{
                 this.internal = !this.internal;
+                this.studyConfig.tab = params.tab;
+                if(this.studyConfig.tab === "diff"){
+                    this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
+                }else{
+                    this.currentWebAppClass = "QIDO_RS";
+                }
+                this.studyConfig.title = this.tabToTitleMap(params.tab);
+                if(this.studyConfig.tab === "diff"){
+                    this.getDiffAttributeSet(this, ()=>{
+                        this.getApplicationEntities();
+                    });
+                }
+                this.more = false;
+                this._filter.filterModel.offset = 0;
+                this.tableParam.tableSchema  = this.getSchema();
+                if(!this.studyWebService){
+                    this.initWebApps();
+                }else{
+                    this.setSchema();
+                    this.initExporters(2);
+                    this.initRjNotes(2);
+                    this.getQueueNames();
+                }
             },1);
-            console.log("this.selectedElements",this.selectedElements);
-            this.studyConfig.tab = params.tab;
-            if(this.studyConfig.tab === "diff"){
-                this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
-            }else{
-                this.currentWebAppClass = "QIDO_RS";
-            }
-            this.studyConfig.title = this.tabToTitleMap(params.tab);
-            if(this.studyConfig.tab === "diff"){
-                this.getDiffAttributeSet(this, ()=>{
-                    this.getApplicationEntities();
-                });
-            }
-            this.more = false;
-            this._filter.filterModel.offset = 0;
-            this.tableParam.tableSchema  = this.getSchema();
-            if(!this.studyWebService){
-                this.initWebApps();
-            }else{
-                this.setSchema();
-                this.initExporters(2);
-                this.initRjNotes(2);
-                this.getQueueNames();
-            }
         });
         this.moreFunctionConfig.options.filter(option=>{
             if(option.value === "retrieve_multiple"){
@@ -294,11 +295,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(object && _.hasIn(object,"webApp")){
             Object.keys(object).forEach(key=>{
                 if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
-                    this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
+                    //TODO
+                    this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)
+                    this.filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
+/*                    this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
                         if(object.webApp.dcmWebAppName === webApp.dcmWebAppName){
                             this.filter.filterModel["webApp"] = webApp;
+
                         }
-                    });
+                    });*/
                 }else{
                     this.filter.filterModel[key] = object[key];
                 }
@@ -2296,6 +2301,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             },
                             (err) => {
                                 $this.httpErrorHandler.handleError(err);
+                                _.assign(study, originalStudyObject);
                             }
                         );
                     }else{

@@ -90,6 +90,10 @@
         }
 
       }
+      &.not_found{
+        padding: 2px 7px;
+        width: 100%;
+      }
     }
   }
   mat-radio-group{
