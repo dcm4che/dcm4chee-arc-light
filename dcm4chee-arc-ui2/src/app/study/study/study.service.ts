@@ -2834,9 +2834,9 @@ export class StudyService {
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
-            return Observable.throw({error:"Multi patient merge is not supported!"});
+            return Observable.throwError({error:"Multi patient merge is not supported!"});
         }else{
-            this.getModifyPatientUrl(deviceWebservice)
+            return this.getModifyPatientUrl(deviceWebservice)
             .switchMap((url:string)=>{
                 console.log("url",url);
                 return this.$http.put(
