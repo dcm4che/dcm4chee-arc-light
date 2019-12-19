@@ -324,6 +324,7 @@ export class StudyService {
                 });*/
             }
             if(tab != "diff" && tab != "uwl"){
+                console.log("webapps",webApps);
                 schema.push({
                     tag: "button",
                     id: "count",

@@ -15,6 +15,18 @@ export class StudyWebService {
         this.selectedWebService = object.selectedWebService;
     }
 
+    seletWebAppFromWebAppName(dcmWebAppName:string){
+        if(this._webServices && dcmWebAppName && dcmWebAppName != ""){
+            this._webServices.forEach((webService:DcmWebApp)=>{
+                if(dcmWebAppName === webService.dcmWebAppName){
+                    this._selectedWebService = webService;
+                }
+            })
+        }else{
+            this._selectedWebService = undefined;
+        }
+    }
+
     get webServices(): DcmWebApp[] {
         return this._webServices;
     }

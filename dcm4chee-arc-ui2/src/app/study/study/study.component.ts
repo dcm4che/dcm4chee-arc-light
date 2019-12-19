@@ -1991,7 +1991,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     filterChanged(){
         if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
-            this.studyWebService.selectedWebService = _.get(this.filter,"filterModel.webApp");
+            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp.dcmWebAppName"));
             this.internal = !(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
             if(!this.internal){
                 delete this._filter.filterModel.includefield;
