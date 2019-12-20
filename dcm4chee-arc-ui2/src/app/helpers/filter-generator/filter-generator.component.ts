@@ -46,6 +46,9 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     showFilterTemplateList = false;
     showFilterButtons = false;
     hoverActive = false;
+    noFilterFound = false;
+
+
     constructor(
         private inj:Injector,
         private appService:AppService,

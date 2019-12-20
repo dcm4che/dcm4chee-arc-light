@@ -900,6 +900,13 @@ export class StudyService {
         return schema;
     }
 
+    selectedWebServiceHasClass(selectedWebService:DcmWebApp, serviceClass:string):boolean{
+        if(selectedWebService && serviceClass && serviceClass != ""){
+            return _.hasIn(selectedWebService,"dcmWebServiceClass.dcmWebServiceClass") && (<string[]>_.get(selectedWebService,"dcmWebServiceClass.dcmWebServiceClass")).indexOf(serviceClass) > -1;
+        }
+        return false;
+    }
+
     PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options: StudySchemaOptions): DicomTableSchema {
         let schema: DicomTableSchema = {
             patient: [
