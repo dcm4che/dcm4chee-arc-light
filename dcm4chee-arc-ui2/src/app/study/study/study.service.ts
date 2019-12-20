@@ -902,7 +902,7 @@ export class StudyService {
 
     selectedWebServiceHasClass(selectedWebService:DcmWebApp, serviceClass:string):boolean{
         if(selectedWebService && serviceClass && serviceClass != ""){
-            return _.hasIn(selectedWebService,"dcmWebServiceClass.dcmWebServiceClass") && (<string[]>_.get(selectedWebService,"dcmWebServiceClass.dcmWebServiceClass")).indexOf(serviceClass) > -1;
+            return _.hasIn(selectedWebService,"dcmWebServiceClass") && (<string[]>_.get(selectedWebService,"dcmWebServiceClass")).indexOf(serviceClass) > -1;
         }
         return false;
     }
@@ -981,6 +981,9 @@ export class StudyService {
                                         action: "edit_patient"
                                     }, e);
                                 },
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 title: 'Edit this Patient',
                                 permission: {
                                     id: 'action-studies-patient',
@@ -1013,7 +1016,7 @@ export class StudyService {
                                             !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
                                         ) ||
                                         (_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "ALWAYS")
-                                    );
+                                    ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 }
                             },{
                                 icon: {
@@ -1027,6 +1030,8 @@ export class StudyService {
                                         level: "patient",
                                         action: "create_mwl"
                                     }, e);
+                                },showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
                                 title: 'Add new MWL',
                                 permission: {
@@ -1064,6 +1069,8 @@ export class StudyService {
                                         level: "study",
                                         action: "download_csv"
                                     }, e);
+                                },showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
                                 title: 'Download as CSV',
                                 permission: {
@@ -1369,6 +1376,9 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: 'Edit this study',
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'edit'
@@ -1387,6 +1397,9 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: 'Set/Change expired date',
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'edit'
@@ -1423,6 +1436,9 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: 'Verify storage commitment',
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
@@ -1516,12 +1532,13 @@ export class StudyService {
                                 },
                                 title: 'Delete study permanently',
                                 showIf: (e) => {
-                                    return options.trash.active ||
+                                    return (options.trash.active ||
                                         (
                                             options.selectedWebService &&
                                             options.selectedWebService.dicomAETitleObject &&
                                             options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
                                         )
+                                    ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 },
                                 permission: {
                                     id: 'action-studies-study',
@@ -1541,6 +1558,9 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: "Download as CSV",
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2249,6 +2269,9 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: 'Edit MWL',
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'edit'
@@ -2266,6 +2289,8 @@ export class StudyService {
                                         level: "mwl",
                                         action: "delete_mwl"
                                     }, e);
+                                },showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
                                 title: 'Delete MWL',
                                 permission: {

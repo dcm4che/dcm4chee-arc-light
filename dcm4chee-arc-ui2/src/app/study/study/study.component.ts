@@ -295,15 +295,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(object && _.hasIn(object,"webApp")){
             Object.keys(object).forEach(key=>{
                 if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
-                    //TODO
                     this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)
                     this.filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
-/*                    this.studyWebService.webServices.forEach((webApp:DcmWebApp)=>{
-                        if(object.webApp.dcmWebAppName === webApp.dcmWebAppName){
-                            this.filter.filterModel["webApp"] = webApp;
-
-                        }
-                    });*/
+                    this.tableParam.tableSchema  = this.getSchema();
                 }else{
                     this.filter.filterModel[key] = object[key];
                 }
