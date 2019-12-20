@@ -324,7 +324,8 @@ public class ExportTask {
         writer.write(delimiter);
         writer.write(exporterID);
         writer.write(delimiter);
-        writer.write(localAET);
+        if (localAET != null)
+            writer.write(localAET);
         writer.write(delimiter);
         writer.write(studyInstanceUID);
         writer.write(delimiter);
