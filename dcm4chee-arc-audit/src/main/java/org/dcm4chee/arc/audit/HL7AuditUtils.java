@@ -39,7 +39,6 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.ParticipantObjectDetail;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -50,21 +49,6 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
  * @since Oct 2018
  */
 class HL7AuditUtils {
-
-    static ParticipantObjectDetail[] getParticipantObjectDetail(SpoolFileReader reader) {
-        ParticipantObjectDetail[] detail = new ParticipantObjectDetail[2];
-        setParticipantObjectDetail(reader.getData(), 0, detail);
-        setParticipantObjectDetail(reader.getAck(), 1, detail);
-        return detail;
-    }
-
-    private static void setParticipantObjectDetail(byte[] val, int index, ParticipantObjectDetail[] detail) {
-        if (val.length > 0) {
-            detail[index] = new ParticipantObjectDetail();
-            detail[index].setType("HL7v2 Message");
-            detail[index].setValue(val);
-        }
-    }
 
     static HL7Segment getHL7Segment(UnparsedHL7Message hl7Message, String segName) {
         HL7Segment msh = hl7Message.msh();

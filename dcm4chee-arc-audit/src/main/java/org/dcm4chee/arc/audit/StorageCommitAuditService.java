@@ -45,15 +45,12 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -63,7 +60,7 @@ class StorageCommitAuditService {
 
     private static String studyIUID(Attributes eventInfo, ArchiveDeviceExtension arcDev) {
         return eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
+                ? String.join(";", eventInfo.getStrings(Tag.StudyInstanceUID))
                 : arcDev.auditUnknownStudyInstanceUID();
     }
 
@@ -104,7 +101,7 @@ class StorageCommitAuditService {
                 .calledUserID(storageCmtCalledAET(ctx))
                 .pIDAndName(eventInfo, arcDev)
                 .studyIUID(studyIUID(eventInfo, arcDev))
-                .outcome(failureReasons.stream().collect(Collectors.joining(";")))
+                .outcome(String.join(";", failureReasons))
                 .build();
 
         return failedAuditInfo;

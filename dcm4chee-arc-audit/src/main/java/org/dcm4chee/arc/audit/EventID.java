@@ -91,7 +91,7 @@ class EventID {
                 eventType.eventActionCode,
                 getEventTime(path, auditLogger),
                 AuditMessages.EventOutcomeIndicator.MinorFailure)
-                .outcomeDesc(outcome.stream().collect(Collectors.joining("\n")))
+                .outcomeDesc(String.join("\n", outcome))
                 .eventTypeCode(errorCode.toArray(new AuditMessages.EventTypeCode[0]))
                 .build();
     }

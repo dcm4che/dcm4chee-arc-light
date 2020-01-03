@@ -44,7 +44,6 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ConnectionEvent;
 
 import java.nio.file.Path;
-import java.util.Calendar;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
