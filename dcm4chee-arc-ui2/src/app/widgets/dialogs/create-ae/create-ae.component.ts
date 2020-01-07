@@ -12,20 +12,7 @@ import {SelectDropdown} from "../../../interfaces";
 @Component({
     selector: 'app-create-ae',
     templateUrl: './create-ae.component.html',
-    styles: [`
-        .test_button button{
-            background:rgba(6, 29, 47, 0.84);
-            color: white;
-            width: 130px;
-            height: 26px;
-            border: none;
-            margin-top: 4px;
-            margin-left: 5px;
-        }
-        .test_button button:hover{
-            background: #061d2f;
-        }
-  `],
+    styleUrls: ['./create-ae.component.scss']
 })
 export class CreateAeComponent implements OnInit{
     private _dicomconn;
