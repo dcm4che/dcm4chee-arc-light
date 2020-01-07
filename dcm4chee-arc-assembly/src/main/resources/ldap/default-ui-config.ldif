@@ -200,10 +200,10 @@ dcmuiAction: action-studies-serie
 
 dn: dcmuiPermissionName=Action - Studies - Delete study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Delete study
-dcmuiActionParam: visible
+dcmuiActionParam: delete
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
-dcmuiAction: action-studies-download
+dcmuiAction: action-studies-study
 
 dn: dcmuiPermissionName=Action - Studies - Edit Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Edit Patient
@@ -361,7 +361,7 @@ dcmuiPermissionName: Action - Studies - Download Study
 dcmuiActionParam: visible
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
-dcmuiAction: action-studies-study
+dcmuiAction: action-studies-download
 
 dn: dcmuiPermissionName=Action - Monitoring Export Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Monitoring Export Single Action
