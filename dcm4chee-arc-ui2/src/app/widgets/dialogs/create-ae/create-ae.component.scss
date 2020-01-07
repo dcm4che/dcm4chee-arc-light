@@ -1,0 +1,27 @@
+.test_button button{
+  background:rgba(6, 29, 47, 0.84);
+  color: white;
+  width: 130px;
+  height: 26px;
+  border: none;
+  margin-top: 4px;
+  margin-left: 5px;
+}
+.test_button button:hover{
+  background: #061d2f;
+}
+
+#networkae{
+  .inputblock{
+    label.checkbox{
+      display: list-item;
+      list-style: none;
+      height:26px;
+      line-height: 26px;
+      margin-bottom: 0;
+      span{
+        margin-left: 5px;
+      }
+    }
+  }
+}
