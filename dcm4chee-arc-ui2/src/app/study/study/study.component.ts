@@ -1276,7 +1276,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e.level === "instance"){
             console.log("e.object",e.object);
             if(e.direction === "next"){
-                this.getInstances(e.object,e.object.instances[0].offset + this._filter.filterModel.limit);
+                this.getInstances(e.object,e.object.instances[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
             if(e.direction === "prev"){
                 this.getInstances(e.object,e.object.instances[0].offset - this._filter.filterModel.limit);
@@ -1286,7 +1286,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e.level === "series"){
             console.log("e.object",e.object);
             if(e.direction === "next"){
-                this.getSeries(e.object,e.object.series[0].offset + this._filter.filterModel.limit);
+                this.getSeries(e.object,e.object.series[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
             if(e.direction === "prev"){
                 this.getSeries(e.object,e.object.series[0].offset - this._filter.filterModel.limit);
@@ -1300,7 +1300,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 filterModel.limit++;
             }
             if(e.direction === "next"){
-                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset + this._filter.filterModel.limit);
+                this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
             if(e.direction === "prev"){
                 this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset - this._filter.filterModel.limit);
@@ -1334,7 +1334,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.submit(filterModel);
                 }else{
                     if(mode === "next" && this.more){
-                        filterModel.offset = filterModel.offset + this._filter.filterModel.limit;
+                        filterModel.offset = filterModel.offset * 1 + this._filter.filterModel.limit * 1;
                         this.submit(filterModel);
                     }
                     if(mode === "prev" && filterModel.offset > 0){
@@ -1778,7 +1778,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         return new StudyDicom(
                             studyAttrs,
                             patient,
-                            offset + index,
+                            offset*1 + index,
                             hasMore,
                             hasMore || offset > 0
                         );
@@ -1831,7 +1831,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         study = new StudyDicom(
                             studyAttrs,
                             patient,
-                            this._filter.filterModel.offset + index
+                            this._filter.filterModel.offset*1 + index
                         );
                         patient.studies.push(study);
                     });
@@ -1882,7 +1882,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         return new SeriesDicom(
                             study,
                             attrs,
-                            offset + index,
+                            offset*1 + index,
                             hasMore,
                             hasMore || offset > 0
                         );
@@ -1934,7 +1934,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             image = this.service.isImage(attrs);
                         return new InstanceDicom(
                             series,
-                            offset + index,
+                            offset*1 + index,
                             attrs,
                             new WadoQueryParams(attrs['0020000D'].Value[0],attrs['0020000E'].Value[0], attrs['00080018'].Value[0]),
                             video,
