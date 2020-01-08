@@ -1669,13 +1669,6 @@ export class Globalvar {
             },
             {
                 tag:"input",
-                type:"text",
-                filterKey:"StudyInstanceUID",
-                description:"Study Instance UID",
-                placeholder:"Study Instance UID"
-            },
-            {
-                tag:"input",
                 type:"number",
                 filterKey:"limit",
                 description:"Limit",
