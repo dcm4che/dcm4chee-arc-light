@@ -2904,7 +2904,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     storageVerification(){
         this.confirm({
-            content: 'Query External Patient Demographics Service',
+            content: 'Schedule Storage Verification of matching Studies',
             doNotSave:true,
             form_schema:[
                 [
