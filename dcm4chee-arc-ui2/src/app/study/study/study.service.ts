@@ -963,7 +963,7 @@ export class StudyService {
                                         action: "pdq_patient"
                                     }, e);
                                 },
-                                title: "Query National Patient Registry",
+                                title: "Query Patient Demographics Service",
                                 showIf: (e, config) => {
                                     return options.appService['xRoad'] || (options.appService.global['PDQs'] && options.appService.global['PDQs'].length > 0);
                                 }

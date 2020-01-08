@@ -2904,7 +2904,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     storageVerification(){
         this.confirm({
-            content: 'Schedule Storage Verification of matching Studies',
+            content: 'Query External Patient Demographics Service',
             doNotSave:true,
             form_schema:[
                 [
@@ -3213,7 +3213,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 console.log("global",this.appService.global);
                 if(this.appService.global['PDQs'].length > 1){
                     this.confirm({
-                        content: 'Schedule Storage Verification of matching Studies',
+                        content: 'Query External Patient Demographics Service',
                         doNotSave:true,
                         form_schema:[
                             [
