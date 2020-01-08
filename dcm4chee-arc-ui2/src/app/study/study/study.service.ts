@@ -229,7 +229,7 @@ export class StudyService {
         return dropdown;
     };
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[], attributeSet?:SelectDropdown<DiffAttributeSet>[]) {
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[], attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -325,14 +325,20 @@ export class StudyService {
             }
             if(tab != "diff" && tab != "uwl"){
                 console.log("webapps",webApps);
-                schema.push({
-                    tag: "button",
-                    id: "count",
-                    text: quantityText.count,
-                    showRefreshIcon: true,
-                    showDynamicLoader: false,
-                    description: "QUERY ONLY THE COUNT"
-                })
+                if(showCount){
+                    schema.push({
+                        tag: "button",
+                        id: "count",
+                        text: quantityText.count,
+                        showRefreshIcon: true,
+                        showDynamicLoader: false,
+                        description: "QUERY ONLY THE COUNT"
+                    });
+                }else{
+                    schema.push({
+                        tag: "dummy"
+                    });
+                }
             }
             if(tab === "study"){
                 schema.push({

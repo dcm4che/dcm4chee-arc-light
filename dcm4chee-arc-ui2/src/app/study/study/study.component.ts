@@ -298,6 +298,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)
                     this.filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
                     this.tableParam.tableSchema  = this.getSchema();
+                    this.setMainSchema();
                 }else{
                     this.filter.filterModel[key] = object[key];
                 }
@@ -1997,6 +1998,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }else{
                 this._filter.filterModel.includefield = "all";
             }
+            this.setMainSchema();
 /*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
                 console.log("option",option);
                 if(option.value === "retrieve_multiple"){
@@ -2064,18 +2066,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
+    setMainSchema(){
+        this._filter.filterSchemaMain  = this.service.getFilterSchema(
+            this.studyConfig.tab,
+            this.applicationEntities.aes,
+            this._filter.quantityText,
+            'main',
+            this.studyWebService.webServices,
+            this.diffAttributeSets,
+            this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1
+        );
+    }
     setSchema(){
         try{
             this._filter.filterSchemaMain.lineLength = undefined;
             this._filter.filterSchemaExpand.lineLength = undefined;
-            this._filter.filterSchemaMain  = this.service.getFilterSchema(
-                this.studyConfig.tab,
-                this.applicationEntities.aes,
-                this._filter.quantityText,
-                'main',
-                this.studyWebService.webServices, //.filter((webApp:DcmWebApp)=>webApp.dcmWebServiceClass.indexOf("QIDO_RS") > -1)
-                this.diffAttributeSets
-            );
+            this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
             this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
             this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
