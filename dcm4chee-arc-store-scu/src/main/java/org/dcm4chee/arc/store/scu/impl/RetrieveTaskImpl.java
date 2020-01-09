@@ -392,6 +392,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
         @Override
         public void onClose(Association as) {
             super.onClose(as);
+            ctx.incrementFailed();
+            ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             removeOutstandingRSP(inst, storeas, outstandingRSP);
         }
     }
