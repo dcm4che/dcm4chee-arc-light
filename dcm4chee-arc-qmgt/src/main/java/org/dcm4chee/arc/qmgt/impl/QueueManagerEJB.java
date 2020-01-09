@@ -40,16 +40,8 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.persistence.criteria.Predicate;
-
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
@@ -74,7 +66,6 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
