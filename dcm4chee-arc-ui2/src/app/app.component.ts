@@ -136,9 +136,7 @@ export class AppComponent implements OnInit {
     }
     gotToWildflyConsole(e){
         e.preventDefault();
-        let link = `//${window.location.hostname}:9990`;
-
-        window.open(            link, "_blank");
+        window.open(            `//${window.location.hostname}:9990`, "_blank");
     }
     closeFromOutside(){
         if(this.showMenu)
