@@ -60,7 +60,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -85,6 +88,9 @@ class ExportCSV {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @HeaderParam("Content-Type")
     private MediaType contentType;
@@ -190,7 +196,21 @@ class ExportCSV {
                 ctx.getExporter(),
                 HttpServletRequestInfo.valueOf(request),
                 batchID,
+                scheduledTime(),
                 ctx.getStudyUIDs());
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMdd").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.YEAR, 100);
+        return instance.getTime();
     }
 
     static class ExportContext {

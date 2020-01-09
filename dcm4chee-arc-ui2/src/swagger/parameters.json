@@ -1271,6 +1271,14 @@
       "type": "string"
     }
   },
+  "scheduledTime": {
+    "name": "scheduledTime",
+    "in": "query",
+    "description": "Scheduled Time to be set for scheduling of tasks",
+    "schema": {
+      "type": "string"
+    }
+  },
   "updatedBefore": {
     "name": "updatedBefore",
     "in": "query",

@@ -223,17 +223,11 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                String batchID, String... studyUIDs) {
+                                String batchID, Date scheduledTime, String... studyUIDs) {
         for (String studyUID : studyUIDs) 
-            createExportTask(exporter.getExporterID(), studyUID, "*", "*", batchID, futureScheduledTime());
+            createExportTask(exporter.getExporterID(), studyUID, "*", "*", batchID, scheduledTime);
         
         return studyUIDs.length;
-    }
-
-    private Date futureScheduledTime() {
-        Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.YEAR, 100);
-        return instance.getTime();
     }
 
     @Override

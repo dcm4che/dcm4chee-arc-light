@@ -877,6 +877,9 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "requestBody": {
