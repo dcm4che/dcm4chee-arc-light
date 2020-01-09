@@ -351,42 +351,6 @@ public class QueueMessage {
         writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
     }
 
-    public void writeStatusAsCSVTo(Writer writer, DateFormat df, char delimiter) throws IOException {
-        writer.write(messageID);
-        writer.write(delimiter);
-        writer.write(queueName);
-        writer.write(delimiter);
-        writer.write(deviceName);
-        writer.write(delimiter);
-        writer.write(status.toString());
-        writer.append(delimiter);
-        writer.write(df.format(scheduledTime));
-        writer.append(delimiter);
-        if (numberOfFailures > 0)
-            writer.write(String.valueOf(numberOfFailures));
-        writer.append(delimiter);
-        if (batchID != null)
-            writer.write(batchID);
-        writer.append(delimiter);
-        if (processingStartTime != null)
-            writer.write(df.format(processingStartTime));
-        writer.append(delimiter);
-        if (processingEndTime != null)
-            writer.write(df.format(processingEndTime));
-        writer.append(delimiter);
-        if (errorMessage != null) {
-            writer.write('"');
-            writer.write(errorMessage.replace("\"", "\"\""));
-            writer.write('"');
-        }
-        writer.append(delimiter);
-        if (outcomeMessage != null) {
-            writer.write('"');
-            writer.write(outcomeMessage.replace("\"", "\"\""));
-            writer.write('"');
-        }
-    }
-
     private String propertiesOf(ObjectMessage msg) throws JMSException {
         StringBuilder sb = new StringBuilder(512);
         Enumeration<String> names = msg.getPropertyNames();
