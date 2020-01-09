@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
@@ -48,7 +49,6 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -265,65 +265,58 @@ public class StorageVerificationTask {
         gen.flush();
     }
 
-    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
-        writer.write("pk" + delimiter +
-                "createdTime" + delimiter +
-                "updatedTime" + delimiter +
-                "LocalAET" + delimiter +
-                "StgCmtPolicy" + delimiter +
-                "UpdateLocationStatus" + delimiter +
-                "StorageID" + delimiter +
-                "StudyInstanceUID" + delimiter +
-                "SeriesInstanceUID" + delimiter +
-                "SOPInstanceUID" + delimiter +
-                "completed" + delimiter +
-                "failed" + delimiter +
-                "JMSMessageID" + delimiter +
-                "queue" + delimiter +
-                "dicomDeviceName" + delimiter +
-                "status" + delimiter +
-                "scheduledTime" + delimiter +
-                "failures" + delimiter +
-                "batchID" + delimiter +
-                "processingStartTime" + delimiter +
-                "processingEndTime" + delimiter +
-                "errorMessage" + delimiter +
-                "outcomeMessage\r\n");
-    }
+    public static final String[] header = {
+            "pk",
+            "createdTime",
+            "updatedTime",
+            "LocalAET",
+            "StgCmtPolicy",
+            "UpdateLocationStatus",
+            "StorageID",
+            "StudyInstanceUID",
+            "SeriesInstanceUID",
+            "SOPInstanceUID",
+            "completed",
+            "failed",
+            "JMSMessageID",
+            "queue",
+            "dicomDeviceName",
+            "status",
+            "scheduledTime",
+            "failures",
+            "batchID",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
 
-    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
+    public void printRecord(CSVPrinter printer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        writer.write(String.valueOf(pk));
-        writer.write(delimiter);
-        writer.write(df.format(createdTime));
-        writer.write(delimiter);
-        writer.write(df.format(updatedTime));
-        writer.write(delimiter);
-        writer.write(localAET);
-        writer.write(delimiter);
-        if (storageVerificationPolicy != null)
-            writer.write(storageVerificationPolicy.name());
-        writer.write(delimiter);
-        writer.write(String.valueOf(updateLocationStatus));
-        writer.write(delimiter);
-        if (storageIDs != null)
-            writer.write(storageIDs);
-        writer.write(delimiter);
-        writer.write(studyInstanceUID);
-        writer.write(delimiter);
-        if (seriesInstanceUID != null)
-            writer.write(seriesInstanceUID);
-        writer.write(delimiter);
-        if (sopInstanceUID != null)
-            writer.write(sopInstanceUID);
-        writer.write(delimiter);
-        writer.write(String.valueOf(completed));
-        writer.write(delimiter);
-        writer.write(String.valueOf(failed));
-        writer.write(delimiter);
-        queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
-        writer.write('\r');
-        writer.write('\n');
+        printer.printRecord(
+                String.valueOf(pk),
+                df.format(createdTime),
+                df.format(updatedTime),
+                localAET,
+                storageVerificationPolicy,
+                String.valueOf(updateLocationStatus),
+                storageIDs,
+                studyInstanceUID,
+                seriesInstanceUID,
+                sopInstanceUID,
+                String.valueOf(completed),
+                String.valueOf(failed),
+                queueMessage.getMessageID(),
+                queueMessage.getQueueName(),
+                queueMessage.getDeviceName(),
+                queueMessage.getStatus().toString(),
+                queueMessage.getScheduledTime(),
+                queueMessage.getNumberOfFailures() > 0 ? String.valueOf(queueMessage.getNumberOfFailures()) : null,
+                queueMessage.getBatchID(),
+                df.format(queueMessage.getProcessingStartTime()),
+                df.format(queueMessage.getProcessingEndTime()),
+                queueMessage.getErrorMessage(),
+                queueMessage.getOutcomeMessage());
     }
 
     @Override

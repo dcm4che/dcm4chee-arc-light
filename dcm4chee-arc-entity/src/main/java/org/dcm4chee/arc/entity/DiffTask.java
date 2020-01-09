@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -298,65 +298,60 @@ public class DiffTask {
         gen.flush();
     }
 
-    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
-        writer.write("pk" + delimiter +
-                "LocalAET" + delimiter +
-                "PrimaryAET" + delimiter +
-                "SecondaryAET" + delimiter +
-                "QueryString" + delimiter +
-                "checkMissing" + delimiter +
-                "checkDifferent" + delimiter +
-                "matches" + delimiter +
-                "missing" + delimiter +
-                "different" + delimiter +
-                "comparefield" + delimiter +
-                "createdTime" + delimiter +
-                "updatedTime" + delimiter +
-                "JMSMessageID" + delimiter +
-                "queue" + delimiter +
-                "dicomDeviceName" + delimiter +
-                "status" + delimiter +
-                "scheduledTime" + delimiter +
-                "failures" + delimiter +
-                "batchID" + delimiter +
-                "processingStartTime" + delimiter +
-                "processingEndTime" + delimiter +
-                "errorMessage" + delimiter +
-                "outcomeMessage\r\n");
-    }
+    public static final String[] header = {
+            "pk",
+            "LocalAET",
+            "PrimaryAET",
+            "SecondaryAET",
+            "QueryString",
+            "checkMissing",
+            "checkDifferent",
+            "matches",
+            "missing",
+            "different",
+            "comparefield",
+            "createdTime",
+            "updatedTime",
+            "JMSMessageID",
+            "queue",
+            "dicomDeviceName",
+            "status",
+            "scheduledTime",
+            "failures",
+            "batchID",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
 
-    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
+    public void printRecord(CSVPrinter printer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        writer.write(String.valueOf(pk));
-        writer.append(delimiter);
-        writer.write(localAET);
-        writer.append(delimiter);
-        writer.write(primaryAET);
-        writer.append(delimiter);
-        writer.write(secondaryAET);
-        writer.append(delimiter);
-        writer.write(queryString);
-        writer.append(delimiter);
-        writer.write(String.valueOf(checkMissing));
-        writer.append(delimiter);
-        writer.write(String.valueOf(checkDifferent));
-        writer.append(delimiter);
-        writer.write(matches);
-        writer.append(delimiter);
-        writer.write(missing);
-        writer.append(delimiter);
-        writer.write(different);
-        writer.append(delimiter);
-        if (compareFields != null)
-            writer.write(compareFields);
-        writer.append(delimiter);
-        writer.write(df.format(createdTime));
-        writer.append(delimiter);
-        writer.write(df.format(updatedTime));
-        writer.append(delimiter);
-        queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
-        writer.append('\r');
-        writer.append('\n');
+        printer.printRecord(
+                String.valueOf(pk),
+                localAET,
+                primaryAET,
+                secondaryAET,
+                queryString,
+                String.valueOf(checkMissing),
+                String.valueOf(checkDifferent),
+                matches,
+                missing,
+                different,
+                compareFields,
+                df.format(createdTime),
+                df.format(updatedTime),
+                queueMessage.getMessageID(),
+                queueMessage.getQueueName(),
+                queueMessage.getDeviceName(),
+                queueMessage.getStatus().toString(),
+                queueMessage.getScheduledTime(),
+                queueMessage.getNumberOfFailures() > 0 ? String.valueOf(queueMessage.getNumberOfFailures()) : null,
+                queueMessage.getBatchID(),
+                df.format(queueMessage.getProcessingStartTime()),
+                df.format(queueMessage.getProcessingEndTime()),
+                queueMessage.getErrorMessage(),
+                queueMessage.getOutcomeMessage());
     }
 
     @Override

@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -460,15 +462,17 @@ public class StgVerTaskRS {
             Object entity(Iterator<StorageVerificationTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    StorageVerificationTask.writeCSVHeader(writer, delimiter);
-                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
+                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                            .withHeader(StorageVerificationTask.header)
+                            .withDelimiter(delimiter));
+                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
                     writer.flush();
                 };
             }
 
-            private void writeTaskToCSV(Writer writer, StorageVerificationTask task) {
+            private void writeTaskToCSV(CSVPrinter printer, StorageVerificationTask task) {
                 try {
-                    task.writeAsCSVTo(writer, delimiter);
+                    task.printRecord(printer);
                 } catch (IOException e) {
                     LOG.warn("{}", e);
                 }

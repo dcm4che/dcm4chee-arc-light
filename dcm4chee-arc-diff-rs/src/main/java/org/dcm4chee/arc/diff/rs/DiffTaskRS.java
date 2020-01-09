@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.diff.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -501,15 +503,17 @@ public class DiffTaskRS {
             Object entity(final Iterator<DiffTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    DiffTask.writeCSVHeader(writer, delimiter);
-                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
+                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                            .withHeader(DiffTask.header)
+                            .withDelimiter(delimiter));
+                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
                     writer.flush();
                 };
             }
 
-            private void writeTaskToCSV(Writer writer, DiffTask task) {
+            private void writeTaskToCSV(CSVPrinter printer, DiffTask task) {
                 try {
-                    task.writeAsCSVTo(writer, delimiter);
+                    task.printRecord(printer);
                 } catch (IOException e) {
                     LOG.warn("{}", e);
                 }

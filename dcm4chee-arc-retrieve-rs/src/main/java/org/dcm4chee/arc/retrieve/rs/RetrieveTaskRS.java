@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -66,7 +68,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.persistence.Tuple;
@@ -543,15 +544,17 @@ public class RetrieveTaskRS {
             Object entity(final Iterator<RetrieveTask> tasks) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    RetrieveTask.writeCSVHeader(writer, delimiter);
-                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task));
+                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                            .withHeader(RetrieveTask.header)
+                            .withDelimiter(delimiter));
+                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
                     writer.flush();
                 };
             }
 
-            private void writeTaskToCSV(Writer writer, RetrieveTask task) {
+            private void writeTaskToCSV(CSVPrinter printer, RetrieveTask task) {
                 try {
-                    task.writeAsCSVTo(writer, delimiter);
+                    task.printRecord(printer);
                 } catch (IOException e) {
                     LOG.warn("{}", e);
                 }

@@ -39,6 +39,8 @@
  */
 package org.dcm4chee.arc.export.rs;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -464,15 +466,17 @@ public class ExportTaskRS {
             Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache) {
                 return (StreamingOutput) out -> {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    ExportTask.writeCSVHeader(writer, delimiter);
-                    tasks.forEachRemaining(task -> writeTaskToCSV(writer, task, deviceCache));
+                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                            .withHeader(ExportTask.header)
+                            .withDelimiter(delimiter));
+                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task, deviceCache));
                     writer.flush();
                 };
             }
 
-            private void writeTaskToCSV(Writer writer, ExportTask task, IDeviceCache deviceCache) {
+            private void writeTaskToCSV(CSVPrinter printer, ExportTask task, IDeviceCache deviceCache) {
                 try {
-                    task.writeAsCSVTo(writer, delimiter, localAETitleOf(deviceCache, task));
+                    task.printRecord(printer, localAETitleOf(deviceCache, task));
                 } catch (IOException e) {
                     LOG.warn("{}", e);
                 }

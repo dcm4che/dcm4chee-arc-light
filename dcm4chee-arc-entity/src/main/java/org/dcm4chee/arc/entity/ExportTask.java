@@ -38,13 +38,13 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -290,70 +290,87 @@ public class ExportTask {
         gen.flush();
     }
 
-    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
-         writer.write("pk" + delimiter +
-                "createdTime" + delimiter +
-                "updatedTime" + delimiter +
-                "ExporterID" + delimiter +
-                "LocalAET" + delimiter +
-                "StudyInstanceUID" + delimiter +
-                "SeriesInstanceUID" + delimiter +
-                "SOPInstanceUID" + delimiter +
-                "NumberOfInstances" + delimiter +
-                "Modality" + delimiter +
-                "JMSMessageID" + delimiter +
-                "queue" + delimiter +
-                "dicomDeviceName" + delimiter +
-                "status" + delimiter +
-                "scheduledTime" + delimiter +
-                "failures" + delimiter +
-                "batchID" + delimiter +
-                "processingStartTime" + delimiter +
-                "processingEndTime" + delimiter +
-                "errorMessage" + delimiter +
-                "outcomeMessage\r\n");
+    public static final String[] header = {
+            "pk",
+            "createdTime",
+            "updatedTime",
+            "ExporterID",
+            "LocalAET",
+            "StudyInstanceUID",
+            "SeriesInstanceUID",
+            "SOPInstanceUID",
+            "NumberOfInstances",
+            "Modality",
+            "batchID",
+            "dicomDeviceName",
+            "scheduledTime",
+            "status",
+            "JMSMessageID",
+            "queue",
+            "failures",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
+
+    public void printRecord(CSVPrinter printer, String localAET) throws IOException {
+        if (queueMessage == null)
+            printExportTask(printer, localAET);
+        else
+            printExportTaskWithQueueMsg(printer, localAET);
     }
 
-    public void writeAsCSVTo(Writer writer, char delimiter, String localAET) throws IOException {
+    private void printExportTask(CSVPrinter printer, String localAET) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        writer.write(String.valueOf(pk));
-        writer.write(delimiter);
-        writer.write(df.format(createdTime));
-        writer.write(delimiter);
-        writer.write(df.format(updatedTime));
-        writer.write(delimiter);
-        writer.write(exporterID);
-        writer.write(delimiter);
-        if (localAET != null)
-            writer.write(localAET);
-        writer.write(delimiter);
-        writer.write(studyInstanceUID);
-        writer.write(delimiter);
-        if (!seriesInstanceUID.equals("*"))
-            writer.write(seriesInstanceUID);
-        writer.write(delimiter);
-        if (!sopInstanceUID.equals("*"))
-            writer.write(sopInstanceUID);
-        writer.write(delimiter);
-        if (numberOfInstances != null)
-            writer.write(numberOfInstances.toString());
-        writer.write(delimiter);
-        if (modalities != null)
-            writer.write(modalities);
-        writer.write(delimiter);
-        if (queueMessage == null) {
-            writer.append(delimiter).append(delimiter).write(deviceName);
-            writer.append(delimiter).write("TO SCHEDULE");
-            writer.append(delimiter).write(df.format(scheduledTime));
-            writer.append(delimiter).append(delimiter);
-            if (batchID != null)
-                writer.write(batchID);
-            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter);
-        } else {
-            queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
-        }
-        writer.write('\r');
-        writer.write('\n');
+        printer.printRecord(
+                String.valueOf(pk),
+                df.format(createdTime),
+                df.format(updatedTime),
+                exporterID,
+                localAET,
+                studyInstanceUID,
+                !seriesInstanceUID.equals("*") ? seriesInstanceUID : null,
+                !sopInstanceUID.equals("*") ? sopInstanceUID : null,
+                numberOfInstances != null ? numberOfInstances.toString() : null,
+                modalities,
+                batchID,
+                deviceName,
+                scheduledTime,
+                "TO_SCHEDULE",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    private void printExportTaskWithQueueMsg(CSVPrinter printer, String localAET) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        printer.printRecord(
+                String.valueOf(pk),
+                df.format(createdTime),
+                df.format(updatedTime),
+                exporterID,
+                localAET,
+                studyInstanceUID,
+                !seriesInstanceUID.equals("*") ? seriesInstanceUID : null,
+                !sopInstanceUID.equals("*") ? sopInstanceUID : null,
+                numberOfInstances != null ? numberOfInstances.toString() : null,
+                modalities,
+                batchID,
+                deviceName,
+                scheduledTime,
+                queueMessage.getStatus().toString(),
+                queueMessage.getMessageID(),
+                queueMessage.getQueueName(),
+                queueMessage.getNumberOfFailures() > 0 ? String.valueOf(queueMessage.getNumberOfFailures()) : null,
+                df.format(queueMessage.getProcessingStartTime()),
+                df.format(queueMessage.getProcessingEndTime()),
+                queueMessage.getErrorMessage(),
+                queueMessage.getOutcomeMessage());
     }
 
     @Override
