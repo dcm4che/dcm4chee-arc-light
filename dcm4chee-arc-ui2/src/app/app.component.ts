@@ -134,6 +134,12 @@ export class AppComponent implements OnInit {
     logout(){
         KeycloakService.keycloakAuth.logout();
     }
+    gotToWildflyConsole(e){
+        e.preventDefault();
+        let link = `//${window.location.hostname}:9990`;
+
+        window.open(            link, "_blank");
+    }
     closeFromOutside(){
         if(this.showMenu)
             this.showMenu = false;
