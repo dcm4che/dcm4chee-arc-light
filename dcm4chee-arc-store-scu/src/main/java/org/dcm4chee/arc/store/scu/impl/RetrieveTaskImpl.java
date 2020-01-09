@@ -199,7 +199,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             storeas.waitForNonBlockingInvoke();
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}:\n",
-                    rqas, storeas.getRemoteAET(), e);
+                    rqas != null ? rqas : storeas, storeas.getRemoteAET(), e);
         }
     }
 
@@ -311,19 +311,20 @@ final class RetrieveTaskImpl implements RetrieveTask {
     }
 
     private void waitForOutstandingCStoreRSP(Association storeas, Collection<InstanceLocations> outstandingRSP) {
-        try {
-            LOG.debug("{}: wait for outstanding C-STORE RSP(s) on association to {}",
-                    rqas, storeas.getRemoteAET());
-            synchronized (outstandingRSP) {
-                while (!outstandingRSP.isEmpty())
-                    outstandingRSP.wait();
+        if (storeas.isReadyForDataTransfer() && !outstandingRSP.isEmpty())
+            try {
+                LOG.debug("{}: wait for {} outstanding C-STORE RSP(s) on association to {}",
+                        rqas != null ? rqas : storeas, outstandingRSP.size(), storeas.getRemoteAET());
+                synchronized (outstandingRSP) {
+                    while (storeas.isReadyForDataTransfer() && !outstandingRSP.isEmpty())
+                        outstandingRSP.wait();
+                }
+                LOG.debug("{}: received outstanding C-STORE RSP(s) on association to {}",
+                        rqas != null ? rqas : storeas, storeas.getRemoteAET());
+            } catch (InterruptedException e) {
+                LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}",
+                        rqas != null ? rqas : storeas, storeas.getRemoteAET(), e);
             }
-            LOG.debug("{}: received outstanding C-STORE RSP(s) on association to {}",
-                    rqas, storeas.getRemoteAET());
-        } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}",
-                    rqas, storeas.getRemoteAET(), e);
-        }
     }
 
     private void waitForPendingCMoveForward() {
@@ -349,11 +350,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
     }
 
     protected void releaseStoreAssociation(Association storeas) {
-        if (dimserq != Dimse.C_GET_RQ)
+        if (dimserq != Dimse.C_GET_RQ && storeas.isReadyForDataTransfer())
             try {
                 storeas.release();
             } catch (IOException e) {
-                LOG.warn("{}: failed to release association to {}", rqas, storeas.getRemoteAET(), e);
+                LOG.warn("{}: failed to release association to {}",
+                        rqas != null ? rqas : storeas, storeas.getRemoteAET(), e);
             }
     }
     private final class CStoreRSPHandler extends DimseRSPHandler {
