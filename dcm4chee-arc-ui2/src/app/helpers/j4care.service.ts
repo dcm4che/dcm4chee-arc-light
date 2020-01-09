@@ -1263,4 +1263,25 @@ export class j4care {
             left: rect.left + document.body.scrollLeft
         }
     }
+
+    static prepareCountMessage(preMessage:string, returnedObject:any){
+        let msg = "<br>\n";
+        try{
+            if(_.hasIn(returnedObject,"count")){
+                msg += `Count:${returnedObject.count}<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"warning")){
+                msg += `Warning:${returnedObject.warning}<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"reject")){
+                msg += `Reject:${returnedObject.reject}<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"error")){
+                msg += `Error:${returnedObject.error}<br>\n`;
+            }
+        }catch (e) {
+            msg = "";
+        }
+        return `${preMessage}${msg != "" ? ':':''}${msg}`;
+    }
 }

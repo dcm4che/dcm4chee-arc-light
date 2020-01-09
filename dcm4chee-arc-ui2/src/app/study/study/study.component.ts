@@ -2536,11 +2536,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectStudy(study.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
-                            $this.appService.setMessage({
-                                'title': 'Info',
-                                'text': 'Study rejected successfully!',
-                                'status': 'info'
-                            });
+                            $this.appService.showMsg(j4care.prepareCountMessage('Study rejected successfully', response));
 
                             // patients.splice(patientkey,1);
                             $this.cfpLoadingBar.complete();
@@ -2602,13 +2598,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectSeries(series.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
-                            $this.appService.setMessage({
-                                'title': 'Info',
-                                'text': 'Series rejected successfully!',
-                                'status': 'info'
-                            });
-
-                            // patients.splice(patientkey,1);
+                            $this.appService.showMsg(j4care.prepareCountMessage('Series rejected successfully', response));
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
@@ -2667,13 +2657,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     $this.cfpLoadingBar.start();
                     this.service.rejectInstance(instance.attrs, this.studyWebService, parameters.result.select ).subscribe(
                         (response) => {
-                            $this.appService.setMessage({
-                                'title': 'Info',
-                                'text': 'Instance rejected successfully!',
-                                'status': 'info'
-                            });
-
-                            // patients.splice(patientkey,1);
+                            $this.appService.showMsg(j4care.prepareCountMessage('Instance rejected successfully', response));
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
