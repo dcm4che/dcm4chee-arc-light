@@ -162,9 +162,6 @@ public class ExportTaskRS {
             return notAcceptable();
 
         QueueMessage.Status status = status();
-        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
-            return Response.ok().build();
-
         try {
             return Response.ok(
                     output.entity(
@@ -190,9 +187,6 @@ public class ExportTaskRS {
     public Response countExportTasks() {
         logRequest();
         QueueMessage.Status status = status();
-        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
-            return count(0);
-
         try {
             return count(mgr.countTasks(queueTaskQueryParam(status),
                     exportTaskQueryParam(deviceName, updatedTime)));
@@ -383,10 +377,6 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
         int deleted = 0;
-
-        if (status == QueueMessage.Status.TO_SCHEDULE && batchID != null)
-            return deleted(deleted);
-
         try {
             int count;
             int deleteTasksFetchSize = queueTasksFetchSize();
