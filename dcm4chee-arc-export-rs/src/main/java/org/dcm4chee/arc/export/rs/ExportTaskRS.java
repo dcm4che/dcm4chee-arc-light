@@ -134,6 +134,9 @@ public class ExportTaskRS {
     @QueryParam("updatedTime")
     private String updatedTime;
 
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
+
     @QueryParam("batchID")
     private String batchID;
 
