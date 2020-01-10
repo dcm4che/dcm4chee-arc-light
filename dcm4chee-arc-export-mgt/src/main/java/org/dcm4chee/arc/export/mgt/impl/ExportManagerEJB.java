@@ -348,7 +348,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
-        rescheduleExportTask(pk, exporter, null, queueEvent);
+        rescheduleExportTask(pk, exporter, null, queueEvent, null);
     }
 
     @Override

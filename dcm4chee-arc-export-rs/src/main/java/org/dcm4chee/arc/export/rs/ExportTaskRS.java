@@ -340,6 +340,7 @@ public class ExportTaskRS {
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+            Date scheduledTime = scheduledTime();
             do {
                 List<Tuple> exportTasks = mgr.exportTaskPksAndExporterIDs(
                     queueTaskQueryParam(status), exportTaskQueryParam(devName, updatedTime), rescheduleTasksFetchSize);
@@ -349,7 +350,8 @@ public class ExportTaskRS {
                         mgr.rescheduleExportTask(pk,
                                 newExporter != null ? newExporter : exporter((String) exportTask.get(1)),
                                 httpServletRequestInfo,
-                                null);
+                                null,
+                                scheduledTime);
                     } catch (Exception e) {
                         LOG.warn("Failed rescheduling of task [pk={}]\n", pk, e);
                     }
