@@ -203,7 +203,7 @@ class ExportCSV {
     private Date scheduledTime() {
         if (scheduledTime != null)
             try {
-                return new SimpleDateFormat("yyyyMMdd").parse(scheduledTime);
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
             } catch (Exception e) {
                 LOG.info(e.getMessage());
             }
