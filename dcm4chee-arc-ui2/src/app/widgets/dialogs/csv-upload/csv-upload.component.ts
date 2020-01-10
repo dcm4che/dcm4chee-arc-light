@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatDialogRef} from "@angular/material";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
@@ -97,6 +97,14 @@ export class CsvUploadComponent implements OnInit {
             })
             this.dialogRef.close(null);
         });
+    }
+    dateChanged(key, e){
+        (<FormControl>this.form.controls[key]).setValue(e);
+        if(e){
+            this.model[key] = e;
+        }else{
+            delete this.model[key];
+        }
     }
     onFileChange(e){
         console.log("e",e.target.files[0]);

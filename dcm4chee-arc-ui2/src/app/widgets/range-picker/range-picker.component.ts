@@ -19,6 +19,7 @@ export class RangePickerComponent implements OnInit {
     @Input() onlyDate;
     @Input() datePickerMode:boolean;
     @Input() dateRange;
+    @Input() defaultTime:string;
     @Input() mode:"leftOpen"|"rightOpen"|"range"|"single"|string;
     @Output() modelChange = new EventEmitter();
     @Output() splitDateRangeChanged = new EventEmitter();
@@ -62,6 +63,12 @@ export class RangePickerComponent implements OnInit {
                 this.HH.push({value:i,label:(i<10)?`0${i}`:i});
             }
             this.mm.push({value:i,label:(i<10)?`0${i}`:i});
+        }
+        if(this.defaultTime){
+            this.includeTime = true;
+            this.toTimeModel = this.defaultTime;
+            this.singleTimeModel = this.defaultTime;
+            this.fromTimeModel = this.defaultTime;
         }
     }
     addEvent(mode, e){

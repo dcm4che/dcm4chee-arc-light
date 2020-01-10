@@ -10,6 +10,19 @@
           <mat-option *ngFor="let ae of form.options" value="{{ae.value}}">{{ae.text}}</mat-option>
         </mat-select>
         <input *ngSwitchCase="'input'" formControlName="{{form.filterKey}}" type="{{form.type}}" placeholder="{{form.placeholder}}" class="form-control" (change)="inputChanged(form,$event)" >
+        <range-picker
+                class="form-control"
+                [ngStyle]="form.style"
+                *ngSwitchCase="'range-picker-time'"
+                [onlyDate]="form.onlyDate"
+                [model]="model[form.filterKey]"
+                (modelChange)="dateChanged(form.filterKey, $event)"
+                placeholder="{{form.description || form.placeholder}}"
+                dateFormat="YYYYMMDD"
+                defaultTime="00:00:00"
+                mode="single"
+                title="{{form.description}}"
+        ></range-picker>
       </ng-container>
     </div>
       <div class="form_control">

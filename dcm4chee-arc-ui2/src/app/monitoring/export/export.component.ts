@@ -240,7 +240,13 @@ export class ExportComponent implements OnInit, OnDestroy {
                     type:"checkbox",
                     filterKey:"withoutScheduling",
                     description:"Without Scheduling"
+                },{
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"scheduledTimes",
+                    description:"Scheduled times"
                 },
+                //scheduledTimes
                 {
                     tag:"select",
                     options:this.aets,
@@ -286,6 +292,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                     clonedFilters['batchID'] = filter['batchID'];
                 }
                 if(filter['withoutScheduling']){
+                    if(filter['scheduledTimes']) {
+                        clonedFilters['scheduledTimes'] = filter['scheduledTimes'];
+                    }
                     return `../aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
                 }else{
                     return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
