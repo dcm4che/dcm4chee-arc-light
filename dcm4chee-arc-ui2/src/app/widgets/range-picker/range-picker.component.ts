@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
+import * as _ from "lodash";
 
 @Component({
     selector: 'range-picker',
@@ -202,6 +203,9 @@ export class RangePickerComponent implements OnInit {
     }
     getDateFromValue(value){
         let result = value || (this.onlyTime ? '': j4care.dateToString(new Date()));
+        if(_.hasIn(result, "_isAMomentObject") && result._isAMomentObject){
+            return (<Moment>result).format("YYYYMMDD");
+        }
         return result;
     }
     getDateFromObject(value){
