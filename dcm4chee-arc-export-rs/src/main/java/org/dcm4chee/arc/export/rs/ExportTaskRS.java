@@ -76,9 +76,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -258,7 +257,8 @@ public class ExportTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            mgr.rescheduleExportTask(pk, exporter(exporterID), HttpServletRequestInfo.valueOf(request), queueEvent);
+            mgr.rescheduleExportTask(pk, exporter(exporterID), HttpServletRequestInfo.valueOf(request), queueEvent,
+                    scheduledTime());
             return Response.noContent().build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -271,6 +271,16 @@ public class ExportTaskRS {
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return null;
     }
 
     @POST

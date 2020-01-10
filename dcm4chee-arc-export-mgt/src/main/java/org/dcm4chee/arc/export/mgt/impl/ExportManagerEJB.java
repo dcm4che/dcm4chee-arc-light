@@ -354,11 +354,33 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                                      QueueMessageEvent queueEvent) {
+        rescheduleExportTask(pk, exporter, httpServletRequestInfo, queueEvent, null);
+    }
+
+    @Override
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                                     QueueMessageEvent queueEvent, Date scheduledTime) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return;
 
         task.setExporterID(exporter.getExporterID());
+        if (scheduledTime == null)
+            rescheduleImmediately(task, exporter, httpServletRequestInfo, queueEvent);
+        else
+            rescheduleAtScheduledTime(task, scheduledTime);
+    }
+
+    private void rescheduleAtScheduledTime(ExportTask task, Date scheduledTime) {
+        task.setScheduledTime(scheduledTime);
+        if (task.getQueueMessage() != null) {
+            em.remove(task.getQueueMessage());
+            task.setQueueMessage(null);
+        }
+    }
+
+    private void rescheduleImmediately(ExportTask task, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+                                       QueueMessageEvent queueEvent) {
         if (task.getQueueMessage() == null)
             scheduleExportTask(task, exporter, httpServletRequestInfo, task.getBatchID());
         else {
