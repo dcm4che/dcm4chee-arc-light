@@ -158,6 +158,11 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
+    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
+        return ejb.deleteTask(msgId, queueEvent, deleteAssociated);
+    }
+
+    @Override
     public int deleteTasks(TaskQueryParam taskQueryParam, int deleteTasksFetchSize) {
         return ejb.deleteTasks(taskQueryParam, deleteTasksFetchSize);
     }

@@ -85,6 +85,8 @@ public interface QueueManager {
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
+    boolean deleteTask(String msgId, QueueMessageEvent queueEvent, boolean deleteAssociated);
+
     int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
 
     Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit);

@@ -368,13 +368,13 @@ public class ExportManagerEJB implements ExportManager {
         if (scheduledTime == null)
             rescheduleImmediately(task, exporter, httpServletRequestInfo, queueEvent);
         else
-            rescheduleAtScheduledTime(task, scheduledTime);
+            rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
     }
 
-    private void rescheduleAtScheduledTime(ExportTask task, Date scheduledTime) {
+    private void rescheduleAtScheduledTime(ExportTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
         task.setScheduledTime(scheduledTime);
         if (task.getQueueMessage() != null) {
-            em.remove(task.getQueueMessage());
+            queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
             task.setQueueMessage(null);
         }
     }

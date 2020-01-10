@@ -490,30 +490,36 @@ public class QueueManagerEJB {
     }
 
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
+        return deleteTask(msgId, queueEvent, true);
+    }
+
+    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
 
         if (queueEvent != null)
             queueEvent.setQueueMsg(entity);
-        deleteTask(entity);
+        deleteTask(entity, deleteAssociated);
         return true;
     }
 
-    private void deleteTask(QueueMessage entity) {
+    private void deleteTask(QueueMessage entity, boolean deleteAssociated) {
         if (entity.getStatus() == QueueMessage.Status.IN_PROCESS)
             messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
 
-        if (entity.getExportTask() != null)
-            em.remove(entity.getExportTask());
-        else if (entity.getRetrieveTask() != null)
-            em.remove(entity.getRetrieveTask());
-        else if (entity.getDiffTask() != null)
-            em.remove(entity.getDiffTask());
-        else if (entity.getStorageVerificationTask() != null)
-            em.remove(entity.getStorageVerificationTask());
-        else
-            em.remove(entity);
+        if (deleteAssociated) {
+            if (entity.getExportTask() != null)
+                em.remove(entity.getExportTask());
+            else if (entity.getRetrieveTask() != null)
+                em.remove(entity.getRetrieveTask());
+            else if (entity.getDiffTask() != null)
+                em.remove(entity.getDiffTask());
+            else if (entity.getStorageVerificationTask() != null)
+                em.remove(entity.getStorageVerificationTask());
+        }
+
+        em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
@@ -644,7 +650,7 @@ public class QueueManagerEJB {
         Iterator<QueueMessage> queueMsgs = listQueueMessages(queueTaskQueryParam, 0, 0, deleteTasksFetchSize);
         int count = 0;
         while (queueMsgs.hasNext()) {
-            deleteTask(queueMsgs.next());
+            deleteTask(queueMsgs.next(), true);
             count++;
         }
         return count;
