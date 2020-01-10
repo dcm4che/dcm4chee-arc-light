@@ -105,6 +105,10 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
+        createOrUpdateStudyExportTask(exporterID, studyIUID, null, scheduledTime);
+    }
+
+    private void createOrUpdateStudyExportTask(String exporterID, String studyIUID, String batchID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID, ExportTask.class)
                     .setParameter(1, exporterID)
@@ -112,7 +116,7 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(exporterID, studyIUID, "*", "*", null, scheduledTime);
+            createExportTask(exporterID, studyIUID, "*", "*", batchID, scheduledTime);
         }
     }
 
@@ -227,9 +231,9 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                                 String batchID, Date scheduledTime, String... studyUIDs) {
-        for (String studyUID : studyUIDs) 
-            createExportTask(exporter.getExporterID(), studyUID, "*", "*", batchID, scheduledTime);
-        
+        for (String studyUID : studyUIDs)
+            createOrUpdateStudyExportTask(exporter.getExporterID(), studyUID, batchID, scheduledTime);
+
         return studyUIDs.length;
     }
 
