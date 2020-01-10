@@ -151,8 +151,10 @@ public class ExportManagerEJB implements ExportManager {
 
     private void updateExportTask(ExportTask task, String seriesIUID, String sopIUID, Date scheduledTime) {
         task.setDeviceName(device.getDeviceName());
-        task.setSeriesInstanceUID(seriesIUID);
-        task.setSopInstanceUID(sopIUID);
+        if (!task.getSeriesInstanceUID().equals("*"))
+            task.setSeriesInstanceUID(seriesIUID);
+        if (!task.getSopInstanceUID().equals("*"))
+            task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null) {
