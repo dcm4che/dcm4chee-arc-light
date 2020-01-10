@@ -473,6 +473,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmPurgeQueueMessageCanceledDelay", qd.getPurgeQueueMessageCanceledDelay(), null);
             writer.writeNotDef("dcmMaxQueueSize", qd.getMaxQueueSize(), 0);
+            writer.writeNotDef("dcmRetryInProcessOnStartup", qd.isRetryInProcessOnStartup(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1868,6 +1869,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmMaxQueueSize":
                         qd.setMaxQueueSize(reader.intValue());
+                        break;
+                    case "dcmRetryInProcessOnStartup":
+                        qd.setRetryInProcessOnStartup(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

@@ -655,4 +655,23 @@ public class QueueManagerEJB {
         }
         return count;
     }
+
+    public void retryInProcessTasks() {
+        device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getQueueDescriptors()
+                .stream()
+                .filter(QueueDescriptor::isRetryInProcessOnStartup)
+                .forEach(desc ->
+                    em.createNamedQuery(QueueMessage.FIND_BY_STATUS_AND_QUEUE_NAME, QueueMessage.class)
+                            .setParameter(1, QueueMessage.Status.IN_PROCESS)
+                            .setParameter(2, desc.getQueueName())
+                            .getResultList()
+                            .forEach(queueMsg -> {
+                                LOG.info("Retry {} left in status IN PROCESS on system start-up", queueMsg);
+                                cancelTask(queueMsg);
+                                queueMsg.setOutcomeMessage(
+                                        "Retry IN PROCESS on start up - " + queueMsg.getOutcomeMessage());
+                                rescheduleTask(queueMsg, desc, 0L);
+                            }));
+    }
 }

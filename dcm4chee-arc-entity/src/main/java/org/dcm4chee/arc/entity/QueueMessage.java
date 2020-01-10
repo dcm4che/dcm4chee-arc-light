@@ -78,7 +78,9 @@ import java.util.*;
         @NamedQuery(name = QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
                 query = "select count(o) from QueueMessage o where o.deviceName=?1 and o.queueName=?2 and o.status=?3"),
         @NamedQuery(name = QueueMessage.COUNT_BY_BATCH_ID_AND_STATUS,
-                query = "select count(o) from QueueMessage o where o.batchID=?1 and o.status=?2")
+                query = "select count(o) from QueueMessage o where o.batchID=?1 and o.status=?2"),
+        @NamedQuery(name = QueueMessage.FIND_BY_STATUS_AND_QUEUE_NAME,
+                query = "select o from QueueMessage o where o.status=?1 and o.queueName=?2")
 })
 public class QueueMessage {
 
@@ -86,6 +88,7 @@ public class QueueMessage {
     public static final String FIND_DEVICE_BY_BATCH_ID = "QueueMessage.FindDeviceByBatchId";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByDeviceAndQueueNameAndStatus";
     public static final String COUNT_BY_BATCH_ID_AND_STATUS = "QueueMessage.CountByBatchIdAndStatus";
+    public static final String FIND_BY_STATUS_AND_QUEUE_NAME = "QueueMessage.FindByStatusAndQueueName";
 
     public enum Status {
         SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE;

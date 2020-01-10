@@ -39,6 +39,7 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -46,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import javax.persistence.Tuple;
@@ -195,5 +197,15 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public Tuple findDeviceNameAndMsgPropsByMsgID(String msgID) {
         return ejb.findDeviceNameAndMsgPropsByMsgID(msgID);
+    }
+
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+        switch (event.getType()) {
+            case STARTED:
+                ejb.retryInProcessTasks();
+            case STOPPED:
+            case RELOADED:
+                break;
+        }
     }
 }
