@@ -7,6 +7,7 @@
     "dcmJndiName",
     "dcmRetryDelay",
     "dcmRetryOnWarning",
+    "dcmRetryInProcessOnStartup",
     "dcmRetryDelayMultiplier",
     "dcmMaxRetries",
     "dcmMaxQueueSize"
@@ -61,6 +62,12 @@
     "dcmRetryOnWarning": {
       "title": "Retry on Warning",
       "description": "Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetryInProcessOnStartup": {
+      "title": "Retry IN PROCESS on Startup",
+      "description": "Indicates to retry tasks left in status IN PROCESS on system start-up.",
       "type": "boolean",
       "default": false
     },

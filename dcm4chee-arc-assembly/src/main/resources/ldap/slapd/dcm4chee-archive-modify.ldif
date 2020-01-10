@@ -1630,6 +1630,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.338 NAME 'dcmRestrictRetrieveSilentl
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup'
+  DESC 'Indicates to retry tasks left in status IN PROCESS on system start-up; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2011,6 +2016,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmMaxRetryDelay $
     dcmRetryDelayMultiplier $
     dcmRetryOnWarning $
+    dcmRetryInProcessOnStartup $
     dcmPurgeQueueMessageCompletedDelay $
     dcmPurgeQueueMessageFailedDelay $
     dcmPurgeQueueMessageWarningDelay $

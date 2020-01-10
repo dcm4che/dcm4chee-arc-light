@@ -18,6 +18,7 @@ public class QueueDescriptor {
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
+    private boolean retryInProcessOnStartup;
     private Duration purgeQueueMessageCompletedDelay;
     private Duration purgeQueueMessageFailedDelay;
     private Duration purgeQueueMessageWarningDelay;
@@ -104,6 +105,14 @@ public class QueueDescriptor {
 
     public void setRetryOnWarning(boolean retryOnWarning) {
         this.retryOnWarning = retryOnWarning;
+    }
+
+    public boolean isRetryInProcessOnStartup() {
+        return retryInProcessOnStartup;
+    }
+
+    public void setRetryInProcessOnStartup(boolean retryInProcessOnStartup) {
+        this.retryInProcessOnStartup = retryInProcessOnStartup;
     }
 
     public Duration getPurgeQueueMessageCompletedDelay() {
