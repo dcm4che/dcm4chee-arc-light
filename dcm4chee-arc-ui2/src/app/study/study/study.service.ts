@@ -1720,7 +1720,7 @@ export class StudyService {
                 new TableSchemaElement({
                     type: "value",
                     header: "Modalities",
-                    pathToValue: "[00080061].Value[0]",
+                    pathToValue: "[00080061].Value",
                     headerDescription: "Modalities in Study",
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
