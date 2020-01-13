@@ -1635,6 +1635,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.340 NAME 'dcmRetrieveTaskPollingInterval'
+  DESC 'Retrieve Task Polling Interval in ISO-8601 duration format PnDTnHnMnS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.341 NAME 'dcmRetrieveTaskFetchSize'
+  DESC 'Limit result set of DB query for Retrieve Tasks ready for processing; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1714,6 +1724,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDiffStudiesIncludefieldAll $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
+    dcmRetrieveTaskPollingInterval $
+    dcmRetrieveTaskFetchSize $
     dcmPurgeStoragePollingInterval $
     dcmPurgeStorageFetchSize $
     dcmFailedToDeletePollingInterval $

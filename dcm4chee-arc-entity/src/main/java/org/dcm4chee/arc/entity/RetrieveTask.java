@@ -64,10 +64,14 @@ import java.util.Date;
                 @Index(columnList = "destination_aet"),
                 @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
+                @Index(columnList = "scheduled_time"),
                 @Index(columnList = "study_iuid"),
                 @Index(columnList = "batch_id") }
 )
 @NamedQueries({
+        @NamedQuery(name = RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME,
+                query = "select o.pk from RetrieveTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
+                        "and o.queueMessage is null"),
         @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
                 query = "update RetrieveTask o set " +
                         "o.updatedTime=current_timestamp, " +
@@ -81,6 +85,7 @@ import java.util.Date;
 })
 public class RetrieveTask {
 
+    public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "RetriveTask.FindScheduledByDeviceName";
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
 
     @Id
@@ -105,6 +110,11 @@ public class RetrieveTask {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "scheduled_time")
+    private Date scheduledTime;
 
     @Basic(optional = false)
     @Column(name = "local_aet", updatable = false)
@@ -184,6 +194,14 @@ public class RetrieveTask {
 
     public Date getUpdatedTime() {
         return updatedTime;
+    }
+
+    public Date getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(Date scheduledTime) {
+        this.scheduledTime = scheduledTime;
     }
 
     public String getLocalAET() {
