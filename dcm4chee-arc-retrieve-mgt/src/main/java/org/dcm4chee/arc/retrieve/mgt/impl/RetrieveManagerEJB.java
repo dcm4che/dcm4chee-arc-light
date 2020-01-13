@@ -46,7 +46,10 @@ import javax.persistence.Tuple;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -87,6 +90,9 @@ public class RetrieveManagerEJB {
     @Inject
     private QueueManager queueManager;
 
+    @Inject
+    private Device device;
+
     public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
                                     Date notRetrievedAfter, long delay)
             throws QueueSizeLimitExceededException {
@@ -126,6 +132,7 @@ public class RetrieveManagerEJB {
     }
 
     public void scheduleRetrieveTask(RetrieveTask retrieveTask, HttpServletRequest request) {
+        LOG.info("Schedule {}", retrieveTask);
         try {
             ObjectMessage msg = queueManager.createObjectMessage(toKeys(retrieveTask));
             msg.setStringProperty("LocalAET", retrieveTask.getLocalAET());
@@ -133,7 +140,8 @@ public class RetrieveManagerEJB {
             msg.setIntProperty("Priority", 0);
             msg.setStringProperty("DestinationAET", retrieveTask.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
-            HttpServletRequestInfo.copyTo(HttpServletRequestInfo.valueOf(request), msg);
+            if (request != null)
+                HttpServletRequestInfo.copyTo(HttpServletRequestInfo.valueOf(request), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(retrieveTask.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, retrieveTask.getBatchID(), 0L);
             retrieveTask.setQueueMessage(queueMessage);
@@ -214,6 +222,7 @@ public class RetrieveManagerEJB {
         task.setQueueName(ctx.getQueueName());
         task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
+        task.setScheduledTime(ctx.getScheduledTime());
         return task;
     }
 
@@ -283,10 +292,9 @@ public class RetrieveManagerEJB {
             task.setQueueName(newQueueName);
 
         QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null) {
-            LOG.info("Schedule {}", task);
+        if (queueMessage == null)
             scheduleRetrieveTask(task, queueEvent.getRequest());
-        } else {
+        else {
             LOG.info("Reschedule {}", task);
             queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), task.getQueueName(), queueEvent);
         }
@@ -609,4 +617,23 @@ public class RetrieveManagerEJB {
         return referencedQueueMsgIDs.size();
     }
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public List<Long> findRetrieveTasksToSchedule(int fetchSize) {
+        return em.createNamedQuery(
+                RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME, Long.class)
+                .setParameter(1, device.getDeviceName())
+                .setMaxResults(fetchSize)
+                .getResultList();
+    }
+
+    public boolean scheduleRetrieveTask(Long pk) {
+        RetrieveTask retrieveTask = em.find(RetrieveTask.class, pk);
+        try {
+            scheduleRetrieveTask(retrieveTask, null);
+        } catch (QueueSizeLimitExceededException e) {
+            LOG.info(e.getLocalizedMessage() + " - retry to schedule Retrieve Tasks");
+            return false;
+        }
+        return true;
+    }
 }

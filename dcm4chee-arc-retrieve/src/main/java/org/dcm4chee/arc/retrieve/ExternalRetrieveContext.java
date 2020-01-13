@@ -43,9 +43,12 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import java.util.Date;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2017
  */
 public class ExternalRetrieveContext {
@@ -60,6 +63,7 @@ public class ExternalRetrieveContext {
     private String deviceName;
     private String queueName;
     private String batchID;
+    private Date scheduledTime;
 
     public ExternalRetrieveContext() {
     }
@@ -131,6 +135,10 @@ public class ExternalRetrieveContext {
         return httpServletRequestInfo;
     }
 
+    public Date getScheduledTime() {
+        return scheduledTime;
+    }
+
     public ExternalRetrieveContext setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
         return this;
@@ -163,6 +171,11 @@ public class ExternalRetrieveContext {
 
     public ExternalRetrieveContext setResponse(Attributes response) {
         this.response = response;
+        return this;
+    }
+
+    public ExternalRetrieveContext setScheduledTime(Date scheduledTime) {
+        this.scheduledTime = scheduledTime;
         return this;
     }
 

@@ -133,6 +133,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String alternativeCMoveSCP;
     private volatile Duration exportTaskPollingInterval;
     private volatile int exportTaskFetchSize = 100;
+    private volatile Duration retrieveTaskPollingInterval;
+    private volatile int retrieveTaskFetchSize = 100;
     private volatile Duration deleteRejectedPollingInterval;
     private volatile int deleteRejectedFetchSize = 100;
     private volatile Duration purgeStoragePollingInterval;
@@ -2509,6 +2511,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.restrictRetrieveSilently = restrictRetrieveSilently;
     }
 
+    public Duration getRetrieveTaskPollingInterval() {
+        return retrieveTaskPollingInterval;
+    }
+
+    public void setRetrieveTaskPollingInterval(Duration retrieveTaskPollingInterval) {
+        this.retrieveTaskPollingInterval = retrieveTaskPollingInterval;
+    }
+
+    public int getRetrieveTaskFetchSize() {
+        return retrieveTaskFetchSize;
+    }
+
+    public void setRetrieveTaskFetchSize(int retrieveTaskFetchSize) {
+        this.retrieveTaskFetchSize = retrieveTaskFetchSize;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2579,6 +2597,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
+        retrieveTaskPollingInterval = arcdev.retrieveTaskPollingInterval;
+        retrieveTaskFetchSize = arcdev.retrieveTaskFetchSize;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
         deleteRejectedFetchSize = arcdev.deleteRejectedFetchSize;
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;

@@ -88,4 +88,8 @@ public interface RetrieveManager {
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
 
     Tuple findDeviceNameAndLocalAETByPk(Long pk);
+
+    List<Long> findRetrieveTasksToSchedule(int fetchSize);
+
+    boolean scheduleRetrieveTask(Long pk);
 }

@@ -218,4 +218,14 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
         return ejb.findDeviceNameAndLocalAETByPk(pk);
     }
+
+    @Override
+    public List<Long> findRetrieveTasksToSchedule(int fetchSize) {
+        return ejb.findRetrieveTasksToSchedule(fetchSize);
+    }
+
+    @Override
+    public boolean scheduleRetrieveTask(Long pk) {
+        return ejb.scheduleRetrieveTask(pk);
+    }
 }
