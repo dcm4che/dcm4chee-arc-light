@@ -246,6 +246,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.selectedElements = new SelectionActionElement({});
         }
+/*        if (_.hasIn(this.appService.global, 'study')){
+            _.forEach(this.appService.global.study, (m, i) => {
+                this[i] = m;
+            });
+        }*/
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
@@ -3320,5 +3325,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
        if(this.selectedElements){
            this.service.selectedElements = this.selectedElements;
        }
+
+       // this.appService.updateGlobal("study",this);
    }
 }
