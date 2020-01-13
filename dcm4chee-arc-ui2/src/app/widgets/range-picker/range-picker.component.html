@@ -130,7 +130,7 @@
                                     showIcon="true"
                             ></p-calendar>-->
             </div>
-            <ul *ngIf="!onlyTime" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
+            <ul *ngIf="!onlyTime && !onlySingleMode" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
                 <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
                 <li *ngIf="!smartPickerActive" (click)="thisMonth()">This Month</li>
                 <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
@@ -161,7 +161,7 @@
                 <li (click)="SplitStudyDateRange = ''" class="glyphicon glyphicon-remove duration_buttons"></li>
                 <li (click)="showDurationPaicker = !showDurationPaicker" class="duration_buttons"></li>
             </ul>
-            <div class="include_time_block">
+            <div class="include_time_block" *ngIf="!defaultTime">
                 <label *ngIf="!onlyTime && !onlyDate">
                     <input type="checkbox" [(ngModel)]="includeTime" (change)="toggleTime()"> Include Time
                 </label>
@@ -174,7 +174,7 @@
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
                 <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="singleTimeModel = $event" placeholder="(hh:mm:ss)"></time-picker>
             </div>
-            <ul class="interval">
+            <ul class="interval" *ngIf="!onlySingleMode">
                 <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">Between</li>
                 <li class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')">Single Date</li>
                 <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">After</li>

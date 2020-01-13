@@ -21,6 +21,7 @@ export class RangePickerComponent implements OnInit {
     @Input() dateRange;
     @Input() defaultTime:string;
     @Input() mode:"leftOpen"|"rightOpen"|"range"|"single"|string;
+    @Input() onlySingleMode:boolean;
     @Output() modelChange = new EventEmitter();
     @Output() splitDateRangeChanged = new EventEmitter();
     @ViewChild('fromCalendar', {static: true}) fromCalendarObject;
@@ -49,13 +50,14 @@ export class RangePickerComponent implements OnInit {
         minDate: new Date(2000, 0, 1),
         maxDate: new Date()
     };
+
     constructor(
         private service:RangePickerService
     ) {}
     ngOnInit(){
         this.mode = this.mode || "range";
         this.header = this.header || "Range picker";
-        if(this.datePickerMode){
+        if(this.datePickerMode || this.onlySingleMode){
             this.mode = "single";
         }
         for(let i=0;i<60;i++){
@@ -306,12 +308,13 @@ export class RangePickerComponent implements OnInit {
     }
     today(){
         this.model = j4care.convertDateToString(new Date());
-        this.modelChange.emit(this.model);
+/*        this.modelChange.emit(this.model);
         if(this.dateRange && this.splitDateRangeChanged){
             this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
         }
-        this.showPicker = false;
-        this.filterChanged();
+        this.showPicker = false;*/
+        // this.filterChanged();
+        this.setRange();
     }
     thisMonth(){
         let todayDate = new Date();
