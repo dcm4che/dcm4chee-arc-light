@@ -243,10 +243,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                 },{
                     tag:"range-picker-time",
                     type:"text",
-                    filterKey:"scheduledTimes",
+                    filterKey:"scheduledTime",
                     description:"Scheduled times"
                 },
-                //scheduledTimes
+                //scheduledTime
                 {
                     tag:"select",
                     options:this.aets,
@@ -292,8 +292,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     clonedFilters['batchID'] = filter['batchID'];
                 }
                 if(filter['withoutScheduling']){
-                    if(filter['scheduledTimes']) {
-                        clonedFilters['scheduledTimes'] = filter['scheduledTimes'];
+                    if(filter['scheduledTime']) {
+                        clonedFilters['scheduledTime'] = filter['scheduledTime'];
                     }
                     return `../aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
                 }else{
