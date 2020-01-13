@@ -659,19 +659,30 @@ public class QueueManagerEJB {
     public void retryInProcessTasks() {
         device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getQueueDescriptors()
-                .stream()
-                .filter(QueueDescriptor::isRetryInProcessOnStartup)
-                .forEach(desc ->
-                    em.createNamedQuery(QueueMessage.FIND_BY_STATUS_AND_QUEUE_NAME, QueueMessage.class)
-                            .setParameter(1, QueueMessage.Status.IN_PROCESS)
-                            .setParameter(2, desc.getQueueName())
-                            .getResultList()
-                            .forEach(queueMsg -> {
-                                LOG.info("Retry {} left in status IN PROCESS on system start-up", queueMsg);
-                                cancelTask(queueMsg);
-                                queueMsg.setOutcomeMessage(
-                                        "Retry IN PROCESS on start up - " + queueMsg.getOutcomeMessage());
-                                rescheduleTask(queueMsg, desc, 0L);
-                            }));
+                .forEach(desc -> {
+                    LOG.info("Check for tasks left in status IN PROCESS for Queue[Name={}, Description={}]",
+                            desc.getQueueName(), desc.getDescription());
+                    if (desc.isRetryInProcessOnStartup())
+                        em.createNamedQuery(QueueMessage.FIND_BY_STATUS_AND_QUEUE_NAME, QueueMessage.class)
+                                .setParameter(1, QueueMessage.Status.IN_PROCESS)
+                                .setParameter(2, desc.getQueueName())
+                                .getResultList()
+                                .forEach(queueMsg -> {
+                                    LOG.info("Retry {} left in status IN PROCESS on system start-up", queueMsg);
+                                    cancelTask(queueMsg);
+                                    queueMsg.setOutcomeMessage(
+                                            "Retry IN PROCESS on start up - " + queueMsg.getOutcomeMessage());
+                                    rescheduleTask(queueMsg, desc, 0L);
+                                });
+                    else {
+                        int scheduled = em.createNamedQuery(QueueMessage.UPDATE_STATUS)
+                                .setParameter(1, QueueMessage.Status.SCHEDULED)
+                                .setParameter(2, QueueMessage.Status.IN_PROCESS)
+                                .setParameter(3, desc.getQueueName())
+                                .executeUpdate();
+                        if (scheduled > 0)
+                            LOG.info("State of {} IN PROCESS tasks changed to SCHEDULED", scheduled);
+                    }
+                });
     }
 }
