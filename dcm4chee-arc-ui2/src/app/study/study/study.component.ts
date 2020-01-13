@@ -1603,9 +1603,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         delete filterModel.offset;
         let quantityText = quantity === "count" ? "COUNT": "SIZE";
 
-        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["quantityText"]], false);
-        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], quantityText);
-        _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], true);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["quantityText"]], false);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["text"]], quantityText);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["showDynamicLoader"]], true);
         this.getService(filterModel, <DicomResponseType>quantity).subscribe(studyCount=>{
             console.log("studyCount",studyCount);
             let value = studyCount[quantity];
@@ -2076,6 +2076,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.diffAttributeSets,
             this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1
         );
+        this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
+        this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
+        this.filterButtonPath.count.pop();
+        this.filterButtonPath.size.pop();
     }
     setSchema(){
         try{
@@ -2083,10 +2087,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.filterSchemaExpand.lineLength = undefined;
             this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
-            this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
-            this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
-            this.filterButtonPath.count.pop();
-            this.filterButtonPath.size.pop();
         }catch (e) {
             j4care.log("Error on schema set",e);
         }
