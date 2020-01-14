@@ -111,7 +111,6 @@ public class RetrieveTask {
     @Column(name = "updated_time")
     private Date updatedTime;
 
-    @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "scheduled_time")
     private Date scheduledTime;
