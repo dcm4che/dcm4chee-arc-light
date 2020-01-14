@@ -73,8 +73,10 @@
     "dcmStowRetiredTransferSyntax",
     "dcmAuditSoftwareConfigurationVerbose",
     "dcmStowExcludeAPPMarkers",
+    "hl7PSUOnlyIfMWL",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
+    "hl7PSUPIDPV1",
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
     "hl7UseNullValue",
@@ -1208,6 +1210,18 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMnS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "hl7PSUOnlyIfMWL": {
+      "title": "HL7 Procedure Status Update only if MWL",
+      "description": "Only notify configured HL7 Procedure Status Update Receiving Applications about received studies, if there are MWL Items in the DB with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
+    },
+    "hl7PSUPIDPV1": {
+      "title": "HL7 Procedure Status Update PID PV1",
+      "description": "Indicates to include a Patient Identification (PID) and a Patient Visit (PV1) segment in the HL7 Procedure Status Update message. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",

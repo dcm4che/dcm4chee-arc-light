@@ -1645,6 +1645,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.341 NAME 'dcmRetrieveTaskFetchSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.342 NAME 'hl7PSUOnlyIfMWL'
+  DESC 'Only notify configured HL7 Procedure Status Update Receiving Applications about received studies, if there are MWL Items in the DB with matching Study Instance UID; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.343 NAME 'hl7PSUPIDPV1'
+  DESC 'Indicates to include a Patient Identification (PID) and a Patient Visit (PV1) segment in the HL7 Procedure Status Update message; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1845,6 +1855,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUDelay $
+    hl7PSUOnlyIfMWL $
+    hl7PSUPIDPV1 $
     hl7PSUMWL $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
@@ -1944,6 +1956,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStowRetiredTransferSyntax $
     dcmStowExcludeAPPMarkers $
     hl7PSUDelay $
+    hl7PSUOnlyIfMWL $
+    hl7PSUPIDPV1 $
     hl7PSUMWL $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
