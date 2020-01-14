@@ -70,6 +70,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -220,8 +221,19 @@ public class RetrieveManagerEJB {
         task.setQueueName(ctx.getQueueName());
         task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
-        task.setScheduledTime(ctx.getScheduledTime());
+        task.setScheduledTime(scheduledTime(ctx));
         return task;
+    }
+
+    private Date scheduledTime(ExternalRetrieveContext ctx) {
+        if (ctx.getScheduledTime() != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(ctx.getScheduledTime());
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+
+        return null;
     }
 
     public void updateRetrieveTask(QueueMessage queueMessage, Attributes cmd) {

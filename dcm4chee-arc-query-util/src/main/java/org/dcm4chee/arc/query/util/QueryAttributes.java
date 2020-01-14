@@ -131,6 +131,7 @@ public class QueryAttributes {
                 case "only-stgcmt":
                 case "only-ian":
                 case "batchID":
+                case "scheduledTime":
                 case "dicomDeviceName":
                 case "queue":
                 case "dcmQueueName":

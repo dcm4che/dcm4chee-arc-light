@@ -132,6 +132,9 @@ public class RetrieveRS {
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
+
     @Inject
     private CMoveSCU moveSCU;
 
@@ -341,6 +344,7 @@ public class RetrieveRS {
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
+                .setScheduledTime(scheduledTime)
                 .setKeys(keys);
     }
 

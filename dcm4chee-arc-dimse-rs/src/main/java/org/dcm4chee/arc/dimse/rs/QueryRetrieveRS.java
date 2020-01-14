@@ -116,6 +116,9 @@ public class QueryRetrieveRS {
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
+
     @QueryParam("dcmQueueName")
     @DefaultValue("Retrieve1")
     @Pattern(regexp =
@@ -635,6 +638,7 @@ public class QueryRetrieveRS {
                 .setRemoteAET(movescp)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
+                .setScheduledTime(scheduledTime)
                 .setKeys(keys);
     }
 

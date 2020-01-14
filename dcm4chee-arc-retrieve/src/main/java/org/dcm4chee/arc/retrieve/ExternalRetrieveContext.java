@@ -63,7 +63,7 @@ public class ExternalRetrieveContext {
     private String deviceName;
     private String queueName;
     private String batchID;
-    private Date scheduledTime;
+    private String scheduledTime;
 
     public ExternalRetrieveContext() {
     }
@@ -135,7 +135,7 @@ public class ExternalRetrieveContext {
         return httpServletRequestInfo;
     }
 
-    public Date getScheduledTime() {
+    public String getScheduledTime() {
         return scheduledTime;
     }
 
@@ -174,7 +174,7 @@ public class ExternalRetrieveContext {
         return this;
     }
 
-    public ExternalRetrieveContext setScheduledTime(Date scheduledTime) {
+    public ExternalRetrieveContext setScheduledTime(String scheduledTime) {
         this.scheduledTime = scheduledTime;
         return this;
     }
