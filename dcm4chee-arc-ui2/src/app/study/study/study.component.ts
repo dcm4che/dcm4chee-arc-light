@@ -246,11 +246,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.selectedElements = new SelectionActionElement({});
         }
-/*        if (_.hasIn(this.appService.global, 'study')){
-            _.forEach(this.appService.global.study, (m, i) => {
-                this[i] = m;
-            });
-        }*/
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
@@ -260,28 +255,36 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             setTimeout(()=>{
                 this.internal = !this.internal;
                 this.studyConfig.tab = params.tab;
-                if(this.studyConfig.tab === "diff"){
-                    this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
-                }else{
-                    this.currentWebAppClass = "QIDO_RS";
-                }
-                this.studyConfig.title = this.tabToTitleMap(params.tab);
-                if(this.studyConfig.tab === "diff"){
-                    this.getDiffAttributeSet(this, ()=>{
-                        this.getApplicationEntities();
+/*                const id = `study_${this.studyConfig.tab}`;
+                if (_.hasIn(this.appService.global, id) && this.appService.global[id]){
+                    _.forEach(this.appService.global[id], (m, i) => {
+                        this[i] = m;
                     });
-                }
-                this.more = false;
-                this._filter.filterModel.offset = 0;
-                this.tableParam.tableSchema  = this.getSchema();
-                if(!this.studyWebService){
-                    this.initWebApps();
-                }else{
-                    this.setSchema();
-                    this.initExporters(2);
-                    this.initRjNotes(2);
-                    this.getQueueNames();
-                }
+                    delete this.appService.global[id];
+                }else{*/
+                    if(this.studyConfig.tab === "diff"){
+                        this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
+                    }else{
+                        this.currentWebAppClass = "QIDO_RS";
+                    }
+                    this.studyConfig.title = this.tabToTitleMap(params.tab);
+                    if(this.studyConfig.tab === "diff"){
+                        this.getDiffAttributeSet(this, ()=>{
+                            this.getApplicationEntities();
+                        });
+                    }
+                    this.more = false;
+                    this._filter.filterModel.offset = 0;
+                    this.tableParam.tableSchema  = this.getSchema();
+                    if(!this.studyWebService){
+                        this.initWebApps();
+                    }else{
+                        this.setSchema();
+                        this.initExporters(2);
+                        this.initRjNotes(2);
+                        this.getQueueNames();
+                    }
+                // }
             },1);
         });
         this.moreFunctionConfig.options.filter(option=>{
@@ -3325,7 +3328,31 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
        if(this.selectedElements){
            this.service.selectedElements = this.selectedElements;
        }
-
-       // this.appService.updateGlobal("study",this);
+/*       let stateObject = {
+           isOpen:this.isOpen,
+           studyConfig:this.studyConfig,
+           patientAttributes:this.patientAttributes,
+           _filter:this._filter,
+           applicationEntities:this.applicationEntities,
+           trash:this.trash,
+           studyWebService:this.studyWebService,
+           selectedElements:this.selectedElements,
+           tableParam:this.tableParam,
+           lastPressedCode:this.lastPressedCode,
+           moreFunctionConfig:this.moreFunctionConfig,
+           actionsSelections:this.actionsSelections,
+           exporters:this.exporters,
+           patients:this.patients,
+           moreState:this.moreState,
+           queues:this.queues,
+           searchCurrentList:this.searchCurrentList,
+           largeIntFormat:this.largeIntFormat,
+           filterButtonPath:this.filterButtonPath,
+           internal:this.internal,
+           checkboxFunctions:this.checkboxFunctions,
+           currentWebAppClass:this.currentWebAppClass,
+           diffAttributeSets:this.diffAttributeSets,
+       };
+       this.appService.updateGlobal(`study_${this.studyConfig.tab}`,stateObject);*/
    }
 }
