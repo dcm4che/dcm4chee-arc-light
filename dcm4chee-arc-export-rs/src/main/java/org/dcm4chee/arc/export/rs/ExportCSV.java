@@ -62,7 +62,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
@@ -208,9 +207,7 @@ class ExportCSV {
                 LOG.info(e.getMessage());
             }
 
-        Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.YEAR, 100);
-        return instance.getTime();
+        return null;
     }
 
     static class ExportContext {

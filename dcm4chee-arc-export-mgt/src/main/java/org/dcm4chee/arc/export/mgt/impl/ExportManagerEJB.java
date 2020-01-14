@@ -159,7 +159,7 @@ public class ExportManagerEJB implements ExportManager {
             task.setSeriesInstanceUID(seriesIUID);
         if (!task.getSopInstanceUID().equals("*"))
             task.setSopInstanceUID(sopIUID);
-        if (task.getScheduledTime().before(scheduledTime))
+        if (task.getScheduledTime() != null && task.getScheduledTime().before(scheduledTime))
             task.setScheduledTime(scheduledTime);
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null) {
