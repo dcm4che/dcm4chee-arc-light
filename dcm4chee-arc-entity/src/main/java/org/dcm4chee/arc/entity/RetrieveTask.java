@@ -350,12 +350,13 @@ public class RetrieveTask {
         writer.writeNotNullOrDef("warning", warning, 0);
         writer.writeNotNullOrDef("statusCode", TagUtils.shortToHexString(statusCode), -1);
         writer.writeNotNullOrDef("errorComment", errorComment, null);
-        if (queueMessage == null) {
-            writer.writeNotNullOrDef("batchID", batchID, null);
+        writer.writeNotNullOrDef("batchID", batchID, null);
+        writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
+        writer.writeNotNullOrDef("queue", queueName, null);
+        if (scheduledTime != null)
+            writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
+        if (queueMessage == null)
             writer.writeNotNullOrDef("status", QueueMessage.Status.TO_SCHEDULE.toString(), null);
-            writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
-            writer.writeNotNullOrDef("queue", queueName, null);
-        }
         else
             queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();
@@ -380,10 +381,10 @@ public class RetrieveTask {
             "errorComment",
             "batchID",
             "dicomDeviceName",
-            "status",
             "queue",
-            "JMSMessageID",
             "scheduledTime",
+            "status",
+            "JMSMessageID",
             "failures",
             "processingStartTime",
             "processingEndTime",
@@ -418,8 +419,9 @@ public class RetrieveTask {
                 errorComment,
                 batchID,
                 deviceName,
-                "TO_SCHEDULE",
                 queueName,
+                scheduledTime != null ? df.format(scheduledTime) : null,
+                "TO_SCHEDULE",
                 null,
                 null,
                 null,
@@ -449,10 +451,10 @@ public class RetrieveTask {
                 errorComment,
                 batchID,
                 deviceName,
+                queueName,
+                scheduledTime,
                 queueMessage.getStatus().toString(),
-                queueMessage.getQueueName(),
                 queueMessage.getMessageID(),
-                queueMessage.getScheduledTime(),
                 queueMessage.getNumberOfFailures() > 0 ? String.valueOf(queueMessage.getNumberOfFailures()) : null,
                 df.format(queueMessage.getProcessingStartTime()),
                 df.format(queueMessage.getProcessingEndTime()),

@@ -71,6 +71,8 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent);
 
+    void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime);
+
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize);
 
     List<RetrieveBatch> listRetrieveBatches(

@@ -77,6 +77,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -144,6 +146,9 @@ public class RetrieveTaskRS {
 
     @QueryParam("updatedTime")
     private String updatedTime;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @QueryParam("batchID")
     private String batchID;
@@ -298,7 +303,7 @@ public class RetrieveTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
+            mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime());
             return Response.noContent().build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -310,6 +315,16 @@ public class RetrieveTaskRS {
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return null;
     }
 
     private boolean validateTaskAssociationInitiator(String localAET, Device device) throws ConfigurationException {
@@ -370,6 +385,7 @@ public class RetrieveTaskRS {
         try {
             int rescheduled = 0;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
+            Date scheduledTime = scheduledTime();
             do {
                 List<Long> retrieveTaskPks = mgr.listRetrieveTaskPks(
                         queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTasksFetchSize);
@@ -377,7 +393,8 @@ public class RetrieveTaskRS {
                         pk -> mgr.rescheduleRetrieveTask(
                                 pk,
                                 newQueueName,
-                                new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks)));
+                                new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks),
+                                scheduledTime));
 
                 rescheduled += retrieveTaskPks.size();
             } while (rescheduled >= rescheduleTasksFetchSize);
@@ -399,6 +416,7 @@ public class RetrieveTaskRS {
         try {
             int count = 0;
             int rescheduleTaskFetchSize = queueTasksFetchSize();
+            Date scheduledTime = scheduledTime();
             do {
                 List<Tuple> retrieveTaskTuples = mgr.listRetrieveTaskPkAndLocalAETs(
                         queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTaskFetchSize);
@@ -409,7 +427,8 @@ public class RetrieveTaskRS {
                             mgr.rescheduleRetrieveTask(
                                     retrieveTaskPk,
                                     newQueueName,
-                                    new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks));
+                                    new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks),
+                                    scheduledTime);
                             count++;
                         }
                     } catch (ConfigurationException e) {

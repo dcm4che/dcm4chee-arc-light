@@ -176,6 +176,11 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime);
+    }
+
+    @Override
     public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
         return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
     }

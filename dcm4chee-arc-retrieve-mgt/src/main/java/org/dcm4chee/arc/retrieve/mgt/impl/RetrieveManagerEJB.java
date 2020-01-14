@@ -294,6 +294,10 @@ public class RetrieveManagerEJB {
     }
 
     public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
+        rescheduleRetrieveTask(pk, newQueueName, queueEvent, null);
+    }
+
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return;
@@ -301,8 +305,22 @@ public class RetrieveManagerEJB {
         if (newQueueName != null)
             task.setQueueName(newQueueName);
 
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null)
+        if (scheduledTime == null)
+            rescheduleImmediately(task, queueEvent);
+        else
+            rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
+    }
+
+    private void rescheduleAtScheduledTime(RetrieveTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
+        task.setScheduledTime(scheduledTime);
+        if (task.getQueueMessage() != null) {
+            queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
+            task.setQueueMessage(null);
+        }
+    }
+
+    private void rescheduleImmediately(RetrieveTask task, QueueMessageEvent queueEvent) {
+        if (task.getQueueMessage() == null)
             scheduleRetrieveTask(task, queueEvent.getRequest());
         else {
             LOG.info("Reschedule {}", task);
