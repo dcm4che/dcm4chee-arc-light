@@ -16,11 +16,19 @@
                 </div>
             </div>
         </div>
+        <ng-container *ngIf="_.size(matches) > 0">
+            <button class="left_arrow arrow no_style"  title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button class="right_arrow arrow no_style" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </ng-container>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>
                 <th colspan="2">
-                    <button class="btn btn-link btn-xs"
+<!--                    <button class="btn btn-link btn-xs"
                             [disabled]="!hasNewer(matches)"
                             (click)="search(newerOffset(matches))"
                             title="Newer">
@@ -31,7 +39,7 @@
                             (click)="search(olderOffset(matches))"
                             title="Older">
                         <span class="glyphicon glyphicon-menu-right"></span>
-                    </button>
+                    </button>-->
                 </th>
                 <th>Device name</th>
                 <th>Status</th>
