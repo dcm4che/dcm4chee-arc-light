@@ -52,11 +52,19 @@
           </div>
       </div>
     </div>
+    <ng-container *ngIf="_.size(externalRetrieveEntries) > 0">
+      <button class="left_arrow arrow no_style"  title="Preview page" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getTasks(newerOffset(externalRetrieveEntries))">
+        <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+      </button>
+      <button class="right_arrow arrow no_style" title="Next page" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getTasks(olderOffset(externalRetrieveEntries))">
+        <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </ng-container>
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
       <tr *ngIf="batchGrouped">
         <th>
-          <div class="arrow_block">
+<!--          <div class="arrow_block">
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasNewer(externalRetrieveEntries)"
                     (click)="getTasks(newerOffset(externalRetrieveEntries))"
@@ -69,7 +77,7 @@
                     title="Older">
               <span class="glyphicon glyphicon-menu-right"></span>
             </button>
-          </div>
+          </div>-->
         </th>
         <th width="3%"></th>
         <th>Batch ID</th>
@@ -83,7 +91,7 @@
       </tr>
       <tr *ngIf="!batchGrouped">
         <th>
-          <div class="arrow_block">
+<!--          <div class="arrow_block">
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasNewer(externalRetrieveEntries)"
                     (click)="getTasks(newerOffset(externalRetrieveEntries))"
@@ -96,7 +104,7 @@
                     title="Older">
               <span class="glyphicon glyphicon-menu-right"></span>
             </button>
-          </div>
+          </div>-->
         </th>
           <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
           <div class="action_block">

@@ -44,24 +44,16 @@
                 </div>
             </div>
         </div>
+        <button class="left_arrow arrow no_style"  title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+            <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <button class="right_arrow arrow no_style" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+            <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+        </button>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>
                 <th>
-                    <div class="arrow_block">
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasNewer(matches)"
-                                (click)="search(newerOffset(matches))"
-                                title="Newer">
-                            <span class="glyphicon glyphicon-menu-left"></span>
-                        </button>
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasOlder(matches)"
-                                (click)="search(olderOffset(matches))"
-                                title="Older">
-                            <span class="glyphicon glyphicon-menu-right"></span>
-                        </button>
-                    </div>
                 </th>
                 <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">

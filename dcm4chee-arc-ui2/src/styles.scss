@@ -158,6 +158,11 @@ button,input,optgroup,select,textarea {
   font: inherit;
   color: inherit
 }
+button.no_style{
+  display: inline;
+  background: transparent;
+  border: none;
+}
 button{
   &:hover{
     cursor: pointer;

@@ -59,11 +59,28 @@
                 </div>
             </div>
         </div>
+        <ng-container *ngIf="batchGrouped">
+            <button class="left_arrow arrow no_style"  title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getCounts(newerOffset(externalRetrieveEntries))">
+                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button class="right_arrow arrow no_style" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getCounts(olderOffset(externalRetrieveEntries))">
+                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </ng-container>
+        <ng-container *ngIf="!batchGrouped">
+            <button class="left_arrow arrow no_style"  title="Preview page" *ngIf="_.size(matches) > 0"  [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button class="right_arrow arrow no_style" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </ng-container>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr *ngIf="batchGrouped">
                 <th>
-                    <div class="arrow_block">
+
+<!--                    <div class="arrow_block">
                         <button class="btn btn-link btn-xs"
                                 [disabled]="!hasNewer(externalRetrieveEntries)"
                                 (click)="getCounts(newerOffset(externalRetrieveEntries))"
@@ -76,7 +93,7 @@
                                 title="Older">
                             <span class="glyphicon glyphicon-menu-right"></span>
                         </button>
-                    </div>
+                    </div>-->
                 </th>
                 <th width="3%"></th>
                 <th>Batch ID</th>
@@ -89,7 +106,7 @@
             </tr>
             <tr *ngIf="!batchGrouped">
                 <th>
-                    <div class="arrow_block">
+<!--                    <div class="arrow_block">
                         <button class="btn btn-link btn-xs"
                                 [disabled]="!hasNewer(matches)"
                                 (click)="search(newerOffset(matches))"
@@ -102,7 +119,7 @@
                                 title="Older">
                             <span class="glyphicon glyphicon-menu-right"></span>
                         </button>
-                    </div>
+                    </div>-->
                 </th>
                 <th (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
