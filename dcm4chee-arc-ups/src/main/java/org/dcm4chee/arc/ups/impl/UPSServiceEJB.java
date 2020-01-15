@@ -908,8 +908,8 @@ public class UPSServiceEJB {
 
     private static Attributes toSOPRef(StoreContext ctx) {
         Attributes item = new Attributes(2);
-        item.setString(Tag.RequestedSOPClassUID, VR.UI, ctx.getSopClassUID());
-        item.setString(Tag.RequestedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, ctx.getSopClassUID());
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
         return item;
     }
 
