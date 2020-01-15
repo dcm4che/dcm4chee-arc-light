@@ -157,6 +157,18 @@ export class ExportService {
                         description:"Device",
                         placeholder:"Device"
                     }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:"Scheduled Time"
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:"Scheduled times"
+                    }
                 ]
             ]
         ]

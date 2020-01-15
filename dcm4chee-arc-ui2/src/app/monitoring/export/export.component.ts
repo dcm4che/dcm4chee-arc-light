@@ -428,6 +428,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                         if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
                             filter["newDeviceName"] = ok.schema_model.newDeviceName;
                         }
+                        if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                            filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                        }
                         this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
                             this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
                             this.cfpLoadingBar.complete();
@@ -499,6 +502,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                     let id;
                     if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
                         filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = ok.schema_model.scheduledTime;
                     }
                     if(_.hasIn(ok, "schema_model.selectedExporter")){
                         id = ok.schema_model.selectedExporter;
@@ -647,6 +653,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                 let id;
                 if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
                     filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                }
+                if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                    filter["scheduledTime"] = ok.schema_model.scheduledTime;
                 }
                 if(_.hasIn(ok, "schema_model.selectedExporter")){
                     id = ok.schema_model.selectedExporter;

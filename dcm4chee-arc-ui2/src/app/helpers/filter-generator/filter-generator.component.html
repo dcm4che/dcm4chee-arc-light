@@ -205,6 +205,19 @@
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
                     ></range-picker>
+                    <range-picker
+                          [ngStyle]="line[index].style"
+                          *ngSwitchCase="'single-date-time-picker'"
+                          [onlyDate]="line[index].onlyDate"
+                          [model]="model[line[index]?.filterKey]"
+                          (modelChange)="dateChanged(line[index]?.filterKey, $event)"
+                          placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                          dateFormat="YYYYMMDD"
+                          onlySingleMode="true"
+                          defaultTime="00:00:00"
+                          mode="single"
+                          title="{{line[index]?.description}}"
+                    ></range-picker>
                       <input
                           type="file"
                           *ngSwitchCase="'file'"
