@@ -490,8 +490,8 @@ public class RetrieveManagerEJB {
         Expression<Date> maxProcessingStartTime;
         Expression<Date> minProcessingEndTime;
         Expression<Date> maxProcessingEndTime;
-        Expression<Date> minScheduledTime;
-        Expression<Date> maxScheduledTime;
+        final Expression<Date> minScheduledTime = cb.least(retrieveTask.get(RetrieveTask_.scheduledTime));
+        final Expression<Date> maxScheduledTime = cb.greatest(retrieveTask.get(RetrieveTask_.scheduledTime));
         final Expression<Date> minCreatedTime = cb.least(retrieveTask.get(RetrieveTask_.createdTime));
         final Expression<Date> maxCreatedTime = cb.greatest(retrieveTask.get(RetrieveTask_.createdTime));
         final Expression<Date> minUpdatedTime = cb.least(retrieveTask.get(RetrieveTask_.updatedTime));
@@ -516,8 +516,6 @@ public class RetrieveManagerEJB {
                 this.maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
                 this.minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
                 this.maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
-                this.minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
-                this.maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
             }
             this.completed = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.COMPLETED).getSelection();
             this.failed = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.FAILED).getSelection();
@@ -536,6 +534,7 @@ public class RetrieveManagerEJB {
                     completed, failed, warning, canceled, scheduled, inprocess, toschedule);
             else
                 query.multiselect(batchIDPath,
+                        minScheduledTime, maxScheduledTime,
                         minCreatedTime, maxCreatedTime,
                         minUpdatedTime, maxUpdatedTime,
                         completed, failed, warning, canceled, scheduled, inprocess, toschedule);
@@ -550,6 +549,9 @@ public class RetrieveManagerEJB {
         RetrieveBatch toRetrieveBatch(Tuple tuple) {
             String batchID = tuple.get(batchIDPath);
             RetrieveBatch retrieveBatch = new RetrieveBatch(batchID);
+            retrieveBatch.setScheduledTimeRange(
+                    tuple.get(minScheduledTime),
+                    tuple.get(maxScheduledTime));
             retrieveBatch.setCreatedTimeRange(
                     tuple.get(minCreatedTime),
                     tuple.get(maxCreatedTime));
@@ -564,9 +566,6 @@ public class RetrieveManagerEJB {
                 retrieveBatch.setProcessingEndTimeRange(
                         tuple.get(minProcessingEndTime),
                         tuple.get(maxProcessingEndTime));
-                retrieveBatch.setScheduledTimeRange(
-                        tuple.get(minScheduledTime),
-                        tuple.get(maxScheduledTime));
             }
 
             CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
