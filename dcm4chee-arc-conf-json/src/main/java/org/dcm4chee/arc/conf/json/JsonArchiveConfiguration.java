@@ -816,9 +816,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeInputInformation",
                     upsOnStore.getIncludeInputInformation(),
                     UPSOnStore.IncludeInputInformation.APPEND);
-            writer.writeNotNullOrDef(
+            writer.writeNotDef(
                     "dcmUPSIncludeStudyInstanceUID", upsOnStore.isIncludeStudyInstanceUID(), false);
-            writer.writeNotNullOrDef(
+            writer.writeNotDef(
                     "dcmUPSIncludeReferencedRequest", upsOnStore.isIncludeReferencedRequest(), false);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
@@ -846,8 +846,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnStore.getRequestingPhysician(), null);
             writer.writeNotNullOrDef("dcmRequestingService", upsOnStore.getRequestingService(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
-            writer.writeNotNullOrDef(
-                    "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
+            writer.writeNotDef("dcmNoKeywords", upsOnStore.isNoKeywords(), false);
             writer.writeNotEmpty("dcmProperty", upsOnStore.getConditions().getMap());
             writer.writeNotEmpty("dcmSchedule", upsOnStore.getSchedules());
             writer.writeEnd();
