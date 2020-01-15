@@ -79,21 +79,6 @@
             <thead>
             <tr *ngIf="batchGrouped">
                 <th>
-
-<!--                    <div class="arrow_block">
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasNewer(externalRetrieveEntries)"
-                                (click)="getCounts(newerOffset(externalRetrieveEntries))"
-                                title="Newer">
-                            <span class="glyphicon glyphicon-menu-left"></span>
-                        </button>
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasOlder(externalRetrieveEntries)"
-                                (click)="getCounts(olderOffset(externalRetrieveEntries))"
-                                title="Older">
-                            <span class="glyphicon glyphicon-menu-right"></span>
-                        </button>
-                    </div>-->
                 </th>
                 <th width="3%"></th>
                 <th>Batch ID</th>
@@ -106,20 +91,6 @@
             </tr>
             <tr *ngIf="!batchGrouped">
                 <th>
-<!--                    <div class="arrow_block">
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasNewer(matches)"
-                                (click)="search(newerOffset(matches))"
-                                title="Newer">
-                            <span class="glyphicon glyphicon-menu-left"></span>
-                        </button>
-                        <button class="btn btn-link btn-xs"
-                                [disabled]="!hasOlder(matches)"
-                                (click)="search(olderOffset(matches))"
-                                title="Older">
-                            <span class="glyphicon glyphicon-menu-right"></span>
-                        </button>
-                    </div>-->
                 </th>
                 <th (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
