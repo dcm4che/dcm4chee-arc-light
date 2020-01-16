@@ -195,6 +195,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int hl7PSUTaskFetchSize = 100;
     private volatile Duration hl7PSUTaskPollingInterval;
     private volatile boolean hl7PSUMWL = false;
+    private volatile boolean hl7PSUForRequestedProcedure = false;
+    private volatile boolean hl7PSUPIDPV1 = false;
     private volatile String auditRecordRepositoryURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
@@ -1328,6 +1330,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHL7PSUMWL(boolean hl7PSUMWL) {
         this.hl7PSUMWL = hl7PSUMWL;
+    }
+
+    public boolean isHl7PSUForRequestedProcedure() {
+        return hl7PSUForRequestedProcedure;
+    }
+
+    public void setHl7PSUForRequestedProcedure(boolean hl7PSUForRequestedProcedure) {
+        this.hl7PSUForRequestedProcedure = hl7PSUForRequestedProcedure;
+    }
+
+    public boolean isHl7PSUPIDPV1() {
+        return hl7PSUPIDPV1;
+    }
+
+    public void setHl7PSUPIDPV1(boolean hl7PSUPIDPV1) {
+        this.hl7PSUPIDPV1 = hl7PSUPIDPV1;
     }
 
     public String[] getHL7NoPatientCreateMessageTypes() {
@@ -2657,6 +2675,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
         hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
         hl7PSUMWL = arcdev.hl7PSUMWL;
+        hl7PSUForRequestedProcedure = arcdev.hl7PSUForRequestedProcedure;
+        hl7PSUPIDPV1 = arcdev.hl7PSUPIDPV1;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;

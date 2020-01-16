@@ -233,6 +233,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUTaskPollingInterval", arcDev.getHL7PSUTaskPollingInterval(), null);
         writer.writeNotDef("hl7PSUTaskFetchSize", arcDev.getHL7PSUTaskFetchSize(), 100);
         writer.writeNotDef("hl7PSUMWL", arcDev.isHL7PSUMWL(), false);
+        writer.writeNotDef("hl7PSUForRequestedProcedure", arcDev.isHl7PSUForRequestedProcedure(), false);
+        writer.writeNotDef("hl7PSUPIDPV1", arcDev.isHl7PSUPIDPV1(), false);
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
                 arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
@@ -945,6 +947,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUTimeout", arcAE.getHL7PSUTimeout(), null);
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHL7PSUOnTimeout());
         writer.writeNotNull("hl7PSUMWL", arcAE.getHL7PSUMWL());
+        writer.writeNotNull("hl7PSUForRequestedProcedure", arcAE.getHl7PSUForRequestedProcedure());
+        writer.writeNotNull("hl7PSUPIDPV1", arcAE.getHl7PSUPIDPV1());
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
@@ -1365,6 +1369,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUMWL":
                     arcDev.setHL7PSUMWL(reader.booleanValue());
+                    break;
+                case "hl7PSUForRequestedProcedure":
+                    arcDev.setHl7PSUForRequestedProcedure(reader.booleanValue());
+                    break;
+                case "hl7PSUPIDPV1":
+                    arcDev.setHl7PSUPIDPV1(reader.booleanValue());
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
@@ -3026,6 +3036,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUMWL":
                     arcAE.setHL7PSUMWL(reader.booleanValue());
+                    break;
+                case "hl7PSUForRequestedProcedure":
+                    arcAE.setHl7PSUForRequestedProcedure(reader.booleanValue());
+                    break;
+                case "hl7PSUPIDPV1":
+                    arcAE.setHl7PSUPIDPV1(reader.booleanValue());
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));

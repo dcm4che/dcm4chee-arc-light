@@ -73,7 +73,7 @@
     "dcmStowRetiredTransferSyntax",
     "dcmAuditSoftwareConfigurationVerbose",
     "dcmStowExcludeAPPMarkers",
-    "hl7PSUOnlyIfMWL",
+    "hl7PSUForRequestedProcedure",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUPIDPV1",
@@ -1211,9 +1211,9 @@
       "type": "string",
       "format": "dcmDuration"
     },
-    "hl7PSUOnlyIfMWL": {
-      "title": "HL7 Procedure Status Update only if MWL",
-      "description": "Only notify configured HL7 Procedure Status Update Receiving Applications about received studies, if there are MWL Items in the DB with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
+    "hl7PSUForRequestedProcedure": {
+      "title": "HL7 Procedure Status Update for Requested Procedure",
+      "description": "Limit notification of Procedure Status Update of Requested Procedures to configured HL7 Procedure Status Update Receiving Applications about received studies, only if there are Scheduled Procedure Steps of Requested Procedure (MWL Items in the DB) with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },

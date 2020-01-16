@@ -301,6 +301,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7PSUTaskPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUTaskFetchSize", ext.getHL7PSUTaskFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUMWL", ext.isHL7PSUMWL(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
+                ext.isHl7PSUForRequestedProcedure(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.isHl7PSUPIDPV1(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL",
@@ -569,6 +572,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval"), null));
         ext.setHL7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
+        ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), false));
+        ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), false));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
@@ -951,6 +956,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTaskFetchSize",
                 aa.getHL7PSUTaskFetchSize(), bb.getHL7PSUTaskFetchSize(), 100);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUMWL", aa.isHL7PSUMWL(), bb.isHL7PSUMWL(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUForRequestedProcedure",
+                aa.isHl7PSUForRequestedProcedure(), bb.isHl7PSUForRequestedProcedure(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUPIDPV1", aa.isHl7PSUPIDPV1(), bb.isHl7PSUPIDPV1(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
@@ -1353,6 +1361,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.getHL7PSUOnTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWL", ext.getHL7PSUMWL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
+                ext.getHl7PSUForRequestedProcedure(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.getHl7PSUPIDPV1(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
@@ -1472,6 +1483,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
         ext.setHL7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
+        ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), null));
+        ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), null));
@@ -1658,6 +1671,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7PSUOnTimeout(), bb.getHL7PSUOnTimeout(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWL",
                 aa.getHL7PSUMWL(), bb.getHL7PSUMWL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUForRequestedProcedure",
+                aa.getHl7PSUForRequestedProcedure(), bb.getHl7PSUForRequestedProcedure(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPIDPV1",
+                aa.getHl7PSUPIDPV1(), bb.getHl7PSUPIDPV1(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",

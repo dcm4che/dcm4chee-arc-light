@@ -488,9 +488,9 @@
       "type": "string",
       "format": "dcmDuration"
     },
-    "hl7PSUOnlyIfMWL": {
-      "title": "HL7 Procedure Status Update only if MWL",
-      "description": "Only notify configured HL7 Procedure Status Update Receiving Applications about received studies, if there are MWL Items in the DB with matching Study Instance UID. Overwrites value specified on Device level.",
+    "hl7PSUForRequestedProcedure": {
+      "title": "HL7 Procedure Status Update for Requested Procedure",
+      "description": "Limit notification of Procedure Status Update of Requested Procedures to configured HL7 Procedure Status Update Receiving Applications about received studies, only if there are Scheduled Procedure Steps of Requested Procedure (MWL Items in the DB) with matching Study Instance UID. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "hl7PSUPIDPV1": {

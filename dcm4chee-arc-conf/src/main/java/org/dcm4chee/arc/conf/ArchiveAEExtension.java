@@ -123,6 +123,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
+    private Boolean hl7PSUForRequestedProcedure;
+    private Boolean hl7PSUPIDPV1;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private StorageVerificationPolicy storageVerificationPolicy;
@@ -1147,6 +1149,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isHL7PSUMWL();
     }
 
+    public Boolean getHl7PSUForRequestedProcedure() {
+        return hl7PSUForRequestedProcedure;
+    }
+
+    public void setHl7PSUForRequestedProcedure(Boolean hl7PSUForRequestedProcedure) {
+        this.hl7PSUForRequestedProcedure = hl7PSUForRequestedProcedure;
+    }
+
+    public boolean hl7PSUForRequestedProcedure() {
+        return hl7PSUForRequestedProcedure != null
+                ? hl7PSUForRequestedProcedure
+                : getArchiveDeviceExtension().isHl7PSUForRequestedProcedure();
+    }
+
+    public Boolean getHl7PSUPIDPV1() {
+        return hl7PSUPIDPV1;
+    }
+
+    public void setHl7PSUPIDPV1(Boolean hl7PSUPIDPV1) {
+        this.hl7PSUPIDPV1 = hl7PSUPIDPV1;
+    }
+
+    public boolean hl7PSUPIDPV1() {
+        return hl7PSUPIDPV1 != null
+                ? hl7PSUPIDPV1
+                : getArchiveDeviceExtension().isHl7PSUPIDPV1();
+    }
+
     public boolean hl7PSUOnStudy() {
         return (hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null)
                 || (hl7PSUDelay() != null && hl7PSUMWL());
@@ -1447,6 +1477,8 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
+        hl7PSUForRequestedProcedure = aeExt.hl7PSUForRequestedProcedure;
+        hl7PSUPIDPV1 = aeExt.hl7PSUPIDPV1;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
