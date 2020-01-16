@@ -153,7 +153,7 @@ public class HL7PSUEJB {
         em.remove(em.getReference(task.getClass(), task.getPk()));
     }
 
-    public void scheduleHL7PSUTask(HL7PSUTask task, HL7PSUScheduler.HL7PSU action) {
+    public void scheduleHL7PSUTask(HL7PSUTask task) {
         LOG.info("Schedule {}", task);
         ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
@@ -164,36 +164,37 @@ public class HL7PSUEJB {
                 LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
                 return;
             }
-            if (action != HL7PSUScheduler.HL7PSU.NOTIFY_HL7)
+            if (arcAE.hl7PSUMWL()
+                    || (arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0))
                 updateStatusToCompleted(arcAE, mwlItems);
 
             mwlAttrs = mwlItems.get(0).getAttributes();
         }
-        if (action != HL7PSUScheduler.HL7PSU.UPDATE_MWL)
-            scheduleHL7Msg(arcAE, task, mwlAttrs);
+
+        scheduleHL7Msg(arcAE.hl7PSUSendingApplication(), arcAE.hl7PSUReceivingApplications(), task, mwlAttrs);
         removeHL7PSUTask(task);
     }
 
-    private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task, Attributes mwlAttrs) {
-        String sendingAppWithFacility = arcAE.hl7PSUSendingApplication();
-        if (sendingAppWithFacility == null)
+    private void scheduleHL7Msg(String hl7PSUSendingApplication, String[] hl7PSUReceivingApplications, HL7PSUTask task,
+                                Attributes mwlAttrs) {
+        if (hl7PSUSendingApplication == null || hl7PSUReceivingApplications.length == 0)
             return;
 
         String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(sendingAppWithFacility)
+                .getHL7Application(hl7PSUSendingApplication)
                 .getHL7SendingCharacterSet();
         HL7PSUMessage msg = new HL7PSUMessage(task);
         if (mwlAttrs != null)
             msg.setMWLItem(mwlAttrs);
-        msg.setSendingApplicationWithFacility(sendingAppWithFacility);
+        msg.setSendingApplicationWithFacility(hl7PSUSendingApplication);
         if (!hl7cs.equals("ISO IR-6"))
             msg.setCharacterSet(hl7cs);
-        scheduleMessage(arcAE, hl7cs, msg);
+        scheduleMessage(hl7PSUReceivingApplications, hl7cs, msg);
     }
 
     private void updateStatusToCompleted(ArchiveAEExtension arcAE, List<MWLItem> mwlItems) {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        for (MWLItem mwl : mwlItems) {
+        mwlItems.forEach(mwl -> {
             Attributes mwlAttrs = mwl.getAttributes();
             Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
             while (spsItems.hasNext()) {
@@ -203,11 +204,11 @@ public class HL7PSUEJB {
                 mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
             }
             mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-        }
+        });
     }
 
-    private void scheduleMessage(ArchiveAEExtension arcAE, String hl7cs, HL7PSUMessage msg) {
-        for (String receivingApp : arcAE.hl7PSUReceivingApplications()) {
+    private void scheduleMessage(String[] hl7PSUReceivingApplications, String hl7cs, HL7PSUMessage msg) {
+        for (String receivingApp : hl7PSUReceivingApplications) {
             msg.setReceivingApplicationWithFacility(receivingApp);
             try {
                 scheduleMessage(msg.getHL7Message(), hl7cs);
