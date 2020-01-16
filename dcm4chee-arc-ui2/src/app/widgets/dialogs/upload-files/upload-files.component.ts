@@ -284,6 +284,41 @@ export class UploadFilesComponent implements OnInit {
                                         ]
                                     };
                                 }
+                                if (!_.hasIn(studyObject, "00080020.Value[0]")) { // Study Date
+                                    studyObject["00080020"] = {
+                                        "vr": "DA",
+                                        "Value": [
+                                        ]
+                                    };
+                                }
+                                if (!_.hasIn(studyObject, "00080030.Value[0]")) { // Study Time
+                                    studyObject["00080030"] = {
+                                        "vr": "TM",
+                                        "Value": [
+                                        ]
+                                    };
+                                }
+                                if (!_.hasIn(studyObject, "00080090.Value[0]")) { // Referring Physician's Name
+                                    studyObject["00080090"] = {
+                                        "vr": "PN",
+                                        "Value": [
+                                        ]
+                                    };
+                                }
+                                if (!_.hasIn(studyObject, "00200010.Value[0]")) { // Study ID
+                                    studyObject["00200010"] = {
+                                        "vr": "SH",
+                                        "Value": [
+                                        ]
+                                    };
+                                }
+                                if (!_.hasIn(studyObject, "00080050.Value[0]")) { // Accession Number
+                                    studyObject["00080050"] = {
+                                        "vr": "SH",
+                                        "Value": [
+                                        ]
+                                    };
+                                }
                                 studyObject["00080018"] = {
                                     "vr": "UI",
                                     "Value": [
