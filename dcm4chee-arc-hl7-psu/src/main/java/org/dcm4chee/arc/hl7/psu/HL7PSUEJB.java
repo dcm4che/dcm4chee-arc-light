@@ -154,6 +154,7 @@ public class HL7PSUEJB {
     }
 
     public void scheduleHL7PSUTask(HL7PSUTask task, HL7PSUScheduler.HL7PSU action) {
+        LOG.info("Schedule {}", task);
         ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         Attributes mwlAttrs = null;
@@ -163,18 +164,17 @@ public class HL7PSUEJB {
                 LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
                 return;
             }
-            if (action == HL7PSUScheduler.HL7PSU.MWL || action == HL7PSUScheduler.HL7PSU.BOTH)
+            if (action != HL7PSUScheduler.HL7PSU.NOTIFY_HL7)
                 updateStatusToCompleted(arcAE, mwlItems);
 
             mwlAttrs = mwlItems.get(0).getAttributes();
         }
-        if (action != HL7PSUScheduler.HL7PSU.MWL)
+        if (action != HL7PSUScheduler.HL7PSU.UPDATE_MWL)
             scheduleHL7Msg(arcAE, task, mwlAttrs);
         removeHL7PSUTask(task);
     }
 
-    private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task,
-                               Attributes mwlAttrs) {
+    private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task, Attributes mwlAttrs) {
         String sendingAppWithFacility = arcAE.hl7PSUSendingApplication();
         if (sendingAppWithFacility == null)
             return;

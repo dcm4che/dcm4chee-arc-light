@@ -95,27 +95,12 @@ public class HL7PSUScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getHL7PSUTaskFetchSize();
-        long hl7psuTaskPk = 0;
-        List<HL7PSUTask> hl7psuTasks;
-        do {
-            hl7psuTasks = ejb.fetchHL7PSUTasksForMPPS(device.getDeviceName(), hl7psuTaskPk, fetchSize);
-            for (HL7PSUTask hl7psuTask : hl7psuTasks) {
-                if (getPollingInterval() == null)
-                    return;
+        executeHL7PSUTasksForMPPS(fetchSize);
+        executeHL7PSUTasksForStudy(fetchSize);
+    }
 
-                try {
-                    hl7psuTaskPk = hl7psuTask.getPk();
-                    ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
-                    LOG.info("Check availability of {}", hl7psuTask.getMpps());
-                    if (checkAllRefInMpps(ae, hl7psuTask.getMpps())) {
-                        LOG.info("Schedule {}", hl7psuTask);
-                        ejb.scheduleHL7PSUTask(hl7psuTask, HL7PSU.HL7);
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Failed to process {}:\n", hl7psuTask, e);
-                }
-            }
-        } while (hl7psuTasks.size() == fetchSize);
+    private void executeHL7PSUTasksForStudy(int fetchSize) {
+        List<HL7PSUTask> hl7psuTasks;
         do {
             hl7psuTasks = ejb.fetchHL7PSUTasksForStudy(device.getDeviceName(), fetchSize);
             for (HL7PSUTask hl7psuTask : hl7psuTasks) {
@@ -124,12 +109,14 @@ public class HL7PSUScheduler extends Scheduler {
 
                 ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-                HL7PSU action = hl7PSUActionOnStudy(arcAE);
+                HL7PSU action = hl7PSUAction(hl7psuTask, false);
+                if (action == null)
+                    continue;
+
                 try {
-                    if (hl7psuTask.getMpps() == null) {
-                        LOG.info("Schedule {}", hl7psuTask);
+                    if (hl7psuTask.getMpps() == null)
                         ejb.scheduleHL7PSUTask(hl7psuTask, action);
-                    } else {
+                    else {
                         if (arcAE.hl7PSUOnTimeout()) {
                             LOG.warn("Timeout for {} exceeded - schedule HL7 Procedure Status Update anyway", hl7psuTask);
                             ejb.scheduleHL7PSUTask(hl7psuTask, action);
@@ -145,16 +132,44 @@ public class HL7PSUScheduler extends Scheduler {
         } while (hl7psuTasks.size() == fetchSize);
     }
 
-    public HL7PSU hl7PSUActionOnStudy(ArchiveAEExtension arcAE) {
+    private void executeHL7PSUTasksForMPPS(int fetchSize) {
+        long hl7psuTaskPk = 0;
+        List<HL7PSUTask> hl7psuTasks;
+        do {
+            hl7psuTasks = ejb.fetchHL7PSUTasksForMPPS(device.getDeviceName(), hl7psuTaskPk, fetchSize);
+            for (HL7PSUTask hl7psuTask : hl7psuTasks) {
+                if (getPollingInterval() == null)
+                    return;
+
+                HL7PSU action = hl7PSUAction(hl7psuTask, true);
+                if (action != HL7PSU.NOTIFY_HL7)
+                    continue;
+
+                try {
+                    hl7psuTaskPk = hl7psuTask.getPk();
+                    ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
+                    LOG.info("Check availability of {}", hl7psuTask.getMpps());
+                    if (checkAllRefInMpps(ae, hl7psuTask.getMpps()))
+                        ejb.scheduleHL7PSUTask(hl7psuTask, action);
+                } catch (Exception e) {
+                    LOG.warn("Failed to process {}:\n", hl7psuTask, e);
+                }
+            }
+        } while (hl7psuTasks.size() == fetchSize);
+    }
+
+    public HL7PSU hl7PSUAction(HL7PSUTask hl7psuTask, boolean onMPPS) {
+        ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         return arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0
-                ? arcAE.hl7PSUMWL()
-                    ? HL7PSU.BOTH
-                    : HL7PSU.HL7
-                : HL7PSU.MWL;
+                ? onMPPS
+                    ? HL7PSU.NOTIFY_HL7 : HL7PSU.NOTIFY_UPDATE
+                : arcAE.hl7PSUMWL()
+                    ? HL7PSU.UPDATE_MWL : null;
     }
 
     public enum HL7PSU {
-        MWL, HL7, BOTH
+        UPDATE_MWL, NOTIFY_HL7, NOTIFY_UPDATE
     }
 
     public void onStore(@Observes StoreContext ctx) {

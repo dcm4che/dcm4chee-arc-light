@@ -1477,6 +1477,7 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
+        hl7PSUMWL = aeExt.hl7PSUMWL;
         hl7PSUForRequestedProcedure = aeExt.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = aeExt.hl7PSUPIDPV1;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
