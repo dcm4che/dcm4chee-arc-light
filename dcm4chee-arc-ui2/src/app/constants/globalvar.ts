@@ -1127,13 +1127,12 @@ export class Globalvar {
                     filterKey:"incomplete",
                     text:"Only incomplete",
                     description:"Only incomplete studies"
-                },
-                {
+                },{
                     tag:"input",
                     type:"text",
-                    filterKey:"StudyInstanceUID",
-                    description:"Study Instance UID",
-                    placeholder:"Study Instance UID"
+                    filterKey:"StudyID",
+                    description:"Study ID",
+                    placeholder:"Study ID"
                 },{
                     tag:"select",
                     options:aets,
@@ -1310,9 +1309,9 @@ export class Globalvar {
             },{
                 tag:"input",
                 type:"text",
-                filterKey:"StudyID",
-                description:"Study ID",
-                placeholder:"Study ID"
+                filterKey:"StudyInstanceUID",
+                description:"Study Instance UID",
+                placeholder:"Study Instance UID"
             },{
                 tag:"range-picker-limit",
                 type:"text",
