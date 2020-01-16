@@ -3226,6 +3226,9 @@
         },
         {
           "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -3287,6 +3290,9 @@
         },
         {
           "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -3351,6 +3357,9 @@
         },
         {
           "$ref": "../parameters.json#/SplitStudyDateRange"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {

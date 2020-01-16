@@ -880,6 +880,9 @@
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -941,6 +944,9 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
