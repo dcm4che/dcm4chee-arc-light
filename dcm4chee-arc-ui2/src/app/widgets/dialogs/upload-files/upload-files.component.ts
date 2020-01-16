@@ -263,13 +263,34 @@ export class UploadFilesComponent implements OnInit {
                                         i + 1
                                     ]
                                 };
-                                studyObject["00200011"] = { // "00200011":"Series Number"
-                                    "vr": "IS",
-                                    "Value": [
-                                        this.seriesNumber || 0
-                                    ]
-                                };
-                                if (_.hasIn(studyObject, "0020000D.Value[0]")) {
+                                if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
+                                    studyObject["00200011"] = { // "00200011":"Series Number"
+                                        "vr": "IS",
+                                        "Value": [
+                                            _.get(studyObject, "00201209.Value[0]")*1 + 1
+                                        ]
+                                    };
+                                    studyObject["00200013"] = { //"00200013":"Instance Number"
+                                        "vr": "IS",
+                                        "Value": [
+                                            _.get(studyObject, "00201209.Value[0]")*1 + i*1 + 1
+                                        ]
+                                    };
+                                }else{
+                                    studyObject["00200011"] = { // "00200011":"Series Number"
+                                        "vr": "IS",
+                                        "Value": [
+                                            this.seriesNumber || 0
+                                        ]
+                                    };
+                                    studyObject["00200013"] = { //"00200013":"Instance Number"
+                                        "vr": "IS",
+                                        "Value": [
+                                            i + 1
+                                        ]
+                                    };
+                                }
+                                if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
                                     studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
                                         "vr": "UI",
                                         "Value": [
@@ -277,12 +298,14 @@ export class UploadFilesComponent implements OnInit {
                                         ]
                                     };
                                 }else{
-                                    studyObject["0020000D"] = {
-                                        "vr": "UI",
-                                        "Value": [
-                                            seriesInstanceUID
-                                        ]
-                                    };
+                                    if(!_.hasIn(studyObject, "0020000E.Value[0]")){
+                                        studyObject["0020000D"] = {
+                                            "vr": "UI",
+                                            "Value": [
+                                                seriesInstanceUID
+                                            ]
+                                        };
+                                    }
                                 }
                                 if (!_.hasIn(studyObject, "00080020.Value[0]")) { // Study Date
                                     studyObject["00080020"] = {

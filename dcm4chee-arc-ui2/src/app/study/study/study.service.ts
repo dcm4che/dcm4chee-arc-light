@@ -1840,6 +1840,24 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'file_upload'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "upload_file"
+                                    }, e);
+                                },
+                                title: 'Upload file',
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
+                                }
                             }
                             , {
                                 icon: {
