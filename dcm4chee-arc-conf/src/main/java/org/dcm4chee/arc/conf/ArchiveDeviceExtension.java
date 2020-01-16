@@ -197,6 +197,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7PSUMWL = false;
     private volatile boolean hl7PSUForRequestedProcedure = false;
     private volatile boolean hl7PSUPIDPV1 = false;
+    private volatile String hl7PSURequestedProcedureID;
+    private volatile String hl7PSUAccessionNumber;
+    private volatile String hl7PSUFillerOrderNumber;
+    private volatile String hl7PSUPlacerOrderNumber;
     private volatile String auditRecordRepositoryURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
@@ -1346,6 +1350,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7PSUPIDPV1(boolean hl7PSUPIDPV1) {
         this.hl7PSUPIDPV1 = hl7PSUPIDPV1;
+    }
+
+    public String getHl7PSURequestedProcedureID() {
+        return hl7PSURequestedProcedureID;
+    }
+
+    public void setHl7PSURequestedProcedureID(String hl7PSURequestedProcedureID) {
+        this.hl7PSURequestedProcedureID = hl7PSURequestedProcedureID;
+    }
+
+    public String getHl7PSUAccessionNumber() {
+        return hl7PSUAccessionNumber;
+    }
+
+    public void setHl7PSUAccessionNumber(String hl7PSUAccessionNumber) {
+        this.hl7PSUAccessionNumber = hl7PSUAccessionNumber;
+    }
+
+    public String getHl7PSUFillerOrderNumber() {
+        return hl7PSUFillerOrderNumber;
+    }
+
+    public void setHl7PSUFillerOrderNumber(String hl7PSUFillerOrderNumber) {
+        this.hl7PSUFillerOrderNumber = hl7PSUFillerOrderNumber;
+    }
+
+    public String getHl7PSUPlacerOrderNumber() {
+        return hl7PSUPlacerOrderNumber;
+    }
+
+    public void setHl7PSUPlacerOrderNumber(String hl7PSUPlacerOrderNumber) {
+        this.hl7PSUPlacerOrderNumber = hl7PSUPlacerOrderNumber;
     }
 
     public String[] getHL7NoPatientCreateMessageTypes() {
@@ -2677,6 +2713,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         hl7PSUForRequestedProcedure = arcdev.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = arcdev.hl7PSUPIDPV1;
+        hl7PSURequestedProcedureID = arcdev.hl7PSURequestedProcedureID;
+        hl7PSUAccessionNumber = arcdev.hl7PSUAccessionNumber;
+        hl7PSUFillerOrderNumber = arcdev.hl7PSUFillerOrderNumber;
+        hl7PSUPlacerOrderNumber = arcdev.hl7PSUPlacerOrderNumber;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;

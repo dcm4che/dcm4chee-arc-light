@@ -125,6 +125,10 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean hl7PSUMWL;
     private Boolean hl7PSUForRequestedProcedure;
     private Boolean hl7PSUPIDPV1;
+    private String hl7PSURequestedProcedureID;
+    private String hl7PSUAccessionNumber;
+    private String hl7PSUFillerOrderNumber;
+    private String hl7PSUPlacerOrderNumber;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private StorageVerificationPolicy storageVerificationPolicy;
@@ -1177,6 +1181,62 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isHl7PSUPIDPV1();
     }
 
+    public String getHl7PSURequestedProcedureID() {
+        return hl7PSURequestedProcedureID;
+    }
+
+    public void setHl7PSURequestedProcedureID(String hl7PSURequestedProcedureID) {
+        this.hl7PSURequestedProcedureID = hl7PSURequestedProcedureID;
+    }
+
+    public String hl7PSURequestedProcedureID() {
+        return hl7PSURequestedProcedureID != null
+                ? hl7PSURequestedProcedureID
+                : getArchiveDeviceExtension().getHl7PSURequestedProcedureID();
+    }
+
+    public String getHl7PSUAccessionNumber() {
+        return hl7PSUAccessionNumber;
+    }
+
+    public void setHl7PSUAccessionNumber(String hl7PSUAccessionNumber) {
+        this.hl7PSUAccessionNumber = hl7PSUAccessionNumber;
+    }
+
+    public String hl7PSUAccessionNumber() {
+        return hl7PSUAccessionNumber != null
+                ? hl7PSUAccessionNumber
+                : getArchiveDeviceExtension().getHl7PSUAccessionNumber();
+    }
+
+    public String getHl7PSUFillerOrderNumber() {
+        return hl7PSUFillerOrderNumber;
+    }
+
+    public void setHl7PSUFillerOrderNumber(String hl7PSUFillerOrderNumber) {
+        this.hl7PSUFillerOrderNumber = hl7PSUFillerOrderNumber;
+    }
+
+    public String hl7PSUFillerOrderNumber() {
+        return hl7PSUFillerOrderNumber != null
+                ? hl7PSUFillerOrderNumber
+                : getArchiveDeviceExtension().getHl7PSUFillerOrderNumber();
+    }
+
+    public String getHl7PSUPlacerOrderNumber() {
+        return hl7PSUPlacerOrderNumber;
+    }
+
+    public void setHl7PSUPlacerOrderNumber(String hl7PSUPlacerOrderNumber) {
+        this.hl7PSUPlacerOrderNumber = hl7PSUPlacerOrderNumber;
+    }
+
+    public String hl7PSUPlacerOrderNumber() {
+        return hl7PSUPlacerOrderNumber != null
+                ? hl7PSUPlacerOrderNumber
+                : getArchiveDeviceExtension().getHl7PSUPlacerOrderNumber();
+    }
+
     public boolean hl7PSUOnStudy() {
         return (hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null)
                 || (hl7PSUDelay() != null && hl7PSUMWL());
@@ -1480,6 +1540,10 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUMWL = aeExt.hl7PSUMWL;
         hl7PSUForRequestedProcedure = aeExt.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = aeExt.hl7PSUPIDPV1;
+        hl7PSURequestedProcedureID = aeExt.hl7PSURequestedProcedureID;
+        hl7PSUAccessionNumber = aeExt.hl7PSUAccessionNumber;
+        hl7PSUFillerOrderNumber = aeExt.hl7PSUFillerOrderNumber;
+        hl7PSUPlacerOrderNumber = aeExt.hl7PSUPlacerOrderNumber;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;

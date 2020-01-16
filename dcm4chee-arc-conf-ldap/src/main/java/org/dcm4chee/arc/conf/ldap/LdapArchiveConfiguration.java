@@ -304,6 +304,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
                 ext.isHl7PSUForRequestedProcedure(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.isHl7PSUPIDPV1(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSURequestedProcedureID",
+                ext.getHl7PSURequestedProcedureID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUAccessionNumber",
+                ext.getHl7PSUAccessionNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUFillerOrderNumber",
+                ext.getHl7PSUFillerOrderNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPlacerOrderNumber",
+                ext.getHl7PSUPlacerOrderNumber(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL",
@@ -574,6 +582,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
         ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), false));
         ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), false));
+        ext.setHl7PSURequestedProcedureID(LdapUtils.stringValue(attrs.get("hl7PSURequestedProcedureID"), null));
+        ext.setHl7PSUAccessionNumber(LdapUtils.stringValue(attrs.get("hl7PSUAccessionNumber"), null));
+        ext.setHl7PSUFillerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUFillerOrderNumber"), null));
+        ext.setHl7PSUPlacerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUPlacerOrderNumber"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
@@ -959,6 +971,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUForRequestedProcedure",
                 aa.isHl7PSUForRequestedProcedure(), bb.isHl7PSUForRequestedProcedure(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUPIDPV1", aa.isHl7PSUPIDPV1(), bb.isHl7PSUPIDPV1(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSURequestedProcedureID",
+                aa.getHl7PSURequestedProcedureID(), bb.getHl7PSURequestedProcedureID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUAccessionNumber",
+                aa.getHl7PSUAccessionNumber(), bb.getHl7PSUAccessionNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUFillerOrderNumber",
+                aa.getHl7PSUFillerOrderNumber(), bb.getHl7PSUFillerOrderNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPlacerOrderNumber",
+                aa.getHl7PSUPlacerOrderNumber(), bb.getHl7PSUPlacerOrderNumber(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
@@ -1364,6 +1384,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
                 ext.getHl7PSUForRequestedProcedure(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.getHl7PSUPIDPV1(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSURequestedProcedureID",
+                ext.getHl7PSURequestedProcedureID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUAccessionNumber",
+                ext.getHl7PSUAccessionNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUFillerOrderNumber",
+                ext.getHl7PSUFillerOrderNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPlacerOrderNumber",
+                ext.getHl7PSUPlacerOrderNumber(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
@@ -1485,6 +1513,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
         ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), null));
         ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), null));
+        ext.setHl7PSURequestedProcedureID(LdapUtils.stringValue(attrs.get("hl7PSURequestedProcedureID"), null));
+        ext.setHl7PSUAccessionNumber(LdapUtils.stringValue(attrs.get("hl7PSUAccessionNumber"), null));
+        ext.setHl7PSUFillerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUFillerOrderNumber"), null));
+        ext.setHl7PSUPlacerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUPlacerOrderNumber"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), null));
@@ -1675,6 +1707,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUForRequestedProcedure(), bb.getHl7PSUForRequestedProcedure(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPIDPV1",
                 aa.getHl7PSUPIDPV1(), bb.getHl7PSUPIDPV1(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSURequestedProcedureID",
+                aa.getHl7PSURequestedProcedureID(), bb.getHl7PSURequestedProcedureID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUAccessionNumber",
+                aa.getHl7PSUAccessionNumber(), bb.getHl7PSUAccessionNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUFillerOrderNumber",
+                aa.getHl7PSUFillerOrderNumber(), bb.getHl7PSUFillerOrderNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPlacerOrderNumber",
+                aa.getHl7PSUPlacerOrderNumber(), bb.getHl7PSUPlacerOrderNumber(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",
