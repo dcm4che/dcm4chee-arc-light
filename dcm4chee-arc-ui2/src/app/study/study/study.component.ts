@@ -2086,8 +2086,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         );
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
         this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
-        this.filterButtonPath.count.pop();
-        this.filterButtonPath.size.pop();
+        if(this.filterButtonPath.count){
+            this.filterButtonPath.count.pop();
+        }
+        if(this.filterButtonPath.size){
+            this.filterButtonPath.size.pop();
+        }
     }
     setSchema(){
         try{
