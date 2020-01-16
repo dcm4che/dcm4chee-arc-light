@@ -74,6 +74,10 @@
     "dcmAuditSoftwareConfigurationVerbose",
     "dcmStowExcludeAPPMarkers",
     "hl7PSUForRequestedProcedure",
+    "hl7PSURequestedProcedureID",
+    "hl7PSUAccessionNumber",
+    "hl7PSUFillerOrderNumber",
+    "hl7PSUPlacerOrderNumber",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUPIDPV1",
@@ -1216,6 +1220,30 @@
       "description": "Limit notification of Procedure Status Update of Requested Procedures to configured HL7 Procedure Status Update Receiving Applications about received studies, only if there are Scheduled Procedure Steps of Requested Procedure (MWL Items in the DB) with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
+    },
+    "hl7PSURequestedProcedureID": {
+      "title": "HL7 Procedure Status Update Requested Procedure ID",
+      "description": "Value for Requested Procedure ID in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "{StudyInstanceUID,hash}"
+    },
+    "hl7PSUAccessionNumber": {
+      "title": "HL7 Procedure Status Accession Number",
+      "description": "Value for Accession Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "{StudyInstanceUID,hash}"
+    },
+    "hl7PSUFillerOrderNumber": {
+      "title": "HL7 Procedure Status Filler Order Number",
+      "description": "Value for Filler Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "{StudyInstanceUID,hash}"
+    },
+    "hl7PSUPlacerOrderNumber": {
+      "title": "HL7 Procedure Status Placer Order Number",
+      "description": "Value for Placer Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "{StudyInstanceUID,hash}"
     },
     "hl7PSUPIDPV1": {
       "title": "HL7 Procedure Status Update PID PV1",
