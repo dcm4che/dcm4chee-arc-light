@@ -495,22 +495,22 @@
     },
     "hl7PSURequestedProcedureID": {
       "title": "HL7 Procedure Status Update Requested Procedure ID",
-      "description": "Value for Requested Procedure ID in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. Overwrites value specified on Device level.",
+      "description": "Value for Requested Procedure ID in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUAccessionNumber": {
       "title": "HL7 Procedure Status Accession Number",
-      "description": "Value for Accession Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. Overwrites value specified on Device level.",
+      "description": "Value for Accession Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUFillerOrderNumber": {
       "title": "HL7 Procedure Status Filler Order Number",
-      "description": "Value for Filler Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. Overwrites value specified on Device level.",
+      "description": "Value for Filler Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUPlacerOrderNumber": {
       "title": "HL7 Procedure Status Placer Order Number",
-      "description": "Value for Placer Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. Overwrites value specified on Device level.",
+      "description": "Value for Placer Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUPIDPV1": {

@@ -86,11 +86,7 @@ import java.util.*;
         query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
                 "from MWLItem mwl " +
                 "where mwl.studyInstanceUID = ?1 " +
-                "and mwl.scheduledProcedureStepID = ?2"),
-@NamedQuery(
-        name = MWLItem.COUNT_BY_STUDY_IUID,
-        query = "select count(mwl) from MWLItem mwl " +
-                "where mwl.studyInstanceUID = ?1"),
+                "and mwl.scheduledProcedureStepID = ?2")
 })
 @Entity
 @Table(name = "mwl_item",
@@ -114,7 +110,6 @@ public class MWLItem {
     public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
     public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
-    public static final String COUNT_BY_STUDY_IUID = "MWLItem.countByStudyIUID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

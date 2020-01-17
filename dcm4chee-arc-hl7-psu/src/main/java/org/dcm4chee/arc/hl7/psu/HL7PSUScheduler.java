@@ -107,14 +107,13 @@ public class HL7PSUScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return;
 
-                ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
-                ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-
                 try {
                     if (hl7psuTask.getMpps() == null)
                         ejb.scheduleHL7PSUTask(hl7psuTask);
                     else {
-                        if (arcAE.hl7PSUOnTimeout()) {
+                        if (device.getApplicationEntity(hl7psuTask.getAETitle())
+                                .getAEExtension(ArchiveAEExtension.class)
+                                .hl7PSUOnTimeout()) {
                             LOG.warn("Timeout for {} exceeded - schedule HL7 Procedure Status Update anyway", hl7psuTask);
                             ejb.scheduleHL7PSUTask(hl7psuTask);
                         } else {

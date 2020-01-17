@@ -46,12 +46,13 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -97,10 +98,7 @@ public class HL7PSUEJB {
         LOG.info("{}: Created {}", ctx, task);
     }
 
-    public boolean createOrUpdateHL7PSUTaskForStudy(ArchiveAEExtension arcAE, StoreContext ctx) {
-        if (!hasMWLItems(ctx.getStudyInstanceUID()))
-            return false;
-
+    public void createOrUpdateHL7PSUTaskForStudy(ArchiveAEExtension arcAE, StoreContext ctx) {
         try {
             HL7PSUTask task = em.createNamedQuery(HL7PSUTask.FIND_BY_STUDY_IUID, HL7PSUTask.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
@@ -116,13 +114,6 @@ public class HL7PSUEJB {
             em.persist(task);
             LOG.info("{}: Created {}", ctx, task);
         }
-        return true;
-    }
-
-    private boolean hasMWLItems(String studyIUID) {
-        return em.createNamedQuery(MWLItem.COUNT_BY_STUDY_IUID, Long.class)
-                .setParameter(1, studyIUID)
-                .getSingleResult() > 0;
     }
 
     private List<MWLItem> findMWLItems(String studyIUID) {
@@ -155,44 +146,78 @@ public class HL7PSUEJB {
 
     public void scheduleHL7PSUTask(HL7PSUTask task) {
         LOG.info("Schedule {}", task);
-        ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        Attributes mwlAttrs = null;
-        if (task.getMpps() == null) {
+        ArchiveAEExtension arcAE = device.getApplicationEntity(task.getAETitle()).getAEExtension(ArchiveAEExtension.class);
+
+        MWLItem mwl = null;
+        if (task.getMpps() == null && (arcAE.hl7PSUForRequestedProcedure() || arcAE.hl7PSUMWL())) {
             List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
-            if (mwlItems.isEmpty()) {
-                LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
-                return;
-            }
-            if (arcAE.hl7PSUMWL()
-                    || (arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0))
+            if (!mwlItems.isEmpty()) {
                 updateStatusToCompleted(arcAE, mwlItems);
-
-            mwlAttrs = mwlItems.get(0).getAttributes();
+                mwl = mwlItems.get(0);
+            } else
+                LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
         }
-
-        scheduleHL7Msg(arcAE.hl7PSUSendingApplication(), arcAE.hl7PSUReceivingApplications(), task, mwlAttrs);
+        scheduleHL7Msg(arcAE, task, mwl);
         removeHL7PSUTask(task);
     }
 
-    private void scheduleHL7Msg(String hl7PSUSendingApplication, String[] hl7PSUReceivingApplications, HL7PSUTask task,
-                                Attributes mwlAttrs) {
+    private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task, MWLItem mwl) {
+        String hl7PSUSendingApplication = arcAE.hl7PSUSendingApplication();
+        String[] hl7PSUReceivingApplications = arcAE.hl7PSUReceivingApplications();
         if (hl7PSUSendingApplication == null || hl7PSUReceivingApplications.length == 0)
             return;
 
+        if (mwl != null && !arcAE.hl7PSUForRequestedProcedure())
+            return;
+
+        HL7PSUMessage msg = new HL7PSUMessage(task);
         String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(hl7PSUSendingApplication)
                 .getHL7SendingCharacterSet();
-        HL7PSUMessage msg = new HL7PSUMessage(task);
-        if (mwlAttrs != null)
-            msg.setMWLItem(mwlAttrs);
-        msg.setSendingApplicationWithFacility(hl7PSUSendingApplication);
         if (!hl7cs.equals("ISO IR-6"))
             msg.setCharacterSet(hl7cs);
+        msg.setSendingApplicationWithFacility(hl7PSUSendingApplication);
+        if (task.getMpps() != null)
+            setPIDPV1(msg, arcAE, task.getMpps().getPatient());
+        else if (mwl != null) {
+            msg.setAttributes(mwl.getAttributes());
+            setPIDPV1(msg, arcAE, mwl.getPatient());
+        } else {
+            Study study = findStudy(task);
+            if (study == null)
+                return;
+
+            msg.setStudy(study.getAttributes(), arcAE);
+            setPIDPV1(msg, arcAE, study.getPatient());
+        }
         scheduleMessage(hl7PSUReceivingApplications, hl7cs, msg);
     }
 
+    private Study findStudy(HL7PSUTask task) {
+        try {
+            return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
+                    .setParameter(1, task.getStudyInstanceUID())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            LOG.info("Study referenced in HL7PSUTask {} does not exist", task);
+        }
+        return null;
+    }
+
+    private void setPIDPV1(HL7PSUMessage msg, ArchiveAEExtension arcAE, Patient patient) {
+        if (!arcAE.hl7PSUPIDPV1())
+            return;
+
+        msg.setPIDSegment(patient);
+        msg.setPV1Segment();
+    }
+
     private void updateStatusToCompleted(ArchiveAEExtension arcAE, List<MWLItem> mwlItems) {
+        if (!arcAE.hl7PSUMWL()
+                && !(arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
+                    && arcAE.hl7PSUReceivingApplications().length > 0))
+            return;
+
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         mwlItems.forEach(mwl -> {
             Attributes mwlAttrs = mwl.getAttributes();

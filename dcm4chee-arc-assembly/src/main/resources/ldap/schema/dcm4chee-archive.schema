@@ -1989,28 +1989,28 @@ attributetype ( 1.2.40.0.13.1.15.110.3.343 NAME 'hl7PSUPIDPV1'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.344 NAME 'hl7PSURequestedProcedureID'
-  DESC 'Value for Requested Procedure ID in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. If absent {StudyInstanceUID,hash} will be used.'
+  DESC 'Value for Requested Procedure ID in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. If absent {StudyInstanceUID,hash} will be used.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.345 NAME 'hl7PSUAccessionNumber'
-  DESC 'Value for Accession Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. If absent {StudyInstanceUID,hash} will be used.'
+  DESC 'Value for Accession Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. If absent {StudyInstanceUID,hash} will be used.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.346 NAME 'hl7PSUFillerOrderNumber'
-  DESC 'Value for Filler Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. If absent {StudyInstanceUID,hash} will be used.'
+  DESC 'Value for Filler Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. If absent {StudyInstanceUID,hash} will be used.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.347 NAME 'hl7PSUPlacerOrderNumber'
-  DESC 'Value for Placer Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of the received study. If absent {StudyInstanceUID,hash} will be used.'
+  DESC 'Value for Placer Order Number in notification message, if there are no Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. {<attributeID>} will be replaced by the value of attribute in the received study. If absent {StudyInstanceUID,hash} will be used.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15

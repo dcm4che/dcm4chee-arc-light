@@ -45,13 +45,17 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.Patient;
 
 import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2017
  */
 class HL7PSUMessage {
@@ -59,6 +63,8 @@ class HL7PSUMessage {
     private final HL7Segment orc;
     private final HL7Segment tq1;
     private final HL7Segment obr;
+    private HL7Segment pid;
+    private HL7Segment pv1;
     private final HL7Message hl7Message;
 
     HL7PSUMessage(HL7PSUTask task) {
@@ -100,49 +106,68 @@ class HL7PSUMessage {
         msh.setField(17, hl7cs);
     }
 
-    void setMWLItem(Attributes mwlAttrs) {
-        setPlacerOrder(mwlAttrs);
-        setFillerOrder(mwlAttrs);
-        setAccessionNumber(mwlAttrs);
-        setRequestedProcedureID(mwlAttrs);
+    void setPIDSegment(Patient patient) {
+        pid = new HL7Segment(9);
+        pid.setField(0, "PID");
+        pid.setField(3, patient.getPatientID() != null ? patient.getPatientID().getIDWithIssuer().toString() : null);
+        pid.setField(5, patient.getPatientName() != null ? patient.getPatientName().toString() : null);
+        pid.setField(7, patient.getPatientBirthDate());
+        pid.setField(8, patient.getPatientSex());
+        hl7Message.add(pid);
+    }
+
+    void setPV1Segment() {
+        pv1 = new HL7Segment(3);
+        pv1.setField(0, "PV1");
+        pv1.setField(2, "U");
+        hl7Message.add(pv1);
+    }
+
+    void setStudy(Attributes studyAttrs, ArchiveAEExtension arcAE) {
+        setPlacerOrder(new AttributesFormat(arcAE.hl7PSURequestedProcedureID()).format(studyAttrs));
+        setFillerOrder(new AttributesFormat(arcAE.hl7PSUAccessionNumber()).format(studyAttrs));
+        setAccessionNumber(new AttributesFormat(arcAE.hl7PSUFillerOrderNumber()).format(studyAttrs));
+        setRequestedProcedureID(new AttributesFormat(arcAE.hl7PSUPlacerOrderNumber()).format(studyAttrs));
     }
 
     private void setMPPS(Attributes mppsAttrs) {
         Attributes ssaAttrs = mppsAttrs.getNestedDataset(Tag.ScheduledStepAttributesSequence);
         setStartDateTime(mppsAttrs.getDate(Tag.PerformedProcedureStepStartDateAndTime));
-        setPlacerOrder(ssaAttrs);
-        setFillerOrder(ssaAttrs);
-        setAccessionNumber(ssaAttrs);
-        setRequestedProcedureID(ssaAttrs);
+        setAttributes(ssaAttrs);
+    }
+
+    void setAttributes(Attributes attrs) {
+        setPlacerOrder(idWithIssuer(attrs, Tag.PlacerOrderNumberImagingServiceRequest, Tag.OrderPlacerIdentifierSequence));
+        setFillerOrder(idWithIssuer(attrs, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence));
+        setAccessionNumber(idWithIssuer(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence));
+        setRequestedProcedureID(attrs.getString(Tag.RequestedProcedureID));
     }
 
     private void setStartDateTime(Date dt) {
         tq1.setField(7, HL7Segment.timeStamp(dt));
     }
 
-    private void setPlacerOrder(Attributes attrs) {
-        IDWithIssuer placer = IDWithIssuer.valueOf(
-                attrs, Tag.PlacerOrderNumberImagingServiceRequest, Tag.OrderPlacerIdentifierSequence);
-        String value = placer != null ? placer.toString() : null;
-        orc.setField(2,  value);
-        obr.setField(2,  value);
+    private String idWithIssuer(Attributes attrs, int tag, int seqTag) {
+        IDWithIssuer value = IDWithIssuer.valueOf(attrs, tag, seqTag);
+        return value != null ? value.toString() : null;
     }
 
-    private void setFillerOrder(Attributes attrs) {
-        IDWithIssuer filler = IDWithIssuer.valueOf(
-                attrs, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence);
-        String value = filler != null ? filler.toString() : null;
-        orc.setField(3,  value);
-        obr.setField(3,  value);
+    private void setPlacerOrder(String placerOrder) {
+        orc.setField(2,  placerOrder);
+        obr.setField(2,  placerOrder);
     }
 
-    private void setAccessionNumber(Attributes attrs) {
-        IDWithIssuer accession = IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
-        obr.setField(18, accession != null ? accession.toString() : null);
+    private void setFillerOrder(String fillerOrder) {
+        orc.setField(3,  fillerOrder);
+        obr.setField(3,  fillerOrder);
     }
 
-    private void setRequestedProcedureID(Attributes attrs) {
-        obr.setField(19, attrs.getString(Tag.RequestedProcedureID));
+    private void setAccessionNumber(String accessionNumber) {
+        obr.setField(18, accessionNumber);
+    }
+
+    private void setRequestedProcedureID(String requestedProcedureID) {
+        obr.setField(19, requestedProcedureID);
     }
 
 }
