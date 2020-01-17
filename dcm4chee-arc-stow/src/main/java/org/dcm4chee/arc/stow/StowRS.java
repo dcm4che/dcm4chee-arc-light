@@ -465,7 +465,7 @@ public class StowRS {
                 try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
                     ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs));
                 } catch (IOException e) {
-                    LOG.info("Failed to parse compressed pixel data {} for {}", compressedPixelData, file);
+                    LOG.info("Failed to parse compressed pixel data {} for {}:\n", compressedPixelData, file, e);
                 }
             }
             verifyImagePixelModule(attrs);
