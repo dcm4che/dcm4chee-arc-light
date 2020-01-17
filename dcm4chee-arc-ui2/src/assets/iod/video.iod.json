@@ -6,9 +6,7 @@
     "$ref": "study.iod.json"
   },
   "Series IE": {
-    "$ref": "series.iod.json"
-  },
-  "Equipment IE": {
+    "$ref": "series.iod.json",
     "General Equipment": {
       "$ref": "equipment.iod.json"
     }
