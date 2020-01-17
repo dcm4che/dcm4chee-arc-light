@@ -54,6 +54,7 @@ export class UploadFilesComponent implements OnInit {
     moreAttributes = false;
     dropdown;
     iod;
+    tempIods;
     iodFileNameFromMode = {
         patient:"study",
         study:"series",
@@ -98,6 +99,12 @@ export class UploadFilesComponent implements OnInit {
         if(this.fileList[0] && this.fileList[0].type === "image/jpeg"){
             this.isImage = true;
         }
+
+        console.log("iods",this.studyService.getIodFromContext(this.fileList[0].type, this.mode));
+        this.studyService.getIodFromContext(this.fileList[0].type, this.mode).subscribe(iods=>{
+            console.log("iods",iods);
+            this.tempIods = iods;
+        })
 /*        console.log("filtetypes",this.fileList);
         let type;
         let i = 0;
@@ -149,14 +156,14 @@ export class UploadFilesComponent implements OnInit {
         }*/
         this.studyService.initEmptyValue(this._dicomObject.attrs);
 
-        this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
-            this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, iod);
-            this.iod = this.studyService.replaceKeyInJson(iod, 'items', 'Value');
-            console.log("iod",iod);
+        // this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
+            this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, this.tempIods);
+            this.iod = this.studyService.replaceKeyInJson(this.tempIods, 'items', 'Value');
+            // console.log("iod",iod);
             console.log("dicomOjbect",this.dicomObject);
-            this.dropdown = this.studyService.getArrayFromIod(iod);
+            this.dropdown = this.studyService.getArrayFromIod(this.tempIods);
             this.moreAttributes = !this.moreAttributes;
-        });
+        // });
     }
     onStudyChange(e:StudyDicom){
         console.log("e",e);

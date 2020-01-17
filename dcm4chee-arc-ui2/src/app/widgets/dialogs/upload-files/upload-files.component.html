@@ -25,7 +25,7 @@
                 <!--<label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>-->
                 <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
             </ng-container>
-<!--            <button *ngIf="mode != 'patient' && file" (click)="showMoreAttributes()">Edit study attributes</button>
+<!--            <button *ngIf="file" (click)="showMoreAttributes()">Edit study attributes</button>
 
             <div class="edit_attribute_block" *ngIf="moreAttributes && file">
                 <edit-study [study]="dicomObject" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>

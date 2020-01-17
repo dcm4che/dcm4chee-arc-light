@@ -2989,6 +2989,74 @@ export class StudyService {
         }
     }
 
+    /*
+    *
+        Upload Context              None	    Patient	    Study	    Series	    MWL
+        Patient IE   	            editable	read-only	read-only	read-only	read-only
+        Study IE	                editable	editable	read-only	read-only	read-only
+        Series IE	                editable	editable	editable	read-only	editable
+        Equipment IE	            editable	editable	editable	read-only	editable
+        Image IE	                editable	editable	editable	editable	editable
+        Encapsulated Document IE	editable	editable	editable	editable	editable
+    * */
+    getIodFromContext(fileType:string, context:("patient"|"study"|"series"|"mwl")){
+
+        let level;
+        let iodFileNames = [];
+        if(context === "patient"){
+            level = 0;
+        }
+        if(context === "study" || context === "mwl"){
+            level = 1;
+        }
+        if(context === "series"){
+            level = 2;
+        }
+        if(fileType.indexOf("video") > -1){
+            //VIDEO
+            //"patient"
+            iodFileNames = [
+                "study",
+                "series",
+                "equipment",
+                "image",
+                "sop",
+                "vlImageAcquisitionContext",
+                "multiFrame"
+            ]
+        }
+        if(fileType.indexOf("image") > -1) {
+            //"patient"
+            iodFileNames = [
+                "study",
+                "series",
+                "equipment",
+                "photographicEquipment",
+                "image",
+                "sop",
+                "vlImageAcquisitionContext"
+            ]
+        }
+        if(fileType.indexOf("pdf") > -1) {
+            //"patient"
+            iodFileNames = [
+                "study",
+                "series",
+                "equipment",
+                "scEquipment",
+                "sop",
+                "encapsulatedDocument"
+            ]
+        }
+        return Observable.forkJoin(iodFileNames.filter((m,i)=> i >= level).map(m=>this.getIod(m))).map(res=>{
+            let merged = {};
+            res.forEach(o=>{
+                merged = Object.assign(merged,o)
+            });
+            return merged;
+        });
+    }
+
     getPatientIod() {
         return this.getIod("patient");
     };
