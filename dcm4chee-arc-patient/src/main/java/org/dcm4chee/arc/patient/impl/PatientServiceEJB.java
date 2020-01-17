@@ -391,10 +391,10 @@ public class PatientServiceEJB {
                 .getResultList();
         for (Patient p : patients)
             deletePatient(p);
-        removeMPPSMWLAndPatient(patient);
+        removeMPPSMWLUWLAndPatient(patient);
     }
 
-    private void removeMPPSMWLAndPatient(Patient patient) {
+    private void removeMPPSMWLUWLAndPatient(Patient patient) {
         em.createNamedQuery(MPPS.DELETE_BY_PATIENT)
                 .setParameter(1, patient)
                 .executeUpdate();
@@ -402,8 +402,11 @@ public class PatientServiceEJB {
                 .setParameter(1, patient)
                 .getResultList()
                 .forEach(mwl -> em.remove(mwl));
+        em.createNamedQuery(UPS.DELETE_BY_PATIENT)
+                .setParameter(1, patient)
+                .executeUpdate();
         em.remove(em.contains(patient) ? patient : em.getReference(Patient.class, patient.getPk()));
-        LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
+        LOG.info("Successfully removed {} from database along with any of its MPPS, MWLs and UPS", patient);
     }
 
     public Patient updatePatientStatus(PatientMgtContext ctx) {

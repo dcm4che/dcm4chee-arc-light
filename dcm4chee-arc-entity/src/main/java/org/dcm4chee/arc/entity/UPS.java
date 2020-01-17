@@ -76,6 +76,10 @@ import java.util.Date;
                 "or (ups.procedureStepState = ?3 and ups.updatedTime < ?4)) " +
                 "and not exists (select sub from Subscription sub where sub.ups = ups and sub.deletionLock = ?5) " +
                 "order by ups.updatedTime")
+@NamedQuery(
+        name=UPS.DELETE_BY_PATIENT,
+        query="delete from UPS ups " +
+                "where ups.patient = ?1")
 @Entity
 @Table(name = "ups",
         uniqueConstraints = @UniqueConstraint(columnNames = "ups_iuid" ),
@@ -98,6 +102,7 @@ public class UPS {
     public static final String FIND_BY_IUID = "UPS.findByIUID";
     public static final String FIND_BY_IUID_EAGER = "UPS.findByIUIDEager";
     public static final String FIND_WO_DELETION_LOCK = "UPS.findWithoutDeletionLock";
+    public static final String DELETE_BY_PATIENT = "UPS.deleteByPatient";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
