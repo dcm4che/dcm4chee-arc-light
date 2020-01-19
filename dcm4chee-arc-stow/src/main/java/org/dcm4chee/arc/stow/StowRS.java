@@ -622,12 +622,11 @@ public class StowRS {
 
         static CompressedPixelData valueOf(MediaType mediaType) {
             return MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE)
-                    || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JP2_TYPE)
-                    ? JPEG
-                    : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE)
-                        ? MPEG
-                        : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MP4_TYPE)
-                            ? MP4 : null;
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JP2_TYPE) ? JPEG
+                    : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE) ? MPEG
+                    : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MP4_TYPE)
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_QUICKTIME_TYPE) ? MP4
+                    : null;
         }
     }
 
