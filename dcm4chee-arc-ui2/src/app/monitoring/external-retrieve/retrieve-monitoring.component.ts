@@ -447,7 +447,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 });
                             }
                         },
-                        this.devices);
+                        this.devices,
+                        true
+                        );
 
                     break;
                 case "delete":
@@ -581,6 +583,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                 filter["newDeviceName"] = res.schema_model.newDeviceName;
                             }
+                            if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                filter["scheduledTime"] = res.schema_model.scheduledTime;
+                            }
                             $this.cfpLoadingBar.start();
                             this.service.reschedule(match.properties.pk, filter)
                                 .subscribe(
@@ -600,7 +605,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             text:device.dicomDeviceName,
                             value:device.dicomDeviceName
                         }
-                    }));
+                    }),true);
             }
         });
     };

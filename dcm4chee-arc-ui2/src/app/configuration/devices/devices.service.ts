@@ -93,9 +93,9 @@ export class DevicesService {
         }
     }
 
-    selectDevice(callBack, devices? ){
+    selectDevice(callBack, devices? ,addScheduleTime?:boolean){
         let setParams = function(tempDevices){
-            return {
+            let schema:any = {
                 content: 'Select device if you wan\'t to reschedule to an other device',
                 doNotSave:true,
                 form_schema:[
@@ -122,7 +122,22 @@ export class DevicesService {
                     }
                 },
                 saveButton: 'SUBMIT'
+            };
+            if(addScheduleTime){
+                schema.form_schema[0][0].push([
+                    {
+                        tag:"label",
+                        text:"Scheduled Time"
+                    }
+                    ,{
+                        tag:"range-picker-time",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:"Scheduled Time"
+                    }
+                ]);
             }
+            return schema;
         };
 
         if(devices){
