@@ -25,7 +25,7 @@
                 &lt;!&ndash;<label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>&ndash;&gt;
                 <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
             </ng-container>-->
-            <button *ngIf="file" (click)="showMoreAttributes()">Edit Attributes</button>
+            <button class="edit_attribute_button" *ngIf="file" (click)="showMoreAttributes()">Edit Attributes</button>
 
             <div class="edit_attribute_block" *ngIf="moreAttributes && file">
                 <edit-study [study]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>

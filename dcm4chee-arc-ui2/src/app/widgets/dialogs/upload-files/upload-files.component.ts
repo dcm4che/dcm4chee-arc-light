@@ -26,6 +26,9 @@ import {DcmWebApp} from "../../../models/dcm-web-app";
             float: left;
             width: 100%;
         }
+        .edit_attribute_button{
+            margin-top: 15px;
+        }
     `]
 })
 export class UploadFilesComponent implements OnInit {

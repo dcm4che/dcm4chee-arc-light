@@ -259,6 +259,20 @@ th {
       border-top: 1px solid #ddd;
   }
 }
+.overlay{
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+  transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+  opacity: 1;
+  background: rgba(0,0,0,.32);
+}
 .close {
   float: right;
   font-size: 21px;
