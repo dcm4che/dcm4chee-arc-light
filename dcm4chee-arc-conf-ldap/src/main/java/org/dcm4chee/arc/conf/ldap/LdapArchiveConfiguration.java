@@ -426,6 +426,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoThumbnailViewPort(), ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.isRestrictRetrieveSilently(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -685,6 +686,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
+        ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
     }
 
     @Override
@@ -1158,6 +1160,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isRestrictRetrieveSilently(),
                 bb.isRestrictRetrieveSilently(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStowQuicktime2MP4",
+                aa.isStowQuicktime2MP4(),
+                bb.isStowQuicktime2MP4(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1424,6 +1430,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoThumbnailViewPort(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.getRestrictRetrieveSilently(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.getStowQuicktime2MP4(), null);
     }
 
     @Override
@@ -1547,6 +1554,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"), null));
         ext.setRestrictRetrieveSilently(
                 LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), null));
+        ext.setStowQuicktime2MP4(
+                LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), null));
     }
 
     @Override
@@ -1748,6 +1757,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRestrictRetrieveSilently",
                 aa.getRestrictRetrieveSilently(), bb.getRestrictRetrieveSilently(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowQuicktime2MP4",
+                aa.getStowQuicktime2MP4(), bb.getStowQuicktime2MP4(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

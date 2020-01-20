@@ -142,6 +142,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean stowRetiredTransferSyntax;
     private Boolean stowExcludeAPPMarkers;
     private Boolean restrictRetrieveSilently;
+    private Boolean stowQuicktime2MP4;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
@@ -1471,6 +1472,20 @@ public class ArchiveAEExtension extends AEExtension {
                 getArchiveDeviceExtension().getMultipleStoreAssociations());
     }
 
+    public Boolean getStowQuicktime2MP4() {
+        return stowQuicktime2MP4;
+    }
+
+    public void setStowQuicktime2MP4(Boolean stowQuicktime2MP4) {
+        this.stowQuicktime2MP4 = stowQuicktime2MP4;
+    }
+
+    public boolean stowQuicktime2MP4() {
+        return stowQuicktime2MP4 != null
+                ? stowQuicktime2MP4
+                : getArchiveDeviceExtension().isStowQuicktime2MP4();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1556,6 +1571,7 @@ public class ArchiveAEExtension extends AEExtension {
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
         restrictRetrieveSilently = aeExt.restrictRetrieveSilently;
+        stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);

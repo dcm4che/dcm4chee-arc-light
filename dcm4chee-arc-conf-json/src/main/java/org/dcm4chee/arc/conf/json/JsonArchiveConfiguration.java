@@ -340,6 +340,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcDev.getWadoThumbnailViewPort(),
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
         writer.writeNotDef("dcmRestrictRetrieveSilently", arcDev.isRestrictRetrieveSilently(), false);
+        writer.writeNotDef("dcmStowQuicktime2MP4", arcDev.isStowQuicktime2MP4(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -977,6 +978,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowExcludeAPPMarkers", arcAE.getStowExcludeAPPMarkers());
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
         writer.writeNotNull("dcmRestrictRetrieveSilently", arcAE.getRestrictRetrieveSilently());
+        writer.writeNotNull("dcmStowQuicktime2MP4", arcAE.getStowQuicktime2MP4());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1585,6 +1587,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRestrictRetrieveSilently":
                     arcDev.setRestrictRetrieveSilently(reader.booleanValue());
+                    break;
+                case "dcmStowQuicktime2MP4":
+                    arcDev.setStowQuicktime2MP4(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3122,6 +3127,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRestrictRetrieveSilently":
                     arcAE.setRestrictRetrieveSilently(reader.booleanValue());
+                    break;
+                case "dcmStowQuicktime2MP4":
+                    arcAE.setStowQuicktime2MP4(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

@@ -261,6 +261,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowRetiredTransferSyntax;
     private volatile boolean stowExcludeAPPMarkers;
     private volatile boolean restrictRetrieveSilently;
+    private volatile boolean stowQuicktime2MP4;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -2581,6 +2582,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.retrieveTaskFetchSize = retrieveTaskFetchSize;
     }
 
+    public boolean isStowQuicktime2MP4() {
+        return stowQuicktime2MP4;
+    }
+
+    public void setStowQuicktime2MP4(boolean stowQuicktime2MP4) {
+        this.stowQuicktime2MP4 = stowQuicktime2MP4;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2776,6 +2785,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         stowRetiredTransferSyntax = arcdev.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
+        stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
