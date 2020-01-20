@@ -999,6 +999,12 @@ export class Globalvar {
                     description:"Input Readiness State",
                     placeholder:"Input Readiness State"
                 },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"limit",
+                    description:"Limit",
+                    placeholder:"Limit of MWL"
+                },{
                     tag:"select",
                     options:[
                         new SelectDropdown("SCHEDULED","SCHEDULED"),

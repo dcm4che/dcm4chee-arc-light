@@ -263,9 +263,9 @@ export class StudyService {
             if (tab != 'diff') {
                 let orderby;
                 if(tab === "uwl"){
-                    schema.push({
+/*                    schema.push({
                         tag: "dummy"
-                    });
+                    });*/
                     orderby = [
                         new SelectDropdown('00741200', "(asc)  Scheduled Procedure Step Priority"),
                         new SelectDropdown('-00741200', "(desc) Scheduled Procedure Step Priority"),
