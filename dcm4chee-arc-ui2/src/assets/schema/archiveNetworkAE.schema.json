@@ -567,6 +567,11 @@
       "description": "Indicates if APP markers in JPEG images received in STOW-RS Metadata and Bulkdata requests shall be excluded from the JPEG bit streams encapsulated in created DICOM instances. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "dcmStowQuicktime2MP4": {
+      "title": "STOW Quicktime to MP4",
+      "description": "Indicates if QuickTime containers received in STOW-RS Metadata and Bulkdata requests shall be converted to MP4 containers encapsulated in created DICOM instances. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
     "dcmFallbackCMoveSCPCallingAET": {
       "title": "Fallback C-Move SCP Calling AE title",
       "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used. Overwrites value specified on Device level.",
