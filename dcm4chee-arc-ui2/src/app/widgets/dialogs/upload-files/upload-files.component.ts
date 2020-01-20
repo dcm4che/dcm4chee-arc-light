@@ -52,6 +52,7 @@ export class UploadFilesComponent implements OnInit {
     seriesNumber = 0;
     // instanceNumber = 1;
     moreAttributes = false;
+    tempAttributes:any = [];
     dropdown;
     iod;
     tempIods;
@@ -103,8 +104,129 @@ export class UploadFilesComponent implements OnInit {
         console.log("iods",this.studyService.getIodFromContext(this.fileList[0].type, this.mode));
         this.studyService.getIodFromContext(this.fileList[0].type, this.mode).subscribe(iods=>{
             console.log("iods",iods);
+            if(!this._dicomObject){
+                this._dicomObject = {
+                    attrs:[]
+                }
+            }
+            this._dicomObject.attrs["0008103E"] = {
+                "vr": "LO",
+                "Value": [""]
+            };
+            this._dicomObject.attrs["00080018"] = {
+                "vr": "UI",
+                "Value": [
+                    j4care.generateOIDFromUUID()
+                ]
+            };
+            if (!_.hasIn(this._dicomObject.attrs, "00080020.Value[0]")) { // Study Date
+                this._dicomObject.attrs["00080020"] = {
+                    "vr": "DA",
+                    "Value": [""]
+                };
+            }
+            if (!_.hasIn(this._dicomObject.attrs, "00080030.Value[0]")) { // Study Time
+                this._dicomObject.attrs["00080030"] = {
+                    "vr": "TM",
+                    "Value": [""]
+                };
+            }
+            if (!_.hasIn(this._dicomObject.attrs, "00080090.Value[0]")) { // Referring Physician's Name
+                this._dicomObject.attrs["00080090"] = {
+                    "vr": "PN",
+                    "Value": [""]
+                };
+            }
+            if (!_.hasIn(this._dicomObject.attrs, "00200010.Value[0]")) { // Study ID
+                this._dicomObject.attrs["00200010"] = {
+                    "vr": "SH",
+                    "Value": [""]
+                };
+            }
+            if (!_.hasIn(this._dicomObject.attrs, "00080050.Value[0]")) { // Accession Number
+                this._dicomObject.attrs["00080050"] = {
+                    "vr": "SH",
+                    "Value": [""]
+                };
+            }
+            if (this.fileList[0].type === "application/pdf") {
+                this._dicomObject.attrs["00420011"] = {
+                    "vr": "OB",
+                    "BulkDataURI": "file/" + this.fileList[0].name
+                };
+                this._dicomObject.attrs["00080016"] = {
+                    "vr": "UI",
+                    "Value": [
+                        "1.2.840.10008.5.1.4.1.1.104.1"
+                    ]
+                }
+                this._dicomObject.attrs["00280301"] = {
+                    "vr": "CS",
+                    "Value": [
+                        "YES"
+                    ]
+                };
+                this._dicomObject.attrs["00420012"] = {
+                    "vr": "LO",
+                    "Value": [
+                        "application/pdf"
+                    ]
+                };
+                this._dicomObject.attrs["00420010"] = {
+                    "vr": "ST",
+                    "Value": [
+                        ""
+                    ]
+                };
+            } else {
+                if (this.fileList[0].type.indexOf("video") > -1) {
+                    this._dicomObject.attrs["00080016"] = {
+                        "vr": "UI",
+                        "Value": [
+                            "1.2.840.10008.5.1.4.1.1.77.1.4.1"
+                        ]
+                    }
+                } else {
+                    this._dicomObject.attrs["00080016"] = {
+                        "vr": "UI",
+                        "Value": [
+                            this.selectedSopClass.value
+                        ]
+                    }
+                }
+                this._dicomObject.attrs["7FE00010"] = {
+                    "vr": "OB",
+                    "BulkDataURI": "file/" + this.fileList[0].name
+                }
+                // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
+            }
+            if (this.fileList[0].type === "image/jpeg") {
+                this._dicomObject.attrs["00080008"] = {
+                    "vr": "CS",
+                    "Value": [
+                        "ORIGINAL",
+                        "PRIMARY"
+                    ]
+                };
+                if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
+                    this._dicomObject.attrs["00080064"] = {
+                        "vr": "CS",
+                        "Value": [
+                            "WSD"
+                        ]
+                    };
+                    this._dicomObject.attrs["00200020"] = {
+                        "vr": "CS"
+                    };
+                }
+            }
             this.tempIods = iods;
+            this.tempAttributes = _.cloneDeep(this._dicomObject);
+            this.tempAttributes.attrs = _.pickBy(this._dicomObject.attrs, (o, i) => {
+                return (i.toString().indexOf("777") === -1);
+            });
         })
+
 /*        console.log("filtetypes",this.fileList);
         let type;
         let i = 0;
@@ -154,10 +276,11 @@ export class UploadFilesComponent implements OnInit {
                 };
             }
         }*/
-        this.studyService.initEmptyValue(this._dicomObject.attrs);
 
         // this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
-            this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, this.tempIods);
+        //     this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, this.tempIods);
+            this.tempAttributes.attrs = new ComparewithiodPipe().transform(this.tempAttributes.attrs, this.tempIods);
+            this.studyService.initEmptyValue(this.tempAttributes.attrs);
             this.iod = this.studyService.replaceKeyInJson(this.tempIods, 'items', 'Value');
             // console.log("iod",iod);
             console.log("dicomOjbect",this.dicomObject);
@@ -227,6 +350,11 @@ export class UploadFilesComponent implements OnInit {
                             descriptionPart = "Video";
                             $this.modality = "XC";
                             break;
+                        case "video/quicktime":
+                            transfareSyntax = "";
+                            descriptionPart = "Video";
+                            $this.modality = "XC";
+                            break;
                         case "application/pdf":
                             transfareSyntax = "";
                             descriptionPart = "PDF";
@@ -252,18 +380,24 @@ export class UploadFilesComponent implements OnInit {
                                 /*                        let studyObject = _.pickBy(local, (o, i) => {
                                                             return (i.toString().indexOf("777") === -1);
                                                         });          */
+                                // _.assign(this._dicomObject,this.tempAttributes);
+                                Object.keys(this.tempAttributes.attrs).forEach(attr=>{
+                                    this._dicomObject.attrs[attr] = this.tempAttributes.attrs[attr];
+                                });
                                 let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
                                     return (i.toString().indexOf("777") === -1);
                                 });
-                                if (!$this.description || $this.description === "") {
+/*                                if (!$this.description || $this.description === "") {
                                     $this.description = "Imported " + descriptionPart;
+                                }*/
+                                if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
+                                    studyObject["0008103E"] = {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "Imported " + descriptionPart
+                                        ]
+                                    };
                                 }
-                                studyObject["0008103E"] = {
-                                    "vr": "LO",
-                                    "Value": [
-                                        $this.description
-                                    ]
-                                };
                                 studyObject["00200013"] = { //"00200013":"Instance Number"
                                     "vr": "IS",
                                     "Value": [
@@ -314,7 +448,7 @@ export class UploadFilesComponent implements OnInit {
                                         };
                                     }
                                 }
-                                if (!_.hasIn(studyObject, "00080020.Value[0]")) { // Study Date
+/*                                if (!_.hasIn(studyObject, "00080020.Value[0]")) { // Study Date
                                     studyObject["00080020"] = {
                                         "vr": "DA",
                                         "Value": [
@@ -348,15 +482,15 @@ export class UploadFilesComponent implements OnInit {
                                         "Value": [
                                         ]
                                     };
-                                }
-                                studyObject["00080018"] = {
+                                }*/
+/*                                studyObject["00080018"] = {
                                     "vr": "UI",
                                     "Value": [
                                         j4care.generateOIDFromUUID()
                                     ]
-                                };
+                                };*/
 
-                                if (file.type === "application/pdf") {
+/*                                if (file.type === "application/pdf") {
                                     studyObject["00420011"] = {
                                         "vr": "OB",
                                         "BulkDataURI": "file/" + file.name
@@ -426,7 +560,7 @@ export class UploadFilesComponent implements OnInit {
                                             "vr": "CS"
                                         };
                                     }
-                                }
+                                }*/
                                 studyObject["00080060"] = {
                                     "vr": "CS",
                                     "Value": [
