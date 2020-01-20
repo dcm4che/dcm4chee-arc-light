@@ -313,6 +313,11 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     type:"checkbox",
                     filterKey:"withoutScheduling",
                     description:"Without Scheduling"
+                },{
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"scheduledTime",
+                    description:"Scheduled times"
                 },
                 {
                     tag:"input",
@@ -382,6 +387,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
                 if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
                 if(filter.withoutScheduling){
+                    if(filter['scheduledTime']) {
+                        clonedFilters['scheduledTime'] = filter['scheduledTime'];
+                    }
                     return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
                 }else{
                     return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
@@ -426,6 +434,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 let filter = Object.assign({},this.filterObject);
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
+                                if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                                    filter["scheduledTime"] = res.schema_model.scheduledTime;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res)=>{
                                     this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
