@@ -435,7 +435,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
-                                if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                                if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
                                     filter["scheduledTime"] = res.schema_model.scheduledTime;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res)=>{
