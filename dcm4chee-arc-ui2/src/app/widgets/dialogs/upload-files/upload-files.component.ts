@@ -87,6 +87,9 @@ export class UploadFilesComponent implements OnInit {
 
     ngOnInit() {
         this.percentComplete = {};
+        this.tempAttributes = undefined;
+        this.tempIods = undefined;
+        this.iod = undefined;
         this.selectedSopClass = this.imageType[0];
         if(!this._fromExternalWebApp){
             this.getWebApps();
@@ -101,7 +104,6 @@ export class UploadFilesComponent implements OnInit {
             this.isImage = true;
         }
 
-        console.log("iods",this.studyService.getIodFromContext(this.fileList[0].type, this.mode));
         this.studyService.getIodFromContext(this.fileList[0].type, this.mode).subscribe(iods=>{
             console.log("iods",iods);
             if(!this._dicomObject){
@@ -109,6 +111,33 @@ export class UploadFilesComponent implements OnInit {
                     attrs:[]
                 }
             }
+/*            [
+                "0008103E",
+                "00080018",
+                "00420011",
+            ]
+            [
+                "0008103E"
+                "00080018"
+                "00080020"
+                "00080030"
+                "00080090"
+                "00200010"
+                "00080050"
+                "00420011"
+                "00080016"
+                "00280301"
+                "00420012"
+                "00420010"
+                "00080016"
+                "00080016"
+                "7FE00010"
+                "00080008"
+                "00080064"
+                "00200020"
+            ].forEach(k=>{
+                delete this._dicomObject
+            })*/
             this._dicomObject.attrs["0008103E"] = {
                 "vr": "LO",
                 "Value": [""]

@@ -861,12 +861,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
             this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
             // this.dialogRef.componentInstance.studyWebService = this.studyWebService;
-            this.dialogRef.componentInstance.dicomObject = object;
+            this.dialogRef.componentInstance.dicomObject = _.cloneDeep(object);
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {
                 console.log('result', result);
                 if (result){
                 }
+                this.dialogRef.componentInstance.dicomObject = undefined;
+                this.dialogRef.componentInstance.tempAttributes = undefined;
             });
         // });
     }
