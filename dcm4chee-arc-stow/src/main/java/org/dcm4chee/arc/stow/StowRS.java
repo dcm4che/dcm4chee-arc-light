@@ -505,7 +505,7 @@ public class StowRS {
             throws DicomServiceException {
         String cuid = attrs.getString(Tag.SOPClassUID);
         if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
-            String mimeType = MediaTypes.mimeTypeOf(bulkdataMediaType);
+            String mimeType = bulkdataMediaType.toString();
             if (mimeType == null)
                 throw missingAttribute(Tag.MIMETypeOfEncapsulatedDocument);
             supplementMissing(session, Tag.MIMETypeOfEncapsulatedDocument, VR.LO, mimeType, attrs);
