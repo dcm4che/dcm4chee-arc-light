@@ -311,22 +311,24 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
                         break;
                     case "reschedule":
-                        this.deviceService.selectDevice((res)=>{
-                            this.cfpLoadingBar.start();
-                            if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                filter["newDeviceName"] = res.schema_model.newDeviceName;
-                            }
-                            this.service.rescheduleAll(filter).subscribe((res)=>{
-                                this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': res.count + ' tasks rescheduled successfully!',
-                                    'status': 'info'
+                        this.deviceService.selectDevice((res)=> {
+                            if (res){
+                                this.cfpLoadingBar.start();
+                                if (_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != "") {
+                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
+                                this.service.rescheduleAll(filter).subscribe((res) => {
+                                    this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': res.count + ' tasks rescheduled successfully!',
+                                        'status': 'info'
+                                    });
+                                    this.cfpLoadingBar.complete();
+                                }, (err) => {
+                                    this.cfpLoadingBar.complete();
+                                    this.httpErrorHandler.handleError(err);
                                 });
-                                this.cfpLoadingBar.complete();
-                            }, (err) => {
-                                this.cfpLoadingBar.complete();
-                                this.httpErrorHandler.handleError(err);
-                            });
+                            }
                         },
                         this.devices);
                         break;
