@@ -270,6 +270,8 @@ export class EditPatientComponent {
             // console.log("in else", this.dialogRef.componentInstance.patient);
             console.log('this.iodattrcod', this.iod[attrcode]);
              patient.attrs[attrcode]  = _.cloneDeep(this.iod[attrcode]);
+             delete patient.attrs[attrcode]["multi"];
+             delete patient.attrs[attrcode]["required"];
             // patient.attrs[attrcode].Value[0] = "";
             console.log('patient=', patient);
         }
