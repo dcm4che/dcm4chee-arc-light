@@ -85,6 +85,6 @@
       "00400033": { "vr": "CS", "required": 1 }
     }
   },
-  "items": { "vr": "UI", "required": 1 },
+  "0020000D": { "vr": "UI", "required": 1 },
   "00200010": { "vr": "SH", "required": 2 }
 }
