@@ -512,35 +512,41 @@ public class StowRS {
         }
         if (!attrs.containsValue(Tag.BurnedInAnnotation))
             supplementMissing(session, Tag.BurnedInAnnotation, VR.CS, "YES", attrs);
-        if (cuid.equals(UID.EncapsulatedSTLStorage)) {
-            if (!attrs.contains(Tag.MeasurementUnitsCodeSequence)) {
-                Attributes item = new Attributes(3);
-                item.setString(Tag.CodeValue, VR.SH, "m");
-                item.setString(Tag.CodingSchemeDesignator, VR.SH, "UCUM");
-                item.setString(Tag.CodeMeaning, VR.LO, "m");
-                logSupplementMissing(session, Tag.MeasurementUnitsCodeSequence, item);
-                attrs.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(item);
-            }
-            if (!attrs.containsValue(Tag.Modality))
-                supplementMissing(session, Tag.Modality, VR.CS, "M3D", attrs);
-            if (!attrs.containsValue(Tag.Manufacturer))
-                supplementMissing(session, Tag.Manufacturer, VR.LO, "UNKNOWN", attrs);
-            if (!attrs.containsValue(Tag.ManufacturerModelName))
-                supplementMissing(session, Tag.ManufacturerModelName, VR.LO, "UNKNOWN", attrs);
-            if (!attrs.containsValue(Tag.DeviceSerialNumber))
-                supplementMissing(session, Tag.DeviceSerialNumber, VR.LO, "UNKNOWN", attrs);
-            if (!attrs.containsValue(Tag.SoftwareVersions))
-                supplementMissing(session, Tag.SoftwareVersions, VR.LO, "UNKNOWN", attrs);
-            if (!attrs.containsValue(Tag.FrameOfReferenceUID))
-                supplementMissing(session, Tag.FrameOfReferenceUID, VR.UI, UIDUtils.createUID(), attrs);
-        } else if (cuid.equals(UID.EncapsulatedPDFStorage)) {
-            if (!attrs.containsValue(Tag.ConversionType))
-                supplementMissing(session, Tag.ConversionType, VR.CS, "SD", attrs);
-        } else if (cuid.equals(UID.EncapsulatedCDAStorage)) {
-            if (!attrs.containsValue(Tag.Modality))
-                supplementMissing(session, Tag.Modality, VR.CS, "SR", attrs);
-            if (!attrs.containsValue(Tag.ConversionType))
-                supplementMissing(session, Tag.ConversionType, VR.CS, "WSD", attrs);
+        switch (cuid) {
+            case UID.EncapsulatedSTLStorage:
+            case UID.EncapsulatedMTLStorage:
+            case UID.EncapsulatedOBJStorage:
+                if (!attrs.contains(Tag.MeasurementUnitsCodeSequence)) {
+                    Attributes item = new Attributes(3);
+                    item.setString(Tag.CodeValue, VR.SH, "m");
+                    item.setString(Tag.CodingSchemeDesignator, VR.SH, "UCUM");
+                    item.setString(Tag.CodeMeaning, VR.LO, "m");
+                    logSupplementMissing(session, Tag.MeasurementUnitsCodeSequence, item);
+                    attrs.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(item);
+                }
+                if (!attrs.containsValue(Tag.Modality))
+                    supplementMissing(session, Tag.Modality, VR.CS, "M3D", attrs);
+                if (!attrs.containsValue(Tag.Manufacturer))
+                    supplementMissing(session, Tag.Manufacturer, VR.LO, "UNKNOWN", attrs);
+                if (!attrs.containsValue(Tag.ManufacturerModelName))
+                    supplementMissing(session, Tag.ManufacturerModelName, VR.LO, "UNKNOWN", attrs);
+                if (!attrs.containsValue(Tag.DeviceSerialNumber))
+                    supplementMissing(session, Tag.DeviceSerialNumber, VR.LO, "UNKNOWN", attrs);
+                if (!attrs.containsValue(Tag.SoftwareVersions))
+                    supplementMissing(session, Tag.SoftwareVersions, VR.LO, "UNKNOWN", attrs);
+                if (!attrs.containsValue(Tag.FrameOfReferenceUID) && !cuid.equals(UID.EncapsulatedMTLStorage))
+                    supplementMissing(session, Tag.FrameOfReferenceUID, VR.UI, UIDUtils.createUID(), attrs);
+                break;
+            case UID.EncapsulatedPDFStorage:
+                if (!attrs.containsValue(Tag.ConversionType))
+                    supplementMissing(session, Tag.ConversionType, VR.CS, "SD", attrs);
+                break;
+            case UID.EncapsulatedCDAStorage:
+                if (!attrs.containsValue(Tag.Modality))
+                    supplementMissing(session, Tag.Modality, VR.CS, "SR", attrs);
+                if (!attrs.containsValue(Tag.ConversionType))
+                    supplementMissing(session, Tag.ConversionType, VR.CS, "WSD", attrs);
+                break;
         }
     }
 
