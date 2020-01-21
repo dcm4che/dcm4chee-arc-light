@@ -1683,6 +1683,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.348 NAME 'dcmStowQuicktime2MP4'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.349 NAME 'dcmUPSStartDateTime'
+  DESC 'Value of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.350 NAME 'dcmStudyInstanceUID'
+  DESC 'Value of Study Instance UID (0020,000D) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2383,5 +2393,37 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmRequestingService $
     dcmURI $
     dcmNoKeywords $
+    dcmProperty $
+    dcmSchedule ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
+  DESC 'UPS on Store'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmUPSLabel )
+  MAY (
+    dcmUPSPriority $
+    dcmUPSInputReadinessState $
+    dcmUPSStartDateTime $
+    dcmUPSStartDateTimeDelay $
+    dcmUPSCompletionDateTimeDelay $
+    dcmUPSWorklistLabel $
+    dcmUPSScheduledWorkitemCode $
+    dcmUPSScheduledStationNameCode $
+    dcmUPSScheduledStationClassCode $
+    dcmUPSScheduledStationLocationCode $
+    dcmUPSScheduledHumanPerformerCode $
+    dcmUPSScheduledHumanPerformerName $
+    dcmUPSScheduledHumanPerformerOrganization $
+    dcmAdmissionID $
+    dicomIssuerOfAdmissionID $
+    dcmAccessionNumber $
+    dicomIssuerOfAccessionNumber $
+    dcmStudyInstanceUID $
+    dcmRequestedProcedureID $
+    dcmRequestedProcedureDescription $
+    dcmRequestingPhysician $
+    dcmRequestingService $
+    dcmURI $
     dcmProperty $
     dcmSchedule ) )

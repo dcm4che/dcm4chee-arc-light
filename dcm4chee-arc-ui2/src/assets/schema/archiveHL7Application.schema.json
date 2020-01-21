@@ -124,6 +124,15 @@
         "$ref": "hl7ExportRule.schema.json"
       }
     },
+    "hl7UPSOnHL7": {
+      "title": "UPS on HL7 Rules",
+      "description": "UPS on HL7 Rules applied to HL7 messages received by any HL7 Application. Supplements UPS on HL7 Rules specified on Device level.",
+      "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "upsOnHL7.schema.json"
+      }
+    },
     "hl7PrefetchRule": {
       "title": "HL7 Prefetch Rule",
       "description": "Prefetch Rules applied to HL7 messages received by this HL7 Application. Supplements HL7 Prefetch Rules specified on Device level.",
