@@ -1003,7 +1003,7 @@ export class Globalvar {
                     type:"number",
                     filterKey:"limit",
                     description:"Limit",
-                    placeholder:"Limit of MWL"
+                    placeholder:"Limit of UWL"
                 },{
                     tag:"select",
                     options:[
@@ -1574,8 +1574,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"batchID",
-                description:"Bash ID",
-                placeholder:"Bash ID"
+                description:"Batch ID",
+                placeholder:"Batch ID"
             }
         ];
     }
@@ -1677,7 +1677,7 @@ export class Globalvar {
                 type:"number",
                 filterKey:"limit",
                 description:"Limit",
-                placeholder:"Limit of studies"
+                placeholder:"Limit of patients"
             }
         ]
     }

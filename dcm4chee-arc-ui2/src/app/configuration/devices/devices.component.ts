@@ -47,7 +47,7 @@ export class DevicesComponent implements OnInit{
         placeholder: "More functions",
         options:[
             new SelectDropdown("create_exporter","Create exporter"),
-            new SelectDropdown("create_device","create_device")
+            new SelectDropdown("create_device","Create device")
         ],
         model:undefined
     };

@@ -338,8 +338,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     options:this.remoteAET,
                     showStar:true,
                     filterKey:"RemoteAET",
-                    description:"Romote AET",
-                    placeholder:"Romote AET",
+                    description:"Remote AET",
+                    placeholder:"Remote AET",
                     validation:Validators.required
                 },{
                     tag:"input",
