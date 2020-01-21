@@ -119,11 +119,14 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.statusChange();
     }
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
+        this.setFilterSchema();
         if(this.urlParam){
             this.filterObject = this.urlParam;
             this.filterObject["limit"] = 20;
         }
+    }
+    setFilterSchema(){
+        this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
     }
     onFormChange(e){
         console.log("e",e);
@@ -372,6 +375,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.service.getCount(this.filterObject).subscribe((count)=>{
             try{
                 this.count = count.count;
+                this.setFilterSchema();
             }catch (e){
                 this.count = "";
             }

@@ -600,12 +600,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                     });
                         }
                     },
-                    this.devices.map(device=>{
-                        return {
-                            text:device.dicomDeviceName,
-                            value:device.dicomDeviceName
-                        }
-                    }),true);
+                    this.devices,
+                    true);
             }
         });
     };

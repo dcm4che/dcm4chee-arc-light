@@ -532,26 +532,28 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     switch (mode) {
                         case 'reschedule':
                             this.deviceService.selectDevice((res)=>{
-                                this.cfpLoadingBar.start();
-                                let filter = {}
-                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
-                                }
-                                this.service.reschedule(match.pk, filter)
-                                    .subscribe(
-                                        (res) => {
-                                            this.getTasks(this.filterObject['offset'] || 0);
-                                            this.cfpLoadingBar.complete();
-                                            this.mainservice.setMessage({
-                                                'title': 'Info',
-                                                'text': 'Task rescheduled successfully!',
-                                                'status': 'info'
+                                    if(res){
+                                        this.cfpLoadingBar.start();
+                                        let filter = {}
+                                        if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                            filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                        }
+                                        this.service.reschedule(match.pk, filter)
+                                            .subscribe(
+                                                (res) => {
+                                                    this.getTasks(this.filterObject['offset'] || 0);
+                                                    this.cfpLoadingBar.complete();
+                                                    this.mainservice.setMessage({
+                                                        'title': 'Info',
+                                                        'text': 'Task rescheduled successfully!',
+                                                        'status': 'info'
+                                                    });
+                                                },
+                                                (err) => {
+                                                    this.cfpLoadingBar.complete();
+                                                this.httpErrorHandler.handleError(err);
                                             });
-                                        },
-                                        (err) => {
-                                            this.cfpLoadingBar.complete();
-                                            this.httpErrorHandler.handleError(err);
-                                        });
+                                    }
                                 },
                                 this.devices);
                             break;

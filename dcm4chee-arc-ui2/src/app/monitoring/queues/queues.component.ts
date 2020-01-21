@@ -144,7 +144,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         this.service.cancelAll(filter,this.filterObject.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.count + ' tasks deleted successfully!',
+                                'text': res.count + ' tasks in queue deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -201,7 +201,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         this.service.deleteAll(filter,this.filterObject.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.deleted + ' queues deleted successfully!',
+                                'text': res.deleted + ' tasks in queue deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
