@@ -10,26 +10,19 @@ import {j4care} from "../j4care.service";
 export class TableGeneratorComponent implements OnInit {
 
     @Input() config;
-    @Input() models;
+    private _models;
     @Input() stringifyDetailAttributes;
     @Output() tableMouseEnter = new EventEmitter();
     @Output() tableMouseLeave = new EventEmitter();
     _ = _;
     Object = Object;
     constructor() {
-        console.log("model",this.models);
+        console.log("model",this._models);
     }
     ngOnInit() {
         if(!this.config || !_.hasIn(this.config,"search")){
             this.config = this.config || {};
             this.config.search = "";
-        }
-        if(this.stringifyDetailAttributes){
-            this.models.map(model=>{
-                model.tableGeneratorDetailAttributes = Object.assign({},model);
-                j4care.stringifyArrayOrObject(model.tableGeneratorDetailAttributes, []);
-                return model;
-            });
         }
         if(!_.hasIn(this.config,"calculate") || this.config.calculate){
             this.calculateWidthOfTable();
@@ -62,5 +55,20 @@ export class TableGeneratorComponent implements OnInit {
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
+    }
+
+    get models() {
+        return this._models;
+    }
+    @Input()
+    set models(value) {
+        this._models = value;
+        if(this.stringifyDetailAttributes){
+            this._models.map(model=>{
+                model.tableGeneratorDetailAttributes = Object.assign({},model);
+                j4care.stringifyArrayOrObject(model.tableGeneratorDetailAttributes, []);
+                return model;
+            });
+        }
     }
 }
