@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
@@ -104,6 +105,9 @@ public class AuditService {
 
     @Inject
     private IHL7ApplicationCache hl7AppCache;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
         AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
@@ -287,7 +291,7 @@ public class AuditService {
 
     private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         emitAuditMessage(
-                ExternalRetrieveAuditService.auditMsg(auditLogger, path, eventType),
+                ExternalRetrieveAuditService.auditMsg(auditLogger, path, eventType, aeCache),
                 auditLogger);
     }
 

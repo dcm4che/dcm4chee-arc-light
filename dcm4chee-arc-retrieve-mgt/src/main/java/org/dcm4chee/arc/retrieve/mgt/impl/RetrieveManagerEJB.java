@@ -117,6 +117,7 @@ public class RetrieveManagerEJB {
             ObjectMessage msg = queueManager.createObjectMessage(keys);
             msg.setStringProperty("LocalAET", ctx.getLocalAET());
             msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
+            msg.setStringProperty("FindSCP", ctx.getFindSCP());
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", studyUID);

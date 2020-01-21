@@ -72,6 +72,7 @@ class AuditInfoBuilder {
     final String destUserID;
     final String destNapID;
     final String moveUserID;
+    final String findSCP;
     final String warning;
     final boolean failedIUIDShow;
     final String submissionSetUID;
@@ -111,6 +112,7 @@ class AuditInfoBuilder {
         private String destUserID;
         private String destNapID;
         private String moveUserID;
+        private String findSCP;
         private String warning;
         private boolean failedIUIDShow;
         private String submissionSetUID;
@@ -218,6 +220,10 @@ class AuditInfoBuilder {
             moveUserID = val;
             return this;
         }
+        Builder findSCP(String val) {
+            findSCP = val;
+            return this;
+        }
         Builder warning(String val) {
             warning = val;
             return this;
@@ -318,6 +324,7 @@ class AuditInfoBuilder {
         destUserID = builder.destUserID;
         destNapID = builder.destNapID;
         moveUserID = builder.moveUserID;
+        findSCP = builder.findSCP;
         warning = builder.warning;
         failedIUIDShow = builder.failedIUIDShow;
         submissionSetUID = builder.submissionSetUID;

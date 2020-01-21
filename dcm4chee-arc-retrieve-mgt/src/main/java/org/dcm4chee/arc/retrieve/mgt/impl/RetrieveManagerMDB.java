@@ -97,9 +97,11 @@ public class RetrieveManagerMDB implements MessageListener {
         }
     }
 
-    private ExternalRetrieveContext toExternalRetrieveContext(Message msg, RetrieveTask task, Attributes keys) {
+    private ExternalRetrieveContext toExternalRetrieveContext(Message msg, RetrieveTask task, Attributes keys)
+            throws JMSException {
         return new ExternalRetrieveContext()
                 .setLocalAET(task.getLocalAET())
+                .setFindSCP(msg.getStringProperty("FindSCP"))
                 .setRemoteAET(task.getRemoteAET())
                 .setDestinationAET(task.getDestinationAET())
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg))

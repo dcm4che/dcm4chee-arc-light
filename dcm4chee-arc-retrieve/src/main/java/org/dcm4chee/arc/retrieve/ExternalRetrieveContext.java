@@ -43,9 +43,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import java.util.Date;
-
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -57,6 +54,7 @@ public class ExternalRetrieveContext {
     private String localAET;
     private String remoteHostName;
     private String remoteAET;
+    private String findSCP;
     private String destinationAET;
     private Attributes keys;
     private Attributes response;
@@ -119,6 +117,10 @@ public class ExternalRetrieveContext {
         return remoteHostName;
     }
 
+    public String getFindSCP() {
+        return findSCP;
+    }
+
     public String getDestinationAET() {
         return destinationAET;
     }
@@ -156,6 +158,11 @@ public class ExternalRetrieveContext {
 
     public ExternalRetrieveContext setRemoteHostName(String remoteHostName) {
         this.remoteHostName = remoteHostName;
+        return this;
+    }
+
+    public ExternalRetrieveContext setFindSCP(String findSCP) {
+        this.findSCP = findSCP;
         return this;
     }
 
@@ -213,7 +220,7 @@ public class ExternalRetrieveContext {
 
     @Override
     public String toString() {
-        return "InstancesRetrieved[" + getRequesterUserID() + '@' + getRequesterHostName()
+        return "ExternalRetrieveContext[" + getRequesterUserID() + '@' + getRequesterHostName()
                 + ", queueName=" + queueName
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET

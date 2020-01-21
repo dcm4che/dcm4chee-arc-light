@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
 
@@ -177,6 +176,7 @@ public class PrefetchScheduler {
                 .setQueueName(rule.getQueueName())
                 .setBatchID(batchID)
                 .setLocalAET(rule.getAETitle())
+                .setFindSCP(rule.getPrefetchCFindSCP())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
