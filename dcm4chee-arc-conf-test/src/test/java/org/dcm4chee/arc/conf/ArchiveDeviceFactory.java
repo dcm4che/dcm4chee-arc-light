@@ -906,6 +906,8 @@ class ArchiveDeviceFactory {
             UID.EncapsulatedPDFStorage,
             UID.EncapsulatedCDAStorage,
             UID.EncapsulatedSTLStorage,
+            UID.EncapsulatedOBJStorage,
+            UID.EncapsulatedMTLStorage,
             UID.StandalonePETCurveStorageRetired,
             UID.TextSRStorageTrialRetired,
             UID.AudioSRStorageTrialRetired,
@@ -925,6 +927,8 @@ class ArchiveDeviceFactory {
             UID.RTSegmentAnnotationStorage,
             UID.RTRadiationSetStorage,
             UID.CArmPhotonElectronRadiationStorage,
+            UID.TomotherapeuticRadiationStorage,
+            UID.RoboticArmRadiationStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
     };
