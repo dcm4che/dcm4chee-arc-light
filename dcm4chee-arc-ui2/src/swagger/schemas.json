@@ -84,6 +84,8 @@
       "multipart/related;type=image/x-jls",
       "multipart/related;type=text/xml",
       "multipart/related;type=model/stl",
+      "multipart/related;type=model/obj",
+      "multipart/related;type=model/mtl",
       "multipart/related;type=video/mpeg",
       "multipart/related;type=video/mp4",
       "application/zip"
@@ -106,7 +108,9 @@
       "multipart/related;type=application/octet-stream",
       "multipart/related;type=application/pdf",
       "multipart/related;type=text/xml",
-      "multipart/related;type=model/stl"
+      "multipart/related;type=model/stl",
+      "multipart/related;type=model/obj",
+      "multipart/related;type=model/mtl"
     ]
   },
   "wadoRetrieveMetadataAccept": {

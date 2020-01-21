@@ -290,6 +290,8 @@ public class WadoURI {
                         ctx.getArchiveAEExtension().wadoCDA2HtmlTemplateURI());
             case EncapsulatedPDF:
             case EncapsulatedSTL:
+            case EncapsulatedOBJ:
+            case EncapsulatedMTL:
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
             case MPEG4Video:

@@ -931,6 +931,8 @@ public class WadoRS {
             case UID.EncapsulatedCDAStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/cda.png";
             case UID.EncapsulatedSTLStorage:
+            case UID.EncapsulatedOBJStorage:
+            case UID.EncapsulatedMTLStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/stl.png";
             case UID.KeyObjectSelectionDocumentStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/ko.png";
@@ -1057,6 +1059,8 @@ public class WadoRS {
             case EncapsulatedPDF:
             case EncapsulatedCDA:
             case EncapsulatedSTL:
+            case EncapsulatedOBJ:
+            case EncapsulatedMTL:
                 entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:

@@ -643,6 +643,18 @@
           "format": "binary"
         }
       },
+      "type=model/obj": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "type=model/mtl": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
       "video/mpeg": {
         "schema": {
           "type": "string",

@@ -477,6 +477,8 @@ public class StowRS {
                 case UID.EncapsulatedPDFStorage:
                 case UID.EncapsulatedCDAStorage:
                 case UID.EncapsulatedSTLStorage:
+                case UID.EncapsulatedOBJStorage:
+                case UID.EncapsulatedMTLStorage:
                     throw missingAttribute(Tag.EncapsulatedDocument);
             }
         }

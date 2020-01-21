@@ -153,6 +153,18 @@ enum ObjectType {
             return null;
         }
     },
+    EncapsulatedOBJ(MediaTypes.MODEL_OBJ_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+    },
+    EncapsulatedMTL(MediaTypes.MODEL_MTL_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+    },
     Other(MediaTypes.APPLICATION_DICOM_TYPE, false, false){
         @Override
         public MediaType[] getRenderedContentTypes() {
