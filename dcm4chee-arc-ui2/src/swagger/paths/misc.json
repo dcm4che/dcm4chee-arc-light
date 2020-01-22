@@ -210,7 +210,7 @@
     }
   },
   "study.access": {
-    "post": {
+    "put": {
       "tags": [
         "ACCESS-RS"
       ],
