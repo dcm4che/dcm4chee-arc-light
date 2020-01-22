@@ -689,7 +689,7 @@ public class StowRS {
 
     private static File qt2MP4(File qtFile) throws IOException {
         File mp4File = new File(qtFile.getParent(), qtFile.getName() + ".mp4");
-        LOG.info("ffmpeg -i {} -c copy {} - start", qtFile, mp4File);
+        long start = System.currentTimeMillis();
         Process process = new ProcessBuilder(
                 "ffmpeg", "-i", qtFile.toString(), "-c", "copy", mp4File.toString())
                 .redirectErrorStream(true)
@@ -700,7 +700,8 @@ public class StowRS {
             LOG.debug(line);
         }
         int exitValue = exitValueOf(process);
-        LOG.info("ffmpeg -i {} -c copy {} - exit with {}", qtFile, mp4File, exitValue);
+        long end = System.currentTimeMillis();
+        LOG.info("Converted Quicktime to MP4 container in {} ms - exit code: {}", start - end, exitValue);
         if (exitValue != 0) {
             throw new IOException("Failed to convert Quicktime to MP4 container - " + exitValue);
         }
