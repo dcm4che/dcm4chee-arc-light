@@ -43,6 +43,7 @@ package org.dcm4chee.arc.stow;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
+import org.dcm4che3.imageio.codec.mp4.MP4FileType;
 import org.dcm4che3.imageio.codec.mp4.MP4Parser;
 import org.dcm4che3.imageio.codec.mpeg.MPEG2Parser;
 import org.dcm4che3.io.SAXReader;
@@ -621,6 +622,7 @@ public class StowRS {
                     throws IOException {
                 MP4Parser mp4Parser = new MP4Parser(channel);
                 mp4Parser.getAttributes(attrs);
+                adjustBulkdata(attrs, mp4Parser, session.getArchiveAEExtension());
                 return mp4Parser.getTransferSyntaxUID();
             }
         };
@@ -671,6 +673,46 @@ public class StowRS {
                 : attrs.getInt(Tag.BitsAllocated, 8) == 8
                 ? UID.JPEGBaseline1
                 : UID.JPEGExtended24;
+    }
+
+    private static void adjustBulkdata(Attributes attrs, MP4Parser parser, ArchiveAEExtension arcAE) throws IOException {
+        if (parser.getMP4FileType() != null
+                && parser.getMP4FileType().majorBrand() == MP4FileType.qt
+                && arcAE.stowQuicktime2MP4()) {
+            Fragments fragments = (Fragments) attrs.getValue(Tag.PixelData);
+            BulkData bulkData = (BulkData) fragments.get(1);
+            File mpFile = qt2MP4(bulkData.getFile());
+            bulkData.setURI(mpFile.toURI().toString());
+            bulkData.setLength(mpFile.length());
+        }
+    }
+
+    private static File qt2MP4(File qtFile) throws IOException {
+        File mp4File = new File(qtFile.getParent(), qtFile.getName() + ".mp4");
+        LOG.info("ffmpeg -i {} -c copy {} - start", qtFile, mp4File);
+        Process process = new ProcessBuilder(
+                "ffmpeg", "-i", qtFile.toString(), "-c", "copy", mp4File.toString())
+                .redirectErrorStream(true)
+                .start();
+        String line;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = reader.readLine()) != null) {
+            LOG.debug(line);
+        }
+        int exitValue = exitValueOf(process);
+        LOG.info("ffmpeg -i {} -c copy {} - exit with {}", qtFile, mp4File, exitValue);
+        if (exitValue != 0) {
+            throw new IOException("Failed to convert Quicktime to MP4 container - " + exitValue);
+        }
+        return mp4File;
+    }
+
+    private static int exitValueOf(Process process) {
+        try {
+            return process.waitFor();
+        } catch (InterruptedException e) {
+            return 999;
+        }
     }
 
     private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,
