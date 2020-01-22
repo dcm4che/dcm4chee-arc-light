@@ -15,7 +15,7 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet,
+    DicomResponseType, DiffAttributeSet, AccessControlIDMode,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -179,6 +179,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("export_multiple","Export matching studies"),
             new SelectDropdown("reject_multiple","Reject matching studies"),
             new SelectDropdown("retrieve_multiple","Retrieve matching studies"),
+            new SelectDropdown("update_access_control_id_to_matching","Update Access Control ID"),
             new SelectDropdown("storage_verification","Storage Verification"),
             new SelectDropdown("download_studies","Download Studies as CSV"),
             new SelectDropdown("trigger_diff","Trigger Diff"),
@@ -192,6 +193,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("export_object","Export selections", "Export selected studies, series or instances"),
             new SelectDropdown("reject_object","Reject selections", "Reject selected studies, series or instances"),
             new SelectDropdown("restore_object","Restore selections", "Restore selected studies, series or instances"),
+            new SelectDropdown("update_access_control_id_to_selections","Access Control ID to selections", "Updated Access Control ID to selected studies"),
             new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently")
         ],
         model:undefined
@@ -383,6 +385,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "download_studies":
                 this.downloadCSV();
                break;
+            case "update_access_control_id_to_matching":
+                this.updateAccessControlId(e);
+               break;
         }
         setTimeout(()=>{
             this.moreFunctionConfig.model = undefined;
@@ -407,7 +412,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e === "reject_object" || e === "restore_object"){
             this.rejectRestoreMultipleObjects();
         }
-
+        if(e === "update_access_control_id_to_selections"){
+            this.updateAccessControlId(e);
+        }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
         },1);
@@ -761,6 +768,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(id.action === "view"){
                 this.viewInstance(model);
+            }
+            if(id.action === "update_access_control_id"){
+                this.updateAccessControlId(id.action, model);
             }
         }else{
             this.appService.showError("No Web Application Service was selected!");
@@ -2257,6 +2267,59 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     };
 
+    updateAccessControlId(mode?:AccessControlIDMode, model?:any){
+        const matching = mode === "update_access_control_id_to_matching";
+        this.confirm({
+            content: `Update Study Access Control ID ${matching ? 'of matching studies':' of the study'}`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:"Access Control ID"
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"accessControlID",
+                            description:"Access Control ID",
+                            placeholder:"Access Control ID"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: 'UPDATE'
+        }).subscribe((ok)=>{
+            if(ok){
+                let service;
+                let msg;
+                if(matching){
+                    service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',undefined,this.createStudyFilterParams(true,true))
+                    msg = "Access Control ID updated successfully to matching study!";
+                }else{
+                    if(mode === "update_access_control_id_to_selections"){
+                        service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null')
+                        msg = "Access Control ID updated successfully to selected studies!"
+                    }else{
+                        service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',this.service.getStudyInstanceUID(model.attrs))
+                        msg = "Access Control ID updated successfully to the study!"
+                    }
+                }
+                this.cfpLoadingBar.start();
+                service.subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    this.appService.showMsg(msg);
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
             saveLabel:'SAVE',

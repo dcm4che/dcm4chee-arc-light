@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+    AccessControlIDMode,
     AccessLocation,
     DicomLevel,
     DicomMode,
@@ -621,6 +622,14 @@ export class StudyService {
             false,
             dcmWebApp
         ).map(res => j4care.redirectOnAuthResponse(res));
+    }
+
+    getStudyInstanceUID(model){
+        try{
+            return _.get(model, "0020000D.Value[0]");
+        }catch (e) {
+            return undefined;
+        }
     }
 
     getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): string {
@@ -1570,6 +1579,27 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'vpn_key'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "update_access_control_id"
+                                    }, e);
+                                },
+                                title: "Update Study Access Control ID",
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
                                 }
                             }, {
                                 icon: {
@@ -2785,6 +2815,30 @@ export class StudyService {
         }
 
             return schema;
+    }
+    updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
+        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
+            return this.$http.put(
+                `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
+                {},
+                this.jsonHeader
+            );
+        }));
+    }
+    updateAccessControlId(matchingMode:AccessControlIDMode, selectedWebService:DcmWebApp, accessControlID:string, studyInstanceUID?:string, filters?:any){
+        if(matchingMode === "update_access_control_id_to_matching"){
+            return this.$http.post(
+                `${this.getDicomURL("study", selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`,
+                {},
+                this.jsonHeader
+            );
+        }else{
+            return this.$http.put(
+                `${this.getDicomURL("study", selectedWebService)}/${studyInstanceUID}/access/${accessControlID}`,
+                {},
+                this.jsonHeader
+            );
+        }
     }
 
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders) {

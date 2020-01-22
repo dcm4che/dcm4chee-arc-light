@@ -294,3 +294,5 @@ export interface DiffAttributeSet {
     title: string;
     type: string;
 }
+
+export type AccessControlIDMode = "update_access_control_id" | "update_access_control_id_to_matching"|"update_access_control_id_to_selections";
