@@ -43,6 +43,7 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
@@ -259,7 +260,11 @@ public class StudyServiceEJB {
         codes.clear();
         if (seq != null)
             for (Attributes item : seq) {
-                codes.add(codeCache.findOrCreate(new Code(item)));
+                try {
+                    codes.add(codeCache.findOrCreate(new Code(item)));
+                } catch (Exception e) {
+                    LOG.info("Illegal Procedure Code:\n{}", item);
+                }
             }
     }
 
