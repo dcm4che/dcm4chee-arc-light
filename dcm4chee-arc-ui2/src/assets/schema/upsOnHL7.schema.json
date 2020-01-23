@@ -6,7 +6,8 @@
     "cn",
     "dcmUPSLabel",
     "dcmUPSPriority",
-    "dcmUPSInputReadinessState"
+    "dcmUPSInputReadinessState",
+    "dcmURI"
   ],
   "properties": {
     "cn": {
@@ -39,7 +40,7 @@
     },
     "dcmUPSWorklistLabel": {
       "title": "Worklist Label",
-      "description": "Value of Worklist Label (0074,1202) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
+      "description": "Value of Worklist Label (0074,1202) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message. If absent or if value could not be found in HL7 Message, HL7 Application Name of the receiving HL7 Application will be used.",
       "type": "string"
     },
     "dcmUPSPriority": {
@@ -64,15 +65,9 @@
         "READY"
       ]
     },
-    "dcmUPSStartDateTime": {
-      "title": "Scheduled Procedure Step Start DateTime",
-      "description": "Value of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message. Use receive time if absent and no Scheduled Procedure Step Start DateTime Delay is specified.",
-      "type": "string",
-      "format": "dcmDuration"
-    },
     "dcmUPSStartDateTimeDelay": {
       "title": "Scheduled Procedure Step Start DateTime Delay",
-      "description": "Delay of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS from receive time in format PnDTnHnMn.nS. Only effective, if no Scheduled Procedure Step Start DateTime is specified.",
+      "description": "Delay of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS from receive time in format PnDTnHnMn.nS. Only effective, if no Scheduled Procedure Step Start DateTime is found in HL7 Message.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -122,46 +117,6 @@
       "description": "Value of Human Performer's Organization (0040,4036) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
       "type": "string"
     },
-    "dcmAdmissionID": {
-      "title": "Admission Number",
-      "description": "Value of Admission ID (0038,0010) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dicomIssuerOfAdmissionID": {
-      "title": "Issuer of Admission ID",
-      "description": "Value of Local Namespace Entity ID (0040,0031), Universal Entity ID (0040,0032) and Universal Entity ID Type (0040,0033) of the Item of the Issuer of Admission ID Sequence (0038,0014) in created UPS. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dcmStudyInstanceUID": {
-      "title": "Study Instance UID",
-      "description": "Value of Study Instance UID (0020,000D) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dcmAccessionNumber": {
-      "title": "Accession Number",
-      "description": "Value of Accession Number (0008,0050) in Item of Referenced Request Sequence (0040,A370) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dicomIssuerOfAccessionNumber": {
-      "title": "Issuer of Accession Number",
-      "description": "Value of Local Namespace Entity ID (0040,0031), Universal Entity ID (0040,0032) and Universal Entity ID Type (0040,0033) in Item of Issuer of Accession Number Sequence (0008,0051) in Item of Referenced Request Sequence (0040,A370) in created UPS. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dcmRequestedProcedureID": {
-      "title": "Requested Procedure ID",
-      "description": "Value of Requested Procedure ID (0040,1001) in Item of Referenced Request Sequence (0040,A370) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dcmRequestedProcedureDescription": {
-      "title": "Requested Procedure Description",
-      "description": "Value of Requested Procedure Description (0032,1060) in Item of Referenced Request Sequence (0040,A370) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
-    "dcmRequestingPhysician": {
-      "title": "Requesting Physician",
-      "description": "Value of Requesting Physician (0032,1032) in Item of Referenced Request Sequence (0040,A370) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
-      "type": "string"
-    },
     "dcmRequestingService": {
       "title": "Requesting Service",
       "description": "Value of Requesting Service (0032,1033) in Item of Referenced Request Sequence (0040,A370) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.",
@@ -169,8 +124,9 @@
     },
     "dcmURI": {
       "title": "XSL Stylesheet URI",
-      "description": "Specifies URI of the XSL style sheet to include additional attributes in created UPS.",
-      "type": "string"
+      "description": "Specifies URI of the XSL style sheet to to transcode received HL7 message to include attributes in created UPS.",
+      "type": "string",
+      "default": "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl"
     }
   }
 }

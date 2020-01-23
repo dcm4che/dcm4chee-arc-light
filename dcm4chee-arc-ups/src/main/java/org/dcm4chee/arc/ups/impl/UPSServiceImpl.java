@@ -46,10 +46,13 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.UPSState;
+import org.dcm4che3.util.ReverseDNS;
+import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -71,6 +74,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.websocket.Session;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -79,6 +83,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 @ApplicationScoped
@@ -331,6 +336,30 @@ public class UPSServiceImpl implements UPSService {
                     session.getCalledAET(),
                     ctx.getAttributes(), now))
                 .forEach(upsOnStore -> ejb.createOrUpdateOnStore(ctx, now, upsOnStore));
+    }
+
+    public void onHL7Connection(@Observes HL7ConnectionEvent event) {
+        if (!(event.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED && event.getException() == null))
+            return;
+
+        UnparsedHL7Message msg = event.getHL7Message();
+        HL7Application hl7App = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(msg.msh().getReceivingApplicationWithFacility(), true);
+        if (hl7App == null)
+            return;
+
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (arcHL7App == null || !arcHL7App.hasUPSOnHL7())
+            return;
+
+        Socket socket = event.getSocket();
+        String host = ReverseDNS.hostNameOf(socket.getInetAddress());
+        HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
+        Calendar now = Calendar.getInstance();
+        arcHL7App.upsOnHL7Stream()
+                .filter(upsOnHL7 -> upsOnHL7.match(host, hl7Fields))
+                .forEach(upsOnHL7 -> ejb.createOrUpdateOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
     }
 
     boolean websocketChannelsExists(String subscriberAET) {

@@ -109,6 +109,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapArchiveConfiguration.storeHL7OrderSPSStatus(diffs, ext.getHL7OrderSPSStatuses(), appDN, config);
         LdapArchiveConfiguration.storeHL7StudyRetentionPolicies(diffs, ext.getHL7StudyRetentionPolicies(), appDN,
                 config);
+        LdapArchiveConfiguration.storeUPSOnHL7List(diffs, ext.listUPSOnHL7(), appDN, config);
     }
 
     @Override
@@ -155,6 +156,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 hl7App.getDevice());
         LdapArchiveConfiguration.loadHL7OrderSPSStatus(ext.getHL7OrderSPSStatuses(), appDN, config);
         LdapArchiveConfiguration.loadHL7StudyRetentionPolicies(ext.getHL7StudyRetentionPolicies(), appDN, config);
+        LdapArchiveConfiguration.loadUPSOnHL7List(ext.listUPSOnHL7(), appDN, config);
     }
 
     @Override
@@ -235,6 +237,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), appDN, config);
         LdapArchiveConfiguration.mergeHL7StudyRetentionPolicies(
                 diffs, aa.getHL7StudyRetentionPolicies(), bb.getHL7StudyRetentionPolicies(), appDN, config);
+        LdapArchiveConfiguration.mergeUPSOnHL7List(diffs, aa.listUPSOnHL7(), bb.listUPSOnHL7(), appDN, config);
     }
 
 }

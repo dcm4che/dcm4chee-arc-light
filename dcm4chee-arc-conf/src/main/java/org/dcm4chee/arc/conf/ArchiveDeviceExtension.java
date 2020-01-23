@@ -279,6 +279,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
+    private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
     private final List<HL7ExportRule> hl7ExportRules = new ArrayList<>();
@@ -1763,6 +1764,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return upsOnStoreList;
     }
 
+    public void removeUPSOnHL7(UPSOnHL7 rule) {
+        upsOnHL7List.remove(rule);
+    }
+
+    public void clearUPSOnHL7() {
+        upsOnHL7List.clear();
+    }
+
+    public void addUPSOnHL7(UPSOnHL7 upsOnHL7) {
+        upsOnHL7List.add(upsOnHL7);
+    }
+
+    public Collection<UPSOnHL7> listUPSOnHL7() {
+        return upsOnHL7List;
+    }
+
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -2807,6 +2824,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         upsOnStoreList.clear();
         upsOnStoreList.addAll(arcdev.upsOnStoreList);
+        upsOnHL7List.clear();
+        upsOnHL7List.addAll(arcdev.upsOnHL7List);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         exportPriorsRules.clear();

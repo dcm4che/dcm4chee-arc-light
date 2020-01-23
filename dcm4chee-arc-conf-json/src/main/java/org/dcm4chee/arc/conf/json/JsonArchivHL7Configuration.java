@@ -85,6 +85,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         JsonArchiveConfiguration.writeHL7StudyRetentionPolicies(writer, ext.getHL7StudyRetentionPolicies());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());
+        JsonArchiveConfiguration.writeUPSOnHL7List(writer, ext.listUPSOnHL7());
         writer.writeEnd();
     }
 
@@ -170,6 +171,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7OrderSPSStatus":
                     JsonArchiveConfiguration.loadHL7OrderSPSStatus(ext.getHL7OrderSPSStatuses(), reader);
+                    break;
+                case "hl7UPSOnHL7":
+                    JsonArchiveConfiguration.loadUPSOnHL7List(ext.listUPSOnHL7(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

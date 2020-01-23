@@ -69,6 +69,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
+    private final ArrayList<UPSOnHL7> upsOnHL7List = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
@@ -100,6 +101,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
         hl7PrefetchRules.addAll(arcapp.hl7PrefetchRules);
+        upsOnHL7List.clear();
+        upsOnHL7List.addAll(arcapp.upsOnHL7List);
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
@@ -264,6 +267,30 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public boolean hasHL7PrefetchRules() {
         return !hl7PrefetchRules.isEmpty() || !getArchiveDeviceExtension().getHL7PrefetchRules().isEmpty();
+    }
+
+    public void removeUPSOnHL7(UPSOnHL7 rule) {
+        upsOnHL7List.remove(rule);
+    }
+
+    public void clearUPSOnHL7List() {
+        upsOnHL7List.clear();
+    }
+
+    public void addUPSOnHL7(UPSOnHL7 rule) {
+        upsOnHL7List.add(rule);
+    }
+
+    public Collection<UPSOnHL7> listUPSOnHL7() {
+        return upsOnHL7List;
+    }
+
+    public Stream<UPSOnHL7> upsOnHL7Stream() {
+        return Stream.concat(upsOnHL7List.stream(), getArchiveDeviceExtension().listUPSOnHL7().stream());
+    }
+
+    public boolean hasUPSOnHL7() {
+        return !upsOnHL7List.isEmpty() || !getArchiveDeviceExtension().listUPSOnHL7().isEmpty();
     }
 
     public void removeHL7ForwardRule(HL7ForwardRule rule) {

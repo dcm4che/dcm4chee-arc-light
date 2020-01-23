@@ -1201,6 +1201,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
         storeMetricsDescriptors(diffs, arcDev.getMetricsDescriptors(), deviceDN);
         storeUPSOnStoreList(diffs, arcDev.listUPSOnStore(), deviceDN);
+        storeUPSOnHL7List(diffs, arcDev.listUPSOnHL7(), deviceDN, config);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1236,6 +1237,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadKeycloakServers(arcdev, deviceDN);
         loadMetricsDescriptors(arcdev, deviceDN);
         loadUPSOnStoreList(arcdev.listUPSOnStore(), deviceDN);
+        loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1281,6 +1283,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeKeycloakServers(diffs, aa.getKeycloakServers(), bb.getKeycloakServers(), deviceDN);
         mergeMetricsDescriptors(diffs, aa.getMetricsDescriptors(), bb.getMetricsDescriptors(), deviceDN);
         mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), deviceDN);
+        mergeUPSOnHL7List(diffs, aa.listUPSOnHL7(), bb.listUPSOnHL7(), deviceDN, config);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -2634,6 +2637,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    static void storeUPSOnHL7List(
+            ConfigurationChanges diffs, Collection<UPSOnHL7> upsOnHL7List, String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (UPSOnHL7 upsOnHL7 : upsOnHL7List) {
+            String dn = LdapUtils.dnOf("cn", upsOnHL7.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, upsOnHL7, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ExportRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmExportRule");
         attrs.put("cn", rule.getCommonName());
@@ -2708,6 +2722,48 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnStore.getConditions().getMap());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", upsOnStore.getSchedules());
+        return attrs;
+    }
+
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UPSOnHL7 upsOnHL7, BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7UPSOnHL7");
+        attrs.put("cn", upsOnHL7.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel", upsOnHL7.getProcedureStepLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority", upsOnHL7.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
+                upsOnHL7.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSStartDateTimeDelay",
+                upsOnHL7.getStartDateTimeDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSCompletionDateTimeDelay",
+                upsOnHL7.getCompletionDateTimeDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel", upsOnHL7.getWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnHL7.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
+                upsOnHL7.getScheduledWorkitemCode(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsOnHL7.getScheduledStationName(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsOnHL7.getScheduledStationClass(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsOnHL7.getScheduledStationLocation(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
+                upsOnHL7.getScheduledHumanPerformer(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledHumanPerformerName",
+                upsOnHL7.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSScheduledHumanPerformerOrganization",
+                upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingService",
+                upsOnHL7.getRequestingService(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnHL7.getXSLTStylesheetURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnHL7.getConditions().getMap());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", upsOnHL7.getSchedules());
         return attrs;
     }
 
@@ -2786,6 +2842,48 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 upsOnStore.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 upsOnStoreList.add(upsOnStore);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    static void loadUPSOnHL7List(Collection<UPSOnHL7> upsOnHL7List, String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7UPSOnHL7)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UPSOnHL7 upsOnHL7 = new UPSOnHL7(LdapUtils.stringValue(attrs.get("cn"), null));
+                upsOnHL7.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
+                upsOnHL7.setUPSPriority(
+                        LdapUtils.enumValue(UPSPriority.class,
+                                attrs.get("dcmUPSPriority"),
+                                UPSPriority.MEDIUM));
+                upsOnHL7.setInputReadinessState(
+                        LdapUtils.enumValue(InputReadinessState.class,
+                                attrs.get("dcmUPSInputReadinessState"),
+                                InputReadinessState.READY));
+                upsOnHL7.setStartDateTimeDelay(toDuration(attrs.get("dcmUPSStartDateTimeDelay"), null));
+                upsOnHL7.setCompletionDateTimeDelay(toDuration(attrs.get("dcmUPSCompletionDateTimeDelay"), null));
+                upsOnHL7.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+                upsOnHL7.setInstanceUIDBasedOnName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
+                upsOnHL7.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnHL7.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
+                upsOnHL7.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnHL7.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnHL7.setScheduledHumanPerformer(LdapUtils.codeValue(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnHL7.setScheduledHumanPerformerName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
+                upsOnHL7.setScheduledHumanPerformerOrganization(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerOrganization"), null));
+                upsOnHL7.setRequestingService(LdapUtils.stringValue(attrs.get("dcmRequestingService"), null));
+                upsOnHL7.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                upsOnHL7.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                upsOnHL7.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                upsOnHL7List.add(upsOnHL7);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3022,6 +3120,37 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    static void mergeUPSOnHL7List(
+            ConfigurationChanges diffs, Collection<UPSOnHL7> prevUPSOnHL7List, Collection<UPSOnHL7> upsOnHL7List,
+            String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (UPSOnHL7 prevUPSOnHL7 : prevUPSOnHL7List) {
+            String cn = prevUPSOnHL7.getCommonName();
+            if (findUPSOnHL7ByCN(upsOnHL7List, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UPSOnHL7 rule : upsOnHL7List) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            UPSOnHL7 prevUPSOnHL7 = findUPSOnHL7ByCN(prevUPSOnHL7List, cn);
+            if (prevUPSOnHL7 == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUPSOnHL7, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
             ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
@@ -3101,6 +3230,47 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                              UPSOnHL7 prev, UPSOnHL7 upsOnHL7, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
+                prev.getProcedureStepLabel(), upsOnHL7.getProcedureStepLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
+                prev.getUPSPriority(), upsOnHL7.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",
+                prev.getInputReadinessState(), upsOnHL7.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSStartDateTimeDelay",
+                prev.getStartDateTimeDelay(), upsOnHL7.getStartDateTimeDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSCompletionDateTimeDelay",
+                prev.getCompletionDateTimeDelay(), upsOnHL7.getCompletionDateTimeDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
+                prev.getWorklistLabel(), upsOnHL7.getWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInstanceUIDBasedOnName",
+                prev.getInstanceUIDBasedOnName(), upsOnHL7.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
+                prev.getScheduledWorkitemCode(), upsOnHL7.getScheduledWorkitemCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationName(), upsOnHL7.getScheduledStationName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClass(), upsOnHL7.getScheduledStationClass(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocation(), upsOnHL7.getScheduledStationLocation(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformer(), upsOnHL7.getScheduledHumanPerformer(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
+                prev.getScheduledHumanPerformerName(), upsOnHL7.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
+                prev.getScheduledHumanPerformerOrganization(),
+                upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingService",
+                prev.getRequestingService(), upsOnHL7.getRequestingService(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
+                prev.getXSLTStylesheetURI(), upsOnHL7.getXSLTStylesheetURI(), null);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), upsOnHL7.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), upsOnHL7.getSchedules());
+        return mods;
+    }
+
     private ExportRule findExportRuleByCN(Collection<ExportRule> rules, String cn) {
         for (ExportRule rule : rules)
             if (rule.getCommonName().equals(cn))
@@ -3112,6 +3282,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (UPSOnStore upsOnStore : upsOnStoreList)
             if (upsOnStore.getCommonName().equals(cn))
                 return upsOnStore;
+        return null;
+    }
+
+    private static UPSOnHL7 findUPSOnHL7ByCN(Collection<UPSOnHL7> upsOnHL7List, String cn) {
+        for (UPSOnHL7 upsOnHL7 : upsOnHL7List)
+            if (upsOnHL7.getCommonName().equals(cn))
+                return upsOnHL7;
         return null;
     }
 

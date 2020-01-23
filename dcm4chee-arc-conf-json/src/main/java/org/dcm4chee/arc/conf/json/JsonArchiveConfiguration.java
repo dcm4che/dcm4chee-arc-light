@@ -366,6 +366,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeKeycloakServers(writer, arcDev.getKeycloakServers());
         writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         writeUPSOnStoreList(writer, arcDev.listUPSOnStore());
+        writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
@@ -858,6 +859,45 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmNoKeywords", upsOnStore.isNoKeywords(), false);
             writer.writeNotEmpty("dcmProperty", upsOnStore.getConditions().getMap());
             writer.writeNotEmpty("dcmSchedule", upsOnStore.getSchedules());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    static void writeUPSOnHL7List(JsonWriter writer, Collection<UPSOnHL7> upsOnHL7List) {
+        writer.writeStartArray("hl7UPSOnHL7");
+        for (UPSOnHL7 upsOnHL7 : upsOnHL7List) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", upsOnHL7.getCommonName(), null);
+            writer.writeNotEmpty("dcmProperty", upsOnHL7.getConditions().getMap());
+            writer.writeNotEmpty("dcmSchedule", upsOnHL7.getSchedules());
+            writer.writeNotNullOrDef("dcmUPSLabel", upsOnHL7.getProcedureStepLabel(), null);
+            writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnHL7.getWorklistLabel(), null);
+            writer.writeNotNullOrDef("dcmUPSPriority", upsOnHL7.getUPSPriority(), UPSPriority.MEDIUM);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInputReadinessState", upsOnHL7.getInputReadinessState(), InputReadinessState.READY);
+            writer.writeNotNullOrDef("dcmUPSStartDateTimeDelay",
+                    upsOnHL7.getStartDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmUPSCompletionDateTimeDelay",
+                    upsOnHL7.getCompletionDateTimeDelay(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInstanceUIDBasedOnName", upsOnHL7.getInstanceUIDBasedOnName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledWorkitemCode", upsOnHL7.getScheduledWorkitemCode(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationNameCode", upsOnHL7.getScheduledStationName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationClassCode", upsOnHL7.getScheduledStationClass(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationLocationCode", upsOnHL7.getScheduledStationLocation(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnHL7.getScheduledHumanPerformer(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledHumanPerformerName", upsOnHL7.getScheduledHumanPerformerName(), null);
+            writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
+                    upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+            writer.writeNotNullOrDef("dcmRequestingService", upsOnHL7.getRequestingService(), null);
+            writer.writeNotNullOrDef("dcmURI", upsOnHL7.getXSLTStylesheetURI(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1668,6 +1708,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSOnStore":
                     loadUPSOnStoreList(arcDev.listUPSOnStore(), reader);
+                    break;
+                case "hl7UPSOnHL7":
+                    loadUPSOnHL7List(arcDev.listUPSOnHL7(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -2850,6 +2893,81 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             upsOnStoreList.add(upsOnStore);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadUPSOnHL7List(Collection<UPSOnHL7> upsOnHL7List, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UPSOnHL7 upsOnHL7 = new UPSOnHL7();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        upsOnHL7.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmUPSLabel":
+                        upsOnHL7.setProcedureStepLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSPriority":
+                        upsOnHL7.setUPSPriority(UPSPriority.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSInputReadinessState":
+                        upsOnHL7.setInputReadinessState(InputReadinessState.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSStartDateTimeDelay":
+                        upsOnHL7.setStartDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSCompletionDateTimeDelay":
+                        upsOnHL7.setCompletionDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSWorklistLabel":
+                        upsOnHL7.setWorklistLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSInstanceUIDBasedOnName":
+                        upsOnHL7.setInstanceUIDBasedOnName(reader.stringValue());
+                        break;
+                    case "dcmUPSScheduledWorkitemCode":
+                        upsOnHL7.setScheduledWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationNameCode":
+                        upsOnHL7.setScheduledStationName(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationClassCode":
+                        upsOnHL7.setScheduledStationClass(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationLocationCode":
+                        upsOnHL7.setScheduledStationLocation(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledHumanPerformerCode":
+                        upsOnHL7.setScheduledHumanPerformer(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledHumanPerformerName":
+                        upsOnHL7.setScheduledHumanPerformerName(reader.stringValue());
+                        break;
+                    case "dcmUPSScheduledHumanPerformerOrganization":
+                        upsOnHL7.setScheduledHumanPerformerOrganization(reader.stringValue());
+                        break;
+                    case "dcmRequestingService":
+                        upsOnHL7.setRequestingService(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        upsOnHL7.setXSLTStylesheetURI(reader.stringValue());
+                        break;
+                    case "dcmProperty":
+                        upsOnHL7.setConditions(new HL7Conditions(reader.stringArray()));
+                        break;
+                    case "dcmSchedule":
+                        upsOnHL7.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            upsOnHL7List.add(upsOnHL7);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
