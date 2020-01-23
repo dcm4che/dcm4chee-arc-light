@@ -1689,11 +1689,6 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.349 NAME 'dcmUPSStartDateTime'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.350 NAME 'dcmStudyInstanceUID'
-  DESC 'Value of Study Instance UID (0020,000D) in created UPS. {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]} will be replaced by the value of that field in the received HL7 message.'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2401,14 +2396,15 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
   SUP top STRUCTURAL
   MUST (
     cn $
+    dcmURI $
     dcmUPSLabel )
   MAY (
     dcmUPSPriority $
     dcmUPSInputReadinessState $
-    dcmUPSStartDateTime $
     dcmUPSStartDateTimeDelay $
     dcmUPSCompletionDateTimeDelay $
     dcmUPSWorklistLabel $
+    dcmUPSInstanceUIDBasedOnName $
     dcmUPSScheduledWorkitemCode $
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
@@ -2416,15 +2412,6 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmUPSScheduledHumanPerformerCode $
     dcmUPSScheduledHumanPerformerName $
     dcmUPSScheduledHumanPerformerOrganization $
-    dcmAdmissionID $
-    dicomIssuerOfAdmissionID $
-    dcmAccessionNumber $
-    dicomIssuerOfAccessionNumber $
-    dcmStudyInstanceUID $
-    dcmRequestedProcedureID $
-    dcmRequestedProcedureDescription $
-    dcmRequestingPhysician $
     dcmRequestingService $
-    dcmURI $
     dcmProperty $
     dcmSchedule ) )
