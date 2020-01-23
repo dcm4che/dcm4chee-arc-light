@@ -726,9 +726,6 @@
     "/ctrl/status": {
       "$ref": "paths/misc.json#/status"
     },
-    "/aets/{aet}/access/{accessControlID}/studies": {
-      "$ref": "paths/legacy.json#/access.studies"
-    },
     "/impax/reports/studies/{study}": {
       "$ref": "paths/misc.json#/impax.reports.study"
     },
