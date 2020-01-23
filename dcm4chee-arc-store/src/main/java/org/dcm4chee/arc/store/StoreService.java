@@ -68,7 +68,7 @@ import java.util.zip.ZipInputStream;
 public interface StoreService {
 
     int DUPLICATE_REJECTION_NOTE = 0xA770;
-    int SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT = 0xA771;
+    int SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT = 0xA771;
     int REJECTION_FAILED_NO_SUCH_INSTANCE = 0xA772;
     int REJECTION_FAILED_CLASS_INSTANCE_CONFLICT  = 0xA773;
     int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
@@ -79,7 +79,7 @@ public interface StoreService {
     int CONFLICTING_PATIENT_ATTRS_REJECTED = 0xA779;
 
     String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={0}] already received.";
-    String SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
+    String SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
     String REJECTION_FAILED_NO_SUCH_INSTANCE_MSG = "Failed to reject Instance[uid={0}] - no such Instance.";
     String REJECTION_FAILED_NO_SUCH_SERIES_MSG = "Failed to reject Instance of Series[uid={0}] - no such Series.";
     String REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG  = "Failed to reject Instance[uid={0}] - class-instance conflict.";
@@ -128,7 +128,7 @@ public interface StoreService {
     void addLocation(StoreSession storeSession, Long instancePk, Location location);
 
     void replaceLocation(StoreSession storeSession, Long instancePk, Location newLocation,
-            List<Location> replaceLoactions);
+            List<Location> replaceLocations);
 
     void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException;

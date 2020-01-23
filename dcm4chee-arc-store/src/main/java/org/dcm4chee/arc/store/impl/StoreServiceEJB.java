@@ -200,7 +200,7 @@ public class StoreServiceEJB {
                         logInfo(IGNORE_PREVIOUS_REJECTED, ctx, prevRejectionNote.getRejectionNoteCode());
                         return result;
                     case REJECT:
-                        throw subsequentOccurenceOfRejectedObject(rejectedInstance);
+                        throw subsequentOccurrenceOfRejectedObject(rejectedInstance);
                     case RESTORE:
                         logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
                         em.remove(rejectedInstance);
@@ -222,7 +222,7 @@ public class StoreServiceEJB {
                     case IGNORE:
                         break;
                     case REJECT:
-                        result.setException(subsequentOccurenceOfRejectedObject(rejectedInstance));
+                        result.setException(subsequentOccurrenceOfRejectedObject(rejectedInstance));
                         break;
                     case RESTORE:
                         logInfo(REVOKE_REJECTION, ctx, prevRejectionNote.getRejectionNoteCode());
@@ -283,9 +283,9 @@ public class StoreServiceEJB {
         return result;
     }
 
-    private static DicomServiceException subsequentOccurenceOfRejectedObject(RejectedInstance rejectedInstance) {
-        return new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
-                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
+    private static DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {
+        return new DicomServiceException(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT,
+                MessageFormat.format(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG,
                         rejectedInstance.getSopInstanceUID(), rejectedInstance.getRejectionNoteCode()));
     }
 
