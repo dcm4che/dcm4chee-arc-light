@@ -309,8 +309,8 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void replaceLocation(StoreSession session, Long instancePk, Location newLocation,
-            List<Location> replaceLoactions) {
-        ejb.replaceLocation(session, instancePk, newLocation, replaceLoactions);
+            List<Location> replaceLocations) {
+        ejb.replaceLocation(session, instancePk, newLocation, replaceLocations);
     }
 
     @Override
