@@ -15,6 +15,7 @@ export class DcmWebApp{
     private _dicomInstalled:boolean;
     private _dcmKeycloakClientID:string;
     private _dicomDeviceName:string;
+    private _dcmProperty:string[];
     private _dicomAETitleObject:Aet;
 
     constructor(
@@ -132,6 +133,15 @@ export class DcmWebApp{
 
     set dicomDeviceName(value: string) {
         this._dicomDeviceName = value;
+    }
+
+
+    get dcmProperty(): string[] {
+        return this._dcmProperty;
+    }
+
+    set dcmProperty(value: string[]) {
+        this._dcmProperty = value;
     }
 
     get dicomAETitleObject(): Aet {

@@ -45,6 +45,7 @@ import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
 import {ErrorObservable} from "rxjs-compat/observable/ErrorObservable";
 import {Error} from "tslint/lib/error";
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class StudyService {
@@ -63,7 +64,8 @@ export class StudyService {
         private devicesService: DevicesService,
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService,
-        private _keycloakService:KeycloakService
+        private _keycloakService:KeycloakService,
+        private appService:AppService
     ) {}
 
     getWebApps(filter?:any) {
@@ -3422,4 +3424,22 @@ export class StudyService {
         }
     }
 
+    webAppHasPermission(webApp:DcmWebApp[]){
+        console.log("user",this.appService.user.roles);
+        console.log("user",this.appService.user.su);
+        console.log("webApp",webApp);
+/*        if((this.appService.user && this.appService.user.roles && this.appService.user.roles.length > 0 && this.appService.user.su) || (this.appService.global && this.appService.global.notSecure)){
+            return webApp;
+        }else {*/
+            return webApp.filter((webApp:DcmWebApp)=>{
+                if(_.hasIn(webApp,"dcmProperty") && webApp.dcmProperty.length > 0){
+                    //TODO
+                    return true;
+                }else{
+                    return true;
+                }
+            });
+        // }
+        // return webApp;
+    }
 }

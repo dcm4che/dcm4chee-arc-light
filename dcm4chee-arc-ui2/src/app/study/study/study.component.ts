@@ -61,6 +61,7 @@ import {ChangeDetectorRef} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
+import {filter} from "rxjs/operators";
 
 
 @Component({
@@ -242,6 +243,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     ngOnInit() {
+
         this.largeIntFormat = new LargeIntFormatPipe();
         if(this.service.selectedElements){
             this.selectedElements = this.service.selectedElements;
@@ -3236,6 +3238,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 };
                 return this.service.getWebApps(filter)
             })
+            .map(webApp=> this.service.webAppHasPermission(webApp))
             .subscribe(
                 (webApps:DcmWebApp[])=> {
                     this.studyWebService = new StudyWebService({
