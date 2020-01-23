@@ -854,24 +854,20 @@ public class UPSServiceEJB {
     private void createOnHL7(
             Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7, String iuid) {
-        Attributes upsAttrs = createOnHL7(arcHL7App, msg, hl7Fields, now, upsOnHL7);
-        if (upsAttrs == null)
+        Attributes attrs = applyXSLT(arcHL7App, msg, upsOnHL7);
+        if (attrs.size() == 0)
             return;
 
         UPSContext ctx = new UPSContextImpl(socket, arcHL7App);
         ctx.setUPSInstanceUID(iuid);
-        ctx.setAttributes(upsAttrs);
+        ctx.setAttributes(createOnHL7(arcHL7App, attrs, hl7Fields, now, upsOnHL7));
         UPS ups = createUPS(ctx);
         LOG.info("{}: Create {}", socket, ups);
     }
 
     private static Attributes createOnHL7(
-            ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
+            ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
-        Attributes attrs = applyXSLT(arcHL7App, msg, upsOnHL7);
-        if (attrs.size() == 0)
-            return null;
-
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
         if (upsOnHL7.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime))
