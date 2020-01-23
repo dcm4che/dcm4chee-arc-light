@@ -2299,7 +2299,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 let msg;
                 if(matching){
                     service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',undefined,this.createStudyFilterParams(true,true))
-                    msg = "Access Control ID updated successfully to matching study!";
+                    msg = "Access Control ID updated successfully to matching studies";
                 }else{
                     if(mode === "update_access_control_id_to_selections"){
                         service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null')
@@ -2312,7 +2312,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.start();
                 service.subscribe(res=>{
                     this.cfpLoadingBar.complete();
+                    if(matching){
+                        msg = j4care.prepareCountMessage(msg, res);
+                    }
                     this.appService.showMsg(msg);
+                    if(mode === "update_access_control_id_to_selections"){
+                        this.clearClipboard();
+                    }
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
