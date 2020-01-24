@@ -432,14 +432,6 @@
           "description": "Indicates that the Q/R Services of the AE hides instances not rejected by any reason; false if absent",
           "type": "boolean"
         },
-        "dcmAcceptedUserRole": {
-          "title": "Accepted User Roles",
-          "description": "Roles of users from which web requests are accepted; any if absent",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "dcmAllowDeletePatient": {
           "title": "Allow Delete Patient",
           "description": "Indicates policy for Allow Permanent Deletion of Patients; WITHOUT_STUDIES by default",

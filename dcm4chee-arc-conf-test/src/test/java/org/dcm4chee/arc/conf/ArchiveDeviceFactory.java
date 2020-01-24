@@ -1049,8 +1049,8 @@ class ArchiveDeviceFactory {
                     new Code[0],
                     true);
 
-    static final String[] USER_AND_ADMIN = { "user", "admin" };
-    static final String[] ONLY_ADMIN = { "admin" };
+    static final String USER_AND_ADMIN = "user,admin";
+    static final String ONLY_ADMIN = "admin";
 
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
@@ -1431,22 +1431,22 @@ class ArchiveDeviceFactory {
 
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, true, null,
-                configType, USER_AND_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, false, null,
-                configType, USER_AND_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, false,
                 new ArchiveAttributeCoercion()
@@ -1454,80 +1454,76 @@ class ArchiveDeviceFactory {
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCP)
                         .setRetrieveAsReceived(true),
-                configType, ONLY_ADMIN));
+                configType));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE,
+                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, USER_AND_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
-        if (configType == configType.DOCKER) {
-            webapp.setProperty("IID_PATIENT_URL", "");
-            webapp.setProperty("IID_STUDY_URL", "");
-        }
         device.addWebApplication(webapp);
 
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE,
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, USER_AND_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
-                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE",
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", IOCM_REGULAR_USE_DESC,
-                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE",
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
-                "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED",
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/rs", "IOCM_EXPIRED", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_EXPIRED-WADO", IOCM_EXPIRED_DESC,
-                "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED",
+                "/dcm4chee-arc/aets/IOCM_EXPIRED/wado", "IOCM_EXPIRED", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_QUALITY", IOCM_QUALITY_DESC,
-                "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY",
+                "/dcm4chee-arc/aets/IOCM_QUALITY/rs", "IOCM_QUALITY", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_QUALITY-WADO", IOCM_QUALITY_DESC,
-                "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY",
+                "/dcm4chee-arc/aets/IOCM_QUALITY/wado", "IOCM_QUALITY", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
-                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY",
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs", "IOCM_PAT_SAFETY", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_PAT_SAFETY-WADO", IOCM_PAT_SAFETY_DESC,
-                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY",
+                "/dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado", "IOCM_PAT_SAFETY", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
-                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL",
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/rs", "IOCM_WRONG_MWL", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_WRONG_MWL-WADO", IOCM_WRONG_MWL_DESC,
-                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL",
+                "/dcm4chee-arc/aets/IOCM_WRONG_MWL/wado", "IOCM_WRONG_MWL", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("AS_RECEIVED", AS_RECEIVED_DESC,
-                "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED",
+                "/dcm4chee-arc/aets/AS_RECEIVED/rs", "AS_RECEIVED", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("AS_RECEIVED-WADO", AS_RECEIVED_DESC,
-                "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED",
+                "/dcm4chee-arc/aets/AS_RECEIVED/wado", "AS_RECEIVED", ONLY_ADMIN,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("dcm4chee-arc", "Forward Reschedule Task(s)",
-                "/dcm4chee-arc", null,
+                "/dcm4chee-arc", null, null,
                 WebApplication.ServiceClass.DCM4CHEE_ARC));
         return device;
     }
@@ -1546,13 +1542,14 @@ class ArchiveDeviceFactory {
     }
 
     private static WebApplication createWebApp(
-            String name, String desc, String path, String aet,
+            String name, String desc, String path, String aet, String acceptedUserRoles,
             WebApplication.ServiceClass... serviceClasses) {
         WebApplication webapp = new WebApplication(name);
         webapp.setDescription(desc);
         webapp.setServicePath(path);
         webapp.setAETitle(aet);
         webapp.setServiceClasses(serviceClasses);
+        if (acceptedUserRoles != null) webapp.setProperty("roles", acceptedUserRoles);
         return webapp;
     }
 
@@ -2083,10 +2080,9 @@ class ArchiveDeviceFactory {
     }
 
     private static ApplicationEntity createAE(String aet, String description,
-                                              Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-                                              boolean storeSCP, boolean storeSCU, boolean mwlSCP, boolean upsSCP,
-                                              ArchiveAttributeCoercion coercion, ConfigType configType,
-                                              String... acceptedUserRoles) {
+            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
+            boolean storeSCP, boolean storeSCU, boolean mwlSCP, boolean upsSCP,
+            ArchiveAttributeCoercion coercion, ConfigType configType) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -2139,7 +2135,6 @@ class ArchiveDeviceFactory {
             aeExt.setObjectStorageIDs(STORAGE_ID);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
-        aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (coercion != null)
             aeExt.addAttributeCoercion(coercion);
         return ae;

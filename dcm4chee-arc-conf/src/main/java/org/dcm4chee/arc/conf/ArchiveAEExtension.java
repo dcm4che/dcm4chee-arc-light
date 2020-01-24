@@ -146,7 +146,6 @@ public class ArchiveAEExtension extends AEExtension {
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
-    private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
@@ -866,28 +865,6 @@ public class ArchiveAEExtension extends AEExtension {
         return acceptedMoveDestinations.isEmpty() || acceptedMoveDestinations.contains(aet);
     }
 
-    public String[] getAcceptedUserRoles() {
-        return acceptedUserRoles.toArray(
-                new String[acceptedUserRoles.size()]);
-    }
-
-    public void setAcceptedUserRoles(String... roles) {
-        acceptedUserRoles.clear();
-        for (String name : roles)
-            acceptedUserRoles.add(name);
-    }
-
-    public boolean isAcceptedUserRole(String... roles) {
-        if (acceptedUserRoles.isEmpty())
-            return true;
-
-        for (String role : roles)
-            if (acceptedUserRoles.contains(role))
-                return true;
-
-        return false;
-    }
-
     public void removeUPSOnStore(UPSOnStore rule) {
         upsOnStoreList.remove(rule);
     }
@@ -1575,8 +1552,6 @@ public class ArchiveAEExtension extends AEExtension {
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
-        acceptedUserRoles.clear();
-        acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         upsOnStoreList.clear();
         upsOnStoreList.addAll(aeExt.upsOnStoreList);
         exportRules.clear();

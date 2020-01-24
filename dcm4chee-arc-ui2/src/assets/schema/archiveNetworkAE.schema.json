@@ -320,14 +320,6 @@
         "ONLY_EXPIRED"
       ]
     },
-    "dcmAcceptedUserRole": {
-      "title": "Accepted User Role",
-      "description": "Roles of users from which web requests are accepted; any if absent.",
-      "type": "array",
-      "items" : {
-        "type": "string"
-      }
-    },
     "dcmAllowDeleteStudyPermanently": {
       "title": "Allow Delete Study permanently",
       "description": "Allow to delete Study permanently. REJECTED = only already rejected Studies. Overwrites value specified on Device level.",

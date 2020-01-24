@@ -1356,7 +1356,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorePermissionServiceResponsePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 ext.getAllowRejectionForDataRetentionPolicyExpired(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID",
                 ext.getAcceptMissingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently",
@@ -1491,7 +1490,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
-        ext.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
         ext.setAllowDeleteStudyPermanently(
@@ -1665,8 +1663,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(),
                 bb.getAllowRejectionForDataRetentionPolicyExpired(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
-                aa.getAcceptedUserRoles(), bb.getAcceptedUserRoles());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptMissingPatientID",
                 aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently",

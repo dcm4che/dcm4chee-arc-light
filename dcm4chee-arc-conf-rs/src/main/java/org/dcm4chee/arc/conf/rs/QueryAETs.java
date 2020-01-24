@@ -108,7 +108,6 @@ public class QueryAETs {
             QueryRetrieveView queryRetrieveView = arcAE.getQueryRetrieveView();
             writer.writeNotDef("dcmHideNotRejectedInstances",
                     queryRetrieveView != null && queryRetrieveView.isHideNotRejectedInstances(), false);
-            writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
             writer.writeNotNullOrDef("dcmAllowDeletePatient", arcAE.allowDeletePatient(), null);
             writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcAE.allowDeleteStudy(), null);
         }
