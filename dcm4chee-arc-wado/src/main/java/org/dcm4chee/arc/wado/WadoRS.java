@@ -47,6 +47,7 @@ import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
@@ -55,6 +56,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -416,6 +418,26 @@ public class WadoRS {
                 request.getRemoteHost());
     }
 
+    private void validateWebApp() {
+        WebApplication webApplication = device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.WADO_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with WADO_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+
+        if (headers.getRequestHeader("Authorization") != null
+                && webApplication.getProperties().containsKey("roles"))
+            Arrays.stream(webApplication.getProperties().get("roles").split(","))
+                    .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Web Application with WADO_RS service class does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
+    }
+
     private void initAcceptableMediaTypes() {
         acceptableMediaTypes = MediaTypeUtils.acceptableMediaTypesOf(headers, accept);
         acceptableMultipartRelatedMediaTypes = acceptableMediaTypes.stream()
@@ -483,6 +505,7 @@ public class WadoRS {
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
             int[] attributePath, String includefields, AsyncResponse ar) {
         logRequest();
+        validateWebApp();
         checkAET();
         Output output = target.output(this);
         try {

@@ -38,10 +38,11 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import org.dcm4che3.util.StringUtils;
 import org.keycloak.KeycloakSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -75,9 +76,9 @@ public class KeycloakContext {
         return ksc != null ? ksc.getToken().getExpiration() : 0;
     }
 
-    public String[] getUserRoles() {
+    public Set<String> getUserRoles() {
         return ksc != null
-                ? ksc.getToken().getRealmAccess().getRoles().toArray(StringUtils.EMPTY_STRING)
-                : StringUtils.EMPTY_STRING;
+                ? ksc.getToken().getRealmAccess().getRoles()
+                : Collections.emptySet();
     }
 }

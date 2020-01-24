@@ -45,9 +45,9 @@ import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -80,7 +81,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -372,7 +372,7 @@ public class QidoRS {
                 while (studyPks.hasNext())
                     ctx.getQueryService().calculateStudySize(studyPks.next());
             } catch (Exception e) {
-                return errResponseAsTextPlain(e);
+                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
             }
             return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
         }
@@ -387,7 +387,7 @@ public class QidoRS {
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -396,6 +396,7 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
+        validateWebApp();
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         try {
@@ -444,7 +445,7 @@ public class QidoRS {
                         .build();
             }
         } catch (Exception e) {
-            return errResponseAsTextPlain(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -458,6 +459,26 @@ public class QidoRS {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private void validateWebApp() {
+        WebApplication webApplication = device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                                    && Arrays.asList(webApp.getServiceClasses())
+                                        .contains(WebApplication.ServiceClass.QIDO_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with QIDO_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+
+        if (headers.getRequestHeader("Authorization") != null
+                && webApplication.getProperties().containsKey("roles"))
+            Arrays.stream(webApplication.getProperties().get("roles").split(","))
+                .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "Web Application with QIDO_RS service class does not list role of accessing user",
+                        Response.Status.FORBIDDEN)));
     }
 
     private Output selectMediaType() {
@@ -542,9 +563,9 @@ public class QidoRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -868,9 +889,13 @@ public class QidoRS {
         return match;
     }
 
-    private Response errResponseAsTextPlain(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(exceptionAsString(e))
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        return Response.status(status)
+                .entity(errorMsg)
                 .type("text/plain")
                 .build();
     }

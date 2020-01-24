@@ -53,12 +53,14 @@ import org.dcm4che3.mime.MultipartParser;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -75,6 +77,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
@@ -122,6 +125,9 @@ public class StowRS {
 
     @Inject
     private Device device;
+
+    @Context
+    private HttpHeaders headers;
 
     @HeaderParam("Content-Type")
     private MediaType contentType;
@@ -270,6 +276,7 @@ public class StowRS {
 
     private void store(AsyncResponse ar, InputStream in, final Input input, OutputType output)  throws Exception {
         logRequest();
+        validateWebApp();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), getApplicationEntity(), null);
@@ -319,6 +326,26 @@ public class StowRS {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private void validateWebApp() {
+        WebApplication webApplication = device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.STOW_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with STOW_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+
+        if (headers.getRequestHeader("Authorization") != null
+                && webApplication.getProperties().containsKey("roles"))
+            Arrays.stream(webApplication.getProperties().get("roles").split(","))
+                    .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Web Application with STOW_RS service class does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
     }
 
     private void purgeSpoolDirectory() {

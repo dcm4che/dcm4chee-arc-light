@@ -47,10 +47,12 @@ import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
@@ -116,6 +118,9 @@ public class WadoURI {
 
     @Context
     private Request req;
+
+    @Context
+    private HttpHeaders headers;
 
     @PathParam("AETitle")
     private String aet;
@@ -199,6 +204,7 @@ public class WadoURI {
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         logRequest();
+        validateWebApp();
         try {
             checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
@@ -230,6 +236,26 @@ public class WadoURI {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private void validateWebApp() {
+        WebApplication webApplication = device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.WADO_URI))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with WADO_URI service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+
+        if (headers.getRequestHeader("Authorization") != null
+                && webApplication.getProperties().containsKey("roles"))
+            Arrays.stream(webApplication.getProperties().get("roles").split(","))
+                    .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
+                    .findFirst()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Web Application with WADO_URI service class does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
     }
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
