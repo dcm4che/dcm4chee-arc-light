@@ -69,7 +69,8 @@ export class StudyService {
     ) {}
 
     getWebApps(filter?:any) {
-        return this.webAppListService.getWebApps(filter);
+        return this.webAppListService.getWebApps(filter)
+            .map(webApp=> this.webAppHasPermission(webApp));
     }
 
     getEntrySchema(devices, aetWebService): { schema: FilterSchema, lineLength: number } {

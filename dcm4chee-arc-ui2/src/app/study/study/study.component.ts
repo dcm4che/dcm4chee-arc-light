@@ -3238,7 +3238,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 };
                 return this.service.getWebApps(filter)
             })
-            .map(webApp=> this.service.webAppHasPermission(webApp))
             .subscribe(
                 (webApps:DcmWebApp[])=> {
                     this.studyWebService = new StudyWebService({
