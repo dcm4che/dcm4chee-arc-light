@@ -3424,22 +3424,59 @@ export class StudyService {
         }
     }
 
-    webAppHasPermission(webApp:DcmWebApp[]){
+    webAppHasPermission(webApps:DcmWebApp[]){
         console.log("user",this.appService.user.roles);
         console.log("user",this.appService.user.su);
-        console.log("webApp",webApp);
-/*        if((this.appService.user && this.appService.user.roles && this.appService.user.roles.length > 0 && this.appService.user.su) || (this.appService.global && this.appService.global.notSecure)){
-            return webApp;
-        }else {*/
-            return webApp.filter((webApp:DcmWebApp)=>{
-                if(_.hasIn(webApp,"dcmProperty") && webApp.dcmProperty.length > 0){
-                    //TODO
-                    return true;
-                }else{
-                    return true;
-                }
-            });
-        // }
+        console.log("webApp",webApps);
+        if((this.appService.user && this.appService.user.roles && this.appService.user.roles.length > 0 && this.appService.user.su) || (this.appService.global && this.appService.global.notSecure)){
+            return webApps;
+        }else {
+            let webAppsHasRoleDefined = 0;
+            let filteredWebApps = webApps.filter((webApp:DcmWebApp)=>{
+                    if(_.hasIn(webApp,"dcmProperty") && webApp.dcmProperty.length > 0){
+                        let check:boolean = false;
+                        let webAppRoles = this.getWebAppRoles(webApp) || [];
+                        if(webAppRoles.length > 0){
+                            webAppsHasRoleDefined++;
+                        }
+                        webAppRoles.forEach(role=>{
+                            check = check || this.appService.user.roles.indexOf(role) > -1;
+                        });
+                        return check;
+                    }
+                });
+
+            if(webAppsHasRoleDefined > 0){
+                return filteredWebApps
+            }else{
+                return webApps;
+            }
+        }
         // return webApp;
+    }
+
+    getWebAppRoles(webApp):string[]{
+        try{
+            const regex = /roles=(.*)/gm;
+            const regex2 = /(\w+)/gm;
+            let roles = [];
+            let m,m2;
+            while ((m = regex.exec(webApp.dcmProperty)) !== null) {
+                if (m.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                while ((m2 = regex2.exec(m[1])) !== null) {
+                    if (m2.index === regex2.lastIndex) {
+                        regex2.lastIndex++;
+                    }
+                    roles.push(m2[1]);
+                }
+            }
+            return roles;
+        }catch (e) {
+            console.log("webApp=",webApp);
+            j4care.log("Something went wrong on extracting roles from dcmProperty of WebApp",e);
+            return [];
+        }
     }
 }
