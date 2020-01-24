@@ -126,7 +126,7 @@
       "title": "XSL Stylesheet URI",
       "description": "Specifies URI of the XSL style sheet to to transcode received HL7 message to include attributes in created UPS.",
       "type": "string",
-      "default": "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl"
+      "default": "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2ups.xsl"
     }
   }
 }

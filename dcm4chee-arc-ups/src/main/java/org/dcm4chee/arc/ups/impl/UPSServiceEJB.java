@@ -870,9 +870,9 @@ public class UPSServiceEJB {
             Calendar now, UPSOnHL7 upsOnHL7) {
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
-        if (upsOnHL7.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime))
+        if (upsOnHL7.getCompletionDateTimeDelay() != null)
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsOnHL7.getCompletionDateTimeDelay()));
-        if (upsOnHL7.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+        if (upsOnHL7.getScheduledHumanPerformer() != null)
             attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
                     .add(upsOnHL7.getScheduledHumanPerformerItem(hl7Fields));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
@@ -888,10 +888,7 @@ public class UPSServiceEJB {
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
             attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsOnHL7.getUPSPriority().name());
-        if (attrs.containsValue(Tag.StudyInstanceUID))
-            attrs.newSequence(Tag.ReferencedRequestSequence, 1)
-                    .add(referencedRequest(upsOnHL7, hl7Fields, attrs));
-        else {
+        if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             attrs.setNull(Tag.StudyInstanceUID, VR.UI);
             attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
         }
@@ -899,49 +896,8 @@ public class UPSServiceEJB {
             attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(arcHL7App, hl7Fields, upsOnHL7));
         if (!attrs.contains(Tag.ProcedureStepLabel))
             attrs.setString(Tag.ProcedureStepLabel, VR.LO, upsOnHL7.getProcedureStepLabel(hl7Fields));
-        attrs.removeSelected(REMOVE_FROM_UPS_ROOT);
         return attrs;
     }
-
-    private static Attributes referencedRequest(UPSOnHL7 upsOnHL7, HL7Fields hl7Fields, Attributes attrs) {
-        Attributes item = new Attributes(8);
-        item.setString(Tag.StudyInstanceUID, VR.SH, attrs.getString(Tag.StudyInstanceUID));
-        item.setString(Tag.AccessionNumber, VR.SH, attrs.getString(Tag.AccessionNumber));
-        setSequence(item, Tag.IssuerOfAccessionNumberSequence, attrs);
-        setNotNull(item, Tag.RequestingPhysician, VR.PN, attrs.getString(Tag.RequestingPhysician));
-        setNotNull(item, Tag.ReferringPhysicianName, VR.PN, attrs.getString(Tag.ReferringPhysicianName));
-        setNotNull(item, Tag.RequestingService, VR.LO, upsOnHL7.getRequestingService(hl7Fields));
-        item.setString(Tag.RequestedProcedureDescription, VR.LO, attrs.getString(Tag.RequestedProcedureDescription));
-        setSequence(item, Tag.RequestedProcedureCodeSequence, attrs);
-        setSequence(item, Tag.ReasonForRequestedProcedureCodeSequence, attrs);
-        item.setString(Tag.RequestedProcedureID, VR.SH, attrs.getString(Tag.RequestedProcedureID));
-        item.setString(Tag.PlacerOrderNumberImagingServiceRequest, VR.LO, attrs.getString(Tag.PlacerOrderNumberImagingServiceRequest));
-        setSequence(item, Tag.OrderPlacerIdentifierSequence, attrs);
-        item.setString(Tag.FillerOrderNumberImagingServiceRequest, VR.LO, attrs.getString(Tag.FillerOrderNumberImagingServiceRequest));
-        setSequence(item, Tag.OrderFillerIdentifierSequence, attrs);
-        return item;
-    }
-
-    static int[] REMOVE_FROM_UPS_ROOT = {
-            Tag.AccessionNumber,
-            Tag.IssuerOfAccessionNumberSequence,
-            Tag.RequestedProcedureID,
-            Tag.RequestedProcedureDescription,
-            Tag.RequestedProcedureCodeSequence,
-            Tag.RequestingPhysician,
-            Tag.ScheduledProcedureStepSequence,
-            Tag.ScheduledProcedureStepStatus,
-            Tag.ScheduledPerformingPhysicianName,
-            Tag.PatientTransportArrangements,
-            Tag.ReasonForTheRequestedProcedure,
-            Tag.ReasonForRequestedProcedureCodeSequence,
-            Tag.RequestedProcedurePriority,
-            Tag.PlacerOrderNumberImagingServiceRequest,
-            Tag.OrderPlacerIdentifierSequence,
-            Tag.FillerOrderNumberImagingServiceRequest,
-            Tag.OrderFillerIdentifierSequence,
-            Tag.ReferringPhysicianName
-    };
 
     private static void setNotNull(Attributes item, int tag, VR vr, String value) {
         if (value != null) {
@@ -978,8 +934,7 @@ public class UPSServiceEJB {
     }
 
     private static Date spsStartDateTime(Calendar now, UPSOnHL7 upsOnHL7, Attributes attrs) {
-        Date spsStartDateTime = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence)
-                                        .getDate(Tag.ScheduledProcedureStepStartDateAndTime);
+        Date spsStartDateTime = attrs.getDate(Tag.ScheduledProcedureStepStartDateTime);
         return spsStartDateTime != null ? spsStartDateTime : add(now, upsOnHL7.getStartDateTimeDelay());
     }
 

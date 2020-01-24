@@ -516,4 +516,18 @@
       </DicomAttribute>
     </xsl:if>
   </xsl:template>
+  <xsl:template name="attrDT">
+    <xsl:param name="dtTag"/>
+    <xsl:param name="val"/>
+    <xsl:variable name="str" select="normalize-space($val)" />
+    <xsl:if test="$str">
+      <DicomAttribute tag="{$dtTag}" vr="DT">
+        <Value number="1">
+          <xsl:if test="$str != '&quot;&quot;'">
+            <xsl:value-of select="$str"/>
+          </xsl:if>
+        </Value>
+      </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
 </xsl:stylesheet>
