@@ -338,7 +338,7 @@ public class StowRS {
                         "No Web Application with STOW_RS service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
 
-        if (headers.getRequestHeader("Authorization") != null
+        if (!headers.getRequestHeader("Authorization").isEmpty()
                 && webApplication.getProperties().containsKey("roles"))
             Arrays.stream(webApplication.getProperties().get("roles").split(","))
                     .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
