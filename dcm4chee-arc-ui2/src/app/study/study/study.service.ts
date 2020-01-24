@@ -3425,34 +3425,27 @@ export class StudyService {
     }
 
     webAppHasPermission(webApps:DcmWebApp[]){
-        console.log("user",this.appService.user.roles);
-        console.log("user",this.appService.user.su);
-        console.log("webApp",webApps);
         if((this.appService.user && this.appService.user.roles && this.appService.user.roles.length > 0 && this.appService.user.su) || (this.appService.global && this.appService.global.notSecure)){
             return webApps;
         }else {
-            let webAppsHasRoleDefined = 0;
-            let filteredWebApps = webApps.filter((webApp:DcmWebApp)=>{
+            return webApps.filter((webApp:DcmWebApp)=>{
                     if(_.hasIn(webApp,"dcmProperty") && webApp.dcmProperty.length > 0){
-                        let check:boolean = false;
-                        let webAppRoles = this.getWebAppRoles(webApp) || [];
-                        if(webAppRoles.length > 0){
-                            webAppsHasRoleDefined++;
+                        let roles = this.getWebAppRoles(webApp) || [];
+                        if(roles.length > 0){
+                            let check:boolean = false;
+                            roles.forEach(role=>{
+                                check = check || this.appService.user.roles.indexOf(role) > -1;
+                            });
+                            return check;
+                        }else{
+                            j4care.log("No role found in the property dcmProperty of WebApp",webApp);
+                            return true;
                         }
-                        webAppRoles.forEach(role=>{
-                            check = check || this.appService.user.roles.indexOf(role) > -1;
-                        });
-                        return check;
+                    }else{
+                        return true;
                     }
                 });
-
-            if(webAppsHasRoleDefined > 0){
-                return filteredWebApps
-            }else{
-                return webApps;
-            }
         }
-        // return webApp;
     }
 
     getWebAppRoles(webApp):string[]{
