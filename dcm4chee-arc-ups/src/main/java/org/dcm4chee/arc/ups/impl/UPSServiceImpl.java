@@ -359,7 +359,7 @@ public class UPSServiceImpl implements UPSService {
         Calendar now = Calendar.getInstance();
         arcHL7App.upsOnHL7Stream()
                 .filter(upsOnHL7 -> upsOnHL7.match(host, hl7Fields))
-                .forEach(upsOnHL7 -> ejb.createOrUpdateOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
+                .forEach(upsOnHL7 -> ejb.createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
     }
 
     boolean websocketChannelsExists(String subscriberAET) {

@@ -837,15 +837,14 @@ public class UPSServiceEJB {
         return item;
     }
 
-    public void createOrUpdateOnHL7(
+    public void createOnHL7(
             Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
         LOG.info("{}: Apply {}", socket, upsOnHL7);
         String iuid = upsOnHL7.getInstanceUID(hl7Fields);
         try {
             UPS ups = findUPS(iuid);
-            LOG.info("update existing {}", ups);
-            //TODO
+            LOG.info("UPS {} exists, return", ups);
         } catch (NoResultException e) {
             createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7, iuid);
         }
