@@ -62,6 +62,7 @@ public class UIConfig {
     private Map<String, UIDeviceCluster> deviceCluster = new HashMap<>();
     private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
     private Map<String, UIAetList> aetList  = new HashMap<>();
+    private Map<String, UIWebAppList> webAppList  = new HashMap<>();
 
     public UIConfig() {
     }
@@ -227,6 +228,9 @@ public class UIConfig {
     public void setAetList(Map<String, UIAetList> aetList) {
         this.aetList = aetList;
     }
+    public void setWebAppList(Map<String, UIWebAppList> webAppList) {
+        this.webAppList = webAppList;
+    }
 
 
 
@@ -234,15 +238,30 @@ public class UIConfig {
         return this.aetList.get(name);
     }
 
+    public UIWebAppList getWebAppList(String name) {
+        return this.getWebAppList(name);
+    }
+
     public void addAetList(UIAetList aetList) {
         this.aetList.put(aetList.getAetListName(), aetList);
+    }
+    public void addWebAppList(UIWebAppList webAppList) {
+        this.webAppList.put(webAppList.getWebAppListName(),webAppList);
     }
 
     public UIAetList removeAetList(String name){
         return this.aetList.remove(name);
     }
 
+    public UIWebAppList removeWebAppList(String name){
+        return this.webAppList.remove(name);
+    }
+
     public Collection<UIAetList> getAetLists() {
         return this.aetList.values();
+    }
+
+    public Collection<UIWebAppList> getWebAppLists(){
+        return this.webAppList.values();
     }
 }

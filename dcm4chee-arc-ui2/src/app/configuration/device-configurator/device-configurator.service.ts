@@ -17,6 +17,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {DevicesService} from "../devices/devices.service";
 import {element} from "protractor";
+import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -31,7 +32,8 @@ export class DeviceConfiguratorService{
         private mainservice:AppService,
         private deviceService:DevicesService,
         private aeListService:AeListService,
-        private hl7service:Hl7ApplicationsService
+        private hl7service:Hl7ApplicationsService,
+        private webAppListService:WebAppsListService
     ) {
         this.pagination = [
             {
@@ -56,6 +58,16 @@ export class DeviceConfiguratorService{
                 }
             }else{
                 switch (i) {
+/*                    case 'webApp':
+                        this.getFormaterValue['webApp'] = {};
+                        this.getFormaterValue['webApp'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'webApp')){
+                                return Observable.of(this.mainservice.global.webApp);
+                            }else{
+                                return this.webAppListService.getWebApps();
+                            }
+                        };
+                        break;*/
                     case 'dcmAETitle':
                         this.getFormaterValue['dcmAETitle'] = {};
                         this.getFormaterValue['dcmAETitle'] = (device)=>{
@@ -612,7 +624,7 @@ export class DeviceConfiguratorService{
                             );
                         }
                     }else{
-                        if(_.hasIn(m, "format")  && (m.format === 'dcmAETitle' || m.format === 'dicomDeviceName' || m.format === 'hl7ApplicationName')){
+                        if(_.hasIn(m, "format")  && (m.format === 'dcmAETitle' || m.format === 'dicomDeviceName' || m.format === 'hl7ApplicationName' || m.format === "webApp")){
                             form.push({
                                 controlType: 'dynamiccheckbox',
                                 key: i,
@@ -964,7 +976,7 @@ export class DeviceConfiguratorService{
                                     });
                                 }else{
                                     let type = (_.hasIn(m, 'items.type')) ? m.items.type : 'text';
-                                    if(m.format === 'dicomDeviceName' || m.format === 'dcmAETitle' || m.format === 'hl7ApplicationName'){
+                                    if(m.format === 'dicomDeviceName' || m.format === 'dcmAETitle' || m.format === 'hl7ApplicationName' || m.format === 'webApp'){
                                         form.push({
                                             controlType: 'dynamiccheckbox',
                                             key: i,

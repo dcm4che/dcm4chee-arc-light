@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {Hl7ApplicationsService} from "../../configuration/hl7-applications/hl7-applications.service";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import "rxjs/add/observable/of";
+import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
 
 @Injectable()
 export class DynamicFieldService {
@@ -14,7 +15,8 @@ export class DynamicFieldService {
       private mainservice:AppService,
       private deviceService:DevicesService,
       private aeListService:AeListService,
-      private hl7service:Hl7ApplicationsService
+      private hl7service:Hl7ApplicationsService,
+      private webAppListService:WebAppsListService
   ) { }
     getDevice(){
         if(_.hasIn(this.mainservice.global,'devices')){
@@ -35,6 +37,13 @@ export class DynamicFieldService {
             return Observable.of(this.mainservice.global.hl7);
         }else{
             return this.hl7service.getHl7ApplicationsList('');
+        }
+    }
+    getWebApp(){
+        if(_.hasIn(this.mainservice.global,'webApp')){
+            return Observable.of(this.mainservice.global.webApp);
+        }else{
+            return this.webAppListService.getWebApps();
         }
     }
 }

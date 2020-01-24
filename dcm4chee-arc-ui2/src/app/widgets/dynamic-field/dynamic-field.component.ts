@@ -33,6 +33,10 @@ export class DynamicFieldComponent implements OnInit {
                 this.key = 'dicomAETitle';
                 this.getObject('getAets');
             break;
+            case 'webApp':
+                this.key = 'dcmWebAppName';
+                this.getObject('getWebApp');
+            break;
             case 'dicomDeviceName':
                 this.key = 'dicomDeviceName';
                 this.getObject('getDevice');
@@ -69,32 +73,32 @@ export class DynamicFieldComponent implements OnInit {
         }
         this.loader = true;
         this.service[functionName]().subscribe((res)=>{
-          this.elements = res;
-          this.loader = false;
-        console.log("element",this.elements);
-        console.log("element",this.model);
-        console.log("checked",this.checked);
-        if(this.checked && _.isArray(this.checked) && this.checked.length > 1){
-            this.checked.forEach(c=>{
-                let found = false;
-                this.elements.forEach(e =>{
-                    if(c === e[this.key]){
-                        found = true;
+            this.elements = res;
+            this.loader = false;
+            console.log("element",this.elements);
+            console.log("element",this.model);
+            console.log("checked",this.checked);
+            if(this.checked && _.isArray(this.checked) && this.checked.length > 1){
+                this.checked.forEach(c=>{
+                    let found = false;
+                    this.elements.forEach(e =>{
+                        if(c === e[this.key]){
+                            found = true;
+                        }
+                    });
+                    if(!found){
+                        this.warning = true;
                     }
                 });
-                if(!found){
-                    this.warning = true;
-                }
-            });
-        }
-          this.detectChanges();
-          if(this.type === 'array' && this.elementView && this.elementView.nativeElement){
+            }
+            this.detectChanges();
+            if(this.type === 'array' && this.elementView && this.elementView.nativeElement){
               let height = this.elementView.nativeElement.offsetHeight;
               if(height > 200){
                   this.longMode = true;
                   this.detectChanges();
               }
-          }
+            }
         },(err)=>{
           this.loader = false;
         });

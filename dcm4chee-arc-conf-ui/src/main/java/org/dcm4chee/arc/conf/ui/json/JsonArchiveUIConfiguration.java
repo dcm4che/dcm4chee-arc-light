@@ -94,6 +94,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
         writeUIAetList(writer, uiConfig.getAetLists());
+        writeUIWebAppList(writer, uiConfig.getWebAppLists());
         writer.writeEnd();
     }
 
@@ -124,6 +125,21 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiMode", uiAetList.getMode(), null);
             writer.writeNotEmpty("dcmuiAets", uiAetList.getAets());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiAetList.getAcceptedRole());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIWebAppList(JsonWriter writer, Collection<UIWebAppList> uiWebAppLists) {
+        if (uiWebAppLists.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiWebAppConfig");
+        for (UIWebAppList uiWebAppList : uiWebAppLists) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiWebAppListName", uiWebAppList.getWebAppListName(), null);
+            writer.writeNotNullOrDef("dcmuiWebAppListDescription", uiWebAppList.getWebAppListDescription(), null);
+            writer.writeNotEmpty("dcmuiWebApps", uiWebAppList.getWebApps());
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiWebAppList.getAcceptedRole());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -323,6 +339,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiAetConfig":
                     loadUIAetList(uiConfig, reader);
                     break;
+                case "dcmuiWebAppConfig":
+                    loadUIWebAppList(uiConfig, reader);
+                    break;
                 case "dcmuiDiffConfig":
                     loadUIDiffConfigs(uiConfig, reader);
                     break;
@@ -406,6 +425,35 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addAetList(uiAetList);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIWebAppList(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIWebAppList uiWebAppList = new UIWebAppList();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiWebAppListName":
+                        uiWebAppList.setWebAppListName(reader.stringValue());
+                        break;
+                    case "dcmuiWebAppListDescription":
+                        uiWebAppList.setWebAppListDescription(reader.stringValue());
+                        break;
+                    case "dcmuiWebApps":
+                        uiWebAppList.setWebApps(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiWebAppList.setAcceptedRole(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addWebAppList(uiWebAppList);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

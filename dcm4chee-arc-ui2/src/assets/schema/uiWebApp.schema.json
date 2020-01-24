@@ -1,0 +1,39 @@
+{
+  "title": "Web App drop-down list",
+  "description": "Web App drop-down list",
+  "type": "object",
+  "required": [
+    "dcmuiWebAppListName",
+    "dcmuiWebApps",
+    "dcmAcceptedUserRole"
+  ],
+  "properties": {
+    "dcmuiWebAppListName": {
+      "title": "List Name",
+      "description": "Define a name for this config",
+      "type": "string"
+    },
+    "dcmuiWebAppListDescription": {
+      "title": "Description",
+      "description": "Web Application List description",
+      "type": "string"
+    },
+    "dcmuiWebApps": {
+      "title": "WebApps",
+      "description": "Web Application",
+      "format": "webApp",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "Accepted User Role",
+      "description": "Define the roles for which this config should be available, use 'user' to be available for all roles",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

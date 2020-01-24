@@ -99,6 +99,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
         storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
         storeAets(diffs, uiConfig, uiConfigDN);
+        storeWebApps(diffs, uiConfig, uiConfigDN);
 
     }
 
@@ -128,6 +129,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             ConfigurationChanges.ModifiedObject ldapObj1 =
                     ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiAetListDN, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(uiAetListDN, storeTo(ldapObj1, uiAets, new BasicAttributes(true)));
+        }
+    }
+    private void storeWebApps(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIWebAppList uiWebApps : uiConfig.getWebAppLists()) {
+            String uiWebAppListDN = LdapUtils.dnOf("dcmuiWebAppListName", uiWebApps.getWebAppListName(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiWebAppListDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiWebAppListDN, storeTo(ldapObj1, uiWebApps, new BasicAttributes(true)));
         }
     }
     private void storeDeviceURL(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
@@ -179,6 +189,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiMode", uiAetList.getMode(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiAets", uiAetList.getAets());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiAetList.getAcceptedRole());
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList uiWebAppList, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiWebAppConfig"));
+        attrs.put(new BasicAttribute("dcmuiWebAppListName", uiWebAppList.getWebAppListName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiWebAppListDescription", uiWebAppList.getWebAppListDescription(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiWebApps", uiWebAppList.getWebApps());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiWebAppList.getAcceptedRole());
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL uiDeviceURL, Attributes attrs) {
@@ -378,6 +396,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadDeviceClusters(uiConfig, uiConfigDN);
         loadFilterTemplates(uiConfig, uiConfigDN);
         loadAetList(uiConfig, uiConfigDN);
+        loadWebAppList(uiConfig, uiConfigDN);
         return uiConfig;
     }
 
@@ -411,6 +430,23 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiAetList.setAets(LdapUtils.stringArray(attrs.get("dcmuiAets")));
                 uiAetList.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
                 uiConfig.addAetList(uiAetList);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadWebAppList(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiWebAppConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIWebAppList uiWebAppList = new UIWebAppList((String) attrs.get("dcmuiWebAppListName").get());
+                uiWebAppList.setWebAppListDescription(LdapUtils.stringValue(attrs.get("dcmuiWebAppListDescription"), null));
+                uiWebAppList.setWebApps(LdapUtils.stringArray(attrs.get("dcmuiWebApps")));
+                uiWebAppList.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
+                uiConfig.addWebAppList(uiWebAppList);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -638,6 +674,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeAetLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeWebAppLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
@@ -701,6 +738,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIAetList, uiAetList,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+    private void mergeWebAppLists(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIWebAppList prevUIWebAppList : prevUIConfig.getWebAppLists()) {
+            String prevUIWebAppListName = prevUIWebAppList.getWebAppListName();
+            if (uiConfig.getWebAppList(prevUIWebAppListName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiWebAppListName", prevUIWebAppListName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIWebAppList uiWebAppList : uiConfig.getWebAppLists()) {
+            String uiWebAppListName = uiWebAppList.getWebAppListName();
+            String dn = LdapUtils.dnOf("uiWebAppListName", uiWebAppListName, uiConfigDN);
+            UIWebAppList prevUIWebAppList = prevUIConfig.getWebAppList(uiWebAppListName);
+            if (prevUIWebAppList == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiWebAppList, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIWebAppList, uiWebAppList,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -821,6 +887,19 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
                 prev.getAcceptedRole(),
                 uiAetList.getAcceptedRole());
+        return mods;
+    }
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList prev,
+                                              UIWebAppList uiWebAppList, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiWebAppListDescription",
+                prev.getWebAppListDescription(),
+                uiWebAppList.getWebAppListDescription(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiWebApps",
+                prev.getWebApps(),
+                uiWebAppList.getWebApps());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
+                prev.getAcceptedRole(),
+                uiWebAppList.getAcceptedRole());
         return mods;
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL prev,

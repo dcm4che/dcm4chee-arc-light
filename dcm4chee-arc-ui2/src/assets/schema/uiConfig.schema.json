@@ -51,6 +51,15 @@
         "$ref": "uiAet.schema.json"
       }
     },
+    "dcmuiWebAppConfig": {
+      "title": "Web App drop-down list",
+      "description": "Define which WebApps should be visible on the top of the drop-down list in the UI",
+      "titleKey":"{dcmuiWebAppListName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiWebApp.schema.json"
+      }
+    },
     "dcmuiPermission": {
       "title": "Permission",
       "description": "Permission",
