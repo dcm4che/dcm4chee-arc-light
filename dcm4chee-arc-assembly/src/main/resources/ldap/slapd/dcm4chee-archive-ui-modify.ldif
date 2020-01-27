@@ -327,6 +327,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.66 NAME 'dcmuiWebApps'
     DESC 'Web App Selected List'
     EQUALITY caseExactIA5Match
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.67  NAME 'dcmAcceptedUserName'
+  DESC 'Accpeted Username'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
@@ -463,7 +467,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.13 NAME 'dcmuiWebAppConfig'
   SUP top STRUCTURAL
   MUST (
     dcmuiWebAppListName $
+    dcmuiMode $
     dcmuiWebApps )
   MAY (
     dcmuiWebAppListDescription $
+    dcmAcceptedUserName $
     dcmAcceptedUserRole ) )

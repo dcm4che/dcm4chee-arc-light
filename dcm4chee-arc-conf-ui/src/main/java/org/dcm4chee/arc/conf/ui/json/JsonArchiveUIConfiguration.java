@@ -138,8 +138,10 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiWebAppListName", uiWebAppList.getWebAppListName(), null);
             writer.writeNotNullOrDef("dcmuiWebAppListDescription", uiWebAppList.getWebAppListDescription(), null);
+            writer.writeNotNullOrDef("dcmuiMode", uiWebAppList.getMode(), null);
             writer.writeNotEmpty("dcmuiWebApps", uiWebAppList.getWebApps());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiWebAppList.getAcceptedRole());
+            writer.writeNotEmpty("dcmAcceptedUserName", uiWebAppList.getAcceptedUserName());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -442,11 +444,17 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiWebAppListDescription":
                         uiWebAppList.setWebAppListDescription(reader.stringValue());
                         break;
+                    case "dcmuiMode":
+                        uiWebAppList.setMode(reader.stringValue());
+                        break;
                     case "dcmuiWebApps":
                         uiWebAppList.setWebApps(reader.stringArray());
                         break;
                     case "dcmAcceptedUserRole":
                         uiWebAppList.setAcceptedRole(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserName":
+                        uiWebAppList.setAcceptedUserName(reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();

@@ -7,8 +7,10 @@ package org.dcm4chee.arc.conf.ui;
 public class UIWebAppList {
     private String webAppListName;
     private String webAppListDescription;
+    private String mode;
     private String[] webApps = {};
     private String[] acceptedRole = {};
+    private String[] acceptedUserName = {};
 
     public UIWebAppList() {
     }
@@ -39,6 +41,22 @@ public class UIWebAppList {
 
     public void setWebApps(String[] webApps) {
         this.webApps = webApps;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String[] getAcceptedUserName() {
+        return acceptedUserName;
+    }
+
+    public void setAcceptedUserName(String[] acceptedUserName) {
+        this.acceptedUserName = acceptedUserName;
     }
 
     public String[] getAcceptedRole() {

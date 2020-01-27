@@ -195,8 +195,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiWebAppConfig"));
         attrs.put(new BasicAttribute("dcmuiWebAppListName", uiWebAppList.getWebAppListName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiWebAppListDescription", uiWebAppList.getWebAppListDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiMode", uiWebAppList.getMode(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiWebApps", uiWebAppList.getWebApps());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiWebAppList.getAcceptedRole());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserName", uiWebAppList.getAcceptedUserName());
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL uiDeviceURL, Attributes attrs) {
@@ -444,8 +446,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UIWebAppList uiWebAppList = new UIWebAppList((String) attrs.get("dcmuiWebAppListName").get());
                 uiWebAppList.setWebAppListDescription(LdapUtils.stringValue(attrs.get("dcmuiWebAppListDescription"), null));
+                uiWebAppList.setMode(LdapUtils.stringValue(attrs.get("dcmuiMode"), null));
                 uiWebAppList.setWebApps(LdapUtils.stringArray(attrs.get("dcmuiWebApps")));
                 uiWebAppList.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
+                uiWebAppList.setAcceptedUserName(LdapUtils.stringArray(attrs.get("dcmAcceptedUserName")));
                 uiConfig.addWebAppList(uiWebAppList);
             }
         } finally {
@@ -894,12 +898,18 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiWebAppListDescription",
                 prev.getWebAppListDescription(),
                 uiWebAppList.getWebAppListDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiMode",
+                prev.getMode(),
+                uiWebAppList.getMode(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiWebApps",
                 prev.getWebApps(),
                 uiWebAppList.getWebApps());
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
                 prev.getAcceptedRole(),
                 uiWebAppList.getAcceptedRole());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserName",
+                prev.getAcceptedRole(),
+                uiWebAppList.getAcceptedUserName());
         return mods;
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL prev,

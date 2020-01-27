@@ -5,7 +5,7 @@
   "required": [
     "dcmuiWebAppListName",
     "dcmuiWebApps",
-    "dcmAcceptedUserRole"
+    "dcmuiMode"
   ],
   "properties": {
     "dcmuiWebAppListName": {
@@ -18,6 +18,16 @@
       "description": "Web Application List description",
       "type": "string"
     },
+    "dcmuiMode": {
+      "title": "List mode",
+      "description": "You have two possibilities how to show the defined list: 1.) On top on the rest of list 'separated' with a line, 2.) Show only those hir defined ( 'exclusive' ).",
+      "type": "string",
+      "default":"separated",
+      "enum": [
+        "separated",
+        "exclusive"
+      ]
+    },
     "dcmuiWebApps": {
       "title": "WebApps",
       "description": "Web Application",
@@ -29,7 +39,15 @@
     },
     "dcmAcceptedUserRole": {
       "title": "Accepted User Role",
-      "description": "Define the roles for which this config should be available, use 'user' to be available for all roles",
+      "description": "Define the roles for which this config should be available, use 'user' to be available for all roles ( You should either define a username ( following attribute ) or user role ( this attribute ))",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserName": {
+      "title": "Accepted User Name",
+      "description": "Define the Username for which this config should be available ( You should either define a username ( this attribute ) or user role ( previous attribute ))",
       "type": "array",
       "items" : {
         "type": "string"
