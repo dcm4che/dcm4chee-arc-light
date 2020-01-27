@@ -755,7 +755,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
         for (UIWebAppList uiWebAppList : uiConfig.getWebAppLists()) {
             String uiWebAppListName = uiWebAppList.getWebAppListName();
-            String dn = LdapUtils.dnOf("uiWebAppListName", uiWebAppListName, uiConfigDN);
+            String dn = LdapUtils.dnOf("dcmuiWebAppListName", uiWebAppListName, uiConfigDN);
             UIWebAppList prevUIWebAppList = prevUIConfig.getWebAppList(uiWebAppListName);
             if (prevUIWebAppList == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =

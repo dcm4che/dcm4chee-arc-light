@@ -239,7 +239,7 @@ public class UIConfig {
     }
 
     public UIWebAppList getWebAppList(String name) {
-        return this.getWebAppList(name);
+        return this.webAppList.get(name);
     }
 
     public void addAetList(UIAetList aetList) {

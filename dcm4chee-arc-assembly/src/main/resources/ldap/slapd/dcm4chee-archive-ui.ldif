@@ -312,6 +312,20 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.63 NAME 'dcmuiXDSInterfaceURL'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.64 NAME 'dcmuiWebAppListName'
+    DESC 'Web Apps List Name'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.65 NAME 'dcmuiWebAppListDescription'
+  DESC 'WebApp List Description'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.66 NAME 'dcmuiWebApps'
+    DESC 'Web App Selected List'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -440,4 +454,13 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.12 NAME 'dcmuiAetConfig'
   MAY (
     dcmuiAetListDescription $
     dcmuiMode $
+    dcmAcceptedUserRole ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.13 NAME 'dcmuiWebAppConfig'
+  DESC 'Web App List'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiWebAppListName $
+    dcmuiWebApps )
+  MAY (
+    dcmuiWebAppListDescription $
     dcmAcceptedUserRole ) )
