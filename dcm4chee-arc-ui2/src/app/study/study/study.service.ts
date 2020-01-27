@@ -2465,7 +2465,7 @@ export class StudyService {
                 new TableSchemaElement({
                     type: "value",
                     header: "SS AET",
-                    pathToValue: "00400100.Value[0].00400001.Value[0]",
+                    pathToValue: "00400100.Value[0].00400001.Value",
                     headerDescription: "Scheduled Station AE Title",
                     widthWeight: 1.5,
                     calculatedWidth: "20%"
