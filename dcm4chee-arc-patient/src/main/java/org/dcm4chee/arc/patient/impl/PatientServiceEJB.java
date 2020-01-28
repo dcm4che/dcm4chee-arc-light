@@ -402,9 +402,10 @@ public class PatientServiceEJB {
                 .setParameter(1, patient)
                 .getResultList()
                 .forEach(mwl -> em.remove(mwl));
-        em.createNamedQuery(UPS.DELETE_BY_PATIENT)
+        em.createNamedQuery(UPS.FIND_BY_PATIENT, UPS.class)
                 .setParameter(1, patient)
-                .executeUpdate();
+                .getResultList()
+                .forEach(ups -> em.remove(ups));
         em.remove(em.contains(patient) ? patient : em.getReference(Patient.class, patient.getPk()));
         LOG.info("Successfully removed {} from database along with any of its MPPS, MWLs and UPS", patient);
     }
