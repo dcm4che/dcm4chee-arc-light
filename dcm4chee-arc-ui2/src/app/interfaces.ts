@@ -135,6 +135,7 @@ export interface FilterSchemaElement {
     title?:string,
     onlyDate?:boolean,
     options?:SelectDropdown<any>[],
+    optionsTree?:OptionsTree[],
     firstField?:FilterSchemaElement,
     secondField?:FilterSchemaElement,
     convert?:Function;
@@ -296,3 +297,8 @@ export interface DiffAttributeSet {
 }
 
 export type AccessControlIDMode = "update_access_control_id" | "update_access_control_id_to_matching"|"update_access_control_id_to_selections";
+
+export interface OptionsTree {
+    label?:string;
+    options:SelectDropdown<any>[];
+}
