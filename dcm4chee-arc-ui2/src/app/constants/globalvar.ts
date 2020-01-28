@@ -676,11 +676,11 @@ export class Globalvar {
             },
             "/monitoring/dashboard/*":{
                 permissionsAction:"menu-dashboard",
-                nextCheck:"/studies"
+                nextCheck:"/study/study"
             },
             "/lifecycle-management":{
                 permissionsAction:"menu-lifecycle_management",
-                nextCheck:"/studies"
+                nextCheck:"/study/study"
             },
             "/migration/retrieve":{
                 permissionsAction:"tab-move_data->retrieve",
