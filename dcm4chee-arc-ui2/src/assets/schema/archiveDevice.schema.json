@@ -81,6 +81,7 @@
     "hl7PSUPlacerOrderNumber",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
+    "hl7PSUMessageType",
     "hl7PSUPIDPV1",
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
@@ -1216,9 +1217,15 @@
       "type": "string",
       "format": "dcmDuration"
     },
+    "hl7PSUConditions": {
+      "title": "HL7 Procedure Status Update Attribute Conditions",
+      "description": "Restrict notification of configured HL7 Procedure Status Update Receiving Applications about Procedure Status Update by conditions on attributes of received composite object in format (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{attributeID})[!]={regEx}. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "hl7PSUForRequestedProcedure": {
       "title": "HL7 Procedure Status Update for Requested Procedure",
-      "description": "Limit notification of Procedure Status Update of Requested Procedures to configured HL7 Procedure Status Update Receiving Applications about received studies, only if there are Scheduled Procedure Steps of Requested Procedure (MWL Items in the DB) with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
+      "description": "Restrict notification of configured HL7 Procedure Status Update Receiving Applications about Procedure Status Update to existence of Scheduled Procedure Steps of a Requested Procedure (MWL Items in the DB) with matching Study Instance UID. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
@@ -1246,9 +1253,19 @@
       "type": "string",
       "default": "{StudyInstanceUID,hash}"
     },
+    "hl7PSUMessageType": {
+      "title": "HL7 Procedure Status Message Type",
+      "description": "Message Type of HL7 Procedure Status Update message. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "default": "OMG_O19",
+      "enum": [
+        "OMG_O19",
+        "ORU_R01"
+      ]
+    },
     "hl7PSUPIDPV1": {
       "title": "HL7 Procedure Status Update PID PV1",
-      "description": "Indicates to include a Patient Identification (PID) and a Patient Visit (PV1) segment in the HL7 Procedure Status Update message. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Indicates to include a Patient Identification (PID) and a Patient Visit (PV1) segment in the HL7 Procedure Status Update message. Implicitly set, if HL7 Procedure Status Message Type = ORU_R01. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
