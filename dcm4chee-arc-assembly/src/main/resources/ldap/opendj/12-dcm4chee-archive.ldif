@@ -1154,7 +1154,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.239 NAME 'dcmDiffTaskProgressUpdateInte
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.240 NAME 'dcmEntitySelector'
-  DESC 'Specifies matching keys used to select entities to prefetch. Format: {key}={value}][&{key}={value}]..., with {key} = "priors" | "StudyAge" | {attributeID}. Example: "priors=2&StudyAge=-5Y&ModalitiesInStudy=CT" => select at most 2 prior Studies not older than 5 years containing at least one CT Series.'
+  DESC 'Specifies matching keys used to select entities to prefetch. Format: {key}={value}[&{key}={value}]..., with {key} = "priors" | "StudyAge" | {attributeID}. Example: "priors=2&StudyAge=-5Y&ModalitiesInStudy=CT" => select at most 2 prior Studies not older than 5 years containing at least one CT Series.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.241 NAME 'dcmMaxRetentionPeriod'
@@ -1693,6 +1693,10 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.350 NAME 'hl7PSUMessageType'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.351 NAME 'hl7ORUAction'
+  DESC 'Specifies action on receive of HL7 ORU^R01 message: IMPORT_REPORT (= transcode received HL7 ORU^R01 to DICOM SR), MWL_COMPLETED (= set Status of matching MWL items to COMPLETED).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1793,6 +1797,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmShowPatientInfoInAuditLog $
     dcmStowSpoolDirectory $
     dcmWadoSpoolDirectory $
+    hl7ORUAction $
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $
     hl7ImportReportTemplateParam $
@@ -2028,21 +2033,22 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   DESC 'DICOM Archive HL7 Application related information'
   SUP top AUXILIARY
   MAY (
-     hl7PatientUpdateTemplateURI $
-     hl7ImportReportTemplateURI $
-     hl7ImportReportTemplateParam $
-     hl7ScheduleProcedureTemplateURI $
-     hl7ScheduledProtocolCodeInOrder $
-     hl7ScheduledStationAETInOrder $
-     hl7LogFilePattern $
-     hl7ErrorLogFilePattern $
-     hl7NoPatientCreateMessageType $
-     hl7UseNullValue $
-     hl7OrderMissingStudyIUIDPolicy $
-     hl7ImportReportMissingStudyIUIDPolicy $
-     hl7DicomCharacterSet $
-     hl7VeterinaryUsePatientName $
-     dicomAETitle ) )
+    hl7ORUAction $
+    hl7PatientUpdateTemplateURI $
+    hl7ImportReportTemplateURI $
+    hl7ImportReportTemplateParam $
+    hl7ScheduleProcedureTemplateURI $
+    hl7ScheduledProtocolCodeInOrder $
+    hl7ScheduledStationAETInOrder $
+    hl7LogFilePattern $
+    hl7ErrorLogFilePattern $
+    hl7NoPatientCreateMessageType $
+    hl7UseNullValue $
+    hl7OrderMissingStudyIUIDPolicy $
+    hl7ImportReportMissingStudyIUIDPolicy $
+    hl7DicomCharacterSet $
+    hl7VeterinaryUsePatientName $
+    dicomAETitle ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
   DESC 'Storage Descriptor'
   SUP top STRUCTURAL
