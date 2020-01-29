@@ -1221,7 +1221,10 @@
       "title": "HL7 Procedure Status Update Attribute Conditions",
       "description": "Restrict notification of configured HL7 Procedure Status Update Receiving Applications about Procedure Status Update by conditions on attributes of received composite object in format (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{attributeID})[!]={regEx}. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
     },
     "hl7PSUForRequestedProcedure": {
       "title": "HL7 Procedure Status Update for Requested Procedure",

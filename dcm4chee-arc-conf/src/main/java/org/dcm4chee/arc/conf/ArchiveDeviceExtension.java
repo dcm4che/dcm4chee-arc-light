@@ -201,6 +201,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String hl7PSUAccessionNumber;
     private volatile String hl7PSUFillerOrderNumber;
     private volatile String hl7PSUPlacerOrderNumber;
+    private volatile HL7PSUMessageType hl7PSUMessageType = HL7PSUMessageType.OMG_O19;
+    private volatile Conditions hl7PSUConditions = new Conditions();
     private volatile String auditRecordRepositoryURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
@@ -1384,6 +1386,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7PSUPlacerOrderNumber(String hl7PSUPlacerOrderNumber) {
         this.hl7PSUPlacerOrderNumber = hl7PSUPlacerOrderNumber;
+    }
+
+    public HL7PSUMessageType getHl7PSUMessageType() {
+        return hl7PSUMessageType;
+    }
+
+    public void setHl7PSUMessageType(HL7PSUMessageType hl7PSUMessageType) {
+        this.hl7PSUMessageType = hl7PSUMessageType;
+    }
+
+    public Conditions getHl7PSUConditions() {
+        return hl7PSUConditions;
+    }
+
+    public void setHl7PSUConditions(Conditions hl7PSUConditions) {
+        this.hl7PSUConditions = hl7PSUConditions;
     }
 
     public String[] getHL7NoPatientCreateMessageTypes() {
@@ -2743,6 +2761,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUAccessionNumber = arcdev.hl7PSUAccessionNumber;
         hl7PSUFillerOrderNumber = arcdev.hl7PSUFillerOrderNumber;
         hl7PSUPlacerOrderNumber = arcdev.hl7PSUPlacerOrderNumber;
+        hl7PSUMessageType = arcdev.hl7PSUMessageType;
+        hl7PSUConditions = arcdev.hl7PSUConditions;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;

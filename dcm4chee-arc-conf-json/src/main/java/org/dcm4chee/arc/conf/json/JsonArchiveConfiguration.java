@@ -238,6 +238,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUAccessionNumber", arcDev.getHl7PSUAccessionNumber(), null);
         writer.writeNotNullOrDef("hl7PSUFillerOrderNumber", arcDev.getHl7PSUFillerOrderNumber(), null);
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcDev.getHl7PSUPlacerOrderNumber(), null);
+        writer.writeNotNullOrDef("hl7PSUMessageType", arcDev.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
+        writer.writeNotEmpty("hl7PSUCondition", arcDev.getHl7PSUConditions().getMap());
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
                 arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
@@ -997,6 +999,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUFillerOrderNumber", arcAE.getHl7PSUFillerOrderNumber(), null);
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcAE.getHl7PSUPlacerOrderNumber(), null);
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
+        writer.writeNotNullOrDef("hl7PSUMessageType", arcAE.getHl7PSUMessageType(), null);
+        writer.writeNotEmpty("hl7PSUCondition", arcAE.getHl7PSUConditions().getMap());
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcAE.getStorageVerificationPolicy(), null);
@@ -1435,6 +1439,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUPlacerOrderNumber":
                     arcDev.setHl7PSUPlacerOrderNumber(reader.stringValue());
+                    break;
+                case "hl7PSUMessageType":
+                    arcDev.setHl7PSUMessageType(HL7PSUMessageType.valueOf(reader.stringValue()));
+                    break;
+                case "hl7PSUCondition":
+                    arcDev.setHl7PSUConditions(new Conditions(reader.stringArray()));
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
@@ -3192,6 +3202,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUPlacerOrderNumber":
                     arcAE.setHl7PSUPlacerOrderNumber(reader.stringValue());
+                    break;
+                case "hl7PSUMessageType":
+                    arcAE.setHl7PSUMessageType(HL7PSUMessageType.valueOf(reader.stringValue()));
+                    break;
+                case "hl7PSUCondition":
+                    arcAE.setHl7PSUConditions(new Conditions(reader.stringArray()));
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));

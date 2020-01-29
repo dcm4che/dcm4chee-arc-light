@@ -129,6 +129,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String hl7PSUAccessionNumber;
     private String hl7PSUFillerOrderNumber;
     private String hl7PSUPlacerOrderNumber;
+    private HL7PSUMessageType hl7PSUMessageType;
+    private Conditions hl7PSUConditions;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private StorageVerificationPolicy storageVerificationPolicy;
@@ -1224,6 +1226,37 @@ public class ArchiveAEExtension extends AEExtension {
         return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
     }
 
+    public HL7PSUMessageType getHl7PSUMessageType() {
+        return hl7PSUMessageType;
+    }
+
+    public void setHl7PSUMessageType(HL7PSUMessageType hl7PSUMessageType) {
+        this.hl7PSUMessageType = hl7PSUMessageType;
+    }
+
+    public HL7PSUMessageType hl7PSUMessageType() {
+        return hl7PSUMessageType != null
+                ? hl7PSUMessageType : getArchiveDeviceExtension().getHl7PSUMessageType();
+    }
+
+    public Conditions getHl7PSUConditions() {
+        return hl7PSUConditions;
+    }
+
+    public void setHl7PSUConditions(Conditions hl7PSUConditions) {
+        this.hl7PSUConditions = hl7PSUConditions;
+    }
+
+    public Conditions hl7PSUConditions() {
+        return !hl7PSUConditions.getMap().isEmpty()
+                ? hl7PSUConditions : getArchiveDeviceExtension().getHl7PSUConditions();
+    }
+
+    public boolean match(String sendingHost, String sendingAET,
+                         String receivingHost, String receivingAET, Attributes attrs) {
+        return hl7PSUConditions().match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
+    }
+
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -1536,6 +1569,8 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUAccessionNumber = aeExt.hl7PSUAccessionNumber;
         hl7PSUFillerOrderNumber = aeExt.hl7PSUFillerOrderNumber;
         hl7PSUPlacerOrderNumber = aeExt.hl7PSUPlacerOrderNumber;
+        hl7PSUMessageType = aeExt.hl7PSUMessageType;
+        hl7PSUConditions = aeExt.hl7PSUConditions;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;
