@@ -101,7 +101,7 @@ public class UPSContextImpl implements UPSContext {
         this.httpRequestInfo = storeContext.getStoreSession().getHttpRequest();
         this.archiveAEExtension = storeContext.getStoreSession().getArchiveAEExtension();
         this.patient = storeContext.getStoredInstance().getSeries().getStudy().getPatient();
-        this.socket = null;
+        this.socket = storeContext.getStoreSession().getSocket();
         this.archiveHL7AppExtension = null;
     }
 
