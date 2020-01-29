@@ -16,11 +16,13 @@
       "title": "HL7 ORU Action",
       "description": "Specifies action on receive of HL7 ORU^R01 message: IMPORT_REPORT (= transcode received HL7 ORU^R01 to DICOM SR), MWL_COMPLETED (= set Status of matching MWL items to COMPLETED). Overwrites value specified on Device level.",
       "type": "array",
-      "items": { "type": "string" },
-      "enum": [
-        "IMPORT_REPORT",
-        "MWL_COMPLETED"
-      ]
+      "items": {
+        "type": "string",
+        "enum": [
+          "IMPORT_REPORT",
+          "MWL_COMPLETED"
+        ]
+      }
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",

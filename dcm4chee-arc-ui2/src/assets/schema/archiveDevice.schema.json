@@ -10,6 +10,7 @@
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmDeleteUPSFetchSize",
+    "dcmDeleteMWLFetchSize",
     "dcmOverwritePolicy",
     "dcmAcceptMissingPatientID",
     "dcmAcceptConflictingPatientID",
@@ -186,15 +187,35 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmDeleteMWLPollingInterval": {
+      "title": "Delete MWL Polling Interval",
+      "description": "Polling Interval for deleting MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, MWL Items will not get deleted.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteMWLFetchSize": {
+      "title": "Delete MWL Fetch Size",
+      "description": "Maximal number of MWL items to delete in one transaction.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDeleteMWLDelay": {
+      "title": "Delete MWL Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting MWL items. Status specific delays can be specified by prefix 'SCHEDULED:', 'ARRIVED:', 'READY:', 'STARTED:', 'DEPARTED:', 'CANCELLED:', 'DISCONTINUED:', 'COMPLETED:'. If absent, MWL Items will not get deleted.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
     "dcmDeleteUPSPollingInterval": {
       "title": "Delete UPS Polling Interval",
-      "description": "Polling Interval for deleting Unified Procedure Steps (UPS) in ISO-8601 duration format PnDTnHnMnS.",
+      "description": "Polling Interval for deleting Unified Procedure Steps (UPS) in ISO-8601 duration format PnDTnHnMnS. If absent, Unified Procedure Steps will not get deleted.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmDeleteUPSFetchSize": {
       "title": "Delete UPS Fetch Size",
-      "description": "Maximal number of Unified Procedure Steps (UPS) to delete in one transaction; 100 if absent.",
+      "description": "Maximal number of Unified Procedure Steps (UPS) to delete in one transaction.",
       "type": "integer",
       "default" : 100,
       "minimum": 0,
@@ -639,11 +660,13 @@
       "title": "HL7 ORU Action",
       "description": "Specifies action on receive of HL7 ORU^R01 message: IMPORT_REPORT (= transcode received HL7 ORU^R01 to DICOM SR), MWL_COMPLETED (= set Status of matching MWL items to COMPLETED). May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "array",
-      "items": { "type": "string" },
-      "enum": [
-        "IMPORT_REPORT",
-        "MWL_COMPLETED"
-      ]
+      "items": {
+        "type": "string",
+        "enum": [
+          "IMPORT_REPORT",
+          "MWL_COMPLETED"
+        ]
+      }
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
@@ -1284,7 +1307,7 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay only if no notification to HL7 receivers is configured. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Implicitly set to true, if notification of HL7 receivers is configured. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },

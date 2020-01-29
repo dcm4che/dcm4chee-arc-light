@@ -530,7 +530,7 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay only if no notification to HL7 receivers is configured. Overwrites value specified on Device level.",
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Implicitly set to true, if notification of HL7 receivers is configured. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "hl7PSUTimeout": {
