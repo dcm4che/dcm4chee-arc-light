@@ -45,12 +45,15 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.BulkQueueMessageEvent;
+import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
@@ -67,6 +70,9 @@ public class PurgeQueueMessageScheduler extends Scheduler {
 
     @Inject
     private QueueManager mgr;
+
+    @Inject
+    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     protected PurgeQueueMessageScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -103,14 +109,19 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         int count;
         int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                     .getQueueTasksFetchSize();
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(queueName, QueueMessageOperation.DeleteTasks);
         do {
             count = mgr.deleteTasks(
                     taskQueryParam(queueName, status, before),
                     deleteTaskFetchSize);
             deleted += count;
         } while (count >= deleteTaskFetchSize);
-        if (deleted > 0)
+
+        if (deleted > 0) {
             LOG.info("Deleted {} {} messages from queue {}", deleted, status, queueName);
+            queueEvent.setCount(deleted);
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
     }
 
     private TaskQueryParam taskQueryParam(String queueName, QueueMessage.Status status, Date updatedBefore) {

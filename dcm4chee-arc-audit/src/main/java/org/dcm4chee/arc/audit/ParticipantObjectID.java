@@ -276,6 +276,7 @@ class ParticipantObjectID {
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 null)
                 .detail(AuditMessages.createParticipantObjectDetail("Filters", auditInfo.getField(AuditInfo.FILTERS)),
+                        AuditMessages.createParticipantObjectDetail("QueueName", auditInfo.getField(AuditInfo.QUEUE_NAME)),
                         AuditMessages.createParticipantObjectDetail("Count", auditInfo.getField(AuditInfo.COUNT)),
                         AuditMessages.createParticipantObjectDetail("Failed", auditInfo.getField(AuditInfo.FAILED)))
                 .build();

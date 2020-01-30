@@ -8,14 +8,20 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 public class BulkQueueMessageEvent {
-    private final HttpServletRequest request;
+    private HttpServletRequest request;
     private final QueueMessageOperation operation;
     private long count;
     private int failed;
     private Exception exception;
+    private String queueName;
 
     public BulkQueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
         this.request = request;
+        this.operation = operation;
+    }
+
+    public BulkQueueMessageEvent(String queueName, QueueMessageOperation operation) {
+        this.queueName = queueName;
         this.operation = operation;
     }
 
@@ -49,5 +55,9 @@ public class BulkQueueMessageEvent {
 
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    public String getQueueName() {
+        return queueName;
     }
 }

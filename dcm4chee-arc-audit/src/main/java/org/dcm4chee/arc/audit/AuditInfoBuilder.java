@@ -92,6 +92,7 @@ class AuditInfoBuilder {
     final String impaxEndpoint;
     final int failed;
     final String expirationDate;
+    final String queueName;
 
     static class Builder {
         private String callingHost;
@@ -132,6 +133,7 @@ class AuditInfoBuilder {
         private String impaxEndpoint;
         private int failed;
         private String expirationDate;
+        private String queueName;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -300,6 +302,10 @@ class AuditInfoBuilder {
             expirationDate = val;
             return this;
         }
+        Builder queueName(String val) {
+            queueName = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -344,6 +350,7 @@ class AuditInfoBuilder {
         impaxEndpoint = builder.impaxEndpoint;
         failed = builder.failed;
         expirationDate = builder.expirationDate;
+        queueName = builder.queueName;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

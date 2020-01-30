@@ -239,16 +239,15 @@ public class AuditService {
 
     void spoolBulkQueueMessageEvent(BulkQueueMessageEvent bulkQueueMsgEvent) {
         HttpServletRequest request = bulkQueueMsgEvent.getRequest();
-        String callingUser = KeycloakContext.valueOf(request).getUserName();
+        String callingUser = request != null ? KeycloakContext.valueOf(request).getUserName() : device.getDeviceName();
         try {
             writeSpoolFile(
                     AuditUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()),
                     null,
                     QueueMessageAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent, callingUser));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Bulk Queue Message Event for [QueueOperation={}] of "
-                            + "Request[url={}, queryString={}] triggered by [User={}]\n",
-                    bulkQueueMsgEvent.getOperation(), request.getRequestURI(), request.getQueryString(), callingUser, e);
+            LOG.warn("Failed to spool Bulk Queue Message Event for [QueueOperation={}] triggered by [User={}]\n",
+                    bulkQueueMsgEvent.getOperation(), callingUser, e);
         }
     }
 

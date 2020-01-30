@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2015-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -76,16 +76,20 @@ class QueueMessageAuditService {
 
     static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkQueueMessageEvent bulkQueueMsgEvent, String callingUser) {
         HttpServletRequest req = bulkQueueMsgEvent.getRequest();
-        return new AuditInfoBuilder.Builder()
+        AuditInfoBuilder.Builder builder = new AuditInfoBuilder.Builder()
                 .callingUserID(callingUser)
-                .callingHost(req.getRemoteHost())
-                .calledUserID(req.getRequestURI())
                 .outcome(outcome(bulkQueueMsgEvent.getException()))
-                .filters(req.getQueryString())
                 .count(bulkQueueMsgEvent.getCount())
                 .failed(bulkQueueMsgEvent.getFailed())
-                .taskPOID(bulkQueueMsgEvent.getOperation().name())
-                .build();
+                .taskPOID(bulkQueueMsgEvent.getOperation().name());
+        return req != null
+                ? builder.callingHost(req.getRemoteHost())
+                        .calledUserID(req.getRequestURI())
+                        .filters(req.getQueryString())
+                        .build()
+                : builder
+                    .queueName(bulkQueueMsgEvent.getQueueName())
+                    .build();
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
@@ -98,19 +102,29 @@ class QueueMessageAuditService {
     }
 
     private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+        ActiveParticipantBuilder[] activeParticipants;
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                .isRequester().build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
-                calledUserID,
-                auditLogger.getConnections().get(0).getHostname())
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                .build();
+        if (calledUserID == null) {
+            activeParticipants = new ActiveParticipantBuilder[1];
+            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+                    callingUserID,
+                    auditLogger.getConnections().get(0).getHostname())
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
+                    .isRequester().build();
+        } else {
+            activeParticipants = new ActiveParticipantBuilder[2];
+            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+                    callingUserID,
+                    auditInfo.getField(AuditInfo.CALLING_HOST))
+                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                    .isRequester().build();
+            activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+                    calledUserID,
+                    auditLogger.getConnections().get(0).getHostname())
+                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
+                    .build();
+        }
         return activeParticipants;
     }
 

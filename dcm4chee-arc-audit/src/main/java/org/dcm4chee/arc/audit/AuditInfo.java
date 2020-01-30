@@ -86,6 +86,7 @@ class AuditInfo {
     static final int FAILED = 35;
     static final int EXPIRATION_DATE = 36;
     static final int FIND_SCP = 37;
+    static final int QUEUE_NAME = 38;
 
     private final String[] fields;
 
@@ -128,7 +129,8 @@ class AuditInfo {
                 i.impaxEndpoint,
                 String.valueOf(i.failed),
                 i.expirationDate,
-                i.findSCP
+                i.findSCP,
+                i.queueName
         };
     }
 
