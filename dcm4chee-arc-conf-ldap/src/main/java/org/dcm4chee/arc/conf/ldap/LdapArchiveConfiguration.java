@@ -431,6 +431,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.isRestrictRetrieveSilently(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteMWLPollingInterval",
+                ext.getDeleteMWLPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteMWLFetchSize", ext.getDeleteMWLFetchSize(), 100);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteMWLDelay", ext.getDeleteMWLDelay());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -695,6 +699,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
+        ext.setDeleteMWLPollingInterval(toDuration(attrs.get("dcmDeleteMWLPollingInterval"), null));
+        ext.setDeleteMWLFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteMWLFetchSize"), 100));
+        ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
     }
 
     @Override
@@ -1178,6 +1185,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStowQuicktime2MP4(),
                 bb.isStowQuicktime2MP4(),
                 false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteMWLPollingInterval",
+                aa.getDeleteMWLPollingInterval(),
+                bb.getDeleteMWLPollingInterval(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLFetchSize",
+                aa.getDeleteMWLFetchSize(),
+                bb.getDeleteMWLFetchSize(),
+                100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLDelay", aa.getDeleteMWLDelay(), bb.getDeleteMWLDelay());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

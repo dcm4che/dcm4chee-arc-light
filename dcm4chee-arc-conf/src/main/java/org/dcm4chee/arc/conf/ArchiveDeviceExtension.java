@@ -155,6 +155,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeQueueMessagePollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
+    private volatile Duration deleteMWLPollingInterval;
+    private volatile int deleteMWLFetchSize = 100;
+    private volatile String[] deleteMWLDelay = {};
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
     private volatile String hl7LogFilePattern;
@@ -2634,6 +2637,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowQuicktime2MP4 = stowQuicktime2MP4;
     }
 
+    public Duration getDeleteMWLPollingInterval() {
+        return deleteMWLPollingInterval;
+    }
+
+    public void setDeleteMWLPollingInterval(Duration deleteMWLPollingInterval) {
+        this.deleteMWLPollingInterval = deleteMWLPollingInterval;
+    }
+
+    public int getDeleteMWLFetchSize() {
+        return deleteMWLFetchSize;
+    }
+
+    public void setDeleteMWLFetchSize(int deleteMWLFetchSize) {
+        this.deleteMWLFetchSize = deleteMWLFetchSize;
+    }
+
+    public String[] getDeleteMWLDelay() {
+        return deleteMWLDelay;
+    }
+
+    public void setDeleteMWLDelay(String[] deleteMWLDelay) {
+        this.deleteMWLDelay = deleteMWLDelay;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -2834,6 +2861,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
+        deleteMWLPollingInterval = arcdev.deleteMWLPollingInterval;
+        deleteMWLFetchSize = arcdev.deleteMWLFetchSize;
+        deleteMWLDelay = arcdev.deleteMWLDelay;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
