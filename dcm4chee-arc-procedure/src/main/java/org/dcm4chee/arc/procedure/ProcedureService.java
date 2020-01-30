@@ -65,5 +65,7 @@ public interface ProcedureService {
 
     void updateStudySeriesAttributes(ProcedureContext ctx);
 
+    int updateSPSStatusToCompleted(String studyIUID);
+
     MWLItem findMWLItem(ProcedureContext ctx);
 }

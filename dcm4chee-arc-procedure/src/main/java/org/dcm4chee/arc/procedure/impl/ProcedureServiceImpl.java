@@ -126,6 +126,11 @@ public class ProcedureServiceImpl implements ProcedureService {
         }
     }
 
+    @Override
+    public int updateSPSStatusToCompleted(String studyIUID) {
+        return ejb.updateSPSStatusToCompleted(studyIUID);
+    }
+
     public void onMPPS(@Observes MPPSContext ctx) {
         Attributes attr = ctx.getAttributes();
         String mppsStatus = attr.getString(Tag.PerformedProcedureStepStatus);

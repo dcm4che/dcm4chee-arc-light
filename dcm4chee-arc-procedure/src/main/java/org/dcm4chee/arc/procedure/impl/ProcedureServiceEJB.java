@@ -101,9 +101,7 @@ public class ProcedureServiceEJB {
     private void updateProcedureForHL7(ProcedureContext ctx, Patient patient,
                                        IssuerEntity issuerOfAccessionNumber) {
         Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx.getAttributes());
-        List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
-                .setParameter(1, ctx.getStudyInstanceUID())
-                .getResultList();
+        List<MWLItem> prevMWLItems = findMWLItems(ctx.getStudyInstanceUID());
         for (MWLItem mwlItem : prevMWLItems) {
             Attributes mwlAttrs = mwlAttrsMap.remove(mwlItem.getScheduledProcedureStepID());
             if (mwlAttrs == null)
@@ -194,8 +192,7 @@ public class ProcedureServiceEJB {
     }
 
     public void deleteProcedure(ProcedureContext ctx) {
-        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
         if (mwlItems.isEmpty())
             return;
         int mwlSize = mwlItems.size();
@@ -223,8 +220,7 @@ public class ProcedureServiceEJB {
     }
 
     public void updateSPSStatus(ProcedureContext ctx, String status) {
-        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (MWLItem mwl : mwlItems) {
             Attributes mwlAttrs = mwl.getAttributes();
@@ -236,6 +232,29 @@ public class ProcedureServiceEJB {
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }
         }
+    }
+
+    public int updateSPSStatusToCompleted(String studyIUID) {
+        List<MWLItem> mwlItems = findMWLItems(studyIUID);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        mwlItems.forEach(mwl -> {
+            Attributes mwlAttrs = mwl.getAttributes();
+            Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+            while (spsItems.hasNext()) {
+                Attributes sps = spsItems.next();
+                spsItems.remove();
+                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.name());
+                mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+            }
+            mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
+        });
+        return mwlItems.size();
+    }
+
+    private List<MWLItem> findMWLItems(String studyIUID) {
+        return em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
+                .setParameter(1, studyIUID)
+                .getResultList();
     }
 
     private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {

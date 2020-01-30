@@ -56,6 +56,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7ORUAction;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -68,6 +69,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,6 +87,9 @@ class ImportReportService extends DefaultHL7Service {
 
     @Inject
     private StoreService storeService;
+
+    @Inject
+    private ProcedureService procedureService;
 
     public ImportReportService() {
         super("ORU^R01");
@@ -149,7 +154,7 @@ class ImportReportService extends DefaultHL7Service {
         if (!attrs.containsValue(Tag.SeriesInstanceUID))
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
-        store(arcHL7App, s, ae, msg, attrs);
+        processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
     }
 
     private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
@@ -188,25 +193,33 @@ class ImportReportService extends DefaultHL7Service {
         attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
     }
 
-    private void store(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs)
-            throws IOException {
-        HL7ORUAction[] hl7ORUAction = arcHL7App.getHl7ORUAction();
-        for (HL7ORUAction hl7ORUAction1 : hl7ORUAction) {
-            if (hl7ORUAction1 == HL7ORUAction.IMPORT_REPORT) {
-                try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
-                    StoreContext ctx = storeService.newStoreContext(session);
-                    ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-                    ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
-                    ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-                    storeService.store(ctx, attrs);
-                }
-            }
+    private void store(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
+                       Attributes attrs) {
+        try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
+            StoreContext ctx = storeService.newStoreContext(session);
+            ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
+            ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
+            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(ctx, attrs);
+        } catch (IOException e) {
+            LOG.info("Exception caught on storing imported report from ORU^R01 {}. \n", msg, e);
         }
     }
 
-    private void mstore(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs,
-                        List<String> suids)
-            throws IOException {
+    private void processHL7ORUAction(
+            ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
+            Attributes attrs) {
+        Stream.of(arcHL7App.hl7ORUAction())
+                .forEach(action -> {
+                    if (action == HL7ORUAction.IMPORT_REPORT)
+                        store(arcHL7App, s, ae, msg, attrs);
+                    else
+                        procedureService.updateSPSStatusToCompleted(attrs.getString(Tag.StudyInstanceUID));
+                });
+    }
+
+    private void mstore(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
+                        Attributes attrs, List<String> suids) {
         int n = suids.size();
         Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
         for (String suid : suids)
@@ -218,7 +231,7 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
             attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
-            store(arcHL7App, s, ae, msg, attrs);
+            processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
             seq.add(i, refStudy);
         }
     }
@@ -243,9 +256,4 @@ class ImportReportService extends DefaultHL7Service {
         attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicTextSRStorage);
         return attrs;
     }
-
-    private void updateMWLToCompleted() {
-
-    }
-
 }
