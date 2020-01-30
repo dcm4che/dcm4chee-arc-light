@@ -908,7 +908,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 prev.getAcceptedRole(),
                 uiWebAppList.getAcceptedRole());
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserName",
-                prev.getAcceptedRole(),
+                prev.getAcceptedUserName(),
                 uiWebAppList.getAcceptedUserName());
         return mods;
     }
