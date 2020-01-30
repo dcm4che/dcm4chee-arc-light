@@ -156,6 +156,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
+    private volatile HL7ORUAction[] hl7ORUAction = {};
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
@@ -1111,6 +1112,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHideSPSWithStatusFrom(SPSStatus[] hideSPSWithStatusFrom) {
         this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
+    }
+
+    public HL7ORUAction[] getHl7ORUAction() {
+        return hl7ORUAction;
+    }
+
+    public void setHl7ORUAction(HL7ORUAction[] hl7ORUAction) {
+        this.hl7ORUAction = hl7ORUAction;
     }
 
     public String getStorePermissionServiceURL() {
@@ -2720,6 +2729,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
+        hl7ORUAction = arcdev.hl7ORUAction;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;

@@ -54,6 +54,7 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7ORUAction;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -107,6 +108,12 @@ class ImportReportService extends DefaultHL7Service {
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        HL7ORUAction[] hl7ORUActions = arcHL7App.hl7ORUAction();
+        if (hl7ORUActions.length == 0) {
+            LOG.info("No actions configured on receive of HL7 ORU message.");
+            return;
+        }
+
         String aet = arcHL7App.getAETitle();
         if (aet == null) {
             throw new ConfigurationException("No AE Title associated with HL7 Application: "
@@ -133,7 +140,7 @@ class ImportReportService extends DefaultHL7Service {
                     attrs.setString(Tag.StudyInstanceUID, VR.UI, suids.get(0));
                     break;
                 default:
-                    mstore(hl7App, s, ae, msg, attrs, suids);
+                    mstore(arcHL7App, s, ae, msg, attrs, suids);
                     return;
             }
         }
@@ -142,7 +149,7 @@ class ImportReportService extends DefaultHL7Service {
         if (!attrs.containsValue(Tag.SeriesInstanceUID))
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
-        store(hl7App, s, ae, msg, attrs);
+        store(arcHL7App, s, ae, msg, attrs);
     }
 
     private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
@@ -181,18 +188,23 @@ class ImportReportService extends DefaultHL7Service {
         attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
     }
 
-    private void store(HL7Application hl7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs)
+    private void store(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs)
             throws IOException {
-        try (StoreSession session = storeService.newStoreSession(hl7App, s, msg, ae)) {
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, attrs);
+        HL7ORUAction[] hl7ORUAction = arcHL7App.getHl7ORUAction();
+        for (HL7ORUAction hl7ORUAction1 : hl7ORUAction) {
+            if (hl7ORUAction1 == HL7ORUAction.IMPORT_REPORT) {
+                try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
+                    StoreContext ctx = storeService.newStoreContext(session);
+                    ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
+                    ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
+                    ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+                    storeService.store(ctx, attrs);
+                }
+            }
         }
     }
 
-    private void mstore(HL7Application hl7app, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs,
+    private void mstore(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg, Attributes attrs,
                         List<String> suids)
             throws IOException {
         int n = suids.size();
@@ -206,7 +218,7 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
             attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
-            store(hl7app, s, ae, msg, attrs);
+            store(arcHL7App, s, ae, msg, attrs);
             seq.add(i, refStudy);
         }
     }
@@ -230,6 +242,10 @@ class ImportReportService extends DefaultHL7Service {
         attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
         attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicTextSRStorage);
         return attrs;
+    }
+
+    private void updateMWLToCompleted() {
+
     }
 
 }

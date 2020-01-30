@@ -103,6 +103,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
+        writer.writeNotEmpty("hl7ORUAction", arcDev.getHl7ORUAction());
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
@@ -1108,6 +1109,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
                     arcDev.setHideSPSWithStatusFrom(reader.enumArray(SPSStatus.class));
+                    break;
+                case "hl7ORUAction":
+                    arcDev.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());

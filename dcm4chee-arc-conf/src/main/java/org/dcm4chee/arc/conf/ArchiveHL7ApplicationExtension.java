@@ -66,6 +66,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
+    private HL7ORUAction[] hl7ORUAction = {};
 
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
@@ -97,6 +98,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
+        hl7ORUAction = arcapp.hl7ORUAction;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
@@ -504,5 +506,19 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7VeterinaryUsePatientName != null
                 ? hl7VeterinaryUsePatientName
                 : getArchiveDeviceExtension().isHl7VeterinaryUsePatientName();
+    }
+
+    public HL7ORUAction[] getHl7ORUAction() {
+        return hl7ORUAction;
+    }
+
+    public void setHl7ORUAction(HL7ORUAction[] hl7ORUAction) {
+        this.hl7ORUAction = hl7ORUAction;
+    }
+
+    public HL7ORUAction[] hl7ORUAction() {
+        return hl7ORUAction.length > 0
+                ? hl7ORUAction
+                : getArchiveDeviceExtension().getHl7ORUAction();
     }
 }

@@ -222,6 +222,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSpoolDirectory",
                 ext.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingInterval",
                 ext.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRejectExpiredStudiesSchedule",
@@ -528,6 +529,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null));
         ext.setRejectExpiredStudiesSchedules(
                 ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmRejectExpiredStudiesSchedule"))));
@@ -886,7 +888,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSpoolDirectory(),
                 bb.getWadoSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL",
+                aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesPollingInterval",
                 aa.getRejectExpiredStudiesPollingInterval(), bb.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectExpiredStudiesSchedule",
