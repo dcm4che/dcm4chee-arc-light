@@ -51,6 +51,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
@@ -208,6 +209,17 @@ public class ProcedureServiceEJB {
                 ctx.setPatient(mwl.getPatient());
                 em.remove(mwl);
             }
+    }
+
+    public int deleteMWLItems(SPSStatus status, Date before, int deleteMWLFetchSize) {
+        List<MWLItem> mwlItems = em.createNamedQuery(
+                MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE, MWLItem.class)
+                .setParameter(1, status)
+                .setParameter(2, before)
+                .setMaxResults(deleteMWLFetchSize)
+                .getResultList();
+        mwlItems.forEach(mwl -> em.remove(mwl));
+        return mwlItems.size();
     }
 
     public void updateSPSStatus(ProcedureContext ctx, String status) {

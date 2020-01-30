@@ -43,10 +43,15 @@ package org.dcm4chee.arc.procedure.impl;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -60,6 +65,9 @@ public class DeleteMWLScheduler extends Scheduler {
     protected DeleteMWLScheduler() {
         super(Mode.scheduleWithFixedDelay);
     }
+
+    @Inject
+    private ProcedureServiceEJB ejb;
 
     @Override
     protected Logger log() {
@@ -75,5 +83,58 @@ public class DeleteMWLScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        List<SPSStatus> specifiedSPSStatus = new ArrayList<>();
+        Duration unspecifiedSPSStatusDelay = null;
+        for (String deleteMWLDelay : arcDev.getDeleteMWLDelay()) {
+            String[] spsStatusWithDelay = deleteMWLDelay.split(":");
+            if (spsStatusWithDelay.length == 1)
+                unspecifiedSPSStatusDelay = delay(spsStatusWithDelay[0]);
+            else {
+                SPSStatus spsStatus = spsStatus(spsStatusWithDelay[0]);
+                Duration delay = delay(spsStatusWithDelay[1]);
+                if (spsStatus == null || delay == null)
+                    continue;
+
+                specifiedSPSStatus.add(spsStatus);
+                deleteMWL(spsStatus, delay);
+            }
+        }
+        if (unspecifiedSPSStatusDelay != null)
+            for (SPSStatus status : SPSStatus.values())
+                if (!specifiedSPSStatus.contains(status))
+                    deleteMWL(status, unspecifiedSPSStatusDelay);
+
+    }
+
+    private void deleteMWL(SPSStatus spsStatus, Duration delay) {
+        Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
+        int deleted = 0;
+        int count;
+        int deleteMWLFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                    .getDeleteMWLFetchSize();
+        do {
+            count = ejb.deleteMWLItems(spsStatus, before, deleteMWLFetchSize);
+            deleted += count;
+        } while (count >= deleteMWLFetchSize);
+        if (deleted > 0)
+            LOG.info("Deleted {} MWL Items with SPS Status {}", deleted, spsStatus);
+    }
+
+    private SPSStatus spsStatus(String name) {
+        try {
+            return SPSStatus.valueOf(name);
+        } catch (Exception e) {
+            LOG.info("Invalid SPS Status: {}", name);
+        }
+        return null;
+    }
+
+    private Duration delay(String val) {
+        try {
+            return Duration.valueOf(val);
+        } catch (Exception e) {
+            LOG.info("Invalid duration: {}", val);
+        }
+        return null;
     }
 }
