@@ -130,7 +130,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String hl7PSUFillerOrderNumber;
     private String hl7PSUPlacerOrderNumber;
     private HL7PSUMessageType hl7PSUMessageType;
-    private Conditions hl7PSUConditions;
+    private Conditions hl7PSUConditions = new Conditions();
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private StorageVerificationPolicy storageVerificationPolicy;
