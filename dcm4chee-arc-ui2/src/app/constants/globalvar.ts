@@ -2,6 +2,8 @@ import {FilterSchema, SelectDropdown} from "../interfaces";
 import {DicomTableSchema, DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
+declare var DCM4CHE: any;
+const sopObject = DCM4CHE.SOPClass.nameOf("all");
 
 export const MY_FORMATS = {
     parse: {
@@ -1101,6 +1103,7 @@ export class Globalvar {
     }
 
     static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
+        console.log("dmc",DCM4CHE.SOPClass.nameOf("all"));
         if(hidden){
             return [
                 {
@@ -1116,9 +1119,12 @@ export class Globalvar {
                     description:"Station name",
                     placeholder:"Station name"
                 },{
-                    tag:"input",
-                    type:"text",
+                    tag:"multi-select",
                     filterKey:"SOPClassesInStudy",
+                    options:Object.keys(sopObject).map(sopKey=>{
+                        return new SelectDropdown(sopKey, sopObject[sopKey])
+                    }),
+                    showSearchField:true,
                     description:"SOP classes in study",
                     placeholder:"SOP classes in study"
                 },{
@@ -1356,13 +1362,18 @@ export class Globalvar {
                     filterKey:"StationName",
                     description:"Station name",
                     placeholder:"Station name"
-                },{
-                    tag:"input",
-                    type:"text",
+                },
+                {
+                    tag:"multi-select",
                     filterKey:"SOPClassesInStudy",
+                    options:Object.keys(sopObject).map(sopKey=>{
+                        return new SelectDropdown(sopKey, sopObject[sopKey])
+                    }),
+                    showSearchField:true,
                     description:"SOP classes in study",
                     placeholder:"SOP classes in study"
-                },{
+                }
+                ,{
                     tag:"input",
                     type:"text",
                     filterKey:"SeriesDescription",
