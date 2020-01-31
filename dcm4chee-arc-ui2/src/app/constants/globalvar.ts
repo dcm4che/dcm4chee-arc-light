@@ -1103,7 +1103,6 @@ export class Globalvar {
     }
 
     static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
-        console.log("dmc",DCM4CHE.SOPClass.nameOf("all"));
         if(hidden){
             return [
                 {
@@ -1122,7 +1121,7 @@ export class Globalvar {
                     tag:"multi-select",
                     filterKey:"SOPClassesInStudy",
                     options:Object.keys(sopObject).map(sopKey=>{
-                        return new SelectDropdown(sopKey, sopObject[sopKey])
+                        return new SelectDropdown(sopKey, sopObject[sopKey], sopKey)
                     }),
                     showSearchField:true,
                     description:"SOP classes in study",
@@ -1367,7 +1366,7 @@ export class Globalvar {
                     tag:"multi-select",
                     filterKey:"SOPClassesInStudy",
                     options:Object.keys(sopObject).map(sopKey=>{
-                        return new SelectDropdown(sopKey, sopObject[sopKey])
+                        return new SelectDropdown(sopKey, sopObject[sopKey], sopKey)
                     }),
                     showSearchField:true,
                     description:"SOP classes in study",
