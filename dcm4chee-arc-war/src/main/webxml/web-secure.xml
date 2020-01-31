@@ -53,12 +53,12 @@
       <http-method-omission>OPTIONS</http-method-omission>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>user</role-name>
+      <role-name>${auth-user-role:user}</role-name>
     </auth-constraint>
   </security-constraint>
   <login-config>
     <auth-method>KEYCLOAK</auth-method>
-    <realm-name>${realm-name}</realm-name>
+    <realm-name>${realm-name:dcm4che}</realm-name>
   </login-config>
   <security-role>
     <role-name>user</role-name>
