@@ -930,6 +930,7 @@ public class StoreServiceEJB {
                 attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
                 filter, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
+        study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
@@ -957,6 +958,7 @@ public class StoreServiceEJB {
                 attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
                 filter, fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         return series;
     }
@@ -1316,6 +1318,7 @@ public class StoreServiceEJB {
         Attributes attrs = ctx.getAttributes();
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
+        study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }
 
@@ -1432,6 +1435,7 @@ public class StoreServiceEJB {
         Attributes attrs = ctx.getAttributes();
         series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getCallingAET());
     }

@@ -102,6 +102,9 @@ import java.util.*;
                 @Index(columnList = "req_proc_id"),
                 @Index(columnList = "study_iuid"),
                 @Index(columnList = "accession_no"),
+                @Index(columnList = "admission_id"),
+                @Index(columnList = "institution"),
+                @Index(columnList = "department"),
                 @Index(columnList = "modality"),
                 @Index(columnList = "sps_start_date"),
                 @Index(columnList = "sps_start_time"),
@@ -151,6 +154,18 @@ public class MWLItem {
     private String accessionNumber;
 
     @Basic(optional = false)
+    @Column(name = "admission_id")
+    private String admissionID;
+
+    @Basic(optional = false)
+    @Column(name = "department")
+    private String institutionalDepartmentName;
+
+    @Basic(optional = false)
+    @Column(name = "institution")
+    private String institutionName;
+
+    @Basic(optional = false)
     @Column(name = "modality")
     private String modality;
 
@@ -180,6 +195,18 @@ public class MWLItem {
     @ManyToOne
     @JoinColumn(name = "accno_issuer_fk")
     private IssuerEntity issuerOfAccessionNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "admid_issuer_fk")
+    private IssuerEntity issuerOfAdmissionID;
+
+    @ManyToOne
+    @JoinColumn(name = "inst_code_fk")
+    private CodeEntity institutionCode;
+
+    @ManyToOne
+    @JoinColumn(name = "dept_code_fk")
+    private CodeEntity institutionalDepartmentTypeCode;
 
     @ElementCollection
     @CollectionTable(name = "sps_station_aet", joinColumns = @JoinColumn(name = "mwl_item_fk"),
@@ -227,6 +254,26 @@ public class MWLItem {
         this.issuerOfAccessionNumber = issuerOfAccessionNumber;
     }
 
+    public String getAdmissionID() {
+        return admissionID;
+    }
+
+    public IssuerEntity getIssuerOfAdmissionID() {
+        return issuerOfAdmissionID;
+    }
+
+    public void setIssuerOfAdmissionID(IssuerEntity issuerOfAdmissionID) {
+        this.issuerOfAdmissionID = issuerOfAdmissionID;
+    }
+
+    public String getInstitutionalDepartmentName() {
+        return institutionalDepartmentName;
+    }
+
+    public String getInstitutionName() {
+        return institutionName;
+    }
+
     public String getModality() {
         return modality;
     }
@@ -247,6 +294,21 @@ public class MWLItem {
         return status;
     }
 
+    public CodeEntity getInstitutionCode() {
+        return institutionCode;
+    }
+
+    public void setInstitutionCode(CodeEntity institutionCode) {
+        this.institutionCode = institutionCode;
+    }
+
+    public CodeEntity getInstitutionalDepartmentTypeCode() {
+        return institutionalDepartmentTypeCode;
+    }
+
+    public void setInstitutionalDepartmentTypeCode(CodeEntity institutionalDepartmentTypeCode) {
+        this.institutionalDepartmentTypeCode = institutionalDepartmentTypeCode;
+    }
 
     public void setPatient(Patient patient) {
         this.patient = patient;
@@ -316,6 +378,9 @@ public class MWLItem {
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
+        admissionID = attrs.getString(Tag.AdmissionID, "*");
+        institutionName = attrs.getString(Tag.InstitutionName, "*");
+        institutionalDepartmentName = attrs.getString(Tag.InstitutionalDepartmentName, "*");
         String[] ssAETs = spsItem.getStrings(Tag.ScheduledStationAETitle);
         if (ssAETs != null && ssAETs.length != 0) {
             if (scheduledStationAETs == null)

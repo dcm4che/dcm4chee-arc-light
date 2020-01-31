@@ -41,13 +41,11 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Issuer;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
@@ -83,23 +81,28 @@ public class ProcedureServiceEJB {
     private Device device;
 
     @Inject
-    private IssuerService issuerService;
+    private CodeCache codeCache;
 
+    @Inject
+    private IssuerService issuerService;
 
     public void updateProcedure(ProcedureContext ctx) {
         Patient patient = ctx.getPatient();
         Attributes attrs = ctx.getAttributes();
-        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(attrs);
+        IssuerEntity issuerOfAccessionNumber =
+                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        IssuerEntity issuerOfAdmissionID =
+                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
         if (ctx.getHttpRequest() != null)
-            updateProcedureForWeb(ctx, patient, issuerOfAccessionNumber);
+            updateProcedureForWeb(ctx, patient, issuerOfAccessionNumber, issuerOfAdmissionID);
         else
-            updateProcedureForHL7(ctx, patient, issuerOfAccessionNumber);
-        updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber);
+            updateProcedureForHL7(ctx, patient, issuerOfAccessionNumber, issuerOfAdmissionID);
+        updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber, issuerOfAdmissionID);
     }
 
 
     private void updateProcedureForHL7(ProcedureContext ctx, Patient patient,
-                                       IssuerEntity issuerOfAccessionNumber) {
+            IssuerEntity issuerOfAccessionNumber, IssuerEntity issuerOfAdmissionID) {
         Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx.getAttributes());
         List<MWLItem> prevMWLItems = findMWLItems(ctx.getStudyInstanceUID());
         for (MWLItem mwlItem : prevMWLItems) {
@@ -120,30 +123,36 @@ public class ProcedureServiceEJB {
                 if (!attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
                     return;
                 attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsItem);
-                updateMWL(ctx, issuerOfAccessionNumber, mwlItem, attrs);
+                updateMWL(ctx, issuerOfAccessionNumber, issuerOfAdmissionID, mwlItem, attrs);
             }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values())
-            createMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber);
+            createMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, issuerOfAdmissionID);
     }
 
-    private void updateMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, MWLItem mwlItem, Attributes mwlAttrs) {
+    private void updateMWL(ProcedureContext ctx,
+            IssuerEntity issuerOfAccessionNumber,
+            IssuerEntity issuerOfAdmissionID,
+            MWLItem mwlItem, Attributes mwlAttrs) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+        mwlItem.setIssuerOfAdmissionID(issuerOfAdmissionID);
+        mwlItem.setInstitutionCode(findOrCreateCode(mwlAttrs, Tag.InstitutionCodeSequence));
+        mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(mwlAttrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
     private void updateProcedureForWeb(ProcedureContext ctx, Patient patient,
-                                       IssuerEntity issuerOfAccessionNumber) {
+            IssuerEntity issuerOfAccessionNumber, IssuerEntity issuerOfAdmissionID) {
         Attributes attrs = ctx.getAttributes();
         ctx.setSpsID(attrs.getSequence(Tag.ScheduledProcedureStepSequence).get(0).getString(Tag.ScheduledProcedureStepID));
 
         MWLItem mwlItem = findMWLItem(ctx);
         if (mwlItem == null)
-            createMWL(ctx, patient, attrs, issuerOfAccessionNumber);
+            createMWL(ctx, patient, attrs, issuerOfAccessionNumber, issuerOfAdmissionID);
         else
-            updateMWL(ctx, issuerOfAccessionNumber, mwlItem, attrs);
+            updateMWL(ctx, issuerOfAccessionNumber, issuerOfAdmissionID, mwlItem, attrs);
     }
 
     public MWLItem findMWLItem(ProcedureContext ctx) {
@@ -157,7 +166,7 @@ public class ProcedureServiceEJB {
     }
 
     private void createMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
-                            IssuerEntity issuerOfAccessionNumber) {
+            IssuerEntity issuerOfAccessionNumber, IssuerEntity issuerOfAdmissionID) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
@@ -166,14 +175,27 @@ public class ProcedureServiceEJB {
             spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+        mwlItem.setIssuerOfAdmissionID(issuerOfAdmissionID);
+        mwlItem.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         em.persist(mwlItem);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         LOG.info("{}: Create {}", ctx, mwlItem);
     }
 
-    private IssuerEntity findOrCreateIssuer(Attributes attrs) {
-        Attributes item = attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence);
+    private IssuerEntity findOrCreateIssuer(Attributes item) {
         return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
+    }
+
+    private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {
+        Attributes item = attrs.getNestedDataset(seqTag);
+        if (item != null)
+            try {
+                return codeCache.findOrCreate(new Code(item));
+            } catch (Exception e) {
+                LOG.info("Illegal code item in Sequence {}:\n{}", TagUtils.toString(seqTag), item);
+            }
+        return null;
     }
 
     private Map<String, Attributes> createMWLAttrsMap(Attributes attrs) {
@@ -257,7 +279,9 @@ public class ProcedureServiceEJB {
                 .getResultList();
     }
 
-    private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
+    private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx,
+            IssuerEntity issuerOfAccessionNumber,
+            IssuerEntity issuerOfAdmissionID) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
@@ -273,6 +297,7 @@ public class ProcedureServiceEJB {
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
             study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+            study.setIssuerOfAdmissionID(issuerOfAdmissionID);
             study.setAttributes(studyAttr.addOriginalAttributes(
                     null,
                     now,
@@ -318,8 +343,10 @@ public class ProcedureServiceEJB {
     public void updateStudySeriesAttributes(ProcedureContext ctx) {
         boolean result = false;
         try {
-            IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getAttributes());
-            result = updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber);
+            Attributes attrs = ctx.getAttributes();
+            result = updateStudySeriesAttributesFromMWL(ctx,
+                    findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)),
+                    findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
         } catch (Exception e) {
             ctx.setException(e);
         } finally {

@@ -9,9 +9,9 @@ BEGIN { FS = "[ )]" }
         } else if ($3 == "stgver_task") {
                 print "create table stgver_task (pk numeric(18,0) not null, completed integer not null, created_time timestamp not null, failed integer not null, local_aet varchar(255) not null, series_iuid varchar(64), sop_iuid varchar(64), storage_ids varchar(255), stgcmt_policy integer, study_iuid varchar(64) not null, update_location_status smallint, updated_time timestamp not null, queue_msg_fk numeric(18,0) not null, primary key (pk));"
         } else if ($3 == "issuer") {
-                print "create table issuer (pk numeric(18,0) not null, entity_id varchar(255), entity_uid varchar(64), entity_uid_type varchar(16), primary key (pk));"
+                print "create table issuer (pk numeric(18,0) not null, entity_id varchar(64), entity_uid varchar(64), entity_uid_type varchar(16), primary key (pk));"
         } else if ($3 == "mwl_item") {
-                print "create table mwl_item (pk numeric(18,0) not null, accession_no varchar(255) not null, created_time timestamp not null, modality varchar(255) not null, req_proc_id varchar(255) not null, sps_id varchar(16) not null, sps_start_date varchar(255) not null, sps_start_time varchar(255) not null, sps_status integer not null, study_iuid varchar(64) not null, updated_time timestamp not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, accno_issuer_fk numeric(18,0), patient_fk numeric(18,0) not null, perf_phys_name_fk numeric(18,0), primary key (pk));"
+                print "create table mwl_item (pk numeric(18,0) not null, accession_no varchar(16) not null, admission_id varchar(64) not null, created_time timestamp not null, institution varchar(64) not null, department varchar(64) not null, modality varchar(16) not null, req_proc_id varchar(16) not null, sps_id varchar(16) not null, sps_start_date varchar(16) not null, sps_start_time varchar(16) not null, sps_status integer not null, study_iuid varchar(64) not null, updated_time timestamp not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, inst_code_fk numeric(18,0), dept_code_fk numeric(18,0), accno_issuer_fk numeric(18,0), admid_issuer_fk numeric(18,0), patient_fk numeric(18,0) not null, perf_phys_name_fk numeric(18,0), primary key (pk));"
         } else {
             print $0
         }

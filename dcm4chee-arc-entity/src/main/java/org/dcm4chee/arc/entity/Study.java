@@ -137,6 +137,7 @@ import java.util.*;
                 @Index(columnList = "study_date"),
                 @Index(columnList = "study_time"),
                 @Index(columnList = "accession_no"),
+                @Index(columnList = "admission_id"),
                 @Index(columnList = "study_desc"),
                 @Index(columnList = "study_custom1"),
                 @Index(columnList = "study_custom2"),
@@ -245,6 +246,10 @@ public class Study {
     private String accessionNumber;
 
     @Basic(optional = false)
+    @Column(name = "admission_id")
+    private String admissionID;
+
+    @Basic(optional = false)
     @Column(name = "study_desc")
     private String studyDescription;
 
@@ -299,6 +304,10 @@ public class Study {
     @ManyToOne
     @JoinColumn(name = "accno_issuer_fk")
     private IssuerEntity issuerOfAccessionNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "admid_issuer_fk")
+    private IssuerEntity issuerOfAdmissionID;
 
     @ManyToMany
     @JoinTable(name = "rel_study_pcode",
@@ -464,6 +473,18 @@ public class Study {
         this.issuerOfAccessionNumber = issuerOfAccessionNumber;
     }
 
+    public String getAdmissionID() {
+        return admissionID;
+    }
+
+    public IssuerEntity getIssuerOfAdmissionID() {
+        return issuerOfAdmissionID;
+    }
+
+    public void setIssuerOfAdmissionID(IssuerEntity issuerOfAdmissionID) {
+        this.issuerOfAdmissionID = issuerOfAdmissionID;
+    }
+
     public PersonName getReferringPhysicianName() {
         return referringPhysicianName;
     }
@@ -589,6 +610,7 @@ public class Study {
             studyTime = "*";
         }
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
+        admissionID = attrs.getString(Tag.AdmissionID, "*");
         referringPhysicianName = PersonName.valueOf(
                 attrs.getString(Tag.ReferringPhysicianName), fuzzyStr,
                 referringPhysicianName);

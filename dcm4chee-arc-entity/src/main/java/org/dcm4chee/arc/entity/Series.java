@@ -597,6 +597,10 @@ public class Series {
     @JoinColumn(name = "inst_code_fk")
     private CodeEntity institutionCode;
 
+    @ManyToOne
+    @JoinColumn(name = "dept_code_fk")
+    private CodeEntity institutionalDepartmentTypeCode;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "series_fk")
     private Collection<SeriesRequestAttributes> requestAttributes;
@@ -915,6 +919,14 @@ public class Series {
 
     public void setInstitutionCode(CodeEntity institutionCode) {
         this.institutionCode = institutionCode;
+    }
+
+    public CodeEntity getInstitutionalDepartmentTypeCode() {
+        return institutionalDepartmentTypeCode;
+    }
+
+    public void setInstitutionalDepartmentTypeCode(CodeEntity institutionalDepartmentTypeCode) {
+        this.institutionalDepartmentTypeCode = institutionalDepartmentTypeCode;
     }
 
     public Collection<SeriesRequestAttributes> getRequestAttributes() {

@@ -112,6 +112,8 @@ public class StudyServiceEJB {
                 filter, ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
+        study.setIssuerOfAdmissionID(
+                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
