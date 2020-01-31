@@ -13,9 +13,11 @@
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
       <!--SOP Instance UID-->
-      <DicomAttribute tag="00080018" vr="UI">
-        <Value number="1"><xsl:value-of select="OBX[field[3]/component='SR Instance UID']/field[5]"/></Value>
-      </DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00080018'"/>
+        <xsl:with-param name="vr" select="'UI'"/>
+        <xsl:with-param name="val" select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
+      </xsl:call-template>
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="OBR"/>
       <!--Content Sequence-->
@@ -28,7 +30,11 @@
   </xsl:template>
   <xsl:template name="const-attrs">
     <!--SOP Class UID-->
-    <DicomAttribute tag="00080016" vr="UI"><Value number="1">1.2.840.10008.5.1.4.1.1.88.11</Value></DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080016'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
+    </xsl:call-template>
     <!--Study Date-->
     <DicomAttribute tag="00080020" vr="DA"/>
     <!--Study Time-->
@@ -36,7 +42,11 @@
     <!--Accession Number-->
     <DicomAttribute tag="00080050" vr="SH"/>
     <!--Modality-->
-    <DicomAttribute tag="00080060" vr="CS"><Value number="1">SR</Value></DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080060'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val" select="'SR'"/>
+    </xsl:call-template>
     <!--Manufacturer-->
     <DicomAttribute tag="00080070" vr="LO"/>
     <!--Referring Physician's Name-->
@@ -48,9 +58,17 @@
     <!--Series Number-->
     <DicomAttribute tag="00200011" vr="IS"/>
     <!--Instance Number-->
-    <DicomAttribute tag="00200013" vr="IS"><Value number="1">1</Value></DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00200013'"/>
+      <xsl:with-param name="vr" select="'IS'"/>
+      <xsl:with-param name="val" select="'1'"/>
+    </xsl:call-template>
     <!--Value Type-->
-    <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CONTAINER</Value></DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0040A040'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val" select="'CONTAINER'"/>
+    </xsl:call-template>
     <!--Concept Name Code Sequence-->
     <xsl:call-template name="codeItem">
       <xsl:with-param name="sqtag">0040A043</xsl:with-param>
@@ -59,7 +77,11 @@
       <xsl:with-param name="meaning" select="$docTitleCodeMeaning"/>
     </xsl:call-template>
     <!--Continuity Of Content-->
-    <DicomAttribute tag="0040A050" vr="CS"><Value number="1">SEPARATE</Value></DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0040A050'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val" select="'SEPARATE'"/>
+    </xsl:call-template>
     <!--Content Template Sequence-->
     <DicomAttribute tag="0040A504" vr="SQ"/>
   </xsl:template>
@@ -74,26 +96,34 @@
     <xsl:variable name="suid"
                   select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
     <!-- Study Instance UID -->
-    <DicomAttribute tag="0020000D" vr="UI">
-      <Value number="1"><xsl:value-of select="$suid"/></Value>
-    </DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000D'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="$suid"/>
+    </xsl:call-template>
     <xsl:variable name="seriesuid"
                   select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
     <!-- Series Instance UID -->
-    <DicomAttribute tag="0020000E" vr="UI">
-      <Value number="1"><xsl:value-of select="$seriesuid"/></Value>
-    </DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000E'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="$seriesuid"/>
+    </xsl:call-template>
     <!--Accession Number-->
-    <DicomAttribute tag="00080050" vr="SH">
-      <Value number="1"><xsl:value-of select="field[18]"/></Value>
-    </DicomAttribute>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080050'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
+      <xsl:with-param name="val" select="field[18]"/>
+    </xsl:call-template>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">
         <!-- Study Instance UID -->
-        <DicomAttribute tag="0020000D" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
-        </DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'0020000D'"/>
+          <xsl:with-param name="vr" select="'UI'"/>
+          <xsl:with-param name="val" select="$suid"/>
+        </xsl:call-template>
         <!--Accession Number-->
         <DicomAttribute tag="00080050" vr="SH"/>
         <!--Referenced Study Sequence-->
@@ -111,26 +141,33 @@
           <xsl:with-param name="val" select="string(field[19]/text())"/>
         </xsl:call-template>
         <!--Placer Order Number / Imaging Service Request-->
-        <DicomAttribute tag="00402016" vr="LO">
-          <Value number="1"><xsl:value-of select="field[2]"/></Value>
-        </DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00402016'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="field[2]"/>
+        </xsl:call-template>
         <!--Filler Order Number / Imaging Service Request-->
-        <DicomAttribute tag="00402017" vr="LO">
-          <Value number="1"><xsl:value-of select="field[3]"/></Value>
-        </DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00402017'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="field[3]"/>
+        </xsl:call-template>
       </Item>
     </DicomAttribute>
     <!-- Verifying Observer Sequence -->
     <DicomAttribute tag="0040A073" vr="SQ">
       <Item number="1">
         <!-- Verifying Organization -->
-        <DicomAttribute tag="0040A027" vr="LO">
-          <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
-        </DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'0040A027'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="$VerifyingOrganization"/>
+        </xsl:call-template>
         <!-- Verification DateTime -->
-        <DicomAttribute tag="0040A030" vr="DT">
-          <Value number="1"><xsl:value-of select="field[7]"/></Value>
-        </DicomAttribute>
+        <xsl:call-template name="attrDT">
+          <xsl:with-param name="dtTag" select="'0040A030'"/>
+          <xsl:with-param name="val" select="field[7]"/>
+        </xsl:call-template>
         <!-- Verifying Observer Name -->
         <xsl:choose>
           <xsl:when test="field[32]/component">
@@ -155,40 +192,62 @@
     </DicomAttribute>
     <xsl:variable name="resultStatus" select="normalize-space(field[25])"/>
     <!--Completion Flag-->
-    <DicomAttribute tag="0040A491" vr="CS">
-      <Value number="1">
-        <xsl:choose>
-          <xsl:when test="$resultStatus='P'">PARTIAL</xsl:when>
-          <xsl:otherwise>COMPLETE</xsl:otherwise>
-        </xsl:choose>
-      </Value>
-    </DicomAttribute>
+    <xsl:variable name="completionFlag">
+      <xsl:choose>
+        <xsl:when test="$resultStatus='P'">
+          <xsl:value-of select="'PARTIAL'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'COMPLETE'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0040A491'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val" select="$completionFlag"/>
+    </xsl:call-template>
     <!--Verification Flag-->
-    <DicomAttribute tag="0040A493" vr="CS">
-      <Value number="1">
-        <xsl:choose>
-          <xsl:when test="$resultStatus='P' or $resultStatus='F'">VERIFIED</xsl:when>
-          <xsl:otherwise>UNVERIFIED</xsl:otherwise>
-        </xsl:choose>
-      </Value>
-    </DicomAttribute>
+    <xsl:variable name="verificationFlag">
+      <xsl:choose>
+        <xsl:when test="$resultStatus='P' or $resultStatus='F'">
+          <xsl:value-of select="'VERIFIED'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'UNVERIFIED'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0040A493'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val" select="$verificationFlag"/>
+    </xsl:call-template>
   </xsl:template>
   <xsl:template name="const-obsctx">
     <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS"><Value number="1">HAS CONCEPT MOD</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A010'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'HAS CONCEPT MOD'"/>
+      </xsl:call-template>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CODE</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A040'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CODE'"/>
+      </xsl:call-template>
       <!--Concept Name Code Sequence-->
       <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-        <xsl:with-param name="code">121049</xsl:with-param>
-        <xsl:with-param name="scheme">DCM</xsl:with-param>
-        <xsl:with-param name="meaning">Language of Content Item and Descendants</xsl:with-param>
+        <xsl:with-param name="sqtag" select="'0040A043'"/>
+        <xsl:with-param name="code" select="'121049'"/>
+        <xsl:with-param name="scheme" select="'DCM'"/>
+        <xsl:with-param name="meaning" select="'Language of Content Item and Descendants'"/>
       </xsl:call-template>
       <!--Concept Code Sequence-->
       <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A168</xsl:with-param>
+        <xsl:with-param name="sqtag" select="'0040A168'"/>
         <xsl:with-param name="code" select="$langCodeValue"/>
         <xsl:with-param name="scheme" select="$langCodingSchemeDesignator"/>
         <xsl:with-param name="meaning" select="$langCodeMeaning"/>
@@ -199,15 +258,23 @@
     <xsl:if test="field[32]">
       <Item number="1">
         <!--Relationship Type-->
-        <DicomAttribute tag="0040A010" vr="CS"><Value number="1">HAS OBS CONTEXT</Value></DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'0040A010'"/>
+          <xsl:with-param name="vr" select="'CS'"/>
+          <xsl:with-param name="val" select="'HAS OBS CONTEXT'"/>
+        </xsl:call-template>
         <!--Value Type-->
-        <DicomAttribute tag="0040A040" vr="CS"><Value number="1">PNAME</Value></DicomAttribute>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'0040A040'"/>
+          <xsl:with-param name="vr" select="'CS'"/>
+          <xsl:with-param name="val" select="'PNAME'"/>
+        </xsl:call-template>
         <!--Concept Name Code Sequence-->
         <xsl:call-template name="codeItem">
-          <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-          <xsl:with-param name="code">121008</xsl:with-param>
-          <xsl:with-param name="scheme">DCM</xsl:with-param>
-          <xsl:with-param name="meaning">Person Observer Name</xsl:with-param>
+          <xsl:with-param name="sqtag" select="'0040A043'"/>
+          <xsl:with-param name="code" select="'121008'"/>
+          <xsl:with-param name="scheme" select="'DCM'"/>
+          <xsl:with-param name="meaning" select="'Person Observer Name'"/>
         </xsl:call-template>
         <!--Person Name-->
         <xsl:call-template name="cn2pnAttr">
@@ -218,15 +285,23 @@
     </xsl:if>
     <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS"><Value number="1">HAS OBS CONTEXT</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A010'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'HAS OBS CONTEXT'"/>
+      </xsl:call-template>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CODE</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A040'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CODE'"/>
+      </xsl:call-template>
       <!--Concept Name Code Sequence-->
       <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-        <xsl:with-param name="code">121023</xsl:with-param>
-        <xsl:with-param name="scheme">DCM</xsl:with-param>
-        <xsl:with-param name="meaning">Procedure Code</xsl:with-param>
+        <xsl:with-param name="sqtag" select="'0040A043'"/>
+        <xsl:with-param name="code" select="'121023'"/>
+        <xsl:with-param name="scheme" select="'DCM'"/>
+        <xsl:with-param name="meaning" select="'Procedure Code'"/>
       </xsl:call-template>
       <!--Concept Code Sequence-->
       <xsl:call-template name="ce2codeItem">
@@ -241,19 +316,31 @@
       <DicomAttribute tag="00081199" vr="SQ">
         <Item number="1">
           <!--Referenced SOP Class UID-->
-          <DicomAttribute tag="00081150" vr="UI">
-            <Value number="1"><xsl:value-of select="following-sibling::*[1]/field[5]"/></Value>
-          </DicomAttribute>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'00081150'"/>
+            <xsl:with-param name="vr" select="'UI'"/>
+            <xsl:with-param name="val" select="following-sibling::*[1]/field[5]"/>
+          </xsl:call-template>
           <!--Referenced SOP Instance UID-->
-          <DicomAttribute tag="00081155" vr="UI">
-            <Value number="1"><xsl:value-of select="field[5]"/></Value>
-          </DicomAttribute>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'00081155'"/>
+            <xsl:with-param name="vr" select="'UI'"/>
+            <xsl:with-param name="val" select="field[5]"/>
+          </xsl:call-template>
         </Item>
       </DicomAttribute>
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS"><Value number="1">CONTAINS</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A010'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CONTAINS'"/>
+      </xsl:call-template>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS"><Value number="1">IMAGE</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A040'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'IMAGE'"/>
+      </xsl:call-template>
     </Item>
   </xsl:template>
   <xsl:template match="OBX" mode="txt">
@@ -263,28 +350,28 @@
     <xsl:choose>
       <xsl:when test="starts-with($text, 'History')">
         <xsl:call-template name="text">
-          <xsl:with-param name="hcode">121060</xsl:with-param>
-          <xsl:with-param name="hname">History</xsl:with-param>
-          <xsl:with-param name="ecode">121060</xsl:with-param>
-          <xsl:with-param name="ename">History</xsl:with-param>
+          <xsl:with-param name="hcode" select="'121060'"/>
+          <xsl:with-param name="hname" select="'History'"/>
+          <xsl:with-param name="ecode" select="'121060'"/>
+          <xsl:with-param name="ename" select="'History'"/>
           <xsl:with-param name="text" select="substring($text,9)"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="starts-with($text, 'Findings')">
         <xsl:call-template name="text">
-          <xsl:with-param name="hcode">121070</xsl:with-param>
-          <xsl:with-param name="hname">Findings</xsl:with-param>
-          <xsl:with-param name="ecode">121071</xsl:with-param>
-          <xsl:with-param name="ename">Finding</xsl:with-param>
+          <xsl:with-param name="hcode" select="'121070'"/>
+          <xsl:with-param name="hname" select="'Findings'"/>
+          <xsl:with-param name="ecode" select="'121071'"/>
+          <xsl:with-param name="ename" select="'Finding'"/>
           <xsl:with-param name="text" select="substring($text,10)"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="starts-with($text, 'Conclusions')">
         <xsl:call-template name="text">
-          <xsl:with-param name="hcode">121076</xsl:with-param>
-          <xsl:with-param name="hname">Conclusions</xsl:with-param>
-          <xsl:with-param name="ecode">121077</xsl:with-param>
-          <xsl:with-param name="ename">Conclusion</xsl:with-param>
+          <xsl:with-param name="hcode" select="'121076'"/>
+          <xsl:with-param name="hname" select="'Conclusions'"/>
+          <xsl:with-param name="ecode" select="'121077'"/>
+          <xsl:with-param name="ename" select="'Conclusion'"/>
           <xsl:with-param name="text" select="substring($text,13)"/>
         </xsl:call-template>
       </xsl:when>
@@ -321,16 +408,24 @@
     </xsl:choose>
   </xsl:template>
   <xsl:template name="text">
-    <xsl:param name="hcode">121070</xsl:param>
-    <xsl:param name="hname">Findings</xsl:param>
-    <xsl:param name="ecode">121071</xsl:param>
-    <xsl:param name="ename">Finding</xsl:param>
+    <xsl:param name="hcode" select="'121070'"/>
+    <xsl:param name="hname" select="'Findings'"/>
+    <xsl:param name="ecode" select="'121071'"/>
+    <xsl:param name="ename" select="'Finding'"/>
     <xsl:param name="text"/>
     <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS"><Value number="1">CONTAINS</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A010'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CONTAINS'"/>
+      </xsl:call-template>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CONTAINER</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A040'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CONTAINER'"/>
+      </xsl:call-template>
       <!--Concept Name Code Sequence-->
       <xsl:call-template name="codeItem">
         <xsl:with-param name="sqtag" select="'0040A043'"/>
@@ -339,14 +434,26 @@
         <xsl:with-param name="meaning" select="$hname"/>
       </xsl:call-template>
       <!--Continuity Of Content-->
-      <DicomAttribute tag="0040A050" vr="CS"><Value number="1">SEPARATE</Value></DicomAttribute>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A050'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'SEPARATE'"/>
+      </xsl:call-template>
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
         <Item number="1">
           <!--Relationship Type-->
-          <DicomAttribute tag="0040A010" vr="CS"><Value number="1">CONTAINS</Value></DicomAttribute>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0040A010'"/>
+            <xsl:with-param name="vr" select="'CS'"/>
+            <xsl:with-param name="val" select="'CONTAINS'"/>
+          </xsl:call-template>
           <!--Value Type-->
-          <DicomAttribute tag="0040A040" vr="CS"><Value number="1">TEXT</Value></DicomAttribute>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0040A040'"/>
+            <xsl:with-param name="vr" select="'CS'"/>
+            <xsl:with-param name="val" select="'TEXT'"/>
+          </xsl:call-template>
           <!--Concept Name Code Sequence-->
           <xsl:call-template name="codeItem">
             <xsl:with-param name="sqtag" select="'0040A043'"/>
@@ -355,9 +462,11 @@
             <xsl:with-param name="meaning" select="$ename"/>
           </xsl:call-template>
           <!--Text Value-->
-          <DicomAttribute tag="0040A160" vr="UT">
-            <Value number="1"><xsl:value-of select="$text"/></Value>
-          </DicomAttribute>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0040A160'"/>
+            <xsl:with-param name="vr" select="'UT'"/>
+            <xsl:with-param name="val" select="$text"/>
+          </xsl:call-template>
         </Item>
       </DicomAttribute>
     </Item>
