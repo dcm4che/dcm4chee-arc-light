@@ -579,7 +579,7 @@
     },
     "dcmStowQuicktime2MP4": {
       "title": "STOW Quicktime to MP4",
-      "description": "Indicates if QuickTime containers received in STOW-RS Metadata and Bulkdata requests shall be converted to MP4 containers encapsulated in created DICOM instances. Overwrites value specified on Device level.",
+      "description": "Indicates if QuickTime containers received in STOW-RS Metadata and Bulkdata requests shall be converted to MP4 containers encapsulated in created DICOM instances. The conversion requires that ffmpeg is installed and the ffmpeg CLI utility is available in the PATH. Otherwise Quicktime containers will get encapsulated in the stored DICOM object verbatim, with a declared DICOM MPEG-4 Transfer Syntax which reflects the encoding of the video stream in the container, but contradicts the actual container format. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "dcmFallbackCMoveSCPCallingAET": {
