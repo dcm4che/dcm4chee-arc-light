@@ -41,9 +41,6 @@
 package org.dcm4chee.arc.hl7.psu;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
@@ -55,6 +52,7 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
@@ -66,7 +64,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -86,6 +83,9 @@ public class HL7PSUEJB {
 
     @Inject
     private HL7Sender hl7Sender;
+
+    @Inject
+    private ProcedureService procedureService;
 
     public void createHL7PSUTaskForMPPS(ArchiveAEExtension arcAE, MPPSContext ctx) {
         HL7PSUTask task = new HL7PSUTask();
@@ -116,13 +116,6 @@ public class HL7PSUEJB {
         }
     }
 
-    private List<MWLItem> findMWLItems(String studyIUID) {
-        return em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
-                .setParameter(1, studyIUID)
-                .getResultList();
-    }
-
-
     private Date scheduledTime(Duration duration) {
         return duration != null ? new Date(System.currentTimeMillis() + duration.getSeconds() * 1000L) : null;
     }
@@ -149,12 +142,14 @@ public class HL7PSUEJB {
         ArchiveAEExtension arcAE = device.getApplicationEntity(task.getAETitle()).getAEExtension(ArchiveAEExtension.class);
 
         MWLItem mwl = null;
-        if (task.getMpps() == null && (arcAE.hl7PSUForRequestedProcedure() || arcAE.hl7PSUMWL())) {
-            List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
-            if (!mwlItems.isEmpty()) {
-                updateStatusToCompleted(arcAE, mwlItems);
-                mwl = mwlItems.get(0);
-            } else
+        if (task.getMpps() == null
+                && ((arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
+                        && arcAE.hl7PSUReceivingApplications().length > 0)
+                    || arcAE.hl7PSUMWL())) {
+            int updated = procedureService.updateSPSStatusToCompleted(task.getStudyInstanceUID());
+            if (updated > 0)
+                LOG.info("{} MWL Items status updated to COMPLETED by HL7 PSU task {}.", updated, task);
+            else
                 LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
         }
         scheduleHL7Msg(arcAE, task, mwl);
@@ -210,26 +205,6 @@ public class HL7PSUEJB {
 
         msg.setPIDSegment(patient);
         msg.setPV1Segment();
-    }
-
-    private void updateStatusToCompleted(ArchiveAEExtension arcAE, List<MWLItem> mwlItems) {
-        if (!arcAE.hl7PSUMWL()
-                && !(arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
-                    && arcAE.hl7PSUReceivingApplications().length > 0))
-            return;
-
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        mwlItems.forEach(mwl -> {
-            Attributes mwlAttrs = mwl.getAttributes();
-            Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
-            while (spsItems.hasNext()) {
-                Attributes sps = spsItems.next();
-                spsItems.remove();
-                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.toString());
-                mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
-            }
-            mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-        });
     }
 
     private void scheduleMessage(String[] hl7PSUReceivingApplications, String hl7cs, HL7PSUMessage msg) {
