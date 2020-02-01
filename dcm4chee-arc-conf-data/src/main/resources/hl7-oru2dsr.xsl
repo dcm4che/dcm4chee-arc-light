@@ -18,7 +18,33 @@
         <xsl:with-param name="vr" select="'UI'"/>
         <xsl:with-param name="val" select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
       </xsl:call-template>
+      <!--SOP Class UID-->
+      <xsl:variable name="ed" select="OBX[field[2]/text()='ED']"/>
+      <xsl:variable name="sopClassUID">
+        <xsl:choose>
+          <xsl:when test="$ed">
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.104.1'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00080016'"/>
+        <xsl:with-param name="vr" select="'UI'"/>
+        <xsl:with-param name="val" select="$sopClassUID"/>
+      </xsl:call-template>
+      <xsl:if test="$ed">
+        <xsl:variable name="obx5" select="OBX[field[5]]"/>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00420012'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="concat($obx5/component[1], '/', $obx5/component[2])"/>
+        </xsl:call-template>
+      </xsl:if>
       <xsl:apply-templates select="PID"/>
+      <xsl:apply-templates select="PV1"/>
       <xsl:apply-templates select="OBR"/>
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
@@ -29,12 +55,6 @@
     </NativeDicomModel>
   </xsl:template>
   <xsl:template name="const-attrs">
-    <!--SOP Class UID-->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00080016'"/>
-      <xsl:with-param name="vr" select="'UI'"/>
-      <xsl:with-param name="val" select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
-    </xsl:call-template>
     <!--Study Date-->
     <DicomAttribute tag="00080020" vr="DA"/>
     <!--Study Time-->
@@ -471,4 +491,13 @@
       </DicomAttribute>
     </Item>
   </xsl:template>
+
+  <xsl:template name="sr">
+
+  </xsl:template>
+
+  <xsl:template name="ed">
+
+  </xsl:template>
+
 </xsl:stylesheet>

@@ -19,61 +19,6 @@
       <xsl:apply-templates select="ZDS"/>
     </NativeDicomModel>
   </xsl:template>
-  <xsl:template match="PV1">
-    <!-- Referring Physican Name -->
-    <xsl:call-template name="cn2pnAttr">
-      <xsl:with-param name="tag" select="'00080090'"/>
-      <xsl:with-param name="cn" select="field[8]"/>
-    </xsl:call-template>
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'001021C0'"/>
-      <xsl:with-param name="vr" select="'US'"/>
-      <xsl:with-param name="val">
-        <xsl:call-template name="pregnancyStatus">
-          <xsl:with-param name="ambulantStatus" select="field[15]/text()"/>
-        </xsl:call-template>
-      </xsl:with-param>
-    </xsl:call-template>
-    <!-- Admission ID, Issuer -->
-    <xsl:call-template name="admissionID">
-      <xsl:with-param name="ei" select="field[19]"/>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template name="pregnancyStatus">
-    <xsl:param name="ambulantStatus"/>
-    <xsl:if test="$ambulantStatus">
-      <xsl:choose>
-        <xsl:when test="$ambulantStatus = 'B6'">3</xsl:when>
-        <xsl:otherwise>&quot;&quot;</xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template name="admissionID">
-    <xsl:param name="ei"/>
-    <xsl:variable name="val" select="$ei/text()"/>
-    <xsl:if test="$val">
-      <xsl:if test="$val != '&quot;&quot;'">
-        <xsl:call-template name="attr">
-          <xsl:with-param name="tag" select="'00380010'"/>
-          <xsl:with-param name="vr" select="'LO'"/>
-          <xsl:with-param name="val" select="$val"/>
-        </xsl:call-template>
-      </xsl:if>
-      <DicomAttribute tag="00380014" vr="SQ">
-        <Item number="1">
-          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400031'"/>
-              <xsl:with-param name="vr" select="'UT'"/>
-              <xsl:with-param name="val" select="$ei/component[3]/text()"/>
-            </xsl:call-template>
-          </xsl:if>
-        </Item>
-      </DicomAttribute>
-    </xsl:if>
-  </xsl:template>
 
   <xsl:template match="ORC[1]">
     <!-- Placer Order Number -->

@@ -14,28 +14,9 @@
 
   <xsl:template match="PV1">
     <!-- Admission ID, Issuer -->
-    <xsl:param name="ei" select="field[19]"/>
-    <xsl:variable name="val" select="$ei/text()"/>
-    <xsl:if test="$val">
-      <xsl:if test="$val != '&quot;&quot;'">
-        <xsl:call-template name="attr">
-          <xsl:with-param name="tag" select="'00380010'"/>
-          <xsl:with-param name="vr" select="'LO'"/>
-          <xsl:with-param name="val" select="$val"/>
-        </xsl:call-template>
-      </xsl:if>
-      <DicomAttribute tag="00380014" vr="SQ">
-        <Item number="1">
-          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400031'"/>
-              <xsl:with-param name="vr" select="'UT'"/>
-              <xsl:with-param name="val" select="$ei/component[3]/text()"/>
-            </xsl:call-template>
-          </xsl:if>
-        </Item>
-      </DicomAttribute>
-    </xsl:if>
+    <xsl:call-template name="admissionID">
+      <xsl:with-param name="ei" select="field[19]"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="ORC">
