@@ -124,10 +124,10 @@ class HL7PSUMessage {
     }
 
     void setStudy(Attributes studyAttrs, ArchiveAEExtension arcAE) {
-        setPlacerOrder(new AttributesFormat(arcAE.hl7PSURequestedProcedureID()).format(studyAttrs));
-        setFillerOrder(new AttributesFormat(arcAE.hl7PSUAccessionNumber()).format(studyAttrs));
-        setAccessionNumber(new AttributesFormat(arcAE.hl7PSUFillerOrderNumber()).format(studyAttrs));
-        setRequestedProcedureID(new AttributesFormat(arcAE.hl7PSUPlacerOrderNumber()).format(studyAttrs));
+        setPlacerOrder(new AttributesFormat(arcAE.hl7PSUPlacerOrderNumber()).format(studyAttrs));
+        setFillerOrder(new AttributesFormat(arcAE.hl7PSUFillerOrderNumber()).format(studyAttrs));
+        setAccessionNumber(new AttributesFormat(arcAE.hl7PSUAccessionNumber()).format(studyAttrs));
+        setRequestedProcedureID(new AttributesFormat(arcAE.hl7PSURequestedProcedureID()).format(studyAttrs));
     }
 
     private void setMPPS(Attributes mppsAttrs) {
