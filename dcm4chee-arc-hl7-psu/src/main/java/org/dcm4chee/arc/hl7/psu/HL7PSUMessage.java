@@ -42,11 +42,13 @@ package org.dcm4chee.arc.hl7.psu;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.HL7PSUMessageType;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Patient;
@@ -63,20 +65,19 @@ class HL7PSUMessage {
     private final HL7Segment orc;
     private final HL7Segment tq1;
     private final HL7Segment obr;
-    private HL7Segment pid;
-    private HL7Segment pv1;
     private final HL7Message hl7Message;
 
-    HL7PSUMessage(HL7PSUTask task) {
+    HL7PSUMessage(HL7PSUTask task, ArchiveAEExtension arcAE) {
         msh = HL7Segment.makeMSH();
-        msh.setField(8, "OMG^O19^OMG_O19");
+        msh.setField(8, arcAE.hl7PSUMessageType() == HL7PSUMessageType.OMG_O19
+                ? "OMG^O19^OMG_O19" : "ORU^R01^ORU_R01");
         orc = new HL7Segment(6);
         orc.setField(0, "ORC");
         orc.setField(1, "SC");
         orc.setField(5, "CM");
-        tq1 = new HL7Segment(8);
+        tq1 = new HL7Segment(10);
         tq1.setField(0, "TQ1");
-        obr = new HL7Segment(20);
+        obr = new HL7Segment(45);
         obr.setField(0, "OBR");
         hl7Message = new HL7Message(4);
         hl7Message.add(msh);
@@ -107,7 +108,7 @@ class HL7PSUMessage {
     }
 
     void setPIDSegment(Patient patient) {
-        pid = new HL7Segment(9);
+        HL7Segment pid = new HL7Segment(9);
         pid.setField(0, "PID");
         pid.setField(3, patient.getPatientID() != null ? patient.getPatientID().getIDWithIssuer().toString() : null);
         pid.setField(5, patient.getPatientName() != null ? patient.getPatientName().toString() : null);
@@ -117,7 +118,7 @@ class HL7PSUMessage {
     }
 
     void setPV1Segment() {
-        pv1 = new HL7Segment(3);
+        HL7Segment pv1 = new HL7Segment(3);
         pv1.setField(0, "PV1");
         pv1.setField(2, "U");
         hl7Message.add(pv1);
@@ -128,6 +129,8 @@ class HL7PSUMessage {
         setFillerOrder(new AttributesFormat(arcAE.hl7PSUFillerOrderNumber()).format(studyAttrs));
         setAccessionNumber(new AttributesFormat(arcAE.hl7PSUAccessionNumber()).format(studyAttrs));
         setRequestedProcedureID(new AttributesFormat(arcAE.hl7PSURequestedProcedureID()).format(studyAttrs));
+        if (arcAE.hl7PSUMessageType() == HL7PSUMessageType.ORU_R01)
+            setORUSpecificFields(studyAttrs);
     }
 
     private void setMPPS(Attributes mppsAttrs) {
@@ -168,6 +171,84 @@ class HL7PSUMessage {
 
     private void setRequestedProcedureID(String requestedProcedureID) {
         obr.setField(19, requestedProcedureID);
+    }
+
+    private void setORUSpecificFields(Attributes attrs) {
+        setUniversalServiceIDAndProcedureCode(attrs);
+        obr.setField(7, attrs.getDate(Tag.StudyDate) != null
+                ? attrs.getString(Tag.StudyDate) + attrs.getString(Tag.StudyTime)
+                : attrs.getString(Tag.SeriesDate) + attrs.getString(Tag.SeriesTime));
+        obr.setField(24, "RAD");
+        obr.setField(25, "R");
+        obr.setField(27, "^^^^^R");
+        setTechnician(attrs);
+        setReasonForStudy(attrs);
+        tq1.setField(9, "R^Routine^HL70078");
+        setOBX(attrs);
+    }
+
+    private void setUniversalServiceIDAndProcedureCode(Attributes attrs) {
+        String procedureCode = codeToStr(attrs, Tag.ProcedureCodeSequence);
+        String requestedProcedureCode = codeToStr(attrs, Tag.RequestedProcedureCodeSequence);
+        String val = procedureCode != null ? procedureCode : requestedProcedureCode;
+        obr.setField(4, val);
+        obr.setField(44, val);
+    }
+
+    private void setTechnician(Attributes attrs) {
+        String operator = nameIDSqToStr(attrs, Tag.OperatorsName, Tag.OperatorIdentificationSequence);
+        String performingPhysician = nameIDSqToStr(
+                attrs, Tag.PerformingPhysicianName, Tag.PerformingPhysicianIdentificationSequence);
+        obr.setField(34, operator != null ? operator : performingPhysician);
+    }
+
+    private void setReasonForStudy(Attributes attrs) {
+        String reasonForPerformedProcedureCodeSq = codeToStr(attrs, Tag.ReasonForPerformedProcedureCodeSequence);
+        String reasonForRequestedProcedureCode = descCodeToStr(
+                attrs, Tag.ReasonForTheRequestedProcedure, Tag.ReasonForRequestedProcedureCodeSequence);
+        String reasonForVisit = descCodeToStr(attrs, Tag.ReasonForVisit, Tag.ReasonForVisitCodeSequence);
+        String admittingDiagnoses = descCodeToStr(
+                attrs, Tag.AdmittingDiagnosesDescription, Tag.AdmittingDiagnosesCodeSequence);
+
+        obr.setField(31, reasonForPerformedProcedureCodeSq != null
+                ? reasonForPerformedProcedureCodeSq
+                : reasonForRequestedProcedureCode != null
+                ? reasonForRequestedProcedureCode
+                : reasonForVisit != null
+                ? reasonForVisit : admittingDiagnoses);
+    }
+
+    private String nameIDSqToStr(Attributes attrs, int nameTag, int idSqTag) {
+        String name = attrs.getString(nameTag);
+        Sequence idSq = attrs.getSequence(idSqTag);
+        return name != null ? name : idSq != null ? codeToStr(idSq.get(0), Tag.PersonIdentificationCodeSequence) : null;
+    }
+
+    private String descCodeToStr(Attributes attrs, int tag, int sqTag) {
+        String val = attrs.getString(tag);
+        return val != null
+                ? val
+                : codeToStr(attrs, sqTag);
+    }
+
+    private String codeToStr(Attributes attrs, int sqTag) {
+        Attributes item = attrs.getNestedDataset(sqTag);
+        return item != null
+                ? item.getString(Tag.CodeValue)
+                    + "^" + item.getString(Tag.CodeMeaning)
+                    + "^" + item.getString(Tag.CodingSchemeDesignator)
+                : null;
+    }
+
+    private void setOBX(Attributes attrs) {
+        HL7Segment obx = new HL7Segment(12);
+        obx.setField(0, "OBX");
+        obx.setField(1, "1");
+        obx.setField(2, "ST");
+        obx.setField(3, "113014^DICOM Study^DCM");
+        obx.setField(5, attrs.getString(Tag.StudyInstanceUID));
+        obx.setField(11, "O");
+        hl7Message.add(obx);
     }
 
 }
