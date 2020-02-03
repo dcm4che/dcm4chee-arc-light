@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     private String aeTitle;
+    private Boolean recordAttributeModification;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
     private String scheduleProcedureTemplateURI;
@@ -86,6 +87,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public void reconfigure(HL7ApplicationExtension src) {
         ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;
         aeTitle = arcapp.aeTitle;
+        recordAttributeModification = arcapp.recordAttributeModification;
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
         importReportTemplateURI = arcapp.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcapp.scheduleProcedureTemplateURI;
@@ -125,6 +127,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setAETitle(String aeTitle) {
         this.aeTitle = aeTitle;
+    }
+
+    public Boolean getRecordAttributeModification() {
+        return recordAttributeModification;
+    }
+
+    public void setRecordAttributeModification(Boolean recordAttributeModification) {
+        this.recordAttributeModification = recordAttributeModification;
+    }
+
+    public boolean recordAttributeModification() {
+        return recordAttributeModification != null
+                ? recordAttributeModification
+                : getArchiveDeviceExtension().isRecordAttributeModification();
     }
 
     public String getPatientUpdateTemplateURI() {

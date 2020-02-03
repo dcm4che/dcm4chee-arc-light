@@ -93,6 +93,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration deleteUPSCompletedDelay;
     private volatile Duration deleteUPSCanceledDelay;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
+    private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
     private volatile ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
     private volatile String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
@@ -372,6 +373,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
         this.overwritePolicy = overwritePolicy;
+    }
+
+    public boolean isRecordAttributeModification() {
+        return recordAttributeModification;
+    }
+
+    public void setRecordAttributeModification(boolean recordAttributeModification) {
+        this.recordAttributeModification = recordAttributeModification;
     }
 
     public ShowPatientInfo getShowPatientInfoInSystemLog() {
@@ -2686,6 +2695,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteUPSCompletedDelay = arcdev.deleteUPSCompletedDelay;
         deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
         overwritePolicy = arcdev.overwritePolicy;
+        recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;

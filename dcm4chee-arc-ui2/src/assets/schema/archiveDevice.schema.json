@@ -12,6 +12,7 @@
     "dcmDeleteUPSFetchSize",
     "dcmDeleteMWLFetchSize",
     "dcmOverwritePolicy",
+    "dcmRecordAttributeModification",
     "dcmAcceptMissingPatientID",
     "dcmAcceptConflictingPatientID",
     "dcmValidateCallingAEHostname",
@@ -245,6 +246,12 @@
         "SAME_SERIES",
         "SAME_SOURCE_AND_SERIES"
       ]
+    },
+    "dcmRecordAttributeModification": {
+      "title": "Record Attribute Modification",
+      "description": "Indicates if modifications of attributes of stored objects are recorded in Items of the Original Attributes Sequence. May be overwritten by configured values for particular Archive Network AE or Archive HL7 Application.",
+      "type": "boolean",
+      "default": "true"
     },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",

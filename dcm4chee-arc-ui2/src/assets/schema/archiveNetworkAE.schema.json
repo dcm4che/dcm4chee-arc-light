@@ -81,6 +81,11 @@
         "SAME_SOURCE_AND_SERIES"
       ]
     },
+    "dcmRecordAttributeModification": {
+      "title": "Record Attribute Modification",
+      "description": "Indicates if modifications of attributes of stored objects by this AE are recorded in Items of the Original Attributes Sequence. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",
       "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Overwrites value specified on Device level.",

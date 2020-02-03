@@ -100,6 +100,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmDeleteUPSCompletedDelay", arcDev.getDeleteUPSCompletedDelay(), null);
         writer.writeNotNullOrDef("dcmDeleteUPSCanceledDelay", arcDev.getDeleteUPSCanceledDelay(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
+        writer.writeNotDef("dcmRecordAttributeModification", arcDev.isRecordAttributeModification(), true);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
@@ -936,6 +937,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcAE.getOverwritePolicy(), null);
+        writer.writeNotNullOrDef("dcmRecordAttributeModification", arcAE.getRecordAttributeModification(), null);
         writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID(), null);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
@@ -1106,6 +1108,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmRecordAttributeModification":
+                    arcDev.setRecordAttributeModification(reader.booleanValue());
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
@@ -3040,6 +3045,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmOverwritePolicy":
                     arcAE.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmRecordAttributeModification":
+                    arcAE.setRecordAttributeModification(reader.booleanValue());
                     break;
                 case "dcmQueryRetrieveViewID":
                     arcAE.setQueryRetrieveViewID(reader.stringValue());

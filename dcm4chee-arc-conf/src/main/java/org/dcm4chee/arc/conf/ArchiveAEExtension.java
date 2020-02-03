@@ -74,6 +74,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
+    private Boolean recordAttributeModification;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private Boolean validateCallingAEHostname;
@@ -316,6 +317,20 @@ public class ArchiveAEExtension extends AEExtension {
         return overwritePolicy != null
                 ? overwritePolicy
                 : getArchiveDeviceExtension().getOverwritePolicy();
+    }
+
+    public Boolean getRecordAttributeModification() {
+        return recordAttributeModification;
+    }
+
+    public void setRecordAttributeModification(Boolean recordAttributeModification) {
+        this.recordAttributeModification = recordAttributeModification;
+    }
+
+    public boolean recordAttributeModification() {
+        return recordAttributeModification != null
+                ? recordAttributeModification
+                : getArchiveDeviceExtension().isRecordAttributeModification();
     }
 
     public AcceptMissingPatientID getAcceptMissingPatientID() {
@@ -1512,6 +1527,7 @@ public class ArchiveAEExtension extends AEExtension {
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;
+        recordAttributeModification = aeExt.recordAttributeModification;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
         validateCallingAEHostname = aeExt.validateCallingAEHostname;
