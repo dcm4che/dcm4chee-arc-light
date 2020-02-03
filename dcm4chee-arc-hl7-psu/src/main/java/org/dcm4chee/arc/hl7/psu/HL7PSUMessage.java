@@ -65,6 +65,7 @@ class HL7PSUMessage {
     private final HL7Segment orc;
     private final HL7Segment tq1;
     private final HL7Segment obr;
+    private HL7Segment pv1;
     private final HL7Message hl7Message;
 
     HL7PSUMessage(HL7PSUTask task, ArchiveAEExtension arcAE) {
@@ -118,7 +119,7 @@ class HL7PSUMessage {
     }
 
     void setPV1Segment() {
-        HL7Segment pv1 = new HL7Segment(3);
+        pv1 = new HL7Segment(52);
         pv1.setField(0, "PV1");
         pv1.setField(2, "U");
         hl7Message.add(pv1);
@@ -184,6 +185,8 @@ class HL7PSUMessage {
         setTechnician(attrs);
         setReasonForStudy(attrs);
         tq1.setField(9, "R^Routine^HL70078");
+        pv1.setField(19, idWithIssuer(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence));
+        pv1.setField(51, "V");
         setOBX(attrs);
     }
 
