@@ -192,7 +192,9 @@ class HL7PSUMessage {
 
     private void setUniversalServiceIDAndProcedureCode(Attributes attrs) {
         String procedureCode = codeToStr(attrs, Tag.ProcedureCodeSequence);
-        String requestedProcedureCode = codeToStr(attrs, Tag.RequestedProcedureCodeSequence);
+        Sequence reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
+        String requestedProcedureCode = reqAttrsSeq != null
+                ? codeToStr(reqAttrsSeq.get(0), Tag.RequestedProcedureCodeSequence) : null;
         String val = procedureCode != null ? procedureCode : requestedProcedureCode;
         obr.setField(4, val);
         obr.setField(44, val);
@@ -207,8 +209,10 @@ class HL7PSUMessage {
 
     private void setReasonForStudy(Attributes attrs) {
         String reasonForPerformedProcedureCodeSq = codeToStr(attrs, Tag.ReasonForPerformedProcedureCodeSequence);
-        String reasonForRequestedProcedureCode = descCodeToStr(
-                attrs, Tag.ReasonForTheRequestedProcedure, Tag.ReasonForRequestedProcedureCodeSequence);
+        Sequence reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
+        String reasonForRequestedProcedureCode = reqAttrsSeq != null
+                ? descCodeToStr(attrs, Tag.ReasonForTheRequestedProcedure, Tag.ReasonForRequestedProcedureCodeSequence)
+                : null;
         String reasonForVisit = descCodeToStr(attrs, Tag.ReasonForVisit, Tag.ReasonForVisitCodeSequence);
         String admittingDiagnoses = descCodeToStr(
                 attrs, Tag.AdmittingDiagnosesDescription, Tag.AdmittingDiagnosesCodeSequence);
