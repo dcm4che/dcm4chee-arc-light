@@ -680,6 +680,27 @@ public class QueryBuilder {
                 predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
         hideSPSWithStatus(predicates, mwlItem, queryParam);
+        String admissionID = keys.getString(Tag.AdmissionID, "*");
+        if (!isUniversalMatching(admissionID)) {
+            Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
+            if (issuer != null)
+                idWithIssuer(predicates,
+                        mwlItem,
+                        MWLItem_.admissionID,
+                        MWLItem_.issuerOfAdmissionID,
+                        admissionID,
+                        issuer);
+            else
+                predicates.add(cb.equal(mwlItem.get(MWLItem_.admissionID), admissionID));
+        }
+        anyOf(predicates, mwlItem.get(MWLItem_.institutionName),
+                keys.getStrings(Tag.InstitutionName), true);
+        code(predicates, mwlItem.get(MWLItem_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
+        anyOf(predicates, mwlItem.get(MWLItem_.institutionalDepartmentName),
+                keys.getStrings(Tag.InstitutionalDepartmentName), true);
+        code(predicates,
+                mwlItem.get(MWLItem_.institutionalDepartmentTypeCode),
+                keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
     }
 
     private <T> boolean anyOf(List<Predicate> predicates, Path<T> path, Function<String, T> valueOf,

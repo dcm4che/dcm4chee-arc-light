@@ -642,7 +642,9 @@ class ArchiveDeviceFactory {
             Tag.OrderCallbackTelecomInformation,
             Tag.PlacerOrderNumberImagingServiceRequest,
             Tag.FillerOrderNumberImagingServiceRequest,
-            Tag.ImagingServiceRequestComments
+            Tag.ImagingServiceRequestComments,
+            Tag.InstitutionalDepartmentName,
+            Tag.InstitutionalDepartmentTypeCodeSequence
     };
     static final int[] UPS_ATTRS = {
             Tag.SpecificCharacterSet,
