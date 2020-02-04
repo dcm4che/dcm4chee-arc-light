@@ -143,6 +143,7 @@ public class MwlRS {
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
             ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             procedureService.updateProcedure(ctx);

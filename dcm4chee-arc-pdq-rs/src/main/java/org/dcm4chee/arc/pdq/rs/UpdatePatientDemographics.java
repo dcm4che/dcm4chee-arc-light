@@ -44,7 +44,9 @@ package org.dcm4chee.arc.pdq.rs;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
@@ -102,9 +104,11 @@ public class UpdatePatientDemographics {
                        @PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
         try {
+            ArchiveAEExtension arcAE = getArchiveAE();
             PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setPatientID(patientID);
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
             Attributes attrs;
@@ -162,6 +166,14 @@ public class UpdatePatientDemographics {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     private Response errResponse(String msg, Response.Status status) {

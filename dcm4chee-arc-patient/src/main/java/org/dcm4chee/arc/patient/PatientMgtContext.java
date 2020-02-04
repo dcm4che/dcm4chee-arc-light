@@ -43,8 +43,10 @@ package org.dcm4chee.arc.patient;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -112,4 +114,10 @@ public interface PatientMgtContext {
     String getPDQServiceURI();
 
     void setPDQServiceURI(String pdqServiceURI);
+
+    ArchiveAEExtension getArchiveAEExtension();
+
+    void setArchiveAEExtension(ArchiveAEExtension arcAE);
+
+    HL7Application getHL7Application();
 }

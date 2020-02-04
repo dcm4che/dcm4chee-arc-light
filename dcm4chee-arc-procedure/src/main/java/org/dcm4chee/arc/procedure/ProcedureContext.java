@@ -43,6 +43,8 @@ package org.dcm4chee.arc.procedure;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
@@ -95,4 +97,12 @@ public interface ProcedureContext {
     Attributes.UpdatePolicy getAttributeUpdatePolicy();
 
     void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
+
+    ArchiveAEExtension getArchiveAEExtension();
+
+    void setArchiveAEExtension(ArchiveAEExtension arcAE);
+
+    ArchiveHL7ApplicationExtension getArchiveHL7AppExtension();
+
+    void setArchiveHL7AppExtension(ArchiveHL7ApplicationExtension arcHL7App);
 }

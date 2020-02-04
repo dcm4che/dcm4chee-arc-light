@@ -48,12 +48,10 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.slf4j.Logger;
@@ -273,29 +271,31 @@ public class ProcedureServiceEJB {
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
             study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            study.setAttributes(studyAttr.addOriginalAttributes(
-                    null,
-                    now,
-                    Attributes.CORRECT,
-                    device.getDeviceName(),
-                    modified),
+            study.setAttributes(recordAttributeModification(ctx)
+                    ? studyAttr.addOriginalAttributes(
+                        null,
+                        now,
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified)
+                    : studyAttr,
                     studyFilter, arcDev.getFuzzyStr());
         }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
             if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
                 updateSeriesAttributes(series, mwlAttr, issuerOfAccessionNumber,
-                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now);
+                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now, ctx);
 
         LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
         return true;
     }
 
     private void updateSeriesAttributes(Series series, Attributes mwlAttr, IssuerEntity issuerOfAccessionNumber,
-                                        AttributeFilter filter, FuzzyStr fuzzyStr, Date now) {
+                                        AttributeFilter filter, FuzzyStr fuzzyStr, Date now, ProcedureContext ctx) {
         Attributes seriesAttr = series.getAttributes();
         Attributes modified = new Attributes(seriesAttr, Tag.RequestAttributesSequence);
-        if (modified.containsValue(Tag.RequestAttributesSequence))
+        if (modified.containsValue(Tag.RequestAttributesSequence) && recordAttributeModification(ctx))
             seriesAttr.addOriginalAttributes(
                     null,
                     now,
@@ -326,5 +326,13 @@ public class ProcedureServiceEJB {
             if (result || ctx.getException() != null)
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
+    }
+
+    private boolean recordAttributeModification(ProcedureContext ctx) {
+        return ctx.getArchiveAEExtension() != null
+                ? ctx.getArchiveAEExtension().recordAttributeModification()
+                : ctx.getArchiveHL7AppExtension() != null
+                ? ctx.getArchiveHL7AppExtension().recordAttributeModification()
+                : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
     }
 }

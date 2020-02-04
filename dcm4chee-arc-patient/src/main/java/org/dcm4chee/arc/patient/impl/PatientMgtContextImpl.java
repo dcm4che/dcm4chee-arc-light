@@ -49,10 +49,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.ReverseDNS;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -84,6 +81,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private HttpServletRequestInfo httpServletRequestInfo;
     private Patient.VerificationStatus patientVerificationStatus = Patient.VerificationStatus.UNVERIFIED;
     private String pdqServiceURI;
+    private ArchiveAEExtension arcAE;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -103,6 +101,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     void setAssociation(Association as) {
         this.as = as;
         this.socket = as.getSocket();
+        this.arcAE = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     @Override
@@ -269,5 +268,20 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPDQServiceURI(String pdqServiceURI) {
         this.pdqServiceURI = pdqServiceURI;
+    }
+
+    @Override
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
+    }
+
+    @Override
+    public void setArchiveAEExtension(ArchiveAEExtension arcAE) {
+        this.arcAE = arcAE;
+    }
+
+    @Override
+    public HL7Application getHL7Application() {
+        return hl7app;
     }
 }

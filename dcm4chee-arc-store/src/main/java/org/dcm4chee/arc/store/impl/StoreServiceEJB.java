@@ -794,14 +794,14 @@ public class StoreServiceEJB {
             updateStudy(ctx, series.getStudy(), now, reasonForTheAttributeModification);
             updatePatient(ctx, series.getStudy().getPatient(), now, reasonForTheAttributeModification);
         }
-        coerceAttributes(series, now, reasonForTheAttributeModification, result);
+        coerceAttributes(series, now, reasonForTheAttributeModification, result, ctx);
         Instance instance = createInstance(session, series, conceptNameCode,
                 result.getStoredAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
         result.setCreatedInstance(instance);
         return instance;
     }
 
-    private void coerceAttributes(Series series, Date now, String reason, UpdateDBResult result) {
+    private void coerceAttributes(Series series, Date now, String reason, UpdateDBResult result, StoreContext ctx) {
         Study study = series.getStudy();
         Patient patient = study.getPatient();
         Attributes storedAttrs = new Attributes(result.getStoredAttributes());
@@ -816,7 +816,7 @@ public class StoreServiceEJB {
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
         storedAttrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
-        if (!modified.isEmpty())
+        if (!modified.isEmpty() && recordAttributeModification(ctx))
             result.setStoredAttributes(storedAttrs.addOriginalAttributes(
                     null, now, reason, device.getDeviceName(), modified));
     }
@@ -903,8 +903,9 @@ public class StoreServiceEJB {
                     issuerEntity.merge(issuer);
             }
         }
-        pat.setAttributes(
-                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+        pat.setAttributes(recordAttributeModification(ctx)
+                    ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
+                    : attrs,
                 filter, arcDev.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
@@ -926,8 +927,9 @@ public class StoreServiceEJB {
 
         updateInfo.log(session, study, attrs);
         study = em.find(Study.class, study.getPk());
-        study.setAttributes(
-                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+        study.setAttributes(recordAttributeModification(ctx)
+                    ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
+                    : attrs,
                 filter, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
@@ -953,8 +955,9 @@ public class StoreServiceEJB {
         updateInfo.log(session, series, attrs);
         series = em.find(Series.class, series.getPk());
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
-        series.setAttributes(
-                attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified),
+        series.setAttributes(recordAttributeModification(ctx)
+                    ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
+                    : attrs,
                 filter, fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
@@ -1713,6 +1716,17 @@ public class StoreServiceEJB {
                 .setParameter(1, pk)
                 .setParameter(2, status)
                 .executeUpdate();
+    }
+
+    private boolean recordAttributeModification(StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        return storeSession.getLocalHL7Application() != null
+                ? storeSession.getLocalHL7Application()
+                    .getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class)
+                    .recordAttributeModification()
+                : storeSession.getArchiveAEExtension() != null
+                ? storeSession.getArchiveAEExtension().recordAttributeModification()
+                : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
     }
 
 }

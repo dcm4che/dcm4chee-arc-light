@@ -134,6 +134,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
         adjust(attrs, hl7App, s, msg);
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
+        ctx.setArchiveHL7AppExtension(arcHL7App);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);

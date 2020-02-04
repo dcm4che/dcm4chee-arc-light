@@ -251,7 +251,7 @@
       "title": "Record Attribute Modification",
       "description": "Indicates if modifications of attributes of stored objects are recorded in Items of the Original Attributes Sequence. May be overwritten by configured values for particular Archive Network AE or Archive HL7 Application.",
       "type": "boolean",
-      "default": "true"
+      "default": true
     },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",

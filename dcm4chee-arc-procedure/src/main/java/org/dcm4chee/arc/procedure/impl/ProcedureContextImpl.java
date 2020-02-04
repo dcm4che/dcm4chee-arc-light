@@ -46,6 +46,8 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -72,6 +74,8 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Association as;
     private Attributes sourceInstanceRefs;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
+    private ArchiveHL7ApplicationExtension arcHL7App;
+    private ArchiveAEExtension arcAE;
 
     ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
                          UnparsedHL7Message hl7msg) {
@@ -187,6 +191,26 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy) {
         this.attributeUpdatePolicy = updatePolicy;
+    }
+
+    @Override
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
+    }
+
+    @Override
+    public void setArchiveAEExtension(ArchiveAEExtension arcAE) {
+        this.arcAE = arcAE;
+    }
+
+    @Override
+    public ArchiveHL7ApplicationExtension getArchiveHL7AppExtension() {
+        return arcHL7App;
+    }
+
+    @Override
+    public void setArchiveHL7AppExtension(ArchiveHL7ApplicationExtension arcHL7App) {
+        this.arcHL7App = arcHL7App;
     }
 
     @Override
