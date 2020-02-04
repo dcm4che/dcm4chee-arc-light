@@ -133,13 +133,13 @@ export class RangePickerComponent implements OnInit {
         this.showPicker = false;
     }
     clear(){
-        this.fromModel = '';
-        this.fromTimeModel = '';
-        this.toModel = '';
-        this.toTimeModel = '';
-        this.singleDateModel = '';
-        this.singleTimeModel = '';
-        this.SplitStudyDateRange = '';
+        this.fromModel = undefined;
+        this.fromTimeModel = undefined;
+        this.toModel = undefined;
+        this.toTimeModel = undefined;
+        this.singleDateModel = undefined;
+        this.singleTimeModel = undefined;
+        this.SplitStudyDateRange = undefined;
         // this.modelChange.emit('');
     }
 
