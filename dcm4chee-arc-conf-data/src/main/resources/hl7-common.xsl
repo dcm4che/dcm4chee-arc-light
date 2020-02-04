@@ -581,6 +581,16 @@
               <xsl:with-param name="vr" select="'UT'"/>
               <xsl:with-param name="val" select="$ei/component[3]/text()"/>
             </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00400032'"/>
+              <xsl:with-param name="vr" select="'UT'"/>
+              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[1]"/>
+            </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00400033'"/>
+              <xsl:with-param name="vr" select="'CS'"/>
+              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[2]"/>
+            </xsl:call-template>
           </xsl:if>
         </Item>
       </DicomAttribute>
