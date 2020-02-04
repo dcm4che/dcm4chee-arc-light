@@ -78,6 +78,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern",
                 ext.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", ext.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRecordAttributeModification",
+                ext.getRecordAttributeModification(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder",
                 ext.getHL7ScheduledProtocolCodeInOrder(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder",
@@ -127,6 +129,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+        ext.setRecordAttributeModification(LdapUtils.booleanValue(
+                attrs.get("dcmRecordAttributeModification"), null));
         ext.setHL7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
                 attrs.get("hl7ScheduledProtocolCodeInOrder"), null));
         ext.setHL7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
@@ -192,6 +196,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern",
                 aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRecordAttributeModification",
+                aa.getRecordAttributeModification(), bb.getRecordAttributeModification(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledProtocolCodeInOrder",
                 aa.getHL7ScheduledProtocolCodeInOrder(), bb.getHL7ScheduledProtocolCodeInOrder(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledStationAETInOrder",

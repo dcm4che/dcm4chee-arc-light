@@ -118,6 +118,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDeleteUPSCanceledDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy",
                 ext.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRecordAttributeModification", ext.isRecordAttributeModification(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
                 ext.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
@@ -465,6 +466,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteUPSCompletedDelay(toDuration(attrs.get("dcmDeleteUPSCompletedDelay"), null));
         ext.setDeleteUPSCanceledDelay(toDuration(attrs.get("dcmDeleteUPSCanceledDelay"), null));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), OverwritePolicy.NEVER));
+        ext.setRecordAttributeModification(LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), true));
         ext.setBulkDataSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setPersonNameComponentOrderInsensitiveMatching(
@@ -774,7 +776,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteUPSCanceledDelay",
                 aa.getDeleteUPSCanceledDelay(),
                 bb.getDeleteUPSCanceledDelay(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
+                aa.getOverwritePolicy(),
+                bb.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRecordAttributeModification",
+                aa.isRecordAttributeModification(),
+                bb.isRecordAttributeModification(),
+                true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(),
                 bb.getBulkDataSpoolDirectory(),
@@ -783,7 +791,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isPersonNameComponentOrderInsensitiveMatching(),
                 bb.isPersonNameComponentOrderInsensitiveMatching(),
                 false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmSendPendingCGet", aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSendPendingCGet",
+                aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSpanningCFindSCP",
@@ -1337,6 +1346,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStoreAccessControlID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRecordAttributeModification",
+                ext.getRecordAttributeModification(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
                 ext.getBulkDataSpoolDirectory(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueryRetrieveViewID",
@@ -1483,6 +1494,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
+        ext.setRecordAttributeModification(LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
         ext.setPersonNameComponentOrderInsensitiveMatching(
@@ -1633,6 +1645,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
                 aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRecordAttributeModification",
+                aa.getRecordAttributeModification(), bb.getRecordAttributeModification(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryRetrieveViewID",

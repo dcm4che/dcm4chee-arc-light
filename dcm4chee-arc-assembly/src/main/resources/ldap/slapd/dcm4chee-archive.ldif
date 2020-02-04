@@ -1710,12 +1710,18 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.354 NAME 'dcmDeleteMWLDelay'
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting MWL items. Status specific delays can be specified by prefix SCHEDULED:, ARRIVED:, READY:, STARTED:, DEPARTED:, CANCELLED:, DISCONTINUED:, COMPLETED:. If absent, MWL Items will not get deleted.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.355 NAME 'dcmRecordAttributeModification'
+  DESC 'Indicates if modifications of attributes of stored objects are recorded in Items of the Original Attributes Sequence; true if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
   MUST (
     dcmFuzzyAlgorithmClass )
   MAY (
+    dcmRecordAttributeModification $
     dcmBulkDataDescriptorID $
     dcmQueryRetrieveViewID $
     dcmRetrieveAET $
@@ -1935,6 +1941,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
+    dcmRecordAttributeModification $
     dcmBulkDataDescriptorID $
     dcmRetrieveAET $
     dcmReturnRetrieveAET $
@@ -2049,6 +2056,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   DESC 'DICOM Archive HL7 Application related information'
   SUP top AUXILIARY
   MAY (
+    dcmRecordAttributeModification $
     hl7ORUAction $
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $

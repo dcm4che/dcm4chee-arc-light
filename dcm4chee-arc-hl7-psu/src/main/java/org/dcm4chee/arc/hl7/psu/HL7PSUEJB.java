@@ -165,7 +165,7 @@ public class HL7PSUEJB {
         if (mwl != null && !arcAE.hl7PSUForRequestedProcedure())
             return;
 
-        HL7PSUMessage msg = new HL7PSUMessage(task);
+        HL7PSUMessage msg = new HL7PSUMessage(task, arcAE);
         String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(hl7PSUSendingApplication)
                 .getHL7SendingCharacterSet();
@@ -200,7 +200,7 @@ public class HL7PSUEJB {
     }
 
     private void setPIDPV1(HL7PSUMessage msg, ArchiveAEExtension arcAE, Patient patient) {
-        if (!arcAE.hl7PSUPIDPV1())
+        if (!arcAE.hl7PSUPIDPV1() && arcAE.hl7PSUMessageType() != HL7PSUMessageType.ORU_R01)
             return;
 
         msg.setPIDSegment(patient);
