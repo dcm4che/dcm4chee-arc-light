@@ -313,8 +313,8 @@ public class StorageVerificationTask {
                 queueMessage.getScheduledTime(),
                 queueMessage.getNumberOfFailures() > 0 ? String.valueOf(queueMessage.getNumberOfFailures()) : null,
                 queueMessage.getBatchID(),
-                df.format(queueMessage.getProcessingStartTime()),
-                df.format(queueMessage.getProcessingEndTime()),
+                queueMessage.getProcessingStartTime() != null ? df.format(queueMessage.getProcessingStartTime()) : null,
+                queueMessage.getProcessingEndTime() != null ? df.format(queueMessage.getProcessingEndTime()) : null,
                 queueMessage.getErrorMessage(),
                 queueMessage.getOutcomeMessage());
     }
