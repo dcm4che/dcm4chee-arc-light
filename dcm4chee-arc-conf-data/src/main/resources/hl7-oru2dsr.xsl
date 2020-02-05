@@ -12,37 +12,19 @@
   <xsl:template match="/hl7">
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
-      <!--SOP Instance UID-->
-      <xsl:call-template name="attr">
-        <xsl:with-param name="tag" select="'00080018'"/>
-        <xsl:with-param name="vr" select="'UI'"/>
-        <xsl:with-param name="val" select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
-      </xsl:call-template>
-      <!--SOP Class UID-->
+      <xsl:variable name="valueType" select="OBX/field[2]"/>
       <xsl:variable name="ed" select="OBX[field[2]/text()='ED']"/>
-      <xsl:variable name="sopClassUID">
-        <xsl:choose>
-          <xsl:when test="$ed">
-            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.104.1'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:call-template name="attr">
-        <xsl:with-param name="tag" select="'00080016'"/>
-        <xsl:with-param name="vr" select="'UI'"/>
-        <xsl:with-param name="val" select="$sopClassUID"/>
-      </xsl:call-template>
-      <xsl:if test="$ed">
-        <xsl:variable name="obx5" select="OBX[field[5]]"/>
-        <xsl:call-template name="attr">
-          <xsl:with-param name="tag" select="'00420012'"/>
-          <xsl:with-param name="vr" select="'LO'"/>
-          <xsl:with-param name="val" select="concat($obx5/component[1], '/', $obx5/component[2])"/>
-        </xsl:call-template>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="$valueType = 'HD'">
+          <xsl:call-template name="rad28">
+            <xsl:with-param name="ed" select="$ed"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="rad128"/>
+        </xsl:otherwise>
+      </xsl:choose>
+
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="PV1"/>
       <xsl:apply-templates select="OBR"/>
@@ -54,6 +36,45 @@
       </DicomAttribute>
     </NativeDicomModel>
   </xsl:template>
+
+  <xsl:template name="rad28">
+    <xsl:param name="ed"/>
+    <!--SOP Class UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080018'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="$ed">
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.104.1'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+    </xsl:call-template>
+    <!--SOP Instance UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080018'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
+    </xsl:call-template>
+    <!--Series Instance UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000E'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
+    </xsl:call-template>
+    <xsl:if test="$ed">
+      <xsl:call-template name="ed"/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="rad128">
+
+  </xsl:template>
+
   <xsl:template name="const-attrs">
     <!--Study Date-->
     <DicomAttribute tag="00080020" vr="DA"/>
@@ -105,6 +126,20 @@
     <!--Content Template Sequence-->
     <DicomAttribute tag="0040A504" vr="SQ"/>
   </xsl:template>
+
+  <xsl:template name="studyUID">
+    <xsl:variable name="uid-rad28" select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
+    <xsl:variable name="uid-rad128" select="normalize-space(../OBX[field[3]/component='DICOM Study'][1]/field[5])"/>
+    <xsl:choose>
+      <xsl:when test="$uid-rad28">
+        <xsl:value-of select="$uid-rad28"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$uid-rad128"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="OBR">
     <!--Content Date/Time-->
     <xsl:call-template name="attrDATM">
@@ -113,21 +148,14 @@
       <xsl:with-param name="val" select="field[7]"/>
     </xsl:call-template>
     <!-- Take Study Instance UID from first referenced Image - if available -->
-    <xsl:variable name="suid"
-                  select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
+    <xsl:variable name="suid">
+      <xsl:call-template name="studyUID"/>
+    </xsl:variable>
     <!-- Study Instance UID -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'0020000D'"/>
       <xsl:with-param name="vr" select="'UI'"/>
       <xsl:with-param name="val" select="$suid"/>
-    </xsl:call-template>
-    <xsl:variable name="seriesuid"
-                  select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
-    <!-- Series Instance UID -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'0020000E'"/>
-      <xsl:with-param name="vr" select="'UI'"/>
-      <xsl:with-param name="val" select="$seriesuid"/>
     </xsl:call-template>
     <!--Accession Number-->
     <xsl:call-template name="attr">
@@ -330,6 +358,7 @@
       </xsl:call-template>
     </Item>
   </xsl:template>
+
   <xsl:template match="OBX" mode="img">
     <Item number="1">
       <!--Referenced SOP Sequence-->
@@ -363,6 +392,7 @@
       </xsl:call-template>
     </Item>
   </xsl:template>
+
   <xsl:template match="OBX" mode="txt">
     <xsl:variable name="text">
       <xsl:apply-templates select="field[5]" mode="txt"/>
@@ -492,12 +522,13 @@
     </Item>
   </xsl:template>
 
-  <xsl:template name="sr">
-
-  </xsl:template>
-
   <xsl:template name="ed">
-
+    <xsl:variable name="obx5" select="OBX/field[5]"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00420012'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val" select="concat($obx5/component[1], '/', $obx5/component[2])"/>
+    </xsl:call-template>
   </xsl:template>
 
 </xsl:stylesheet>
