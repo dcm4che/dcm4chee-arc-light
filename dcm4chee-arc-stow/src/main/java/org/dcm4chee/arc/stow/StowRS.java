@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
 import org.dcm4che3.imageio.codec.mp4.MP4FileType;
@@ -68,6 +69,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonParsingException;
@@ -80,6 +84,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -487,15 +492,7 @@ public class StowRS {
             attrs.setInt(Tag.InstanceNumber, VR.IS, instanceNumber);
         }
         if (attrs.containsValue(Tag.PixelData)) {
-            CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
-            if (compressedPixelData != null) {
-                File file = bulkdata.bulkData.getFile();
-                try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
-                    ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs));
-                } catch (IOException e) {
-                    LOG.info("Failed to parse compressed pixel data {} for {}:\n", compressedPixelData, file, e);
-                }
-            }
+            supplementImagePixelModule(ctx, session, attrs, bulkdata);
             verifyImagePixelModule(attrs);
         }
         if (attrs.containsValue(Tag.EncapsulatedDocument)) {
@@ -509,6 +506,56 @@ public class StowRS {
                 case UID.EncapsulatedMTLStorage:
                     throw missingAttribute(Tag.EncapsulatedDocument);
             }
+        }
+    }
+
+    private void supplementImagePixelModule(StoreContext ctx, StoreSession session, Attributes attrs,
+            BulkDataWithMediaType bulkdata) throws DicomServiceException {
+        CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
+        ImageReader imageReader;
+        if (compressedPixelData != null) {
+            File file = bulkdata.bulkData.getFile();
+            try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
+                ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs));
+            } catch (IOException e) {
+                LOG.info("Failed to parse {} compressed pixel data from {}:\n", compressedPixelData, file, e);
+                throw new DicomServiceException(Status.ProcessingFailure, e);
+            }
+        } else if ((imageReader = findImageReader(bulkdata.mediaType, "com.sun.imageio")) != null) {
+            try {
+                BufferedImageUtils.toImagePixelModule(
+                        readImageBulkdata(imageReader, bulkdata.bulkData.getFile()),
+                        attrs);
+                ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            } catch (Exception e) {
+                LOG.info("Failed to extract pixel data from bulkdata:\n", e);
+                throw new DicomServiceException(Status.ProcessingFailure, e);
+            }
+        }
+    }
+
+    private static ImageReader findImageReader(MediaType mediaType, String pkg) {
+        Iterator<ImageReader> iter = ImageIO.getImageReadersByMIMEType(mediaType.toString());
+        if (iter.hasNext()) {
+            ImageReader reader = iter.next();
+            while (!reader.getClass().getName().startsWith(pkg) && iter.hasNext()) {
+                reader = iter.next();
+            }
+            return reader;
+        } else {
+            return null;
+        }
+    }
+
+    private static BufferedImage readImageBulkdata(ImageReader reader, File file) throws DicomServiceException {
+        try (ImageInputStream iio = ImageIO.createImageInputStream(file)){
+            reader.setInput(iio);
+            return reader.read(0);
+        } catch (IOException e) {
+            LOG.info("Failed to read image from {} using {}:\n", file, reader);
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        } finally {
+            reader.dispose();
         }
     }
 
