@@ -129,6 +129,7 @@ objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dcmProtocol: SYSLOG_TLS
+dcmClientBindAddress: 0.0.0.0
 cn: syslog-tls
 
 dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -1672,6 +1673,7 @@ objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dcmProtocol: SYSLOG_TLS
+dcmClientBindAddress: 0.0.0.0
 cn: syslog-tls
 
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

@@ -1595,7 +1595,7 @@ class ArchiveDeviceFactory {
         device.addConnection(syslog);
 
         Connection syslogTLS = new Connection("syslog-tls", hostname);
-        syslog.setClientBindAddress("0.0.0.0");
+        syslogTLS.setClientBindAddress("0.0.0.0");
         syslogTLS.setProtocol(Connection.Protocol.SYSLOG_TLS);
         syslogTLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
