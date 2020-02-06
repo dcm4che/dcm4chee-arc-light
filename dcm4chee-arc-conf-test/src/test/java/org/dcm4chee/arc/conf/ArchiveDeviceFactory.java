@@ -578,6 +578,8 @@ class ArchiveDeviceFactory {
             Tag.ConsultingPhysicianName,
             Tag.ConsultingPhysicianIdentificationSequence,
             Tag.TimezoneOffsetFromUTC,
+            Tag.InstitutionalDepartmentName,
+            Tag.InstitutionalDepartmentTypeCodeSequence,
             Tag.AdmittingDiagnosesDescription,
             Tag.AdmittingDiagnosesCodeSequence,
             Tag.ReferencedStudySequence,
@@ -643,9 +645,7 @@ class ArchiveDeviceFactory {
             Tag.OrderCallbackTelecomInformation,
             Tag.PlacerOrderNumberImagingServiceRequest,
             Tag.FillerOrderNumberImagingServiceRequest,
-            Tag.ImagingServiceRequestComments,
-            Tag.InstitutionalDepartmentName,
-            Tag.InstitutionalDepartmentTypeCodeSequence
+            Tag.ImagingServiceRequestComments
     };
     static final int[] UPS_ATTRS = {
             Tag.SpecificCharacterSet,
