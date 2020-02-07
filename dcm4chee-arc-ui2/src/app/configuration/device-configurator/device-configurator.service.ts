@@ -16,7 +16,6 @@ import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {DevicesService} from "../devices/devices.service";
-import {element} from "protractor";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 
 @Injectable()

@@ -5,7 +5,7 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 // import {FileUploader} from 'ng2-file-upload';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {AppService} from "../../../app.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { WidgetsComponent } from './widgets.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
-import {MatDialogConfig} from '@angular/material';
+import { MatDialogConfig } from '@angular/material/dialog';
 import { MessagingComponent } from './messaging/messaging.component';
 import {EditPatientComponent} from './dialogs/edit-patient/edit-patient.component';
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';

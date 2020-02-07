@@ -32,7 +32,7 @@ describe("DeviceConfiguratorService",()=> {
                 { provide: Hl7ApplicationsService, useClass: MyServiceDependencyStub },
             ],
         });
-        service = TestBed.get(DeviceConfiguratorService);
+        service = TestBed.inject(DeviceConfiguratorService);
         //"$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle"
         service.device = {
             "dicomDeviceName": "dcm4chee-arc",

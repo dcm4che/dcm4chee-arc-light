@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AppService} from '../../../app.service';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import {Globalvar} from '../../../constants/globalvar';
 import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;

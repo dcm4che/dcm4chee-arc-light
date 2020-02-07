@@ -5,7 +5,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {J4careDateTime, J4careDateTimeMode, RangeObject, RangeUnit, StudyDateMode} from "../interfaces";
@@ -1228,8 +1228,8 @@ export class j4care {
 
     static diffObjects(object, base, ignoreEmpty?:boolean, splited?:boolean){
         if(splited){
-            const first = j4care.changed(object,base,ignoreEmpty);
-            const second = j4care.changed(base, object, ignoreEmpty);
+            const first:any = j4care.changed(object,base,ignoreEmpty);
+            const second:any = j4care.changed(base, object, ignoreEmpty);
             return {
                 first: first,
                 second: second,

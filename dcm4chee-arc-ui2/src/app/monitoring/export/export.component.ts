@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
+import { MatDialogConfig, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {ExportService} from './export.service';

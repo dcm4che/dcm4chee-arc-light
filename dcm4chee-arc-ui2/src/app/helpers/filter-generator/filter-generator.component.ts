@@ -14,7 +14,7 @@ import {AppService} from "../../app.service";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {RangePickerService} from "../../widgets/range-picker/range-picker.service";
 
 @Component({

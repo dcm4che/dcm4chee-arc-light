@@ -7,7 +7,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
+import { MatDialog, MatDialogRef, MatDialogConfig } from "@angular/material/dialog";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";

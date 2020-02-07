@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {MatDialogRef} from "@angular/material";
+import { MatDialogRef } from "@angular/material/dialog";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";

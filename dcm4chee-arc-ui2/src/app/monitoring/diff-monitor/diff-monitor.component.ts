@@ -11,7 +11,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
+import { MatDialogConfig, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
