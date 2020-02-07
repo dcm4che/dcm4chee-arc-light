@@ -1,17 +1,23 @@
 -- part 1: can be applied on archive running archive 5.21
 alter table mwl_item
-    add admission_id varchar2(255 char),
-    add institution varchar2(255 char),
-    add department varchar2(255 char),
-    add inst_code_fk number(19,0),
-    add dept_code_fk number(19,0),
+    add admission_id varchar2(255 char);
+alter table mwl_item
+    add institution varchar2(255 char);
+alter table mwl_item
+    add department varchar2(255 char);
+alter table mwl_item
+    add inst_code_fk number(19,0);
+alter table mwl_item
+    add dept_code_fk number(19,0);
+alter table mwl_item
     add admid_issuer_fk number(19,0);
 
 alter table series
     add dept_code_fk number(19,0);
 
 alter table study
-    add admission_id varchar2(255 char),
+    add admission_id varchar2(255 char);
+alter table study
     add admid_issuer_fk number(19,0);
 
 update mwl_item set admission_id = '*', institution = '*', department = '*';
