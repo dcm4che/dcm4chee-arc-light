@@ -182,8 +182,8 @@ public class HL7PSUEJB {
             if (study == null)
                 return;
 
-            msg.setStudy(study.getAttributes(), arcAE);
             setPIDPV1(msg, arcAE, study.getPatient());
+            msg.setStudy(study.getAttributes(), arcAE);
         }
         scheduleMessage(hl7PSUReceivingApplications, hl7cs, msg);
     }

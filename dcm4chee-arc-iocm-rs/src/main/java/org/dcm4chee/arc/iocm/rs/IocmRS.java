@@ -235,6 +235,7 @@ public class IocmRS {
 
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setPatientID(patientID);
             ctx.setAttributes(patient.getAttributes());
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
@@ -278,6 +279,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             PatientMgtContext ctx = patientMgtCtx(in);
+            ctx.setArchiveAEExtension(arcAE);
             if (!ctx.getAttributes().containsValue(Tag.PatientID)) {
                 idService.newPatientID(ctx.getAttributes());
                 ctx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
@@ -308,6 +310,7 @@ public class IocmRS {
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         PatientMgtContext ctx = patientMgtCtx(in);
+        ctx.setArchiveAEExtension(arcAE);
         IDWithIssuer targetPatientID = ctx.getPatientID();
         if (targetPatientID == null)
             throw new WebApplicationException(
@@ -370,7 +373,7 @@ public class IocmRS {
             InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
             attrs = parseOtherPatientIDs(is1);
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
-                mergePatient(patientID, otherPID);
+                mergePatient(patientID, otherPID, arcAE);
 
             rsForward.forward(RSOperation.MergePatients, arcAE, baos.toByteArray(), null, request);
         } catch (JsonParsingException e) {
@@ -396,7 +399,7 @@ public class IocmRS {
             Attributes priorPatAttr = new Attributes(3);
             priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
             setIssuer(priorPatientID, priorPatAttr);
-            mergePatient(patientID, priorPatAttr);
+            mergePatient(patientID, priorPatAttr, arcAE);
             rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
         } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
             throw new WebApplicationException(
@@ -407,8 +410,9 @@ public class IocmRS {
         }
     }
 
-    private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
+    private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr, ArchiveAEExtension arcAE) throws Exception {
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+        patMgtCtx.setArchiveAEExtension(arcAE);
         patMgtCtx.setPatientID(patientID);
         Attributes patAttr = new Attributes(3);
         patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
@@ -429,6 +433,7 @@ public class IocmRS {
         try {
             Patient prevPatient = patientService.findPatient(priorPatientID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
@@ -608,6 +613,7 @@ public class IocmRS {
             Attributes instanceRefs = parseSOPInstanceReferences(in);
 
             ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSpsID(spsID);
 

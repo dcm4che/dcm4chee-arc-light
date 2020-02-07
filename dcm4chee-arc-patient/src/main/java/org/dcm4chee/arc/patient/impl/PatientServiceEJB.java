@@ -43,6 +43,8 @@ package org.dcm4chee.arc.patient.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -181,13 +183,14 @@ public class PatientServiceEJB {
             return;
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        pat.setAttributes(
-                attrs.addOriginalAttributes(
+        pat.setAttributes(recordAttributeModification(ctx)
+                ? attrs.addOriginalAttributes(
                         null,
                         new Date(),
                         Attributes.CORRECT,
                         device.getDeviceName(),
-                        modified),
+                        modified)
+                : attrs,
                 filter, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
@@ -270,13 +273,15 @@ public class PatientServiceEJB {
                 patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
             }
         }
-        pat.setAttributes(patientID.exportPatientIDWithIssuer(patientAttrs)
-                .addOriginalAttributes(
+        pat.setAttributes(recordAttributeModification(ctx)
+                ? patientID.exportPatientIDWithIssuer(patientAttrs)
+                    .addOriginalAttributes(
                         null,
                         new Date(),
                         Attributes.CORRECT,
                         device.getDeviceName(),
-                        modified),
+                        modified)
+                : patientID.exportPatientIDWithIssuer(patientAttrs),
                 ctx.getAttributeFilter(), ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
@@ -339,13 +344,15 @@ public class PatientServiceEJB {
                             ctx.getAttributeFilter().getSelection(false),
                             modified);
                     study.setPatient(to);
-                    study.setAttributes(study.getAttributes()
-                                    .addOriginalAttributes(
+                    study.setAttributes(recordAttributeModification(ctx)
+                                    ? study.getAttributes()
+                                        .addOriginalAttributes(
                                             null,
                                             new Date(),
                                             Attributes.CORRECT,
                                             device.getDeviceName(),
-                                            modified),
+                                            modified)
+                                    : study.getAttributes(),
                             ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
                     to.incrementNumberOfStudies();
                     from.decrementNumberOfStudies();
@@ -421,5 +428,15 @@ public class PatientServiceEJB {
                 pat.resetFailedVerifications();
         }
         return pat;
+    }
+
+    private boolean recordAttributeModification(PatientMgtContext ctx) {
+        return ctx.getArchiveAEExtension() != null
+                ? ctx.getArchiveAEExtension().recordAttributeModification()
+                : ctx.getHL7Application() != null
+                ? ctx.getHL7Application()
+                    .getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class)
+                    .recordAttributeModification()
+                : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
     }
 }

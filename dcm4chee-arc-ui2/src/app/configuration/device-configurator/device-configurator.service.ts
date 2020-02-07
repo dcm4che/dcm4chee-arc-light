@@ -894,12 +894,15 @@ export class DeviceConfiguratorService{
                                     addUrl = addUrl +  ((params.devicereff) ? '/' + params.devicereff + '.' + i + '[' + (maxVali + 1) + ']' : '/' + i + '[' + (maxVali + 1) + ']');
                                     addUrl = addUrl +  ((params.schema) ? '/' + params.schema + '.' + propertiesPath + '.' + i : '/properties.' + i);
                                     console.log('addUrl', addUrl);
+                                    if(i != "dicomNetworkConnection"){
+                                        new OrderByPipe().transform(options,'title');
+                                    }
                                     form.push({
                                         controlType: 'buttondropdown',
                                         key: i,
                                         label: m.title,
                                         description: m.description,
-                                        options: new OrderByPipe().transform(options,'title'),
+                                        options: options,
                                         addUrl: addUrl,
                                         order: (3 + newOrderSuffix),
                                         show: (this.defaultOpenBlock === 'child')

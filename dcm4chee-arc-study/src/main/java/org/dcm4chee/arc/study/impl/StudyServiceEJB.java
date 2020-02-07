@@ -102,13 +102,14 @@ public class StudyServiceEJB {
 
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
-        study.setAttributes(
-                attrs.addOriginalAttributes(
+        study.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+                ? attrs.addOriginalAttributes(
                     null,
                     new Date(),
                     Attributes.CORRECT,
                     device.getDeviceName(),
-                    modified),
+                    modified)
+                : attrs,
                 filter, ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));

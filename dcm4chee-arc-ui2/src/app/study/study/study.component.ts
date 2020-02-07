@@ -2084,6 +2084,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(option.value === "export_object"){
                 return studyConfig && studyConfig.tab === "study";
             }
+            if(option.value === "update_access_control_id_to_selections"){
+                return studyConfig && studyConfig.tab === "study";
+            }
             return true;
         });
     }
