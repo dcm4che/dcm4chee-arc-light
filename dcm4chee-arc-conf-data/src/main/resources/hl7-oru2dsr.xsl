@@ -21,38 +21,35 @@
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="rad128"/>
+          <xsl:call-template name="rad128">
+            <xsl:with-param name="ed" select="$ed"/>
+          </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
 
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="PV1"/>
-      <xsl:apply-templates select="OBR"/>
+
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
         <xsl:call-template name="const-obsctx"/>
         <xsl:apply-templates select="OBR" mode="obsctx"/>
-        <xsl:apply-templates select="OBX[field[3]/component='SR Text']" mode="txt"/>
+        <xsl:choose>
+          <xsl:when test="$valueType = 'HD'">
+            <xsl:apply-templates select="OBX[field[3]/component='SR Text']" mode="txt"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="OBX" mode="rad128"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </DicomAttribute>
     </NativeDicomModel>
   </xsl:template>
 
   <xsl:template name="rad28">
     <xsl:param name="ed"/>
-    <!--SOP Class UID-->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00080018'"/>
-      <xsl:with-param name="vr" select="'UI'"/>
-      <xsl:with-param name="val">
-        <xsl:choose>
-          <xsl:when test="$ed">
-            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.104.1'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:with-param>
+    <xsl:call-template name="sopClass">
+      <xsl:with-param name="ed"/>
     </xsl:call-template>
     <!--SOP Instance UID-->
     <xsl:call-template name="attr">
@@ -66,13 +63,59 @@
       <xsl:with-param name="vr" select="'UI'"/>
       <xsl:with-param name="val" select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
     </xsl:call-template>
+    <!-- Study Instance UID -->
+    <xsl:variable name="studyUID"
+                  select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000D'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="$studyUID"/>
+    </xsl:call-template>
+    <xsl:apply-templates select="OBR">
+      <xsl:with-param name="studyUID" select="$studyUID"/>
+    </xsl:apply-templates>
     <xsl:if test="$ed">
       <xsl:call-template name="ed"/>
     </xsl:if>
   </xsl:template>
 
   <xsl:template name="rad128">
+    <xsl:param name="ed"/>
+    <xsl:call-template name="sopClass">
+      <xsl:with-param name="ed"/>
+    </xsl:call-template>
+    <!-- Study Instance UID -->
+    <xsl:variable name="studyUID" select="normalize-space(../OBX[field[3]/component='DICOM Study'][1]/field[5])"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000D'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="$studyUID"/>
+    </xsl:call-template>
+    <xsl:apply-templates select="OBR">
+      <xsl:with-param name="studyUID" select="$studyUID"/>
+    </xsl:apply-templates>
+    <xsl:if test="$ed">
+      <xsl:call-template name="ed"/>
+    </xsl:if>
+  </xsl:template>
 
+  <xsl:template name="sopClass">
+    <xsl:param name="ed"/>
+    <!--SOP Class UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080016'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="$ed">
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.104.1'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'1.2.840.10008.5.1.4.1.1.88.11'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="const-attrs">
@@ -127,35 +170,13 @@
     <DicomAttribute tag="0040A504" vr="SQ"/>
   </xsl:template>
 
-  <xsl:template name="studyUID">
-    <xsl:variable name="uid-rad28" select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
-    <xsl:variable name="uid-rad128" select="normalize-space(../OBX[field[3]/component='DICOM Study'][1]/field[5])"/>
-    <xsl:choose>
-      <xsl:when test="$uid-rad28">
-        <xsl:value-of select="$uid-rad28"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$uid-rad128"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template match="OBR">
+    <xsl:param name="studyUID"/>
     <!--Content Date/Time-->
     <xsl:call-template name="attrDATM">
       <xsl:with-param name="datag">00080023</xsl:with-param>
       <xsl:with-param name="tmtag">00080033</xsl:with-param>
       <xsl:with-param name="val" select="field[7]"/>
-    </xsl:call-template>
-    <!-- Take Study Instance UID from first referenced Image - if available -->
-    <xsl:variable name="suid">
-      <xsl:call-template name="studyUID"/>
-    </xsl:variable>
-    <!-- Study Instance UID -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'0020000D'"/>
-      <xsl:with-param name="vr" select="'UI'"/>
-      <xsl:with-param name="val" select="$suid"/>
     </xsl:call-template>
     <!--Accession Number-->
     <xsl:call-template name="attr">
@@ -170,7 +191,7 @@
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'0020000D'"/>
           <xsl:with-param name="vr" select="'UI'"/>
-          <xsl:with-param name="val" select="$suid"/>
+          <xsl:with-param name="val" select="$studyUID"/>
         </xsl:call-template>
         <!--Accession Number-->
         <DicomAttribute tag="00080050" vr="SH"/>
@@ -393,6 +414,66 @@
     </Item>
   </xsl:template>
 
+  <xsl:template match="OBX" mode="rad128">
+    <xsl:variable name="valueType" select="field[2]"/>
+    <xsl:variable name="observationValue">
+      <xsl:choose>
+        <xsl:when test="$valueType = 'TX'">
+          <xsl:apply-templates select="field[5]" mode="txt"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="field[5]"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="observationID" select="field[3]"/>
+    <xsl:choose>
+      <!-- Study Recommendations -->
+      <xsl:when test="$observationID/text() = '18783-1'">
+        <xsl:call-template name="rad128-text">
+          <xsl:with-param name="valueType" select="$valueType"/>
+          <xsl:with-param name="code" select="$observationID"/>
+          <xsl:with-param name="ecode" select="'121075'"/>
+          <xsl:with-param name="ename" select="'Recommendation'"/>
+          <xsl:with-param name="edesignator" select="'DCM'"/>
+          <xsl:with-param name="observationValue" select="$observationValue"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- Consultation Requests -->
+      <xsl:when test="$observationID/text() = '11487-6'">
+        <xsl:call-template name="rad128-text">
+          <xsl:with-param name="valueType" select="$valueType"/>
+          <xsl:with-param name="code" select="$observationID"/>
+          <xsl:with-param name="ecode" select="$observationID/text()"/>
+          <xsl:with-param name="ename" select="'Consultation Request'"/>
+          <xsl:with-param name="edesignator" select="$observationID/component[2]"/>
+          <xsl:with-param name="observationValue" select="$observationValue"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- Feedback to user-post question -->
+      <xsl:when test="$observationID/text() = '74466-4'">
+        <xsl:call-template name="rad128-text">
+          <xsl:with-param name="valueType" select="$valueType"/>
+          <xsl:with-param name="code" select="$observationID"/>
+          <xsl:with-param name="ecode" select="$observationID/text()"/>
+          <xsl:with-param name="ename" select="'Feedback'"/>
+          <xsl:with-param name="edesignator" select="$observationID/component[2]"/>
+          <xsl:with-param name="observationValue" select="$observationValue"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="rad128-text">
+          <xsl:with-param name="valueType" select="$valueType"/>
+          <xsl:with-param name="code" select="$observationID"/>
+          <xsl:with-param name="ecode" select="'121071'"/>
+          <xsl:with-param name="ename" select="'Finding'"/>
+          <xsl:with-param name="edesignator" select="'DCM'"/>
+          <xsl:with-param name="observationValue" select="$observationValue"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="OBX" mode="txt">
     <xsl:variable name="text">
       <xsl:apply-templates select="field[5]" mode="txt"/>
@@ -432,9 +513,11 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
   <xsl:template match="text()" mode="txt">
     <xsl:value-of select='.'/>
   </xsl:template>
+
   <xsl:template match="escape" mode="txt">
     <xsl:choose>
       <xsl:when test="text()='.br' or translate(text(), 'daA0', 'DDD')='XD'">
@@ -457,6 +540,93 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:template name="rad128-text">
+    <xsl:param name="valueType"/>
+    <xsl:param name="code"/>
+    <xsl:param name="ecode"/>
+    <xsl:param name="ename"/>
+    <xsl:param name="edesignator"/>
+    <xsl:param name="observationValue"/>
+    <Item number="1">
+      <!--Relationship Type-->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A010'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CONTAINS'"/>
+      </xsl:call-template>
+      <!--Value Type-->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A040'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'CONTAINER'"/>
+      </xsl:call-template>
+      <!--Concept Name Code Sequence-->
+      <xsl:call-template name="codeItem">
+        <xsl:with-param name="sqtag" select="'0040A043'"/>
+        <xsl:with-param name="code" select="$code/text()"/>
+        <xsl:with-param name="scheme" select="$code/component[2]"/>
+        <xsl:with-param name="meaning" select="$code/component[1]"/>
+      </xsl:call-template>
+      <!--Continuity Of Content-->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'0040A050'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'SEPARATE'"/>
+      </xsl:call-template>
+      <!--Content Sequence-->
+      <DicomAttribute tag="0040A730" vr="SQ">
+        <Item number="1">
+          <!--Relationship Type-->
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0040A010'"/>
+            <xsl:with-param name="vr" select="'CS'"/>
+            <xsl:with-param name="val" select="'CONTAINS'"/>
+          </xsl:call-template>
+          <!--Value Type-->
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0040A040'"/>
+            <xsl:with-param name="vr" select="'CS'"/>
+            <xsl:with-param name="val">
+              <xsl:choose>
+                <xsl:when test="$valueType = 'TX'">
+                  <xsl:value-of select="'TEXT'"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="'CODE'"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+          </xsl:call-template>
+          <!--Concept Name Code Sequence-->
+          <xsl:call-template name="codeItem">
+            <xsl:with-param name="sqtag" select="'0040A043'"/>
+            <xsl:with-param name="code" select="$ecode"/>
+            <xsl:with-param name="scheme" select="$edesignator"/>
+            <xsl:with-param name="meaning" select="$ename"/>
+          </xsl:call-template>
+          <xsl:choose>
+            <xsl:when test="$valueType = 'TX'">
+              <!--Text Value-->
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'0040A160'"/>
+                <xsl:with-param name="vr" select="'UT'"/>
+                <xsl:with-param name="val" select="$observationValue"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+            <!--Concept Code Sequence
+            <xsl:call-template name="ce2codeItem">
+              <xsl:with-param name="seqTag" select="'0040A168'"/>
+              <xsl:with-param name="codedEntry" select="$observationValue"/>
+            </xsl:call-template>-->
+            </xsl:otherwise>
+          </xsl:choose>
+        </Item>
+      </DicomAttribute>
+    </Item>
+  </xsl:template>
+
   <xsl:template name="text">
     <xsl:param name="hcode" select="'121070'"/>
     <xsl:param name="hname" select="'Findings'"/>
