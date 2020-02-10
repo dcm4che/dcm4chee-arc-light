@@ -69,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -547,10 +548,10 @@ public class StowRS {
         }
     }
 
-    private static BufferedImage readImageBulkdata(ImageReader reader, File file) throws DicomServiceException {
+    private static Iterator<IIOImage> readImageBulkdata(ImageReader reader, File file) throws DicomServiceException {
         try (ImageInputStream iio = ImageIO.createImageInputStream(file)){
             reader.setInput(iio);
-            return reader.read(0);
+            return reader.readAll(null);
         } catch (IOException e) {
             LOG.info("Failed to read image from {} using {}:\n", file, reader);
             throw new DicomServiceException(Status.ProcessingFailure, e);
