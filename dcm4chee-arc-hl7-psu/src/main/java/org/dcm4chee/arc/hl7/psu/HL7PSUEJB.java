@@ -142,10 +142,9 @@ public class HL7PSUEJB {
         ArchiveAEExtension arcAE = device.getApplicationEntity(task.getAETitle()).getAEExtension(ArchiveAEExtension.class);
 
         MWLItem mwl = null;
-        if (task.getMpps() == null
-                && ((arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
-                        && arcAE.hl7PSUReceivingApplications().length > 0)
-                    || arcAE.hl7PSUMWL())) {
+        if ((arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
+                && arcAE.hl7PSUReceivingApplications().length > 0)
+                || arcAE.hl7PSUMWL()) {
             int updated = procedureService.updateSPSStatusToCompleted(task.getStudyInstanceUID());
             if (updated > 0)
                 LOG.info("{} MWL Items status updated to COMPLETED by HL7 PSU task {}.", updated, task);
