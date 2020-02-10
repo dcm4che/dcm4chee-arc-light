@@ -9,6 +9,10 @@ import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-lis
 import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
+import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {AppService} from "../../app.service";
+import {HttpClient, HttpHandler} from "@angular/common/http";
+import {Router} from "@angular/router";
 
 class StudyServiceDependenc{
 }
@@ -18,6 +22,8 @@ describe('StudyService', () => {
     TestBed.configureTestingModule({
       providers: [
           StudyService,
+          {provide:KeycloakService, useClass:StudyServiceDependenc},
+          {provide:AppService, useClass:StudyServiceDependenc},
           {provide:AeListService, useClass:StudyServiceDependenc},
           {provide:J4careHttpService, useClass:StudyServiceDependenc},
           {provide:StorageSystemsService, useClass:StudyServiceDependenc},

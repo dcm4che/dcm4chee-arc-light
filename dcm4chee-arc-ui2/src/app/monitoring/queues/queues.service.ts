@@ -18,12 +18,12 @@ export class QueuesService{
     search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
 
         return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     };
 
     getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
         return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     };
 
     cancel(queueName, msgId) {
@@ -34,7 +34,7 @@ export class QueuesService{
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../queue/${queueName}/cancel${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
 
     reschedule(queueName, msgId, filter) {
@@ -44,7 +44,7 @@ export class QueuesService{
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../queue/${queueName}/reschedule${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     delete(queueName, msgId) {
         return this.$http.delete(this.url2(queueName, msgId));
@@ -53,7 +53,7 @@ export class QueuesService{
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../queue/${queueName}${urlParam}`, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     url(queueName) {
         return '../queue/' + queueName;

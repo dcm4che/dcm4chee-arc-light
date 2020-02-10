@@ -38,7 +38,7 @@ import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
 import 'rxjs/add/observable/throw';
 import {forkJoin} from 'rxjs/observable/forkJoin';
-import {catchError} from "rxjs/operators";
+import {catchError, map, switchMap} from "rxjs/operators";
 import {of} from "rxjs/observable/of";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
@@ -46,6 +46,7 @@ import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe"
 import {ErrorObservable} from "rxjs-compat/observable/ErrorObservable";
 import {Error} from "tslint/lib/error";
 import {AppService} from "../../app.service";
+import {throwError} from 'rxjs/internal/observable/throwError';
 
 @Injectable()
 export class StudyService {
@@ -70,7 +71,7 @@ export class StudyService {
 
     getWebApps(filter?:any) {
         return this.webAppListService.getWebApps(filter)
-            .map(webApp=> this.webAppHasPermission(webApp));
+            .pipe(map((webApp:any)=> this.webAppHasPermission(webApp)));
     }
 
     getEntrySchema(devices, aetWebService): { schema: FilterSchema, lineLength: number } {
@@ -420,14 +421,15 @@ export class StudyService {
                 header
             )
         }else{
-            return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF").map(webApp=>{
-                return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
-            }).switchMap(url=>{
+            return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF")
+                .pipe(map(webApp=>{
+                        return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
+                })).pipe(switchMap(url=>{
                 return this.$http.get(
                     `${url}${j4care.param(filterModel) || ''}`,
                     header
                 )
-            });
+            }));
         }
     }
 
@@ -583,7 +585,7 @@ export class StudyService {
             header,
             false,
             dcmWebApp
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
 
     getSeries(studyInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
@@ -599,7 +601,7 @@ export class StudyService {
             header,
             false,
             dcmWebApp
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
 
     testAet(url, dcmWebApp: DcmWebApp) {
@@ -608,7 +610,7 @@ export class StudyService {
             this.jsonHeader,
             false,
             dcmWebApp
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
 
     getInstances(studyInstanceUID: string, seriesInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
@@ -624,7 +626,7 @@ export class StudyService {
             header,
             false,
             dcmWebApp
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
 
     getStudyInstanceUID(model){
@@ -684,7 +686,7 @@ export class StudyService {
 
     wadoURL(webService: StudyWebService, ...args: any[]): Observable<string> {
         let arg = arguments;
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").map(webApp=>{
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").pipe(map(webApp=>{
             let i,
                 url = `${j4care.getUrlFromDcmWebApplication(webApp)}?requestType=WADO`;
             for (i = 1; i < arg.length; i++) {
@@ -695,7 +697,7 @@ export class StudyService {
                 });
             }
             return url;
-        });
+        }));
     }
 
     renderURL(webService: StudyWebService,inst):Observable<string> {
@@ -732,14 +734,13 @@ export class StudyService {
         return this.$http.get(
             `${baseUrl || '..'}/attribute-filter/${entity || "Patient"}`
         )
-        .map(res => j4care.redirectOnAuthResponse(res))
-        .map(res => {
-            if ((!entity || entity === "Patient") && res.dcmTag) {
+        .pipe(map(res => {
+            if ((!entity || entity === "Patient") && res["dcmTag"]) {
                 let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
-                res.dcmTag.push(...privateAttr);
+                res["dcmTag"].push(...privateAttr);
             }
             return res;
-        });
+        }));
     }
 
     getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl || '..'}/attribute-set/DIFF_RS`);
@@ -756,7 +757,7 @@ export class StudyService {
     }
 
     queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
-        return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`);
     }
     queryNationalPatientRegister(patientID){
         return this.$http.get(`../xroad/RR441/${patientID}`)
@@ -2820,7 +2821,7 @@ export class StudyService {
             return schema;
     }
     updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
-        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
+        return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
             return this.$http.put(
                 `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
                 {},
@@ -2849,7 +2850,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, study, header);
         }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        return throwError({error: "Error on getting the WebApp URL"});
     }
 
     getModifyStudyUrl(deviceWebservice: StudyWebService) {
@@ -2869,7 +2870,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, mwl, header);
         }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        return throwError({error: "Error on getting the WebApp URL"});
     }
 
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
@@ -2877,7 +2878,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, uwl, header);
         }
-        return Observable.throw({error: "Error on getting the WebApp URL"});
+        return throwError({error: "Error on getting the WebApp URL"});
     }
 
     getModifyMWLUrl(deviceWebservice: StudyWebService) {
@@ -2930,7 +2931,7 @@ export class StudyService {
             });
             return forkJoin(observables);
         }catch (e) {
-            return Observable.throwError(e);
+            return throwError(e);
         }
     };
 
@@ -2942,13 +2943,13 @@ export class StudyService {
                 selectedElements.preActionElements.getAllAsArray()[0].requestReady,
                 this.jsonHeader)
         }catch (e) {
-            return Observable.throwError(e);
+            return throwError(e);
         }
     }
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
-            return Observable.throwError({error:"Multi patient merge is not supported!"});
+            return throwError({error:"Multi patient merge is not supported!"});
         }else{
             return this.getModifyPatientUrl(deviceWebservice)
             .switchMap((url:string)=>{
@@ -2975,7 +2976,7 @@ export class StudyService {
                         return this.$http.post(url, patientObject);
                     }
                 }
-                return Observable.throwError({error: "Error on getting the needed WebApp (with one of the web service classes \"DCM4CHEE_ARC_AET\" or \"PAM\")"});
+                return throwError({error: "Error on getting the needed WebApp (with one of the web service classes \"DCM4CHEE_ARC_AET\" or \"PAM\")"});
             })
     }
 
@@ -2988,20 +2989,20 @@ export class StudyService {
     }
 
     getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
-        return this.getModifyPatientWebApp(deviceWebService).map((webApp:DcmWebApp)=>{
+        return this.getModifyPatientWebApp(deviceWebService).pipe(map((webApp:DcmWebApp)=>{
             return this.getDicomURL(mode, webApp);
-        })
+        }));
     }
 
     getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string):Observable<DcmWebApp> {
         if (_.hasIn(deviceWebService, "selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1) {
-            return Observable.of(deviceWebService.selectedWebService);
+            return of(deviceWebService.selectedWebService);
         } else {
             try {
                 return this.webAppListService.getWebApps({
                     dcmWebServiceClass: alternativeWebServiceClass,
                     dicomAETitle: deviceWebService.selectedWebService.dicomAETitle
-                }).map((webApps:DcmWebApp[])=>webApps[0]);
+                }).pipe(map((webApps:DcmWebApp[])=>webApps[0]));
 /*                return deviceWebService.webServices.filter((webService: DcmWebApp) => { //TODO change this to observable to get the needed webservice from server
                     if (webService.dcmWebServiceClass.indexOf(alternativeWebServiceClass) > -1 && webService.dicomAETitle === deviceWebService.selectedWebService.dicomAETitle) {
                         return true;
@@ -3010,7 +3011,7 @@ export class StudyService {
                 })[0];*/
             } catch (e) {
                 j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
-                return Observable.throwError(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`);
+                return throwError(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`);
             }
         }
     }
@@ -3037,12 +3038,12 @@ export class StudyService {
     getIod(fileIodName:string){
         fileIodName = fileIodName || "study";
         if(this.iod[fileIodName]){
-            return Observable.of(this.iod[fileIodName]);
+            return of(this.iod[fileIodName]);
         }else{
-            return this.$http.get(`assets/iod/${fileIodName}.iod.json`).map(iod=>{
+            return this.$http.get(`assets/iod/${fileIodName}.iod.json`).pipe(map(iod=>{
                 this.iod[fileIodName] = iod;
                 return iod;
-            });
+            }));
         }
     }
 
@@ -3105,13 +3106,13 @@ export class StudyService {
                 "encapsulatedDocument"
             ]
         }
-        return Observable.forkJoin(iodFileNames.filter((m,i)=> i >= level).map(m=>this.getIod(m))).map(res=>{
+        return forkJoin(iodFileNames.filter((m,i)=> i >= level).map(m=>this.getIod(m))).pipe(map(res=>{
             let merged = {};
             res.forEach(o=>{
                 merged = Object.assign(merged,o)
             });
             return merged;
-        });
+        }));
     }
 
     getPatientIod() {
@@ -3271,7 +3272,7 @@ export class StudyService {
     deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 
     rejectRestoreMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, rejectionCode: string) {
-        return Observable.forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
+        return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
             return this.$http.post(
                 `${this.getURL(element.object.attrs, selectedWebService, element.dicomLevel)}/reject/${rejectionCode}`,
                 {},
@@ -3290,10 +3291,10 @@ export class StudyService {
 
     rejectStudy(studyAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
             return `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`;
-        }).switchMap(url=>{
+        })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
                 {},
@@ -3301,7 +3302,7 @@ export class StudyService {
                 undefined,
                 _webApp
             )
-        });
+        }));
 /*        return
             this.$http.post(
             `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`, //TODO this will work only for internal aets (look this 'DCM4CHEE_ARC_AET' if not found look for this class'REJECT')
@@ -3312,10 +3313,10 @@ export class StudyService {
 
     rejectSeries(studyAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
             return `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`;
-        }).switchMap(url=>{
+        })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
                 {},
@@ -3323,15 +3324,15 @@ export class StudyService {
                 undefined,
                 _webApp
             )
-        });
+        }));
     }
 
     rejectInstance(studyAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
-        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").map(webApp=>{
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
             return `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`;
-        }).switchMap(url=>{
+        })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
                 {},
@@ -3339,7 +3340,7 @@ export class StudyService {
                 undefined,
                 _webApp
             )
-        });
+        }));
     }
 
 
@@ -3395,7 +3396,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, {}, this.jsonHeader);
         } else {
-            return Observable.forkJoin(objects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
+            return forkJoin(objects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
                 return this.$http.post(
                     this.getURL(element.object.attrs, selectedWebService, element.dicomLevel) + urlSuffix,
                     {},

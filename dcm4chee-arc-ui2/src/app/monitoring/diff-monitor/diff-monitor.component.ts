@@ -16,6 +16,8 @@ import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {map} from "rxjs/operators";
 
 @Component({
     selector: 'diff-monitor',
@@ -110,9 +112,9 @@ export class DiffMonitorComponent implements OnInit {
             limit:20,
             offset:0
         };
-        Observable.forkJoin(
-            this.aeListService.getAes().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external')),
-            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
+        forkJoin(
+            this.aeListService.getAes().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external'))),
+            this.aeListService.getAets().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.aes = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {

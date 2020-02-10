@@ -8,6 +8,7 @@ import {Device} from "../../models/device";
 import {Aet} from "../../models/aet";
 import {j4care} from "../../helpers/j4care.service";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {map} from "rxjs/operators";
 
 
 @Injectable()
@@ -25,24 +26,24 @@ export class WebAppsListService {
     }
 
     getServiceClasses = () => {
-        return this.$http.get("./assets/schema/webApplication.schema.json").map(schema=>{
+        return this.$http.get("./assets/schema/webApplication.schema.json").pipe(map(schema=>{
           return (<any[]>_.get(schema,"properties.dcmWebServiceClass.items.enum")).map(serviceClass=>{
               return new SelectDropdown(serviceClass,serviceClass);
           });
-        });
+        }));
     };
 
-    getDevices = () => this.devicesService.getDevices().map(devices=>{
+    getDevices = () => this.devicesService.getDevices().pipe(map((devices:any)=>{
         return devices.map((device:Device)=>{
             return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription);
         })
-    });
+    }));
 
-    getAes = () => this.aeListService.getAes().map(aes=>{
+    getAes = () => this.aeListService.getAes().pipe(map((aes:any)=>{
         return aes.map((aet:Aet)=>{
             return new SelectDropdown(aet.dicomAETitle,aet.dicomAETitle,aet.dicomDescription);
         })
-    });
+    }));
 
     getFilterSchema = (devices, aets, webServiceClasses):FilterSchema => [
         {

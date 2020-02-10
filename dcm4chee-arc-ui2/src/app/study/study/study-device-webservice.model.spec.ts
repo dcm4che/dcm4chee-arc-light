@@ -14,7 +14,7 @@ describe('Service: Auth', () => {
         })
     ];
 
-    const dcm4cheeArcObject = {
+    const dcm4cheeArcObject:any = {
         dicomDeviceName: "dcm4chee-arc",
         dcmDevice:{
             dcmWebApp:[

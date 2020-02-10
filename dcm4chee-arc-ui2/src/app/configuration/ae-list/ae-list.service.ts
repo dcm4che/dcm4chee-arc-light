@@ -14,12 +14,12 @@ export class AeListService {
     getAes(filters?){
       return this.$http.get(
           '../aes'
-      ).map(res => j4care.redirectOnAuthResponse(res));
+      )
     }
     getAets(){
        return this.$http.get(
             '../aets'
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     }
     getDevices(){
         return this.devicesService.getDevices();
@@ -28,7 +28,7 @@ export class AeListService {
         return  this.$http.post(
             `../aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
             {}
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        )
     }
     generateEchoResponseText(response){
         if (_.hasIn(response, 'errorMessage') && response.errorMessage != ''){

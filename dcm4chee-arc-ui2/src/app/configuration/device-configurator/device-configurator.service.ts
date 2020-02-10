@@ -8,7 +8,7 @@ import {DropdownList} from '../../helpers/form/dropdown-list';
 import {InputNumber} from '../../helpers/form/input-number';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../../constants/globalvar";
@@ -47,12 +47,12 @@ export class DeviceConfiguratorService{
                 this.getFormaterValue[i] = (device)=>{
                     if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
                         if(i === "dcmArchiveAETitle"){
-                            return Observable.of(j4care.extendAetObjectWithAliasFromSameObject(_.get(device,m.pathInDevice)));
+                            return of(j4care.extendAetObjectWithAliasFromSameObject(_.get(device,m.pathInDevice)));
                         }else{
-                            return Observable.of(_.get(device,m.pathInDevice));
+                            return of(_.get(device,m.pathInDevice));
                         }
                     }else{
-                        return Observable.of([]);
+                        return of([]);
                     }
                 }
             }else{
@@ -61,7 +61,7 @@ export class DeviceConfiguratorService{
                         this.getFormaterValue['webApp'] = {};
                         this.getFormaterValue['webApp'] = (device)=>{
                             if(_.hasIn(this.mainservice.global,'webApp')){
-                                return Observable.of(this.mainservice.global.webApp);
+                                return of(this.mainservice.global.webApp);
                             }else{
                                 return this.webAppListService.getWebApps();
                             }
@@ -71,7 +71,7 @@ export class DeviceConfiguratorService{
                         this.getFormaterValue['dcmAETitle'] = {};
                         this.getFormaterValue['dcmAETitle'] = (device)=>{
                             if(_.hasIn(this.mainservice.global,'aes')){
-                                return Observable.of(this.mainservice.global.aes);
+                                return of(this.mainservice.global.aes);
                             }else{
                                 return this.aeListService.getAes();
                             }
@@ -81,7 +81,7 @@ export class DeviceConfiguratorService{
                         this.getFormaterValue['dicomDeviceName'] = {};
                         this.getFormaterValue['dicomDeviceName'] = (device)=>{
                             if(_.hasIn(this.mainservice.global,'devices')){
-                                return Observable.of(this.mainservice.global.devices);
+                                return of(this.mainservice.global.devices);
                             }else{
                                 return this.deviceService.getDevices();
                             }
@@ -91,7 +91,7 @@ export class DeviceConfiguratorService{
                         this.getFormaterValue['hl7ApplicationName'] = {};
                         this.getFormaterValue['hl7ApplicationName'] = (device)=>{
                             if(_.hasIn(this.mainservice.global,'hl7')){
-                                return Observable.of(this.mainservice.global.hl7);
+                                return of(this.mainservice.global.hl7);
                             }else{
                                 return this.hl7service.getHl7ApplicationsList('');
                             }
@@ -393,7 +393,7 @@ export class DeviceConfiguratorService{
     getFormatValue(format, device):Observable<any>{
         if(this.getFormaterValue[format])
             return this.getFormaterValue[format](device);
-        return Observable.of([]);
+        return of([]);
     }
     convertSchemaToForm(device, schema, params, defaultOpenBlock){
         let defaultExplicitSet = defaultOpenBlock;

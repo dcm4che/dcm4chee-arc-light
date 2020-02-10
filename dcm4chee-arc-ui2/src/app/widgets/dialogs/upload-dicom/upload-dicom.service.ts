@@ -6,13 +6,13 @@ export class UploadDicomService {
     progress$;
     progressObserver;
     constructor () {
-        this.progress$ = Observable.create(observer => {
+        this.progress$ = new Observable(observer => {
             this.progressObserver = observer;
         }).share();
     }
 
     makeFileRequest(url: string, params: string[], files: File[]) {
-        return Observable.create(observer => {
+        return new Observable(observer => {
             let formData: FormData = new FormData(),
                 xhr: XMLHttpRequest = new XMLHttpRequest();
             // formData.append('Content-Type', new Blob(['some plain text'], {type : 'Application/dicom'}));

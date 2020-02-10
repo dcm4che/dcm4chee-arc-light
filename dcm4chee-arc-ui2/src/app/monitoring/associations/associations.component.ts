@@ -156,7 +156,7 @@ export class AssociationsComponent implements OnDestroy{
             }else{
                 if(!this.pause){
                     $that.$http.get('/dcm4chee-arc/monitor/associations')
-                        .map((res) => res.json())
+                        // .map((res) => res.json())
                         .subscribe(
                             (res) => {
                                 let data = res;

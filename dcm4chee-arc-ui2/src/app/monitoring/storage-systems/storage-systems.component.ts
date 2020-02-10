@@ -331,7 +331,7 @@ export class StorageSystemsComponent implements OnInit {
     }
     getAets(){
         this.$http.get('../aets')
-            .map(res => j4care.redirectOnAuthResponse(res))
+
             .subscribe((response) => {
                 this.aets = j4care.extendAetObjectWithAlias(response);
                 this.filterSchema = this.service.getFiltersSchema(this.aets);

@@ -220,8 +220,8 @@ describe('j4care', () => {
             "20181015",
             "20181016-20181017",
             "20181018-20181019",
-            "20181020-20181021",
-            "20181022",
+            "20181020",
+            "20181021-20181022",
             "20181023-20181024",
             "20181025",
             "20181026-20181027",
@@ -273,7 +273,7 @@ describe('j4care', () => {
                     }
                 })
             )
-        ).toEqual("");
+        ).toEqual("http");
 
         expect(
             j4care.getHTTPProtocolFromDicomNetworkConnection(
@@ -302,7 +302,7 @@ describe('j4care', () => {
                     }
                 })
             )
-        ).toEqual("");
+        ).toEqual("http");
     });
 
     it("Should base url from DicomNetworkConnection",()=>{

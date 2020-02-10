@@ -124,7 +124,7 @@ export class CreateAeComponent implements OnInit{
             }else{
                 $this.cfpLoadingBar.start();
                 $this.$http.get('../devices/' + this.selectedDevice)
-                    .map(res => j4care.redirectOnAuthResponse(res))
+
                     .subscribe((response) => {
                         $this.selctedDeviceObject = response;
                         // $scope.selctedDeviceObject.dicomNetworkConnection;
