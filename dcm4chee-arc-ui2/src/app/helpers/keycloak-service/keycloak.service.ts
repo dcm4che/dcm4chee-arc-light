@@ -26,10 +26,11 @@ import {DcmWebApp} from "../../models/dcm-web-app";
 import {AppService} from "../../app.service";
 import {from} from "rxjs/observable/from";
 import {Globalvar} from "../../constants/globalvar";
-import {Subject} from "../../../../node_modules/rxjs";
+import {of, Subject} from "../../../../node_modules/rxjs";
 import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
 import * as _ from 'lodash';
+import {promise} from "selenium-webdriver";
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -101,7 +102,7 @@ export class KeycloakService {
                     this.setUserInfo(undefined);
                     this.setTokenSource.next("");
                     this.mainservice.updateGlobal("notSecure",true);
-                    return Observable.of([]);
+                    return of([]);
                 }
             })
         }
@@ -115,7 +116,7 @@ export class KeycloakService {
     getUserInfo():Observable<any>{
         console.log("**********inget userINFO",this.userInfo);
         if(this.userInfo){
-            return Observable.of(this.userInfo);
+            return of(this.userInfo);
         }else{
             return this.setUserSource.asObservable();
         }
@@ -145,7 +146,7 @@ export class KeycloakService {
 
     getToken():Observable<any>{
         if(_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure){
-            return Observable.of({});
+            return of({});
         }else{
             if(KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated){
                 console.log("KeycloakService.keycloakAuth",KeycloakService.keycloakAuth)
@@ -165,7 +166,7 @@ export class KeycloakService {
                         }
                     }));
                 }else{
-                    return Observable.of(KeycloakService.keycloakAuth);
+                    return of(KeycloakService.keycloakAuth);
                 }
             }else{
                 return this.getTokenObs();

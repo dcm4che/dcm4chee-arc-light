@@ -12,7 +12,7 @@ import {FormElement} from '../../helpers/form/form-element';
 import * as _ from 'lodash';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
-import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
 import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';

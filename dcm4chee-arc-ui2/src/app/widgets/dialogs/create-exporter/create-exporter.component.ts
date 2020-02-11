@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash';
 import {CreateExporterService} from './create-exporter.service';

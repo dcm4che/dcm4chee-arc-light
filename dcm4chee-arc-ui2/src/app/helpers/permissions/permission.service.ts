@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import {KeycloakService} from "../keycloak-service/keycloak.service";
 import {User} from "../../models/user";
 import UserInfo = KeycloakModule.UserInfo;
+import {map, switchMap} from "rxjs/operators";
 
 @Injectable()
 export class PermissionService {
@@ -50,31 +51,32 @@ export class PermissionService {
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
             return this.$http.get('../devicename')
-                .map(res => j4care.redirectOnAuthResponse(res))
-                .switchMap(res => {
-                    deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
-                    archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('../devices/' + deviceName)
-                })
-                .map((res)=>{
-                    try{
-                        this.configChecked = true;
-                        this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
-                        let global = _.cloneDeep(this.mainservice.global);
-                        console.log("permission uiconfig");
-                        global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
-                        global["myDevice"] = res;
-                        this.mainservice.deviceName = deviceName;
-                        this.mainservice.archiveDeviceName = archiveDeviceName;
-                        this.mainservice.setGlobal(global);
-                    }catch(e){
-                        console.warn("Permission not found!",e);
-                        this.mainservice.showError("Permission not found!");
+                .pipe(
+                    switchMap((res:any) => {
+                        deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
+                        archiveDeviceName = res.dicomDeviceName;
+                        return this.$http.get('../devices/' + deviceName)
+                    }),
+                    map((res:any)=>{
+                        try{
+                            this.configChecked = true;
+                            this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                            let global = _.cloneDeep(this.mainservice.global);
+                            console.log("permission uiconfig");
+                            global["uiConfig"] = res.dcmDevice.dcmuiConfig["0"];
+                            global["myDevice"] = res;
+                            this.mainservice.deviceName = deviceName;
+                            this.mainservice.archiveDeviceName = archiveDeviceName;
+                            this.mainservice.setGlobal(global);
+                        }catch(e){
+                            console.warn("Permission not found!",e);
+                            this.mainservice.showError("Permission not found!");
+                            return response.call(this);
+                        }
+                        // return this.checkMenuTabAccess(url);
                         return response.call(this);
-                    }
-                    // return this.checkMenuTabAccess(url);
-                    return response.call(this);
-                });
+                    })
+                )
         else
             return response.call(this);
     }
@@ -83,12 +85,12 @@ export class PermissionService {
         let archiveDeviceName;
         let userInfo:UserInfo;
         if(!this.uiConfig && !this.configChecked){
-            return this._keycloakService.getUserInfo()
-                .map(user=>{
+            return this._keycloakService.getUserInfo().pipe(
+                map(user=>{
                     userInfo = user; //Extracting userInfo from KeyCloak
-                })
-                .switchMap(res => this.$http.get('../devicename'))
-                .map(deviceNameResponse=>{
+                }),
+                switchMap(res => this.$http.get('../devicename')),
+                map(deviceNameResponse=>{
                     if(userInfo){
                         const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
                         let user = new User({
@@ -103,15 +105,13 @@ export class PermissionService {
                         this.user = user;
                     }
                     return deviceNameResponse;
-                })
-                .map(res => j4care.redirectOnAuthResponse(res))
-                .switchMap(res => {
+                }),
+                switchMap((res:any) => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
                     return this.$http.get('../devices/' + deviceName);
-                })
-                .map(res => j4care.redirectOnAuthResponse(res))
-                .map((res)=>{
+                }),
+                map((res:any)=>{
                     try{
                         this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
@@ -135,7 +135,8 @@ export class PermissionService {
                     }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
-                });
+                })
+            )
         }else{
             return response.apply(this,[]);
         }

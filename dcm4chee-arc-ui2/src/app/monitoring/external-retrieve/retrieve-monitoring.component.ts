@@ -5,14 +5,13 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import "rxjs/add/observable/forkJoin";
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import {environment} from "../../../environments/environment";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
@@ -26,6 +25,8 @@ import {SelectDropdown} from "../../interfaces";
 import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'retrieve-monitoring',
@@ -172,9 +173,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.filterObject = {
             limit:20
         };
-        Observable.forkJoin(
-            this.aeListService.getAes().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external')),
-            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
+        forkJoin(
+            this.aeListService.getAes().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external'))),
+            this.aeListService.getAets().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.remoteAET = this.destinationAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {

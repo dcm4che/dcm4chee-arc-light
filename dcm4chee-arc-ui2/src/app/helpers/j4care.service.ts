@@ -5,7 +5,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {J4careDateTime, J4careDateTimeMode, RangeObject, RangeUnit, StudyDateMode} from "../interfaces";
@@ -1032,7 +1032,7 @@ export class j4care {
     modal(schema, callBack){
         this.openDialog(schema).subscribe(callBack);
     }
-    // getDevices = ()=>this.httpJ4car.get('./rs/devices').map(res => j4care.redirectOnAuthResponse(res));
+    // getDevices = ()=>this.httpJ4car.get('./rs/devices');
 
     openDialog(parameters, width?, height?){
         this.dialogRef = this.dialog.open(ConfirmComponent, {
@@ -1144,11 +1144,8 @@ export class j4care {
                     return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https" && !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
                 })[0];
             }
-            console.log("filter",filteredConnections.filter(conn=>{
-                return !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
-            }));
             selectedConnection = selectedConnection || filteredConnections.filter(conn=>!(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false))[0];
-            if(selectedConnection){
+            if(selectedConnection && _.hasIn(selectedConnection,"dicomHostname") && _.hasIn(selectedConnection, "dicomPort")){
                 return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
             }else{
                 return window.location.origin;
@@ -1180,7 +1177,7 @@ export class j4care {
                 pathToConn = "dcmNetworkConnection.";
             }
             if((_.hasIn(conn,`${pathToConn}dcmProtocol`) && _.get(conn,`${pathToConn}dcmProtocol`) === "HTTP") || !_.hasIn(conn,`${pathToConn}dcmProtocol`)){
-                    if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
+                    if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && _.isArray(<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
                         return "https";
                     }else{
                         return "http";
@@ -1188,6 +1185,7 @@ export class j4care {
             }
             return '';
         }catch (e) {
+            return '';
             this.log("Something went wrong on getting the protocol from a connection",e);
         }
     }
@@ -1228,8 +1226,8 @@ export class j4care {
 
     static diffObjects(object, base, ignoreEmpty?:boolean, splited?:boolean){
         if(splited){
-            const first = j4care.changed(object,base,ignoreEmpty);
-            const second = j4care.changed(base, object, ignoreEmpty);
+            const first:any = j4care.changed(object,base,ignoreEmpty);
+            const second:any = j4care.changed(base, object, ignoreEmpty);
             return {
                 first: first,
                 second: second,

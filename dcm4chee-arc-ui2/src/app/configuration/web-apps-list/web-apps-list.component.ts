@@ -8,6 +8,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {Observable} from "rxjs/Observable";
 import * as _ from "lodash";
+import {forkJoin} from "rxjs/internal/observable/forkJoin";
 
 @Component({
   selector: 'app-web-apps-list',
@@ -56,7 +57,7 @@ export class WebAppsListComponent implements OnInit {
     }
 
     init(){
-        Observable.forkJoin(
+        forkJoin(
             this.service.getServiceClasses(),
             this.service.getDevices(),
             this.service.getAes()

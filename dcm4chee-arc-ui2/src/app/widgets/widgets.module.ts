@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
+import { NgModule, Injectable } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WidgetsComponent } from './widgets.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
-import {MatDialogConfig} from '@angular/material';
+import { MatDialogConfig } from '@angular/material/dialog';
 import { MessagingComponent } from './messaging/messaging.component';
 import {EditPatientComponent} from './dialogs/edit-patient/edit-patient.component';
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
@@ -42,6 +42,7 @@ import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.compon
 import { CodeSelectorComponent } from './code-selector/code-selector.component';
 
 
+@Injectable()
 @NgModule({
     imports: [
         CommonModule,

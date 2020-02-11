@@ -4,7 +4,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
 
@@ -63,12 +63,12 @@ export class DevicesService {
     getDevices(){
        return this.$http.get(
             '../devices'
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
     getDevice(deviceName){
        return this.$http.get(
             `../devices/${deviceName}`
-        ).map(res => j4care.redirectOnAuthResponse(res));
+        );
     }
     generateNewTitle(oldTitle, aes, titleName){
         let newTitle;

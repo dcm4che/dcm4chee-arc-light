@@ -1,5 +1,5 @@
 import {Component, OnDestroy} from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import * as _ from 'lodash';
 
 @Component({

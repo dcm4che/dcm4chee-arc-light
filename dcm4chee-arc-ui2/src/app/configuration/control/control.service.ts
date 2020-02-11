@@ -12,7 +12,7 @@ export class ControlService {
         private appservices:AppService
     ) { }
 
-    fetchStatus = (url?) => this.$http.get(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/status`).map(res => j4care.redirectOnAuthResponse(res));
+    fetchStatus = (url?) => this.$http.get(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/status`);
     startArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/start`, {});
     stopArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/stop`, {});
     reloadArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/reload`, {});

@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import {AppService} from '../../app.service';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -331,7 +331,7 @@ export class StorageSystemsComponent implements OnInit {
     }
     getAets(){
         this.$http.get('../aets')
-            .map(res => j4care.redirectOnAuthResponse(res))
+
             .subscribe((response) => {
                 this.aets = j4care.extendAetObjectWithAlias(response);
                 this.filterSchema = this.service.getFiltersSchema(this.aets);

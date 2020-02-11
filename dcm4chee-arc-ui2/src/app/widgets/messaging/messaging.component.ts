@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {AppService} from '../../app.service';
 import {Subscription} from 'rxjs';
 import {InfoComponent} from '../dialogs/info/info.component';
-import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
+import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import {WindowRefService} from "../../helpers/window-ref.service";
 @Component({
   selector: 'app-messaging',

@@ -47,7 +47,7 @@ export class StorageVerificationService {
     }
     getSorageVerifications(filter, batch){
       return this.$http.get(`../monitor/stgver${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
-          .map(res => j4care.redirectOnAuthResponse(res));
+          ;
     }
     getSorageVerificationsCount(filter) {
       let filterClone = _.cloneDeep(filter);
@@ -55,7 +55,7 @@ export class StorageVerificationService {
       delete filterClone.limit;
       delete filterClone.orderby;
       return this.$http.get('../monitor/stgver/count' + '?' + this.mainservice.param(filterClone))
-          .map(res => j4care.redirectOnAuthResponse(res));
+          ;
     };
     getTableSchema($this, action){
       return [
@@ -379,7 +379,7 @@ export class StorageVerificationService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/stgver/cancel${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     cancel = (pk) => this.$http.post(`../monitor/stgver/${pk}/cancel`, {});
 
@@ -387,7 +387,7 @@ export class StorageVerificationService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/stgver/reschedule${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     reschedule(pk, filters?){
         let urlParam = this.mainservice.param(filters);
@@ -398,7 +398,7 @@ export class StorageVerificationService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../monitor/stgver${urlParam}`, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
 
     delete = (pk)=> this.$http.delete('../monitor/stgver/' + pk);

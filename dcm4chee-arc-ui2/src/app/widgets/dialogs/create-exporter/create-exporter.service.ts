@@ -13,8 +13,8 @@ export class CreateExporterService {
 
     getDevice = (deviceName) => this.deviceConfiguratorService.getDevice(deviceName);
 
-    getQueue = () => this.$http.get('../queue').map(res => j4care.redirectOnAuthResponse(res));
+    getQueue = () => this.$http.get('../queue');
 
-    getExporterDescriptorSchema = () => this.$http.get('./assets/schema/exporter.schema.json').map(res => j4care.redirectOnAuthResponse(res));
+    getExporterDescriptorSchema = () => this.$http.get('./assets/schema/exporter.schema.json');
 
 }

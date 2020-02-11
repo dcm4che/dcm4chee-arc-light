@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
+import { MatDialogConfig, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {ExportService} from './export.service';
@@ -19,6 +19,7 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {map} from "rxjs/operators";
 
 
 @Component({
@@ -320,7 +321,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filterObject, offset,this.batchGrouped)
-            .map(res => j4care.redirectOnAuthResponse(res))
+
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -701,7 +702,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     initExporters(retries) {
         let $this = this;
         this.$http.get('../export')
-            .map(res => j4care.redirectOnAuthResponse(res))
+
             .subscribe(
                 (res) => {
                     $this.exporters = res;
@@ -729,7 +730,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     getAets(){
         this.aeListService.getAets()
-            .map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))
+            .pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')))
             .subscribe(aets=>{
                 this.aets = aets.map(ae=>{
                     return {

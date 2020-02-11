@@ -28,7 +28,7 @@ export class RangePickerComponent implements OnInit {
     @ViewChild('fromTimeCalendar', {static: true}) fromTimeCalendarObject;
     @ViewChild('toCalendar', {static: true}) toCalendarObject;
     @ViewChild('singleCalendar', {static: true}) singleCalendarObject;
-    @ViewChild('picker', {static: false}) picker;
+    @ViewChild('picker') picker;
     SplitStudyDateRange;
     fromModel;
     fromTimeModel;

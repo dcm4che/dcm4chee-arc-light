@@ -15,7 +15,7 @@ export class ExportService {
     }
 
     search(filters, offset, batch) {
-        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`).map(res => j4care.redirectOnAuthResponse(res));;
+        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`);;
     };
 
     getCount(filters) {
@@ -24,7 +24,7 @@ export class ExportService {
         delete filterClone.limit;
         delete filterClone.orderby;
         return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.paramWithoutLimit(filterClone)))
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     };
     paramWithoutLimit(filters){
         let clonedFilters = this.queryParams(filters,undefined);
@@ -60,7 +60,7 @@ export class ExportService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/export/cancel${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     delete(pk){
         return this.$http.delete('../monitor/export/' + pk);
@@ -69,7 +69,7 @@ export class ExportService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../monitor/export${urlParam}`, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     reschedule(pk, exporterID, filter?){
         filter = filter || "";
@@ -83,7 +83,7 @@ export class ExportService {
         urlParam = urlParam?`?${urlParam}`:'';
         let exporter = exporterID? `/${exporterID}`:'';
         return this.$http.post(`../monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     downloadCsv(filter){
         let urlParam = this.mainservice.param(filter);

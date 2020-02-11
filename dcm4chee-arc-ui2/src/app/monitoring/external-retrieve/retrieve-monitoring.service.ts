@@ -19,7 +19,7 @@ export class RetrieveMonitoringService {
     getExternalRetrieveEntries(filter, offset, batch){
         filter.offset = (offset && offset != '') ? offset : 0;
         return this.$http.get(`../monitor/retrieve${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     };
     getCount(filter) {
         let filterClone = _.cloneDeep(filter);
@@ -27,11 +27,11 @@ export class RetrieveMonitoringService {
             delete filterClone.limit;
             delete filterClone.orderby;
         return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     };
     getExporters(){
       return this.$http.get('../export')
-          .map(res => j4care.redirectOnAuthResponse(res));
+          ;
     }
     delete(pk){
         return this.$http.delete('../monitor/retrieve/' + pk);
@@ -40,7 +40,7 @@ export class RetrieveMonitoringService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../monitor/retrieve${urlParam}`, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     reschedule(pk, data){
         return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, data);
@@ -49,7 +49,7 @@ export class RetrieveMonitoringService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/retrieve/reschedule${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     cancel(pk){
         return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
@@ -59,7 +59,7 @@ export class RetrieveMonitoringService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/retrieve/cancel${urlParam}`, {}, this.header)
-            .map(res => j4care.redirectOnAuthResponse(res));
+            ;
     }
     downloadCsv(filter){
         let urlParam = this.mainservice.param(filter);
@@ -265,7 +265,7 @@ export class RetrieveMonitoringService {
     ];
     }
     getQueueNames(){
-        return this.$http.get('../queue').map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get('../queue');
     }
     getDevices(){
         return this.deviceService.getDevices()

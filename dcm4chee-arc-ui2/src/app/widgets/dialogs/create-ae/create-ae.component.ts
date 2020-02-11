@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import * as _ from 'lodash';
 import {AppService} from '../../../app.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
@@ -124,7 +124,7 @@ export class CreateAeComponent implements OnInit{
             }else{
                 $this.cfpLoadingBar.start();
                 $this.$http.get('../devices/' + this.selectedDevice)
-                    .map(res => j4care.redirectOnAuthResponse(res))
+
                     .subscribe((response) => {
                         $this.selctedDeviceObject = response;
                         // $scope.selctedDeviceObject.dicomNetworkConnection;

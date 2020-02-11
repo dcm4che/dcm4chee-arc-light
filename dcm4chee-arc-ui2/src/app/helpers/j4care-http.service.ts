@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Rx';
 import {AppService} from "../app.service";
 import 'rxjs/add/operator/mergeMap';
 import * as _ from 'lodash';
@@ -11,6 +11,9 @@ import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
 import {KeycloakService} from "./keycloak-service/keycloak.service";
 import {Globalvar} from "../constants/globalvar";
+import {of} from "rxjs/internal/observable/of";
+import {throwError} from "rxjs/internal/observable/throwError";
+import {catchError, flatMap, map} from "rxjs/operators";
 
 @Injectable()
 export class J4careHttpService{
@@ -86,7 +89,7 @@ export class J4careHttpService{
         return url;
     }
     private dcmWebAppRequest(requestFunctionName:HttpMethod, param:DcmWebAppRequestParam){
-        return this.getRealm(param.dcmWebApp).flatMap(response=>{
+        return this.getRealm(param.dcmWebApp).pipe(flatMap(response=>{
             param.header = {
                 headers: new HttpHeaders({
                     'Content-Type':  'application/json',
@@ -94,15 +97,17 @@ export class J4careHttpService{
                 })
             };
             return this.$httpClient[requestFunctionName].apply(this.$httpClient , this.getParamAsArray(param, requestFunctionName));
-        });
+        }));
     }
     private request(requestFunctionName:HttpMethod, param, dcmWebApp?:DcmWebApp){
         let $this = this;
-        return $this.refreshToken().flatMap((response)=>{
+        return $this.refreshToken().pipe(
+            flatMap((response)=>{
                 $this.setHeader(param.header, dcmWebApp);
                 param.header = {headers:this.header};
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
-            }).catch(res=>{
+            }),
+            catchError(res=>{
                 j4care.log("In catch",res);
                 if(res.statusText === "Unauthorized"){
                     return $this.refreshToken().flatMap((resp)=>{
@@ -110,8 +115,9 @@ export class J4careHttpService{
                         return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
                     });
                 }
-                return Observable.throw(res);
-        });
+                return throwError(res);
+            })
+        );
     }
     getParamAsArray(param:any, requestFunctionName?:HttpMethod){
         let httpParam = [];
@@ -165,7 +171,7 @@ export class J4careHttpService{
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
         return service
-            .map(res => {
+            .pipe(map(res => {
                 let resjson;
                 try{
                     resjson = res.json();
@@ -184,7 +190,7 @@ export class J4careHttpService{
                     this.token["UI"] = KeycloakService.keycloakAuth.token;
                 }
                 return resjson;
-            })
+            }))
     }
     refreshToken(dcmWebApp?:DcmWebApp):Observable<any>{
         if(!dcmWebApp){
@@ -200,10 +206,10 @@ export class J4careHttpService{
                         return this.getRealm();
                     }
                 }
-                return Observable.of([]);
+                return of([]);
             }
         }
-        return Observable.of([]);
+        return of([]);
 
     }
     tokenValid(){

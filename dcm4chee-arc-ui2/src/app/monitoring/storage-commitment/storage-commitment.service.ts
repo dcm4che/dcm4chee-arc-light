@@ -27,7 +27,7 @@ export class StorageCommitmentService {
         }
     ];
     search(filters, offset) {
-        return this.$http.get('../stgcmt' + '?' + this.mainservice.param(this.queryParams(filters, offset))).map(res => j4care.redirectOnAuthResponse(res));
+        return this.$http.get('../stgcmt' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
     queryParams(filters, offset) {
 /*                var params = {
@@ -63,7 +63,7 @@ export class StorageCommitmentService {
     //     return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});
     // }
 
-    getExporters = () => this.$http.get('../export').map(res => j4care.redirectOnAuthResponse(res));
+    getExporters = () => this.$http.get('../export');
 
     getFiltersSchema(exporters){
         return [

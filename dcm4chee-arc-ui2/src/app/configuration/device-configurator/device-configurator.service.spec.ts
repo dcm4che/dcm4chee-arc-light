@@ -7,6 +7,7 @@ import {DevicesService} from "../devices/devices.service";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../../constants/globalvar";
+import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 
 class MyServiceDependencyStub {
 }
@@ -25,6 +26,7 @@ describe("DeviceConfiguratorService",()=> {
         TestBed.configureTestingModule({
             providers: [
                 DeviceConfiguratorService,
+                WebAppsListService,
                 { provide: J4careHttpService, useClass: MyServiceDependencyStub },
                 { provide: AppService, useClass: MyServiceDependencyStub },
                 { provide: DevicesService, useClass: MyServiceDependencyStub },
@@ -32,7 +34,7 @@ describe("DeviceConfiguratorService",()=> {
                 { provide: Hl7ApplicationsService, useClass: MyServiceDependencyStub },
             ],
         });
-        service = TestBed.get(DeviceConfiguratorService);
+        service = TestBed.inject(DeviceConfiguratorService);
         //"$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle"
         service.device = {
             "dicomDeviceName": "dcm4chee-arc",
@@ -117,7 +119,7 @@ describe("DeviceConfiguratorService",()=> {
     });
 
     it("Should add addChangesToDevice() Network AE to device",()=>{
-        let newDevice = Object.assign({},DEVICE);
+        let newDevice:any = Object.assign({},DEVICE);
         service.addChangesToDevice({
                 cn:"dicom",
                 dcmNetworkConnection: {
@@ -154,7 +156,7 @@ describe("DeviceConfiguratorService",()=> {
     });
 
     it("Should try to add addChangesToDevice() empty array on the device",()=>{
-        let newDevice = Object.assign({},DEVICE);
+        let newDevice:any = Object.assign({},DEVICE);
         service.addChangesToDevice({
                 dicomSoftwareVersion:[]
             },
@@ -165,7 +167,7 @@ describe("DeviceConfiguratorService",()=> {
     });
 
     it("Should add addChangesToDevice() exporter descriptor in the device",()=> {
-        let newDevice = Object.assign({},DEVICE);
+        let newDevice:any = Object.assign({},DEVICE);
         service.addChangesToDevice(
             {
                 "dcmURI": "dicom:STORESCP2",

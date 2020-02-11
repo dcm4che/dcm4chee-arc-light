@@ -38,7 +38,7 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {HttpHeaders} from "@angular/common/http";
 import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.component";
@@ -61,7 +61,7 @@ import {ChangeDetectorRef} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
-import {filter} from "rxjs/operators";
+import {filter, map, switchMap} from "rxjs/operators";
 
 
 @Component({
@@ -3231,16 +3231,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     aets;
     initWebApps(){
         let aetsTemp;
-        this.service.getAets()
-            .map((aets:Aet[])=>{
-                aetsTemp = aets;
-            })
-            .switchMap(()=>{
-                let filter = {
-                    dcmWebServiceClass: this.currentWebAppClass
-                };
-                return this.service.getWebApps(filter)
-            })
+        this.service.getAets().pipe(
+                map((aets:Aet[])=>{
+                    aetsTemp = aets;
+                }),
+                switchMap(()=>{
+                    let filter = {
+                        dcmWebServiceClass: this.currentWebAppClass
+                    };
+                    return this.service.getWebApps(filter)
+                })
+            )
             .subscribe(
                 (webApps:DcmWebApp[])=> {
                     this.studyWebService = new StudyWebService({

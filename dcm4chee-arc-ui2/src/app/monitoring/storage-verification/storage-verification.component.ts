@@ -11,10 +11,12 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
+import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-storage-verification',
@@ -108,8 +110,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             limit:20,
             offset:0
         };
-        Observable.forkJoin(
-            this.aeListService.getAets().map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal')),
+        forkJoin(
+            this.aeListService.getAets().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'internal'))),
             this.service.getDevices()
         ).subscribe((response)=>{
             this.localAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
