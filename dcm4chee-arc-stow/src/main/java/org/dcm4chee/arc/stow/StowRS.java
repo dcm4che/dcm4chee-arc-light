@@ -523,14 +523,15 @@ public class StowRS {
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
         } else if ((imageReader = findImageReader(bulkdata.mediaType, "com.sun.imageio")) != null) {
-            try {
-                BufferedImageUtils.toImagePixelModule(
-                        readImageBulkdata(imageReader, bulkdata.bulkData.getFile()),
-                        attrs);
+            try (ImageInputStream iio = ImageIO.createImageInputStream(bulkdata.bulkData.getFile())) {
+                imageReader.setInput(iio);
+                BufferedImageUtils.toImagePixelModule(imageReader, attrs);
                 ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             } catch (Exception e) {
                 LOG.info("Failed to extract pixel data from bulkdata:\n", e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
+            } finally {
+                imageReader.dispose();
             }
         }
     }
@@ -545,18 +546,6 @@ public class StowRS {
             return reader;
         } else {
             return null;
-        }
-    }
-
-    private static Iterator<IIOImage> readImageBulkdata(ImageReader reader, File file) throws DicomServiceException {
-        try (ImageInputStream iio = ImageIO.createImageInputStream(file)){
-            reader.setInput(iio);
-            return reader.readAll(null);
-        } catch (IOException e) {
-            LOG.info("Failed to read image from {} using {}:\n", file, reader);
-            throw new DicomServiceException(Status.ProcessingFailure, e);
-        } finally {
-            reader.dispose();
         }
     }
 
