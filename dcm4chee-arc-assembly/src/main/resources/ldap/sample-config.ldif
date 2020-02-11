@@ -2995,7 +2995,6 @@ dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
-dcmProperty: roles=user,admin
 objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
@@ -3196,7 +3195,6 @@ dcmUnit: MB/s
 dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_URI
-dcmProperty: roles=user,admin
 objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE-WADO

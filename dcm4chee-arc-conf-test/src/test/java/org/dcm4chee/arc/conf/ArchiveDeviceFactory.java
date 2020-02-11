@@ -1052,7 +1052,6 @@ class ArchiveDeviceFactory {
                     new Code[0],
                     true);
 
-    static final String USER_AND_ADMIN = "user,admin";
     static final String ONLY_ADMIN = "admin";
 
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
@@ -1460,7 +1459,7 @@ class ArchiveDeviceFactory {
                 configType));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, USER_AND_ADMIN,
+                "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, null,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.STOW_RS,
@@ -1469,7 +1468,7 @@ class ArchiveDeviceFactory {
         device.addWebApplication(webapp);
 
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
-                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, USER_AND_ADMIN,
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, null,
                 WebApplication.ServiceClass.WADO_URI));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", ONLY_ADMIN,
