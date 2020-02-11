@@ -904,13 +904,13 @@ public class AuditService {
                     Path file = Files.createTempFile(dir, eventType.name(), null);
                     try (BufferedOutputStream out = new BufferedOutputStream(
                             Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                        out.write(data[0]);
-                        if (data.length > 1 && data[1].length > 0)
-                            out.write(data[1]);
                         try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(
                                 file, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
                             writer.writeLine(new AuditInfo(auditInfoBuilder));
                         }
+                        out.write(data[0]);
+                        if (data.length > 1 && data[1].length > 0)
+                            out.write(data[1]);
                     }
                     if (eventTime == null)
                         eventTime = Files.getLastModifiedTime(file);
