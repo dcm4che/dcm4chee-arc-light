@@ -774,7 +774,11 @@
       ],
       "summary": "List Configured Queues",
       "operationId": "listQueues",
-      "parameters": [],
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/includeExporters"
+        }
+      ],
       "responses": {
         "200": {
           "description": "Queues",

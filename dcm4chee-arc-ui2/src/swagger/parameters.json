@@ -718,6 +718,15 @@
       }
     }
   },
+  "includeExporters": {
+    "name": "includeExporters",
+    "in": "query",
+    "description": "include associated exporters of queues",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "fuzzymatching": {
     "name": "fuzzymatching",
     "in": "query",

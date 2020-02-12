@@ -1654,6 +1654,15 @@
           "title": "Queue Description",
           "description": "description of queue",
           "type": "string"
+        },
+        "exporterIDs": {
+          "title": "Associated Exporters",
+          "description": "Associated Exporters of queue",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
         }
       }
     }

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.qmgt.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -53,16 +54,18 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.validation.constraints.Pattern;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -80,6 +83,10 @@ public class QueryQueues {
     @Context
     private HttpServletRequest request;
 
+    @QueryParam("includeExporters")
+    @Pattern(regexp = "true|false")
+    private String includeExporters;
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -89,13 +96,7 @@ public class QueryQueues {
             return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (QueueDescriptor queueDesc : sortedQueueDescriptors()) {
-                    JsonWriter writer = new JsonWriter(gen);
-                    gen.writeStartObject();
-                    writer.writeNotNullOrDef("name", queueDesc.getQueueName(), null);
-                    writer.writeNotNullOrDef("description", queueDesc.getDescription(), null);
-                    gen.writeEnd();
-                }
+                writeQueues(gen);
                 gen.writeEnd();
                 gen.flush();
             };
@@ -105,11 +106,70 @@ public class QueryQueues {
         }
     }
 
+    private void writeQueuesWithExporters(JsonGenerator gen) {
+        associatedQueuesExporters().forEach((queueName, queueDescExporterIDs) -> {
+            JsonWriter writer = new JsonWriter(gen);
+            gen.writeStartObject();
+            writer.writeNotNullOrDef("name", queueName, null);
+            writer.writeNotNullOrDef("description", queueDescExporterIDs.getQueue().getDescription(), null);
+            writer.writeNotEmpty("exporterIDs", queueDescExporterIDs.getExporterIDs().toArray(new String[0]));
+            gen.writeEnd();
+        });
+    }
+
+    private void writeQueues(JsonGenerator gen) {
+        if (Boolean.parseBoolean(includeExporters)) {
+            writeQueuesWithExporters(gen);
+            return;
+        }
+        for (QueueDescriptor queueDesc : sortedQueueDescriptors()) {
+            JsonWriter writer = new JsonWriter(gen);
+            gen.writeStartObject();
+            writer.writeNotNullOrDef("name", queueDesc.getQueueName(), null);
+            writer.writeNotNullOrDef("description", queueDesc.getDescription(), null);
+            gen.writeEnd();
+        }
+    }
+
     private QueueDescriptor[] sortedQueueDescriptors() {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getQueueDescriptors().stream()
                 .sorted(Comparator.comparing(QueueDescriptor::getQueueName))
                 .toArray(QueueDescriptor[]::new);
+    }
+
+    private Map<String, QueueDescExporterIDs> associatedQueuesExporters() {
+        Map<String, List<String>> queueNameExporterIDs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getExporterDescriptors().stream()
+                .collect(Collectors.groupingBy(ExporterDescriptor::getQueueName,
+                        Collectors.mapping(ExporterDescriptor::getExporterID,
+                                Collectors.toList())));
+
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getQueueDescriptors().stream()
+                .filter(qd -> queueNameExporterIDs.containsKey(qd.getQueueName()))
+                .collect(Collectors.toMap(QueueDescriptor::getQueueName,
+                        qd -> new QueueDescExporterIDs(qd, queueNameExporterIDs.get(qd.getQueueName())),
+                        (v1, v2) -> v1,
+                        TreeMap::new));
+    }
+
+    static class QueueDescExporterIDs {
+        private QueueDescriptor queue;
+        private List<String> exporterIDs;
+
+        public QueueDescExporterIDs(QueueDescriptor queue, List<String> exporterIDs) {
+            this.queue = queue;
+            this.exporterIDs = exporterIDs;
+        }
+
+        public QueueDescriptor getQueue() {
+            return queue;
+        }
+
+        public List<String> getExporterIDs() {
+            return exporterIDs;
+        }
     }
 
     private void logRequest() {
