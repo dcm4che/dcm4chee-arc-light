@@ -58,8 +58,8 @@ import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -153,7 +153,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
-            Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys) {
+                                                 Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys) {
         RetrieveContext ctx = newRetrieveContext(arcAE, as, qrLevel, keys);
         ctx.setPriority(rqCmd.getInt(Tag.Priority, 0));
         ctx.setDestinationAETitle(as.getRemoteAET());
@@ -162,7 +162,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
-            Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
+                                                  Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException {
         RetrieveContext ctx = newRetrieveContext(arcAE, as, qrLevel, keys);
         ctx.setPriority(rqCmd.getInt(Tag.Priority, 0));
@@ -321,7 +321,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Collection<InstanceLocations> matches = ctx.getMatches();
         matches.clear();
         try {
-            HashMap<Long,StudyInfo> studyInfoMap = new HashMap<>();
+            HashMap<Long, StudyInfo> studyInfoMap = new HashMap<>();
             Series.MetadataUpdate metadataUpdate = ctx.getSeriesMetadataUpdate();
             if (metadataUpdate != null && metadataUpdate.instancePurgeState == Series.InstancePurgeState.PURGED) {
                 SeriesAttributes seriesAttributes = new SeriesAttributes(em, cb, metadataUpdate.seriesPk);
@@ -981,5 +981,10 @@ public class RetrieveServiceImpl implements RetrieveService {
             }
         }
         return attrs;
+    }
+
+    @Override
+    public UIDMap getUIDMap(Long uidMapPk, Map<Long, UIDMap> uidMapCache) {
+        return ejb.getUIDMapReference(uidMapPk, uidMapCache);
     }
 }

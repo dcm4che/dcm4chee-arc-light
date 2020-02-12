@@ -55,7 +55,6 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -82,6 +81,8 @@ class LocationQuery {
     private final Path<byte[]> instanceAttrBlob;
     private final List<Predicate> predicates = new ArrayList<>();
     private Predicate[] iuidPredicates;
+    private final HashMap<Long, UIDMap> uidMapCache = new HashMap<>();
+
 
     public LocationQuery(EntityManager em, CriteriaBuilder cb, RetrieveContext ctx, CodeCache codeCache) {
         this.em = em;
@@ -146,7 +147,7 @@ class LocationQuery {
                 instance.get(Instance_.createdTime),
                 instance.get(Instance_.updatedTime),
                 uidMap.get(UIDMap_.pk),
-                uidMap.get(UIDMap_.encodedMap),
+                // uidMap.get(UIDMap_.encodedMap),
                 instanceAttrBlob
         );
     }
@@ -171,7 +172,7 @@ class LocationQuery {
     }
 
     private void execute(Map<Long, StudyInfo> studyInfoMap, Predicate[] predicates) {
-        HashMap<Long,InstanceLocations> instMap = new HashMap<>();
+        HashMap<Long, InstanceLocations> instMap = new HashMap<>();
         HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
         HashMap<Long,Map<String, CodeEntity>> rejectedInstancesOfSeriesMap = new HashMap<>();
         for (Tuple tuple : em.createQuery(q.where(predicates)).getResultList()) {
@@ -242,7 +243,7 @@ class LocationQuery {
                 .build();
         Long uidMapPk = tuple.get(uidMap.get(UIDMap_.pk));
         if (uidMapPk != null) {
-            location.setUidMap(new UIDMap(uidMapPk, tuple.get(uidMap.get(UIDMap_.encodedMap))));
+            location.setUidMap(ctx.getRetrieveService().getUIDMap(uidMapPk, uidMapCache));
         }
         match.getLocations().add(location);
     }

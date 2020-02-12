@@ -43,11 +43,13 @@ package org.dcm4chee.arc.retrieve.impl;
 import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,6 +87,15 @@ public class RetrieveServiceEJB {
                 setCompletenessOfStudy(studyIUIDs[0], Completeness.UNKNOWN);
                 break;
         }
+    }
+
+    public UIDMap getUIDMapReference(Long uidMapPk, Map<Long, UIDMap> uidMapCache) {
+        UIDMap uidMap = uidMapCache.get(uidMapPk) ;
+        if ( null == uidMap ) {
+            uidMap = em.find(UIDMap.class, uidMapPk) ;
+            uidMapCache.put(uidMapPk, uidMap) ;
+        }
+        return uidMap;
     }
 
     private void setCompletenessOfStudy(String studyInstanceUID, Completeness completeness) {
