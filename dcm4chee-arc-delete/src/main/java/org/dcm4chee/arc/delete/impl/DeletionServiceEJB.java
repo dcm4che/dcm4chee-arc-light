@@ -516,6 +516,14 @@ public class DeletionServiceEJB {
                 .getSingleResult() > 0;
     }
 
+    public boolean hasInUseFile(String storageID, String storagePath) {
+        return em.createNamedQuery(Location.COUNT_IN_USE_FILES, Long.class)
+                .setParameter(1, storageID)
+                .setParameter(2, Location.Status.OK)
+                .setParameter(3, storagePath)
+                .getSingleResult() > 0;
+    }
+
     private long countStudiesOfPatient(Patient patient) {
         return em.createNamedQuery(Study.COUNT_STUDIES_OF_PATIENT, Long.class).setParameter(1, patient)
                 .getSingleResult();

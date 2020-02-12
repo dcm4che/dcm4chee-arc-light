@@ -502,7 +502,13 @@ public class PurgeStorageScheduler extends Scheduler {
     private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {
         try {
             if (ejb.claimDeleteObject(location)) {
-                storage.deleteObject(location.getStoragePath());
+                if ( !ejb.hasInUseFile(location.getStorageID(), location.getStoragePath()) ) {
+                    // File can actually be removed since not used in any other valid location
+                    storage.deleteObject(location.getStoragePath());
+                }
+                else {
+                    LOG.debug("Location {} deleted from {}, but file is still in use", location, storage);
+                }
                 ejb.removeLocation(location);
                 LOG.debug("Successfully delete {} from {}", location, storage);
                 success.getAndIncrement();
