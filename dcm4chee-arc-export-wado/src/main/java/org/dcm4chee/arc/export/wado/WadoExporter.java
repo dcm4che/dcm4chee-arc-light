@@ -221,7 +221,7 @@ public class WadoExporter extends AbstractExporter {
         }, SERIES {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
-                return ctx.getSeriesInstanceUID().equals("*")
+                return ctx.getSeriesInstanceUID() != null && ctx.getSeriesInstanceUID().equals("*")
                         ? queryService.getSeriesInstanceUIDs(ctx.getStudyInstanceUID())
                         : Collections.singletonList(new Object[]{
                             ctx.getStudyInstanceUID(),
@@ -230,9 +230,9 @@ public class WadoExporter extends AbstractExporter {
         }, INSTANCE {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
-                return ctx.getSeriesInstanceUID().equals("*")
+                return ctx.getSeriesInstanceUID() != null && ctx.getSeriesInstanceUID().equals("*")
                         ? queryService.getSOPInstanceUIDs(ctx.getStudyInstanceUID())
-                        : ctx.getSopInstanceUID().equals("*")
+                        : ctx.getSopInstanceUID() != null && ctx.getSopInstanceUID().equals("*")
                         ? queryService.getSOPInstanceUIDs(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID())
                         : Collections.singletonList(new Object[]{
                             ctx.getStudyInstanceUID(),
