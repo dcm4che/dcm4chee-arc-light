@@ -213,33 +213,41 @@ public class WadoExporter extends AbstractExporter {
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
                 return Collections.singletonList(new Object[]{});
             }
-        }, STUDY {
+        },
+        STUDY {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
                 return Collections.singletonList(new Object[]{ctx.getStudyInstanceUID()});
             }
-        }, SERIES {
+        },
+        SERIES {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
-                return ctx.getSeriesInstanceUID() != null && ctx.getSeriesInstanceUID().equals("*")
+                return ctx.getSeriesInstanceUID() == null
                         ? queryService.getSeriesInstanceUIDs(ctx.getStudyInstanceUID())
                         : Collections.singletonList(new Object[]{
                             ctx.getStudyInstanceUID(),
                             ctx.getSeriesInstanceUID()});
             }
-        }, INSTANCE {
+        },
+        INSTANCE {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
-                return ctx.getSeriesInstanceUID() != null && ctx.getSeriesInstanceUID().equals("*")
+                return ctx.getSeriesInstanceUID() == null
                         ? queryService.getSOPInstanceUIDs(ctx.getStudyInstanceUID())
-                        : ctx.getSopInstanceUID() != null && ctx.getSopInstanceUID().equals("*")
+                        : ctx.getSopInstanceUID() == null
                         ? queryService.getSOPInstanceUIDs(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID())
                         : Collections.singletonList(new Object[]{
                             ctx.getStudyInstanceUID(),
                             ctx.getSeriesInstanceUID(),
-                            ctx.getSopInstanceUID()});
+                            ctx.getSopInstanceUID(),
+                            queryService.getNumberOfFrames(
+                                    ctx.getStudyInstanceUID(),
+                                    ctx.getSeriesInstanceUID(),
+                                    ctx.getSopInstanceUID())});
             }
-        }, FRAME {
+        },
+        FRAME {
             @Override
             List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
                 List<Object[]> insts = INSTANCE.queryParams(ctx, queryService);

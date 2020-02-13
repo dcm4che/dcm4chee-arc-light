@@ -356,6 +356,15 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Integer getNumberOfFrames(String studyUID, String seriesUID, String objUID) {
+        return em.createNamedQuery(Instance.NUMBER_OF_FRAMES, Integer.class)
+                .setParameter(1, studyUID)
+                .setParameter(2, seriesUID)
+                .setParameter(3, objUID)
+                .getSingleResult();
+    }
+
+    @Override
     public ZipInputStream openZipInputStream(QueryContext ctx, String storageID, String storagePath)
             throws IOException {
         Storage storage = getStorage(storageID, ctx);

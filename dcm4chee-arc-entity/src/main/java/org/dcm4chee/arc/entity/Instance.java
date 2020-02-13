@@ -157,7 +157,14 @@ import java.util.*;
 @NamedQuery(
     name = Instance.IUIDS_OF_SERIES2,
     query = "select i.sopInstanceUID from Instance i " +
-            "where i.series = ?1")
+            "where i.series = ?1"),
+@NamedQuery(
+    name = Instance.NUMBER_OF_FRAMES,
+    query = "select instance.numberOfFrames " +
+            "from Instance instance " +
+            "where instance.series.study.studyInstanceUID = ?1 " +
+            "and instance.series.seriesInstanceUID = ?2 " +
+            "and instance.sopInstanceUID = ?3")
 })
 @Entity
 @Table(name = "instance",
@@ -185,6 +192,7 @@ public class Instance {
     public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
     public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
     public static final String IUIDS_OF_SERIES2 = "Instance.iuidsOfSeries2";
+    public static final String NUMBER_OF_FRAMES = "Instance.numberOfFrames";
     public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Instance.findLastModifiedStudyLevel";
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";

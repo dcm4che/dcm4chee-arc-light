@@ -134,6 +134,8 @@ public interface QueryService {
 
     List<Object[]> getSOPInstanceUIDs(String studyUID, String seriesUID);
 
+    Integer getNumberOfFrames(String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID);
+
     ZipInputStream openZipInputStream(QueryContext ctx, String storageID, String storagePath) throws IOException;
 
     AttributesCoercion getAttributesCoercion(QueryContext ctx);
