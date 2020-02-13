@@ -22,7 +22,7 @@ import { QueuesComponent } from './monitoring/queues/queues.component';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
 import {WidgetsModule, WidgetsComponents} from './widgets/widgets.module';
-import {CommonModule, DatePipe} from '@angular/common';
+import {CommonModule, DatePipe, registerLocaleData} from '@angular/common';
 import { FormatDAPipe } from './pipes/format-da.pipe';
 import { FormatTMPipe } from './pipes/format-tm.pipe';
 import { FormatTagPipe } from './pipes/format-tag.pipe';
@@ -110,6 +110,10 @@ import { SelectionsDicomViewComponent } from './study/study/selections-dicom-vie
 import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/selections-dicom-view.service";
 import {MY_FORMATS} from "./constants/globalvar";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
+
+/*import localeEn from '@angular/common/locales/en';
+
+registerLocaleData(localeEn, 'en-US');*/
 
 @NgModule({
     declarations: [

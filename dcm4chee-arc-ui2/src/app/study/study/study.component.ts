@@ -62,6 +62,8 @@ import {Observable} from "rxjs/Observable";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
+// import {$localize} from "@angular/localize/src/localize";
+import { loadTranslations } from '@angular/localize';
 
 
 @Component({
@@ -128,8 +130,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         },
         expand:false,
         quantityText:{
-            count:"COUNT",
-            size:"SIZE"
+            count:$localize `:@@COUNT:COUNT`,
+            size:$localize `:@@SIZE:SIZE`
         }
     };
 
@@ -172,30 +174,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
     moreFunctionConfig = {
-        placeholder: "More functions",
+        placeholder: $localize `:@@study.more_functions:More functions`,
         options:[
-            new SelectDropdown("create_patient","Create patient"),
-            new SelectDropdown("upload_dicom","Upload DICOM Object"),
-            new SelectDropdown("permanent_delete","Permanent delete", "Delete Rejected Instances permanently"),
-            new SelectDropdown("export_multiple","Export matching studies"),
-            new SelectDropdown("reject_multiple","Reject matching studies"),
-            new SelectDropdown("retrieve_multiple","Retrieve matching studies"),
-            new SelectDropdown("update_access_control_id_to_matching","Update Access Control ID"),
-            new SelectDropdown("storage_verification","Storage Verification"),
-            new SelectDropdown("download_studies","Download Studies as CSV"),
-            new SelectDropdown("trigger_diff","Trigger Diff"),
+            new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
+            new SelectDropdown("upload_dicom",$localize`:@@study.create_patient:Upload DICOM Object`),
+            new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
+            new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
+            new SelectDropdown("reject_multiple",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
+            new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update ccess Control ID`),
+            new SelectDropdown("storage_verification",$localize `:@@study.storage_verification:Storage Verification`),
+            new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download tudies as CSV`),
+            new SelectDropdown("trigger_diff",$localize `:@@study.trigger_diff:Trigger Diff`),
         ],
         model:undefined
     };
     actionsSelections = {
         placeholder: "Actions for selections",
         options:[
-            new SelectDropdown("toggle_checkboxes","Toggle checkboxes", "Toggle checkboxes for selection"),
-            new SelectDropdown("export_object","Export selections", "Export selected studies, series or instances"),
-            new SelectDropdown("reject_object","Reject selections", "Reject selected studies, series or instances"),
-            new SelectDropdown("restore_object","Restore selections", "Restore selected studies, series or instances"),
-            new SelectDropdown("update_access_control_id_to_selections","Access Control ID to selections", "Updated Access Control ID to selected studies"),
-            new SelectDropdown("delete_object","Delete selections", "Delete selected studies, series or instances permanently")
+            new SelectDropdown("toggle_checkboxes", $localize `:@@study.short_toggle_checkboxes:Toggle checkboxes`, $localize `:@@study.toggle_checkboxes:Toggle checkboxes for selection`),
+            new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
+            new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
+            new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
+            new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
+            new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`)
         ],
         model:undefined
     };
@@ -322,12 +324,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     tabToTitleMap(tab:DicomMode){
         return {
-            "study":"Studies",
-            "patient":"Patients",
-            "mwl":"MWLs",
-            "uwl":"UWLs",
-            "diff":"Differences"
-        }[tab] || "Studies";
+            "study": $localize `:@@study.studies:Studies`,
+            "patient": $localize `:@@study.patients:Patients`,
+            "mwl": $localize `:@@study.mwl:MWL`,
+            "uwl": $localize `:@@study.uwl:UWL`,
+            "diff": $localize `:@@study.difference:Difference`
+        }[tab] || $localize `:@@study.studies:Studies`;
     };
 
     get more(): boolean {
@@ -403,9 +405,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e === "export_object"){
             this.exporter(
                     undefined,
-                'Export selected objects',
-                'Object will not be sent!',
-                'single',
+                $localize `:@@study.export_selected_object:Export selected objects`,
+                $localize `:@@object_will_not_be_sent:Object will not be sent!`,
+                $localize `:@@single:single`,
                     undefined,
                     undefined,
                    this.selectedElements
@@ -489,10 +491,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
         if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
             if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
-                this.appService.showError("More than one target selected!");
+                this.appService.showError($localize `:@@study.more_than_one_target_selected:More than one target selected!`);
             } else {
                 if (this.selectedElements.preActionElements.currentIndexes.indexOf(this.selectedElements.postActionElements.currentIndexes[0]) > -1) {
-                    this.appService.showError("Target object can not be in the clipboard");
+                    this.appService.showError($localize `:@@study.target_object_can_not_be_in_clipboard:Target object can not be in the clipboard`);
                 }else{
                     this.config.viewContainerRef = this.viewContainerRef;
                     this.dialogRef = this.dialog.open(StudyTransferringOverviewComponent, {
@@ -505,7 +507,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                     this.dialogRef.componentInstance.selectedElements = this.selectedElements;
                     this.dialogRef.componentInstance.rjnotes = select;
-                    this.dialogRef.componentInstance.title = j4care.firstLetterToUpperCase(this.selectedElements.action);
+                    this.dialogRef.componentInstance.title = this.service.getTextFromAction(this.selectedElements.action);
                     this.dialogRef.afterClosed().subscribe(result => {
                         console.log("result",result);
                         console.log("selectedElements",this.selectedElements);
@@ -515,7 +517,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case 'merge':
                                     this.service.mergePatients(this.selectedElements,this.studyWebService)
                                         .subscribe((response) => {
-                                            this.appService.showMsg('Patients merged successfully!');
+                                            this.appService.showMsg($localize `:@@study.patients_merged_successfully:Patients merged successfully!`);
                                             this.clearClipboard();
                                             this.cfpLoadingBar.complete();
                                         }, (response) => {
@@ -525,7 +527,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     break;
                                 case 'link':
                                     this.service.linkStudyToMwl(this.selectedElements, this.studyWebService.selectedWebService, result.reject).subscribe(res=>{
-                                        this.appService.showMsg('Study and MWL linked successfully!');
+                                        this.appService.showMsg($localize `:@@study.study_and_mwl_linked_successfully:Study and MWL linked successfully!`);
                                         this.clearClipboard();
                                         this.cfpLoadingBar.complete();
                                     },err=>{
@@ -538,7 +540,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         try{
                                             console.log("res",res);
                                             const errorCount = res.filter(result=>result.isError).length;
-                                            const msg = `${j4care.firstLetterToUpperCase(this.selectedElements.action)} process executed successfully:<br>\nErrors: ${errorCount}<br>\nSuccessful: ${res.length - errorCount}`;
+                                            const msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
                                             if(errorCount === res.length){
                                                 this.appService.showError(msg);
                                             }else{
@@ -567,11 +569,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         }else {
             if(!this.selectedElements.postActionElements || !this.selectedElements.postActionElements.size || this.selectedElements.postActionElements.size === 0){
-                this.appService.setMessage({
-                    'title': 'Warning',
-                    'text': 'No target object was selected!',
-                    'status': 'warning'
-                });
+                this.appService.showWarning($localize `:@@study.no_target_selected:No target object was selected!`);
             }
         }
     }
@@ -775,7 +773,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.updateAccessControlId(id.action, model);
             }
         }else{
-            this.appService.showError("No Web Application Service was selected!");
+            this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
         }
     }
 
@@ -887,7 +885,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     deletePatient(patient){
         // console.log("study",study);
         if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
-            this.appService.showError('Cannot delete patient with empty Patient ID!');
+            this.appService.showError($localize `:@@study.cant_delete_with_empty_id:Cannot delete patient with empty Patient ID!`);
             this.cfpLoadingBar.complete();
         }else{
             let $this = this;
@@ -898,7 +896,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     $this.cfpLoadingBar.start();
                     this.service.deletePatient(this.studyWebService.selectedWebService, this.service.getPatientId(patient.attrs)).subscribe(
                         (response) => {
-                            $this.appService.showMsg('Patient deleted successfully!');
+                            $this.appService.showMsg($localize `:@@study.patient_deleted:Patient deleted successfully!`);
                             // patients.splice(patientkey,1);
                             $this.cfpLoadingBar.complete();
                         },
@@ -914,7 +912,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     deleteMWL(mwl){
         this.confirm({
-            content: 'Are you sure you want to delete this MWL?'
+            content: $localize `:@@study.delete_this_mwl:Are you sure you want to delete this MWL?`
         }).subscribe(result => {
             if (result){
                 this.cfpLoadingBar.start();
@@ -933,17 +931,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     );
                 }else{
-                    this.appService.showError("Study Instance UID or Scheduled Procedure Step ID is missing!");
+                    this.appService.showError($localize `:@@study.study_or_scheduled_missing:Study Instance UID or Scheduled Procedure Step ID is missing!`);
                 }
             }
         });
     };
     editMWL(patient, mwl){
         let config = {
-            saveLabel:'SAVE',
-            titleLabel:'Edit MWL of patient '
+            saveLabel:$localize `:@@SAVE:SAVE`,
+            titleLabel:$localize `:@@study.edit_mwl:Edit MWL of patient `
         };
-        config.titleLabel = 'Edit MWL of patient ';
+        config.titleLabel = $localize `:@@study.edit_mwl:Edit MWL of patient `;
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
         this.modifyMWL(patient, 'edit', '', '', mwl, config);
@@ -964,8 +962,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         };
         let config = {
-            saveLabel:'CREATE',
-            titleLabel:'Create new MWL'
+            saveLabel:$localize `:@@CREATE:CREATE`,
+            titleLabel:$localize `:@@study.create_mwl:Create new MWL`
         };
         this.modifyMWL(patient, 'create', '', '', mwl, config);
     };
@@ -1033,9 +1031,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.modifyMWL(local,this.studyWebService, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe((response) => {
                         if (mode === 'edit'){
                             // _.assign(mwl, mwlFiltered);
-                            $this.appService.setMessage('MWL saved successfully!');
+                            $this.appService.setMessage($localize `:@@study.mwl_saved:MWL saved successfully!`);
                         }else{
-                            $this.appService.showMsg('MWL created successfully!');
+                            $this.appService.showMsg($localize `:@@study.mwl_create:MWL created successfully!`);
                         }
                     }, (response) => {
                         $this.httpErrorHandler.handleError(response);
@@ -1095,7 +1093,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         }catch(e){
             j4care.log("Something went wrong while opening the Viewer",e);
-            this.appService.showError("Something went wrong while opening the Viewer open the inspect to see more details");
+            this.appService.showError($localize `:@@study_error_on_opening_viewer:Something went wrong while opening the Viewer open the inspect to see more details`);
         }
     };
     viewInstance(inst) {
@@ -1160,10 +1158,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
-            content:"Do you want to use semicolon as delimiter?",
-            cancelButton:"No",
-            saveButton:"Yes",
-            result:"yes"
+            content:$localize `:@@use_semicolon:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@no:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
             let semicolon = false;
             if(ok)
@@ -1384,13 +1382,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.appService.showError("Calling AET is missing!");
             }*/
         }else{
-            this.appService.showError("No web app service was selected!");
+            this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
         }
     }
     submit(filterModel){
         if (this.showNoFilterWarning(filterModel)) {
             this.confirm({
-                content: 'No filter are set, are you sure you want to continue?'
+                content: $localize `:@@no_filter_set_warning:No filter are set, are you sure you want to continue?`
             }).subscribe(result => {
                 if (result){
                     this.triggerQueries(filterModel);
@@ -1447,11 +1445,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 // this.moreDiffs = res.length > this.limit;
                 this.prepareDiffData(res, filterModel.offset);
             }else{
-                this.appService.setMessage({
-                    'title': 'Info',
-                    'text': 'No Diff Results found!',
-                    'status': 'info'
-                });
+                this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
             }
             this.cfpLoadingBar.complete();
         },err=>{
@@ -1607,7 +1601,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let filterModel =  this.getFilterClone();
         if (this.showNoFilterWarning(filterModel)) {
             this.confirm({
-                content: 'No filter are set, are you sure you want to continue?'
+                content: $localize `:@@no_filter_set_warning:No filter are set, are you sure you want to continue?`
             }).subscribe(result => {
                 if (result){
                     this.getQuantityService(filterModel, quantity);
@@ -1623,7 +1617,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         delete filterModel.orderby;
         delete filterModel.limit;
         delete filterModel.offset;
-        let quantityText = quantity === "count" ? "COUNT": "SIZE";
+        let quantityText = quantity === "count" ? $localize `:@@COUNT:COUNT`: $localize `:@@SIZE:SIZE`;
 
         _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["quantityText"]], false);
         _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["text"]], quantityText);
@@ -1696,7 +1690,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                     console.log("patient",this.patients);
                 } else {
-                    this.appService.showMsg('No matching Modality Worklist Entries found!');
+                    this.appService.showMsg($localize `:@@study.no_matching_mwl:No matching Modality Worklist Entries found!`);
                 }
                 this.cfpLoadingBar.complete();
             },
@@ -1748,7 +1742,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                     console.log("patient",this.patients);
                 } else {
-                    this.appService.showMsg('No matching Unified Worklist Entries found!');
+                    this.appService.showMsg($localize `:@@study.no_matching_uwl:No matching Unified Worklist Entries found!`);
                 }
                 this.cfpLoadingBar.complete();
             },
@@ -1773,7 +1767,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.patients.pop();
                 }
             } else {
-                this.appService.showMsg("No matching Patients found!");
+                this.appService.showMsg($localize `:@@study.no_patients_found:No matching Patients found!`);
             }
             this.cfpLoadingBar.complete();
         },(err)=>{
@@ -1810,11 +1804,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         patient.studies.pop();
                     }
                 }else{
-                    this.appService.setMessage( {
-                        'title': 'Info',
-                        'text': 'No matching Studies found!',
-                        'status': 'info'
-                    });
+                    this.appService.showMsg($localize `:@@study.no_studies:No matching Studies found!`);
                 }
                 this.cfpLoadingBar.complete();
             },(err)=>{
@@ -1865,7 +1855,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         // this.studies.pop();
                     }
                 }else{
-                    this.appService.showMsg("No Studies found!");
+                    this.appService.showMsg($localize `:@@study.no_studies_found:No Studies found!`);
                 }
                 this.cfpLoadingBar.complete();
             }, err => {
@@ -1892,11 +1882,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if (res){
                 let hasMore = res.length > this._filter.filterModel.limit;
                 if (res.length === 0){
-                    this.appService.setMessage( {
-                        'title': 'Info',
-                        'text': 'No matching series found!',
-                        'status': 'info'
-                    });
+                    this.appService.showMsg($localize `:@@study.no_series_found:No matching series found!`);
                     console.log('in reslength 0');
                 }else{
 
@@ -1918,11 +1904,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     study.showSeries = true;
                 }
             }else{
-                this.appService.setMessage( {
-                    'title': 'Info',
-                    'text': 'No matching series found!',
-                    'status': 'info'
-                });
+                this.appService.showMsg($localize `:@@study.no_matching_series:No matching series found!`);
             }
             this.cfpLoadingBar.complete();
         },(err)=>{
@@ -1980,11 +1962,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     series.instances = [];
                     if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
                         series.instances.pop();
-                        this.appService.setMessage( {
-                            'title': 'Info',
-                            'text': 'No matching Instancess found!',
-                            'status': 'info'
-                        });
+                        this.appService.showMsg($localize `:@@study.no_matching_instancess:No matching Instancess found!`);
                     }
                 }
                 this.cfpLoadingBar.complete();
@@ -2164,7 +2142,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 console.log("filter",this.filter);
                 this.setSchema();
             },(err)=>{
-                this.appService.showError("Error getting AETs!");
+                this.appService.showError($localize `:@@study.error_getting:_aets:Error getting AETs!`);
                 j4care.log("error getting aets in Study page",err);
             });
 /*        }else{
@@ -2198,8 +2176,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     createPatient(){
         let config:{saveLabel:string,titleLabel:string} = {
-            saveLabel:'CREATE',
-            titleLabel:'Create new patient'
+            saveLabel:$localize `:@@CREATE:CREATE`,
+            titleLabel:$localize `:@@study.create_new_patient:Create new patient`
         };
         let newPatient: any = {
             'attrs': {
@@ -2217,8 +2195,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     editPatient(patient){
         let config:{saveLabel:string,titleLabel:string} = {
-            saveLabel:'SAVE',
-            titleLabel:'Edit patient'
+            saveLabel:$localize `:@@SAVE:SAVE`,
+            titleLabel:$localize `:@@study.edit_patient:Edit patient`
         };
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
@@ -2249,13 +2227,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (result){
                     if(mode === "create"){
                         this.service.modifyPatient(undefined,patient.attrs,this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg("Patient created successfully");
+                            this.appService.showMsg($localize `:@@study.patient_created_successfully:Patient created successfully`);
                         },err=>{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
                         this.service.modifyPatient(this.service.getPatientId(originalPatientObject.attrs),patient.attrs,this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg("Patient updated successfully");
+                            this.appService.showMsg($localize `:@@study.patient_updated_successfully:Patient updated successfully`);
                         },err=>{
                             _.assign(patient, originalPatientObject);
                             this.httpErrorHandler.handleError(err);
@@ -2274,22 +2252,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     updateAccessControlId(mode?:AccessControlIDMode, model?:any){
         const matching = mode === "update_access_control_id_to_matching";
+        const innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
         this.confirm({
-            content: `Update Study Access Control ID ${matching ? 'of matching studies':' of the study'}`,
+            content: $localize `:@@study.update_study_access_control_id:Update Study Access Control ID ${innerText}:@@inner_text`,
             doNotSave:true,
             form_schema:[
                 [
                     [
                         {
                             tag:"label",
-                            text:"Access Control ID"
+                            text:$localize `:@@access_control_id:Access Control ID`
                         },
                         {
                             tag:"input",
                             type:"text",
                             filterKey:"accessControlID",
-                            description:"Access Control ID",
-                            placeholder:"Access Control ID"
+                            description:$localize `:@@access_control_id:Access Control ID`,
+                            placeholder:$localize `:@@access_control_id:Access Control ID`
                         }
                     ]
                 ]
@@ -2297,21 +2276,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             result: {
                 schema_model: {}
             },
-            saveButton: 'UPDATE'
+            saveButton: $localize `:@@UPDATE:UPDATE`
         }).subscribe((ok)=>{
             if(ok){
                 let service;
                 let msg;
                 if(matching){
                     service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',undefined,this.createStudyFilterParams(true,true))
-                    msg = "Access Control ID updated successfully to matching studies";
+                    msg = $localize `:@@access_control_id_updated_matching:Access Control ID updated successfully to matching studies`;
                 }else{
                     if(mode === "update_access_control_id_to_selections"){
                         service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null')
-                        msg = "Access Control ID updated successfully to selected studies!"
+                        msg = $localize `:@@access_control_id_updated_selected:Access Control ID updated successfully to selected studies!`
                     }else{
                         service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',this.service.getStudyInstanceUID(model.attrs))
-                        msg = "Access Control ID updated successfully to the study!"
+                        msg = $localize `:@@access_control_id_updated_the_study:Access Control ID updated successfully to the study!`
                     }
                 }
                 this.cfpLoadingBar.start();
@@ -2333,8 +2312,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
-            saveLabel:'SAVE',
-            titleLabel:'Edit study of patient '
+            saveLabel:$localize `:@@SAVE:SAVE`,
+            titleLabel:$localize `:@@study.edit_study:patient:Edit study of patient `
         };
         config.titleLabel += ((_.hasIn(study, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + study.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(study, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + study.attrs['00100020'].Value[0] + '</b>' : '');
@@ -2385,7 +2364,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         });
                         this.service.modifyStudy(local,this.studyWebService, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe(
                             () => {
-                                $this.appService.showMsg('Study saved successfully!');
+                                $this.appService.showMsg($localize `:@@study_saved:Study saved successfully!`);
                             },
                             (err) => {
                                 $this.httpErrorHandler.handleError(err);
@@ -2413,7 +2392,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         (res)=>{
                             _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
                             _.set(study,"attrs.77771023.vr","DA");
-                            this.appService.showMsg( 'Expired date set successfully!');
+                            this.appService.showMsg( $localize `:@@study.expired_date_set:Expired date set successfully!`);
                             this.cfpLoadingBar.complete();
                         },
                         (err)=>{
@@ -2422,7 +2401,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     );
                 }else{
-                    this.appService.showError("Expired date is required!");
+                    this.appService.showError($localize `:@@study.expired_date_required:Expired date is required!`);
                 }
             }
         });
@@ -2460,17 +2439,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.cfpLoadingBar.complete();
                             // this.fireRightQuery();
                             if (_.hasIn(res, 'deleted')){
-                                this.appService.setMessage({
-                                    'title': 'Info',
-                                    'text': res.deleted + ' instances deleted successfully!',
-                                    'status': 'info'
-                                });
+                                this.appService.showMsg($localize `:@@instance_delete:${res.deleted}:@@deleted: instances deleted successfully!`);
                             }else{
-                                this.appService.setMessage({
-                                    'title': 'Warning',
-                                    'text': 'Process executed successfully',
-                                    'status': 'warning'
-                                });
+                                this.appService.setMessage($localize `:@@process_executed:Process executed successfully`);
                             }
                         },
                         (err) => {
@@ -2487,14 +2458,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     deleteStudy(study){
         console.log('study', study);
         this.confirm({
-            content: 'Are you sure you want to delete this study?'
+            content: $localize `:@@study.want_to_delete_study:Are you sure you want to delete this study?`
         }).subscribe(result => {
             this.cfpLoadingBar.start();
             if (result){
                 this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"),this.studyWebService.selectedWebService)
                 .subscribe(
                     (response) => {
-                        this.appService.showMsg('Study deleted successfully!');
+                        this.appService.showMsg($localize `:@@study.study_deleted:Study deleted successfully!`);
                         this.cfpLoadingBar.complete();
                     },
                     (response) => {
@@ -2509,7 +2480,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     rejectMatchingStudies(){
         let select: any = [];
-        const msg = 'Objects rejected successfully!';
         _.forEach(this.trash.rjnotes, (m, i) => {
             select.push({
                 title: m.codeMeaning,
@@ -2518,10 +2488,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         let parameters: any = {
-            content: 'Select rejected type',
+            content: $localize `:@@study.select_rejected_type:Select rejected type`,
             select: select,
             result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-            saveButton: 'REJECT'
+            saveButton: $localize `:@@REJECT:REJECT`
         };
         this.confirm(parameters).subscribe(result => {
             if (result) {
@@ -2559,10 +2529,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         };
 
         if (this.trash.active) {
-            msg = 'Objects restored successfully!';
+            msg = $localize `:@@study.objects_restored:Objects restored successfully!`;
             rejectionRestoreService(this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator);
         }else{
-            msg = 'Objects rejected successfully!';
+            msg = $localize `:@@study.objects_rejected:Objects rejected successfully!`;
             _.forEach(this.trash.rjnotes, (m, i) => {
                 select.push({
                     title: m.codeMeaning,
@@ -2571,10 +2541,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: 'Select rejected type',
+                content: $localize `:@@study.select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton: 'REJECT'
+                saveButton: $localize `:@@REJECT:REJECT`
             };
             this.confirm(parameters).subscribe(result => {
                 if (result) {
@@ -2591,11 +2561,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.service.rejectStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
             .subscribe(
                 (res) => {
-                    $this.appService.setMessage({
-                        'title': 'Info',
-                        'text': 'Study restored successfully!',
-                        'status': 'info'
-                    });
+                    $this.appService.setMessage($localize `:@@study.study_restored:Study restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
@@ -2613,10 +2579,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: 'Select rejected type',
+                content: $localize `:@@study.select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton: 'REJECT'
+                saveButton:  $localize `:@@REJECT:REJECT`
             };
             this.confirm(parameters).subscribe(result => {
                 if (result) {
@@ -2624,7 +2590,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectStudy(study.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage('Study rejected successfully', response));
+                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study_study_rejected:Study rejected successfully`, response));
 
                             // patients.splice(patientkey,1);
                             $this.cfpLoadingBar.complete();
@@ -2649,11 +2615,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
-                    $this.appService.setMessage({
-                        'title': 'Info',
-                        'text': 'Series restored successfully!',
-                        'status': 'info'
-                    });
+                    $this.appService.setMessage($localize `:@@study.series_restored:Series restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
@@ -2671,10 +2633,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: 'Select rejected type',
+                content: $localize `:@@study.select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton: 'REJECT'
+                saveButton:  $localize `:@@REJECT:REJECT`
             };
 
             console.log('parameters', parameters);
@@ -2686,7 +2648,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectSeries(series.attrs, this.studyWebService, parameters.result.select )
                         .subscribe(
                         (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage('Series rejected successfully', response));
+                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study.series_rejected:Series rejected successfully`, response));
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
@@ -2709,11 +2671,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
-                    $this.appService.setMessage({
-                        'title': 'Info',
-                        'text': 'Instance restored successfully!',
-                        'status': 'info'
-                    });
+                    $this.appService.setMessage($localize `:@@study.instance_restored:Instance restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
@@ -2732,10 +2690,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: 'Select rejected type',
+                content: $localize `:@@study.select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton: 'REJECT'
+                saveButton:  $localize `:@@REJECT:REJECT`
             };
             console.log('parameters', parameters);
             this.confirm(parameters).subscribe(result => {
@@ -2745,7 +2703,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     $this.cfpLoadingBar.start();
                     this.service.rejectInstance(instance.attrs, this.studyWebService, parameters.result.select ).subscribe(
                         (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage('Instance rejected successfully', response));
+                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study.instance_rejected:Instance rejected successfully`, response));
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
@@ -2790,7 +2748,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     retrieveMultipleStudies(){
         this.exporter(
             '',
-            'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
+            $localize `:@@study.retrieve_matching_studies_depending:Retrieve matching studies depending on selected filters, from external C-MOVE SCP`,
             '',
             'multiple-retrieve',
             {},
@@ -2800,8 +2758,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     exportMultipleStudies(){
         this.exporter(
             '',
-            'Export all matching studies',
-            'Studies will not be sent!',
+            $localize `:@@study.export_all_matching_studies:Export all matching studies`,
+            $localize `:@@study.studies_will_not_be_send:Studies will not be sent!`,
             'multipleExport',
             {},
             "study"
@@ -2811,8 +2769,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     exportStudy(study) {
         this.exporter(
             this.service.studyURL(study.attrs, this.studyWebService.selectedWebService),
-            'Export study',
-            'Study will not be sent!',
+            $localize `:@@study.export_study:Export study`,
+            $localize `:@@study.study_will_not_be_sent:Study will not be sent!`,
             'single',
             study.attrs,
             "study"
@@ -2821,8 +2779,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     exportSeries(series) {
         this.exporter(
             this.service.seriesURL(series.attrs, this.studyWebService.selectedWebService),
-            'Export series',
-            'Series will not be sent!',
+            $localize `:@@export_series:Export series`,
+            `:@@series_will_not_be_sent:Series will not be sent!`,
             'single',
             series.attrs,
             "series"
@@ -2831,8 +2789,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     exportInstance(instance) {
         this.exporter(
             this.service.instanceURL(instance.attrs, this.studyWebService.selectedWebService),
-            'Export instance',
-            'Instance will not be sent!',
+            $localize `:@@export_instance:Export instance`,
+            $localize `:@@series_will_not_be_sent:Series will not be sent!`,
             'single',
             instance.attrs,
             "instance"
@@ -2959,13 +2917,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.service.export(urlRest)
                                 .subscribe(
                                 (result) => {
-                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.comand_executed:Command executed successfully!`));
                                     $this.cfpLoadingBar.complete();
                                 },
                                 (err) => {
                                     console.log("err",err);
                                     $this.appService.setMessage({
-                                        'title': 'Error ' + err.status,
+                                        'title': $localize `:@@error_status:Error ${err.status}:@@status:`,
                                         'text': $this.service.getMsgFromResponse(err),
                                         'status': 'error'
                                     });
@@ -2974,7 +2932,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             );
                         }
                     }else{
-                        this.appService.showError("Web Application Service with the web service class 'MOVE_MATCHING' not found!")
+                        this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                     }
                 });
             }
@@ -2982,14 +2940,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     storageVerification(){
         this.confirm({
-            content: 'Schedule Storage Verification of matching Studies',
+            content: $localize `:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
             doNotSave:true,
             form_schema:[
                 [
                     [
                         {
                             tag:"label",
-                            text:"Failed storage verification"
+                            text:$localize `:@@study.failed_storage_verification:Failed storage verification`
                         },
                         {
                             tag:"checkbox",
@@ -2998,51 +2956,51 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ],[
                     {
                         tag:"label",
-                        text:"Verification Policy"
+                        text:$localize `:@@study.verification_policy:Verification Policy`
                     },
                     {
                         tag:"select",
                         options:[
                             {
                                 value:"DB_RECORD_EXISTS",
-                                text:"DB_RECORD_EXISTS",
-                                title:"Check for existence of DB records"
+                                text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
+                                title:$localize `:@@study.check_db:Check for existence of DB records`
                             },
                             {
                                 value:"OBJECT_EXISTS",
-                                text:"OBJECT_EXISTS",
-                                title:"check if object exists on Storage System"
+                                text:$localize `:@@OBJECT_EXISTS:OBJECT_EXISTS`,
+                                title:$localize `:@@study.check_storage_system:Check if object exists on Storage System`
                             },
                             {
                                 value:"OBJECT_SIZE",
                                 text:"OBJECT_SIZE",
-                                title:"check size of object on Storage System"
+                                title:$localize `:@@study.check_size_in_storage_system:Check size of object on Storage System`
                             },
                             {
                                 value:"OBJECT_FETCH",
-                                text:"OBJECT_FETCH",
-                                title:"Fetch object from Storage System"
+                                text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
+                                title:$localize `:@@study.fetch_from_storage_system:Fetch object from Storage System`
                             },
                             {
                                 value:"OBJECT_CHECKSUM",
-                                text:"OBJECT_CHECKSUM",
-                                title:"recalculate checksum of object on Storage System"
+                                text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
+                                title:$localize `:@@study.recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                             },
                             {
                                 value:"S3_MD5SUM",
-                                text:"S3_MD5SUM",
-                                title:"Check MD5 checksum of object on S3 Storage System"
+                                text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
+                                title:$localize `:@@study.check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                             }
                         ],
                         showStar:true,
                         filterKey:"storageVerificationPolicy",
-                        description:"Verification Policy",
-                        placeholder:"Verification Policy"
+                        description:$localize `:@@study.verification_policy:Verification Policy`,
+                        placeholder:$localize `:@@study.verification_policy:Verification Policy`
                     }
                 ],[
                     {
                         tag:"label",
-                        text:"Update Location DB"
+                        text:$localize `:@@study.update_location_DB:Update Location DB`
                     },
                     {
                         tag:"checkbox",
@@ -3051,14 +3009,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 ],[
                     {
                         tag:"label",
-                        text:"Batch ID"
+                        text:$localize `:@@study.batch_ID:Batch ID`
                     },
                     {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
+                        description:$localize `:@@study.batch_ID:Batch ID`,
+                        placeholder:$localize `:@@study.batch_ID:Batch ID`
                     }
                 ]
                 ]
@@ -3066,7 +3024,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             result: {
                 schema_model: {}
             },
-            saveButton: 'SAVE'
+            saveButton: $localize `:@@SAVE:SAVE`
         }).subscribe((ok)=>{
             if(ok){
                 this.cfpLoadingBar.start();
@@ -3086,58 +3044,58 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         console.log('object', object);
         this.service.getStorageSystems().subscribe(storages=>{
             this.confirm({
-                content: 'Schedule Storage Verification',
+                content: $localize `:@@study.schedule_storage_verification:Schedule Storage Verification`,
                 doNotSave:true,
                 form_schema:[
                     [
                         [
                             {
                                 tag:"label",
-                                text:"Verification Policy"
+                                text:$localize `:@@verification_policy:Verification Policy`
                             },
                             {
                                 tag:"select",
                                 options:[
                                     {
                                         value:"DB_RECORD_EXISTS",
-                                        text:"DB_RECORD_EXISTS",
-                                        title:"Check for existence of DB records"
+                                        text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
+                                        title:$localize `:@@study.check_db:Check for existence of DB records`
                                     },
                                     {
                                         value:"OBJECT_EXISTS",
-                                        text:"OBJECT_EXISTS",
-                                        title:"check if object exists on Storage System"
+                                        text:$localize `:@@OBJECT_EXISTS:OBJECT_EXISTS`,
+                                        title:$localize `:@@study.check_storage_system:Check if object exists on Storage System`
                                     },
                                     {
                                         value:"OBJECT_SIZE",
-                                        text:"OBJECT_SIZE",
-                                        title:"check size of object on Storage System"
+                                        text:$localize `:@@OBJECT_SIZE:OBJECT_SIZE`,
+                                        title:$localize `:@@study.check_size_in_storage_system:Check size of object on Storage System`
                                     },
                                     {
                                         value:"OBJECT_FETCH",
-                                        text:"OBJECT_FETCH",
-                                        title:"Fetch object from Storage System"
+                                        text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
+                                        title:$localize `:@@study.fetch_from_storage_system:Fetch object from Storage System`
                                     },
                                     {
                                         value:"OBJECT_CHECKSUM",
-                                        text:"OBJECT_CHECKSUM",
-                                        title:"recalculate checksum of object on Storage System"
+                                        text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
+                                        title:$localize `:@@study.recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                                     },
                                     {
                                         value:"S3_MD5SUM",
-                                        text:"S3_MD5SUM",
-                                        title:"Check MD5 checksum of object on S3 Storage System"
+                                        text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
+                                        title:$localize `:@@study.check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                                     }
                                 ],
                                 showStar:true,
                                 filterKey:"storageVerificationPolicy",
-                                description:"Verification Policy",
-                                placeholder:"Verification Policy"
+                                description:$localize `:@@study.verification_policy:Verification Policy`,
+                                placeholder:$localize `:@@study.verification_policy:Verification Policy`,
                             }
                         ],[
                         {
                             tag:"label",
-                            text:"Update Location DB"
+                            text:$localize `:@@study.update_location_DB:Update Location DB`
                         },
                         {
                             tag:"checkbox",
@@ -3146,14 +3104,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ],[
                         {
                             tag:"label",
-                            text:"Storage ID"
+                            text:$localize `:@@storage_ID:Storage ID`
                         },{
                             tag:"select",
                             options:storages.map(storage=> new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
                             showStar:true,
                             filterKey:"storageVerificationStorageID",
-                            description:"Storage IDs",
-                            placeholder:"Storage IDs"
+                            description:$localize `:@@storage_IDs:Storage IDs`,
+                            placeholder:$localize `:@@storage_IDs:Storage IDs`
                         }
                     ]
                     ]
@@ -3161,7 +3119,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 result: {
                     schema_model: {}
                 },
-                saveButton: 'QUERY'
+                saveButton: $localize `:@@QUERY:QUERY`
             }).subscribe(ok=> {
                 if (ok) {
                     this.cfpLoadingBar.start();
@@ -3171,12 +3129,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 // console.log("response",response);
                                 let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
                                 let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
-                                let msgStatus = 'Info';
+                                let msgStatus = $localize `:@@Info:Info`;
                                 if (failed > 0 && success > 0) {
-                                    msgStatus = 'Warning';
+                                    msgStatus = $localize `:@@Warning:Warning`;
                                     this.appService.setMessage({
                                         'title': msgStatus,
-                                        'text': failed + ' of ' + (success + failed) + ' failed!',
+                                        'text': $localize `:@@failed_of:${failed} of ${success + failed} failed!`,
                                         'status': msgStatus.toLowerCase()
                                     });
                                     console.log(failed + ' of ' + (success + failed) + ' failed!');
@@ -3185,7 +3143,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     msgStatus = 'Error';
                                     this.appService.setMessage({
                                         'title': msgStatus,
-                                        'text': 'all (' + failed + ') failed!',
+                                        'text': $localize `:@@study.all_failed:all (${failed}) failed!`,
                                         'status': msgStatus.toLowerCase()
                                     });
                                     console.log('all ' + failed + 'failed!');
@@ -3194,7 +3152,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     console.log(success + ' verified successfully 0 failed!');
                                     this.appService.setMessage({
                                         'title': msgStatus,
-                                        'text': success + ' verified successfully\n 0 failed!',
+                                        'text': $localize `:@@study.verified_successfully_0_failed:${success} verified successfully\n 0 failed!`,
                                         'status': msgStatus.toLowerCase()
                                     });
                                 }
@@ -3292,7 +3250,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 console.log("global",this.appService.global);
                 if(this.appService.global['PDQs'].length > 1){
                     this.confirm({
-                        content: 'Query External Patient Demographics Service',
+                        content: $localize `:@@query_pdw:Query External Patient Demographics Service`,
                         doNotSave:true,
                         form_schema:[
                             [
@@ -3300,7 +3258,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
                                     {
                                         tag:"label",
-                                        text:"Select PDQ Service"
+                                        text:$localize `:@@select_PDQ:Select PDQ Service`
                                     },
                                     {
                                         tag:"select",
@@ -3308,8 +3266,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                             return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
                                         }),
                                         filterKey:"PDQServiceID",
-                                        description:"PDQ ServiceID",
-                                        placeholder:"PDQ ServiceID"
+                                        description:$localize `:@@PDQ_ServiceID:PDQ ServiceID`,
+                                        placeholder:$localize `:@@PDQ_ServiceID:PDQ ServiceID`
                                     }
                                 ]
                             ]
@@ -3317,7 +3275,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         result: {
                             schema_model: {}
                         },
-                        saveButton: 'QUERY'
+                        saveButton: $localize `:@@QUERY:QUERY`
                     }).subscribe(ok=>{
                         if(ok && ok.schema_model.PDQServiceID){
                             this.queryPDQ(patientId,ok.schema_model.PDQServiceID);

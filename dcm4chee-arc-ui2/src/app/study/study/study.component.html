@@ -109,7 +109,7 @@
             <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
         </div>
         <div class="content" id="clipboard_content" *ngIf="showClipboardContent">
-            <h5>Selected Objects to {{selectedElements.action}}</h5>
+            <h5 i18n>Selected Objects to {{selectedElements.action}}</h5>
             <a class="clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>

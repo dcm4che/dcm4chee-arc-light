@@ -14,6 +14,7 @@ import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
+import { loadTranslations } from '@angular/localize';
 declare const bigInt:Function;
 
 @Injectable()
@@ -1266,16 +1267,16 @@ export class j4care {
         let msg = "<br>\n";
         try{
             if(_.hasIn(returnedObject,"count")){
-                msg += `Count:${returnedObject.count}<br>\n`;
+                msg += $localize `:@@preparemsg.count:Count:${returnedObject.count}<br>\n`;
             }
             if(_.hasIn(returnedObject,"warning")){
-                msg += `Warning:${returnedObject.warning}<br>\n`;
+                msg += $localize `:@@preparemsg.warning:Warning:${returnedObject.warning}<br>\n`;
             }
             if(_.hasIn(returnedObject,"reject")){
-                msg += `Reject:${returnedObject.reject}<br>\n`;
+                msg += $localize `:@@preparemsg.reject:Reject:${returnedObject.reject}<br>\n`;
             }
             if(_.hasIn(returnedObject,"error")){
-                msg += `Error:${returnedObject.error}<br>\n`;
+                msg += $localize `:@@preparemsg.error:Error:${returnedObject.error}<br>\n`;
             }
         }catch (e) {
             msg = "";

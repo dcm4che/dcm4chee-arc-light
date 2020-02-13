@@ -11,6 +11,7 @@ import {DcmWebApp} from "./models/dcm-web-app";
 import {Router} from "@angular/router";
 import {Error} from "tslint/lib/error";
 import {map, switchMap} from "rxjs/operators";
+import { loadTranslations } from '@angular/localize';
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -120,21 +121,21 @@ export class AppService implements OnInit, OnDestroy{
     }
     showError(msg:string){
         this.setMessageSource.next({
-            "title":"Error",
+            "title":$localize `:@@msg.error:Error`,
             "text":msg,
             "status":"error"
         })
     }
     showMsg(msg:string){
         this.setMessageSource.next({
-            "title":"Info",
+            "title":$localize `:@@msg.info:Info`,
             "text":msg,
             "status":"info"
         })
     }
     showWarning(msg:string){
         this.setMessageSource.next({
-            "title":"Warning",
+            "title":$localize `:@@msg.warning:Warning`,
             "text":msg,
             "status":"warning"
         })
@@ -258,7 +259,7 @@ export class AppService implements OnInit, OnDestroy{
                         this.setGlobal(global);
                     }catch(e){
                         console.warn("Permission not found!",e);
-                        this.showError("Permission not found!");
+                        this.showError($localize `:@@app.permission_not_found:Permission not found!`);
                     }
                     return res;
                 }));

@@ -6,7 +6,7 @@ import {
     DicomMode,
     DicomResponseType, DiffAttributeSet,
     FilterSchema,
-    SelectDropdown, SelectedDetailObject,
+    SelectDropdown, SelectedDetailObject, SelectionAction,
     UniqueSelectIdObject
 } from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
@@ -47,6 +47,7 @@ import {ErrorObservable} from "rxjs-compat/observable/ErrorObservable";
 import {Error} from "tslint/lib/error";
 import {AppService} from "../../app.service";
 import {throwError} from 'rxjs/internal/observable/throwError';
+import { loadTranslations } from '@angular/localize';
 
 @Injectable()
 export class StudyService {
@@ -3472,6 +3473,21 @@ export class StudyService {
             console.log("webApp=",webApp);
             j4care.log("Something went wrong on extracting roles from dcmProperty of WebApp",e);
             return [];
+        }
+    }
+
+    getTextFromAction(action:SelectionAction){
+        switch (action){
+            case "copy":
+                return $localize `:@@selection.action.copy:Copy`;
+            case "cut":
+                return $localize `:@@selection.action.cut:Cut`;
+            case "link":
+                return $localize `:@@selection.action.link:Link`;
+            case "merge":
+                return $localize `:@@selection.action.merge:Merge`;
+            default:
+                return $localize `:@@selection.action.move:Move`;
         }
     }
 }

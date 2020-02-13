@@ -118,7 +118,7 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:"Exporter ID",
+                        text:$localize `:@@export.exporter_id:Exporter ID`,
                     },
                     {
                         tag:"select",
@@ -129,14 +129,14 @@ export class ExportService {
                             }
                         }),
                         filterKey:"selectedExporter",
-                        description:"Exporter ID",
-                        placeholder:"Exporter ID"
+                        description:$localize `:@@export.exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@export.exporter_id:Exporter ID`
                     }
                 ],
                 [
                     {
                         tag:"label_large",
-                        text:'Select device if you wan\'t to reschedule to an other device:'
+                        text:$localize `:@@export.select_device_if_you_want_to_reschedule:Select device if you want to reschedule to an other device:`
                     }
                 ],
                 [
@@ -161,13 +161,13 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:"Scheduled Time"
+                        text:$localize `:@@export.scheduled_time:Scheduled Time`
                     },
                     {
                         tag:"single-date-time-picker",
                         type:"text",
                         filterKey:"scheduledTime",
-                        description:"Scheduled times"
+                        description:$localize `:@@export.scheduled_times:Scheduled times`
                     }
                 ]
             ]
@@ -187,8 +187,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"ExporterID",
-                        description:"Exporter ID",
-                        placeholder:"Exporter ID"
+                        description:$localize `:@@export.exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@export.exporter_id:Exporter ID`
                     },
                     {
                         tag:"select",
@@ -200,8 +200,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"dicomDeviceName",
-                        description:"Device Name to filter by",
-                        placeholder:"Device Name"
+                        description:$localize `:@@export.device_name_to_filter_by:Device Name to filter by`,
+                        placeholder:$localize `:@@export.device_name:Device Name`
                     }
                 ],
                 [
@@ -213,7 +213,7 @@ export class ExportService {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:"Maximal number of tasks in returned list"
+                        description:$localize `:@@export.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ],
                 [
@@ -221,8 +221,8 @@ export class ExportService {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
+                        description:$localize `:@@export.batch_id:Batch ID`,
+                        placeholder:$localize `:@@export.batch_id:Batch ID`
                     },
                     {
                         tag:"select",
@@ -234,7 +234,7 @@ export class ExportService {
                         }),
                         filterKey:"status",
                         showStar:true,
-                        description:"Status of tasks to filter by",
+                        description:$localize `:@@export.status_of_tasks_to_filter_by:Status of tasks to filter by`,
                         placeholder:"Status"
                     }
                 ]
@@ -243,12 +243,12 @@ export class ExportService {
                     {
                         tag:"range-picker",
                         filterKey:"createdTime",
-                        description:"Created Date"
+                        description:$localize `:@@export.created_date:Created Date`
                     },
                     {
                         tag:"range-picker",
                         filterKey:"updatedTime",
-                        description:"Updated Date"
+                        description:$localize `:@@export.updated_date:Updated Date`
                     }
                 ],
                 [
@@ -280,8 +280,8 @@ export class ExportService {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyInstanceUID",
-                        description:"Unique Identifier of the Study to filter by",
-                        placeholder:"Study Instance UID"
+                        description:$localize `:@@export.unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
+                        placeholder:$localize `:@@export.study_instance_uid:Study Instance UID`
                     }
                 ],
                 [
@@ -289,13 +289,13 @@ export class ExportService {
                         tag:"button",
                         id:"count",
                         text:countText,
-                        description:"QUERIE ONLY THE COUNT"
+                        description:$localize `:@@export.querie_only_the_count:QUERIE ONLY THE COUNT`
                     },
                     {
                         tag:"button",
                         id:"submit",
                         text:"SUBMIT",
-                        description:"Maximal number of tasks in returned list"
+                        description:$localize `:@@export.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ]
             ]

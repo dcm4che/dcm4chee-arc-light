@@ -20,6 +20,7 @@ import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {map} from "rxjs/operators";
+import { loadTranslations } from '@angular/localize';
 
 
 @Component({
@@ -36,8 +37,8 @@ export class ExportComponent implements OnInit, OnDestroy {
     exportTasks = [];
     timer = {
         started:false,
-        startText:"Start Auto Refresh",
-        stopText:"Stop Auto Refresh"
+        startText:$localize `:@@export.start_auto_refresh:Start Auto Refresh`,
+        stopText:$localize `:@@export.stop_auto_refresh:Stop Auto Refresh`
     };
     statusValues = {};
     refreshInterval;
@@ -53,13 +54,13 @@ export class ExportComponent implements OnInit, OnDestroy {
     allActionsOptions = [
         {
             value:"cancel",
-            label:"Cancel all matching tasks"
+            label:$localize `:@@export.cancel_all_matching_tasks:Cancel all matching tasks`
         },{
             value:"reschedule",
-            label:"Reschedule all matching tasks"
+            label:$localize `:@@export.reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
             value:"delete",
-            label:"Delete all matching tasks"
+            label:$localize `:@@export.delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
     allActionsActive = [];
@@ -237,18 +238,18 @@ export class ExportComponent implements OnInit, OnDestroy {
                     tag:"input",
                     type:"checkbox",
                     filterKey:"semicolon",
-                    description:"Use semicolon as delimiter"
+                    description:$localize `:@@export.use_semicolon_as_delimiter:Use semicolon as delimiter`
                 },
                 {
                     tag:"input",
                     type:"checkbox",
                     filterKey:"withoutScheduling",
-                    description:"Without Scheduling"
+                    description:$localize `:@@export.without_scheduling:Without Scheduling`
                 },{
                     tag:"range-picker-time",
                     type:"text",
                     filterKey:"scheduledTime",
-                    description:"Scheduled times"
+                    description:$localize `:@@export.scheduled_times:Scheduled times`
                 },
                 //scheduledTime
                 {
@@ -256,8 +257,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     options:this.aets,
                     showStar:true,
                     filterKey:"LocalAET",
-                    description:"Local AET",
-                    placeholder:"Local AET",
+                    description:$localize `:@@export.local_aet:Local AET`,
+                    placeholder:$localize `:@@export.local_aet:Local AET`,
                     validation:Validators.required
                 },
                 {
@@ -270,8 +271,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }),
                     showStar:true,
                     filterKey:"exporterID",
-                    description:"Exporter ID",
-                    placeholder:"Exporter ID",
+                    description:$localize `:@@export.exporter_id:Exporter ID`,
+                    placeholder:$localize `:@@export.exporter_id:Exporter ID`,
                     validation:Validators.required
                 },{
                     tag:"input",
@@ -286,8 +287,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     tag:"input",
                     type:"text",
                     filterKey:"batchID",
-                    description:"Batch ID",
-                    placeholder:"Batch ID"
+                    description:$localize `:@@export.batch_id:Batch ID`,
+                    placeholder:$localize `:@@export.batch_id:Batch ID`
                 }
             ],
             prepareUrl:(filter)=>{
@@ -388,7 +389,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     statusChange(){
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == "IN PROCESS"){
+            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == $localize `:@@export.in_process:IN PROCESS`){
                 return o.value != 'reschedule';
             }else{
                 if(!this.filterObject.status || this.filterObject.status === '*' || this.filterObject.status === '')
@@ -487,7 +488,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     rescheduleDialog(callBack:Function,  schema_model?:any, title?:string, text?:string){
         this.confirm({
-            content: title || 'Task reschedule',
+            content: title || $localize `:@@export.task_reschedule:Task reschedule`,
             doNotSave:true,
             form_schema: this.service.getDialogSchema(this.exporters, this.devices, text),
             result: {
@@ -682,7 +683,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             selectedExporter: match.properties.ExporterID
         },
         undefined,
-        "Change the Exporter Id only if you wan't to reschedule to another exporter!"
+        $localize `:@@export.change_the_exporter_id_only_if_you_want:Change the Exporter Id only if you want to reschedule to another exporter!`
         );
     };
 
