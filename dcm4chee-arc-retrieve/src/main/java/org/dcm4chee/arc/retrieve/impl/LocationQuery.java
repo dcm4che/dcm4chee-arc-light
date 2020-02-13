@@ -139,6 +139,7 @@ class LocationQuery {
                 locationPath.get(Location_.digest),
                 locationPath.get(Location_.size),
                 locationPath.get(Location_.status),
+                locationPath.get(Location_.multiReference),
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
                 instance.get(Instance_.retrieveAETs),
@@ -147,7 +148,6 @@ class LocationQuery {
                 instance.get(Instance_.createdTime),
                 instance.get(Instance_.updatedTime),
                 uidMap.get(UIDMap_.pk),
-                // uidMap.get(UIDMap_.encodedMap),
                 instanceAttrBlob
         );
     }
@@ -241,6 +241,7 @@ class LocationQuery {
                 .size(tuple.get(locationPath.get(Location_.size)))
                 .status(tuple.get(locationPath.get(Location_.status)))
                 .build();
+        location.setMultiReference(tuple.get(locationPath.get(Location_.multiReference))) ;
         Long uidMapPk = tuple.get(uidMap.get(UIDMap_.pk));
         if (uidMapPk != null) {
             location.setUidMap(ctx.getRetrieveService().getUIDMap(uidMapPk, uidMapCache));

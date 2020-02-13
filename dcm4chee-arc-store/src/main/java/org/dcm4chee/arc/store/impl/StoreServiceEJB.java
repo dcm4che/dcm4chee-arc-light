@@ -1503,7 +1503,13 @@ public class StoreServiceEJB {
             Location prevLocation, Instance instance, Map<String, String> uidMap, Map<Long, UIDMap> uidMapCache) {
         if (prevLocation.getMultiReference() == null) {
             prevLocation = em.find(Location.class, prevLocation.getPk());
-            prevLocation.setMultiReference(idService.newLocationMultiReference());
+            // Since Location members could have been populated by a query result, not containing multiReference value,
+            // the location itself is now reloaded.
+            // This means that prevLocation.getMultiReference() can now return a non null value.
+            // That's why check must be done again before assigning a new value.
+            if (prevLocation.getMultiReference() == null) {
+                prevLocation.setMultiReference(idService.newLocationMultiReference());
+            }
         }
         Location newLocation = new Location(prevLocation);
         newLocation.setUidMap(createUIDMap(uidMap, prevLocation.getUidMap(), uidMapCache));
