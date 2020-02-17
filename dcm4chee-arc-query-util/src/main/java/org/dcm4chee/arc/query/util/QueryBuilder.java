@@ -682,7 +682,7 @@ public class QueryBuilder {
                     mwlItem.get(MWLItem_.scheduledStartDate),
                     mwlItem.get(MWLItem_.scheduledStartTime),
                     Tag.ScheduledProcedureStepStartDate,
-                    Tag.ScheduledProcedureStepStartDate,
+                    Tag.ScheduledProcedureStepStartTime,
                     Tag.ScheduledProcedureStepStartDateAndTime,
                     sps, true);
             personName(predicates, q, mwlItem, MWLItem_.scheduledPerformingPhysicianName,
