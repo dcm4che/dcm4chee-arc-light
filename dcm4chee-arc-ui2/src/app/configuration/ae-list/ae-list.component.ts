@@ -13,6 +13,7 @@ import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import { loadTranslations } from '@angular/localize';
 
 @Component({
   selector: 'app-ae-list',
@@ -41,7 +42,7 @@ export class AeListComponent implements OnInit{
     devices;
     dialogRef: MatDialogRef<any>;
     filterSchema;
-
+    inherit = $localize `:@@inherit:inherit`
     constructor(
       public $http:J4careHttpService,
       public cfpLoadingBar: LoadingBarService,
@@ -199,7 +200,7 @@ export class AeListComponent implements OnInit{
                 checkboxtext: 'Delete also the device <b>' + device + '</b>'
             },
             result: {input: false},
-            saveButton: 'DELETE',
+            saveButton: $localize `:@@DELETE:DELETE`,
             cssClass: 'deleteaet'
         };
         console.log('parameters', parameters);
@@ -276,7 +277,7 @@ export class AeListComponent implements OnInit{
                             (err) => {
                                 $this.mainservice.setMessage({
                                     'title': 'error',
-                                    'text': 'Error getting device ' + device,
+                                    'text': $localize `:@@ae-list.error_getting_device_:Error getting device ${device}:@@device:`,
                                     'status': 'error'
                                 });
                             }
@@ -442,7 +443,7 @@ export class AeListComponent implements OnInit{
                     });
                 });
                 this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
-                    this.mainservice.showMsg(`${newAet.dicomAETitle} was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}`);
+                    this.mainservice.showMsg($localize `:@@ae-list.set_as_accpeted_aet:${newAet.dicomAETitle}:@@newAet: was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}:@@aets:`);
                     this.$http.post('../ctrl/reload', {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
                         this.mainservice.setMessage({
                             'title': 'Info',

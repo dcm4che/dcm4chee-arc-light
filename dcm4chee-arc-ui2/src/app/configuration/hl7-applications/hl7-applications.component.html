@@ -2,7 +2,7 @@
     <config-tab></config-tab>
     <!--<div class="devicelist_block">-->
         <div class="tab-content">
-            <h2>Hl7 Applications</h2>
+            <h2 i18n="@@hl7_applications.hl7_applications">Hl7 Applications</h2>
             <div class="filter_line" *ngIf="advancedConfig">
                 <div class="filter_block">
                     <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="getHl7ApplicationsList(0)" [filterTreeHeight]="filterHeight"></filter-generator>
@@ -12,9 +12,9 @@
                 <div class="filter single_block">
                     <div class="filter_block">
                         <div class="line">
-                            <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                            <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" placeholder="Search device"/>
+                            <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                            <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder placeholder="Search device"/>
                         </div>
                     </div>
                 </div>
@@ -23,10 +23,10 @@
                 <thead>
                 <tr>
                     <th></th>
-                    <th>Device Name</th>
-                    <th>HL7 Application Description</th>
-                    <th>Hl7 Application Name</th>
-                    <th title="Dicom network connection">Net. Connection</th>
+                    <th i18n="@@device_name">Device Name</th>
+                    <th i18n="@@hl7_application_description">HL7 Application Description</th>
+                    <th i18n="@@hl7_application_name">Hl7 Application Name</th>
+                    <th i18n-title title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -50,7 +50,7 @@
                 </tr>
                 </tbody>
             </table>
-            <button class="load_more" *ngIf="hl7Applications && moreHl7.limit <= hl7Applications.length" (click)="loadMoreDevices()"><i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
+            <button class="load_more" *ngIf="hl7Applications && moreHl7.limit <= hl7Applications.length" (click)="loadMoreDevices()"><i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><ng-container i18n="@@more">More</ng-container></button>
 <!--            <div role="tabpanel"  class="device_modus" id="device_modus">
                 <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" placeholder="Search device"/>
                 <div *ngIf="advancedConfig" class="ng-hide">

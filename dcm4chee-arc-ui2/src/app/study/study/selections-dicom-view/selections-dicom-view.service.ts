@@ -13,33 +13,33 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient's Name",
+                    header: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: "Patient's Name",
+                    headerDescription: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient ID",
+                    header: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: "Patient ID",
+                    headerDescription: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Issuer of Patient",
+                    header: $localize `:@@selections-dicom-view.issuer_of_patient:Issuer of Patient`,
                     pathToValue: "00100021.Value[0]",
-                    headerDescription: "Issuer of Patient ID",
+                    headerDescription: $localize `:@@selections-dicom-view.issuer_of_patient_id:Issuer of Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#S",
+                    header: $localize `:@@number_of_patient_related_studies:#S`,
                     pathToValue: "00201200.Value[0]",
-                    headerDescription: "Number of Patient Related Studies",
+                    headerDescription: $localize `:@@selections-dicom-view.number_of_patient_related_studies:Number of Patient Related Studies`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
@@ -56,10 +56,10 @@ export class SelectionsDicomViewService {
                             click: (e) => {
                                 actions.call($this, e);
                             },
-                            title: "Remove from selection"
+                            title: $localize `:@@selections-dicom-view.remove_from_selection:Remove from selection`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
             ];
@@ -67,40 +67,40 @@ export class SelectionsDicomViewService {
           return [
               new TableSchemaElement({
                   type: "value",
-                  header: "Study ID",
+                  header: $localize `:@@selections-dicom-view.study_id:Study ID`,
                   pathToValue: "[00200010].Value[0]",
-                  headerDescription: "Study ID",
+                  headerDescription: $localize `:@@selections-dicom-view.study_id:Study ID`,
                   widthWeight: 0.9,
                   calculatedWidth: "20%"
               }), new TableSchemaElement({
                   type: "value",
-                  header: "Study Instance UID",
+                  header: $localize `:@@selections-dicom-view.study_instance_uid:Study Instance UID`,
                   pathToValue: "[0020000D].Value[0]",
-                  headerDescription: "Study Instance UID",
+                  headerDescription: $localize `:@@selections-dicom-view.study_instance_uid:Study Instance UID`,
                   widthWeight: 3,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
                   type: "value",
-                  header: "Study Date",
+                  header: $localize `:@@selections-dicom-view.study_date:Study Date`,
                   pathToValue: "[00080020].Value[0]",
-                  headerDescription: "Study Date",
+                  headerDescription: $localize `:@@selections-dicom-view.study_date:Study Date`,
                   widthWeight: 0.6,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
                   type: "value",
-                  header: "#S",
+                  header: $localize `:@@number_of_patient_related_studies:#S`,
                   pathToValue: "[00201206].Value[0]",
-                  headerDescription: "Number of Study Related Series",
+                  headerDescription: $localize `:@@selections-dicom-view.number_of_study_related_series:Number of Study Related Series`,
                   widthWeight: 0.2,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
                   type: "value",
-                  header: "#I",
+                  header:`:@@number_of_related_instances:#I`,
                   pathToValue: "[00201208].Value[0]",
-                  headerDescription: "Number of Study Related Instances",
+                  headerDescription: $localize `:@@selections-dicom-view.number_of_study_related_instances:Number of Study Related Instances`,
                   widthWeight: 0.2,
                   calculatedWidth: "20%"
               }),
@@ -117,10 +117,10 @@ export class SelectionsDicomViewService {
                           click: (e) => {
                               actions.call($this, e);
                           },
-                          title: "Remove from selection"
+                          title: $localize `:@@selections-dicom-view.remove_from_selection:Remove from selection`
                       }
                   ],
-                  headerDescription: "Actions",
+                  headerDescription: $localize `:@@actions:Actions`,
                   pxWidth: 40
               })
           ];
@@ -128,41 +128,41 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: "Station Name",
+                    header: $localize `:@@selections-dicom-view.station_name:Station Name`,
                     pathToValue: "00081010.Value[0]",
-                    headerDescription: "Station Name",
+                    headerDescription: $localize `:@@selections-dicom-view.station_name:Station Name`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Series Number",
+                    header: $localize `:@@selections-dicom-view.series_number:Series Number`,
                     pathToValue: "00200011.Value[0]",
-                    headerDescription: "Series Number",
+                    headerDescription: $localize `:@@selections-dicom-view.series_number:Series Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Body Part",
+                    header: $localize `:@@selections-dicom-view.body_part:Body Part`,
                     pathToValue: "00180015.Value[0]",
-                    headerDescription: "Body Part Examined",
+                    headerDescription: $localize `:@@selections-dicom-view.body_part_examined:Body Part Examined`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Modality",
+                    header: $localize `:@@modality:Modality`,
                     pathToValue: "00080060.Value[0]",
-                    headerDescription: "Modality",
+                    headerDescription: $localize `:@@modality:Modality`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#I",
+                    header: `:@@number_of_related_instances:#I`,
                     pathToValue: "00201209.Value[0]",
-                    headerDescription: "Number of Series Related Instances",
+                    headerDescription: $localize `:@@selections-dicom-view.number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -179,10 +179,10 @@ export class SelectionsDicomViewService {
                             click: (e) => {
                                 actions.call($this, e);
                             },
-                            title: "Remove from selection"
+                            title: $localize `:@@selections-dicom-view.remove_from_selection:Remove from selection`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 })
             ];
@@ -190,25 +190,25 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: "SOP Class UID",
+                    header: $localize `:@@selections-dicom-view.sop_class_uid:SOP Class UID`,
                     pathToValue: "00080016.Value[0]",
-                    headerDescription: "SOP Class UID",
+                    headerDescription: $localize `:@@selections-dicom-view.sop_class_uid:SOP Class UID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Instance Number",
+                    header: $localize `:@@selections-dicom-view.instance_number:Instance Number`,
                     pathToValue: "00200013.Value[0]",
-                    headerDescription: "Instance Number",
+                    headerDescription: $localize `:@@selections-dicom-view.instance_number:Instance Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Content Date",
+                    header: $localize `:@@selections-dicom-view.content_date:Content Date`,
                     pathToValue: "00080023.Value[0]",
-                    headerDescription: "Content Date",
+                    headerDescription: $localize `:@@selections-dicom-view.content_date:Content Date`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -216,7 +216,7 @@ export class SelectionsDicomViewService {
                     type: "value",
                     header: "#F",
                     pathToValue: "00280008.Value[0]",
-                    headerDescription: "Number of Frames",
+                    headerDescription: $localize `:@@selections-dicom-view.number_of_frames:Number of Frames`,
                     widthWeight: 0.3,
                     calculatedWidth: "20%"
                 }),
@@ -233,10 +233,10 @@ export class SelectionsDicomViewService {
                             click: (e) => {
                                 actions.call($this, e);
                             },
-                            title: "Remove from selection"
+                            title: $localize `:@@selections-dicom-view.remove_from_selection:Remove from selection`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 })
             ];
@@ -244,24 +244,24 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient's Name",
+                    header: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: "Patient's Name",
+                    headerDescription: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient ID",
+                    header: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: "Patient ID",
+                    headerDescription: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),new TableSchemaElement({
                     type: "value",
-                    header: "Study ID",
+                    header: $localize `:@@selections-dicom-view.study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
-                    headerDescription: "Study ID",
+                    headerDescription: $localize `:@@selections-dicom-view.study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -278,10 +278,10 @@ export class SelectionsDicomViewService {
                             click: (e) => {
                                 actions.call($this, e);
                             },
-                            title: "Remove from selection"
+                            title: $localize `:@@selections-dicom-view.remove_from_selection:Remove from selection`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 })
             ]

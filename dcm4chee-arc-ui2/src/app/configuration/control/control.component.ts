@@ -59,11 +59,7 @@ export class ControlComponent implements OnInit{
         Object.keys(this.devices).forEach((device)=>{
             this.service.fetchStatus(this.devices[device].dcmuiDeviceURL).subscribe(res=>{
                 this.devices[device].status = res.status;
-                this.appservices.setMessage({
-                    'title': 'Info',
-                    'text': `Status of ${this.devices[device].dcmuiDeviceURLName} was successfully refetched!`,
-                    'status': 'info'
-                });
+                this.appservices.showMsg( $localize `:@@control.status_refetched:Status of ${this.devices[device].dcmuiDeviceURLName} was successfully refetched!`);
             },err=>{
                 console.error("Status not fetchable",err);
                 this.httpErrorHandler.handleError(err);
@@ -74,11 +70,7 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.startArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatus();
-            this.appservices.setMessage({
-                'title': 'Info',
-                'text': `Archive ${object.dcmuiDeviceURLName} started successfully`,
-                'status': 'info'
-            });
+            this.appservices.showMsg($localize `:@@control.archive_started:Archive ${object.dcmuiDeviceURLName} started successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -89,11 +81,7 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.stopArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatus();
-            this.appservices.setMessage({
-                'title': 'Info',
-                'text': `Archive ${object.dcmuiDeviceURLName} stoped successfully`,
-                'status': 'info'
-            });
+            this.appservices.showMsg($localize`:@@control.archive_stoped:Archive ${object.dcmuiDeviceURLName} stoped successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -103,11 +91,7 @@ export class ControlComponent implements OnInit{
     reload(object) {
         this.cfpLoadingBar.start();
         this.service.reloadArchive().subscribe((res) => {
-            this.appservices.setMessage({
-                'title': 'Info',
-                'text': `Archive ${object.dcmuiDeviceURLName} reloaded successfully`,
-                'status': 'info'
-            });
+            this.appservices.showMsg($localize `:@@control.archive_reloaded:Archive ${object.dcmuiDeviceURLName} reloaded successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();

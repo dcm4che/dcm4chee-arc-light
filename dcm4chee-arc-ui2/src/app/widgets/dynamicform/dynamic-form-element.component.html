@@ -7,11 +7,11 @@
         <!--<br> in ngswitch {{formelement |json}}<br>-->
         <div *ngIf="formelement.show || partSearch != ''" class="content" [ngClass]="{format: formelement.format}">
             <div class="download_content" *ngIf="formelement.show || partSearch != ''">
-                <a class="vendordata_button" *ngSwitchCase="'filedownload'" (click)="$event.preventDefault();downloadFile(formelement.downloadUrl)">Download</a>
-                <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" title="Delete File"><i class="material-icons">clear</i></a>
+                <a class="vendordata_button" *ngSwitchCase="'filedownload'" (click)="$event.preventDefault();downloadFile(formelement.downloadUrl)" i18n="@@download">Download</a>
+                <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" i18n-title title="Delete File"><i class="material-icons">clear</i></a>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <a class="vendordata_button" *ngSwitchCase="'fileupload'" (click)="$event.preventDefault();uploadVendor(formelement.deviceName);">Upload</a>
+                <a class="vendordata_button" *ngSwitchCase="'fileupload'" (click)="$event.preventDefault();uploadVendor(formelement.deviceName);" i18n="@@upload">Upload</a>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled value="{{formelement.value}}" type="text" />
@@ -46,7 +46,7 @@
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="checkbox_parent"  *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key" [ngClass]="{'long_mode':formelement.options && formelement.options.length && formelement.options.length > 9}">
-                    <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" placeholder="Search...">
+                    <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" i18n-placeholder placeholder="Search...">
                     <div *ngFor="let opt of formelement.options|search:search.value" >
                         <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event, formelement);opt.active = !opt.active" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
                     </div>
@@ -59,7 +59,7 @@
                             <df-element [formelement]="element" [form]="form['controls'][formelement.key]['controls'][i]" [formelements]="formelements"></df-element>
                         </div>
                     </div>
-                    <div (click)="addElement(formelement.options, formelement, form['controls'][formelement.key]['controls'])">add</div>
+                    <div (click)="addElement(formelement.options, formelement, form['controls'][formelement.key]['controls'])" i18n="@@add">add</div>
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
@@ -68,7 +68,7 @@
                          [ngClass]="{picker: (formelement.showDurationPicker && formelement.showDurationPicker[i])}" *ngFor="let item of formelement.value; let i=index">
                         <input *ngIf="formelement.type == 'number'" formControlName="{{i}}" type="number">
                         <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type" (click)="onFocuse(formelement,i)"  (mouseenter)="onMouseEnter(formelement,i)" (mouseleave)="onMouseLeave(formelement)">
-                        <span class="delete" title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
+                        <span class="delete" i18n-title title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
                         <attribute-info *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showPickerTooltipp && formelement.showPickerTooltipp[i] && item" [dictionary]="formelement.format" [value]="item"></attribute-info>
                         <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key]['controls'],i)"></dictionary-picker>
                         <time-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showTimePicker && formelement.showTimePicker[i]" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key]['controls'],i)"></time-picker>
@@ -76,18 +76,18 @@
                         <specific-char-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showCharSetPicker && formelement.showCharSetPicker[i]" [mode]="'configurator'" [value]="item"  (onValueSet)="onValueChange($event, formelement,form['controls'][formelement.key]['controls'],i)"></specific-char-picker>
                         <!--<device-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format === 'dicomDeviceName'"></device-picker>-->
                     </div>
-                    <div class="add" (click)="addArrayElement(formelement.value, form['controls'][formelement.key]['controls'], form)"><i class="material-icons">add</i> <span>Add</span></div>
+                    <div class="add" (click)="addArrayElement(formelement.value, form['controls'][formelement.key]['controls'], form)"><i class="material-icons">add</i> <span i18n="@@Add">Add</span></div>
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="button_parent" *ngSwitchCase="'button'">
                     <div class="button_content" *ngIf="formelement.value > 0">
-                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" (click)="$event.preventDefault();navigateTo(formelement['url'])" title="{{formelement['description']}}"><i class="material-icons">mode_edit</i> <span class="text">Edit extension</span></a>
-                        <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement['title']}} extension from device"><i class="material-icons">clear</i></a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" (click)="$event.preventDefault();navigateTo(formelement['url'])" title="{{formelement['description']}}"><i class="material-icons">mode_edit</i> <span class="text" i18n="@@edit_extension">Edit extension</span></a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="{{formelement['description'] || getTitleBackup('remove',formelement['title'])}}"><i class="material-icons">clear</i></a>
                     </div>
                     <div class="button_content" *ngIf="formelement.value === 0">
-                        <a [ngClass]="{'disabled':!form.valid}" class="button edit gray disabled" (click)="$event.preventDefault();" title="{{formelement.description}}">Extension is not present</a>
-                        <a [ngClass]="{'disabled':!form.valid}" class="add button" [routerLink]="[formelement['url']]" title="{{formelement['description']}}" title="Append {{formelement.title}} extension to device"><i class="material-icons">add</i></a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="button edit gray disabled" (click)="$event.preventDefault();" title="{{formelement.description}}" i18n="@@extension_is_not_present">Extension is not present</a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="add button" [routerLink]="[formelement['url']]" title="{{formelement['description'] || getTitleBackup('append',formelement.title)}}"><i class="material-icons">add</i></a>
                     </div>
                 </div>
             </div>
@@ -107,12 +107,12 @@
                     <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'No child found')">
                         <ng-template let-select="select">
                             <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
-                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select, formelement.options)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
-                            <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select, formelement.options)" i18n-title title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" i18n-title title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
                         </ng-template>
                     </dcm-select>
-                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.addUrl, formelement.options)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
-                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
+                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.addUrl, formelement.options)"  i18n-title title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
+                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  i18n-title title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
 <!--                    <a [ngClass]="{'disabled':!form.valid}" class="button clone" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement)" title="Clone a {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
                     <a [ngClass]="{'disabled':!form.valid}" class="delete button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement)" title="Delete a {{formelement.label}} part"><i class="material-icons">clear</i></a>-->
                 </div>
@@ -125,7 +125,7 @@
             <!--<pre *ngIf="form.controls[formelement.key] && form.controls[formelement.key].errors">formcontrols{{form.controls[formelement.key].errors |json }}</pre>-->
             <div class="error_msg" *ngIf="(formelement.show || partSearch != '') && form.controls[formelement.key] && form.controls[formelement.key].errors">
                 <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.required">
-                    This field is required!
+                    <ng-container i18n="@@this_field_is_required">This field is required!</ng-container>
                 </span>
                 <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.msg">
                     {{form.controls[formelement.key].errors.msg}}

@@ -12,7 +12,7 @@ export class StudyTransferringOverviewComponent implements OnInit {
 
     private _selectedElements:SelectionActionElement;
     rjnotes:SelectDropdown<any>[];
-    title = "Move";
+    title = $localize `:@@move:Move`;
     Object = Object;
     target;
     reject;

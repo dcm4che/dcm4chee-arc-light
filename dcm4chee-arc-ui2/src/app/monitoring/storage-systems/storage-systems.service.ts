@@ -11,32 +11,32 @@ export class StorageSystemsService {
     usage = [
         {
             value:"dcmObjectStorageID",
-            text:"Object Storage"
+            text:$localize `:@@storage-systems.object_storage:Object Storage`
         },
         {
             value:"dcmMetadataStorageID",
-            text:"Metadata Storage"
+            text:$localize `:@@storage-systems.metadata_storage:Metadata Storage`
         },
         {
             value:"dcmSeriesMetadataStorageID",
-            text:"SeriesMetadata Storage"
+            text:$localize `:@@storage-systems.seriesmetadata_storage:SeriesMetadata Storage`
         },
     ];
     uriSchema = [
         {
-            text:"file",
+            text:$localize `:@@file:file`,
             value:"file"
         },{
-            text:"jclouds",
+            text:$localize `:@@jclouds:jclouds`,
             value:"jclouds"
         },{
-            text:"emc-ecs-s3",
+            text:$localize `:@@emc-ecs-s3:emc-ecs-s3`,
             value:"emc-ecs-s3"
         },{
-            text:"hcp",
+            text:$localize `:@@hcp:hcp`,
             value:"hcp"
         },{
-            text:"documentu",
+            text:$localize `:@@documentu:documentu`,
             value:"documentu"
         }
     ];
@@ -78,16 +78,16 @@ export class StorageSystemsService {
                         }),
                         showStar:true,
                         filterKey:"dicomAETitle",
-                        description:"AETitle",
-                        placeholder:"AETitle"
+                        description:$localize `:@@aetitle:AETitle`,
+                        placeholder:$localize `:@@aetitle:AETitle`
                     },
                     {
                         tag:"select",
                         options:this.uriSchema,
                         showStar:true,
                         filterKey:"uriScheme",
-                        description:"Uri Schema",
-                        placeholder:"Uri Schema"
+                        description:$localize `:@@storage-systems.uri_schema:Uri Schema`,
+                        placeholder:$localize `:@@storage-systems.uri_schema:Uri Schema`
                     }
                 ],
                 [
@@ -96,8 +96,8 @@ export class StorageSystemsService {
                         options:this.usage,
                         showStar:true,
                         filterKey:"usage",
-                        description:"Usage",
-                        placeholder:"Usage"
+                        description:$localize `:@@usage:Usage`,
+                        placeholder:$localize `:@@usage:Usage`
                     },
                     {
                         tag:"combined",
@@ -106,8 +106,8 @@ export class StorageSystemsService {
                             type:"number",
                             min:1,
                             filterKey:"usableSpaceBelow",
-                            placeholder:"Usablespace below",
-                            title:"Usablespace below"
+                            placeholder:$localize `:@@storage-systems.usablespace_below:Usablespace below`,
+                            title:$localize `:@@storage-systems.usablespace_below:Usablespace below`
                         },
                         secondField:{
                             tag:"select",
@@ -119,8 +119,8 @@ export class StorageSystemsService {
                                 {"value":"MB",text:"MB"},
                                 {"value":"BYTE",text:"Byte"},
                             ],
-                            placeholder:"Unite",
-                            title:"Unite"
+                            placeholder:$localize `:@@unite:Unite`,
+                            title:$localize `:@@unite:Unite`
                         }
                     }
                 ]
@@ -130,14 +130,14 @@ export class StorageSystemsService {
                         tag:"input",
                         type:"text",
                         filterKey:"dcmStorageClusterID",
-                        placeholder:"Storage Cluster ID",
-                        description:"Storage Cluster ID"
+                        placeholder:$localize `:@@storage-systems.storage_cluster_id:Storage Cluster ID`,
+                        description:$localize `:@@storage-systems.storage_cluster_id:Storage Cluster ID`
                     },
                     {
                         tag:"button",
                         id:"submit",
-                        text:"SUBMIT",
-                        description:"Get Storage commitments"
+                        text:$localize `:@@SUBMIT:SUBMIT`,
+                        description:$localize `:@@storage-systems.get_storage_commitments:Get Storage commitments`
                     }
                 ],[]
             ]

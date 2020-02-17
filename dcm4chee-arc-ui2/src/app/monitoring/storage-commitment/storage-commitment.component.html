@@ -1,7 +1,7 @@
 <div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2>Storage commitments</h2>
+        <h2 i18n="html.storage_commitments">Storage commitments</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="storage-commitment" [model]="filters" (submit)="search(0)"></filter-generator>
@@ -17,10 +17,10 @@
             </div>
         </div>
         <ng-container *ngIf="_.size(matches) > 0">
-            <button class="left_arrow arrow no_style"  title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+            <button class="left_arrow arrow no_style"   i18n-title title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
-            <button class="right_arrow arrow no_style" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+            <button class="right_arrow arrow no_style"  i18n-title title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button>
         </ng-container>
@@ -29,15 +29,15 @@
             <tr>
                 <th colspan="2">
                 </th>
-                <th>Device name</th>
-                <th>Status</th>
-                <th>Exporter ID</th>
-                <th>Requested</th>
-                <th>Failures</th>
-                <th>Created time</th>
-                <th>Updated time</th>
-                <th>Transaction UID</th>
-                <th>Study UID</th>
+                <th i18n="@@device_name">Device name</th>
+                <th i18n="@@status">Status</th>
+                <th i18n="@@exporter_id">Exporter ID</th>
+                <th i18n="@@requested">Requested</th>
+                <th i18n="@@failures">Failures</th>
+                <th i18n="@@created_time">Created time</th>
+                <th i18n="@@updated_time">Updated time</th>
+                <th i18n="@@transaction_uid">Transaction UID</th>
+                <th i18n="@@study_uid">Study UID</th>
             </tr>
             </thead>
             <tbody>
@@ -45,10 +45,10 @@
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td>
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a (click)="$event.preventDefault();delete(match)" href="" title="Delete">
+                        <a (click)="$event.preventDefault();delete(match)" href=""  i18n-title title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

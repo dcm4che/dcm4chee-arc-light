@@ -23,27 +23,27 @@ export class DiffMonitorService {
         return [
             {
                 value:"SCHEDULED",
-                text:"SCHEDULED"
+                text:$localize `:@@SCHEDULED:SCHEDULED`
             },
             {
                 value:"IN PROCESS",
-                text:"IN PROCESS"
+                text:$localize `:@@IN_PROCESS:IN PROCESS`
             },
             {
                 value:"COMPLETED",
-                text:"COMPLETED"
+                text:$localize `:@@COMPLETED:COMPLETED`
             },
             {
                 value:"WARNING",
-                text:"WARNING"
+                text:$localize `:@@WARNING:WARNING`
             },
             {
                 value:"FAILED",
-                text:"FAILED"
+                text:$localize `:@@FAILED:FAILED`
             },
             {
                 value:"CANCELED",
-                text:"CANCELED"
+                text:$localize `:@@CANCELED:CANCELED`
             }
         ];
     }
@@ -55,116 +55,116 @@ export class DiffMonitorService {
               options:devices,
               showStar:true,
               filterKey:"dicomDeviceName",
-              description:"Device Name",
-              placeholder:"Device Name"
+              description:$localize `:@@device_name:Device Name`,
+              placeholder:$localize `:@@device_name:Device Name`
           },{
               tag:"select",
               options:aets,
               showStar:true,
               filterKey:"LocalAET",
-              description:"Local AET",
-              placeholder:"Local AET"
+              description:$localize `:@@local_aet:Local AET`,
+              placeholder:$localize `:@@local_aet:Local AET`
           },{
               tag:"select",
               options:aes,
               showStar:true,
               filterKey:"PrimaryAET",
-              description:"Primary AET",
-              placeholder:"Primary AET"
+              description:$localize `:@@primary_aet:Primary AET`,
+              placeholder:$localize `:@@primary_aet:Primary AET`
           },
           {
               tag:"select",
               options:aes,
               showStar:true,
               filterKey:"SecondaryAET",
-              description:"Secondary AET",
-              placeholder:"Secondary AET"
+              description:$localize `:@@secondary_aet:Secondary AET`,
+              placeholder:$localize `:@@secondary_aet:Secondary AET`
           },
           {
               tag:"checkbox",
               filterKey:"checkMissing",
-              description:"Check Missing",
-              text:"Check Missing"
+              description:$localize `:@@check_missing:Check Missing`,
+              text:$localize `:@@check_missing:Check Missing`
           },{
               tag:"checkbox",
               filterKey:"checkDifferent",
-              description:"Check Different",
-              text:"Check Different"
+              description:$localize `:@@check_different:Check Different`,
+              text:$localize `:@@check_different:Check Different`
           },
           {
               tag:"input",
               type:"text",
               filterKey:"comparefield",
-              description:"Compare field",
-              placeholder:"Compare field"
+              description:$localize `:@@compare_field:Compare field`,
+              placeholder:$localize `:@@compare_field:Compare field`
           },{
               tag:"select",
               options:this.statusValues(),
               filterKey:"status",
               showStar:true,
-              description:"Status of tasks to filter by",
+              description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
               placeholder:"Status"
           },
           {
               tag:"range-picker",
               filterKey:"createdTime",
-              description:"Created Date"
+              description:$localize `:@@created_date:Created Date`
           },{
               tag:"range-picker",
               filterKey:"updatedTime",
-              description:"Created Date"
+              description:$localize `:@@created_date:Created Date`
           },
           {
               tag:"input",
               type:"text",
               filterKey:"batchID",
-              description:"Batch ID",
-              placeholder:"Batch ID"
+              description:$localize `:@@batch_id:Batch ID`,
+              placeholder:$localize `:@@batch_id:Batch ID`
           },{
               tag:"select",
               options:[{
                   value:'createdTime',
-                  text:'Sort by creation time (ASC)'
+                  text:$localize `:@@sort_by_creation_time_asc:Sort by creation time (ASC)`
               },
                   {
                       value:'-createdTime',
-                      text:'Sort by creation time (DESC)'
+                      text:$localize `:@@sort_by_creation_time_desc:Sort by creation time (DESC)`
                   },
                   {
                       value:'updatedTime',
-                      text:'Sort by updated time (ASC)'
+                      text:$localize `:@@sort_by_updated_time_asc:Sort by updated time (ASC)`
                   },
                   {
                       value:'-updatedTime',
-                      text:'Sort by updated time (DESC)'
+                      text:$localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
                   }
               ],
               showStar:true,
               filterKey:"orderby",
-              description:"Sort",
-              placeholder:"Sort"
+              description:$localize `:@@sort:Sort`,
+              placeholder:$localize `:@@sort:Sort`
           },
           {
               tag:"label",
-              text:"Page Size"
+              text:$localize `:@@page_size:Page Size`
           },{
               tag:"input",
               type:"number",
               filterKey:"limit",
-              description:"Page Size",
-              placeholder:"Page Size"
+              description:$localize `:@@page_size:Page Size`,
+              placeholder:$localize `:@@page_size:Page Size`
           },
           {
               tag:"button",
               text:countText,
               id:"count",
-              description:"Get Count"
+              description:$localize `:@@get_count:Get Count`
           },
           {
               tag:"button",
-              text:"Search",
+              text:$localize `:@@search:Search`,
               id:"search",
-              description:"Search Patients"
+              description:$localize `:@@search_patients:Search Patients`
           }
       ];
   }
@@ -191,7 +191,7 @@ export class DiffMonitorService {
                             console.log("e",e);
                             e.showAttributes = !e.showAttributes;
                         },
-                        title:"Show details"
+                        title:$localize `:@@show_details:Show details`
                     },
                     {
                         icon:{
@@ -203,7 +203,7 @@ export class DiffMonitorService {
                             console.log("e",e);
                             action.call($this,'cancel', e);
                         },
-                        title:'Cancel this task'
+                        title:$localize `:@@cancel_this_task:Cancel this task`
                     },
                     {
                         icon:{
@@ -215,7 +215,7 @@ export class DiffMonitorService {
                             console.log("e",e);
                             action.call($this,'reschedule', e);
                         },
-                        title:'Reschedule this task'
+                        title:$localize `:@@reschedule_this_task:Reschedule this task`
                     },
                     {
                         icon:{
@@ -227,7 +227,7 @@ export class DiffMonitorService {
                             console.log("e",e);
                             action.call($this,'delete', e);
                         },
-                        title:'Delete this task'
+                        title:$localize `:@@delete_this_task:Delete this task`
                     },
                     {
                         icon:{
@@ -252,14 +252,14 @@ export class DiffMonitorService {
                 calculatedWidth:"6%"
             },{
                 type:"model",
-                title:"Primary AET",
+                title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
                 description:"AE Title of the primary C-FIND SCP",
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Secondary AET",
+                title:$localize `:@@secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
                 description:"AE Title of the secondary C-FIND SCP",
                 widthWeight:1,
@@ -267,9 +267,9 @@ export class DiffMonitorService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Compare field",
+                title:$localize `:@@compare_field:Compare field`,
                 key:"comparefield",
-                description:"Compare attribute set id",
+                description:$localize `:@@compare_attribute_set_id:Compare attribute set id`,
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
@@ -277,29 +277,29 @@ export class DiffMonitorService {
                 type:"model",
                 title:"Status",
                 key:"status",
-                description:"Status of tasks",
+                description:$localize `:@@status_of_tasks:Status of tasks`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Batch ID",
+                title:$localize `:@@batch_id:Batch ID`,
                 key:"batchID",
-                description:"Batch ID",
+                description:$localize `:@@batch_id:Batch ID`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Created time",
+                title:$localize `:@@created_time:Created time`,
                 key:"createdTime",
-                description:"list Compare Studies Tasks which were created between",
+                description:$localize `:@@list_compare_studies_tasks_which_were_created_between:list Compare Studies Tasks which were created between`,
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn800px"
             },{
                 type:"model",
-                title:"Updated time",
+                title:$localize `:@@updated_time:Updated time`,
                 key:"updatedTime",
-                description:"list Compare Studies Tasks which were updated between",
+                description:$localize `:@@list_compare_studies_tasks_which_were_updated_between:list Compare Studies Tasks which were updated between`,
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn800px"
@@ -345,21 +345,21 @@ export class DiffMonitorService {
                 calculatedWidth:"6%"
             },{
                 type:"model",
-                title:"Batch ID",
+                title:$localize `:@@batch_id:Batch ID`,
                 key:"batchID",
-                description:"Batch ID",
+                description:$localize `:@@batch_id:Batch ID`,
                 widthWeight:0.4,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Primary AET",
+                title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
                 description:"AE Title of the primary C-FIND SCP",
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Secondary AET",
+                title:$localize `:@@secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
                 description:"AE Title of the secondary C-FIND SCP",
                 widthWeight:1,
@@ -368,27 +368,27 @@ export class DiffMonitorService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Scheduled time range",
+                title:$localize `:@@scheduled_time_range:Scheduled time range`,
                 key:"scheduledTimeRange",
-                description:"Scheduled time range",
+                description:$localize `:@@scheduled_time_range:Scheduled time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Processing start time range",
+                title:$localize `:@@processing_start_time_range:Processing start time range`,
                 key:"processingStartTimeRange",
-                description:"Processing start time range",
+                description:$localize `:@@processing_start_time_range:Processing start time range`,
                 widthWeight:1.4,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Processing end time range",
+                title:$localize `:@@processing_end_time_range:Processing end time range`,
                 key:"processingEndTimeRange",
-                description:"Processing end time range",
+                description:$localize `:@@processing_end_time_range:Processing end time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",

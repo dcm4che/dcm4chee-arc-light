@@ -49,8 +49,8 @@ export class TooltipDirective implements OnDestroy{
             this.i = document.createElement('i');
             this.i.className = "glyphicon glyphicon-duplicate";
             this.spanText = document.createElement('span');
-            // this.i.setAttribute("title","Copy text to clipboard");
-            this.i.title = "Copy text to clipboard";
+            // this.i.setAttribute("title",$localize `:@@tooltip.copy_text_to_clipboard:Copy text to clipboard`);
+            this.i.title = $localize `:@@tooltip.copy_text_to_clipboard:Copy text to clipboard`;
             this.div.className = 'tooltip_container';
             let div2 =  document.createElement('div');
             div2.className = 'dir-tooltip animated';
@@ -94,7 +94,7 @@ export class TooltipDirective implements OnDestroy{
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            this.mainservice.showMsg('Text copied successfully in the clipboard');
+            this.mainservice.showMsg($localize `:@@tooltip.text_copied_successfully_in_the_clipboard:Text copied successfully in the clipboard`);
         }
     }
     setPositionOfDiv(){

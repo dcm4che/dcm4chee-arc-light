@@ -59,14 +59,14 @@ export class CsvUploadComponent implements OnInit {
         this.service.uploadCSV(url, this.csvFile, semicolon, (end)=>{
             this.showLoader = false;
             if(end.status >= 199 && end.status < 300){
-                let msg = "Tasks created successfully!";
+                let msg = $localize `:@@task_created:Tasks created successfully!`;
                 try{
                     if(end.response){
                         let countObject = JSON.parse(end.response);
-                        msg = `${countObject.count} tasks created successfully!`
+                        msg = $localize `:@@tasks_created:${countObject.count}:@@count: tasks created successfully!`
                     }
                 }catch (e){
-                    console.log("Count could not be extracted",e)
+                    console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
                 }
                 this.appService.setMessage({
                     "text":msg,
@@ -74,14 +74,14 @@ export class CsvUploadComponent implements OnInit {
                 });
                 this.dialogRef.close('ok');
             }else{
-                let msg = 'Upload failed, please try again later!';
+                let msg = $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`;
                 try{
                     if(end.response){
                         let countObject = JSON.parse(end.response);
                         msg = countObject.errorMessage;
                     }
                 }catch (e){
-                    console.log("Count could not be extracted",e)
+                    console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
                 }
                 this.appService.setMessage({
                     "text":msg,
@@ -91,10 +91,7 @@ export class CsvUploadComponent implements OnInit {
             }
         },(err)=>{
             this.showLoader = false;
-            this.appService.setMessage({
-                "text":'Upload failed, please try again later!',
-                "status":"error"
-            })
+            this.appService.setMessage($localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`)
             this.dialogRef.close(null);
         });
     }

@@ -8,7 +8,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 export class InfoComponent{
 
     private _info: any = {
-        title: 'Info',
+        title: $localize `:@@info.title:Info`,
         content: undefined
     };
     constructor(public dialogRef: MatDialogRef<InfoComponent>) {

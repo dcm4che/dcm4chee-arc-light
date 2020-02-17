@@ -251,11 +251,7 @@ export class CreateAeComponent implements OnInit{
     }
     addNewConnectionToDevice(){
         if (!this.newAetModel.dicomNetworkConnection[0].cn || this.newAetModel.dicomNetworkConnection[0].cn === ''){
-            this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'Name of the new connection is empty!',
-                'status': 'error'
-            });
+            this.mainservice.showError($localize `:@@name_of_the_new_connection_is_empty:Name of the new connection is empty!`);
         }else{
 
             let hasConnection = false;
@@ -265,11 +261,7 @@ export class CreateAeComponent implements OnInit{
                     }
             });
             if (hasConnection){
-                this.mainservice.setMessage({
-                    'title': 'Error',
-                    'text': 'Connection with that name exist!',
-                    'status': 'error'
-                });
+                this.mainservice.showError($localize `:@@connection_with_that_name_exist:Connection with that name exist!`);
             }else{
                 if (_.hasIn(this.selctedDeviceObject, 'dicomNetworkConnection')){
                     this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
@@ -322,13 +314,13 @@ export class CreateAeComponent implements OnInit{
                             port:this.selectedDicomConnection.dicomPort
                         };
                     }else{
-                        this.mainservice.showError("Multiple DICOM connection selected!");
+                        this.mainservice.showError($localize `:@@multiple_dicom_connection_selected:Multiple DICOM connection selected!`);
                         this.cfpLoadingBar.complete();
                         return;
                     }
                 }else{
                     if(this.dicomConnectionns.length === 0){
-                        this.mainservice.showError("No DICOM connection found!");
+                        this.mainservice.showError($localize `:@@create-ae.no_dicom_connecion:No DICOM connection found!`);
                         this.cfpLoadingBar.complete();
                         return;
                     }else{
@@ -359,14 +351,10 @@ export class CreateAeComponent implements OnInit{
                     this.httpErrorHandler.handleError(err);
                 });
             }else{
-                this.mainservice.showError("No connection found");
+                this.mainservice.showError($localize `:@@create-ae.create-ae.no_connection_found:No connection found`);
             }
         }else{
-            this.mainservice.setMessage({
-                title:"Error",
-                text:"Parameter is missing, check the parameters Host, port, AE Title and Calling AET!",
-                status:"error"
-            })
+            this.mainservice.showError($localize `:@@create-ae.parameter_is_missing_host_port:Parameter is missing, check the parameters Host, port, AE Title and Calling AET!`)
         }
     }
     validAeForm(){

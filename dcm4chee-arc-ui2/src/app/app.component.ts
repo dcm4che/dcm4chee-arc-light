@@ -199,14 +199,14 @@ export class AppComponent implements OnInit {
 
         this.msg.setMsg({
             'title': 'Warning',
-            'text': 'Attribute already exists!',
+            'text': $localize `:@@app.attribute_exist:Attribute already exists!`,
             'status': 'warning',
             'timeout': 50000
         });
         setTimeout(() => {
             this.msg.setMsg({
-                'title': 'Info ',
-                'text': 'Info message!',
+                'title': $localize `:@@app.info:Info `,
+                'text': $localize `:@@app.info_message:@@Info message!`,
                 'status': 'info'
             });
         }, 500);

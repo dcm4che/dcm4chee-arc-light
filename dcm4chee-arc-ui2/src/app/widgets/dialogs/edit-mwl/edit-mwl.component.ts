@@ -145,11 +145,7 @@ export class EditMwlComponent {
                     this.addmwlAttribut           = '';
                     this.opendropdown                 = false;
                 }else{
-                    this.mainservice.setMessage({
-                        'title': 'Warning',
-                        'text': 'Attribute already exists!',
-                        'status': 'warning'
-                    });
+                    this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
                 this._mwl.attrs[attrcode]  = this.iod[attrcode];
@@ -255,11 +251,7 @@ export class EditMwlComponent {
                         this.addmwlAttribut           = '';
                         this.opendropdown                 = false;
                     }else{
-                        this.mainservice.setMessage({
-                            'title': 'Warning',
-                            'text': 'Attribute already exists!',
-                            'status': 'warning'
-                        });
+                        this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                     }
                 }else{
                     this._mwl.attrs[codes[0]].Value[0][codes[1]]  = this.iod[codes[0]].Value[0][codes[1]];
@@ -275,11 +267,7 @@ export class EditMwlComponent {
                     this.addmwlAttribut  = '';
                     this.opendropdown    = false;
                 }else{
-                    this.mainservice.setMessage({
-                        'title': 'Warning',
-                        'text': 'Attribute already exists!',
-                        'status': 'warning'
-                    });
+                    this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
                         this._mwl.attrs[attrcode]  = this.iod[attrcode];

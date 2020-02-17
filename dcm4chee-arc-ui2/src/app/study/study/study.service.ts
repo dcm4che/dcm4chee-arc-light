@@ -273,12 +273,12 @@ export class StudyService {
                         tag: "dummy"
                     });*/
                     orderby = [
-                        new SelectDropdown('00741200', "(asc)  Scheduled Procedure Step Priority"),
-                        new SelectDropdown('-00741200', "(desc) Scheduled Procedure Step Priority"),
-                        new SelectDropdown('00404005', "(asc)  Scheduled Procedure Step Start Date and Time"),
-                        new SelectDropdown('-00404005', "(desc) Scheduled Procedure Step Start Date and Time"),
-                        new SelectDropdown('00404011', "(asc)  Expected Completion Date and Time"),
-                        new SelectDropdown('-00404011', "(desc) Expected Completion Date and Time")
+                        new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
+                        new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
+                        new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
+                        new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
+                        new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
+                        new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
                     ]
                 }else{
                     orderby = Globalvar.ORDERBY_NEW
@@ -291,9 +291,9 @@ export class StudyService {
                     tag: "html-select",
                     options: orderby,
                     filterKey: 'orderby',
-                    text: "Order By",
-                    title: "Order By",
-                    placeholder: "Order By",
+                    text: $localize `:@@study.order_by:Order By`,
+                    title: $localize `:@@study.order_by:Order By`,
+                    placeholder: $localize `:@@study.order_by:Order By`,
                     cssClass: 'study_order'
 
                 });
@@ -305,17 +305,17 @@ export class StudyService {
                         return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
                     }),
                 filterKey: 'webApp',
-                text: "Web App Service",
-                title: "Web App Service",
-                placeholder: "Web App Service",
+                text: $localize `:@@study.web_app_service:Web App Service`,
+                title: $localize `:@@study.web_app_service:Web App Service`,
+                placeholder: $localize `:@@study.web_app_service:Web App Service`,
                 cssClass: 'study_order',
                 showSearchField: true
             });
             schema.push({
                 tag: "button",
                 id: "submit",
-                text: "SUBMIT",
-                description: tab === "diff" ? "Show DIFFs" : "Query Studies"
+                text: $localize `:@@SUBMIT:SUBMIT`,
+                description: tab === "diff" ? $localize `:@@study.show_diffs:Show DIFFs` : $localize `:@@study.query_studies:Query Studies`
             });
             if(tab != "diff" && tab != "uwl"){
                 schema.push({
@@ -325,8 +325,8 @@ export class StudyService {
 /*                schema.push({
                     tag: "button",
                     id: "trigger_diff",
-                    text: "TRIGGER DIFF",
-                    description: "Trigger DIFFs"
+                    text: $localize `:@@study.trigger_diff:TRIGGER DIFF`,
+                    description: $localize `:@@study.trigger_diffs:Trigger DIFFs`
                 });*/
             }
             if(tab != "diff" && tab != "uwl"){
@@ -338,7 +338,7 @@ export class StudyService {
                         text: quantityText.count,
                         showRefreshIcon: true,
                         showDynamicLoader: false,
-                        description: "QUERY ONLY THE COUNT"
+                        description: $localize `:@@study.query_only_the_count:QUERY ONLY THE COUNT`
                     });
                 }else{
                     schema.push({
@@ -353,7 +353,7 @@ export class StudyService {
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     text: quantityText.size,
-                    description: "QUERY ONLY THE SIZE"
+                    description: $localize `:@@study.query_only_the_size:QUERY ONLY THE SIZE`
                 })
             }
         }
@@ -952,7 +952,7 @@ export class StudyService {
                                 click: (e) => {
                                     e.selected = !e.selected;
                                 },
-                                title: "Select",
+                                title: $localize `:@@select:Select`,
                                 showIf: (e, config) => {
                                     return !config.showCheckboxes && !e.selected;
                                 }
@@ -966,7 +966,7 @@ export class StudyService {
                                     console.log("e", e);
                                     e.selected = !e.selected;
                                 },
-                                title: "Unselect",
+                                title: $localize `:@@unselect:Unselect`,
                                 showIf: (e, config) => {
                                     return !config.showCheckboxes && e.selected;
                                 }
@@ -983,7 +983,7 @@ export class StudyService {
                                         action: "pdq_patient"
                                     }, e);
                                 },
-                                title: "Query Patient Demographics Service",
+                                title: $localize `:@@study.query_patient_demographics_service:Query Patient Demographics Service`,
                                 showIf: (e, config) => {
                                     return options.appService['xRoad'] || (options.appService.global['PDQs'] && options.appService.global['PDQs'].length > 0);
                                 }
@@ -1004,7 +1004,7 @@ export class StudyService {
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
-                                title: 'Edit this Patient',
+                                title: $localize `:@@study.edit_this_patient:Edit this Patient`,
                                 permission: {
                                     id: 'action-studies-patient',
                                     param: 'edit'
@@ -1023,7 +1023,7 @@ export class StudyService {
                                         action: "delete_patient"
                                     }, e);
                                 },
-                                title: 'Delete this Patient',
+                                title: $localize `:@@study.delete_this_patient:Delete this Patient`,
                                 permission: {
                                     id: 'action-studies-patient',
                                     param: 'delete'
@@ -1053,7 +1053,7 @@ export class StudyService {
                                 },showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
-                                title: 'Add new MWL',
+                                title: $localize `:@@study.add_new_mwl:Add new MWL`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'create'
@@ -1072,7 +1072,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: 'Upload file',
+                                title: $localize `:@@study.upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
@@ -1080,7 +1080,7 @@ export class StudyService {
                             }, {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
+                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1092,7 +1092,7 @@ export class StudyService {
                                 },showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
-                                title: 'Download as CSV',
+                                title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1110,7 +1110,7 @@ export class StudyService {
                                         action: "open_viewer"
                                     }, e);
                                 },
-                                title: 'Open patient in the viewer',
+                                title: $localize `:@@study.open_patient_in_the_viewer:Open patient in the viewer`,
                                 permission: {
                                     id: 'action-studies-viewer',
                                     param: 'visible'
@@ -1138,10 +1138,10 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: "Toggle Attributes"
+                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -1239,7 +1239,7 @@ export class StudyService {
                                 }
                                 // actions.call(this, 'study_arrow',e);
                             },
-                            title: ((string,...keys) => {
+                            title: ((string,...keys) => {  //TODO change the code so you can use $localize
                                 let msg = "Studies";
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
@@ -1266,7 +1266,7 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription: ((string,...keys) => {
+                    headerDescription: ((string,...keys) => { //TODO change the code so you can use $localize
                         let msg = "Studies";
                         switch (options.studyConfig.tab) {
                             case "mwl":
@@ -1282,58 +1282,58 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient's Name",
+                    header: $localize `:@@study.patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: "Patient's Name",
+                    headerDescription: $localize `:@@study.patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient ID",
+                    header: $localize `:@@study.patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: "Patient ID",
+                    headerDescription: $localize `:@@study.patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Issuer of Patient",
+                    header: $localize `:@@study.issuer_of_patient:Issuer of Patient`,
                     pathToValue: "00100021.Value[0]",
-                    headerDescription: "Issuer of Patient ID",
+                    headerDescription: $localize `:@@study.issuer_of_patient_id:Issuer of Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Birth Date",
+                    header: $localize `:@@study.birth_date:Birth Date`,
                     pathToValue: "00100030.Value[0]",
-                    headerDescription: "Patient's Birth Date",
+                    headerDescription: $localize `:@@study.patients_birth_date:Patient's Birth Date`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Sex",
+                    header: $localize `:@@sex:Sex`,
                     pathToValue: "00100040.Value[0]",
-                    headerDescription: "Patient's Sex",
+                    headerDescription: $localize `:@@study.patients_sex:Patient's Sex`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Patient Comments",
+                    header: $localize `:@@study.patient_comments:Patient Comments`,
                     pathToValue: "00104000.Value[0]",
-                    headerDescription: "Patient Comments",
+                    headerDescription: $localize `:@@study.patient_comments:Patient Comments`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#S",
+                    header: $localize `:@@number_of_patient_related_studies:#S`,
                     pathToValue: "00201200.Value[0]",
-                    headerDescription: "Number of Patient Related Studies",
+                    headerDescription: $localize `:@@study.number_of_patient_related_studies:Number of Patient Related Studies`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 })
@@ -1363,7 +1363,7 @@ export class StudyService {
                                 click: (e) => {
                                     e.selected = !e.selected;
                                 },
-                                title: "Select",
+                                title: $localize `:@@select:Select`,
                                 showIf: (e, config) => {
                                     return !config.showCheckboxes && !e.selected;
                                 }
@@ -1377,7 +1377,7 @@ export class StudyService {
                                     console.log("e", e);
                                     e.selected = !e.selected;
                                 },
-                                title: "Unselect",
+                                title: $localize `:@@unselect:Unselect`,
                                 showIf: (e, config) => {
                                     return !config.showCheckboxes && e.selected;
                                 }
@@ -1395,7 +1395,7 @@ export class StudyService {
                                         action: "edit_study"
                                     }, e);
                                 },
-                                title: 'Edit this study',
+                                title: $localize `:@@study.edit_this_study:Edit this study`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -1416,7 +1416,7 @@ export class StudyService {
                                         action: "modify_expired_date"
                                     }, e);
                                 },
-                                title: 'Set/Change expired date',
+                                title: $localize `:@@set_change_expired_date:Set/Change expired date`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -1437,7 +1437,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? 'Restore study' : 'Reject study',
+                                title: options.trash.active ? $localize `:@@study.restore_study:Restore study` : $localize `:@@study.reject_study:Reject study`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: options.trash.active ? 'restore' : 'reject'
@@ -1455,7 +1455,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
-                                title: 'Verify storage commitment',
+                                title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -1477,7 +1477,7 @@ export class StudyService {
                                         mode: "uncompressed"
                                     }, e);
                                 },
-                                title: 'Retrieve Study uncompressed',
+                                title: $localize `:@@study.retrieve_study_uncompressed:Retrieve Study uncompressed`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1496,7 +1496,7 @@ export class StudyService {
                                         mode: "compressed",
                                     }, e);
                                 },
-                                title: 'Retrieve Study as stored at the archive',
+                                title: $localize `:@@study.retrieve_study_as_stored_at_the_archive:Retrieve Study as stored at the archive`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1514,7 +1514,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: 'Upload file',
+                                title: $localize `:@@study.upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
@@ -1532,7 +1532,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: 'Export study',
+                                title: $localize `:@@study.export_study:Export study`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'export'
@@ -1550,7 +1550,7 @@ export class StudyService {
                                         action: "delete"
                                     }, e);
                                 },
-                                title: 'Delete study permanently',
+                                title: $localize `:@@study.delete_study_permanently:Delete study permanently`,
                                 showIf: (e) => {
                                     return (options.trash.active ||
                                         (
@@ -1567,7 +1567,7 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
+                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1577,7 +1577,7 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },
-                                title: "Download as CSV",
+                                title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -1598,7 +1598,7 @@ export class StudyService {
                                         action: "update_access_control_id"
                                     }, e);
                                 },
-                                title: "Update Study Access Control ID",
+                                title: $localize `:@@study.update_study_access_control_id:Update Study Access Control ID`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -1619,7 +1619,7 @@ export class StudyService {
                                         action: "open_viewer"
                                     }, e);
                                 },
-                                title: 'Open study in the viewer',
+                                title: $localize `:@@study.open_study_in_the_viewer:Open study in the viewer`,
                                 permission: {
                                     id: 'action-studies-viewer',
                                     param: 'visible'
@@ -1647,7 +1647,7 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: "Toggle Attributes"
+                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`
                         }
                     ],
                     headerDescription: "Actions",
@@ -1669,7 +1669,7 @@ export class StudyService {
                                     action: "toggle_series"
                                 }, e);
                             },
-                            title: "Hide Series",
+                            title: $localize `:@@study.hide_series:Hide Series`,
                             showIf: (e) => {
                                 return e.showSeries
                             },
@@ -1690,7 +1690,7 @@ export class StudyService {
                                     action: "toggle_series"
                                 }, e);
                             },
-                            title: "Show Series",
+                            title: $localize `:@@study.show_series:Show Series`,
                             showIf: (e) => {
                                 return !e.showSeries
                             },
@@ -1700,87 +1700,87 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription: "Show studies",
+                    headerDescription: $localize `:@@study.show_studies:Show studies`,
                     widthWeight: 0.3,
                     calculatedWidth: "6%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study ID",
+                    header: $localize `:@@study.study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
-                    headerDescription: "Study ID",
+                    headerDescription: $localize `:@@study.study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }), new TableSchemaElement({
                     type: "value",
-                    header: "Study Instance UID",
+                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     pathToValue: "[0020000D].Value[0]",
-                    headerDescription: "Study Instance UID",
+                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Date",
+                    header: $localize `:@@study.study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
-                    headerDescription: "Study Date",
+                    headerDescription: $localize `:@@study.study_date:Study Date`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Time",
+                    header: $localize `:@@study.study_time:Study Time`,
                     pathToValue: "[00080030].Value[0]",
-                    headerDescription: "Study Time",
+                    headerDescription: $localize `:@@study.study_time:Study Time`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "R. Physician's Name",
+                    header: $localize `:@@study.r._physicians_name:R. Physician's Name`,
                     pathToValue: "[00080090].Value[0].Alphabetic",
-                    headerDescription: "Referring Physician's Name",
+                    headerDescription: $localize `:@@study.referring_physicians_name:Referring Physician's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Accession Number",
+                    header: $localize `:@@study.accession_number:Accession Number`,
                     pathToValue: "[00080050].Value[0]",
-                    headerDescription: "Accession Number",
+                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Modalities",
+                    header: $localize `:@@mobalities:Modalities`,
                     pathToValue: "[00080061].Value",
-                    headerDescription: "Modalities in Study",
+                    headerDescription: $localize `:@@study.modalities_in_study:Modalities in Study`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Description",
+                    header: $localize `:@@study.study_description:Study Description`,
                     pathToValue: "[00081030].Value[0]",
-                    headerDescription: "Study Description",
+                    headerDescription: $localize `:@@study.study_description:Study Description`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#S",
+                    header: $localize `:@@number_of_study_related_series:#S`,
                     pathToValue: "[00201206].Value[0]",
-                    headerDescription: "Number of Study Related Series",
+                    headerDescription: $localize `:@@study.number_of_study_related_series:Number of Study Related Series`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#I",
+                    header: $localize `:@@number_of_related_instances:#I`,
                     pathToValue: "[00201208].Value[0]",
-                    headerDescription: "Number of Study Related Instances",
+                    headerDescription: $localize `:@@study.number_of_study_related_instances:Number of Study Related Instances`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 })
@@ -1814,7 +1814,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? 'Restore series' : 'Reject series',
+                                title: options.trash.active ? $localize `:@@study.restore_series:Restore series` : $localize `:@@study.reject_series:Reject series`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: options.trash.active ? 'restore' : 'reject'
@@ -1832,7 +1832,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
-                                title: 'Verify storage commitment',
+                                title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
@@ -1851,7 +1851,7 @@ export class StudyService {
                                         mode: "uncompressed"
                                     }, e);
                                 },
-                                title: 'Retrieve Series uncompressed',
+                                title: $localize `:@@study.retrieve_series_uncompressed:Retrieve Series uncompressed`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1870,7 +1870,7 @@ export class StudyService {
                                         mode: "compressed",
                                     }, e);
                                 },
-                                title: 'Retrieve Series as stored at the archive',
+                                title: $localize `:@@study.retrieve_series_as_stored_at_the_archive:Retrieve Series as stored at the archive`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1888,7 +1888,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: 'Upload file',
+                                title: $localize `:@@study.upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1907,7 +1907,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: 'Export series',
+                                title: $localize `:@@study.export_series:Export series`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'export'
@@ -1915,7 +1915,7 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
-                                    cssClass: 'custom_icon csv_icon_black',
+                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1926,7 +1926,7 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },
-                                title: 'Download as CSV',
+                                title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1950,7 +1950,7 @@ export class StudyService {
                             click: (e) => {
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: "Show attributes"
+                            title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
                     headerDescription: "Actions",
@@ -1972,7 +1972,7 @@ export class StudyService {
                                     action: "toggle_instances"
                                 }, e);
                             },
-                            title: "Hide Instances",
+                            title: $localize `:@@study.hide_instances:Hide Instances`,
                             showIf: (e) => {
                                 return e.showInstances
                             },
@@ -1993,7 +1993,7 @@ export class StudyService {
                                     action: "toggle_instances"
                                 }, e);
                             },
-                            title: "Show Instaces",
+                            title: $localize `:@@study.show_instaces:Show Instaces`,
                             showIf: (e) => {
                                 return !e.showInstances
                             },
@@ -2003,72 +2003,72 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription: "Show Instances",
+                    headerDescription: $localize `:@@study.show_instances:Show Instances`,
                     widthWeight: 0.2,
                     calculatedWidth: "6%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Station Name",
+                    header: $localize `:@@study.station_name:Station Name`,
                     pathToValue: "00081010.Value[0]",
-                    headerDescription: "Station Name",
+                    headerDescription: $localize `:@@study.station_name:Station Name`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Series Number",
+                    header: $localize `:@@study.series_number:Series Number`,
                     pathToValue: "00200011.Value[0]",
-                    headerDescription: "Series Number",
+                    headerDescription: $localize `:@@study.series_number:Series Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "PPS Start Date",
+                    header: $localize `:@@study.pps_start_date:PPS Start Date`,
                     pathToValue: "00400244.Value[0]",
-                    headerDescription: "Performed Procedure Step Start Date",
+                    headerDescription: $localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "PPS Start Time",
+                    header: $localize `:@@study.pps_start_time:PPS Start Time`,
                     pathToValue: "00400245.Value[0]",
-                    headerDescription: "Performed Procedure Step Start Time",
+                    headerDescription: $localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Body Part",
+                    header: $localize `:@@study.body_part:Body Part`,
                     pathToValue: "00180015.Value[0]",
-                    headerDescription: "Body Part Examined",
+                    headerDescription: $localize `:@@study.body_part_examined:Body Part Examined`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Modality",
+                    header: $localize `:@@modality:Modality`,
                     pathToValue: "00080060.Value[0]",
-                    headerDescription: "Modality",
+                    headerDescription: $localize `:@@modality:Modality`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Series Description",
+                    header: $localize `:@@study.series_description:Series Description`,
                     pathToValue: "0008103E.Value[0]",
-                    headerDescription: "Series Description",
+                    headerDescription: $localize `:@@study.series_description:Series Description`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#I",
+                    header: `:@@number_of_related_instances:#I`,
                     pathToValue: "00201209.Value[0]",
-                    headerDescription: "Number of Series Related Instances",
+                    headerDescription: $localize `:@@study.number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 })
@@ -2102,7 +2102,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? 'Restore instance' : 'Reject instance',
+                                title: options.trash.active ? $localize `:@@study.restore_instance:Restore instance` : $localize `:@@study.reject_instance:Reject instance`,
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: options.trash.active ? 'restore' : 'reject'
@@ -2120,7 +2120,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
-                                title: 'Verify storage commitment',
+                                title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
@@ -2140,7 +2140,7 @@ export class StudyService {
                                         mode: "uncompressed"
                                     }, e);
                                 },
-                                title: 'Download Uncompressed DICOM Object',
+                                title: $localize `:@@study.download_uncompressed_dicom_object:Download Uncompressed DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2160,7 +2160,7 @@ export class StudyService {
                                         mode: "compressed",
                                     }, e);
                                 },
-                                title: 'Download DICOM Object',
+                                title: $localize `:@@study.download_dicom_object:Download DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2178,7 +2178,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: 'Export instance',
+                                title: $localize `:@@study.export_instance:Export instance`,
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: 'export'
@@ -2197,7 +2197,7 @@ export class StudyService {
                                         action: "view"
                                     }, e);
                                 },
-                                title: 'View DICOM Object',
+                                title: $localize `:@@study.view_dicom_object:View DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2222,7 +2222,7 @@ export class StudyService {
                                 e.showFileAttributes = false;
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: 'Show attributes'
+                            title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
                     headerDescription: "Actions",
@@ -2242,7 +2242,7 @@ export class StudyService {
                                 e.showAttributes = false;
                                 e.showFileAttributes = !e.showFileAttributes;
                             },
-                            title: 'Show attributes from file'
+                            title: $localize `:@@study.show_attributes_from_file:Show attributes from file`
                         }
                     ],
                     headerDescription: "Actions",
@@ -2250,41 +2250,41 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SOP Class UID",
+                    header: $localize `:@@study.sop_class_uid:SOP Class UID`,
                     pathToValue: "00080016.Value[0]",
-                    headerDescription: "SOP Class UID",
+                    headerDescription: $localize `:@@study.sop_class_uid:SOP Class UID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Instance Number",
+                    header: $localize `:@@study.instance_number:Instance Number`,
                     pathToValue: "00200013.Value[0]",
-                    headerDescription: "Instance Number",
+                    headerDescription: $localize `:@@study.instance_number:Instance Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Content Date",
+                    header: $localize `:@@study.content_date:Content Date`,
                     pathToValue: "00080023.Value[0]",
-                    headerDescription: "Content Date",
+                    headerDescription: $localize `:@@study.content_date:Content Date`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Content Time",
+                    header: $localize `:@@study.content_time:Content Time`,
                     pathToValue: "00080033.Value[0]",
-                    headerDescription: "Content Time",
+                    headerDescription: $localize `:@@study.content_time:Content Time`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "pipe",
-                    header: "Content Description",
-                    headerDescription: "Content Description",
+                    header: $localize `:@@study.content_description:Content Description`,
+                    headerDescription: $localize `:@@study.content_description:Content Description`,
                     widthWeight: 1.5,
                     calculatedWidth: "20%",
                     pipe: new DynamicPipe(ContentDescriptionPipe, undefined)
@@ -2293,7 +2293,7 @@ export class StudyService {
                     type: "value",
                     header: "#F",
                     pathToValue: "00280008.Value[0]",
-                    headerDescription: "Number of Frames",
+                    headerDescription: $localize `:@@study.number_of_frames:Number of Frames`,
                     widthWeight: 0.3,
                     calculatedWidth: "20%"
                 })
@@ -2327,7 +2327,7 @@ export class StudyService {
                                         action: "edit_mwl"
                                     }, e);
                                 },
-                                title: 'Edit MWL',
+                                title: $localize `:@@study.edit_mwl:Edit MWL`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -2351,7 +2351,7 @@ export class StudyService {
                                 },showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
-                                title: 'Delete MWL',
+                                title: $localize `:@@study.delete_mwl:Delete MWL`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'delete'
@@ -2369,7 +2369,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: 'Upload file',
+                                title: $localize `:@@study.upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'upload'
@@ -2393,7 +2393,7 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: 'Show attributes'
+                            title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
                     headerDescription: "Actions",
@@ -2401,74 +2401,74 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Requested Procedure ID",
+                    header: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
                     pathToValue: "00401001.Value[0]",
-                    headerDescription: "Requested Procedure ID",
+                    headerDescription: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Instance UID",
+                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     pathToValue: "0020000D.Value[0]",
-                    headerDescription: "Study Instance UID",
+                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     widthWeight: 3.5,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SPS Start Date",
+                    header: $localize `:@@study.sps_start_date:SPS Start Date`,
                     pathToValue: "00400100.Value[0].00400002.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Start Date",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SPS Start",
+                    header: $localize `:@@study.sps_start:SPS Start`,
                     pathToValue: "00400100.Value[0].00400003.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Start Time",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SP Physician's Name",
+                    header: $localize `:@@study.sp_physicians_name:SP Physician's Name`,
                     pathToValue: "00400100.Value[0].00400006.Value[0]",
-                    headerDescription: "Scheduled Performing Physician's Name",
+                    headerDescription: $localize `:@@study.scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Accession Number",
+                    header: $localize `:@@study.accession_number:Accession Number`,
                     pathToValue: "00080050.Value[0]",
-                    headerDescription: "Accession Number",
+                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Modality",
+                    header:  $localize `:@@modality:Modality`,
                     pathToValue: "00400100.Value[0].00080060.Value[0]",
-                    headerDescription: "Modality",
+                    headerDescription:  $localize `:@@modality:Modality`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Description",
+                    header:  $localize `:@@description:Description`,
                     pathToValue: "00400100.Value[0].00400007.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Description",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_description:Scheduled Procedure Step Description`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SS AET",
+                    header: $localize `:@@study.ss_aet:SS AET`,
                     pathToValue: "00400100.Value[0].00400001.Value",
-                    headerDescription: "Scheduled Station AE Title",
+                    headerDescription: $localize `:@@study.scheduled_station_ae_title:Scheduled Station AE Title`,
                     widthWeight: 1.5,
                     calculatedWidth: "20%"
                 })
@@ -2502,7 +2502,7 @@ export class StudyService {
                                         action: "uwl_mwl"
                                     }, e);
                                 },
-                                title: 'Edit UWL',
+                                title: $localize `:@@study.edit_uwl:Edit UWL`,
                                 permission: {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
@@ -2521,7 +2521,7 @@ export class StudyService {
                                         action: "delete_uwl"
                                     }, e);
                                 },
-                                title: 'Delete UWL',
+                                title: $localize `:@@study.delete_uwl:Delete UWL`,
                                 permission: {
                                     id: 'action-studies-uwl',
                                     param: 'delete'
@@ -2539,7 +2539,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: 'Upload file',
+                                title: $localize `:@@study.upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'upload'
@@ -2564,7 +2564,7 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: 'Show attributes'
+                            title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
                     headerDescription: "Actions",
@@ -2572,68 +2572,68 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Worklist Label",
+                    header: $localize `:@@study.worklist_label:Worklist Label`,
                     pathToValue: "00741202.Value[0]",
-                    headerDescription: "Worklist Label",
+                    headerDescription: $localize `:@@study.worklist_label:Worklist Label`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Input Readiness",
+                    header: $localize `:@@study.input_readiness:Input Readiness`,
                     pathToValue: "00404041.Value[0]",
-                    headerDescription: "Input Readiness State",
+                    headerDescription: $localize `:@@study.input_readiness_state:Input Readiness State`,
                     widthWeight: 1.4,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Procedure Step",
+                    header: $localize `:@@study.procedure_step:Procedure Step`,
                     pathToValue: "00741000.Value[0]",
-                    headerDescription: "Procedure Step State",
+                    headerDescription: $localize `:@@study.procedure_step_state:Procedure Step State`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Step Priority",
+                    header: $localize `:@@study.step_priority:Step Priority`,
                     pathToValue: "00741200.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Priority",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_priority:Scheduled Procedure Step Priority`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Start Date and Time",
+                    header: $localize `:@@study.start_date_and_time:Start Date and Time`,
                     pathToValue: "00404005.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Start Date and Time",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_date_and_time:Scheduled Procedure Step Start Date and Time`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Procedure Step Label",
+                    header: $localize `:@@study.procedure_step_label:Procedure Step Label`,
                     pathToValue: "00741204.Value[0]",
-                    headerDescription: "Procedure Step Label",
+                    headerDescription: $localize `:@@study.procedure_step_label:Procedure Step Label`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
 
                 new TableSchemaElement({
                     type: "value",
-                    header: "E. Completion Time",
+                    header: $localize `:@@study.e._completion_time:E. Completion Time`,
                     pathToValue: "00404011.Value[0]",
-                    headerDescription: "Expected Completion Date and Time",
+                    headerDescription: $localize `:@@study.expected_completion_date_and_time:Expected Completion Date and Time`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Step M. Date and Time",
+                    header: $localize `:@@study.step_m._date_and_time:Step M. Date and Time`,
                     pathToValue: "00404010.Value[0]",
-                    headerDescription: "Scheduled Procedure Step Modification Date and Time",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_modification_date_and_time:Scheduled Procedure Step Modification Date and Time`,
                     widthWeight: 4,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
@@ -2659,100 +2659,100 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: 'Show attributes'
+                            title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study ID",
+                    header: $localize `:@@study.study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
                     showBorderPath:"[00200010].showBorder",
-                    headerDescription: "Study ID",
+                    headerDescription: $localize `:@@study.study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Instance UID",
+                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     pathToValue: "[0020000D].Value[0]",
                     showBorderPath:"[0020000D].showBorder",
-                    headerDescription: "Study Instance UID",
+                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Date",
+                    header: $localize `:@@study.study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
                     showBorderPath:"[00080020].showBorder",
-                    headerDescription: "Study Date",
+                    headerDescription: $localize `:@@study.study_date:Study Date`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Time",
+                    header: $localize `:@@study.study_time:Study Time`,
                     pathToValue: "[00080030].Value[0]",
                     showBorderPath:"[00080030].showBorder",
-                    headerDescription: "Study Time",
+                    headerDescription: $localize `:@@study.study_time:Study Time`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "SP Physician's Name",
+                    header: $localize `:@@study.sp_physicians_name:SP Physician's Name`,
                     pathToValue: "00400100.Value[0].00400006.Value[0]",
                     showBorderPath:"00400100.Value[0].00400006.showBorder",
-                    headerDescription: "Scheduled Performing Physician's Name",
+                    headerDescription: $localize `:@@study.scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Accession Number",
+                    header: $localize `:@@study.accession_number:Accession Number`,
                     pathToValue: "[00080050].Value[0]",
                     showBorderPath:"[00080050].showBorder",
-                    headerDescription: "Accession Number",
+                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Modalities",
+                    header: $localize `:@@modalities:Modalities`,
                     pathToValue: "[00080061].Value[0]",
                     showBorderPath:"[00080061].showBorder",
-                    headerDescription: "Modalities in Study",
+                    headerDescription: $localize `:@@study.modalities_in_study:Modalities in Study`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "Study Description",
+                    header: $localize `:@@study.study_description:Study Description`,
                     pathToValue: "[00081030].Value[0]",
                     showBorderPath:"[00081030].showBorder",
-                    headerDescription: "Study Description",
+                    headerDescription: $localize `:@@study.study_description:Study Description`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#S",
+                    header: $localize `:@@studynumber:#S`,
                     pathToValue: "[00201206].Value[0]",
                     showBorderPath:"[00201206].showBorder",
-                    headerDescription: "Number of Study Related Series",
+                    headerDescription: $localize `:@@study.number_of_study_related_series:Number of Study Related Series`,
                     widthWeight: 0.4,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: "#I",
+                    header: $localize `:@@number_of_instances:#I`,
                     pathToValue: "[00201208].Value[0]",
                     showBorderPath:"[00201208].showBorder",
-                    headerDescription: "Number of Study Related Instances",
+                    headerDescription: $localize `:@@study.number_of_study_related_instances:Number of Study Related Instances`,
                     widthWeight: 0.4,
                     calculatedWidth: "20%"
                 })
@@ -2804,7 +2804,7 @@ export class StudyService {
                             }
                         }
                     ],
-                    headerDescription: "Select",
+                    headerDescription: $localize `:@@select:Select`,
                     pxWidth: 40
                 }))
             });
@@ -2851,7 +2851,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, study, header);
         }
-        return throwError({error: "Error on getting the WebApp URL"});
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
 
     getModifyStudyUrl(deviceWebservice: StudyWebService) {
@@ -2871,7 +2871,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, mwl, header);
         }
-        return throwError({error: "Error on getting the WebApp URL"});
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
 
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
@@ -2879,7 +2879,7 @@ export class StudyService {
         if (url) {
             return this.$http.post(url, uwl, header);
         }
-        return throwError({error: "Error on getting the WebApp URL"});
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
 
     getModifyMWLUrl(deviceWebservice: StudyWebService) {
@@ -2950,7 +2950,7 @@ export class StudyService {
 
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
-            return throwError({error:"Multi patient merge is not supported!"});
+            return throwError({error:$localize `:@@multi_patient_merge_not_supported:Multi patient merge is not supported!`});
         }else{
             return this.getModifyPatientUrl(deviceWebservice)
             .switchMap((url:string)=>{
@@ -2977,7 +2977,7 @@ export class StudyService {
                         return this.$http.post(url, patientObject);
                     }
                 }
-                return throwError({error: "Error on getting the needed WebApp (with one of the web service classes \"DCM4CHEE_ARC_AET\" or \"PAM\")"});
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
             })
     }
 
@@ -3012,7 +3012,7 @@ export class StudyService {
                 })[0];*/
             } catch (e) {
                 j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
-                return throwError(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`);
+                return throwError($localize `:@@error_on_getting_param_webapp:Error on getting the ${alternativeWebServiceClass}:@@webappcass: WebApp getModifyPatientUrl`);
             }
         }
     }
@@ -3130,18 +3130,18 @@ export class StudyService {
 
     getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
         let expiredDate: Date;
-        let title = "Set expired date for the study.";
+        let title = $localize `:@@study.set_expired_date_for_the_study.:Set expired date for the study.`;
         let schema: any = [
             [
                 [
                     {
                         tag: "label",
-                        text: "Expired date"
+                        text: $localize `:@@study.expired_date:Expired date`
                     },
                     {
                         tag: "p-calendar",
                         filterKey: "expiredDate",
-                        description: "Expired Date"
+                        description: $localize `:@@study.expired_date:Expired Date`
                     }
                 ]
             ]
@@ -3153,24 +3153,24 @@ export class StudyService {
                     setExpirationDateToNever: false,
                     FreezeExpirationDate: false
                 };
-                title = "Unfreeze/Unprotect Expiration Date of the Study";
+                title = $localize `:@@unfreeze_expiration_date:Unfreeze/Unprotect Expiration Date of the Study`;
                 schema = [
                     [
                         [
                             {
                                 tag: "label",
-                                text: "Expired Date"
+                                text: $localize `:@@study.expired_date:Expired Date`
                             },
                             {
                                 tag: "p-calendar",
                                 filterKey: "expiredDate",
-                                description: "Expired Date"
+                                description: $localize `:@@study.expired_date:Expired Date`
                             }
                         ]
                     ]
                 ];
             } else {
-                title = "Freeze/Protect Expiration Date of the Study";
+                title = $localize `:@@freeze_expiration_date:Freeze/Protect Expiration Date of the Study`;
                 schemaModel = {
                     setExpirationDateToNever: true,
                     FreezeExpirationDate: true
@@ -3180,7 +3180,7 @@ export class StudyService {
                         [
                             {
                                 tag: "label",
-                                text: "Expired date",
+                                text: $localize `:@@study.expired_date:Expired date`,
                                 showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
@@ -3188,7 +3188,7 @@ export class StudyService {
                             {
                                 tag: "p-calendar",
                                 filterKey: "expiredDate",
-                                description: "Expired Date",
+                                description: $localize `:@@study.expired_date:Expired Date`,
                                 showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
@@ -3200,8 +3200,8 @@ export class StudyService {
                         {
                             tag: "checkbox",
                             filterKey: "setExpirationDateToNever",
-                            description: "Set Expiration Date to 'never' if you want also to protect the study",
-                            text: "Set Expiration Date to 'never' if you want also to protect the study"
+                            description: $localize `:@@study.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`,
+                            text: $localize `:@@study.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`
                         }
                     ], [
                         {
@@ -3210,8 +3210,8 @@ export class StudyService {
                         {
                             tag: "checkbox",
                             filterKey: "FreezeExpirationDate",
-                            description: "Freeze Expiration Date",
-                            text: "Freeze Expiration Date"
+                            description: $localize `:@@study.freeze_expiration_date:Freeze Expiration Date`,
+                            text: $localize `:@@study.freeze_expiration_date:Freeze Expiration Date`
                         }
                     ]
                     ]
@@ -3231,12 +3231,12 @@ export class StudyService {
             schema[0].push([
                 {
                     tag: "label",
-                    text: "Exporter"
+                    text: $localize `:@@exporter:Exporter`
                 },
                 {
                     tag: "select",
                     filterKey: "exporter",
-                    description: "Exporter",
+                    description: $localize `:@@exporter:Exporter`,
                     options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
                 }])
         }
@@ -3246,7 +3246,7 @@ export class StudyService {
             result: {
                 schema_model: schemaModel
             },
-            saveButton: 'SAVE'
+            saveButton: $localize `:@@SAVE:SAVE`
         };
     }
 
@@ -3441,7 +3441,7 @@ export class StudyService {
                             });
                             return check;
                         }else{
-                            j4care.log("No role found in the property dcmProperty of WebApp",webApp);
+                            j4care.log($localize `:@@study.no_role_found_in_the_property_dcmproperty_of_webapp:No role found in the property dcmProperty of WebApp`,webApp);
                             return true;
                         }
                     }else{
@@ -3471,7 +3471,7 @@ export class StudyService {
             return roles;
         }catch (e) {
             console.log("webApp=",webApp);
-            j4care.log("Something went wrong on extracting roles from dcmProperty of WebApp",e);
+            j4care.log($localize `:@@study.something_went_wrong_on_extracting_roles_from_dcmproperty_of_webapp:Something went wrong on extracting roles from dcmProperty of WebApp`,e);
             return [];
         }
     }

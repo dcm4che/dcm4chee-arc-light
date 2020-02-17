@@ -1,7 +1,7 @@
 <div class="input_block" *ngIf="cohereMode"><input type="text" [ngClass]="{'ng-invalid':(!validString)}"  [(ngModel)]="model" placeholder="{{placeholder}}" (ngModelChange)="change($event)"/><span (click)="toggle()" class="glyphicon glyphicon-time"></span></div>
 <div class="timepicker" [ngClass]="{'cohere':cohereMode}" *ngIf="timepickerOpen">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <h6>Select time (hh:mm:ss)</h6>
+    <h6 i18n="@@time-picker.title">Select time (hh:mm:ss)</h6>
     <div class="timers_block">
         <select [(ngModel)]="hh">
             <option value="{{h}}" *ngFor="let h of hhArray">{{h}}</option>
@@ -16,8 +16,8 @@
         </select>
     </div>
     <div class="btn_content">
-        <button class="btn set_time" (click)="addTime()">Set time</button>
+        <button class="btn set_time" (click)="addTime()" i18n="@@set_time">Set time</button>
         <button class="btn" (click)="setTo00()">00:00</button>
-        <button class="btn" (click)="setToNow()">Now</button>
+        <button class="btn" (click)="setToNow()" i18n="@@time-picker.now">Now</button>
     </div>
 </div>

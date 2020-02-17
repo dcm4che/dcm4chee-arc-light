@@ -14,16 +14,16 @@ export class StorageCommitmentService {
     statusValue = [
         {
             value:"PENDING",
-            text:"PENDING"
+            text:$localize `:@@PENDING:PENDING`
         },{
             value:"COMPLETED",
-            text:"COMPLETED"
+            text:$localize `:@@COMPLETED:COMPLETED`
         },{
             value:"WARNING",
-            text:"WARNING"
+            text:$localize `:@@WARNING:WARNING`
         },{
             value:"FAILED",
-            text:"FAILED"
+            text:$localize `:@@FAILED:FAILED`
         }
     ];
     search(filters, offset) {
@@ -79,28 +79,28 @@ export class StorageCommitmentService {
                         }),
                         showStar:true,
                         filterKey:"ExporterID",
-                        description:"Exporter ID",
-                        placeholder:"Exporter ID"
+                        description:$localize `:@@storage-commitment.exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@storage-commitment.exporter_id:Exporter ID`
                     },
                     {
                         tag:"select",
                         options:this.statusValue,
                         filterKey:"status",
                         showStar:true,
-                        description:"Status of tasks to filter by",
-                        placeholder:"Status"
+                        description:$localize `:@@storage-commitment.status_of_tasks_to_filter_by:Status of tasks to filter by`,
+                        placeholder:$localize `:@@status:Status`
                     }
                 ],
                 [
                     {
                         tag:"label",
-                        text:"Page Size"
+                        text:$localize `:@@storage-commitment.page_size:Page Size`
                     },
                     {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:"Page Size"
+                        description:$localize `:@@storage-commitment.page_size:Page Size`
                     }
                 ]
             ],[
@@ -109,22 +109,22 @@ export class StorageCommitmentService {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyUID",
-                        description:"Study Instance UID",
-                        placeholder:"Study Instance UID"
+                        description:$localize `:@@storage-commitment.study_instance_uid:Study Instance UID`,
+                        placeholder:$localize `:@@storage-commitment.study_instance_uid:Study Instance UID`
                     },{
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
+                        description:$localize `:@@storage-commitment.batch_id:Batch ID`,
+                        placeholder:$localize `:@@storage-commitment.batch_id:Batch ID`
                     }
                 ],
                 [
                     {
                         tag:"button",
                         id:"submit",
-                        text:"SUBMIT",
-                        description:"Get Storage commitments"
+                        text:$localize `:@@SUBMIT:SUBMIT`,
+                        description:$localize `:@@storage-commitment.get_storage_commitments:Get Storage commitments`
                     },{
                         tag:"dummy"
                     }

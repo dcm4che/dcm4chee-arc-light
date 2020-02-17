@@ -1,10 +1,10 @@
 <div class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="dictionary_widget_search" [(ngModel)]="filter" placeholder="  Search..">
+    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder placeholder="  Search..">
     <div class="dictionary_widget" >
         <ul class="list">
             <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)">{{dictionary.key}} : {{dictionary.text}}</li>
         </ul>
-        <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0">Searched element not found!</div>
+        <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0" i18n="@@searched_element_not_found">Searched element not found!</div>
     </div>
 </div>

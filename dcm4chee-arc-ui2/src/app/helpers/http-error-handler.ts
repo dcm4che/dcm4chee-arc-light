@@ -13,21 +13,21 @@ export class HttpErrorHandler {
                 if(_.hasIn(error,"message") || _.hasIn(error,"error.errorMessage")){
                     if(_.hasIn(error,"error.errorMessage")){
                         this.mainservice.setMessage({
-                            'title': 'Error ' + (error.status||''),
+                            'title': $localize `:@@http-error-handler.error:Error ${(error.status || '')}`,
                             'text': _.get(error,"error.errorMessage"),
                             'status': 'error'
                         });
                     }else{
                         if(_.hasIn(error,"error") && error.error.indexOf("java") > -1){
                             this.mainservice.setMessage({
-                                'title': 'Error ' + error.status,
+                                'title': $localize `:@@http-error-handler.error:Error ${error.status}`,
                                 'text': error.statusText + '!',
                                 'status': 'error',
                                 'detailError': error.error
                             });
                         }else{
                             this.mainservice.setMessage({
-                                'title': 'Error ' + (error.status||''),
+                                'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
                                 'text': error["message"],
                                 'status': 'error'
                             });
@@ -36,7 +36,7 @@ export class HttpErrorHandler {
                 }else{
                     if(_.hasIn(error, "[00000902].Value[0]")){
                         this.mainservice.setMessage({
-                            'title': 'Error ' + (error.status||''),
+                            'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
                             'text': `${_.get(error,"[00000902].Value[0]")}<br>${(_.hasIn(error,'["00081198"].Value["0"]["00081197"].Value["0"]') ? 'Failure Reason:' + _.get(error,'["00081198"].Value["0"]["00081197"].Value["0"]'):'')}`,
                             'status': 'error'
                         });
@@ -56,7 +56,7 @@ export class HttpErrorHandler {
                                 msg = msgObject["errorMessage"];
                             }
                             this.mainservice.setMessage({
-                                'title': 'Error ' + (error.status||''),
+                                'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
                                 'text': msg,
                                 'status': 'error'
                             });
@@ -77,7 +77,7 @@ export class HttpErrorHandler {
                     }*/
                 }else{
                     this.mainservice.setMessage({
-                        'title': 'Error ' + error.status,
+                        'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
                         'text': error.statusText + '!',
                         'status': 'error',
                         'detailError': error._body
@@ -86,7 +86,7 @@ export class HttpErrorHandler {
             }
         }else{
             this.mainservice.setMessage({
-                'title': 'Error ' + error.status,
+                'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
                 'text': error.statusText,
                 'status': 'error'
             });

@@ -83,11 +83,11 @@ export class DynamicFormComponent implements OnInit{
                     order = 0;
                 }else{
                     if (3 <= m.order && m.order  < 4) {
-                        title = 'Child Objects';
+                        title = $localize `:@@dynamic-form.child_objects:Child Objects`;
                         materialIconName = 'subdirectory_arrow_right';
                         order = 2;
                     }else{
-                        title = 'Attributes';
+                        title = $localize `:@@attributes:Attributes`;
                         materialIconName = 'list';
                         order = 4;
                     }

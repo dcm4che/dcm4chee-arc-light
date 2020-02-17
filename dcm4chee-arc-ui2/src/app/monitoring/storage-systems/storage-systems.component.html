@@ -1,7 +1,7 @@
 <div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2>Storage systems</h2>
+        <h2 i18n="html.storage_systems">Storage systems</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
@@ -12,16 +12,16 @@
                 <tr>
                     <th colspan="2">
                     </th>
-                    <th>Storage ID</th>
-                    <th>Storage URI</th>
-                    <th>Read Only</th>
-                    <th>Storage Cluster ID</th>
-                    <th>AE Title</th>
-                    <th>Space ( Usable / Total )</th>
-                    <th>Used</th>
-                    <th>Storage Duration</th>
-                    <th>Export Storage ID / External Retrieve AET</th>
-                    <th>Deleter / Storage Threshold</th>
+                    <th i18n="@@storage_id">Storage ID</th>
+                    <th i18n="@@storage_uri">Storage URI</th>
+                    <th i18n="@@read_only">Read Only</th>
+                    <th i18n="@@storage_cluster_id">Storage Cluster ID</th>
+                    <th i18n="@@ae_title">AE Title</th>
+                    <th i18n="@@space_usable_total">Space ( Usable / Total )</th>
+                    <th i18n="@@used">Used</th>
+                    <th i18n="@@storage_duration">Storage Duration</th>
+                    <th i18n="@@export_storage_id_external_retrieve_aet">Export Storage ID / External Retrieve AET</th>
+                    <th i18n="@@deleter_storage_threshold">Deleter / Storage Threshold</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +29,7 @@
                     <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                         <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                         <td>
-                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title title="Show Properties">
                                 <span class="glyphicon glyphicon-list"></span>
                             </a>
                         </td>

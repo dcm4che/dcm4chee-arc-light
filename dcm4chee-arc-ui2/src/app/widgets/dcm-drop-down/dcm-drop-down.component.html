@@ -33,7 +33,7 @@
                   </div>
               </li>
               <li class="option" *ngIf="!options || options.length === 0" (click)="select('')">
-                 <div class="dcm_input_value">
+                 <div class="dcm_input_value" i18n="@@no_elements_found">
                   No Elements found
                  </div>
               </li>
@@ -49,7 +49,7 @@
                       </div>
                   </li>
                   <li class="option" *ngIf="!group || group.length === 0" (click)="select('')">
-                      <div class="dcm_input_value">
+                      <div class="dcm_input_value" i18n="@@no_elements_found">
                           No Elements found
                       </div>
                   </li>

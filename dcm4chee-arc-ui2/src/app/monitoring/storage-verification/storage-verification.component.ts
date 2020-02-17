@@ -33,20 +33,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     count;
     timer = {
       started:false,
-      startText:"Start Auto Refresh",
-      stopText:"Stop Auto Refresh"
+      startText:$localize `:@@storage-verification.start_auto_refresh:Start Auto Refresh`,
+      stopText:$localize `:@@storage-verification.stop_auto_refresh:Stop Auto Refresh`
     };
     allActionsActive = [];
     allActionsOptions = [
       {
           value:"cancel",
-          label:"Cancel all matching tasks"
+          label:$localize `:@@storage-verification.cancel_all_matching_tasks:Cancel all matching tasks`
       },{
           value:"reschedule",
-          label:"Reschedule all matching tasks"
+          label:$localize `:@@storage-verification.reschedule_all_matching_tasks:Reschedule all matching tasks`
       },{
           value:"delete",
-          label:"Delete all matching tasks"
+          label:$localize `:@@storage-verification.delete_all_matching_tasks:Delete all matching tasks`
       }
     ];
     allAction;
@@ -143,64 +143,64 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
+                        description:$localize `:@@storage-verification.batch_id:Batch ID`,
+                        placeholder:$localize `:@@storage-verification.batch_id:Batch ID`
                     },
                     {
                         tag:"select",
                         options:[
                             {
                                 value:"DB_RECORD_EXISTS",
-                                text:"DB_RECORD_EXISTS",
-                                title:"Check for existence of DB records"
+                                text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
+                                title:$localize `:@@storage-verification.check_for_existence_of_db_records:Check for existence of DB records`
                             },
                             {
                                 value:"OBJECT_EXISTS",
-                                text:"OBJECT_EXISTS",
-                                title:"check if object exists on Storage System"
+                                text:$localize `:@@OBJECT_EXISTS:OBJECT_EXISTS`,
+                                title:$localize `:@@storage-verification.check_if_object_exists_on_storage_system:check if object exists on Storage System`
                             },
                             {
                                 value:"OBJECT_SIZE",
-                                text:"OBJECT_SIZE",
-                                title:"check size of object on Storage System"
+                                text:$localize `:@@OBJECT_SIZE:OBJECT_SIZE`,
+                                title:$localize `:@@storage-verification.check_size_of_object_on_storage_system:check size of object on Storage System`
                             },
                             {
                                 value:"OBJECT_FETCH",
-                                text:"OBJECT_FETCH",
-                                title:"Fetch object from Storage System"
+                                text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
+                                title:$localize `:@@storage-verification.fetch_object_from_storage_system:Fetch object from Storage System`
                             },
                             {
                                 value:"OBJECT_CHECKSUM",
-                                text:"OBJECT_CHECKSUM",
-                                title:"recalculate checksum of object on Storage System"
+                                text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
+                                title:$localize `:@@storage-verification.recalculate_checksum_of_object_on_storage_system:recalculate checksum of object on Storage System`
                             },
                             {
                                 value:"S3_MD5SUM",
-                                text:"S3_MD5SUM",
-                                title:"Check MD5 checksum of object on S3 Storage System"
+                                text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
+                                title:$localize `:@@storage-verification.check_md5_checksum_of_object_on_s3_storage_system:Check MD5 checksum of object on S3 Storage System`
                             }
                         ],
                         showStar:true,
                         filterKey:"storageVerificationPolicy",
-                        description:"Verification Policy",
-                        placeholder:"Verification Policy"
+                        description:$localize `:@@storage-verification.verification_policy:Verification Policy`,
+                        placeholder:$localize `:@@storage-verification.verification_policy:Verification Policy`
                     },
                     {
                         tag:"checkbox",
                         filterKey:"storageVerificationUpdateLocationStatus",
-                        text:"Update location",
-                        description:"Update Location DB"
+                        text:$localize `:@@storage-verification.update_location:Update location`,
+                        description:$localize `:@@storage-verification.update_location_db:Update Location DB`
                     },
                     {
                         tag:"checkbox",
                         filterKey:"storageVerificationFailed",
-                        text:"Failed verification",
-                        description:"Failed storage verification"
+                        text:$localize `:@@storage-verification.failed_verification:Failed verification`,
+                        description:$localize `:@@storage-verification.failed_storage_verification:Failed storage verification`
                     },
                     {
                         tag:"button",
-                        text:"TRIGGER",
-                        description:"TRIGGER"
+                        text:$localize `:@@TRIGGER:TRIGGER`,
+                        description:$localize `:@@TRIGGER:TRIGGE`
                     }
                 ]
         ]);
@@ -233,7 +233,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             let aet = filter["aet"];
             delete filter["aet"];
             this.service.scheduleStorageVerification(filter, aet).subscribe((res)=>{
-                this.mainservice.showMsg('Storage Verification scheduled successfully!');
+                this.mainservice.showMsg($localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`);
                 this.cfpLoadingBar.complete();
                 setTimeout(()=>{
                     this.filterObject["batchID"] = filter["batchID"] || this.service.getUniqueID();
@@ -246,7 +246,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 this.httpErrorHandler.handleError(err);
             });
         }else{
-            this.mainservice.showError("Aet is required!");
+            this.mainservice.showError($localize `:@@aet_required:Aet is required!`);
             this.cfpLoadingBar.complete();
         }
     }
@@ -288,7 +288,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       //TODO
     }
     allActionChanged(e){
-        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = Object.assign({}, this.filterObject);
         delete filter.limit;
         delete filter.offset;
@@ -300,11 +300,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     case "cancel":
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted}:@@deleted: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -320,11 +316,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res) => {
-                                    this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': res.count + ' tasks rescheduled successfully!',
-                                        'status': 'info'
-                                    });
+                                    this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                                     this.cfpLoadingBar.complete();
                                 }, (err) => {
                                     this.cfpLoadingBar.complete();
@@ -337,11 +329,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     case "delete":
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.deleted + ' tasks deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -393,10 +381,10 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     };
     downloadCsv(){
         this.confirm({
-            content:"Do you want to use semicolon as delimiter?",
-            cancelButton:"No",
-            saveButton:"Yes",
-            result:"yes"
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@No:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
             let semicolon = false;
             if(ok)
@@ -475,11 +463,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.storageVerifications = [];
-                    $this.mainservice.setMessage({
-                        'title': 'Info',
-                        'text': 'No tasks found!',
-                        'status': 'info'
-                    });
+                    this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                 }
                 this.moreTasks = res.length > this.filterObject['limit'];
                 if(this.moreTasks)
@@ -501,7 +485,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     onFormChange(filters){
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
+            if(filters.status == "SCHEDULED" || filters.status == $localize `:@@storage-verification.in_process:IN PROCESS`){
                 return o.value != 'reschedule';
             }else{
                 if(filters.status === '*' || !filters.status || filters.status === '')
@@ -513,11 +497,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.setMessage({
-                'title': 'Info',
-                'text': res.deleted + ' tasks deleted successfully!',
-                'status': 'info'
-            });
+            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getTasks(filters);
@@ -530,7 +510,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         console.log("in action",mode,"match",match);
         if(mode && match && match.pk){
             this.confirm({
-                content: `Are you sure you want to ${mode} this task?`
+                content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
             }).subscribe(ok => {
                 if (ok){
                     switch (mode) {
@@ -547,11 +527,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                                 (res) => {
                                                     this.getTasks(this.filterObject['offset'] || 0);
                                                     this.cfpLoadingBar.complete();
-                                                    this.mainservice.setMessage({
-                                                        'title': 'Info',
-                                                        'text': 'Task rescheduled successfully!',
-                                                        'status': 'info'
-                                                    });
+                                                    this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
                                                 },
                                                 (err) => {
                                                     this.cfpLoadingBar.complete();
@@ -569,11 +545,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                         // match.properties.status = 'CANCELED';
                                         this.cfpLoadingBar.complete();
                                         this.getTasks(this.filterObject['offset'] || 0);
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task deleted successfully!',
-                                            'status': 'info'
-                                        });
+                                        this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
                                     },
                                     (err) => {
                                         this.cfpLoadingBar.complete();
@@ -587,11 +559,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                     (res) => {
                                         match.status = 'CANCELED';
                                         this.cfpLoadingBar.complete();
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task canceled successfully!',
-                                            'status': 'info'
-                                        });
+                                        this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
                                     },
                                     (err) => {
                                         this.cfpLoadingBar.complete();

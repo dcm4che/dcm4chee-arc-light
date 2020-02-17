@@ -1,21 +1,21 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5>Upload image,video or pdf to study</h5>
+        <h5 i18n="@@upload-file.title">Upload image,video or pdf to study</h5>
         <div class="content">
 <!--            <label>Select the ae title:</label>
             <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                 <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
             </mat-select>-->
             <ng-container *ngIf="!fromExternalWebApp">
-                <label>Select the STOW-RS server:</label>
+                <label i18n="@@select_the_stow_rs_server">Select the STOW-RS server:</label>
                 <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
-            <label>Chose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,video/quicktime,application/pdf" multiple>
+            <label i18n="@@chose_a_file_to_upload">Chose a File to upload:</label><br>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder placeholder="Upload file"  accept="image/jpeg,video/mpeg,video/mp4,video/quicktime,application/pdf" multiple>
             <ng-container *ngIf="isImage">
-                <label>Captured Image Type:</label>
+                <label i18n="@@captured_image_type">Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
                     <mat-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</mat-option>
                 </mat-select>
@@ -25,7 +25,7 @@
                 &lt;!&ndash;<label title="Series Description">Instance Number:</label><input type="number" [(ngModel)]="instanceNumber"><br>&ndash;&gt;
                 <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
             </ng-container>-->
-            <button class="edit_attribute_button" *ngIf="file" (click)="showMoreAttributes()">Edit Attributes</button>
+            <button class="edit_attribute_button" *ngIf="file" (click)="showMoreAttributes()" i18n="edit_attributes">Edit Attributes</button>
 
             <div class="edit_attribute_block" *ngIf="moreAttributes && file">
                 <edit-study [study]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>
@@ -45,8 +45,8 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="upload()">START UPLOADING</button>
-            <button class="cancle" type="button" (click)="close(dialogRef)">CLOSE</button>
+            <button class="save" type="button" (click)="upload()" i18n="@@START_UPLOADING">START UPLOADING</button>
+            <button class="cancle" type="button" (click)="close(dialogRef)" i18n="@@CLOSE">CLOSE</button>
         </div>
     </div>
 </div>

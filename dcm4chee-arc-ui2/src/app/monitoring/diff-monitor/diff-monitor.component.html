@@ -1,7 +1,7 @@
 <div class="main_content queues monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2>Diff monitoring</h2>
+        <h2 i18n="@@html.diff_monitoring">Diff monitoring</h2>
         <div class="filter_line" (keyup)="keyUp($event)">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)" [filterTreeHeight]="3"></filter-generator>
@@ -18,7 +18,7 @@
                         <div class="option_block">
                             <div class="interval_block">
                                 <label>Interval:</label>
-                                <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                                <input type="text" i18n-placeholder placeholder="Interval" [(ngModel)]="interval">
                                 <span>s</span>
                             </div>
                             <button class="btn-default submit" (click)="toggleAutoRefresh()">

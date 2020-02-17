@@ -10,7 +10,7 @@ export class FormatAttributeValuePipe implements PipeTransform {
           if (value && value.Value && value.Value.length) {
               switch (value.vr) {
                   case 'SQ':
-                      return value.Value.length + ' Item(s)';
+                      return value.Value.length + $localize `:@@items: Item(s)`;
                   case 'PN':
                       if (value.Value && value.Value[0]){
                           return value.Value.map(function(value){

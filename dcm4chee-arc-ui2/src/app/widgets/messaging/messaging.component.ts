@@ -46,7 +46,7 @@ export class MessagingComponent implements OnDestroy{
             width: '60%'
         });
         this.dialogRef.componentInstance.info = {
-            title: 'Error detail',
+            title: $localize `:@@messaging.error_detail:Error detail`,
             content: m.detailError
         };
         this.dialogRef.afterClosed().subscribe();
@@ -60,7 +60,7 @@ export class MessagingComponent implements OnDestroy{
         if(!msg.status)
             msg.status = 'info';
         if(!msg.status && !msg.title){
-            msg.title = "Info";
+            msg.title = $localize `:@@info:Info`;
             msg.status = 'info';
         }
         if (this.msg && this.msg.length > 0){

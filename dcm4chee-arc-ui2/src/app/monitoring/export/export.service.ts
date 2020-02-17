@@ -112,7 +112,7 @@ export class ExportService {
                 [
                     {
                         tag:"label_large",
-                        text:text || "Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:"
+                        text:text || $localize `:@@export.change_exporter_text:Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:`
                     }
                 ],
                 [
@@ -142,7 +142,7 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:"Device"
+                        text:$localize `:@@device:Device`
                     },
                     {
                         tag:"select",
@@ -154,8 +154,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"newDeviceName",
-                        description:"Device",
-                        placeholder:"Device"
+                        description:$localize `:@@device:Device`,
+                        placeholder:$localize `:@@device:Device`
                     }
                 ],
                 [
@@ -207,7 +207,7 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:"Limit"
+                        text:$localize `:@@limit:Limit`
                     },
                     {
                         tag:"input",
@@ -235,7 +235,7 @@ export class ExportService {
                         filterKey:"status",
                         showStar:true,
                         description:$localize `:@@export.status_of_tasks_to_filter_by:Status of tasks to filter by`,
-                        placeholder:"Status"
+                        placeholder:$localize `:@@status:Status`
                     }
                 ]
             ],[
@@ -256,25 +256,25 @@ export class ExportService {
                         tag:"select",
                         options:[{
                             value:'createdTime',
-                            text:'Sort by creation time (ASC)'
+                            text: $localize `:@@sort_by_creation_time_asc:Sort by creation time (ASC)`
                         },
                             {
                                 value:'-createdTime',
-                                text:'Sort by creation time (DESC)'
+                                text: $localize `:@@sort_by_creation_time_desc:Sort by creation time (DESC)`
                             },
                             {
                                 value:'updatedTime',
-                                text:'Sort by updated time (ASC)'
+                                text: $localize `:@@sort_by_updated_time_asc:Sort by updated time (ASC)`
                             },
                             {
                                 value:'-updatedTime',
-                                text:'Sort by updated time (DESC)'
+                                text: $localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
                             }
                         ],
                         showStar:true,
                         filterKey:"orderby",
-                        description:"Sort",
-                        placeholder:"Sort"
+                        description:$localize `:@@sort:Sort`,
+                        placeholder:$localize `:@@sort:Sort`
                     },
                     {
                         tag:"input",
@@ -294,7 +294,7 @@ export class ExportService {
                     {
                         tag:"button",
                         id:"submit",
-                        text:"SUBMIT",
+                        text:$localize `:@@SUBMIT:SUBMIT`,
                         description:$localize `:@@export.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ]

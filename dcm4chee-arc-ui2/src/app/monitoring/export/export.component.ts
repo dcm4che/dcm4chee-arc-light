@@ -20,7 +20,6 @@ import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {map} from "rxjs/operators";
-import { loadTranslations } from '@angular/localize';
 
 
 @Component({
@@ -202,10 +201,10 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     downloadCsv(){
         this.confirm({
-            content:"Do you want to use semicolon as delimiter?",
-            cancelButton:"No",
-            saveButton:"Yes",
-            result:"yes"
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@No:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
             let semicolon = false;
             if(ok)
@@ -238,18 +237,18 @@ export class ExportComponent implements OnInit, OnDestroy {
                     tag:"input",
                     type:"checkbox",
                     filterKey:"semicolon",
-                    description:$localize `:@@export.use_semicolon_as_delimiter:Use semicolon as delimiter`
+                    description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
                 },
                 {
                     tag:"input",
                     type:"checkbox",
                     filterKey:"withoutScheduling",
-                    description:$localize `:@@export.without_scheduling:Without Scheduling`
+                    description:$localize `:@@without_scheduling:Without Scheduling`
                 },{
                     tag:"range-picker-time",
                     type:"text",
                     filterKey:"scheduledTime",
-                    description:$localize `:@@export.scheduled_times:Scheduled times`
+                    description:$localize `:@@scheduled_times:Scheduled times`
                 },
                 //scheduledTime
                 {
@@ -257,8 +256,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     options:this.aets,
                     showStar:true,
                     filterKey:"LocalAET",
-                    description:$localize `:@@export.local_aet:Local AET`,
-                    placeholder:$localize `:@@export.local_aet:Local AET`,
+                    description:$localize `:@@local_aet:Local AET`,
+                    placeholder:$localize `:@@local_aet:Local AET`,
                     validation:Validators.required
                 },
                 {
@@ -271,15 +270,15 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }),
                     showStar:true,
                     filterKey:"exporterID",
-                    description:$localize `:@@export.exporter_id:Exporter ID`,
-                    placeholder:$localize `:@@export.exporter_id:Exporter ID`,
+                    description:$localize `:@@exporter_id:Exporter ID`,
+                    placeholder:$localize `:@@exporter_id:Exporter ID`,
                     validation:Validators.required
                 },{
                     tag:"input",
                     type:"number",
                     filterKey:"field",
-                    description:"Field",
-                    placeholder:"Field",
+                    description:$localize `:@@field:Field`,
+                    placeholder:$localize `:@@field:Field`,
                     validation:Validators.minLength(1),
                     defaultValue:1
                 },
@@ -287,8 +286,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                     tag:"input",
                     type:"text",
                     filterKey:"batchID",
-                    description:$localize `:@@export.batch_id:Batch ID`,
-                    placeholder:$localize `:@@export.batch_id:Batch ID`
+                    description:$localize `:@@batch_id:Batch ID`,
+                    placeholder:$localize `:@@batch_id:Batch ID`
                 }
             ],
             prepareUrl:(filter)=>{
@@ -361,7 +360,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.matches = [];
-                    this.mainservice.showMsg('No tasks found!')
+                    this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                 }
             }, (err) => {
                 $this.cfpLoadingBar.complete();
@@ -400,7 +399,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         });*/
     }
     allActionChanged(e){
-        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let text =  $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = _.cloneDeep(this.filterObject);
         if(filter.status === '*')
             delete filter.status;
@@ -416,7 +415,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if (ok) {
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter).subscribe((res) => {
-                            this.mainservice.showMsg(res.count + ' queues deleted successfully!')
+                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.count} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -438,7 +437,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             filter["scheduledTime"] = ok.schema_model.scheduledTime;
                         }
                         this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
-                            this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
+                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count} tasks rescheduled successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -456,7 +455,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(filter).subscribe((res)=>{
-                            this.mainservice.showMsg(res.deleted + ' tasks deleted successfully!');
+                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -494,7 +493,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             result: {
                 schema_model: schema_model || {}
             },
-            saveButton: 'SUBMIT'
+            saveButton: $localize `:@@SUBMIT:SUBMIT`
         }).subscribe((ok)=>{
                 callBack.call(this, ok);
         });
@@ -520,7 +519,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
                                 .subscribe(
                                     (res) => {
-                                        this.mainservice.showMsg(`Task ${match.properties.pk} rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@task_rescheduled:Task ${match.properties.pk}:@@taskid: rescheduled successfully!`);
                                         if(this.matches.length === i+1){
                                             this.cfpLoadingBar.complete();
                                         }
@@ -543,7 +542,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             ////
         }else{
             this.confirm({
-                content: `Are you sure you want to ${mode} selected entries?`
+                content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
             }).subscribe(result => {
                 if (result){
                     this.cfpLoadingBar.start();
@@ -575,7 +574,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
-            content: 'Are you sure you want to delete all tasks to this batch?'
+            content: $localize `:@@task_delete_question:Are you sure you want to delete all tasks to this batch?`
         }).subscribe(ok=>{
             if(ok){
                 if(batchedTask.properties.batchID){
@@ -584,7 +583,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.showMsg(res.deleted + ' tasks deleted successfully!');
+                        this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted}:@@deleted: tasks deleted successfully!`);
                         this.cfpLoadingBar.complete();
                         this.search(0);
                     }, (err) => {
@@ -592,7 +591,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.httpErrorHandler.handleError(err);
                     });
                 }else{
-                    this.mainservice.showError('Batch ID not found!');
+                    this.mainservice.showError($localize `:@@batch_id_not_found:Batch ID not found!`);
                 }
             }
         });
@@ -600,11 +599,11 @@ export class ExportComponent implements OnInit, OnDestroy {
     delete(match){
         let $this = this;
         let parameters: any = {
-            content: 'Are you sure you want to delete this task?',
+            content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`,
             result: {
                 select: this.exporters[0].id
             },
-            saveButton: 'DELETE'
+            saveButton: $localize `:@@DELETE:DELETE`
         };
         this.confirm(parameters).subscribe(result => {
             if (result){
@@ -615,7 +614,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             // match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             $this.search(0);
-                            this.mainservice.showMsg('Task deleted successfully!')
+                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -627,11 +626,11 @@ export class ExportComponent implements OnInit, OnDestroy {
     cancel(match) {
         let $this = this;
         let parameters: any = {
-            content: 'Are you sure you want to cancel this task?',
+            content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`,
             result: {
                 select: this.exporters[0].id
             },
-            saveButton: 'YES'
+            saveButton: $localize `:@@YES:YES`
         };
         this.confirm(parameters).subscribe(result => {
             if (result){
@@ -641,7 +640,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         (res) => {
                             match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            this.mainservice.showMsg('Task canceled successfully!')
+                            this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -669,7 +668,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
                     .subscribe(
                         (res) => {
-                            this.mainservice.showMsg(`Task ${match.properties.pk} rescheduled successfully!`);
+                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                                 this.cfpLoadingBar.complete();
                         },
                         (err) => {

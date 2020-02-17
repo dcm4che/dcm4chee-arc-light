@@ -21,27 +21,27 @@ export class StorageVerificationService {
       return [
           {
               value:"SCHEDULED",
-              text:"SCHEDULED"
+              text:$localize `:@@SCHEDULED:SCHEDULED`
           },
           {
               value:"IN PROCESS",
-              text:"IN PROCESS"
+              text:$localize `:@@queues.in_process:IN PROCESS`
           },
           {
               value:"COMPLETED",
-              text:"COMPLETED"
+              text:$localize `:@@COMPLETED:COMPLETED`
           },
           {
               value:"WARNING",
-              text:"WARNING"
+              text:$localize `:@@WARNING:WARNING`
           },
           {
               value:"FAILED",
-              text:"FAILED"
+              text:$localize `:@@FAILED:FAILED`
           },
           {
               value:"CANCELED",
-              text:"CANCELED"
+              text:$localize `:@@CANCELED:CANCELED`
           }
       ];
     }
@@ -62,7 +62,7 @@ export class StorageVerificationService {
           {
               type:"index",
               title:"#",
-              description:"Index",
+              description: $localize `:@@index:Index`,
               widthWeight:0.2,
               calculatedWidth:"4%"
           },{
@@ -89,7 +89,7 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'cancel', e);
                       },
-                      title:'Cancel this task'
+                      title:$localize `:@@storage-verification.cancel_this_task:Cancel this task`
                   },
                   {
                       icon:{
@@ -101,7 +101,7 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'reschedule', e);
                       },
-                      title:'Reschedule this task'
+                      title:$localize `:@@storage-verification.reschedule_this_task:Reschedule this task`
                   },
                   {
                       icon:{
@@ -113,58 +113,58 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'delete', e);
                       },
-                      title:'Delete this task'
+                      title:$localize `:@@storage-verification.delete_this_task:Delete this task`
                   }
               ],
-              description:"Index",
+              description:$localize `:@@index:Index`,
               widthWeight:0.6,
               calculatedWidth:"6%"
           },
           {
               type:"model",
-              title:"Local AET",
+              title:$localize `:@@storage-verification.local_aet:Local AET`,
               key:"LocalAET",
-              description:"Local AET",
+              description:$localize `:@@storage-verification.local_aet:Local AET`,
               widthWeight:0.8,
               calculatedWidth:"20%"
           },
           {
               type:"model",
-              title:"Batch ID",
+              title:$localize `:@@storage-verification.batch_id:Batch ID`,
               key:"batchID",
-              description:"Batch ID",
+              description:$localize `:@@storage-verification.batch_id:Batch ID`,
               widthWeight:0.8,
               calculatedWidth:"20%"
           },
           {
               type:"model",
-              title:"Study Instance UID",
+              title:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`,
               key:"StudyInstanceUID",
-              description:"Study Instance UID",
+              description:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`,
               widthWeight:2,
               calculatedWidth:"20%"
           },
           {
               type:"model",
-              title:"Status",
+              title:$localize `:@@status:Status`,
               key:"status",
-              description:"Status",
+              description:$localize `:@@status:Status`,
               widthWeight:0.7,
               calculatedWidth:"20%"
           },
           {
               type:"model",
-              title:"Storage Policy",
+              title:$localize `:@@storage-verification.storage_policy:Storage Policy`,
               key:"StgCmtPolicy",
-              description:"Storage Verification Policy",
+              description:$localize `:@@storage-verification.storage_verification_policy:Storage Verification Policy`,
               widthWeight:1,
               calculatedWidth:"20%"
           },
           {
               type:"model",
-              title:"Outcome Message",
+              title:$localize `:@@storage-verification.outcome_message:Outcome Message`,
               key:"outcomeMessage",
-              description:"Outcome Message",
+              description:$localize `:@@storage-verification.outcome_message:Outcome Message`,
               widthWeight:4,
               calculatedWidth:"20%"
           }
@@ -175,7 +175,7 @@ export class StorageVerificationService {
             {
                 type:"index",
                 title:"#",
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.2,
                 calculatedWidth:"4%"
             },{
@@ -204,26 +204,26 @@ export class StorageVerificationService {
                         }
                     }
                 ],
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.3,
                 calculatedWidth:"6%"
             },{
                 type:"model",
-                title:"Batch ID",
+                title:$localize `:@@storage-verification.batch_id:Batch ID`,
                 key:"batchID",
-                description:"Batch ID",
+                description:$localize `:@@storage-verification.batch_id:Batch ID`,
                 widthWeight:0.4,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Primary AET",
+                title:$localize `:@@storage-verification.primary_aet:Primary AET`,
                 key:"PrimaryAET",
-                description:"AE Title of the primary C-FIND SCP",
+                description:$localize `:@@aet_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:"Secondary AET",
+                title:$localize `:@@storage-verification.secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
                 description:"AE Title of the secondary C-FIND SCP",
                 widthWeight:1,
@@ -232,35 +232,35 @@ export class StorageVerificationService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Scheduled time range",
+                title:$localize `:@@storage-verification.scheduled_time_range:Scheduled time range`,
                 key:"scheduledTimeRange",
-                description:"Scheduled time range",
+                description:$localize `:@@storage-verification.scheduled_time_range:Scheduled time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Processing start time range",
+                title:$localize `:@@storage-verification.processing_start_time_range:Processing start time range`,
                 key:"processingStartTimeRange",
-                description:"Processing start time range",
+                description:$localize `:@@storage-verification.processing_start_time_range:Processing start time range`,
                 widthWeight:1.4,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Processing end time range",
+                title:$localize `:@@storage-verification.processing_end_time_range:Processing end time range`,
                 key:"processingEndTimeRange",
-                description:"Processing end time range",
+                description:$localize `:@@storage-verification.processing_end_time_range:Processing end time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"progress",
-                title:"Tasks",
-                description:"Tasks",
+                title:$localize `:@@tasks:Tasks`,
+                description:$localize `:@@tasks:Tasks`,
                 key:"tasks",
                 diffMode:false,
                 widthWeight:2,
@@ -276,95 +276,95 @@ export class StorageVerificationService {
             options:devices,
             showStar:true,
             filterKey:"dicomDeviceName",
-            description:"Device Name to filter by",
-            placeholder:"Device Name"
+            description:$localize `:@@storage-verification.device_name_to_filter_by:Device Name to filter by`,
+            placeholder:$localize `:@@storage-verification.device_name:Device Name`
         },
         {
             tag:"select",
             options:localAET,
             showStar:true,
             filterKey:"LocalAET",
-            description:"Archive AE Title to filter by",
-            placeholder:"Archive AE Title"
+            description:$localize `:@@storage-verification.archive_ae_title_to_filter_by:Archive AE Title to filter by`,
+            placeholder:$localize `:@@storage-verification.archive_ae_title:Archive AE Title`
         },
         {
             tag:"input",
             type:"text",
             filterKey:"StudyInstanceUID",
-            description:"Unique Identifier of the Study to filter by",
-            placeholder:"Study Instance UID"
+            description:$localize `:@@storage-verification.unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
+            placeholder:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`
         },
         {
             tag:"select",
             options:this.statusValues(),
             filterKey:"status",
             showStar:true,
-            description:"Status of tasks to filter by",
-            placeholder:"Status"
+            description:$localize `:@@storage-verification.status_of_tasks_to_filter_by:Status of tasks to filter by`,
+            placeholder:$localize `:@@status:Status`
         },
         {
             tag:"range-picker",
             filterKey:"createdTime",
-            description:"Created Date"
+            description:$localize `:@@storage-verification.created_date:Created Date`
         },
         {
             tag:"range-picker",
             filterKey:"updatedTime",
-            description:"Updated Date"
+            description:$localize `:@@storage-verification.updated_date:Updated Date`
         },
         {
             tag:"input",
             type:"text",
             filterKey:"batchID",
-            description:"Batch ID",
-            placeholder:"Batch ID"
+            description:$localize `:@@storage-verification.batch_id:Batch ID`,
+            placeholder:$localize `:@@storage-verification.batch_id:Batch ID`
         },        {
             tag:"select",
             options:[
                 {
                     value:'createdTime',
-                    text:'Sort by creation time (ASC)'
+                    text:$localize `:@@sort_by_creation_time_asc:Sort by creation time (ASC)`
                 },
                 {
                     value:'-createdTime',
-                    text:'Sort by creation time (DESC)'
+                    text:$localize `:@@sort_by_creation_time_desc:Sort by creation time (DESC)`
                 },
                 {
                     value:'updatedTime',
-                    text:'Sort by updated time (ASC)'
+                    text:$localize `:@@sort_by_updated_time_asc:Sort by updated time (ASC)`
                 },
                 {
                     value:'-updatedTime',
-                    text:'Sort by updated time (DESC)'
+                    text:$localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
                 }
             ],
             showStar:true,
             filterKey:"orderby",
-            description:"Sort",
-            placeholder:"Sort"
+            description:$localize `:@@sort:Sort`,
+            placeholder:$localize `:@@sort:Sort`
         },
         {
             tag:"label",
-            text:"Limit"
+            text:$localize `:@@limit:Limit`
         },
         {
             tag:"input",
             type:"number",
             filterKey:"limit",
-            description:"Maximal number of tasks in returned list"
+            description:$localize `:@@storage-verification.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
         },
 
         {
             tag:"button",
             id:"count",
             text:countText,
-            description:"QUERIE ONLY THE COUNT"
+            description:$localize `:@@storage-verification.querie_only_the_count:QUERIE ONLY THE COUNT`
         },
         {
             tag:"button",
             id:"submit",
-            text:"SUBMIT",
-            description:"Maximal number of tasks in returned list"
+            text:$localize `:@@SUBMIT:SUBMIT`,
+            description:$localize `:@@storage-verification.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
         }
     ]
   }

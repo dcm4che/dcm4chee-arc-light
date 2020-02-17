@@ -68,7 +68,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
+            <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')" i18n="@@OK">OK</button>
             <button *ngIf="parameters.saveButton" [disabled]="((parameters.result && parameters.result.input && parameters.result.input === '') || (parameters.result && parameters.result.select && parameters.result.select === ''))" class="save {{parameters.saveButtonClass}}" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">{{((parameters.cancelButton)?parameters.cancelButton:'CANCEL')}}</button>
         </div>

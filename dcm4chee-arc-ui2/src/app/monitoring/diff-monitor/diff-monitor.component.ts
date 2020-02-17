@@ -43,8 +43,8 @@ export class DiffMonitorComponent implements OnInit {
     interval = 10;
     timer = {
         started:false,
-        startText:"Start Auto Refresh",
-        stopText:"Stop Auto Refresh"
+        startText:$localize `:@@diff-monitor.start_auto_refresh:Start Auto Refresh`,
+        stopText:$localize `:@@diff-monitor.stop_auto_refresh:Stop Auto Refresh`
     };
     Object = Object;
     filterTreeHeight = 3;
@@ -54,13 +54,13 @@ export class DiffMonitorComponent implements OnInit {
     allActionsOptions = [
         {
             value:"cancel",
-            label:"Cancel all matching tasks"
+            label:$localize `:@@diff-monitor.cancel_all_matching_tasks:Cancel all matching tasks`
         },{
             value:"reschedule",
-            label:"Reschedule all matching tasks"
+            label:$localize `:@@diff-monitor.reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
             value:"delete",
-            label:"Delete all matching tasks"
+            label:$localize `:@@diff-monitor.delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
     constructor(
@@ -155,10 +155,10 @@ export class DiffMonitorComponent implements OnInit {
         });*/
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,`COUNT ${((this.count || this.count == 0)?this.count:'')}`,this.devices),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count:COUNT ${((this.count || this.count == 0)?this.count:'')}@@count`,this.devices),3);
     }
     allActionChanged(e){
-        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = Object.assign({}, this.filterObject);
         delete filter["limit"];
         delete filter["offset"];
@@ -170,11 +170,7 @@ export class DiffMonitorComponent implements OnInit {
                 switch (this.allAction){
                     case "cancel":
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg($localize `:@@task_delted:${res.count} tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -194,7 +190,7 @@ export class DiffMonitorComponent implements OnInit {
                                     delete filter["limit"];
                                     delete filter["offset"];
                                     this.service.rescheduleAll(filter).subscribe((res)=>{
-                                        this.mainservice.showMsg(res.count + ' tasks rescheduled successfully!');
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count} tasks rescheduled successfully!`);
                                         this.cfpLoadingBar.complete();
                                     }, (err) => {
                                         this.cfpLoadingBar.complete();
@@ -291,11 +287,7 @@ export class DiffMonitorComponent implements OnInit {
                     this.tasks.splice(this.tasks.length-1,1);
                 // this.tasks = tasks;
             }else{
-                this.mainservice.setMessage({
-                    'title': 'Info',
-                    'text': 'No diff tasks found!',
-                    'status': 'info'
-                });
+                this.mainservice.showMsg($localize `:@@diff-monitor.no_diff:No diff tasks found!`);
             }
             this.cfpLoadingBar.complete();
         },err=>{
@@ -305,11 +297,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.setMessage({
-                'title': 'Info',
-                'text': res.deleted + ' tasks deleted successfully!',
-                'status': 'info'
-            });
+            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`);
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getDiffTasks(filters);
@@ -322,7 +310,7 @@ export class DiffMonitorComponent implements OnInit {
         console.log("in action",mode,"match",match);
         if(mode && match && match.pk){
             this.confirm({
-                content: `Are you sure you want to ${mode} this task?`
+                content: $localize `:@@action_task_question:Are you sure you want to ${Globalvar.getActionText(mode)} this task?`
             }).subscribe(ok => {
                 if (ok){
                     switch (mode) {
@@ -339,7 +327,7 @@ export class DiffMonitorComponent implements OnInit {
                                                 (res) => {
                                                     this.getDiffTasks(this.filterObject['offset'] || 0);
                                                     this.cfpLoadingBar.complete();
-                                                    this.mainservice.showMsg('Task rescheduled successfully!');
+                                                    this.mainservice.showMsg($localize `:@@diff-monitor.task_rescheduled:Task rescheduled successfully!`);
                                                 },
                                                 (err) => {
                                                     this.cfpLoadingBar.complete();
@@ -357,11 +345,7 @@ export class DiffMonitorComponent implements OnInit {
                                         // match.properties.status = 'CANCELED';
                                         this.cfpLoadingBar.complete();
                                         this.getDiffTasks(this.filterObject['offset'] || 0);
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task deleted successfully!',
-                                            'status': 'info'
-                                        });
+                                        this.mainservice.showMsg($localize `:@@diff-monitoring.task_deleted:Task deleted successfully!`);
                                     },
                                     (err) => {
                                         this.cfpLoadingBar.complete();
@@ -373,13 +357,9 @@ export class DiffMonitorComponent implements OnInit {
                             this.service.cancel(match.pk)
                                 .subscribe(
                                     (res) => {
-                                        match.status = 'CANCELED';
+                                        match.status = $localize `:@@CANCELED:CANCELED`;
                                         this.cfpLoadingBar.complete();
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Task canceled successfully!',
-                                            'status': 'info'
-                                        });
+                                        this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`);
                                     },
                                     (err) => {
                                         this.cfpLoadingBar.complete();
@@ -453,10 +433,10 @@ export class DiffMonitorComponent implements OnInit {
     }
     downloadCsv(){
         this.confirm({
-            content:"Do you want to use semicolon as delimiter?",
-            cancelButton:"No",
-            saveButton:"Yes",
-            result:"yes"
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@No:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
             let semicolon = false;
             if(ok)

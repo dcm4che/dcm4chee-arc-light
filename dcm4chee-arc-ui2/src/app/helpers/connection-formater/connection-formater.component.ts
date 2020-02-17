@@ -11,7 +11,7 @@ import * as _ from 'lodash';
                     <ng-container *ngIf="connblock.dicomPort">:</ng-container>
                 {{connblock.dicomPort}}
             </span>
-            <i *ngIf="connblock.dicomTLSCipherSuite" title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" >vpn_key</i>
+            <i *ngIf="connblock.dicomTLSCipherSuite" title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
         </div>
     `
 })

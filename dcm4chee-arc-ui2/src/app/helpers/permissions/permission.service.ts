@@ -164,10 +164,7 @@ export class PermissionService {
                 return false;
             }catch (e){
                 console.warn('Are you sure you configured the permissions? ',e);
-                this.mainservice.setMessage({
-                    'text': "Are you sure you configured the permissions?",
-                    'status': 'error'
-                })
+                this.mainservice.showError($localize `:@@are_permission_configured:Are you sure you configured the permissions?`)
             }
         }
     }

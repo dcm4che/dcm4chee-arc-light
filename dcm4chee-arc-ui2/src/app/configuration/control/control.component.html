@@ -1,7 +1,7 @@
 <div class="main_content ctrl white_design">
     <config-tab></config-tab>
     <div class="tab-content">
-        <h2>Archive Control</h2>
+        <h2 i18n="@@control.archive_control">Archive Control</h2>
         <div class="dynamic_table j4care-table">
             <div class="table_header">
                 <div class="tr">
@@ -14,8 +14,8 @@
                         <ng-container *ngIf="table.code === 'actions'">
                             <div class="action_list">
                                 <div (click)="toggleState(devices[key])" [ngClass]="{'running':devices[key].status === 'STARTED','not-running':devices[key].status === 'STOPPED'}" class="pointer action_button glyphicon glyphicon-off"></div>
-                                <div title="Reload archive" (click)="reload(devices[key])" class="pointer action_button glyphicon glyphicon-repeat"></div>
-                                <div title="Fetch status" (click)="fetchStatus(devices[key])" class="pointer action_button glyphicon glyphicon-refresh"></div>
+                                <div i18n-title title="Reload archive" (click)="reload(devices[key])" class="pointer action_button glyphicon glyphicon-repeat"></div>
+                                <div i18n-title title="Fetch status" (click)="fetchStatus(devices[key])" class="pointer action_button glyphicon glyphicon-refresh"></div>
                             </div>
                         </ng-container>
                         <ng-container *ngIf="table.code != 'actions'">

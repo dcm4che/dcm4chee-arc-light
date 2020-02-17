@@ -28,8 +28,8 @@ export class MetricsService {
             filterKey:"name",
             options:nameDescriptors,
             text:"Name",
-            description:"Metrics Name",
-            placeholder:"Metrics Name"
+            description:$localize `:@@metrics_name:Metrics Name`,
+            placeholder:$localize `:@@metrics_name:Metrics Name`
         },
         {
             tag:"editable-select",
@@ -38,22 +38,22 @@ export class MetricsService {
             min:1,
             max:60,
             options:binOptions,
-            description:"Data bin size in minutes",
-            placeholder:"Bin (min)"
+            description:$localize `:@@data_bin_size_in_minutes:Data bin size in minutes`,
+            placeholder:$localize `:@@bin_min:Bin (min)`
         },
         {
           tag:"input",
           type:"number",
           filterKey:"limit",
           min:1,
-          text:"Limit",
-          description:"Maximal number of returned data entries",
-          placeholder:"Limit"
+          text:$localize `:@@limit:Limit`,
+          description:$localize `:@@maximal_number_of_returned_data_entries:Maximal number of returned data entries`,
+          placeholder:$localize `:@@limit:Limit`
         },
         {
           tag:"button",
-          text:"SUBMIT",
-          description:"Get Metrics"
+          text:$localize `:@@SUBMIT:SUBMIT`,
+          description:$localize `:@@get_metrics:Get Metrics`
         }
 
     ];
@@ -66,36 +66,36 @@ export class MetricsService {
         return [
             new TableSchemaElement({
                 type:"value",
-                title:"Time",
-                header:"Time",
+                title:$localize `:@@time:Time`,
+                header:$localize `:@@time:Time`,
                 widthWeight:1,
                 pathToValue:"time"
             }),
             new TableSchemaElement({
                 type:"value",
-                title:"Count",
-                header:"Count",
+                title:$localize `:@@count:Count`,
+                header:$localize `:@@count:Count`,
                 widthWeight:1,
                 pathToValue:"count"
             }),
             new TableSchemaElement({
                 type:"value",
-                title:`Min${unitString}`,
-                header:`Min${unitString}`,
+                title:$localize `:@@min_unit:Min${unitString}`,
+                header:$localize `:@@min_unit:Min${unitString}`,
                 widthWeight:1,
                 pathToValue:"min"
             }),
             new TableSchemaElement({
                 type:"value",
-                header:`Avg${unitString}`,
-                title:`Avg${unitString}`,
+                header:$localize `:@@avg_unit:Avg${unitString}`,
+                title:$localize `:@@avg_unit:Avg${unitString}`,
                 widthWeight:1,
                 pathToValue:"avg"
             }),
             new TableSchemaElement({
                 type:"value",
-                header:`Max${unitString}`,
-                title:`Max${unitString}`,
+                header:$localize `:@@max_unit:Max${unitString}`,
+                title:$localize `:@@max_unit:Max${unitString}`,
                 widthWeight:1,
                 pathToValue:"max"
             })

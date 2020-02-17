@@ -190,7 +190,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         model:undefined
     };
     actionsSelections = {
-        placeholder: "Actions for selections",
+        placeholder: $localize `:@@study.actions_for_selections:Actions for selections`,
         options:[
             new SelectDropdown("toggle_checkboxes", $localize `:@@study.short_toggle_checkboxes:Toggle checkboxes`, $localize `:@@study.toggle_checkboxes:Toggle checkboxes for selection`),
             new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),

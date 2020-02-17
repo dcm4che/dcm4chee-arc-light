@@ -17,7 +17,7 @@
                 <div class="option_block">
                     <div class="interval_block">
                         <label>Interval:</label>
-                        <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                        <input type="text" i18n-placeholder placeholder="Interval" [(ngModel)]="interval">
                         <span>s</span>
                     </div>
                     <button class="btn-default submit" (click)="toggleAutoRefresh()">
@@ -45,16 +45,16 @@
             <div class="filter single_block">
                 <div class="filter_block">
                     <div class="line">
-                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
-                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text">Upload CSV</span></div>
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
+                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text" i18n="@upload_csv">Upload CSV</span></div>
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select class="pull-left"  [(ngModel)]="allAction" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <mat-select class="pull-left"  [(ngModel)]="allAction" i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                             <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                         </mat-select>
-                        <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)">Batch ID grouped</mat-checkbox></div>
+                        <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>
                     </div>
                 </div>
             </div>
@@ -81,13 +81,13 @@
                 <th>
                 </th>
                 <th width="3%"></th>
-                <th>Batch ID</th>
-                <th class="hideOn1200px">Remote AET</th>
-                <th class="hideOn1100px">Destination AET</th>
-                <th class="hideOn1100px">Scheduled Time Range</th>
-                <th class="hideOn1100px">Processing Start Time Range</th>
-                <th class="hideOn1100px">Processing End Time Range</th>
-                <th class="hideOn1100px">Tasks</th>
+                <th i18n="@@batch_id">Batch ID</th>
+                <th class="hideOn1200px" i18n="@@remote_aet">Remote AET</th>
+                <th class="hideOn1100px" i18n="@@destination_aet">Destination AET</th>
+                <th class="hideOn1100px" i18n="@@scheduled_time_range">Scheduled Time Range</th>
+                <th class="hideOn1100px" i18n="@@processing_start_time_range">Processing Start Time Range</th>
+                <th class="hideOn1100px" i18n="@@processing_end_time_range">Processing End Time Range</th>
+                <th class="hideOn1100px" i18n="@@tasks">Tasks</th>
             </tr>
             <tr *ngIf="!batchGrouped">
                 <th>
@@ -95,26 +95,26 @@
                 <th (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-title title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" title="Reschedule selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" title="Delete selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-title title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </div>
                 </th>
-                <th>Modality</th>
-                <th>Study UID</th>
-                <th title="Number of instances">Nr.Inst. </th>
-                <th title="Export Task ID">Exporter ID</th>
-                <th>Status</th>
-                <th>Failures</th>
-                <th title="Scheduled time">Queue time</th>
-                <th title="Processing duration">Export time</th>
-                <th>Device name</th>
+                <th i18n="@@modality">Modality</th>
+                <th i18n="@@study_uid">Study UID</th>
+                <th i18n="@@nr_inst" i18n-title title="Number of instances">Nr.Inst. </th>
+                <th i18n="@@exporter_id" i18n-title title="Export Task ID">Exporter ID</th>
+                <th i18n="@@status">Status</th>
+                <th i18n="@@failures">Failures</th>
+                <th i18n="@@queue_time" i18n-title title="Scheduled time">Queue time</th>
+                <th i18n="@@export_time" i18n-title title="Processing duration">Export time</th>
+                <th i18n="@@device_name">Device name</th>
             </tr>
             </thead>
             <tbody>
@@ -122,13 +122,13 @@
                 <tr *ngIf="batchGrouped">
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show Tasks Detail">
+                        <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" i18n-title title="Show Tasks Detail">
                             <span class="glyphicon glyphicon-list-alt"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" title="Delete Task with this BatchID">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" i18n-title title="Delete Task with this BatchID">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>
@@ -144,16 +144,16 @@
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input type="checkbox" [(ngModel)]="match.checked">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" i18n-title title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

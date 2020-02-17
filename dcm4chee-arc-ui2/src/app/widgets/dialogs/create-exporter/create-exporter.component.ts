@@ -33,8 +33,8 @@ export class CreateExporterComponent implements OnInit{
     externalAeObject;
     queue;
     schema = {
-        "title": "Exporter Descriptor",
-        "description": "Exporter Descriptor",
+        "title": $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
+        "description": $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
         "type": "object",
         "required": [
             "dcmExporterID",
@@ -46,18 +46,18 @@ export class CreateExporterComponent implements OnInit{
         ],
         "properties": {
             "dcmExporterID": {
-                "title": "Exporter ID",
-                "description": "Exporter ID",
+                "title": $localize `:@@create-exporter.exporter_id:Exporter ID`,
+                "description": $localize `:@@create-exporter.exporter_id:Exporter ID`,
                 "type": "string"
             },
             "dcmURI": {
-                "title": "URI",
-                "description": "RFC2079: Uniform Resource Identifier",
+                "title": $localize `:@@URI:URI`,
+                "description": $localize `:@@rfc2079_uniform_resource_identifier:RFC2079: Uniform Resource Identifier`,
                 "type": "string"
             },
             "dcmQueueName": {
-                "title": "Queue Name",
-                "description": "JMS Queue Name",
+                "title": $localize `:@@create-exporter.queue_name:Queue Name`,
+                "description": $localize `:@@create-exporter.jms_queue_name:JMS Queue Name`,
                 "type": "string",
                 "enum" : [
                     "Export1",
@@ -68,16 +68,16 @@ export class CreateExporterComponent implements OnInit{
                 ]
             },
             "dcmExportPriority": {
-                "title": "Export Priority",
-                "description": "JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).",
+                "title": $localize `:@@create-exporter.export_priority:Export Priority`,
+                "description": $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
                 "type": "integer",
                 "default" : 4,
                 "minimum": 0,
                 "maximum": 9
             },
             "dcmInstanceAvailability": {
-                "title": "Instance Availability",
-                "description": "Instance Availability.",
+                "title": $localize `:@@create-exporter.instance_availability:Instance Availability`,
+                "description": $localize `:@@create-exporter.instance_availability.:Instance Availability.`,
                 "type": "string",
                 "default": "ONLINE",
                 "enum": [
@@ -87,8 +87,8 @@ export class CreateExporterComponent implements OnInit{
                 ]
             },
             "dicomAETitle": {
-                "title": "Application Entity (AE) title",
-                "description": "Application Entity (AE) title",
+                "title": $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
+                "description": $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
                 "type": "string",
                 "format": "dcmArchiveAETitle"
             }

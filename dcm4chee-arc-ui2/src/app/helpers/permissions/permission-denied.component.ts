@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
   selector: 'permission-denied',
   template: `
       <div class="main_content">
-        <h2>
+        <h2 i18n="@@permission_denied">
           Permission denied!
         </h2>
       </div>

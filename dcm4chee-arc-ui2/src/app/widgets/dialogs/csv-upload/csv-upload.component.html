@@ -1,5 +1,5 @@
 <div class="modal_form">
-  <h5>Upload csv file with Study Instance UIDs</h5>
+  <h5 i18n="@@csv-upload.upload_csv_title">Upload csv file with Study Instance UIDs</h5>
   <div class="content">
     <form [formGroup]="form" >
     <div class="form_control" *ngFor="let form of params.formSchema">
@@ -27,13 +27,13 @@
       </ng-container>
     </div>
       <div class="form_control">
-        <label>Select CSV-File:</label>
+        <label i18n="@@csv-upload.select_csv_file">Select CSV-File:</label>
         <input type="file" (change)="onFileChange($event)" class="form-control">
       </div>
       <div class="dialogbuttons">
         <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">
           <span *ngIf="showLoader" class="fa fa-circle-o-notch fa-spin csv_upload_loader"></span>
-          Upload
+          <ng-container i18n="@@upload">Upload</ng-container>
         </button>
       </div>
     </form>

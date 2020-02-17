@@ -14,74 +14,74 @@ export class DicomFlatListComponent implements OnInit {
     width;
     table = [
         {
-            title:"Patient's Name",
+            title:$localize `:@@patients_name:Patient's Name`,
             code:"00100010",
-            description:"Patient's Name",
+            description:$localize `:@@patients_name:Patient's Name`,
             widthWeight:1,
             calculatedWidth:"20%"
         },{
-            title:"Patient ID",
+            title:$localize `:@@patient_id:Patient ID`,
             code:"00100020",
-            description:"Patient ID",
+            description:$localize `:@@patient_id:Patient ID`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideMobile"
         },{
-            title:"Birth Date",
+            title:$localize `:@@birth_date:Birth Date`,
             code:"00100030",
-            description:"Patient's Birth Date",
+            description:$localize `:@@patients_birth_date:Patient's Birth Date`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideOn1000px"
         },{
-            title:"Sex",
+            title:$localize `:@@sex:Sex`,
             code:"00100040",
-            description:"Patient's Sex",
+            description:$localize `:@@patients_sex:Patient's Sex`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideOn800px"
         },{
-            title:"Issuer of PID",
+            title:$localize `:@@issuer_of_pid:Issuer of PID`,
             code:"00100021",
-            description:"Issuer of Patient ID",
+            description:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideOn1100px"
         },
         {
-            title:"Study ID",
+            title:$localize `:@@study_id:Study ID`,
             code:"00200010",
-            description:"Study ID",
+            description:$localize `:@@study_id:Study ID`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideOn800px"
         },{
-            title:"Acc. Nr.",
+            title:$localize `:@@acc._nr.:Acc. Nr.`,
             code:"00080050",
-            description:"Accession Number",
+            description:$localize `:@@accession_number:Accession Number`,
             widthWeight:1,
             calculatedWidth:"20%",
             cssClass:"hideOn1400px"
         },
         {
-            title:"Modality",
+            title:$localize `:@@modality:Modality`,
             code:"00080061",
-            description:"Modalities in Study",
+            description:$localize `:@@modalities_in_study:Modalities in Study`,
             widthWeight:0.6,
             calculatedWidth:"20%",
             cssClass:"hideMobile"
         },
         {
-            title:"#S",
+            title:$localize `:@@number_of_patient_related_studies:#S`,
             code:"00201206",
-            description:"Number of Study Related Series",
+            description:$localize `:@@number_of_study_related_series:Number of Study Related Series`,
             widthWeight:0.2,
             calculatedWidth:"20%"
         },
         {
-            title:"#I",
+            title:`:@@number_of_related_instances:#I`,
             code:"00201208",
-            description:"Number of Study Related Instances",
+            description:$localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
             widthWeight:0.2,
             calculatedWidth:"20%"
         }

@@ -2,28 +2,28 @@
     <div class="vex-dialog-form">
         <h5>{{title}}</h5>
         <h6 *ngIf="subTitle">{{subTitle}}</h6>
-        <p *ngIf="count && mode==='multiple'">{{count}} studies selected to be retrieved</p>
+        <p *ngIf="count && mode==='multiple'">{{count}} <ng-container i18n="@@export.studies_selected_to_be_retrieved">studies selected to be retrieved</ng-container></p>
         <div class="content" *ngIf="mode === 'multipleExport'">
             <label *ngIf="noDicomExporters.length === 0" class="text-danger">
-                <input type="radio" name="exportType" value="nonedicom" DISABLED> Create first an exporter!
+                <input type="radio" name="exportType" value="nonedicom" DISABLED> <ng-container i18n="@@export.create_frist_exporter">Create first an exporter!</ng-container>
             </label>
             <ng-container *ngIf="noDicomExporters.length > 0">
                 <div class="noneDicomBlock">
-                    <p>Select the exporter:</p>
+                    <p i18n="@@export.select_exporter">Select the exporter:</p>
                     <mat-select [(ngModel)]="result.selectedExporter">
                         <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
                     </mat-select>
                 </div>
                 <br>
                 <div>
-                    <input type="text" [(ngModel)]="result.batchID" placeholder="Batch ID">
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder placeholder="Batch ID">
                 </div>
                 <br>
                 <label title="If checked the study will not be sent" *ngIf="warning">
-                    <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
+                    <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@export.storage_commitment_without_export">Storage commitment without export</ng-container>
                 </label><br>
                 <label title="If checked the study will not be sent" *ngIf="warning">
-                    <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
+                    <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export">IAN without export</ng-container>
                 </label>
                 <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
                     <span class="text-danger">{{warning}}</span>
@@ -31,18 +31,18 @@
             </ng-container>
         </div>
         <div class="content" *ngIf="externalInternalAetMode === 'internal' &&  mode ==='single'">
-            <p>Select the type of the exporter:</p>
+            <p i18n="@@select_the_type_of_the_exporter">Select the type of the exporter:</p>
             <label>
-                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Synchronised DICOM exporter
+                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> <ng-container i18n="@@synchronised_dicom_exporter">Synchronised DICOM exporter</ng-container>
             </label><br>
             <label *ngIf="noDicomExporters.length > 0">
-                <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> Queued exporter
+                <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> <ng-container i18n="@@queued_exporter">Queued exporter</ng-container>
             </label>
             <label *ngIf="noDicomExporters.length === 0" class="text-danger">
-                <input type="radio" name="exportType" value="nonedicom" DISABLED> For queued exporter create an exporter first!
+                <input type="radio" name="exportType" value="nonedicom" DISABLED> <ng-container i18n="@@for_queued_exporter_create_an_exporter_first">For queued exporter create an exporter first!</ng-container>
             </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
-                <p>Select the destination AETitle:</p>
+                <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
 <!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
                     <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
                 </select>
@@ -57,7 +57,7 @@
                 </select>-->
             </div>
             <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom'">
-                <p>Select the exporter:</p>
+                <p i18n="@@select_the_exporter">Select the exporter:</p>
 <!--                <select [(ngModel)]="result.selectedExporter">
                     <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>
                 </select>-->
@@ -66,10 +66,10 @@
                 </mat-select>
             </div>
             <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
-                <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
+                <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@storage_commitment_without_export">Storage commitment without export</ng-container>
             </label><br>
             <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
-                <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
+                <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export"></ng-container>
             </label>
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
                 <span class="text-danger">{{warning}}</span>
@@ -77,66 +77,66 @@
         </div>
         <div class="content" *ngIf="externalInternalAetMode === 'external' || mode ==='multiple'">
             <div class="dicomBlock">
-                <p *ngIf="mode ==='single'">Select the destination AETitle (STORE-SCP):</p>
-                <p *ngIf="mode ==='multiple'">Select the calling AETitle:</p>
+                <p *ngIf="mode ==='single'" i18n="@@select_the_destination_aetitle_store_scp">Select the destination AETitle (STORE-SCP):</p>
+                <p *ngIf="mode ==='multiple'" i18n="@@select_the_calling_aetitle">Select the calling AETitle:</p>
                 <mat-select class="aes" [(ngModel)]="result.selectedAet">
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
                 <br>
                 <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
-                    <p>Batch ID:</p>
-                    <input type="text" [(ngModel)]="result.batchID" placeholder="Batch ID">
+                    <p i18n="@@batch_id">Batch ID:</p>
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder placeholder="Batch ID">
                 </div>
                 <br>
             </div>
             <div class="dicomBlock">
-                <p *ngIf="mode ==='single' && !newStudyPage">Select the external AETitle (C-MOVE SCP):</p>
-                <p *ngIf="mode ==='multiple'">Select the external AETitle:</p>
+                <p *ngIf="mode ==='single' && !newStudyPage" i18n="@@select_the_external_aetitle_c_move_scp">Select the external AETitle (C-MOVE SCP):</p>
+                <p *ngIf="mode ==='multiple'" i18n="@@select_the_external_aetitle">Select the external AETitle:</p>
                 <mat-select class="aes" [(ngModel)]="result.externalAET" *ngIf="!newStudyPage">
-                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
             </div>
             <div *ngIf="mode ==='single'">
-                <p>Queue Name:</p>
+                <p i18n="@@queue_name">Queue Name:</p>
                 <mat-select class="aes" [(ngModel)]="result.dcmQueueName">
                     <mat-option value="">*</mat-option>
-                    <mat-option value="{{queue.value}}" *ngFor="let queue of queues" title="{{queue.title}}">{{queue.text}}</mat-option>
+                    <mat-option value="{{queue.value}}" *ngFor="let queue of queues" i18n-title title="{{queue.title}}">{{queue.text}}</mat-option>
                 </mat-select>
             </div>
-<!--            <label title="If checked the process will be queued" *ngIf="mode ==='single'">
+<!--            <label i18n-title title="If checked the process will be queued" *ngIf="mode ==='single'">
                 <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
             </label><br *ngIf="mode ==='single'">-->
             <ng-container *ngIf="mode === 'multiple'">
                 <div class="dicomBlock">
-                    <p>Select the query AETitle:</p>
+                    <p i18n="@@select_the_query_aetitle">Select the query AETitle:</p>
                     <mat-select class="aes" [(ngModel)]="result.queryAET">
-                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                     </mat-select>
                 </div>
                 <div class="dicomBlock">
-                    <p>Select the destination AETitle:</p>
+                    <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
                     <mat-select class="aes" [(ngModel)]="result.destinationAET">
-                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                     </mat-select>
                 </div>
             </ng-container>
         </div>
         <div class="content" *ngIf="mode === 'reschedule'">
             <div class="dicomBlock">
-                <p>Exporter ID:</p>
+                <p i18n="@@exporter_id">Exporter ID:</p>
                 <mat-select class="aes" [(ngModel)]="result.selectedExporter">
-                    <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</mat-option>
+                    <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" i18n-title title="{{export.id}}">{{export.id}}</mat-option>
                 </mat-select>
             </div>
         </div>
         <div class="content" *ngIf="result.exportType === 'nonedicom' && !(quantity && quantity === 'single')">
-            <p>Batch ID</p>
+            <p i18n="@@batch_id">Batch ID</p>
             <input type="text" [(ngModel)]="result.batchID">
         </div>
         <div class="dialogbuttons">
-            <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
+            <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()" i18n="@@EXPORT">EXPORT</button>
             <button *ngIf="okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">{{okButtonLabel}}</button>
-            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
         </div>
     </div>
 </div>

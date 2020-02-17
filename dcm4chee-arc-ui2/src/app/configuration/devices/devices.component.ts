@@ -19,6 +19,7 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
+import { loadTranslations } from '@angular/localize';
 
 @Component({
   selector: 'app-devices',
@@ -44,10 +45,10 @@ export class DevicesComponent implements OnInit{
     filterSchema;
     w = 2;
     moreFunctionConfig = {
-        placeholder: "More functions",
+        placeholder: $localize `:@@devices.more_functions:More functions`,
         options:[
-            new SelectDropdown("create_exporter","Create exporter"),
-            new SelectDropdown("create_device","Create device")
+            new SelectDropdown("create_exporter",$localize `:@@devices.create_exporter:Create exporter`),
+            new SelectDropdown("create_device",$localize `:@@devices.create_device:Create device`)
         ],
         model:undefined
     };
@@ -171,16 +172,12 @@ export class DevicesComponent implements OnInit{
         if (device && device.dicomDeviceName) {
             let $this = this;
             this.confirm({
-                content: 'Are you sure you want to delete the device ' + device.dicomDeviceName + '?'
+                content: $localize `:@@devices.are_you_sure_you_want_to_delete_the_device_:Are you sure you want to delete the device ${device.dicomDeviceName}:@@dicomDeviceName:?`
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
                     $this.$http.delete('../devices/' + device.dicomDeviceName).subscribe((res) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': 'Device deleted successfully!',
-                            'status': 'info'
-                        });
+                        $this.mainservice.showMsg($localize `Device deleted successfully!`);
                         $this.getDevices();
                         $this.cfpLoadingBar.complete();
                     }, (err) => {
@@ -199,7 +196,7 @@ export class DevicesComponent implements OnInit{
         });
         console.log('deviceNameList', deviceNameList);
         let parameters: any = {
-            content: 'Set the name for the new device to clone ' + devicename.dicomDeviceName,
+            content: $localize `:@@devices.set_the_name_for_the_new_device_to_clone:Set the name for the new device to clone ${devicename.dicomDeviceName}:@@dicomDeviceName:`,
             input: {
                 name: 'newdevice',
                 type: 'text'
@@ -216,11 +213,7 @@ export class DevicesComponent implements OnInit{
                 console.log('devicename', devicename.dicomDeviceName);
                 console.log('indexof', _.indexOf(deviceNameList, parameters.result.input));
                 if (_.indexOf(deviceNameList, parameters.result.input) > -1){
-                    $this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': 'This name already exists, please chose another one!',
-                        'status': 'error'
-                    });
+                    $this.mainservice.showError($localize `:@@devices.name_exist:This name already exists, please chose another one!`);
                     $this.cfpLoadingBar.complete();
                 }else{
                     $this.$http.get(
@@ -240,11 +233,7 @@ export class DevicesComponent implements OnInit{
                                 .subscribe(res => {
                                         console.log('res succes', res);
                                         $this.cfpLoadingBar.complete();
-                                        $this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': 'Device cloned successfully!',
-                                            'status': 'info'
-                                        });
+                                        $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
                                         $this.getDevices();
                                         $this.$http.get(
                                             '../aes'
@@ -305,17 +294,9 @@ export class DevicesComponent implements OnInit{
                 }
                 this.deviceConfigurator.addChangesToDevice(re.exporter,`${Globalvar.EXPORTER_CONFIG_PATH}[${i}]`,re.device);
                 $this.$http.put('../devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
-                    $this.mainservice.setMessage({
-                        'title': 'Info',
-                        'text': 'The new exporter description appended successfully to the device: ' + re.device.dicomDeviceName,
-                        'status': 'info'
-                    });
+                    $this.mainservice.showMsg($localize `:@@devices.exporter_description_appended:The new exporter description appended successfully to the device: ${re.device.dicomDeviceName}:@@dicomDeviceName:`);
                     $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': 'Archive reloaded successfully!',
-                            'status': 'info'
-                        });
+                        $this.mainservice.showMsg($localize `:@@devices.archive_reloaded:Archive reloaded successfully!`);
                     });
                 }, (err) => {
                     $this.httpErrorHandler.handleError(err);

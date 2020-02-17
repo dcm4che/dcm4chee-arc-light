@@ -2,121 +2,121 @@
     <div class="vex-content">
         <div class="vex-dialog-form" >
         <div class="device">
-            <div class="vex-dialog-message">Register new Application Entity</div>
+            <div class="vex-dialog-message" i18n="@@create-ae.register_new_application_entity">Register new Application Entity</div>
             <ul class="nav nav-tabs">
-                <li role="presentation" [ngClass]="{'active':activetab==='createdevice'}" (click)="changeTabAERegister('createdevice')"><a>Create new device</a></li>
-                <li role="presentation" [ngClass]="{'active':activetab==='selectdevice'}" (click)="changeTabAERegister('selectdevice')"><a>Select existing device</a></li>
+                <li role="presentation" [ngClass]="{'active':activetab==='createdevice'}" (click)="changeTabAERegister('createdevice')"><a i18n="@@create_new_device">Create new device</a></li>
+                <li role="presentation" [ngClass]="{'active':activetab==='selectdevice'}" (click)="changeTabAERegister('selectdevice')"><a i18n="@@select_existing_device">Select existing device</a></li>
             </ul>
             <div mat-dialog-content>
                 <div class="createdevice tabcontain">
                     <div class="tab_body" [hidden]="!(activetab === 'createdevice')">
-                        <h4 (click)="showdevice=!showdevice;showconn=false">New Device <span *ngIf="newAetModel.dicomDeviceName && !showdevice"> <b>{{newAetModel.dicomDeviceName}}</b></span></h4>
+                        <h4 (click)="showdevice=!showdevice;showconn=false"><ng-container i18n="@@create-ae.new_device">New Device</ng-container> <span *ngIf="newAetModel.dicomDeviceName && !showdevice"> <b>{{newAetModel.dicomDeviceName}}</b></span></h4>
                         <div class="content" *ngIf="showdevice===true">
                             <div class="inputblock">
                                 <label class="title">Device name</label>
                                 <input type="text" [(ngModel)]="newAetModel.dicomDeviceName" (keyup)="updateAetFromDevicename($event)" (keydown)="updateAetFromDevicename($event)" (keypress)="updateAetFromDevicename($event)">
-                                <span class="description">A unique name for this device</span>
+                                <span class="description" i18n="@@create-ae.a_unique_name_for_this_device">A unique name for this device</span>
                             </div>
                             <div class="inputblock">
-                                <label class="title">Device Description</label>
+                                <label class="title" i18n="@@create-ae.device_description">Device Description</label>
                                 <textarea [(ngModel)]="newAetModel.dicomDescription"></textarea>
-                                <span class="description">Unconstrained text description of the device</span>
+                                <span class="description" i18n="@@create-ae.unconstrained_text_description_of_the_device">Unconstrained text description of the device</span>
                             </div>
                             <div class="inputblock">
-                                <label class="title">Station Name</label>
+                                <label class="title" i18n="@@create-ae.station_name">Station Name</label>
                                 <input type="text" [(ngModel)]="newAetModel.dicomStationName">
-                                <span class="description">Should be the same as the value of Station Name (0008,1010) in SOP instances created by this device</span>
+                                <span class="description" i18n="@@create-ae.should_be_the_same_as_the_value_of_station_name00081010">Should be the same as the value of Station Name (0008,1010) in SOP instances created by this device</span>
                             </div>
                             <div class="dynamicform">
                                 <div class="title">
-                                    <label>Institution Name</label>
+                                    <label i18n="@@create-ae.institution_name">Institution Name</label>
                                 </div>
                                 <div class="form_content arrayelement">
                                     <div class="inputblock array_parent">
                                         <div class="array_single" *ngFor="let el of newAetModel.dicomInstitutionName;let i = index;trackBy:trackByFn">
                                             <input type="text" [(ngModel)]="newAetModel.dicomInstitutionName[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomInstitutionName,i)"><i class="material-icons">clear</i></span>
                                         </div>
-                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionName')"><i class="material-icons">add</i> <span>Add</span></div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionName')"><i class="material-icons">add</i> <span i18n="@@create-ae.add">Add</span></div>
                                     </div>
                                 </div>
                                 <div class="description_parent">
-                                    <span class="description">Should be the same as the value of Institution Name (0008,0080) in SOP Instances created by this device</span>
+                                    <span class="description" i18n="@@create-ae.should_be_the_same_as_the_value_of_station_name00080080">Should be the same as the value of Institution Name (0008,0080) in SOP Instances created by this device</span>
                                 </div>
                             </div>
                             <div class="dynamicform">
                                 <div class="title">
-                                    <label>Institution Department Name</label>
+                                    <label i18n="@@create-ae.institution_department_name">Institution Department Name</label>
                                 </div>
                                 <div class="form_content arrayelement">
                                     <div class="inputblock array_parent">
                                         <div class="array_single" *ngFor="let el of newAetModel.dicomInstitutionDepartmentName;let i = index;trackBy:trackByFn">
                                             <input type="text" [(ngModel)]="newAetModel.dicomInstitutionDepartmentName[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomInstitutionDepartmentName,i)"><i class="material-icons">clear</i></span>
                                         </div>
-                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionDepartmentName')"><i class="material-icons">add</i> <span>Add</span></div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomInstitutionDepartmentName')"><i class="material-icons">add</i> <span i18n="@@create-ae.add">Add</span></div>
                                     </div>
                                 </div>
                                 <div class="description_parent">
-                                    <span class="description">Should be the same as the value of Institutional Department Name (0008,1040) in SOP Instances created by this device</span>
+                                    <span class="description" i18n="@@create-ae.should_be_the_same_as_the_value_of_station_name00081040">Should be the same as the value of Institutional Department Name (0008,1040) in SOP Instances created by this device</span>
                                 </div>
                             </div>
                             <div class="dynamicform">
                                 <div class="title">
-                                    <label>Primary Device Type</label>
+                                    <label i18n="@@create-ae.primary_device_type">Primary Device Type</label>
                                 </div>
                                 <div class="form_content arrayelement">
                                     <div class="inputblock array_parent">
                                         <div class="array_single" *ngFor="let el of newAetModel.dicomPrimaryDeviceType;let i = index;trackBy:trackByFn">
                                             <input type="text" [(ngModel)]="newAetModel.dicomPrimaryDeviceType[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomPrimaryDeviceType,i)"><i class="material-icons">clear</i></span>
                                         </div>
-                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomPrimaryDeviceType')"><i class="material-icons">add</i> <span>Add</span></div>
+                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomPrimaryDeviceType')"><i class="material-icons">add</i> <span i18n="@@create-ae.add">Add</span></div>
                                     </div>
                                 </div>
                                 <div class="description_parent">
-                                    <span class="description">Represents the kind of device and is most applicable for acquisition modalities</span>
+                                    <span class="description" i18n="@@create-ae.represents_the_kind_of_device">Represents the kind of device and is most applicable for acquisition modalities</span>
                                 </div>
                             </div>
                             <div class="inputblock">
-                                <label class="title">Installed</label>
+                                <label class="title" i18n="@@create-ae.installed">Installed</label>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" [(ngModel)]="newAetModel.dicomInstalled" name="dicomInstalled" checked value="true">
-                                        <span>True</span>
+                                        <span i18n="@@True">True</span>
                                     </label>
                                 </div>
                                 <div class="radio">
                                     <label>
                                         <input type="radio" [(ngModel)]="newAetModel.dicomInstalled" name="dicomInstalled" value="false">
-                                        <span>False</span>
+                                        <span i18n="@@False">False</span>
                                     </label>
                                 </div>
-                                <span class="description checkbox">Boolean to indicate whether this device is presently installed on the network</span>
+                                <span class="description checkbox" i18n="@@create-ae.boolean_to_indicate_whether_this_device_is_presently_installed">Boolean to indicate whether this device is presently installed on the network</span>
                             </div>
                         </div>
-                        <h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  <span *ngIf="newAetModel && newAetModel.dicomNetworkConnection && newAetModel.dicomNetworkConnection[0] && newAetModel.dicomNetworkConnection[0].cn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
+                        <h4 (click)="showconn=!showconn;showdevice=false"><ng-container i18n="@@create-ae.new_network_connection">New Network Connection</ng-container>  <span *ngIf="newAetModel && newAetModel.dicomNetworkConnection && newAetModel.dicomNetworkConnection[0] && newAetModel.dicomNetworkConnection[0].cn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
                         <div class="content"  *ngIf="showconn===true">
                             <!--<div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"  sf-options="sfOptions"></div>-->
                             <div class="inputblock">
-                                <label class="title">Name</label>
+                                <label class="title" i18n="@@create-ae.name">Name</label>
                                 <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
-                                <span class="description">Arbitrary/Meaningful name for the Network Connection object</span>
+                                <span class="description" i18n="@@create-ae.arbitrary_meaningful_name_for_the_network_conn">Arbitrary/Meaningful name for the Network Connection object</span>
                             </div>
                             <div class="inputblock">
-                                <label class="title">Hostname</label>
+                                <label class="title" i18n="@@create-ae.hostname">Hostname</label>
                                 <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
-                                <span class="description">DNS name for this particular connection</span>
+                                <span class="description" i18n="@@create-ae.dns_name_for_this_particular_conn">DNS name for this particular connection</span>
                             </div>
                             <div class="inputblock">
-                                <label class="title">Port</label>
+                                <label class="title" i18n="@@create-ae.port">Port</label>
                                 <input type="number" [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomPort">
-                                <span class="description">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
+                                <span class="description" i18n="@@create-ae.tcp_udp_port_this_a_service_is_listening_on">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
                             </div>
                         </div>
                     </div>
                     <div class="tab_body" [hidden]="!(activetab === 'selectdevice')">
-                        <h4 (click)="showselectdevice=!showselectdevice;showconnselecteddevice=false">Select existing device</h4>
+                        <h4 (click)="showselectdevice=!showselectdevice;showconnselecteddevice=false" i18n="@@create-ae.select.existing_device">Select existing device</h4>
                         <div class="content" *ngIf="showselectdevice===true">
                             <div class="block">
-                                <div class="label_part">
+                                <div class="label_part" i18n="@@create-ae.select_device_to_connect_the_ae">
                                     Select device to connect the AE to:
                                 </div>
                                 <div class="input_part">
@@ -124,99 +124,99 @@
                                         <option [value]="obj.dicomDeviceName" *ngFor="let obj of devices">{{obj.dicomDeviceName}}</option>
                                     </select>
                                 </div>
-                                <span class="description">Already existing devices</span>
+                                <span class="description" i18n="@@create-ae.already_existing_devices">Already existing devices</span>
                             </div>
                         </div>
-                        <h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  to selected device</h4>
+                        <h4 (click)="showconn=!showconn;showdevice=false" i18n="@@create-ae.new_network_connection_to_selected_device">New Network Connection  to selected device</h4>
                         <div class="content"  *ngIf="selctedDeviceObject && showconn===true">
                             <!--<h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  <span *ngIf="newAetModel.dicomNetworkConnection[0].cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>-->
                             <!--<div class="content"  *ngIf="showconn===true">-->
                                 <!--<div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"  sf-options="sfOptions"></div>-->
                                 <div class="inputblock">
-                                    <label class="title">Name</label>
+                                    <label class="title" i18n="@@create-ae.name">Name</label>
                                     <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
-                                    <span class="description">Arbitrary/Meaningful name for the Network Connection object</span>
+                                    <span class="description" i18n="@@create-ae.arbitrary_meaningful_name_for_the_network_conn">Arbitrary/Meaningful name for the Network Connection object</span>
                                 </div>
                                 <div class="inputblock">
                                     <label class="title">Hostname</label>
                                     <input type="text" [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
-                                    <span class="description">DNS name for this particular connection</span>
+                                    <span class="description" i18n="@@create-ae.dns_name_for_this_particular_connection">DNS name for this particular connection</span>
                                 </div>
                                 <div class="inputblock">
-                                    <label class="title">Port</label>
+                                    <label class="title" i18n="@@create-ae.port">Port</label>
                                     <input type="number" [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomPort">
-                                    <span class="description">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
+                                    <span class="description" i18n="@@create-ae.tcp_udp_port_this_a_service_is_listening_on">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
                                 </div>
                                 <div class="vex-dialog-buttons aet_buttons">
-                                    <button type="button" class="vex-dialog-button-primary vex-dialog-button vex-first"  (click)="addNewConnectionToDevice()" title="Add the new connection to the selected device" [disabled]="!(_.hasIn(newAetModel,'dicomNetworkConnection[0].cn'))">Add connection</button>
-                                    <button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last" (click)="removeNewConnectionFromDevice()">Remove connection</button>
+                                    <button type="button" class="vex-dialog-button-primary vex-dialog-button vex-first"  (click)="addNewConnectionToDevice()" i18n-title title="Add the new connection to the selected device" [disabled]="!(_.hasIn(newAetModel,'dicomNetworkConnection[0].cn'))" i18n="@@create-ae.add_connection">Add connection</button>
+                                    <button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last" (click)="removeNewConnectionFromDevice()" i18n="@@create-ae.remove_connection">Remove connection</button>
                                 </div>
                             </div>
                         <!--</div>-->
-                        <div class="content" *ngIf="!selctedDeviceObject && showconn===true">
+                        <div class="content" *ngIf="!selctedDeviceObject && showconn===true" i18n="@@create-ae.select_first_a_device">
                             Select first a device!
                         </div>
                     </div>
                     <div class="aet">
-                        <h4 (click)="showae=!showae">Network AE</h4>
+                        <h4 (click)="showae=!showae" i18n="@@create-ae.network_ae">Network AE</h4>
                         <div  id="networkae" class="content" *ngIf="showae===true">
                             <!--<div angular-validator  sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"  sf-options="sfOptions"></div>-->
                             <div class="inputblock">
-                                <label class="title">AE Title</label>
+                                <label class="title" i18n="@@create-ae.ae_title">AE Title</label>
                                 <input type="text" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomAETitle">
-                                <span class="description">Unique AE title for this Network AE</span>
+                                <span class="description" i18n="@@create-ae.unique_ae_title">Unique AE title for this Network AE</span>
                             </div>
                             <div class="inputblock">
                                 <ng-container *ngIf="_.hasIn(selctedDeviceObject,'dicomNetworkConnection[0]') && activetab === 'selectdevice'">
-                                    <label class="title">Network Connection Reference</label>
+                                    <label class="title" i18n="@@create-ae.network_connecton_refernce">Network Connection Reference</label>
                                     <label class="checkbox" *ngFor="let i of selctedDeviceObject.dicomNetworkConnection;let j = index">
                                         <input type="checkbox" value="{{'/dicomNetworkConnection/'+j}}" (change)="toggleReference(newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference,'/dicomNetworkConnection/'+j)">
                                         <span>{{i.cn}}</span>
                                     </label>
-                                    <span class="description checkbox">JSON Pointers to the Network Connection objects for this AE</span>
+                                    <span class="description checkbox" i18n="@@create-ae.json_pointers_to_the_network_connection">JSON Pointers to the Network Connection objects for this AE</span>
                                 </ng-container>
                                 <ng-container *ngIf="activetab === 'createdevice'">
-                                    <label class="title">Network Connection Reference</label>
+                                    <label class="title" i18n="@@create-ae.network_connection_reference">Network Connection Reference</label>
                                     <label class="checkbox">
                                         <input type="checkbox" value="/dicomNetworkConnection/0" checked (change)="toggleReference(newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference,'/dicomNetworkConnection/0')">
                                         <span>{{newAetModel.dicomNetworkConnection[0].cn}}</span>
                                     </label>
-                                    <span class="description checkbox">JSON Pointers to the Network Connection objects for this AE</span>
+                                    <span class="description checkbox" i18n="@@create-ae.json_pointers_to_the_network_connection">JSON Pointers to the Network Connection objects for this AE</span>
                                 </ng-container>
                                 <ng-container *ngIf="!_.hasIn(selctedDeviceObject,'dicomNetworkConnection[0]') && activetab === 'selectdevice'">
-                                    <div class="helpvalue">
+                                    <div class="helpvalue" i18n="@@create-ae.create_network_connection_suggestion">
                                         To be able to select the reference create first a  network connection or select device with a network connection!
                                     </div>
                                 </ng-container>
                             </div>
                             <div class="inputblock">
-                                <label class="title">AE Description</label>
+                                <label class="title" i18n="@@create-ae.ae_description">AE Description</label>
                                 <textarea name="dicomDescription" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomDescription"></textarea>
-                                <span class="description">Unconstrained text description of the application entity</span>
+                                <span class="description" i18n="@@create-ae.unconstrained_text_description">Unconstrained text description of the application entity</span>
                             </div>
                             <div class="dynamicform">
                                 <div class="title">
-                                    <label>Application Cluster</label>
+                                    <label i18n="@@create-ae.application_cluster">Application Cluster</label>
                                 </div>
                                 <div class="form_content arrayelement">
                                     <div class="inputblock array_parent">
                                         <div class="array_single" *ngFor="let el of newAetModel.dicomNetworkAE[0].dicomApplicationCluster;let i = index;trackBy:trackByFn">
                                             <input type="text" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomApplicationCluster[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomNetworkAE[0].dicomApplicationCluster,i)"><i class="material-icons">clear</i></span>
                                         </div>
-                                        <div class="add" (click)="addArrayElement(newAetModel.dicomNetworkAE[0], 'dicomApplicationCluster')"><i class="material-icons">add</i> <span>Add</span></div>
+                                        <div class="add" (click)="addArrayElement(newAetModel.dicomNetworkAE[0], 'dicomApplicationCluster')"><i class="material-icons">add</i> <span i18n="@@create-ae.add">Add</span></div>
                                     </div>
                                 </div>
                                 <div class="description_parent">
-                                    <span class="description">Locally defined names for a subset of related applications</span>
+                                    <span class="description" i18n="@@create-ae.locally_defined_names_for_a_subset_app">Locally defined names for a subset of related applications</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="tab_body" [hidden]="!(activetab === 'createdevice')">
-                        <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false">Set the new Application Entity as 'Accepted Calling AE Title' to following AETs:</h4>
+                        <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false" i18n="@@create-ae.set_the_new_application_entity">Set the new Application Entity as 'Accepted Calling AE Title' to following AETs:</h4>
                         <div class="content" *ngIf="showAetList">
                             <div class="inputblock">
-                                <label class="title">AE Title</label>
+                                <label class="title" i18n="@@create-ae.ae_title">AE Title</label>
                                 <div class="input_part">
 <!--                                    <j4care-select [(model)]="selectedForAcceptedCallingAET" [placeholder]="'Select AET'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
                                         <j4care-option [value]="''" [title]="'Clear selection'">Clear</j4care-option>
@@ -224,6 +224,7 @@
                                     </j4care-select>-->
                                     <dcm-drop-down
                                             [(model)]="selectedForAcceptedCallingAET"
+                                            i18n-placeholder
                                             [placeholder]="'Select AET'"
                                             [maxSelectedValueShown]="1"
                                             [options]="configuredAetList"
@@ -232,15 +233,15 @@
                                             [showStar]="true"
                                     ></dcm-drop-down>
                                 </div>
-                                <span class="description">Already available AETs</span>
+                                <span class="description" i18n="@@create-ae.already_available_aets">Already available AETs</span>
                             </div>
                         </div>
                     </div>
                     <div class="test">
-                        <h4 (click)="showTestBlock=!showTestBlock">Test Connection</h4>
+                        <h4 (click)="showTestBlock=!showTestBlock" i18n="@@create-ae.test_connection">Test Connection</h4>
                         <div class="content" *ngIf="showTestBlock && newAetModel.dicomNetworkAE[0].dicomAETitle && newAetModel.dicomNetworkConnection[0].dicomHostname && newAetModel.dicomNetworkConnection[0].dicomPort">
                             <div class="block" *ngIf="dicomConnectionns.length > 1">
-                                <div class="label_part">
+                                <div class="label_part" i18n="@@create-ae.select_one_of_the_dicom_connections">
                                     Select one of the DICOM connections:
                                 </div>
                                 <div class="input_part">
@@ -251,7 +252,7 @@
                                 </div>
                             </div>
                             <div class="block">
-                                <div class="label_part">
+                                <div class="label_part" i18n="@@create-ae.calling_aet">
                                     Calling AET:
                                 </div>
                                 <div class="input_part">
@@ -260,7 +261,7 @@
                                     </mat-select>
                                 </div>
                                 <div class="test_button">
-                                    <button (click)="testConnection()" title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet">TEST</button>
+                                    <button (click)="testConnection()" i18n-title title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet" i18n="@@create-ae.test">TEST</button>
                                 </div>
                             </div>
                         </div>
@@ -269,8 +270,8 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab,selectedForAcceptedCallingAET:selectedForAcceptedCallingAET})" [disabled]="!validAeForm()">APPLY</button>
-            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab,selectedForAcceptedCallingAET:selectedForAcceptedCallingAET})" [disabled]="!validAeForm()" i18n="@@create-ae.test">APPLY</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@create-ae.cancel">CANCEL</button>
         </div>
     </div>
     </div>

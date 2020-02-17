@@ -103,11 +103,7 @@ export class UploadDicomComponent implements OnInit{
                         show:false
                     }*/
                     if(file.type && file.type != "application/dicom"){
-                        $this.mainservice.setMessage({
-                            'title': 'Error',
-                            'text': `Filetype "${file.type}" not allowed!`,
-                            'status': 'error'
-                        });
+                        $this.mainservice.showError($localize `:@@filetype_not_allowed:Filetype "${file.type}:@@filetype:" not allowed!`);
                         $this.fileList = [];
                         event = null;
                         $this.file = null;

@@ -1,11 +1,11 @@
 <div class="schedulepicker">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <h4>Schedule picker</h4>
+    <h4 i18n="@@schedule-picker.schedule_picker">Schedule picker</h4>
     <div class="dropped_schedules"
           (dragleave)="dragleave($event)"
     >
         <!--{{draggedElements | json}}-->
-        <div class="drop_info" *ngIf="draggedElements.length == 0">Drop here some element to edit</div>
+        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="schedule-picker.drop_herer_some_element">Drop here some element to edit</div>
         <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
                 <div *ngSwitchCase="'single_hour'" class="element single">
                     <select name="single_hour" id="single_hour" [(ngModel)]="item.model">
@@ -97,34 +97,34 @@
                 <div *ngSwitchCase="'single_day'" class="element single">
                     <select name="single_day" id="single_day" [(ngModel)]="item.model">
                         <option value="*">*</option>
-                        <option value="1">Monday</option>
-                        <option value="2">Tuesday</option>
-                        <option value="3">Wednesday</option>
-                        <option value="4">Thursday</option>
-                        <option value="5">Friday</option>
-                        <option value="6">Saturday</option>
-                        <option value="0">Sunday</option>
+                        <option value="1" i18n="@@monday">Monday</option>
+                        <option value="2" i18n="@@tuesday">Tuesday</option>
+                        <option value="3" i18n="@@wednesday">Wednesday</option>
+                        <option value="4" i18n="@@thursday">Thursday</option>
+                        <option value="5" i18n="@@friday">Friday</option>
+                        <option value="6" i18n="@@saturday">Saturday</option>
+                        <option value="0" i18n="@@sunday">Sunday</option>
                     </select>
                 </div>
                 <div *ngSwitchCase="'day_range'" class="element range">
                     <select name="day_range1" id="day_range1" [(ngModel)]="item.model.model1">
-                        <option value="1">Monday</option>
-                        <option value="2">Tuesday</option>
-                        <option value="3">Wednesday</option>
-                        <option value="4">Thursday</option>
-                        <option value="5">Friday</option>
-                        <option value="6">Saturday</option>
-                        <option value="0">Sunday</option>
+                        <option value="1" i18n="monday">Monday</option>
+                        <option value="2" i18n="tuesday">Tuesday</option>
+                        <option value="3" i18n="wednesday">Wednesday</option>
+                        <option value="4" i18n="thursday">Thursday</option>
+                        <option value="5" i18n="friday">Friday</option>
+                        <option value="6" i18n="saturday">Saturday</option>
+                        <option value="0" i18n="sunday">Sunday</option>
                     </select>
                     <span class="split">-</span>
                     <select name="day_range2" id="day_range2" [(ngModel)]="item.model.model2">
-                        <option value="1">Monday</option>
-                        <option value="2">Tuesday</option>
-                        <option value="3">Wednesday</option>
-                        <option value="4">Thursday</option>
-                        <option value="5">Friday</option>
-                        <option value="6">Saturday</option>
-                        <option value="0">Sunday</option>
+                        <option value="1" i18n="@@monday">Monday</option>
+                        <option value="2" i18n="@@tuesday">Tuesday</option>
+                        <option value="3" i18n="@@wednesday">Wednesday</option>
+                        <option value="4" i18n="@@thursday">Thursday</option>
+                        <option value="5" i18n="@@friday">Friday</option>
+                        <option value="6" i18n="@@saturday">Saturday</option>
+                        <option value="0" i18n="@@sunday">Sunday</option>
                     </select>
                 </div>
                 <div class="delete_schedule" (click)="deleteDropped(i)"><i class="glyphicon glyphicon-remove"></i></div>
@@ -132,19 +132,19 @@
     </div>
     <div class="schedule_drodown_buttons">
         <div (dragstart)="dragstart($event,'single_hour')" draggable="true" class="button clock">
-            <div class="text">Single hour</div>
+            <div class="text" i18n="@@single_hour">Single hour</div>
         </div>
         <div (dragstart)="dragstart($event,'hour_range')" draggable="true" class="button clock_range">
-            <div class="text">Hour range</div>
+            <div class="text" i18n="@@hour_range">Hour range</div>
         </div>
         <div (dragstart)="dragstart($event,'single_day')" draggable="true" class="button calendar">
-            <div class="text">Single day</div>
+            <div class="text" i18n="@@single_day">Single day</div>
         </div>
         <div (dragstart)="dragstart($event,'day_range')" draggable="true" class="button range_calendar">
-            <div class="text">Day range</div>
+            <div class="text" i18n="@@day_range">Day range</div>
         </div>
     </div>
     <div class="btn_content">
-        <button class="btn" (click)="addSchedule()">Add</button>
+        <button class="btn" (click)="addSchedule()" i18n="@@Add">Add</button>
     </div>
 </div>

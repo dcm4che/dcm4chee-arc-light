@@ -13,6 +13,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {Globalvar} from "../../constants/globalvar";
 
 
 @Component({
@@ -26,18 +27,18 @@ export class QueuesComponent implements OnInit, OnDestroy{
     dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
-    counText = `COUNT`;
+    counText = $localize `:@@COUNT:COUNT`;
     allAction;
     allActionsOptions = [
         {
             value:"cancel",
-            label:"Cancel all matching tasks"
+            label:$localize `:@@queues.cancel_all_matching_tasks:Cancel all matching tasks`
         },{
             value:"reschedule",
-            label:"Reschedule all matching tasks"
+            label:$localize `:@@queues.reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
             value:"delete",
-            label:"Delete all matching tasks"
+            label:$localize `:@@queues.delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
     allActionsActive = [];
@@ -57,8 +58,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
     ];
     timer = {
         started:false,
-        startText:"Start Auto Refresh",
-        stopText:"Stop Auto Refresh"
+        startText:$localize `:@@queues.start_auto_refresh:Start Auto Refresh`,
+        stopText:$localize `:@@queues.stop_auto_refresh:Stop Auto Refresh`
     };
     filterObject = {
         status:undefined,
@@ -116,7 +117,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     }
     statusChange(){
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == "IN PROCESS"){
+            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == $localize `:@@queues.in_process:IN PROCESS`){
                 return o.value != 'reschedule';
             }else{
                 if(this.filterObject.status === '*')
@@ -127,7 +128,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         });*/
     }
     allActionChanged(e){
-        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = {
             dicomDeviceName:(this.filterObject.dicomDeviceName && this.filterObject.status != '*') ? this.filterObject.dicomDeviceName : undefined,
             status:(this.filterObject.status && this.filterObject.status != '*') ? this.filterObject.status : undefined,
@@ -142,11 +143,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter,this.filterObject.queueName).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' tasks in queue deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg($localize `:@@tasks_queue_deleted:${res.count} tasks in queue deleted successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -169,11 +166,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
                                 this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
-                                    this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': res.count + ' tasks rescheduled successfully!',
-                                        'status': 'info'
-                                    });
+                                    this.mainservice.showMsg($localize `:@@tasks_queue_rescheduled:${res.count} tasks in queue rescheduled successfully!`);
                                     this.cfpLoadingBar.complete();
                                 }, (err) => {
                                     this.cfpLoadingBar.complete();
@@ -199,11 +192,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(filter,this.filterObject.queueName).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.deleted + ' tasks in queue deleted successfully!',
-                                'status': 'info'
-                            });
+                            this.mainservice.showMsg($localize `:@@tasks_queue_deleted:${res.deleted} tasks in queue deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -274,11 +263,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 });
             });
         }else{
-            this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'No Queue Name selected!',
-                'status': 'error'
-            });
+            this.mainservice.showError($localize `:@@no_queue_name:No Queue Name selected!`);
         }
     }
     filterKeyUp(e){
@@ -315,22 +300,14 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     }else{
                         $this.matches = [];
                         $this.cfpLoadingBar.complete();
-                        $this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': 'No tasks found!',
-                            'status': 'info'
-                        });
+                        this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                     }
                 }, (err) => {
                     console.log('err', err);
                     $this.matches = [];
                 });
         }else{
-            $this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'No Queue Name selected!',
-                'status': 'error'
-            });
+            this.mainservice.showError($localize `:@@no_queue_name:No Queue Name selected!`);
         }
     }
     getCount(){
@@ -338,9 +315,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
             this.cfpLoadingBar.start();
             this.service.getCount(this.filterObject.queueName, this.filterObject.status, undefined, undefined, this.filterObject.dicomDeviceName, this.filterObject.createdTime,this.filterObject.updatedTime, this.filterObject.batchID, '').subscribe((count)=>{
                 try{
-                    this.counText = `COUNT ${count.count}`;
+                    this.counText = $localize `:@@count_param:COUNT ${count.count}:@@count:`;
                 }catch (e){
-                    this.counText = `COUNT`;
+                    this.counText = $localize `:@@COUNT:COUNT`;
                 }
                 this.setFilters();
                 this.cfpLoadingBar.complete();
@@ -349,11 +326,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 this.httpErrorHandler.handleError(err);
             });
         }else{
-            this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'No Queue Name selected!',
-                'status': 'error'
-            });
+            this.mainservice.showError($localize `:@@no_queue_name:No Queue Name selected!`);
         }
     }
     confirm(confirmparameters){
@@ -412,7 +385,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     delete(match) {
         let $this = this;
         this.confirm({
-            content: 'Are you sure you want to delete?'
+            content: $localize `:@@want_to_delete_question:Are you sure you want to delete?`
         }).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
@@ -433,7 +406,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     };
     executeAll(mode){
         this.confirm({
-            content: `Are you sure you want to ${mode} selected entries?`
+            content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
         }).subscribe(result => {
             if (result){
                 this.cfpLoadingBar.start();

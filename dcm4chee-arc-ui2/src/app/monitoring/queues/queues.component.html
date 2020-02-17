@@ -1,7 +1,7 @@
 <div class="main_content queues monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2>Queues</h2>
+        <h2 i18n="Title|Title of the Monitoring queues page@@queues">Queues</h2>
         <div class="filter_line">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()"></filter-generator>
@@ -17,7 +17,7 @@
                         <div class="option_block">
                             <div class="interval_block">
                                 <label>Interval:</label>
-                                <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                                <input type="text"  i18n-placeholder placeholder="Interval" [(ngModel)]="interval">
                                 <span>s</span>
                             </div>
                             <button class="btn-default submit" (click)="toggleAutoRefresh()">
@@ -37,17 +37,17 @@
             <div class="filter single_block" [permission]="{id:'action-monitoring->queues-all_action',param:'visible'}">
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left"  i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)" float i18n-placeholder placeholder="never">
                             <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                         </mat-select>
                     </div>
                 </div>
             </div>
         </div>
-        <button class="left_arrow arrow no_style"  title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+        <button class="left_arrow arrow no_style"   i18n-title title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
             <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
         </button>
-        <button class="right_arrow arrow no_style" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+        <button class="right_arrow arrow no_style"  i18n-title title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
             <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
         </button>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
@@ -58,26 +58,26 @@
                 <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" title="Reschedule selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" title="Delete selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href=""  i18n-title title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </div>
                 </th>
-                <th>Queue</th>
-                <th>Study UID</th>
-                <th>Status</th>
-                <th>Failures</th>
-                <th>Created</th>
-                <th>Updated</th>
-                <th>Scheduled</th>
-                <th>Started</th>
-                <th>Finished</th>
+                <th i18n="Table Header|Header of the table in the queues page@@queue">Queue</th>
+                <th i18n="Table Header|Header of the table in the queues page@@study_uid">Study UID</th>
+                <th i18n="Table Header|Header of the table in the queues page@@status">Status</th>
+                <th i18n="Table Header|Header of the table in the queues page@@failures">Failures</th>
+                <th i18n="Table Header|Header of the table in the queues page@@created">Created</th>
+                <th i18n="Table Header|Header of the table in the queues page@@updated">Updated</th>
+                <th i18n="Table Header|Header of the table in the queues page@@scheduled">Scheduled</th>
+                <th i18n="Table Header|Header of the table in the queues page@@started">Started</th>
+                <th i18n="Table Header|Header of the table in the queues page@@finished">Finished</th>
             </tr>
             </thead>
             <tbody>
@@ -86,23 +86,23 @@
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href=""  i18n-title title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.queue"></td>
                     <td [innerHtml]="match.properties.StudyInstanceUID"></td>
-                    <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
-                    <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
+                    <td [innerHtml]="match.properties.status"  i18n-title title="{{match.properties.outcomeMessage}}"></td>
+                    <td [innerHtml]="match.properties.failures"  i18n-title title="{{match.properties.errorMessage}}"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>

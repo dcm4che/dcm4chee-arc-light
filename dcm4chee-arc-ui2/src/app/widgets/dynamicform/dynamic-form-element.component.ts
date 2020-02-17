@@ -39,6 +39,8 @@ export class DynamicFormElementComponent implements OnDestroy{
     // activetab = "tab_1";
     partRemoved: boolean;
     search = new FormControl('');
+
+    $localize = $localize;
     constructor(
         private formservice: FormService,
         private formcomp: DynamicFormComponent,
@@ -99,9 +101,9 @@ export class DynamicFormElementComponent implements OnDestroy{
                 content: 'Are you sure you want to delete the vendor data of this device?'
             }).subscribe(result => {
                 if (result) {
-                    console.log('delete file form device', deviceName);
+                    console.log($localize `:@@dynamic-form-element.delete_file_form_device:delete file form device`, deviceName);
                     $this.$http.delete(`../devices/${deviceName}/vendordata`).subscribe((res) => {
-                        console.log('deleted successfully');
+                        console.log($localize `:@@dynamic-form-element.deleted_successfully:deleted successfully`);
                         /*                    var globalForm = $this.formcomp.getForm();
                                             var valueObject = globalForm.value;
                                             valueObject.dicomVendorData = false;
@@ -119,20 +121,20 @@ export class DynamicFormElementComponent implements OnDestroy{
                         // formelement.controlType = "fileupload";
                         let test = {
                             controlType: 'filedownload',
-                            description: 'Device specific vendor configuration information',
+                            description: $localize `:@@dynamic-form-element.device_specific_vendor_configuration_information:Device specific vendor configuration information`,
                             deviceName: 'Testdevi2',
                             downloadUrl: '../devices/Testdevi2/vendordata',
                             key: 'dicomVendorData',
-                            label: 'Vendor Device Data',
+                            label: $localize `:@@dynamic-form-element.vendor_device_data:Vendor Device Data`,
                             order: 5.02,
                             show: true
                         };
                         let test2 = {
                             controlType: 'fileupload',
-                            description: 'Device specific vendor configuration information',
+                            description: $localize `:@@dynamic-form-element.device_specific_vendor_configuration_information:Device specific vendor configuration information`,
                             deviceName: 'Testdevi2',
                             key: 'dicomVendorData',
-                            label: 'Vendor Device Data',
+                            label: $localize `:@@dynamic-form-element.vendor_device_data:Vendor Device Data`,
                             modus: 'upload',
                             order: 5.02,
                             show: true
@@ -171,7 +173,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     $this.controlService.reloadArchive().subscribe((res) => {
                             $this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': 'Archive reloaded successfully',
+                                'text': $localize `:@@dynamic-form-element.archive_reloaded_successfully:Archive reloaded successfully`,
                                 'status': 'info'
                             });
                             $this.router.navigateByUrl('blank').then(() => {
@@ -279,7 +281,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                                 'status': 'info'
                             });
                             $this.mainservice.setMessage({
-                                'title': 'Click to save',
+                                'title': $localize `:@@dynamic-form-element.click_to_save:Click to save`,
                                 'text': `Click save if you want to remove "${selected.title}" permanently!`,
                                 'status': 'warning'
                             });
@@ -444,7 +446,7 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onValueChange(e, formelement, formcontrol,i){
         try{
-            console.log("trying to set the new value",e);
+            console.log($localize `:@@dynamic-form-element.trying_to_set_the_new_value:trying to set the new value`,e);
             if(formelement.controlType === "dynamiccheckbox"){
                 if(formelement.type === 'array')
                     this.form.setControl(formelement.key,this._fb.array(e));
@@ -468,7 +470,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                 }
             }
         }catch(ev){
-            console.error("error setting changed value",ev);
+            console.error($localize `:@@dynamic-form-element.error_setting_changed_value:error setting changed value`,ev);
         }
         formelement.showPicker = false;
         formelement.showTimePicker = false;
@@ -492,6 +494,17 @@ export class DynamicFormElementComponent implements OnDestroy{
                 formcontrols.setValue("");
             }
         }
+    }
+
+    getTitleBackup(mode:('append'|'remove'), title){
+        switch (mode){
+            case "remove":
+                return $localize `:remove_extension_from_device@@:Remove ${title} extension from device`;
+            case "append":
+                return $localize `:append_extension_to_device@@:Append ${title} extension to device`;
+
+        }
+        return $localize `:`
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){

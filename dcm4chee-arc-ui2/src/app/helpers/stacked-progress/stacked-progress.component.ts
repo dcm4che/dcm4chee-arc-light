@@ -33,7 +33,7 @@ export class StackedProgressComponent implements OnInit {
     setDiffTitle(key){
         if(this.diffModel){
             if(key === 'completed'){
-                return ' ( No diffs )';
+                return $localize `:@@no_diffs: ( No diffs )`;
             }
             if(key === 'warning' && this.extractDiffInformation()){
                 return ` ( ${this.extractDiffInformation()} )`;

@@ -1,13 +1,13 @@
-<p *ngIf="loader">
+<p *ngIf="loader" i18n="@@loading">
   loading...
 </p>
 <div *ngIf="!loader && elements">
   <div class="checkbox_parent" [ngClass]="{'long_mode':longMode}" *ngIf="type === 'array'" #checkboxes>
-      <input *ngIf="longMode" type="text" [(ngModel)]="search" placeholder="Search list...">
+      <input *ngIf="longMode" type="text" [(ngModel)]="search" i18n-placeholder placeholder="Search list...">
       <div *ngFor="let element of elements|search:search"><input type="checkbox" [(ngModel)]="model[element[key]]" (change)="valueChanged()"> {{element[key]}}<br/></div>
       <span class="glyphicon glyphicon-exclamation-sign raw_warning_button" *ngIf="warning" (click)="showRawValues()"></span>
       <div *ngIf="showRaw" class="raw_array_edit">
-          <p>Daemon value found, you can remove it manually from the value array:</p>
+          <p i18n="@@daemon_value_found">Daemon value found, you can remove it manually from the value array:</p>
           <div class="array_body">
             <ng-container *ngFor="let c of Object.keys(model)">
                 <div class="array_element">"{{c}}",</div><div class="button"><div class="button_content"><a class="delete button" (click)="deleteElement(c)"><i class="glyphicon glyphicon-remove"></i></a></div></div><br>

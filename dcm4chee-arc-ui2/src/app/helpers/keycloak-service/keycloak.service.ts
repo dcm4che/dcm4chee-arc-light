@@ -159,10 +159,10 @@ export class KeycloakService {
                                     resolve(<any>KeycloakService.keycloakAuth);
                                 })
                                 .error(() => {
-                                    reject('Failed to refresh token');
+                                    reject($localize `:@@keycloak.failed_to_refresh_token:Failed to refresh token`);
                                 });
                         } else {
-                            reject('Not logged in');
+                            reject($localize `:@@keycloak.not_logged_in:Not logged in`);
                         }
                     }));
                 }else{

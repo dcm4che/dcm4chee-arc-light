@@ -56,7 +56,7 @@ export class RangePickerComponent implements OnInit {
     ) {}
     ngOnInit(){
         this.mode = this.mode || "range";
-        this.header = this.header || "Range picker";
+        this.header = this.header || $localize `:@@range-picker.range_picker:Range picker`;
         if(this.datePickerMode || this.onlySingleMode){
             this.mode = "single";
         }

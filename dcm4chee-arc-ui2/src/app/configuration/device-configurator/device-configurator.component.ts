@@ -14,6 +14,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
+import { loadTranslations } from '@angular/localize';
 
 @Component({
   selector: 'app-device-configurator',
@@ -59,11 +60,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let deviceClone = _.cloneDeep(this.service.device);
 
         if(this.isNew && this.service.checkIfDuplicatedChild(value,this.recentParams)){
-            $this.mainservice.setMessage({
-                'title': 'Error',
-                'text': 'Child already exist, change some value and try saving again!',
-                'status': 'error'
-            });
+            $this.mainservice.showError($localize `:@@device-configurator.child_exist:Child already exist, change some value and try saving again!`);
             $this.cfpLoadingBar.complete();
         }else{
             if(this.inClone){
@@ -117,11 +114,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         .subscribe(
                             (success) => {
                                 console.log('succes', success);
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Device created successfully!',
-                                    'status': 'info'
-                                });
+                                $this.mainservice.setMessage($localize `:@@device-configurator.device_created:Device created successfully!`);
                                 try {
                                     $this.recentParams = {};
                                     $this.service.pagination = $this.params = [
@@ -142,11 +135,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.controlService.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
-                                    $this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': 'Reload successful',
-                                        'status': 'info'
-                                    });
+                                    $this.mainservice.showMsg( $localize `:@@device-configurator.reload_successful:Reload successful`);
                                         $this.cfpLoadingBar.complete();
                                 }, (err) => {
                                     $this.cfpLoadingBar.complete();
@@ -167,11 +156,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }else{
                     _.assign($this.service.device, deviceClone);
                     console.warn('devicename is missing', this.service.device);
-                    $this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': 'Device name is missing!',
-                        'status': 'error'
-                    });
+                    $this.mainservice.showError($localize `:@@device-configurator.device_name_is_missing:Device name is missing!`);
                 }
             }else{
                 let updateDevice = this.service.updateDevice();
@@ -204,7 +189,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     // $this.message = 'Reload successful';
                                     $this.mainservice.setMessage({
                                         'title': 'Info',
-                                        'text': 'Reload successful',
+                                        'text': $localize `:@@device-configurator.reload_successful:Reload successful`,
                                         'status': 'info'
                                     });
                                     if(this.mainservice.deviceName === this.service.device.dicomDeviceName){
@@ -434,11 +419,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }
             }else {
                 //We assume that the user tryes to go one level deeper than allowed
-                $this.mainservice.setMessage({
-                    'title': 'Error',
-                    'text': 'Parent didn\'t exist, save first the parent',
-                    'status': 'error'
-                });
+                $this.mainservice.showError($localize `:@@device-configur.parent_dont_exist:Parent didn't exist, save first the parent`);
                 $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length - 1].url);
                 $this.cfpLoadingBar.complete();
             }

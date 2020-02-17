@@ -67,13 +67,13 @@ export class UploadFilesComponent implements OnInit {
     imageType = [
         {
             title:"Screenshots",
-            description:"Secondary Capture Image Storage",
+            description:$localize `:@@upload-files.secondary_capture_image_storage:Secondary Capture Image Storage`,
             value:"1.2.840.10008.5.1.4.1.1.7",
             modality:"OT"
         },
         {
             title:"Photographs",
-            description:"VL Photographic Image Storage",
+            description:$localize `:@@upload-files.vl_photographic_image_storage:VL Photographic Image Storage`,
             value:"1.2.840.10008.5.1.4.1.1.77.1.4",
             modality:"XC"
         }
@@ -420,43 +420,43 @@ export class UploadFilesComponent implements OnInit {
                                     return (i.toString().indexOf("777") === -1);
                                 });
 /*                                if (!$this.description || $this.description === "") {
-                                    $this.description = "Imported " + descriptionPart;
+                                    $this.description = $localize `:@@upload-files.imported_:Imported ` + descriptionPart;
                                 }*/
                                 if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
                                     studyObject["0008103E"] = {
                                         "vr": "LO",
                                         "Value": [
-                                            "Imported " + descriptionPart
+                                            $localize `:@@upload-files.imported_:Imported ` + descriptionPart
                                         ]
                                     };
                                 }
-                                studyObject["00200013"] = { //"00200013":"Instance Number"
+                                studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
                                     "vr": "IS",
                                     "Value": [
                                         i + 1
                                     ]
                                 };
                                 if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
-                                    studyObject["00200011"] = { // "00200011":"Series Number"
+                                    studyObject["00200011"] = { // "00200011":$localize `:@@upload-files.series_number:Series Number`
                                         "vr": "IS",
                                         "Value": [
                                             _.get(studyObject, "00201209.Value[0]")*1 + 1
                                         ]
                                     };
-                                    studyObject["00200013"] = { //"00200013":"Instance Number"
+                                    studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
                                         "vr": "IS",
                                         "Value": [
                                             _.get(studyObject, "00201209.Value[0]")*1 + i*1 + 1
                                         ]
                                     };
                                 }else{
-                                    studyObject["00200011"] = { // "00200011":"Series Number"
+                                    studyObject["00200011"] = { // "00200011":$localize `:@@upload-files.series_number:Series Number`
                                         "vr": "IS",
                                         "Value": [
                                             this.seriesNumber || 0
                                         ]
                                     };
-                                    studyObject["00200013"] = { //"00200013":"Instance Number"
+                                    studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
                                         "vr": "IS",
                                         "Value": [
                                             i + 1
@@ -464,7 +464,7 @@ export class UploadFilesComponent implements OnInit {
                                     };
                                 }
                                 if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
-                                    studyObject["0020000E"] = { ///"0020000E":"Series Instance UID" //Decides if the file in the same series appear
+                                    studyObject["0020000E"] = { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
                                         "vr": "UI",
                                         "Value": [
                                             seriesInstanceUID
@@ -633,13 +633,13 @@ export class UploadFilesComponent implements OnInit {
                                         if (xmlHttpRequest.status === 200) {
                                             $this.percentComplete[file.name]['showLoader'] = false;
                                             $this.percentComplete[file.name]['showTicker'] = true;
-                                            console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                            console.log($localize `:@@upload-files.in_response:in response`, JSON.parse(xmlHttpRequest.response));
                                         } else {
                                             $this.percentComplete[file.name]['showLoader'] = false;
-                                            console.log('in respons error', xmlHttpRequest.status);
+                                            console.log($localize `:@@upload-files.in_respons_error:in respons error`, xmlHttpRequest.status);
                                             console.log('statusText', xmlHttpRequest.statusText);
                                             $this.percentComplete[file.name]['value'] = 0;
-                                            $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                            $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + $localize `:@@upload-files._: ` + xmlHttpRequest.statusText;
                                         }
                                     }
                                     // $this.percentComplete[file.name]['showLoader'] = true;
@@ -745,7 +745,7 @@ export class UploadFilesComponent implements OnInit {
                     }
                 });
             }else{
-                this.mainservice.showError('No Web Application with the Web Service Class "STOW_RS" found in this device');
+                this.mainservice.showError($localize `:@@upload-files.no_web_application_with_the_web_service_class_"stow_rs"_found_in_this_device:No Web Application with the Web Service Class "STOW_RS" found in this device`);
                 this.dialogRef.close(null);
             }
         },(err)=>{

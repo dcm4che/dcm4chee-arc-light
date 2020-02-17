@@ -95,19 +95,19 @@ export class QueuesService{
         return [
             {
                 value:"createdTime",
-                text:"Sort by creation time (ASC)"
+                text:$localize `:@@sort_by_creation_time_asc:Sort by creation time (ASC)`
             },
             {
                 value:"-createdTime",
-                text:"Sort by creation time (DESC)"
+                text:$localize `:@@sort_by_creation_time_desc:Sort by creation time (DESC)`
             },
             {
                 value:"updatedTime",
-                text:"Sort by updated time (ASC)"
+                text:$localize `:@@sort_by_updated_time_asc:Sort by updated time (ASC)`
             },
             {
                 value:"-updatedTime",
-                text:"Sort by updated time (DESC)"
+                text:$localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
             }
         ]
     };
@@ -116,31 +116,31 @@ export class QueuesService{
         return [
             {
                 value:"SCHEDULED",
-                text:"SCHEDULED"
+                text:$localize `:@@SCHEDULED:SCHEDULED`
             },
             {
                 value:"IN PROCESS",
-                text:"IN PROCESS"
+                text:$localize `:@@queues.in_process:IN PROCESS`
             },
             {
                 value:"COMPLETED",
-                text:"COMPLETED"
+                text:$localize `:@@COMPLETED:COMPLETED`
             },
             {
                 value:"WARNING",
-                text:"WARNING"
+                text:$localize `:@@WARNING:WARNING`
             },
             {
                 value:"FAILED",
-                text:"FAILED"
+                text:$localize `:@@FAILED:FAILED`
             },
             {
                 value:"CANCELED",
-                text:"CANCELED"
+                text:$localize `:@@CANCELED:CANCELED`
             },
         ]
     }
-    getFilterSchema(queueNames, devices, counText){
+    getFilterSchema(queueNames, devices, countText){
         return [
             {
                 tag:"select",
@@ -152,23 +152,23 @@ export class QueuesService{
                 }),
                 showStar:true,
                 filterKey:"queueName",
-                description:"Queue name",
-                placeholder:"Queue"
+                description:$localize `:@@queues.queue_name:Queue name`,
+                placeholder:$localize `:@@queue:Queue`
             },{
                 tag:"select",
                 options:this.sortValues(),
                 showStar:true,
                 filterKey:"orderby",
-                description:"Sort",
-                placeholder:"Sort"
+                description:$localize `:@@sort:Sort`,
+                placeholder:$localize `:@@sort:Sort`
             },
             {
                 tag:"select",
                 options:this.statuses(),
                 showStar:true,
                 filterKey:"status",
-                description:"Status",
-                placeholder:"Status"
+                description:$localize `:@@status:Status`,
+                placeholder:$localize `:@@status:Status`
             },{
                 tag:"select",
                 options:devices.map(d=>{
@@ -179,48 +179,48 @@ export class QueuesService{
                 }),
                 showStar:true,
                 filterKey:"dicomDeviceName",
-                description:"Device name",
-                placeholder:"Device name"
+                description:$localize `:@@queues.device_name:Device name`,
+                placeholder:$localize `:@@queues.device_name:Device name`
             },
             {
                 tag:"label",
-                text:"Page size"
+                text:$localize `:@@queues.page_size:Page size`
             },
             {
                 tag:"input",
                 type:"number",
                 filterKey:"limit",
-                description:"Limit"
+                description:$localize `:@@limit:Limit`
             },
             {
                 tag:"range-picker",
                 filterKey:"createdTime",
-                description:"Created Date"
+                description:$localize `:@@queues.created_date:Created Date`
             },
             {
                 tag:"range-picker",
                 filterKey:"updatedTime",
-                description:"Updated Date"
+                description:$localize `:@@queues.updated_date:Updated Date`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"batchID",
-                description:"Batch ID",
-                placeholder:"Batch ID"
+                description:$localize `:@@queues.batch_id:Batch ID`,
+                placeholder:$localize `:@@queues.batch_id:Batch ID`
             },{
                 tag:"dummy"
             },
             {
                 tag:"button",
-                text:counText,
+                text:countText,
                 id:"count",
-                description:"Get Count"
+                description:$localize `:@@queues.get_count:Get Count`
             },
             {
                 tag:"button",
                 id:"submit",
-                text:"SUBMIT",
-                description:"Maximal number of tasks in returned list"
+                text:$localize `:@@SUBMIT:SUBMIT`,
+                description:$localize `:@@queues.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
             }
         ]
     }

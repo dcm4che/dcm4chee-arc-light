@@ -1,7 +1,7 @@
 <div class="main_content float_content white_design">
   <config-tab></config-tab>
     <div class="tab-content">
-        <h2>Web Applications</h2>
+        <h2 i18n="@@web-apps-list.web_applications">Web Applications</h2>
         <div class="filter_line">
             <div class="filter_block">
                 <filter-generator [filterIdTemplate]="'web-apps-list'" [schema]="filterSchema" [model]="filterObject" (submit)="submit($event)" [filterTreeHeight]="filterHeight"></filter-generator>

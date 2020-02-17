@@ -4,6 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";
+import { loadTranslations } from '@angular/localize';
 
 @Injectable()
 export class Hl7ApplicationsService {
@@ -20,26 +21,26 @@ export class Hl7ApplicationsService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:"Device name",
-                placeholder:"Device name"
+                description:$localize `:@@hl7-applications.device_name:Device name`,
+                placeholder:$localize `:@@hl7-applications.device_name:Device name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"hl7ApplicationName",
-                description:"hl7 Application Name",
-                placeholder:"hl7 Application Name"
+                description:$localize `:@@hl7-applications.hl7_application_name:hl7 Application Name`,
+                placeholder:$localize `:@@hl7-applications.hl7_application_name:hl7 Application Name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomApplicationCluster",
-                description:"Application Cluster",
-                placeholder:"Application Cluster"
+                description:$localize `:@@hl7-applications.application_cluster:Application Cluster`,
+                placeholder:$localize `:@@hl7-applications.application_cluster:Application Cluster`
             },
             {
                 tag: "button",
                 id: "submit",
-                text: "SUBMIT",
-                description: "Query Devices"
+                text: $localize `:@@SUBMIT:SUBMIT`,
+                description: $localize `:@@hl7-applications.query_devices:Query Devices`
             }
         ],2)
     }

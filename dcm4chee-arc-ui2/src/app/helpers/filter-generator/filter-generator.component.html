@@ -15,7 +15,7 @@
                 <i class="fa fa-circle-o-notch fa-spin"></i>
             </span>
             <ul class="templates not_found" *ngIf="noFilterFound">
-                <li>No filter-templates found!</li>
+                <li i18n="@@no_filter_template_found">No filter-templates found!</li>
             </ul>
             <ul class="templates" *ngIf="filterTemplates">
                 <li *ngFor="let filter of filterTemplates"><a  title="{{filter.dcmuiFilterTemplateDescription}}" (click)="$event.preventDefault();openTemplateFilter(filter)">{{filter.dcmuiFilterTemplateGroupName}}</a><span class="glyphicon glyphicon-remove" (click)="removeFilterTemplate(filter)"></span></li>

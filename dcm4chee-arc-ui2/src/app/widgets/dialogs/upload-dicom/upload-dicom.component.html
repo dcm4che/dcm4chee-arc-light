@@ -1,22 +1,22 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5>Upload DICOM data</h5>
+        <h5 i18n="@@upload-dicom.title">Upload DICOM data</h5>
         <div class="content">
             <ng-container *ngIf="!selectedWebApp">
-                <label>Select the ae title:</label>
+                <label i18n="@@upload-dicom.select_the_ae_title">Select the ae title:</label>
                 <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                     <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
                 </mat-select>
             </ng-container>
             <ng-container *ngIf="selectedWebApp">
-                <label>Select the STOW-RS server:</label>
+                <label i18n="@@upload-dicom.select_the_stow_rs_server">Select the STOW-RS server:</label>
                 <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
-            <label>Chose DICOM Files to upload:</label>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  multiple>
+            <label i18n="@@upload-dicom.chose_dicom_files_to_upload">Chose DICOM Files to upload:</label>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder placeholder="Upload file"  multiple>
             <div mat-dialog-content>
                 <div class="upload_state" *ngFor="let file of fileList">
                     {{file.name}}
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="cancle" type="button" (click)="close(dialogRef)">CLOSE</button>
+            <button class="cancle" type="button" (click)="close(dialogRef)" i18n="@@CLOSE">CLOSE</button>
         </div>
     </div>
 </div>

@@ -7,6 +7,7 @@ import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component"
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
+import { loadTranslations } from '@angular/localize';
 
 @Injectable()
 export class DevicesService {
@@ -96,7 +97,7 @@ export class DevicesService {
     selectDevice(callBack, devices? ,addScheduleTime?:boolean){
         let setParams = function(tempDevices){
             let schema:any = {
-                content: 'Select device if you wan\'t to reschedule to an other device',
+                content: $localize `:@@devices.select_device_to_reschedule:Select device if you want to reschedule to an other device`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -110,8 +111,8 @@ export class DevicesService {
                                 options:tempDevices,
                                 showStar:true,
                                 filterKey:"newDeviceName",
-                                description:"Device",
-                                placeholder:"Device"
+                                description:$localize `:@@device:Device`,
+                                placeholder:$localize `:@@device:Device`
                             }
                         ]
                     ]
@@ -127,13 +128,13 @@ export class DevicesService {
                 schema.form_schema[0][0].push([
                     {
                         tag:"label",
-                        text:"Scheduled Time"
+                        text:$localize `:@@devices.scheduled_time:Scheduled Time`
                     }
                     ,{
                         tag:"range-picker-time",
                         type:"text",
                         filterKey:"scheduledTime",
-                        description:"Scheduled Time"
+                        description:$localize `:@@devices.scheduled_time:Scheduled Time`
                     }
                 ]);
             }
@@ -173,72 +174,72 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:"Device name",
-                placeholder:"Device name"
+                description:$localize `:@@devices.device_name:Device name`,
+                placeholder:$localize `:@@devices.device_name:Device name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceDescription",
-                description:"Device description",
-                placeholder:"Device description"
+                description:$localize `:@@devices.device_description:Device description`,
+                placeholder:$localize `:@@devices.device_description:Device description`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomManufacturer",
-                description:"Manufacturer",
-                placeholder:"Manufacturer"
+                description:$localize `:@@devices.manufacturer:Manufacturer`,
+                placeholder:$localize `:@@devices.manufacturer:Manufacturer`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomManufacturerModelName",
-                description:"Manufacturer model name",
-                placeholder:"Manufacturer model name"
+                description:$localize `:@@devices.manufacturer_model_name:Manufacturer model name`,
+                placeholder:$localize `:@@devices.manufacturer_model_name:Manufacturer model name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomSoftwareVersion",
-                description:"Software version",
-                placeholder:"Software version"
+                description:$localize `:@@devices.software_version:Software version`,
+                placeholder:$localize `:@@devices.software_version:Software version`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomStationName",
-                description:"Station name",
-                placeholder:"Station name"
+                description:$localize `:@@devices.station_name:Station name`,
+                placeholder:$localize `:@@devices.station_name:Station name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomPrimaryDeviceType",
-                description:"Primary device type",
-                placeholder:"Primary device type"
+                description:$localize `:@@devices.primary_device_type:Primary device type`,
+                placeholder:$localize `:@@devices.primary_device_type:Primary device type`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomInstitutionName",
-                description:"Institution name",
-                placeholder:"Institution name"
+                description:$localize `:@@devices.institution_name:Institution name`,
+                placeholder:$localize `:@@devices.institution_name:Institution name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomInstitutionDepartmentName",
-                description:"Institution department name",
-                placeholder:"Institution department name"
+                description:$localize `:@@devices.institution_department_name:Institution department name`,
+                placeholder:$localize `:@@devices.institution_department_name:Institution department name`
             },{
                 tag:"select",
                 options:[
-                    new SelectDropdown("true","Installed"),
-                    new SelectDropdown("false","Not installed"),
+                    new SelectDropdown("true",$localize `:@@installed:Installed`),
+                    new SelectDropdown("false",$localize `:@@not_installed:Not installed`),
                 ],
                 showStar:true,
                 filterKey:"dicomInstalled",
-                description:"Device installed",
-                placeholder:"Installed"
+                description:$localize `:@@devices.device_installed:Device installed`,
+                placeholder:$localize `:@@installed:Installed`
             },
             {
                 tag: "button",
                 id: "submit",
-                text: "SUBMIT",
-                description: "Query Devices"
+                text: $localize `:@@SUBMIT:SUBMIT`,
+                description: $localize `:@@devices.query_devices:Query Devices`
             }
         ],2)
     }

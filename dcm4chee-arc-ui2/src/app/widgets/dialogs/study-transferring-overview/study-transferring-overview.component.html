@@ -1,7 +1,7 @@
 <h3>{{title}}</h3>
 <div *ngIf="selectedElements.action === 'move' || selectedElements.action === 'link'">
     <div class="line_block">
-        <span class="line_element">Select rejected type:</span>
+        <span class="line_element" i18n="@@study_transferring_overview.select_reject_type">Select rejected type:</span>
         <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
             <option *ngFor="let rjn of rjnotes" title="{{rjn.title}}" value="{{rjn.value}}">{{rjn.text}}</option>
         </select>
@@ -9,23 +9,23 @@
 </div>
 <ng-container [ngSwitch]="target.dicomLevel">
     <div *ngSwitchCase="'patient'">
-        <h3>Selected target patient</h3>
+        <h3 i18n="@@selected_target_patient">Selected target patient</h3>
         <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></span><br>
         <ng-template #noname>Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-template>
         <div *ngIf="selectedElements.action != 'merge'">
-            (An empty study will be automatically created, so it can be used as target study!)
+            ( <ng-container i18n="@@study-transferring_overview.an_empty_study_will_be_automatically_created">An empty study will be automatically created, so it can be used as target study!</ng-container> )
         </div>
     </div>
     <div class="targetobject" *ngSwitchCase="'mwl'">
-        <h3>Selected target MWL</h3>
+        <h3 i18n="@@selected_target_mwl">Selected target MWL</h3>
         <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname">Patient Name:<b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
         <ng-template #noname>Patient ID: <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-template>
-        <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]">Scheduled Station AE Title: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]"><ng-container i18n="@@study-transferring-overview.scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
         <br>
     </div>
     <div *ngSwitchDefault>
-        <h3>Selected target study</h3>
-        Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b><br>
+        <h3 i18n="@@selected_target_study">Selected target study</h3>
+        <ng-container i18n="@@study-transferring-overview.studuid_from_patient_report">Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-container><br>
     </div>
 </ng-container>
 
@@ -34,5 +34,5 @@
 </ng-container>
 <div class="dialogbuttons">
   <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})" [disabled]="(selectedElements.action === 'move' || selectedElements.action === 'link') && !reject">{{selectedElements.action|uppercase}}</button>
-  <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+  <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
 </div>

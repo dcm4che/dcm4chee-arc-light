@@ -182,7 +182,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     createNewFilterTemplateToDevice(newTemplateName, device){
         let newObject = {
             dcmuiFilterTemplateDefault:false,
-            dcmuiFilterTemplateDescription:'Test description',
+            dcmuiFilterTemplateDescription:$localize `:@@filter-generator.test_description:Test description`,
             dcmuiFilterTemplateFilters:Object.keys(this.model).filter(m=>{
                 return this.model[m];
             }).map(k=>{
@@ -202,7 +202,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     removeFilterTemplate(filter){
         this.confirm({
-            content: 'Are you sure you want to remove this filter-template?'
+            content: $localize `@@remove_filter_template:Are you sure you want to remove this filter-template?`
         }).subscribe((ok)=>{
             if(ok){
                 console.log("filter",filter);
@@ -212,7 +212,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     saveFilterTemplate(){
         if(!this.appService.deviceName){
             this.confirm({
-                content: 'Archive device name not found, reload the page and try again!'
+                content: $localize `:@@device_name_not_found:Archive device name not found, reload the page and try again!`
             }).subscribe((ok)=>{});
         }else{
             console.log("device name",this.appService.deviceName);
@@ -220,13 +220,13 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                 console.log("arch",arch);
 
                 this.confirm({
-                    content: 'Set the name for the new filter template:',
+                    content: $localize `:@@set_filter_template_name:Set the name for the new filter template:`,
                     input: {
                         name: 'newdevice',
                         type: 'text'
                     },
                     result: {input: ''},
-                    saveButton: 'SAVE'
+                    saveButton: $localize `:@@SAVE:SAVE`
                 }).subscribe((ok)=>{
                     if(ok){
                         console.log("result.input",ok.input);
@@ -247,7 +247,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     openTemplateList(){
         if(!this.appService.deviceName){
             this.confirm({
-                content: 'Archive device name not found, reload the page and try again!'
+                content: $localize `:@@archive_device_name_not_found:Archive device name not found, reload the page and try again!`
             }).subscribe((ok)=>{});
         }else{
             console.log("device name",this.appService.deviceName);

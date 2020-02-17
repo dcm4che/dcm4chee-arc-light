@@ -73,30 +73,30 @@ export class RetrieveMonitoringService {
         return [
             {
                 value:"TO SCHEDULE",
-                text:"TO SCHEDULE"
+                text:$localize `:@@to_schedule:TO SCHEDULE`
             },{
                 value:"SCHEDULED",
-                text:"SCHEDULED"
+                text:$localize `:@@SCHEDULED:SCHEDULED`
             },
             {
-                value:"IN PROCESS",
-                text:"IN PROCESS"
+                value:$localize `:@@in_process:IN PROCESS`,
+                text:$localize `:@@in_process:IN PROCESS`
             },
             {
                 value:"COMPLETED",
-                text:"COMPLETED"
+                text:$localize `:@@COMPLETED:COMPLETED`
             },
             {
                 value:"WARNING",
-                text:"WARNING"
+                text:$localize `:@@WARNING:WARNING`
             },
             {
                 value:"FAILED",
-                text:"FAILED"
+                text:$localize `:@@FAILED:FAILED`
             },
             {
                 value:"CANCELED",
-                text:"CANCELED"
+                text:$localize `:@@CANCELED:CANCELED`
             }
         ];
     }
@@ -108,16 +108,16 @@ export class RetrieveMonitoringService {
                 options:destinationAET,
                 showStar:true,
                 filterKey:"DestinationAET",
-                placeholder:"Destination AET",
-                description:"Destination AE Title to filter by"
+                placeholder:$localize `:@@destination_aet:Destination AET`,
+                description:$localize `:@@destination_ae_title_to_filter_by:Destination AE Title to filter by`
             };
         }else{
             destinationAet = {
                 tag:"input",
                 type:"text",
                 filterKey:"DestinationAET",
-                placeholder:"Destination AET",
-                description:"Destination AE Title to filter by"
+                placeholder:$localize `:@@destination_aet:Destination AET`,
+                description:$localize `:@@destination_ae_title_to_filter_by:Destination AE Title to filter by`
             }
         }
     return [
@@ -125,38 +125,38 @@ export class RetrieveMonitoringService {
                 [
                     {
                         tag:"label",
-                        text:"Device name"
+                        text:$localize `:@@device_name:Device name`
                     },
                     {
                         tag:"select",
                         options:devices,
                         showStar:true,
                         filterKey:"dicomDeviceName",
-                        description:"Device Name to filter by"
+                        description:$localize `:@@device_name_to_filter_by:Device Name to filter by`
                     }
                 ],[
                     {
                         tag:"label",
-                        text:"LocalAET"
+                        text:$localize `:@@localaet:Local AET`
                     },{
                         tag:"select",
                         options:localAET,
                         showStar:true,
                         filterKey:"LocalAET",
-                        description:"Archive AE Title to filter by"
+                        description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`
                     }
                 ],
                 [
                     {
                         tag:"label",
-                        text:"RemoteAET"
+                        text:$localize `:@@remoteaet:Remote AET`
                     },
                     {
                         tag:"select",
                         options:remoteAET,
                         showStar:true,
                         filterKey:"RemoteAET",
-                        description:"C-MOVE SCP AE Title to filter by"
+                        description:$localize `:@@c_move_scp_aet_filter:C-MOVE SCP AE Title to filter by`
                     }
                 ]
             ],[
@@ -165,23 +165,23 @@ export class RetrieveMonitoringService {
                         tag:"multi-select",
                         options:queueNames,
                         filterKey:"dcmQueueName",
-                        description:"Queue Name",
+                        description:$localize `:@@queue_name:Queue Name`,
                         showSearchField:true,
                         showStar:true,
-                        placeholder:"Queue Name"
+                        placeholder:$localize `:@@queue_name:Queue Name`
                     },
                     destinationAet
                 ],
                 [
                     {
                         tag:"label",
-                        text:"Limit"
+                        text:$localize `:@@limit:Limit`
                     },
                     {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:"Maximal number of tasks in returned list"
+                        description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ],
                 [
@@ -189,16 +189,16 @@ export class RetrieveMonitoringService {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:"Batch ID",
-                        placeholder:"Batch ID"
+                        description:$localize `:@@batch_id:Batch ID`,
+                        placeholder:$localize `:@@batch_id:Batch ID`
                     },
                     {
                         tag:"select",
                         options:this.statusValues(),
                         filterKey:"status",
                         showStar:true,
-                        description:"Status of tasks to filter by",
-                        placeholder:"Status"
+                        description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
+                        placeholder:$localize `:@@Status:Status`
                     }
                 ]
             ],[
@@ -206,12 +206,12 @@ export class RetrieveMonitoringService {
                     {
                         tag:"range-picker",
                         filterKey:"createdTime",
-                        description:"Created Date"
+                        description:$localize `:@@created_date:Created Date`
                     },
                     {
                         tag:"range-picker",
                         filterKey:"updatedTime",
-                        description:"Updated Date"
+                        description:$localize `:@@updated_date:Updated Date`
                     }
                 ],
                 [
@@ -219,32 +219,32 @@ export class RetrieveMonitoringService {
                         tag:"select",
                         options:[{
                                 value:'createdTime',
-                                text:'Sort by creation time (ASC)'
+                                text:$localize `:@@sort_by_creation_time_asc:Sort by creation time (ASC)`
                             },
                             {
                                 value:'-createdTime',
-                                text:'Sort by creation time (DESC)'
+                                text:$localize `:@@sort_by_creation_time_desc:Sort by creation time (DESC)`
                             },
                             {
                                 value:'updatedTime',
-                                text:'Sort by updated time (ASC)'
+                                text:$localize `:@@sort_by_updated_time_asc:Sort by updated time (ASC)`
                             },
                             {
                                 value:'-updatedTime',
-                                text:'Sort by updated time (DESC)'
+                                text:$localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
                             }
                         ],
                         showStar:true,
                         filterKey:"orderby",
-                        description:"Sort",
-                        placeholder:"Sort"
+                        description:$localize `:@@sort:Sort`,
+                        placeholder:$localize `:@@sort:Sort`
                     },
                     {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyInstanceUID",
-                        description:"Unique Identifier of the Study to filter by",
-                        placeholder:"Study Instance UID"
+                        description:$localize `:@@unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
+                        placeholder:$localize `:@@study_instance_uid:Study Instance UID`
                     }
                 ],
                 [
@@ -252,13 +252,13 @@ export class RetrieveMonitoringService {
                         tag:"button",
                         id:"count",
                         text:countText,
-                        description:"QUERIE ONLY THE COUNT"
+                        description:$localize `:@@querie_only_the_count:QUERIE ONLY THE COUNT`
                     },
                     {
                         tag:"button",
                         id:"submit",
-                        text:"SUBMIT",
-                        description:"Maximal number of tasks in returned list"
+                        text:$localize `:@@SUBMIT:SUBMIT`,
+                        description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ]
             ]

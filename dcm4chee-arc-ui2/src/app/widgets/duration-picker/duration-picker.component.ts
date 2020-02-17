@@ -1,6 +1,35 @@
 import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import * as _ from 'lodash';
 
+const WEEK = {
+    plural:$localize `:@@week_plural:weeks`,
+    singular:$localize `:@@week_singular:week`
+};
+const YEAR = {
+    plural:$localize `:@@year_plural:years`,
+    singular:$localize `:@@year_singular:year`
+};
+const DAY = {
+    plural:$localize `:@@day_plural:days`,
+    singular:$localize `:@@day_singular:day`
+};
+const HOUR = {
+    plural:$localize `:@@hour_plural:hours`,
+    singular:$localize `:@@hour_singular:hour`
+};
+const MINUTE = {
+    plural:$localize `:@@minute_plural:minutes`,
+    singular:$localize `:@@minute_singular:minute`
+};
+const SECOND = {
+    plural:$localize `:@@second_plural:seconds`,
+    singular:$localize `:@@second_singular:second`
+};
+const MONTH = {
+    plural:$localize `:@@month_plural:months`,
+    singular:$localize `:@@month_singular:month`
+};
+
 @Component({
   selector: 'duration-picker',
   templateUrl: './duration-picker.component.html',
@@ -133,25 +162,25 @@ export class DurationPickerComponent implements OnInit {
     onModelChange(e){
         if(this.mode === 'dcmPeriod'){
             if(this._isset(this.week)){
-                this.message = `This period will last ${this.week} week${(this.week > 1?'s':'')}`;
+                this.message = $localize `:@@this_period_will_last_week:This period will last ${this.week}:@@week: ${(this.week > 1?WEEK.plural:WEEK.singular)}@@:word_for_week:`;
             }else{
                 this.message = this._generateSentenceWithCountableWords({
-                    start: 'This period will last',
+                    start: $localize `:@@duration-picker.this_period_will_last:This period will last`,
                     words:[
                         {
                             value:this.y,
-                            word:'year',
-                            wordPlural:"years"
+                            word:YEAR.singular,
+                            wordPlural:YEAR.plural
                         },
                         {
                             value:this.month,
-                            word:'month',
-                            wordPlural:"months"
+                            word:MONTH.singular,
+                            wordPlural:MONTH.plural
                         },
                         {
                             value:this.d,
-                            word:'day',
-                            wordPlural:"days"
+                            word:DAY.singular,
+                            wordPlural:DAY.plural
                         }
                     ]
                 })
@@ -160,27 +189,27 @@ export class DurationPickerComponent implements OnInit {
         }
         if(this.mode === 'dcmDuration'){
             this.message = this._generateSentenceWithCountableWords({
-                start: 'This duration will last',
+                start: $localize `:@@duration-picker.this_duration_will_last:This duration will last`,
                 words:[
                     {
                         value:this.d,
-                        word:'day',
-                        wordPlural:"days"
+                        word:DAY.singular,
+                        wordPlural:DAY.plural
                     },
                     {
                         value:this.h,
-                        word:'hour',
-                        wordPlural:"hours"
+                        word:HOUR.singular,
+                        wordPlural:HOUR.plural
                     },
                     {
                         value:this.m,
-                        word:'minute',
-                        wordPlural:"minutes"
+                        word:MINUTE.singular,
+                        wordPlural:MINUTE.plural
                     },
                     {
                         value:this.s,
-                        word:'second',
-                        wordPlural:"seconds"
+                        word:SECOND.singular,
+                        wordPlural:SECOND.plural
                     }
                 ]
             });

@@ -103,7 +103,7 @@ export class MetricsComponent implements OnInit {
                 this.appService.showError(validation.msg);
             }
         }else{
-            this.appService.showError("Metrics Name is missing");
+            this.appService.showError($localize `:@@metrics.metrics_name_is_missing:Metrics Name is missing`);
         }
     }
     validFilter(){
@@ -120,7 +120,7 @@ export class MetricsComponent implements OnInit {
         if(_.hasIn(this.filterObject,"limit") && this.filterObject["limit"] && _.parseInt(this.filterObject["limit"].toString()) < 1){
             validation = {
                 valid:false,
-                msg:"Limit value is not valid!"
+                msg:$localize `:@@limit_not_valid:Limit value is not valid!`
             };
         }
         return validation;
@@ -151,7 +151,7 @@ export class MetricsComponent implements OnInit {
         this.service.getMetricsDescriptors().subscribe((res:MetricsDescriptors[])=>{
             this.metricsDescriptors = res;
             if(!res || res.length === 0){
-                this.appService.showError("No Metrics Descriptors were found, please configure Metrics Descriptors first");
+                this.appService.showError($localize `:@@metrics_descriptors_not_found:No Metrics Descriptors were found, please configure Metrics Descriptors first`);
             }else{
                 this.selectedMetricsDescriptors = res[0];
             }
