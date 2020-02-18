@@ -450,8 +450,12 @@ public class StowRS {
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
             BulkDataWithMediaType bulkdataWithMediaType = resolveBulkdataRefs(attrs);
-            ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
-            supplementAttrs(ctx, session, attrs, instanceNumber, bulkdataWithMediaType);
+            if (bulkdataWithMediaType == null) 
+                ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            else {
+                ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
+                supplementAttrs(ctx, session, attrs, instanceNumber, bulkdataWithMediaType);
+            }
             service.store(ctx, attrs);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
