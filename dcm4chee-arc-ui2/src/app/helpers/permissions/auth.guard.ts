@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
                 this.router.navigateByUrl('/permission-denied');
                 this.appservice.setMessage({
                     'title': $localize `:@@auth.permission_denied:Permission denied`,
-                    'text': $localize `:@@you_dont_have_access_permission:You don't have permission to access ${state.url}`,
+                    'text': $localize `:@@you_dont_have_access_permission:You don\'t have permission to access ${state.url}`,
                     'status': 'error'
                 });
             }

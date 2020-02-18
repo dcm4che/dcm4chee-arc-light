@@ -499,12 +499,12 @@ export class DynamicFormElementComponent implements OnDestroy{
     getTitleBackup(mode:('append'|'remove'), title){
         switch (mode){
             case "remove":
-                return $localize `:remove_extension_from_device@@:Remove ${title} extension from device`;
+                return $localize `:@@remove_extension_from_device:Remove ${title} extension from device`;
             case "append":
-                return $localize `:append_extension_to_device@@:Append ${title} extension to device`;
+                return $localize `:@@append_extension_to_device:Append ${title} extension to device`;
 
         }
-        return $localize `:`
+        return ""
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){

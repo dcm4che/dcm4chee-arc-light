@@ -206,7 +206,7 @@ export class AppComponent implements OnInit {
         setTimeout(() => {
             this.msg.setMsg({
                 'title': $localize `:@@app.info:Info `,
-                'text': $localize `:@@app.info_message:@@Info message!`,
+                'text': $localize `:@@app.info_message:Info message!`,
                 'status': 'info'
             });
         }, 500);

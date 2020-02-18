@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file source-language="en" datatype="plaintext" original="ng2.template">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
     <body>
       <trans-unit id="OK" datatype="html">
         <source>OK</source>
@@ -107,17 +107,14 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="bbdf77278421c25f6efbe062bc2db1e7fa982d0d" datatype="html">
+      <trans-unit id="queues" datatype="html">
         <source>Queues</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
-          <context context-type="linenumber">4</context>
-        </context-group>
-        <note priority="1" from="description">queues</note>
+        <note priority="1" from="description">Title of the Monitoring queues page</note>
+        <note priority="1" from="meaning">Title</note>
       </trans-unit>
       <trans-unit id="7d49310535abb3792d8c9c991dd0d990d73d29af" datatype="html">
         <source>Interval</source>
@@ -231,77 +228,118 @@
           <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="91f9d49fca8f40714f2dda92688a0a05197f0bd6" datatype="html">
+      <trans-unit id="queue" datatype="html">
         <source>Queue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">72</context>
         </context-group>
-        <note priority="1" from="description">queue</note>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="94543b95be8a677a046763bbc63e5e2a14b80239" datatype="html">
+      <trans-unit id="study_uid" datatype="html">
         <source>Study UID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">73</context>
         </context-group>
-        <note priority="1" from="description">study_uid</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">110</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="81b97b8ea996ad1e4f9fca8415021850214884b1" datatype="html">
+      <trans-unit id="status" datatype="html">
         <source>Status</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">74</context>
         </context-group>
-        <note priority="1" from="description">status</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="fe5612c7b16913bf2925b71952835c149be76dd2" datatype="html">
+      <trans-unit id="failures" datatype="html">
         <source>Failures</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">75</context>
         </context-group>
-        <note priority="1" from="description">failures</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="1b051734b0ee9021991c91b3ed4e81c244322462" datatype="html">
+      <trans-unit id="created" datatype="html">
         <source>Created</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">76</context>
         </context-group>
-        <note priority="1" from="description">created</note>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="9da0107a35751e722c8b4bca7636fc7645dbdbdc" datatype="html">
+      <trans-unit id="updated" datatype="html">
         <source>Updated</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">77</context>
         </context-group>
-        <note priority="1" from="description">updated</note>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="5e420747842373fa99a75a7a18df068cc81e46fb" datatype="html">
+      <trans-unit id="scheduled" datatype="html">
         <source>Scheduled</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">78</context>
         </context-group>
-        <note priority="1" from="description">scheduled</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="e6cfbe0c5e0302ba2cec22315f6a28f8ac46b651" datatype="html">
+      <trans-unit id="started" datatype="html">
         <source>Started</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">79</context>
         </context-group>
-        <note priority="1" from="description">started</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="edcc19a49c950289ffe5d38be4843cdf194e5622" datatype="html">
+      <trans-unit id="finished" datatype="html">
         <source>Finished</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">80</context>
         </context-group>
-        <note priority="1" from="description">finished</note>
+        <note priority="1" from="description">Header of the table in the queues page</note>
+        <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
       <trans-unit id="5cd2286d986fff793d34b50df71936d9e3171c5f" datatype="html">
         <source>Show Properties</source>
@@ -377,20 +415,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">144</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="1fb912737cda5eed8c1b2af98c1f0caf0f706c80" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{match.properties.outcomeMessage}}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
-          <context context-type="linenumber">104</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="f0ebe2ef2d6e215b06d4f995770af2514de99b41" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{match.properties.errorMessage}}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
-          <context context-type="linenumber">105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7e3d66364fa3b27bd2ad666f1662ad35d4e77141" datatype="html">
@@ -1039,21 +1063,6 @@
           <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="b303c636cb79dccac835da059dc955d7cdb4d6ce" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{aet.dicomDescription}}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
-          <context context-type="linenumber">96</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
-          <context context-type="linenumber">113</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
-          <context context-type="linenumber">119</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="queue_name" datatype="html">
         <source>Queue Name:</source>
         <context-group purpose="location">
@@ -1067,13 +1076,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">96</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="fb9df2502b784bfb89f5736e16990229a22110b4" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{queue.title}}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
-          <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="select_the_query_aetitle" datatype="html">
@@ -1096,13 +1098,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
           <context context-type="linenumber">34</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="764ff3e76c7da7507121b59ad44ad03976b8ba94" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{export.id}}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
-          <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="EXPORT" datatype="html">
@@ -2327,17 +2322,6 @@
           <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="study_uid" datatype="html">
-        <source>Study UID</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">110</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">40</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="nr_inst" datatype="html">
         <source>Nr.Inst. </source>
         <context-group purpose="location">
@@ -2357,28 +2341,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">112</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="status" datatype="html">
-        <source>Status</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">113</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">33</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="failures" datatype="html">
-        <source>Failures</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">114</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="queue_time" datatype="html">
@@ -2900,6 +2862,14 @@
         </context-group>
         <note priority="1" from="description">monitoring.tab.associations</note>
       </trans-unit>
+      <trans-unit id="bbdf77278421c25f6efbe062bc2db1e7fa982d0d" datatype="html">
+        <source>Queues</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+        <note priority="1" from="description">monitoring.tab.queues</note>
+      </trans-unit>
       <trans-unit id="5f19586aba912ec6eb123ec5ab609a3bcc073066" datatype="html">
         <source>Export</source>
         <context-group purpose="location">
@@ -2995,20 +2965,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">97</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="scheduled" datatype="html">
-        <source>Scheduled</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">100</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="started" datatype="html">
-        <source>Started</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="finished_approx" datatype="html">

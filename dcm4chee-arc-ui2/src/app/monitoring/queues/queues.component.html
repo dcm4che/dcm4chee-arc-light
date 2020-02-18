@@ -101,8 +101,8 @@
                     </td>
                     <td [innerHtml]="match.properties.queue"></td>
                     <td [innerHtml]="match.properties.StudyInstanceUID"></td>
-                    <td [innerHtml]="match.properties.status"  i18n-title title="{{match.properties.outcomeMessage}}"></td>
-                    <td [innerHtml]="match.properties.failures"  i18n-title title="{{match.properties.errorMessage}}"></td>
+                    <td [innerHtml]="match.properties.status"  title="{{match.properties.outcomeMessage}}"></td>
+                    <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>

@@ -270,7 +270,7 @@ export class StorageSystemsComponent implements OnInit {
                 // console.log("parametersdate",datePipeEn.transform(parameters.result.date,'yyyy-mm-dd'));
                 $this.cfpLoadingBar.start();
                 if (parameters.result.date === undefined){
-                    $this.mainservice.showError($localize `:@@updated_before_not_set"Updated before"-date was not set`);
+                    $this.mainservice.showError($localize `:@@updated_before_not_set:"Updated before"-date was not set`);
                 }else{
 
                     this.service.flush(parameters.result.select, parameters.result.date)

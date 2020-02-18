@@ -745,7 +745,7 @@ export class UploadFilesComponent implements OnInit {
                     }
                 });
             }else{
-                this.mainservice.showError($localize `:@@upload-files.no_web_application_with_the_web_service_class_"stow_rs"_found_in_this_device:No Web Application with the Web Service Class "STOW_RS" found in this device`);
+                this.mainservice.showError($localize `:@@upload-files.no_web_application_with_the_web_service_class_stow_rs_found_in_this_device:No Web Application with the Web Service Class "STOW_RS" found in this device`);
                 this.dialogRef.close(null);
             }
         },(err)=>{

@@ -93,14 +93,14 @@
                 <p *ngIf="mode ==='single' && !newStudyPage" i18n="@@select_the_external_aetitle_c_move_scp">Select the external AETitle (C-MOVE SCP):</p>
                 <p *ngIf="mode ==='multiple'" i18n="@@select_the_external_aetitle">Select the external AETitle:</p>
                 <mat-select class="aes" [(ngModel)]="result.externalAET" *ngIf="!newStudyPage">
-                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>
             </div>
             <div *ngIf="mode ==='single'">
                 <p i18n="@@queue_name">Queue Name:</p>
                 <mat-select class="aes" [(ngModel)]="result.dcmQueueName">
                     <mat-option value="">*</mat-option>
-                    <mat-option value="{{queue.value}}" *ngFor="let queue of queues" i18n-title title="{{queue.title}}">{{queue.text}}</mat-option>
+                    <mat-option value="{{queue.value}}" *ngFor="let queue of queues" title="{{queue.title}}">{{queue.text}}</mat-option>
                 </mat-select>
             </div>
 <!--            <label i18n-title title="If checked the process will be queued" *ngIf="mode ==='single'">
@@ -110,13 +110,13 @@
                 <div class="dicomBlock">
                     <p i18n="@@select_the_query_aetitle">Select the query AETitle:</p>
                     <mat-select class="aes" [(ngModel)]="result.queryAET">
-                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                     </mat-select>
                 </div>
                 <div class="dicomBlock">
                     <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
                     <mat-select class="aes" [(ngModel)]="result.destinationAET">
-                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" i18n-title title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                     </mat-select>
                 </div>
             </ng-container>
@@ -125,7 +125,7 @@
             <div class="dicomBlock">
                 <p i18n="@@exporter_id">Exporter ID:</p>
                 <mat-select class="aes" [(ngModel)]="result.selectedExporter">
-                    <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" i18n-title title="{{export.id}}">{{export.id}}</mat-option>
+                    <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</mat-option>
                 </mat-select>
             </div>
         </div>
