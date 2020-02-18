@@ -211,7 +211,7 @@ public class QueryAttributesEJB {
         do {
             cuid = iter.next();
             if (sb.length() + cuid.length() < 255) {
-                sb.append('/').append(iter.next());
+                sb.append('/').append(cuid);
             } else {
                 LOG.warn("SOP Classes in Study exceeds DB field size limit - skip " + cuid);
             }
