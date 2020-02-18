@@ -1451,7 +1451,7 @@ public class StoreServiceEJB {
         instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), fuzzyStr);
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
-        setContentItems(instance, attrs);
+        setContentItems(session, instance, attrs);
         instance.setRetrieveAETs(retrieveAETs);
         instance.setAvailability(availability);
         instance.setSeries(series);
@@ -1616,26 +1616,43 @@ public class StoreServiceEJB {
                 list.add(new VerifyingObserver(item, fuzzyStr));
     }
 
-    private void setContentItems(Instance inst, Attributes attrs) {
+    private void setContentItems(StoreSession session, Instance inst, Attributes attrs) {
         Collection<ContentItem> contentItems = inst.getContentItems();
         contentItems.clear();
         Sequence seq = attrs.getSequence(Tag.ContentSequence);
         if (seq != null)
             for (Attributes item : seq) {
                 String type = item.getString(Tag.ValueType);
-                if ("CODE".equals(type)) {
-                    contentItems.add(new ContentItem(
-                            item.getString(Tag.RelationshipType).toUpperCase(),
-                            findOrCreateCode(item, Tag.ConceptNameCodeSequence),
-                            findOrCreateCode(item, Tag.ConceptCodeSequence)));
-                } else if ("TEXT".equals(type)) {
-                    String text = item.getString(Tag.TextValue, "*");
-                    if (text.length() <= ContentItem.MAX_TEXT_LENGTH) {
+                try {
+                    if ("CODE".equals(type)) {
                         contentItems.add(new ContentItem(
-                                item.getString(Tag.RelationshipType).toUpperCase(),
-                                findOrCreateCode(item, Tag.ConceptNameCodeSequence),
-                                text));
+                                Objects.requireNonNull(
+                                        item.getString(Tag.RelationshipType),
+                                        "Missing Relationship Type")
+                                        .toUpperCase(),
+                                Objects.requireNonNull(
+                                        findOrCreateCode(item, Tag.ConceptNameCodeSequence),
+                                        "Missing Concept Name Code"),
+                                Objects.requireNonNull(
+                                        findOrCreateCode(item, Tag.ConceptCodeSequence),
+                                        "Missing Concept Code")));
+                    } else if ("TEXT".equals(type)) {
+                        String text = Objects.requireNonNull(
+                                item.getString(Tag.TextValue), "Missing Text Value");
+                        if (text.length() <= ContentItem.MAX_TEXT_LENGTH) {
+                            contentItems.add(new ContentItem(
+                                    Objects.requireNonNull(
+                                            item.getString(Tag.RelationshipType),
+                                            "Missing Relationship Type")
+                                            .toUpperCase(),
+                                    Objects.requireNonNull(
+                                            findOrCreateCode(item, Tag.ConceptNameCodeSequence),
+                                            "Missing Concept Name Code"),
+                                    text));
+                        }
                     }
+                } catch (NullPointerException e) {
+                    LOG.info("{}: Invalid Content Item: {}", session, e.getMessage());
                 }
             }
     }
