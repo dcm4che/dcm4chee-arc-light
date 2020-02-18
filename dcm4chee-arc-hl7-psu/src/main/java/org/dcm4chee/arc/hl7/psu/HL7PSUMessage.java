@@ -75,7 +75,9 @@ class HL7PSUMessage {
         orc = new HL7Segment(6);
         orc.setField(0, "ORC");
         orc.setField(1, "SC");
-        orc.setField(5, "CM");
+        orc.setField(5,
+                task.getMpps() != null && task.getMpps().getStatus() == MPPS.Status.DISCONTINUED
+                        ? "DC" : "CM");
         tq1 = new HL7Segment(10);
         tq1.setField(0, "TQ1");
         obr = new HL7Segment(45);

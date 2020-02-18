@@ -42,10 +42,12 @@ package org.dcm4chee.arc.procedure;
 
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MWLItem;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,7 +67,7 @@ public interface ProcedureService {
 
     void updateStudySeriesAttributes(ProcedureContext ctx);
 
-    int updateSPSStatusToCompleted(String studyIUID);
+    List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
 
     MWLItem findMWLItem(ProcedureContext ctx);
 }

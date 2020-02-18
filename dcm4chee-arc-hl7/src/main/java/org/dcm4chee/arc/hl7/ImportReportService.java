@@ -55,6 +55,7 @@ import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7ORUAction;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -224,7 +225,7 @@ class ImportReportService extends DefaultHL7Service {
                     if (action == HL7ORUAction.IMPORT_REPORT)
                         store(arcHL7App, s, ae, msg, attrs);
                     else
-                        procedureService.updateSPSStatusToCompleted(attrs.getString(Tag.StudyInstanceUID));
+                        procedureService.updateMWLStatus(attrs.getString(Tag.StudyInstanceUID), SPSStatus.COMPLETED);
                 });
     }
 

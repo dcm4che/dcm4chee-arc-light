@@ -172,7 +172,8 @@ public class HL7PSUScheduler extends Scheduler {
 
     private boolean createHL7PSUOnMPPS(MPPSContext ctx) {
         Attributes ssaAttrs = ctx.getMPPS().getAttributes().getNestedDataset(Tag.ScheduledStepAttributesSequence);
-        return ctx.getMPPS().getStatus() == MPPS.Status.COMPLETED
+        return (ctx.getMPPS().getStatus() == MPPS.Status.COMPLETED
+                    || ctx.getMPPS().getStatus() == MPPS.Status.DISCONTINUED)
                 && ssaAttrs.getString(Tag.PlacerOrderNumberImagingServiceRequest) != null
                 && ssaAttrs.getString(Tag.FillerOrderNumberImagingServiceRequest) != null;
     }

@@ -50,10 +50,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.slf4j.Logger;
@@ -258,7 +256,7 @@ public class ProcedureServiceEJB {
         }
     }
 
-    public int updateSPSStatusToCompleted(String studyIUID) {
+    public List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status) {
         List<MWLItem> mwlItems = findMWLItems(studyIUID);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         mwlItems.forEach(mwl -> {
@@ -267,12 +265,12 @@ public class ProcedureServiceEJB {
             while (spsItems.hasNext()) {
                 Attributes sps = spsItems.next();
                 spsItems.remove();
-                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.name());
+                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, status.name());
                 mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
             }
             mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         });
-        return mwlItems.size();
+        return mwlItems;
     }
 
     private List<MWLItem> findMWLItems(String studyIUID) {

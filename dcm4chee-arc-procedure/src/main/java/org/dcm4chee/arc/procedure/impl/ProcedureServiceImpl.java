@@ -58,6 +58,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -127,8 +128,8 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public int updateSPSStatusToCompleted(String studyIUID) {
-        return ejb.updateSPSStatusToCompleted(studyIUID);
+    public List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status) {
+        return ejb.updateMWLStatus(studyIUID, status);
     }
 
     public void onMPPS(@Observes MPPSContext ctx) {

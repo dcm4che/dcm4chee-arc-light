@@ -46,10 +46,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.HL7PSUTask;
-import org.dcm4chee.arc.entity.MWLItem;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -144,15 +141,23 @@ public class HL7PSUEJB {
         MWLItem mwl = null;
         if ((arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
                 && arcAE.hl7PSUReceivingApplications().length > 0)
-                || arcAE.hl7PSUMWL()) {
-            int updated = procedureService.updateSPSStatusToCompleted(task.getStudyInstanceUID());
-            if (updated > 0)
-                LOG.info("{} MWL Items status updated to COMPLETED by HL7 PSU task {}.", updated, task);
-            else
-                LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
-        }
+                || arcAE.hl7PSUMWL())
+            mwl = updateMWLStatus(task);
+
         scheduleHL7Msg(arcAE, task, mwl);
         removeHL7PSUTask(task);
+    }
+
+    private MWLItem updateMWLStatus(HL7PSUTask task) {
+        SPSStatus status = task.getMpps() != null && task.getMpps().getStatus() == MPPS.Status.DISCONTINUED
+                ? SPSStatus.DISCONTINUED : SPSStatus.COMPLETED;
+        List<MWLItem> mwlItems = procedureService.updateMWLStatus(task.getStudyInstanceUID(), status);
+        if (mwlItems.size() > 0)
+            LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), status, task);
+        else
+            LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
+
+        return !mwlItems.isEmpty() ? mwlItems.get(0) : null;
     }
 
     private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task, MWLItem mwl) {
