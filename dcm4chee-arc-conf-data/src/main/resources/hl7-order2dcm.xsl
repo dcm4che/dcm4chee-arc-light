@@ -17,6 +17,7 @@
         <xsl:apply-templates select="ORC" mode="sps"/>
       </DicomAttribute>
       <xsl:apply-templates select="ZDS"/>
+      <xsl:apply-templates select="NTE"/>
     </NativeDicomModel>
   </xsl:template>
 
@@ -377,6 +378,15 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:value-of select="concat($field/text(), $repeat)"/>
+  </xsl:template>
+
+  <xsl:template match="NTE">
+    <!-- Requested Procedure Comments -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401400'"/>
+      <xsl:with-param name="vr" select="'LT'"/>
+      <xsl:with-param name="val" select="field[3]"/>
+    </xsl:call-template>
   </xsl:template>
 
 </xsl:stylesheet>
