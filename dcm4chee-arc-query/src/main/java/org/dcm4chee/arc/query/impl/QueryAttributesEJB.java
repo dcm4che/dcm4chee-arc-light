@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.query.impl;
 
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
