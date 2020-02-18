@@ -209,6 +209,7 @@ public class QueryAttributesEJB {
         }
         StringBuilder sb = new StringBuilder(cuid);
         do {
+            cuid = iter.next();
             if (sb.length() + cuid.length() < 255) {
                 sb.append('/').append(iter.next());
             } else {
