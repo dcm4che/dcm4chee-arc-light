@@ -413,6 +413,7 @@ class ArchiveDeviceFactory {
             Tag.Laterality,
             Tag.PerformedProcedureStepStartDate,
             Tag.PerformedProcedureStepStartTime,
+            Tag.PerformedProtocolCodeSequence,
             Tag.RequestAttributesSequence
     };
     static final int[] INSTANCE_ATTRS = {

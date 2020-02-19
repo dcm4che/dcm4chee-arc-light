@@ -1956,6 +1956,7 @@ dcmTag: 00200011
 dcmTag: 00200060
 dcmTag: 00400244
 dcmTag: 00400245
+dcmTag: 00400260
 dcmTag: 00400275
 dcmEntity: Series
 objectClass: dcmAttributeFilter
@@ -3158,6 +3159,7 @@ dcmTag: 00380500
 dcmTag: 00380502
 dcmTag: 00400244
 dcmTag: 00400245
+dcmTag: 00400260
 dcmTag: 00400275
 dcmTag: 00400512
 dcmTag: 00400513

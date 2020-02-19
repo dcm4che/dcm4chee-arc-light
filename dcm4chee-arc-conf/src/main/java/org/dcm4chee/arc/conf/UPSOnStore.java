@@ -84,6 +84,7 @@ public class UPSOnStore {
     private Code scheduledStationClass;
     private Code scheduledStationLocation;
     private Code scheduledHumanPerformer;
+    private String destinationAE;
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
@@ -372,6 +373,14 @@ public class UPSOnStore {
         item.setString(Tag.HumanPerformerOrganization, VR.LO, getScheduledHumanPerformerOrganization(attrs));
         item.setString(Tag.HumanPerformerName, VR.PN, getScheduledHumanPerformerName(attrs));
         return item;
+    }
+
+    public String getDestinationAE() {
+        return destinationAE;
+    }
+
+    public void setDestinationAE(String destinationAE) {
+        this.destinationAE = destinationAE;
     }
 
     public String getXSLTStylesheetURI() {

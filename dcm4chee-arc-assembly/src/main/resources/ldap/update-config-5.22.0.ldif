@@ -15,11 +15,13 @@ dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configurat
 changetype: modify
 add: dcmTag
 dcmTag: 00081041
+dcmTag: 00400260
 
 dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 add: dcmTag
 dcmTag: 00081041
+dcmTag: 00400260
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
