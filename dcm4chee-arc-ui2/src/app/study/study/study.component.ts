@@ -2254,7 +2254,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         const matching = mode === "update_access_control_id_to_matching";
         const innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
         this.confirm({
-            content: $localize `:@@study.update_study_access_control_id:Update Study Access Control ID ${innerText}`,
+            content: $localize `:@@study.update_study_access_control_id_param:Update Study Access Control ID ${innerText}:@@innerText:`,
             doNotSave:true,
             form_schema:[
                 [

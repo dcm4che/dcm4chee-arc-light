@@ -2912,10 +2912,6 @@
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">14</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/metrics/metrics.component.html</context>
-          <context context-type="linenumber">4</context>
-        </context-group>
         <note priority="1" from="description">monitoring.tab.metrics</note>
       </trans-unit>
       <trans-unit id="hl7_applications.hl7_applications" datatype="html">
@@ -3205,6 +3201,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
           <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="metrics.metrics" datatype="html">
+        <source>Metrics</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/metrics/metrics.component.html</context>
+          <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
       <trans-unit id="web-apps-list.web_applications" datatype="html">

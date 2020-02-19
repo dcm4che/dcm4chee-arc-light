@@ -111,9 +111,9 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
 import {MY_FORMATS} from "./constants/globalvar";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
 
-/*import localeEn from '@angular/common/locales/en';
+import localeDe from '@angular/common/locales/de';
 
-registerLocaleData(localeEn, 'en-US');*/
+registerLocaleData(localeDe, 'de-DE');
 
 @NgModule({
     declarations: [

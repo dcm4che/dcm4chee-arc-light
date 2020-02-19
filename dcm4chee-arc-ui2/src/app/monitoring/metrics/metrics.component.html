@@ -1,7 +1,7 @@
 <div class="main_content retrieve monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2 i18n="metrics.metrics">Metrics</h2>
+        <h2 i18n="@@metrics.metrics">Metrics</h2>
         <div class="filter_line">
             <div class="filter_block">
                 <filter-generator [filterIdTemplate]="'metric'" [schema]="filterSchema" [model]="filterObject" (submit)="getMetrics($event)" (onChange)="onFormChange($event)"></filter-generator>

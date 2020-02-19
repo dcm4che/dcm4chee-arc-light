@@ -127,7 +127,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         }
     }
     setFilterSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
+        this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`);
     }
     onFormChange(e){
         console.log("e",e);
@@ -437,7 +437,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             filter["scheduledTime"] = ok.schema_model.scheduledTime;
                         }
                         this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count} tasks rescheduled successfully!`);
+                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -519,7 +519,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
                                 .subscribe(
                                     (res) => {
-                                        this.mainservice.showMsg($localize `:@@task_rescheduled:Task ${match.properties.pk}:@@taskid: rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@task_rescheduled_param:Task ${match.properties.pk}:@@taskid: rescheduled successfully!`);
                                         if(this.matches.length === i+1){
                                             this.cfpLoadingBar.complete();
                                         }
@@ -583,7 +583,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted}:@@deleted: tasks deleted successfully!`);
+                        this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:@@deleted: tasks deleted successfully!`);
                         this.cfpLoadingBar.complete();
                         this.search(0);
                     }, (err) => {

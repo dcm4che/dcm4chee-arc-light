@@ -1267,16 +1267,16 @@ export class j4care {
         let msg = "<br>\n";
         try{
             if(_.hasIn(returnedObject,"count")){
-                msg += $localize `:@@preparemsg.count:Count\:${returnedObject.count}<br>\n`;
+                msg += $localize `:@@preparemsg.count:Count\:${returnedObject.count}:@@count:<br>\n`;
             }
             if(_.hasIn(returnedObject,"warning")){
-                msg += $localize `:@@preparemsg.warning:Warning\:${returnedObject.warning}<br>\n`;
+                msg += $localize `:@@preparemsg.warning:Warning\:${returnedObject.warning}:@@warning:<br>\n`;
             }
             if(_.hasIn(returnedObject,"reject")){
-                msg += $localize `:@@preparemsg.reject:Reject\:${returnedObject.reject}<br>\n`;
+                msg += $localize `:@@preparemsg.reject:Reject\:${returnedObject.reject}:@@reject:<br>\n`;
             }
             if(_.hasIn(returnedObject,"error")){
-                msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}<br>\n`;
+                msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:@@error:<br>\n`;
             }
         }catch (e) {
             msg = "";

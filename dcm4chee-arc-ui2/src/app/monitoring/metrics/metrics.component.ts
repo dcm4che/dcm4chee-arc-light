@@ -93,7 +93,7 @@ export class MetricsComponent implements OnInit {
                     }, []);
                     this.cfpLoadingBar.complete();
                     if((!this.metrics || this.metrics.length === 0) || (this.metrics.length === 1 && _.isEmpty(this.metrics[0]))){
-                        this.appService.showMsg("No data found!");
+                        this.appService.showMsg($localize `:@@no_data_found:No data found!`);
                     }
                 },err=>{
                     this.cfpLoadingBar.complete();
@@ -114,7 +114,7 @@ export class MetricsComponent implements OnInit {
         if(!_.hasIn(this.filterObject,"bin") || _.parseInt(this.filterObject["bin"].toString()) < 1 || _.parseInt(this.filterObject["bin"].toString()) > _.parseInt(this.selectedMetricsDescriptors.dcmMetricsRetentionPeriod)){
             validation = {
                 valid:false,
-                msg:"Bin value is not valid!"
+                msg: $localize `:@@bin_value_not_valid:Bin value is not valid!`
             };
         }
         if(_.hasIn(this.filterObject,"limit") && this.filterObject["limit"] && _.parseInt(this.filterObject["limit"].toString()) < 1){
@@ -151,7 +151,7 @@ export class MetricsComponent implements OnInit {
         this.service.getMetricsDescriptors().subscribe((res:MetricsDescriptors[])=>{
             this.metricsDescriptors = res;
             if(!res || res.length === 0){
-                this.appService.showError($localize `:@@metrics_descriptors_not_found:No Metrics Descriptors were found, please configure Metrics Descriptors first`);
+                this.appService.showError($localize`:@@metrics_descriptors_not_found:No Metrics Descriptors were found, please configure Metrics Descriptors first`);
             }else{
                 this.selectedMetricsDescriptors = res[0];
             }

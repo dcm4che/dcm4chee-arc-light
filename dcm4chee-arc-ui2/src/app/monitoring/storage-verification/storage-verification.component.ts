@@ -133,7 +133,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         this.onFormChange(this.filterObject);
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,`COUNT ${((this.count || this.count == 0)?this.count:'')}`),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`),3);
         this.triggerFilterSchema = j4care.prepareFlatFilterObject([
                 ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET).filter((filter, i)=>{
                     return i < 14 && filter.filterKey != "limit";
@@ -300,7 +300,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     case "cancel":
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted}:@@deleted: tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:@@deleted: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();

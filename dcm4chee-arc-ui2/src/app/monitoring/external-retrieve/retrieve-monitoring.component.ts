@@ -252,7 +252,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         return objs[0].offset + this.filterObject.limit*1;
     };
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`, this.queueNames);
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`, this.queueNames);
         if(this.urlParam){
             // this.filterObject = this.urlParam;
             _.extend(this.filterObject, this.urlParam);

@@ -155,7 +155,7 @@ export class DiffMonitorComponent implements OnInit {
         });*/
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count:COUNT ${((this.count || this.count == 0)?this.count:'')}@@count`,this.devices),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`,this.devices),3);
     }
     allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
@@ -190,7 +190,7 @@ export class DiffMonitorComponent implements OnInit {
                                     delete filter["limit"];
                                     delete filter["offset"];
                                     this.service.rescheduleAll(filter).subscribe((res)=>{
-                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count} tasks rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                                         this.cfpLoadingBar.complete();
                                     }, (err) => {
                                         this.cfpLoadingBar.complete();
