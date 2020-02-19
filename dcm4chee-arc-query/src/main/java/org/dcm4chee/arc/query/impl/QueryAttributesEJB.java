@@ -46,8 +46,6 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -55,7 +53,10 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -66,7 +67,6 @@ import java.util.stream.Stream;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class QueryAttributesEJB {
-    private static Logger LOG = LoggerFactory.getLogger(QueryAttributesEJB.class);
 
     @Inject
     private CodeCache codeCache;
@@ -191,31 +191,12 @@ public class QueryAttributesEJB {
             SeriesQueryAttributes queryAttrs = new SeriesQueryAttributes();
             queryAttrs.setNumberOfInstances(numberOfInstances);
             if (numberOfInstances > 0) {
-                queryAttrs.setSOPClassesInSeries(concatCUIDs(cuids));
+                queryAttrs.setSOPClassesInSeries(StringUtils.concat(cuids, '\\'));
                 queryAttrs.setRetrieveAETs(StringUtils.concat(retrieveAETs, '\\'));
                 queryAttrs.setAvailability(availability);
             }
             return queryAttrs;
         }
-
-    }
-
-    private static String concatCUIDs(Set<String> cuids) {
-        Iterator<String> iter = cuids.iterator();
-        String cuid = iter.next();
-        if (!iter.hasNext()) {
-            return cuid;
-        }
-        StringBuilder sb = new StringBuilder(cuid);
-        do {
-            cuid = iter.next();
-            if (sb.length() + cuid.length() < 255) {
-                sb.append('/').append(cuid);
-            } else {
-                LOG.warn("SOP Classes in Study exceeds DB field size limit - skip " + cuid);
-            }
-        } while (iter.hasNext());
-        return sb.toString();
     }
 
     private static class StudyQueryAttributesBuilder {
@@ -277,7 +258,7 @@ public class QueryAttributesEJB {
             if (numberOfInstances > 0) {
                 queryAttrs.setNumberOfSeries(numberOfSeries);
                 queryAttrs.setModalitiesInStudy(StringUtils.concat(mods, '\\'));
-                queryAttrs.setSOPClassesInStudy(concatCUIDs(cuids));
+                queryAttrs.setSOPClassesInStudy(StringUtils.concat(cuids, '\\'));
                 queryAttrs.setRetrieveAETs(StringUtils.concat(retrieveAETs, '\\'));
                 queryAttrs.setAvailability(availability);
             }

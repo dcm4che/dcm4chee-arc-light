@@ -82,7 +82,7 @@ public class StudyQueryAttributes {
     @Column(name = "mods_in_study")
     private String modalitiesInStudy;
 
-    @Column(name = "cuids_in_study")
+    @Column(name = "cuids_in_study", length = 4000)
     private String sopClassesInStudy;
 
     @Column(name = "retrieve_aets")
