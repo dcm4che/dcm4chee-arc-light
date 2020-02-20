@@ -14,6 +14,8 @@ alter table study
     add admission_id varchar(255),
     add admid_issuer_fk numeric(18,0);
 
+alter table study_query_attrs alter column cuids_in_study type varchar(4000);
+
 update mwl_item set admission_id = '*', institution = '*', department = '*';
 update study set admission_id = '*';
 

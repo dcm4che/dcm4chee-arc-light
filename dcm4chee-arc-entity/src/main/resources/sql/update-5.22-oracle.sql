@@ -20,6 +20,8 @@ alter table study
 alter table study
     add admid_issuer_fk number(19,0);
 
+alter table study_query_attrs modify cuids_in_study varchar2(4000 char);
+
 update mwl_item set admission_id = '*', institution = '*', department = '*';
 update study set admission_id = '*';
 

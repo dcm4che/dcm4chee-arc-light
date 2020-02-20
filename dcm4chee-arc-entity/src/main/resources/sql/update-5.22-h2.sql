@@ -20,6 +20,8 @@ alter table study
 alter table study
     add admid_issuer_fk bigint;
 
+alter table study_query_attrs alter column cuids_in_study varchar(4000);
+
 update mwl_item set admission_id = '*', institution = '*', department = '*';
 update study set admission_id = '*';
 
