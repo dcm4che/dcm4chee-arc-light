@@ -12,26 +12,29 @@
 <!--</div>-->
 <!--<button (click)="testLogout()">logout</button>-->
 <!--<button (click)="testUser()">test</button>-->
-<div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
-    <span (click)="showUserMenu = !showUserMenu" id="usermenu">
-        <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
-        <i class="config glyphicon glyphicon-cog"></i>
-    </span>
-    <ul *ngIf="showUserMenu">
-        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank" i18n="@@menu.edit_account">Edit Account</a></li>
-        <li *ngIf="superUser"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank" i18n="@@menu.admin_realm">Admin Realm</a></li>
-        <li *ngIf="superUser" title="Go to Wildfly Administration Console"><a (click)="gotToWildflyConsole($event)" target="_blank" i18n="@@menu.wildfly_console">Wildfly Console</a></li>
-        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="" (click)="$event.preventDefault();logout()" i18n="@@menu.logout">Logout</a></li>
-        <li><a (click)="$event.preventDefault();productLabelling()" i18n="@@menu.about">About</a></li>
-    </ul>
+<div class="config_menu">
+<!--    <div class="language_switcher">
+        <button></button>
+        <ul>
+            <li (click)="switchLanguage('sq')">Shqip</li>
+            <li (click)="switchLanguage('en')">English</li>
+            <li (click)="switchLanguage('de')">Deutsch</li>
+        </ul>
+    </div>-->
+    <div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
+        <span (click)="showUserMenu = !showUserMenu" id="usermenu">
+            <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
+            <i class="config glyphicon glyphicon-cog"></i>
+        </span>
+        <ul *ngIf="showUserMenu">
+            <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank" i18n="@@menu.edit_account">Edit Account</a></li>
+            <li *ngIf="superUser"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank" i18n="@@menu.admin_realm">Admin Realm</a></li>
+            <li *ngIf="superUser" title="Go to Wildfly Administration Console"><a (click)="gotToWildflyConsole($event)" target="_blank" i18n="@@menu.wildfly_console">Wildfly Console</a></li>
+            <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="" (click)="$event.preventDefault();logout()" i18n="@@menu.logout">Logout</a></li>
+            <li><a (click)="$event.preventDefault();productLabelling()" i18n="@@menu.about">About</a></li>
+        </ul>
+    </div>
 </div>
-<!--<div class="language_switcher">
-    <ul>
-        <li (click)="switchLanguage('sq')">Shqip</li>
-        <li (click)="switchLanguage('en')">English</li>
-        <li (click)="switchLanguage('de')">Deutsch</li>
-    </ul>
-</div>-->
 <div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
     <div class="time" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
     <div class="text">{{myDeviceName}}</div>

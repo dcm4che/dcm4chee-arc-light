@@ -4,6 +4,7 @@ import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 declare var DCM4CHE: any;
 const sopObject = DCM4CHE.SOPClass.nameOf("all");
+import * as _ from "lodash";
 
 export const MY_FORMATS = {
     parse: {
@@ -314,6 +315,58 @@ export class Globalvar {
             }
         ];
 
+    }
+
+    public static get LANGUAGES(){
+        const languages = {
+            sq: {
+                name: 'Albanian',
+                nativeName: 'Shqip',
+                flag:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAMAAAAmuJTXAAAAk1BMVEXkHiAAAADyICLpHiHtHyHwHyLjHiAHAQH1ICIMAQERAgIXAwPbHR87CAgdBAR5EBFyDxBDCQkjBAVrDg+5GBqRExSAERLHGhxZDAxRCwvfHR8zBwfTHB6pFhguBgaLEhPMGx2uFxjXHB4oBQW+GRtlDQ5KCgqFERKfFRa0GBmaFBbQGx1gDA2WFBWkFhfDGhv7ISOYvxptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEDohkVwNywAAAGFJREFUGNNjYCACiAKxGKYwI4M4IyMDIyMTkIUmI8vIzQgCehgyCIAuIw4V58eQgenCtAdiIC8DFhlWDqAMswqGDAsDF8ggRmkGZqymSQIpdiyBwM4ojyt8GHGGHCcDUQAAgI8BvQ5YgHoAAAAASUVORK5CYII='
+            },
+            el: {
+                name: 'Greek',
+                nativeName: 'Ελληνικά',
+            },
+            en: {
+                name: 'English',
+                nativeName: 'English',
+                flag:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAYAAAARZmTlAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAuJAAALiQE3ycutAAAAB3RJTUUH5AIUEDUJI3G5/gAABAlJREFUOMudkn1MlWUYxn/P+77nPR/JIWx+QJG2GVkMj/QhmjrSNbQ05CMtAQGRUmG0FRM/ScsvLEydnmFOJipamc5kHFYhomszwZxpWIpurtTEqQdBD0fPOe/79Aebhtrmuv577l177vva7xLeGbNleOk8lAHRrNnaSPnmH7nlu82/ZRgmgwdF8Uv6AC5mZhO1cgVT2iLwNJxAt6g9vA6HlVnJL1HcN4C/YhPhixegNA1+xehcvAz/mg18OP4Fmj2fkJGcgE23EAwaPIqCIQNNt5CWFE99tou5Z/ZjNh+lzw81HB8Yhzaj9pw5aViCOr+XzhPzSukdPxT3kkKyUkew0u3B03gSu11/6OdSSjpv+hmT6GJBylDivtqM45oVW8FMjNghzHXXsau2GeVWp48d+39jxLZTfPdmNlYhaR+XzPDeGrsrCqhalYvDpiOlvG8B6BaV9WV57BoZTlxRPs4J4wjbXMH3fgeuiZ+ycUcj3g4fmmGaANzo7GJa6U6qX49n5fuFBCZnEZYxhZz8bMYMi6F86wGkEehmZJoMebY/H4+L4bm9W/BdaqN30yEuCDuLPqrka89R7DYdIboPEkXl+0ICcZfenUCIPv0imP3uKCL2fIsMBnHkZQPgq6qmfXouzqXLcS4q4c46N+ZT0djTJ3E9BBXbG7lwuR2b1dIjtbg+MU0KU4K4NzRNiWFKVKuODAQAiRAKxuU2gmda0QYOQH06GqGqoKoQCnX7FYGiiAfYiUsRURLj0Vr0f6UpsbEIaT7QGinBoqmgCGQwBKaJ2dGB8edfKFGRaJGRIE2kYSCsVkLBEEiJEA8m0VZnzDGEco9JIBAiItxBTtpIInup3DlwEPP309jfy6Frdw3erEzCcksIW1jS7T98hNCpP2hPTmX7z+dpu3AFXdd6LnFX1JiACuD3B0hMiOGz0kz6+2/gzf0Amya4Oi2XjWs9LI8KAgIrks+3NJA6No5B8XEYFy+hvDOV195IoazNwr7aJuw2/S5nxaKpaKqKw65TWZbDwepi4lqO0D50GNroV/HklzB8RT31zWdR1O7AmqrQ9Ot5Et4uo7L2OJb0VPrv+4aYYz+xM9TC3i+mE/G4A01VsGgqit1mISUpnpa6JeS5+tI5q4iblVu5UrWD/L+dTJntpuNmFz3qR/fT5w+Qv3A7E2e6OXbxBuG7qlFefpGx65dxLHMwUxOfxxn+GNqmVXlKsutJfKvK6Wo9y/WRiXz5TCLbltbg9XbiDLNjGOZDWyOEwNnLzqGmVsbnrSMrOYHiwnSiUyagbthEubeVt0a50JJuX1auTSjCMTmNqn4u1tad5MrV00jTxHofwP+SblEJBAy27DlMTcMJCrLGUDx/DsbZc4wuW80/B52SmC5kfUQAAAAASUVORK5CYII='
+            },
+            ru: {
+                name: 'Russian',
+                nativeName: 'Русский',
+            },
+            de: {
+                name: 'German',
+                nativeName: 'Deutsch',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAYAAACbU/80AAAAlklEQVRIS2NkYGAQZ2Bg2MPAwKDDQF9whYGBwYWRgYHh8gBYDvPqFZAD/oN46urqdPX/zZs3wfaNOmA0BAY+BHYxMvxnZmJiUJOSomsuuP7kCSQXjDpgNARGQ2DAQ+BUA6Q2NA2QoGs5cHrDC0g5MOqA0RAYDCEwcI1SRobzjCdaGcSZfjPsY2Bg0KJrPmRkOP+PhcETAFVyagAlg6MsAAAAAElFTkSuQmCC'
+            },
+            fr: {
+                name: 'French',
+                nativeName: 'Français',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAkklEQVRYR2NkGGDAOMD2M4w6YDQEGA0dpoYQkxDdHFV+1hRZsROj9nVm2a9fh06zEaOW0chh6n9iFAb6qB8vzLCwJEbtc4/oE38fPbUgQu3/UQeMhsBoCIyGwGgIjIbAaAiMhsAgCAHHKWFEtFwYXG0Vf9aU2hHVJHuTWfnr56GTxDXJiLGclmpGm+WjITDgIQAAGofb8ADVqusAAAAASUVORK5CYII='
+            },
+            hi: {
+                name: 'Hindi',
+                nativeName: 'हिन्दी',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAUBAMAAACKWYuOAAAAMFBMVEX///8AZjP/mTMAPGi7y9dmiqWAnrQwYYTv8/YVTHSftsbP2uNAbY7f5+yPqr1QeZcEz6ptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEQYIod+GbwAAADFJREFUGNNjUEICCgy04EGAAwMSYElH4jCzHGBG4jGfZEZWmo/MYXC4AKEFkYAALXgA9uIV01T/BOMAAAAASUVORK5CYII='
+            },
+            fi: {
+                name: 'Finnish',
+                nativeName: 'suomi',
+                flag: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2ODApLCBxdWFsaXR5ID0gODAK/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8IAEQgADwAZAwERAAIRAQMRAf/EABcAAQEBAQAAAAAAAAAAAAAAAAgABAn/xAAYAQADAQEAAAAAAAAAAAAAAAAABQYCB//aAAwDAQACEAMQAAABUvS4o5P1Dbj6ODZjRYpUnQOFqoP/xAAaEAACAgMAAAAAAAAAAAAAAAAGBwAFCBcY/9oACAEBAAEFAjXIZc3ogh3AGr4U6cVs6cVsP1Kt6wIxxXwYWBmllZNLKyf/xAAoEQABAwMCBAcBAAAAAAAAAAADAQIEAAUREiEGFRZSIkFVk6LS4oH/2gAIAQMBAT8BuPFNpkwJkcbzKQ0YwmZFhNT2K1Mrq2TK1wzfYFrgmBKcRCPlvKmgepNChCxN8pvljq6ws3ef2f1XWFm7z+z+qulktQbdOKOEFhBxTvY5NWWuaNyoqeLyWuErZAm285ZUYZiNmPGjn5yjEBHcjdlTbLnL/a5BZvTwfP7VyCzeng+f2r//xAApEQABAwMDAQgDAAAAAAAAAAACAQMEAAUGERIh0hMWF1FTVZKUIjFx/9oACAECAQE/AbRgl/hXW3S3wiozGmR33VGShFsbdEy0HbyuicJWa4rdr7c48qALCtNQQjl2ryNl2gyJDi6IqLxtcHnz18q8O8k9OH9oemvDvJPTh/aHpqx5Pf5F5tbD90lOMvT4rbrZEO0wN4RIV/H9Ki6LWf3y7Wy7RWYE9+K0dubdIGlRBVxZMoFNdRXlRAU/gpXe3JPeJfyHprvbknvEv5D01//EACgQAAEEAQIEBgMAAAAAAAAAAAMBAgQFBgASERMh0zE0NkGTlRQiUf/aAAgBAQAGPwLJqaBIuFm2lHZQIiFqiDGsiVFIESPIpFRjd7k3O9k66s6jIi2LJkrIJFiJIkB8of4xK6sjNVXte3g/mxS8WfzavvrzN39OXu68zd/Tl7ustsYGIVMWbCx62lRJIxl5gJAYZSCKziVU3Me1HJ01bWGR49X20wGTSoYpEpj3EZGZV1BmhTa9v6IU5X+Hi9deiab4y93Xomm+Mvd1/8QAGhABAQADAQEAAAAAAAAAAAAAAREAECExQf/aAAgBAQABPyFYjpONQNaJaGYnd/wP2JOFDX50MGCyMEV3AcqinRxJLSprTxIU+/oGt+//2gAMAwEAAgADAAAAEF7Xdv/EABoRAQEBAQEBAQAAAAAAAAAAAAERIQAx8RD/2gAIAQMBAT8QEFI3N9GBWMNnHG09JRxaxPAbv666FsN9lMigJRKecfvNpAEUbgtXfI5+Rz//xAAaEQEBAAMBAQAAAAAAAAAAAAABEQAhMRBB/9oACAECAQE/ECCxijiQbcErDXcQT2igZU3y9oT68ixUyoQjLhVaCMdOBeJbJgi1tnB2+a9f/8QAGBABAAMBAAAAAAAAAAAAAAAAAQAQESH/2gAIAQEAAT8QLcLMfEm2mZwKwcp8p9VhrjCWECBeXab4hoqPFpAYNGATiLwrWWB8/wD/2Q=='
+            }
+        };
+        return {
+            getNativeNameFromCode:(code:string)=>{
+                if(_.hasIn(languages,code)){
+                    return languages[code].nativeName;
+                }
+                return languages.en.nativeName;
+            },
+            getAllLanguages:languages
+        }
     }
     /*
     * Defines action for replacing placehoders/title or disabling elements when you edit or create patient,mwl or study

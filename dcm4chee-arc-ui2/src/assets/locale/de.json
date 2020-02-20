@@ -1359,6 +1359,7 @@
     "4405374910083707723": "de_Set Size Range:",
     "time-picker.title": "de_Select time (hh:mm:ss)",
     "set_time": "de_Set time",
-    "time-picker.now": "de_Now"
+    "time-picker.now": "de_Now",
+    "clear": "de_Clear"
   }
 }

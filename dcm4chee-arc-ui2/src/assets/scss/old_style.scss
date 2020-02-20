@@ -1736,56 +1736,70 @@ app-studies{
 	  	color: #555;
 	}
 }
-.user {
-    background: #ffffff none repeat scroll 0 0;
-    -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
-    -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
-    box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
-    color: #7d7d7d;
-    display: block;
-    font-weight: bold;
-    position: fixed;
-    right: 200px;
-    top: 0;
-    z-index: 9999;
-    span{
-	    display: inline-block;
-	    // height: 32px;
-	    padding: 5px 8px 1px 32px;
-	    width: 200px;
-	    &:hover{
-	    	cursor: pointer;
-	    	color: #4D4D4D;
-	    }
-    }
-    .username{
-    	float: left;
-    	width: 85%;
-    }
-    i.config{
-   		border-left: 1px solid #ccc;
-	    float: right;
-	    min-height: 20px;
-	    padding-left: 7px;
-	    padding-top: 3px;
-    }
-    ul{
-    	list-style: outside none none;
-    	padding: 0;
-    	margin-bottom: 6px;
-    	li{
-		   	border-top: 1px solid #ccc;
-		    padding: 6px 32px;
-		    a{
-		    	color: #7d7d7d;
-    			display: block;
-    			&:hover{
-    				color: #4D4D4D;
-    				cursor: pointer;
-    			}
-		    }
-    	}
-    }
+.config_menu{
+	background: #ffffff none repeat scroll 0 0;
+	-moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	-webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	color: #7d7d7d;
+	display: block;
+	font-weight: bold;
+	position: fixed;
+	right: 200px;
+	top: 0;
+	z-index: 9999;
+	.language_switcher,.user{
+		float: left;
+	}
+	.user {
+		span{
+			display: inline-block;
+			// height: 32px;
+			padding: 5px 8px 1px 32px;
+			width: 200px;
+			&:hover{
+				cursor: pointer;
+				color: #4D4D4D;
+			}
+		}
+		.username{
+			float: left;
+			width: 85%;
+		}
+		i.config{
+			border-left: 1px solid #ccc;
+			float: right;
+			min-height: 20px;
+			padding-left: 7px;
+			padding-top: 3px;
+		}
+	}
+	.language_switcher{
+		display: inline-block;
+		width: 100px;
+		&:hover{
+			cursor: pointer;
+			color: #4D4D4D;
+		}
+	}
+	ul{
+		list-style: outside none none;
+		padding: 0;
+		margin-bottom: 6px;
+		li{
+			border-top: 1px solid #ccc;
+			padding: 6px 32px;
+			a{
+				color: #7d7d7d;
+				display: block;
+				&:hover{
+					color: #4D4D4D;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+
 }
 #kc-container-wrapper {
     background: black none repeat scroll 0 0;

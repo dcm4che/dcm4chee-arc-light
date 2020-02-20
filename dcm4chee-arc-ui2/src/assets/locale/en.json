@@ -1359,6 +1359,7 @@
     "4405374910083707723": "Set Size Range:",
     "time-picker.title": "Select time (hh:mm:ss)",
     "set_time": "Set time",
-    "time-picker.now": "Now"
+    "time-picker.now": "Now",
+    "clear": "Clear"
   }
 }

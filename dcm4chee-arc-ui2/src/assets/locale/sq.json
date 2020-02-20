@@ -1359,6 +1359,7 @@
     "4405374910083707723": "sq_Set Size Range:",
     "time-picker.title": "sq_Select time (hh:mm:ss)",
     "set_time": "sq_Set time",
-    "time-picker.now": "sq_Now"
+    "time-picker.now": "sq_Now",
+    "clear": "sq_Clear"
   }
 }

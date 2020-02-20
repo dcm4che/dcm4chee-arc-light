@@ -25,20 +25,6 @@ declare var Keycloak: any;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-    styles:[`
-        .language_switcher {
-            display: block;
-            float: left;
-            position: fixed;
-            right: 22%;
-            background: white;
-            box-shadow: 10px 10px 10px;
-        }
-        .language_switcher ul {
-            padding: 0;
-            list-style: none;
-        }
-    `]
 })
 export class AppComponent implements OnInit {
     progressValue = 30;
