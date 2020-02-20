@@ -30,6 +30,7 @@
     "@angular/platform-browser": "~9.0.0",
     "@angular/platform-browser-dynamic": "~9.0.0",
     "@angular/router": "~9.0.0",
+    "@locl/core": "^0.0.1-beta.2",
     "@ngx-loading-bar/core": "^4.2.0",
     "@types/lodash": "^4.14.144",
     "animate.css": "^3.7.2",

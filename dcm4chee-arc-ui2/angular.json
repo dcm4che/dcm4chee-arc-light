@@ -65,8 +65,6 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "baseHref": "/sq/",
-              "i18nLocale": "sq",
               "budgets": [
                 {
                   "type": "initial",

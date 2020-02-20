@@ -24,7 +24,21 @@ declare var Keycloak: any;
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+    styles:[`
+        .language_switcher {
+            display: block;
+            float: left;
+            position: fixed;
+            right: 22%;
+            background: white;
+            box-shadow: 10px 10px 10px;
+        }
+        .language_switcher ul {
+            padding: 0;
+            list-style: none;
+        }
+    `]
 })
 export class AppComponent implements OnInit {
     progressValue = 30;
@@ -84,6 +98,16 @@ export class AppComponent implements OnInit {
         this.setServerTime(()=>{
             this.initGetPDQServices();
         });
+    }
+    switchLanguage(languageCode){
+        if(languageCode === "en"){
+            localStorage.removeItem('language_code');
+        }else{
+            localStorage.setItem('language_code', languageCode);
+        }
+        setTimeout(()=>{
+            location.reload();
+        },200);
     }
     testUser(){
         KeycloakService.keycloakAuth.loadUserInfo().success(user=>{

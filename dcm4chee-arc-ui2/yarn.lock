@@ -1037,6 +1037,11 @@
     glob "^7.1.2"
     yargs "^13.1.0"
 
+"@locl/core@^0.0.1-beta.2":
+  version "0.0.1-beta.2"
+  resolved "https://registry.yarnpkg.com/@locl/core/-/core-0.0.1-beta.2.tgz#2055bae5e1d276d75a6aeb7e0944c72848c00f65"
+  integrity sha512-R33xL9Z/VtXSCh9zv8qiGVV92zOJZJnH7vyXVRxhuFtpt7cL7sKbCNrZc966722Gu0LCpQ9MXERki2bl1vxjkg==
+
 "@ngtools/webpack@9.0.1":
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-9.0.1.tgz#36fff5b269959b37eee4c23c8c22bd7686aa4860"
