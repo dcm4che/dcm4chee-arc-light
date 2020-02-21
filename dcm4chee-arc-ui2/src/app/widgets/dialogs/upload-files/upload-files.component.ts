@@ -109,7 +109,7 @@ export class UploadFilesComponent implements OnInit {
 
     fileChange(event){
         this.fileList = event.target.files;
-        if(this.fileList[0] && (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif")){
+        if(this.fileList[0] && (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif" || this.fileList[0].type === "image/tiff")){
             this.isImage = true;
         }
 
@@ -238,7 +238,7 @@ export class UploadFilesComponent implements OnInit {
                 }
                 // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
             }
-            if (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif") {
+            if (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif"|| this.fileList[0].type === "image/tiff") {
                 this._dicomObject.attrs["00080008"] = {
                     "vr": "CS",
                     "Value": [
@@ -377,6 +377,10 @@ export class UploadFilesComponent implements OnInit {
                             descriptionPart = "Image";
                             break;
                         case "image/png":
+                            $this.modality = $this.selectedSopClass.modality;
+                            descriptionPart = "Image";
+                            break;
+                        case "image/tiff":
                             $this.modality = $this.selectedSopClass.modality;
                             descriptionPart = "Image";
                             break;
