@@ -1013,8 +1013,6 @@ public class QueryBuilder {
                 item.getString(Tag.CodingSchemeDesignator, "*")) || result;
         result = wildCard(predicates, code.get(CodeEntity_.codingSchemeVersion),
                 item.getString(Tag.CodingSchemeVersion, "*")) || result;
-        result = wildCard(predicates, code.get(CodeEntity_.codeMeaning),
-                item.getString(Tag.CodeMeaning, "*")) || result;
         return result;
     }
 
