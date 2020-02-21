@@ -165,11 +165,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         .subscribe(
                             (success) => {
                                 console.log('succes', success);
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Device saved successfully!',
-                                    'status': 'info'
-                                });
+                                $this.mainservice.showMsg($localize `:@@device_saved:Device saved successfully!`);
                                 if(extensionAdded){
                                     // $this.setFormFromParameters($this.recentParams, form);
                                     $this.deleteForm();
@@ -187,11 +183,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.controlService.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
-                                    $this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': $localize `:@@device-configurator.reload_successful:Reload successful`,
-                                        'status': 'info'
-                                    });
+                                    $this.mainservice.showMsg($localize `:@@device-configurator.reload_successful:Reload successful`);
                                     if(this.mainservice.deviceName === this.service.device.dicomDeviceName){
                                         try{
                                             let global = _.cloneDeep(this.mainservice.global);
@@ -219,11 +211,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         );
                 }else{
                     _.assign($this.service.device, deviceClone);
-                    $this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': 'Device name is missing!',
-                        'status': 'error'
-                    });
+                    $this.mainservice.showError($localize `:@@device_name_missing:Device name is missing!`);
                     console.warn('devicename is missing', this.service.device);
                     $this.cfpLoadingBar.complete();
                 }

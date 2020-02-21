@@ -302,3 +302,9 @@ export interface OptionsTree {
     label?:string;
     options:SelectDropdown<any>[];
 }
+export interface LanguageObject {
+    code:string;
+    name:string;
+    nativeName:string;
+    flag:string;
+}

@@ -19,6 +19,7 @@ import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {Globalvar} from "./constants/globalvar";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
 import {User} from "./models/user";
+import {LanguageSwitcher} from "./models/language-switcher";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -50,6 +51,8 @@ export class AppComponent implements OnInit {
     timeZone;
     sidenavopen = false;
     superUser:boolean = false;
+    languageSwitcher:LanguageSwitcher;
+
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -63,7 +66,13 @@ export class AppComponent implements OnInit {
         console.log("in app.component construct", window);
     }
 
+
+
     ngOnInit(){
+        const savedLanguageCode = localStorage.getItem('language_code');
+
+        // this.languageSwitcher = new LanguageSwitcher(["en","sq"],savedLanguageCode); //TODO get language list from some config
+
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
             this.init();

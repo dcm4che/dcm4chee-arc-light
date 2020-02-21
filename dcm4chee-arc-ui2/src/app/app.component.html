@@ -12,15 +12,18 @@
 <!--</div>-->
 <!--<button (click)="testLogout()">logout</button>-->
 <!--<button (click)="testUser()">test</button>-->
+<div class="language_switcher" *ngIf="languageSwitcher && languageSwitcher.currentSelectedLanguage">
+    <div class="default_block" (click)="languageSwitcher.open = !languageSwitcher.open">
+        <img src="{{languageSwitcher.currentSelectedLanguage.flag}}">
+        <span>{{languageSwitcher.currentSelectedLanguage.nativeName}}</span>
+    </div>
+    <ul *ngIf="languageSwitcher.open" class="languages">
+        <li *ngFor="let lang of languageSwitcher.languageList" (click)="switchLanguage(lang.code)">
+            <img src="{{lang.flag}}"> <span>{{lang.nativeName}}</span>
+        </li>
+    </ul>
+</div>
 <div class="config_menu">
-<!--    <div class="language_switcher">
-        <button></button>
-        <ul>
-            <li (click)="switchLanguage('sq')">Shqip</li>
-            <li (click)="switchLanguage('en')">English</li>
-            <li (click)="switchLanguage('de')">Deutsch</li>
-        </ul>
-    </div>-->
     <div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
         <span (click)="showUserMenu = !showUserMenu" id="usermenu">
             <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
