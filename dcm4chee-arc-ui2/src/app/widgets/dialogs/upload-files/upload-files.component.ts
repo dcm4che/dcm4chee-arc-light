@@ -109,7 +109,7 @@ export class UploadFilesComponent implements OnInit {
 
     fileChange(event){
         this.fileList = event.target.files;
-        if(this.fileList[0] && this.fileList[0].type === "image/jpeg"){
+        if(this.fileList[0] && (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif")){
             this.isImage = true;
         }
 
