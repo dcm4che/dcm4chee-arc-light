@@ -66,15 +66,21 @@ export class UploadFilesComponent implements OnInit {
     };
     imageType = [
         {
-            title:"Screenshots",
+            title: $localize `:@@screenshots:Screenshots`,
             description:$localize `:@@upload-files.secondary_capture_image_storage:Secondary Capture Image Storage`,
             value:"1.2.840.10008.5.1.4.1.1.7",
             modality:"OT"
         },
         {
-            title:"Photographs",
+            title: $localize `:@@photographs:Photographs`,
             description:$localize `:@@upload-files.vl_photographic_image_storage:VL Photographic Image Storage`,
             value:"1.2.840.10008.5.1.4.1.1.77.1.4",
+            modality:"XC"
+        },
+        {
+            title: $localize `:@@animated_gif:Animated gif`,
+            description:$localize `:@@upload-files.gif_with_multi_frames_in_it:Gif with multi frames in it`,
+            value:"1.2.840.10008.5.1.4.1.1.77.1.4.1",
             modality:"XC"
         }
     ];
@@ -232,7 +238,7 @@ export class UploadFilesComponent implements OnInit {
                 }
                 // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
             }
-            if (this.fileList[0].type === "image/jpeg") {
+            if (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif") {
                 this._dicomObject.attrs["00080008"] = {
                     "vr": "CS",
                     "Value": [
