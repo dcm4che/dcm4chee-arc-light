@@ -371,35 +371,36 @@ export class UploadFilesComponent implements OnInit {
             if (this.fileList) {
                 seriesInstanceUID = j4care.generateOIDFromUUID();
                 _.forEach(this.fileList, (file, i) => {
-                    let transfareSyntax;
                     switch (file.type) {
                         case "image/jpeg":
-                            transfareSyntax = "1.2.840.10008.1.2.4.50";
                             $this.modality = $this.selectedSopClass.modality;
                             descriptionPart = "Image";
                             break;
+                        case "image/png":
+                            $this.modality = $this.selectedSopClass.modality;
+                            descriptionPart = "Image";
+                            break;
+                        case "image/gif":
+                            $this.modality = $this.selectedSopClass.modality;
+                            descriptionPart = "Gif";
+                            break;
                         case "video/mpeg":
-                            transfareSyntax = "";
                             descriptionPart = "Video";
                             $this.modality = "XC";
                             break;
                         case "video/mp4":
-                            transfareSyntax = "";
                             descriptionPart = "Video";
                             $this.modality = "XC";
                             break;
                         case "video/quicktime":
-                            transfareSyntax = "";
                             descriptionPart = "Video";
                             $this.modality = "XC";
                             break;
                         case "application/pdf":
-                            transfareSyntax = "";
                             descriptionPart = "PDF";
                             $this.modality = "DOC";
                             break;
                     }
-                    if (transfareSyntax || transfareSyntax === "") {
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         let url = this.studyService.getDicomURL("study",this.selectedWebApp);
@@ -667,15 +668,6 @@ export class UploadFilesComponent implements OnInit {
 /*                        },err=>{
                             console.log("errwebApp",err);
                         });*/
-                    } else {
-                        $this.mainservice.setMessage({
-                            'title': 'Error',
-                            'text': `File type "${file.type}" not allowed!`,
-                            'status': 'error'
-                        });
-                        $this.fileList = [];
-                        $this.file = null;
-                    }
                 });
             }
         });
