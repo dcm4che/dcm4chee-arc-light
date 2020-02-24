@@ -166,7 +166,7 @@ public class HL7PSUEJB {
         if (hl7PSUSendingApplication == null || hl7PSUReceivingApplications.length == 0)
             return;
 
-        if (mwl != null && !arcAE.hl7PSUForRequestedProcedure())
+        if (mwl != null && !arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUMessageType() == HL7PSUMessageType.OMG_O19)
             return;
 
         HL7PSUMessage msg = new HL7PSUMessage(task, arcAE);
@@ -176,20 +176,27 @@ public class HL7PSUEJB {
         if (!hl7cs.equals("ISO IR-6"))
             msg.setCharacterSet(hl7cs);
         msg.setSendingApplicationWithFacility(hl7PSUSendingApplication);
-        if (task.getMpps() != null)
-            setPIDPV1(msg, arcAE, task.getMpps().getPatient());
-        else if (mwl != null) {
-            msg.setAttributes(mwl.getAttributes());
-            setPIDPV1(msg, arcAE, mwl.getPatient());
-        } else {
-            Study study = findStudy(task);
-            if (study == null)
-                return;
-
-            setPIDPV1(msg, arcAE, study.getPatient());
-            msg.setStudy(study.getAttributes(), arcAE);
+        if (arcAE.hl7PSUMessageType() == HL7PSUMessageType.ORU_R01)
+            hl7MsgFieldsFromStudy(arcAE, task, msg);
+        else {
+            if (task.getMpps() != null)
+                setPIDPV1(msg, arcAE, task.getMpps().getPatient());
+            if (mwl != null) {
+                msg.setAttributes(mwl.getAttributes());
+                setPIDPV1(msg, arcAE, mwl.getPatient());
+            } else
+                hl7MsgFieldsFromStudy(arcAE, task, msg);
         }
         scheduleMessage(hl7PSUReceivingApplications, hl7cs, msg);
+    }
+
+    private void hl7MsgFieldsFromStudy(ArchiveAEExtension arcAE, HL7PSUTask task, HL7PSUMessage msg) {
+        Study study = findStudy(task);
+        if (study == null)
+            return;
+
+        setPIDPV1(msg, arcAE, study.getPatient());
+        msg.setStudy(study.getAttributes(), arcAE);
     }
 
     private Study findStudy(HL7PSUTask task) {
