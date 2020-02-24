@@ -17,7 +17,7 @@
 
                         <div class="option_block">
                             <div class="interval_block">
-                                <label>Interval:</label>
+                                <label i18n="@@interval">Interval:</label>
                                 <input type="text" i18n-placeholder placeholder="Interval" [(ngModel)]="interval">
                                 <span>s</span>
                             </div>
@@ -38,15 +38,15 @@
             <div class="filter single_block" [permission]="{id:'action-monitoring->diff_monitor-all_action',param:'visible'}">
                 <div class="filter_block">
                     <div class="line">
-                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
-                        <mat-select [(ngModel)]="allAction" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
+                        <mat-select [(ngModel)]="allAction" i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                             <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                         </mat-select>
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []">Batch ID grouped</mat-checkbox></div>
+                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>
                     </div>
                 </div>
             </div>

@@ -47,9 +47,9 @@ export class ControlService {
                 calculatedWidth:"20%"
             },
             {
-                title:"Manufacturer",
+                title:$localize `:@@manufacturer:Manufacturer`,
                 code:"dicomManufacturer",
-                description:"Manufacturer",
+                description:$localize `:@@manufacturer:Manufacturer`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },

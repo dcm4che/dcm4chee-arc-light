@@ -33,13 +33,13 @@ export class AeListService {
     generateEchoResponseText(response){
         if (_.hasIn(response, 'errorMessage') && response.errorMessage != ''){
             return {
-                title:"Error",
+                title:$localize `:@@error:Error`,
                 text:response.errorMessage,
                 status:"error"
             };
         }else{
             return {
-                title:"Info",
+                title:$localize `:@@info:Info`,
                 status:"info",
                 text: $localize `:@@echo_accomplished:Echo successfully accomplished!<br>- Connection time: ${
                     response.connectionTime
@@ -70,8 +70,8 @@ export class AeListService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDescription",
-                description:"Description",
-                placeholder:"Description"
+                description:$localize `:@@description:Description`,
+                placeholder:$localize `:@@description:Description`
             },{
                 tag:"input",
                 type:"text",

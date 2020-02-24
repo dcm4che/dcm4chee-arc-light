@@ -1121,7 +1121,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }),
                 new TableSchemaElement({
@@ -1630,7 +1630,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }),
                 new TableSchemaElement({
@@ -1650,7 +1650,7 @@ export class StudyService {
                             title: $localize `:@@study.toggle_attributes:Toggle Attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),new TableSchemaElement({
                     type: "actions",
@@ -1934,7 +1934,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }),
                 new TableSchemaElement({
@@ -1953,7 +1953,7 @@ export class StudyService {
                             title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),new TableSchemaElement({
                     type: "actions",
@@ -2205,7 +2205,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }), new TableSchemaElement({
                     type: "actions",
@@ -2225,7 +2225,7 @@ export class StudyService {
                             title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }), new TableSchemaElement({
                     type: "actions",
@@ -2245,7 +2245,7 @@ export class StudyService {
                             title: $localize `:@@study.show_attributes_from_file:Show attributes from file`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -2377,7 +2377,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }), new TableSchemaElement({
                     type: "actions",
@@ -2396,7 +2396,7 @@ export class StudyService {
                             title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -2547,7 +2547,7 @@ export class StudyService {
                             }
                         ]
                     },
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 35
                 }), */
                 new TableSchemaElement({
@@ -2567,7 +2567,7 @@ export class StudyService {
                             title: $localize `:@@study.show_attributes:Show attributes`
                         }
                     ],
-                    headerDescription: "Actions",
+                    headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
@@ -2779,7 +2779,7 @@ export class StudyService {
                                     action: "select"
                                 }, e);
                             },
-                            title: "Select",
+                            title: $localize `:@@select:Select`,
                             showIf: (e, config) => {
                                 return !e.selected;
                             }
@@ -2798,7 +2798,7 @@ export class StudyService {
                                     action: "select"
                                 }, e);
                             },
-                            title: "Unselect",
+                            title: $localize `:@@unselect:Unselect`,
                             showIf: (e, config) => {
                                 return e.selected;
                             }

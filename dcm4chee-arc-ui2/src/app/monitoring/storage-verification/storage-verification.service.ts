@@ -225,7 +225,7 @@ export class StorageVerificationService {
                 type:"model",
                 title:$localize `:@@storage-verification.secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
-                description:"AE Title of the secondary C-FIND SCP",
+                description:$localize `:@@ae_title_of_the_secondary_c_find_scp:AE Title of the secondary C-FIND SCP`,
                 widthWeight:1,
                 modifyData:(data)=> data.join(', ') || data,
                 calculatedWidth:"20%",

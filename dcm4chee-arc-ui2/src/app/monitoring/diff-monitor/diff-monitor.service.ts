@@ -103,7 +103,7 @@ export class DiffMonitorService {
               filterKey:"status",
               showStar:true,
               description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
-              placeholder:"Status"
+              placeholder: $localize `:@@status:Status`
           },
           {
               tag:"range-picker",
@@ -174,7 +174,7 @@ export class DiffMonitorService {
             {
                 type:"index",
                 title:"#",
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.1,
                 calculatedWidth:"4%"
             },{
@@ -247,21 +247,21 @@ export class DiffMonitorService {
                         }
                     }
                 ],
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.3,
                 calculatedWidth:"6%"
             },{
                 type:"model",
                 title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
-                description:"AE Title of the primary C-FIND SCP",
+                description: $localize `:@@ae_title_of_the_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
                 title:$localize `:@@secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
-                description:"AE Title of the secondary C-FIND SCP",
+                description: $localize `:@@ae_title_of_the_secondary_c_find_scp:AE Title of the secondary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
@@ -275,7 +275,7 @@ export class DiffMonitorService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:"Status",
+                title:$localize `:@@status:Status`,
                 key:"status",
                 description:$localize `:@@status_of_tasks:Status of tasks`,
                 widthWeight:1,
@@ -311,7 +311,7 @@ export class DiffMonitorService {
             {
                 type:"index",
                 title:"#",
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.1,
                 calculatedWidth:"4%"
             },{
@@ -340,7 +340,7 @@ export class DiffMonitorService {
                         }
                     }
                 ],
-                description:"Index",
+                description:$localize `:@@index:Index`,
                 widthWeight:0.3,
                 calculatedWidth:"6%"
             },{
@@ -354,14 +354,14 @@ export class DiffMonitorService {
                 type:"model",
                 title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
-                description:"AE Title of the primary C-FIND SCP",
+                description:$localize `:@@ae_title_of_the_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
                 title:$localize `:@@secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
-                description:"AE Title of the secondary C-FIND SCP",
+                description:$localize `:@@ae_title_of_the_secondary_c_find_scp:AE Title of the secondary C-FIND SCP`,
                 widthWeight:1,
                 modifyData:(data)=> data.join(', ') || data,
                 calculatedWidth:"20%",
@@ -395,8 +395,8 @@ export class DiffMonitorService {
                 cssClass:"hideOn1100px"
             },{
                 type:"progress",
-                title:"Tasks",
-                description:"Tasks",
+                title:$localize `:@@tasks:Tasks`,
+                description:$localize `:@@tasks:Tasks`,
                 key:"tasks",
                 diffMode:true,
                 widthWeight:2,
