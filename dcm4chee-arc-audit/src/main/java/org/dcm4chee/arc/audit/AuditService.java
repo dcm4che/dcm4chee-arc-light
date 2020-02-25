@@ -88,6 +88,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
+import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +178,8 @@ public class AuditService {
         }
     }
 
-    private void auditApplicationActivity(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditApplicationActivity(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 ApplicationActivityAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -214,7 +216,7 @@ public class AuditService {
         }
     }
 
-    private void auditDeletion(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditDeletion(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 DeletionAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -251,7 +253,8 @@ public class AuditService {
         }
     }
 
-    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 QueueMessageAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -272,7 +275,8 @@ public class AuditService {
         }
     }
 
-    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 SoftwareConfigurationAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -288,7 +292,8 @@ public class AuditService {
         }
     }
 
-    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 ExternalRetrieveAuditService.auditMsg(auditLogger, path, eventType, aeCache),
                 auditLogger);
@@ -305,7 +310,8 @@ public class AuditService {
         }
     }
 
-    private void auditConnectionFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditConnectionFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 ConnectionEventsAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -386,7 +392,7 @@ public class AuditService {
         }
     }
 
-    private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws IOException {
+    private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 QueryAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -478,7 +484,7 @@ public class AuditService {
         }
     }
 
-    private void auditPatientMismatch(AuditLogger logger, Path path, AuditUtils.EventType eventType) {
+    private void auditPatientMismatch(AuditLogger logger, Path path, AuditUtils.EventType eventType) throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         AuditMessage auditMsg = AuditMessages.createMessage(
@@ -544,7 +550,7 @@ public class AuditService {
         }
     }
 
-    private void auditStoreError(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditStoreError(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
@@ -571,7 +577,8 @@ public class AuditService {
         emitAuditMessage(auditMsg, auditLogger);
     }
 
-    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         if (path.toFile().getName().endsWith("_ERROR")) {
             auditStoreError(auditLogger, path, eventType);
             return;
@@ -591,7 +598,7 @@ public class AuditService {
         emitAuditMessage(auditMsg, auditLogger);
     }
 
-    private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
@@ -654,7 +661,7 @@ public class AuditService {
         return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
-    private void auditRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 RetrieveAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -795,13 +802,14 @@ public class AuditService {
         }
     }
 
-    private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 StudyRecordAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
     }
 
-    private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 ProcedureRecordAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -819,7 +827,8 @@ public class AuditService {
         }
     }
 
-    private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 ProvideAndRegisterAuditService.provideRegisterAuditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -846,7 +855,7 @@ public class AuditService {
         }
     }
 
-    private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 StorageCommitAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -864,7 +873,8 @@ public class AuditService {
         }
     }
 
-    private void auditAssociationFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    private void auditAssociationFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws Exception {
         emitAuditMessage(
                 AssociationEventsAuditService.associationFailureAuditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -980,12 +990,13 @@ public class AuditService {
         return file;
     }
 
-    private void emitAuditMessage(AuditMessage msg, AuditLogger logger) {
+    private void emitAuditMessage(AuditMessage msg, AuditLogger logger) throws Exception {
         msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         try {
             logger.write(logger.timeStamp(), msg);
         } catch (Exception e) {
             LOG.warn("Failed to emit audit message for [AuditLogger={}]\n", logger.getCommonName(), e);
+            throw e;
         }
     }
 
