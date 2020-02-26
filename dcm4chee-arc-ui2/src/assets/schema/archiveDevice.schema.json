@@ -195,7 +195,7 @@
       "format": "dcmDuration"
     },
     "dcmMWLFetchSize": {
-      "title": "Delete MWL Fetch Size",
+      "title": "MWL Fetch Size",
       "description": "Maximal number of MWL items to update or delete in one transaction.",
       "type": "integer",
       "default" : 100,
