@@ -37,7 +37,7 @@
             <div class="filter single_block" [permission]="{id:'action-monitoring->queues-all_action',param:'visible'}">
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left"  i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)" float i18n-placeholder placeholder="never">
+                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left"  i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)">
                             <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                         </mat-select>
                     </div>
