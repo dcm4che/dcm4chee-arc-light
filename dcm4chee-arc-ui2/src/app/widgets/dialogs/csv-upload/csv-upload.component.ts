@@ -91,7 +91,7 @@ export class CsvUploadComponent implements OnInit {
             }
         },(err)=>{
             this.showLoader = false;
-            this.appService.setMessage($localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`)
+            this.appService.showError($localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`)
             this.dialogRef.close(null);
         });
     }

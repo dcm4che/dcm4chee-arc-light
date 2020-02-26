@@ -171,11 +171,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     $this.deviceConfiguratorService.device = {};
                     $this.deviceConfiguratorService.schema = {};
                     $this.controlService.reloadArchive().subscribe((res) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': $localize `:@@dynamic-form-element.archive_reloaded_successfully:Archive reloaded successfully`,
-                                'status': 'info'
-                            });
+                            $this.mainservice.showMsg($localize `:@@dynamic-form-element.archive_reloaded_successfully:Archive reloaded successfully`);
                             $this.router.navigateByUrl('blank').then(() => {
                                 $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                             });
@@ -264,25 +260,17 @@ export class DynamicFormElementComponent implements OnDestroy{
                     });
                     //If removed element is referenced prevent removing it
                     if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
-                        $this.mainservice.setMessage({
-                            'title': 'Warning',
-                            'text': `This element is referenced, remove references first then you can delete this element!`,
-                            'status': 'warning'
-                        });
+                        $this.mainservice.showWarning($localize `:@@this_element_is_referenced:This element is referenced, remove references first then you can delete this element!`);
                     } else {
                         let newAddUrl = formelement.options[formelement.options.length - 1].url;
                         formelement.options.splice(toRemoveIndex, 1);
                         let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
                         if (check) {
                             $this.partRemoved = true;
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': `Element removed from object successfully!`,
-                                'status': 'info'
-                            });
+                            $this.mainservice.showMsg($localize `:@@element_removed_from_object:Element removed from object successfully!`);
                             $this.mainservice.setMessage({
                                 'title': $localize `:@@dynamic-form-element.click_to_save:Click to save`,
-                                'text': `Click save if you want to remove "${selected.title}" permanently!`,
+                                'text': $localize `:@@click_save_if_you_want_to_remove_permanently:Click save if you want to remove "${selected.title}:@@selectedTitle:" permanently!`,
                                 'status': 'warning'
                             });
                             formelement.addUrl = newAddUrl;

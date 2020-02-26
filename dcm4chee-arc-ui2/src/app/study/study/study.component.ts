@@ -1031,7 +1031,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.modifyMWL(local,this.studyWebService, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe((response) => {
                         if (mode === 'edit'){
                             // _.assign(mwl, mwlFiltered);
-                            $this.appService.setMessage($localize `:@@study.mwl_saved:MWL saved successfully!`);
+                            $this.appService.showMsg($localize `:@@study.mwl_saved:MWL saved successfully!`);
                         }else{
                             $this.appService.showMsg($localize `:@@study.mwl_create:MWL created successfully!`);
                         }
@@ -2441,7 +2441,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             if (_.hasIn(res, 'deleted')){
                                 this.appService.showMsg($localize `:@@instance_delete:${res.deleted}:@@deleted: instances deleted successfully!`);
                             }else{
-                                this.appService.setMessage($localize `:@@process_executed:Process executed successfully`);
+                                this.appService.showMsg($localize `:@@process_executed:Process executed successfully`);
                             }
                         },
                         (err) => {
@@ -2561,7 +2561,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.service.rejectStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
             .subscribe(
                 (res) => {
-                    $this.appService.setMessage($localize `:@@study.study_restored:Study restored successfully!`);
+                    $this.appService.showMsg($localize `:@@study.study_restored:Study restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
@@ -2615,7 +2615,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
-                    $this.appService.setMessage($localize `:@@study.series_restored:Series restored successfully!`);
+                    $this.appService.showMsg($localize `:@@study.series_restored:Series restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
@@ -2671,7 +2671,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
-                    $this.appService.setMessage($localize `:@@study.instance_restored:Instance restored successfully!`);
+                    $this.appService.showMsg($localize `:@@study.instance_restored:Instance restored successfully!`);
                     // $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {

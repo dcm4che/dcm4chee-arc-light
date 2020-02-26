@@ -152,11 +152,7 @@ export class EditPatientComponent {
                     this.addPatientAttribut           = '';
                     this.opendropdown                 = false;
                 }else{
-                    this.mainservice.setMessage({
-                        'title': 'Warning',
-                        'text': 'Attribute already exists!',
-                        'status': 'warning'
-                    });
+                    this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
                 this.patient.attrs[attrcode]  = this.iod[attrcode];
@@ -259,11 +255,7 @@ export class EditPatientComponent {
                 this.addPatientAttribut           = '';
                 this.opendropdown                 = false;
             }else{
-                this.mainservice.setMessage({
-                    'title': 'Warning',
-                    'text': 'Attribute already exists!',
-                    'status': 'warning'
-                });
+                this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 console.log('message attribute already exists');
             }
         }else{

@@ -114,7 +114,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         .subscribe(
                             (success) => {
                                 console.log('succes', success);
-                                $this.mainservice.setMessage($localize `:@@device-configurator.device_created:Device created successfully!`);
+                                $this.mainservice.showMsg($localize `:@@device-configurator.device_created:Device created successfully!`);
                                 try {
                                     $this.recentParams = {};
                                     $this.service.pagination = $this.params = [

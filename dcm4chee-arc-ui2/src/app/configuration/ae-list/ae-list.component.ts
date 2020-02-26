@@ -211,17 +211,9 @@ export class AeListComponent implements OnInit{
                 if (result.input === true){
                     $this.$http.delete('../devices/' + device).subscribe((res) => {
                             console.log('res', res);
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Device deleted successfully!',
-                                'status': 'info'
-                            });
+                            $this.mainservice.showMsg($localize `:@@device_deleted_successfully:Device deleted successfully!`);
                             $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Archive reloaded successfully!',
-                                    'status': 'info'
-                                });
+                                $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 $this.searchAes();
                             }, (error) => {
                                 console.warn('Reloading the Archive failed');
@@ -251,35 +243,19 @@ export class AeListComponent implements OnInit{
                                 $this.$http.put('../devices/' + device, deviceObject)
                                     .subscribe((resdev) => {
                                             console.log('resdev', resdev);
-                                            $this.mainservice.setMessage({
-                                                'title': 'Info',
-                                                'text': 'Ae removed from device successfully!',
-                                                'status': 'info'
-                                            });
+                                            $this.mainservice.showMsg($localize `:@@ae_removed_from_device_successfully:Ae removed from device successfully!`);
                                             $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Info',
-                                                    'text': 'Archive reloaded successfully!',
-                                                    'status': 'info'
-                                                });
+                                                $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                                 $this.searchAes();
                                             });
                                         },
                                         (err) => {
                                             console.log('err', err);
-                                            $this.mainservice.setMessage({
-                                                'title': 'error',
-                                                'text': 'Error, the AE was not removed from device!',
-                                                'status': 'error'
-                                            });
+                                            $this.mainservice.showError($localize `:@@error,_the_ae_was_not_removed_from_device:Error, the AE was not removed from device!`);
                                         });
                             },
                             (err) => {
-                                $this.mainservice.setMessage({
-                                    'title': 'error',
-                                    'text': $localize `:@@ae-list.error_getting_device_:Error getting device ${device}:@@device:`,
-                                    'status': 'error'
-                                });
+                                $this.mainservice.showError($localize `:@@ae-list.error_getting_device_:Error getting device ${device}:@@device:`);
                             }
                         );
                 }
@@ -340,20 +316,12 @@ export class AeListComponent implements OnInit{
                         }
                         $this.$http.post('../devices/' + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
                             .subscribe( (devre) => {
-                                    $this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': 'Device with the AET created successfully!',
-                                        'status': 'info'
-                                    });
+                                    $this.mainservice.showMsg($localize `:@@device_with_the_aet_created_successfully:Device with the AET created successfully!`);
                                     if(re.selectedForAcceptedCallingAET && re.selectedForAcceptedCallingAET.length > 0){
                                         this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
                                     }else{
                                         $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
-                                            $this.mainservice.setMessage({
-                                                'title': 'Info',
-                                                'text': 'Archive reloaded successfully!',
-                                                'status': 'info'
-                                            });
+                                            $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                         });
                                     }
                                     $this.searchAes();
@@ -369,17 +337,9 @@ export class AeListComponent implements OnInit{
                         re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
                         $this.$http.put('../devices/' + re.device.dicomDeviceName, re.device)
                             .subscribe((putresponse) => {
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Aet added to device successfully!',
-                                    'status': 'info'
-                                });
+                                $this.mainservice.showMsg($localize `:@@aet_added_to_device_successfully:Aet added to device successfully!`);
                                 $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
-                                    $this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': 'Archive reloaded successfully!',
-                                        'status': 'info'
-                                    });
+                                    $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 });
                                 $this.searchAes();
                             }, (err) => {
@@ -445,11 +405,7 @@ export class AeListComponent implements OnInit{
                 this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
                     this.mainservice.showMsg($localize `:@@ae-list.set_as_accpeted_aet:${newAet.dicomAETitle}:@@newAet: was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}:@@aets:`);
                     this.$http.post('../ctrl/reload', {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
-                        this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': 'Archive reloaded successfully!',
-                            'status': 'info'
-                        });
+                        this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });
                 },err=>{
                     this.httpErrorHandler.handleError(err);

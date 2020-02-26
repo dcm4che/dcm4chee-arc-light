@@ -127,10 +127,7 @@ export class PermissionService {
                             this.mainservice.global.notSecure = true;
                             // this.mainservice.setSecured(false)
                         }else
-                            this.mainservice.setMessage({
-                                'text': "Permission not found!",
-                                'status': 'error'
-                            });
+                            this.mainservice.showError($localize `:@@permission_not_found:Permission not found!`);
                         return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
