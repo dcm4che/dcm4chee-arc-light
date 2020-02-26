@@ -201,17 +201,6 @@ public class HL7PSUEJB {
         msg.setStudySeriesAttrs(series, arcAE);
     }
 
-    private Study findStudy(HL7PSUTask task) {
-        try {
-            return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
-                    .setParameter(1, task.getStudyInstanceUID())
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            LOG.info("Study referenced in HL7PSUTask {} does not exist", task);
-        }
-        return null;
-    }
-
     private Series findSeries(HL7PSUTask task) {
         try {
             return em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)

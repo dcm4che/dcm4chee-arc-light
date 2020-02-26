@@ -183,6 +183,7 @@ class HL7PSUMessage {
         Attributes seriesAttrs = series.getAttributes();
         setUniversalServiceIDAndProcedureCode(studyAttrs, seriesAttrs);
         setObservationDateTime(studyAttrs, seriesAttrs);
+        setIssuerOfAccNumSq(studyAttrs);
         setDiagnosticServSectID(seriesAttrs);
         obr.setField(25, "R");
         obr.setField(27, "^^^^^R");
@@ -208,6 +209,16 @@ class HL7PSUMessage {
         obr.setField(7, studyAttrs.getDate(Tag.StudyDate) != null
                 ? studyAttrs.getString(Tag.StudyDate) + studyAttrs.getString(Tag.StudyTime)
                 : seriesAttrs.getString(Tag.SeriesDate) + seriesAttrs.getString(Tag.SeriesTime));
+    }
+
+    private void setIssuerOfAccNumSq(Attributes studyAttrs) {
+        Attributes issuerOfAcc = studyAttrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence);
+        obr.setField(19,
+                issuerOfAcc != null
+                ? issuerOfAcc.getString(Tag.LocalNamespaceEntityID)
+                        + "&" + issuerOfAcc.getString(Tag.UniversalEntityID)
+                        + "&" + issuerOfAcc.getString(Tag.UniversalEntityIDType)
+                : null);
     }
 
     private void setDiagnosticServSectID(Attributes seriesAttrs) {
