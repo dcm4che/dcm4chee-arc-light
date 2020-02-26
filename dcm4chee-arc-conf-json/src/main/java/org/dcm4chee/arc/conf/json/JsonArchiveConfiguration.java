@@ -345,7 +345,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmRestrictRetrieveSilently", arcDev.isRestrictRetrieveSilently(), false);
         writer.writeNotDef("dcmStowQuicktime2MP4", arcDev.isStowQuicktime2MP4(), false);
         writer.writeNotNullOrDef("dcmDeleteMWLPollingInterval", arcDev.getDeleteMWLPollingInterval(), null);
-        writer.writeNotDef("dcmDeleteMWLFetchSize", arcDev.getDeleteMWLFetchSize(), 100);
+        writer.writeNotDef("dcmMWLFetchSize", arcDev.getMWLFetchSize(), 100);
         writer.writeNotEmpty("dcmDeleteMWLDelay", arcDev.getDeleteMWLDelay());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
@@ -1654,8 +1654,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmDeleteMWLPollingInterval":
                     arcDev.setDeleteMWLPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
-                case "dcmDeleteMWLFetchSize":
-                    arcDev.setDeleteMWLFetchSize(reader.intValue());
+                case "dcmMWLFetchSize":
+                    arcDev.setMWLFetchSize(reader.intValue());
                     break;
                 case "dcmDeleteMWLDelay":
                     arcDev.setDeleteMWLDelay(reader.stringArray());

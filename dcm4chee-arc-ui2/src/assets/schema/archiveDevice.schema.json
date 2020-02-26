@@ -10,7 +10,7 @@
     "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmDeleteUPSFetchSize",
-    "dcmDeleteMWLFetchSize",
+    "dcmMWLFetchSize",
     "dcmOverwritePolicy",
     "dcmRecordAttributeModification",
     "dcmAcceptMissingPatientID",
@@ -194,9 +194,9 @@
       "type": "string",
       "format": "dcmDuration"
     },
-    "dcmDeleteMWLFetchSize": {
+    "dcmMWLFetchSize": {
       "title": "Delete MWL Fetch Size",
-      "description": "Maximal number of MWL items to delete in one transaction.",
+      "description": "Maximal number of MWL items to update or delete in one transaction.",
       "type": "integer",
       "default" : 100,
       "minimum": 0,

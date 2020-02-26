@@ -230,12 +230,12 @@ public class ProcedureServiceEJB {
             }
     }
 
-    public int deleteMWLItems(SPSStatus status, Date before, int deleteMWLFetchSize) {
+    public int deleteMWLItems(SPSStatus status, Date before, int MWLFetchSize) {
         List<MWLItem> mwlItems = em.createNamedQuery(
                 MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE, MWLItem.class)
                 .setParameter(1, status)
                 .setParameter(2, before)
-                .setMaxResults(deleteMWLFetchSize)
+                .setMaxResults(MWLFetchSize)
                 .getResultList();
         mwlItems.forEach(mwl -> em.remove(mwl));
         return mwlItems.size();

@@ -2044,8 +2044,8 @@ attributetype ( 1.2.40.0.13.1.15.110.3.352 NAME 'dcmDeleteMWLPollingInterval'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.353 NAME 'dcmDeleteMWLFetchSize'
-  DESC 'Maximal number of MWL items to delete in one transaction; 100 if absent.'
+attributetype ( 1.2.40.0.13.1.15.110.3.353 NAME 'dcmMWLFetchSize'
+  DESC 'Maximal number of MWL items to update or delete in one transaction; 100 if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -2091,7 +2091,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPurgeInstanceRecordsPollingInterval $
     dcmPurgeInstanceRecordsFetchSize $
     dcmDeleteMWLPollingInterval $
-    dcmDeleteMWLFetchSize $
+    dcmMWLFetchSize $
     dcmDeleteMWLDelay $
     dcmDeleteUPSPollingInterval $
     dcmDeleteUPSFetchSize $

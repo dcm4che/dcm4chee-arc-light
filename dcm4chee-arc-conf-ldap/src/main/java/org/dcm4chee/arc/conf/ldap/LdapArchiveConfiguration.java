@@ -434,7 +434,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteMWLPollingInterval",
                 ext.getDeleteMWLPollingInterval(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteMWLFetchSize", ext.getDeleteMWLFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLFetchSize", ext.getMWLFetchSize(), 100);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteMWLDelay", ext.getDeleteMWLDelay());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
@@ -702,7 +702,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
         ext.setDeleteMWLPollingInterval(toDuration(attrs.get("dcmDeleteMWLPollingInterval"), null));
-        ext.setDeleteMWLFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteMWLFetchSize"), 100));
+        ext.setMWLFetchSize(LdapUtils.intValue(attrs.get("dcmMWLFetchSize"), 100));
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
     }
 
@@ -1198,9 +1198,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDeleteMWLPollingInterval(),
                 bb.getDeleteMWLPollingInterval(),
                 null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLFetchSize",
-                aa.getDeleteMWLFetchSize(),
-                bb.getDeleteMWLFetchSize(),
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMWLFetchSize",
+                aa.getMWLFetchSize(),
+                bb.getMWLFetchSize(),
                 100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLDelay", aa.getDeleteMWLDelay(), bb.getDeleteMWLDelay());
         if (remove)
