@@ -334,8 +334,7 @@ public class ProcedureServiceEJB {
         Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
         requestAttributes.clear();
         for (Attributes spsItem : spsSeq) {
-            Attributes rqAttrsItem = MWLItem.toRequestAttributesSequenceItem(mwlAttr, spsItem);
-            rqAttrsSeq.add(rqAttrsItem);
+            Attributes rqAttrsItem = MWLItem.addItemToRequestAttributesSequence(rqAttrsSeq, mwlAttr, spsItem);
             SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, issuerOfAccessionNumber, fuzzyStr);
             requestAttributes.add(request);
         }

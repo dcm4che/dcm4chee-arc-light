@@ -664,8 +664,7 @@ public class IocmRS {
         attrs.addAll(mwlItem.getPatient().getAttributes());
         attrs.setString(Tag.StudyDescription, VR.LO, mwlItemAttrs.getString(Tag.RequestedProcedureDescription));
         attrs.setString(Tag.StudyID, VR.SH, mwlItemAttrs.getString(Tag.RequestedProcedureID));
-        attrs.newSequence(Tag.RequestAttributesSequence, 1)
-                .add(mwlItem.getRequestAttributesSequenceItem());
+        mwlItem.addItemToRequestAttributesSequence(attrs.newSequence(Tag.RequestAttributesSequence, 1));
         return attrs;
     }
 
