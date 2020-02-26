@@ -215,9 +215,9 @@ class HL7PSUMessage {
         Attributes issuerOfAcc = studyAttrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence);
         obr.setField(19,
                 issuerOfAcc != null
-                ? issuerOfAcc.getString(Tag.LocalNamespaceEntityID)
-                        + "&" + issuerOfAcc.getString(Tag.UniversalEntityID)
-                        + "&" + issuerOfAcc.getString(Tag.UniversalEntityIDType)
+                ? val(Tag.LocalNamespaceEntityID, issuerOfAcc)
+                        + "&" + val(Tag.UniversalEntityID, issuerOfAcc)
+                        + "&" + val(Tag.UniversalEntityIDType, issuerOfAcc)
                 : null);
     }
 
@@ -267,9 +267,9 @@ class HL7PSUMessage {
     private String codeToStr(Attributes attrs, int sqTag) {
         Attributes item = attrs.getNestedDataset(sqTag);
         return item != null
-                ? item.getString(Tag.CodeValue)
-                    + "^" + item.getString(Tag.CodeMeaning)
-                    + "^" + item.getString(Tag.CodingSchemeDesignator)
+                ? val(Tag.CodeValue, item)
+                    + "^" + val(Tag.CodeMeaning, item)
+                    + "^" + val(Tag.CodingSchemeDesignator, item)
                 : null;
     }
 
@@ -282,6 +282,10 @@ class HL7PSUMessage {
         obx.setField(5, studyAttrs.getString(Tag.StudyInstanceUID));
         obx.setField(11, "O");
         hl7Message.add(obx);
+    }
+
+    private String val(int tag, Attributes item) {
+        return item.getString(tag) != null ? item.getString(tag) : "";
     }
 
 }
