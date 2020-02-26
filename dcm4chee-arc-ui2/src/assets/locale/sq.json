@@ -478,7 +478,7 @@
     "diff-monitor.delete_all_matching_tasks": "sq_Delete all matching tasks",
     "count_param": "sq_COUNT {$@@count}",
     "matching_task_question": "sq_Are you sure, you want to {$PH} all matching tasks?",
-    "task_delted": "sq_{$PH} tasks deleted successfully!",
+    "task_deleted": "sq_{$PH} tasks deleted successfully!",
     "tasks_rescheduled": "sq_{$@@count} tasks rescheduled successfully!",
     "diff-monitor.no_diff": "sq_No diff tasks found!",
     "tasks_deleted": "sq_{$PH} tasks deleted successfully!",

@@ -170,7 +170,7 @@ export class DiffMonitorComponent implements OnInit {
                 switch (this.allAction){
                     case "cancel":
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_delted:${res.count} tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@task_deleted:${res.count} tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();

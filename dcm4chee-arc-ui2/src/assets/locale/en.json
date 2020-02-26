@@ -518,7 +518,7 @@
     "diff-monitor.delete_all_matching_tasks": "Delete all matching tasks",
     "count_param": "COUNT {$@@count}",
     "matching_task_question": "Are you sure, you want to {$PH} all matching tasks?",
-    "task_delted": "{$PH} tasks deleted successfully!",
+    "task_deleted": "{$PH} tasks deleted successfully!",
     "tasks_rescheduled": "{$@@count} tasks rescheduled successfully!",
     "want_to_delete_task_from_group": "Are you sure you want to delete all tasks from this group?",
     "diff-monitor.no_diff": "No diff tasks found!",
