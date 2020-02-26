@@ -17,6 +17,9 @@ export class ConfirmComponent{
     }
 
     set parameters(value) {
+        if(!_.hasIn(value,"cancelButton")){
+            value.cancelButton = $localize `:@@CANCEL:CANCEL`;
+        }
         this._parameters = value;
     }
 

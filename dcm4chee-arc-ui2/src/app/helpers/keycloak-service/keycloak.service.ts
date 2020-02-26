@@ -31,6 +31,7 @@ import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
 import * as _ from 'lodash';
 import {promise} from "selenium-webdriver";
+import {flatMap} from "rxjs/operators";
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -84,7 +85,7 @@ export class KeycloakService {
                     });
             }))
         }else{
-            return this.mainservice.getKeycloakJson().flatMap((keycloakJson:any)=>{
+            return this.mainservice.getKeycloakJson().pipe(flatMap((keycloakJson:any)=>{
                 if(!_.isEmpty(keycloakJson)){
                     localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
                     KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
@@ -104,7 +105,7 @@ export class KeycloakService {
                     this.mainservice.updateGlobal("notSecure",true);
                     return of([]);
                 }
-            })
+            }))
         }
     }
 

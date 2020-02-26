@@ -177,7 +177,7 @@ export class DevicesComponent implements OnInit{
                 if (result){
                     $this.cfpLoadingBar.start();
                     $this.$http.delete('../devices/' + device.dicomDeviceName).subscribe((res) => {
-                        $this.mainservice.showMsg($localize `Device deleted successfully!`);
+                        $this.mainservice.showMsg($localize `:@@device_delected_successfully:Device deleted successfully!`);
                         $this.getDevices();
                         $this.cfpLoadingBar.complete();
                     }, (err) => {

@@ -162,7 +162,7 @@ export class DurationPickerComponent implements OnInit {
     onModelChange(e){
         if(this.mode === 'dcmPeriod'){
             if(this._isset(this.week)){
-                this.message = $localize `:@@this_period_will_last_week:This period will last ${this.week}:@@week: ${(this.week > 1?WEEK.plural:WEEK.singular)}@@:word_for_week:`;
+                this.message = $localize `:@@this_period_will_last_week:This period will last ${this.week}:@@week: ${(this.week > 1?WEEK.plural:WEEK.singular)}:@@word_for_week:`;
             }else{
                 this.message = this._generateSentenceWithCountableWords({
                     start: $localize `:@@duration-picker.this_period_will_last:This period will last`,

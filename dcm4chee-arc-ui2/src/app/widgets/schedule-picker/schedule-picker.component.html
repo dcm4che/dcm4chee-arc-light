@@ -5,7 +5,7 @@
           (dragleave)="dragleave($event)"
     >
         <!--{{draggedElements | json}}-->
-        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="schedule-picker.drop_herer_some_element">Drop here some element to edit</div>
+        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="@@schedule-picker.drop_herer_some_element">Drop here some element to edit</div>
         <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
                 <div *ngSwitchCase="'single_hour'" class="element single">
                     <select name="single_hour" id="single_hour" [(ngModel)]="item.model">
@@ -108,13 +108,13 @@
                 </div>
                 <div *ngSwitchCase="'day_range'" class="element range">
                     <select name="day_range1" id="day_range1" [(ngModel)]="item.model.model1">
-                        <option value="1" i18n="monday">Monday</option>
-                        <option value="2" i18n="tuesday">Tuesday</option>
-                        <option value="3" i18n="wednesday">Wednesday</option>
-                        <option value="4" i18n="thursday">Thursday</option>
-                        <option value="5" i18n="friday">Friday</option>
-                        <option value="6" i18n="saturday">Saturday</option>
-                        <option value="0" i18n="sunday">Sunday</option>
+                        <option value="1" i18n="@@monday">Monday</option>
+                        <option value="2" i18n="@@tuesday">Tuesday</option>
+                        <option value="3" i18n="@@wednesday">Wednesday</option>
+                        <option value="4" i18n="@@thursday">Thursday</option>
+                        <option value="5" i18n="@@friday">Friday</option>
+                        <option value="6" i18n="@@saturday">Saturday</option>
+                        <option value="0" i18n="@@sunday">Sunday</option>
                     </select>
                     <span class="split">-</span>
                     <select name="day_range2" id="day_range2" [(ngModel)]="item.model.model2">

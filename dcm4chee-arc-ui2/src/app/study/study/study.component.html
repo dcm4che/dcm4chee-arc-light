@@ -3,16 +3,18 @@
   <div class="tab-content tab_content_with_fixed_header">
     <div class="sticky" #stickyHeader [ngClass]="{'fixed_header':fixedHeader}">
       <h2>{{studyConfig.title}}</h2>
-      <div class="filter_line">
-        <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
-        </div>
-      </div>
-      <div class="filter_line" [hidden]="!filter.expand">
-        <div class="filter_block">
-          <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
-        </div>
-      </div>
+        <ng-container *ngIf="studyConfig && studyConfig.tab">
+          <div class="filter_line">
+            <div class="filter_block" >
+              <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
+            </div>
+          </div>
+          <div class="filter_line" [hidden]="!filter.expand">
+            <div class="filter_block">
+              <filter-generator *ngIf="filter.filterSchemaExpand.lineLength" [schema]="filter.filterSchemaExpand.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
+            </div>
+          </div>
+        </ng-container>
   </div>
       <div class="filter_line more_function_block">
         <div class="filter single_block">
@@ -109,7 +111,7 @@
             <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
         </div>
         <div class="content" id="clipboard_content" *ngIf="showClipboardContent">
-            <h5 i18n>Selected Objects to {{selectedElements.action}}</h5>
+            <h5 i18n="@@selected_objects_to_action">Selected Objects to {{selectedElements.action}}</h5>
             <a class="clear_clipboard"  i18n-title="@@title.study.clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>

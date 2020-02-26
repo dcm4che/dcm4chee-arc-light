@@ -131,21 +131,21 @@
                             ></p-calendar>-->
             </div>
             <ul *ngIf="!onlyTime && !onlySingleMode" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
-                <li *ngIf="!smartPickerActive" (click)="today()" i18n="today">Today</li>
-                <li *ngIf="!smartPickerActive" (click)="thisMonth()" i18n="this_month">This Month</li>
+                <li *ngIf="!smartPickerActive" (click)="today()" i18n="@@today">Today</li>
+                <li *ngIf="!smartPickerActive" (click)="thisMonth()" i18n="@@this_month">This Month</li>
                 <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
                 <li *ngIf="!smartPickerActive" class="select_parent">
                     <ul class="j4care_select" (clickOutside)="closeSelectOptions()">
                         <li class="placeholder" (click)="toggleSelectOption()" i18n="@@fast_picker">Fast Picker</li>
                         <ng-container *ngIf="showSelectOptions">
-                            <li (click)="fastPicker('yesterday')" i18n="yesterday">Yesterday</li>
-                            <li (click)="fastPicker('this_week')" i18n="this_week">This Week</li>
-                            <li (click)="fastPicker('last_week')" i18n="last_week">Last Week</li>
-                            <li (click)="fastPicker('last_month')" i18n="last_month">Last Month</li>
-                            <li (click)="fastPicker('this_quarter')" i18n="this_quarter">This Quarter</li>
-                            <li (click)="fastPicker('last_quarter')" i18n="last_quarter">Last Quarter</li>
-                            <li (click)="fastPicker('this_year')" i18n="this_year">This Year</li>
-                            <li (click)="fastPicker('last_year')" i18n="last_year">Last Year</li>
+                            <li (click)="fastPicker('yesterday')" i18n="@@yesterday">Yesterday</li>
+                            <li (click)="fastPicker('this_week')" i18n="@@this_week">This Week</li>
+                            <li (click)="fastPicker('last_week')" i18n="@@last_week">Last Week</li>
+                            <li (click)="fastPicker('last_month')" i18n="@@last_month">Last Month</li>
+                            <li (click)="fastPicker('this_quarter')" i18n="@@this_quarter">This Quarter</li>
+                            <li (click)="fastPicker('last_quarter')" i18n="@@last_quarter">Last Quarter</li>
+                            <li (click)="fastPicker('this_year')" i18n="@@this_year">This Year</li>
+                            <li (click)="fastPicker('last_year')" i18n="@@last_year">Last Year</li>
                         </ng-container>
                     </ul>
                 </li>

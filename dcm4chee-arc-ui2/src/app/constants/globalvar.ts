@@ -627,19 +627,19 @@ export class Globalvar {
                         value:"ISO 2022 IR 110"
                     },
                     {
-                        title:`:@@dicom_specific_char.cyrillic:Cyrillic`,
+                        title:$localize`:@@dicom_specific_char.cyrillic:Cyrillic`,
                         value:"ISO 2022 IR 144"
                     },
                     {
-                        title:`:@@dicom_specific_char.arabic:Arabic`,
+                        title:$localize`:@@dicom_specific_char.arabic:Arabic`,
                         value:"ISO 2022 IR 127"
                     },
                     {
-                        title:`:@@dicom_specific_char.greek:Greek`,
+                        title:$localize`:@@dicom_specific_char.greek:Greek`,
                         value:"ISO 2022 IR 126"
                     },
                     {
-                        title:`:@@dicom_specific_char.hebrew:Hebrew`,
+                        title:$localize`:@@dicom_specific_char.hebrew:Hebrew`,
                         value:"ISO 2022 IR 138"
                     },
                     {
@@ -1171,10 +1171,10 @@ export class Globalvar {
                     codes:[
                         {
                             key:"00404018.00080100",
-                            label:$localize `code_value_00080100`
+                            label:$localize `:@@code_value_00080100:Code Value (0008,0100)`
                         },{
                             key:"00404018.00080102",
-                            label:$localize `coding_scheme_designator_00080102`
+                            label:$localize `:@@coding_scheme_designator_00080102:Coding scheme designator (0008,0102)`
                         }
                     ],
                     description:$localize `:@@Scheduled workitem_code_sequence_00404018:Scheduled Workitem Code Sequence (0040,4018)`,

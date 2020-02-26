@@ -5,7 +5,7 @@
         <span class="size_range_icon" (click)="togglePicker()"></span>
     </div>
     <div class="picker" *ngIf="showPicker">
-        <h5 i18n="size-range-picker.title">Set Size Range:</h5>
+        <h5 i18n="@@size-range-picker.title">Set Size Range:</h5>
         <div class="input_block" (keyup)="onInputChange()">
             <div class="input_part">
                 <input class="min" type="text" min="1" [(ngModel)]="value.min" i18n-placeholder="@@placeholder.min" placeholder="min"/>

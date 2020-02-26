@@ -79,7 +79,7 @@ export class DicomFlatListComponent implements OnInit {
             calculatedWidth:"20%"
         },
         {
-            title:`:@@number_of_related_instances:#I`,
+            title:$localize `:@@number_of_related_instances:#I`,
             code:"00201208",
             description:$localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
             widthWeight:0.2,
