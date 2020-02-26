@@ -16,13 +16,13 @@
                 </div>
                 <br>
                 <div>
-                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder placeholder="Batch ID">
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@placeholder.export.batch_id" placeholder="Batch ID">
                 </div>
                 <br>
-                <label title="If checked the study will not be sent" *ngIf="warning">
+                <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
                     <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@export.storage_commitment_without_export">Storage commitment without export</ng-container>
                 </label><br>
-                <label title="If checked the study will not be sent" *ngIf="warning">
+                <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
                     <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export">IAN without export</ng-container>
                 </label>
                 <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
@@ -65,10 +65,10 @@
                     <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
                 </mat-select>
             </div>
-            <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
+            <label i18n-title="@@if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@storage_commitment_without_export">Storage commitment without export</ng-container>
             </label><br>
-            <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
+            <label i18n-title="@@if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export"></ng-container>
             </label>
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
@@ -85,7 +85,7 @@
                 <br>
                 <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
                     <p i18n="@@batch_id">Batch ID:</p>
-                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder placeholder="Batch ID">
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@placeholder.export.batch_id" placeholder="Batch ID">
                 </div>
                 <br>
             </div>
@@ -103,7 +103,7 @@
                     <mat-option value="{{queue.value}}" *ngFor="let queue of queues" title="{{queue.title}}">{{queue.text}}</mat-option>
                 </mat-select>
             </div>
-<!--            <label i18n-title title="If checked the process will be queued" *ngIf="mode ==='single'">
+<!--            <label i18n-title="@@title.export.if_checked_the_process_will_be_queued" title="If checked the process will be queued" *ngIf="mode ==='single'">
                 <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
             </label><br *ngIf="mode ==='single'">-->
             <ng-container *ngIf="mode === 'multiple'">

@@ -32,14 +32,14 @@
         <ul *ngIf="showUserMenu">
             <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank" i18n="@@menu.edit_account">Edit Account</a></li>
             <li *ngIf="superUser"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank" i18n="@@menu.admin_realm">Admin Realm</a></li>
-            <li *ngIf="superUser" title="Go to Wildfly Administration Console"><a (click)="gotToWildflyConsole($event)" target="_blank" i18n="@@menu.wildfly_console">Wildfly Console</a></li>
+            <li *ngIf="superUser" i18n-title="@@title.app.go_to_wildfly_admin" title="Go to Wildfly Administration Console"><a (click)="gotToWildflyConsole($event)" target="_blank" i18n="@@menu.wildfly_console">Wildfly Console</a></li>
             <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="" (click)="$event.preventDefault();logout()" i18n="@@menu.logout">Logout</a></li>
             <li><a (click)="$event.preventDefault();productLabelling()" i18n="@@menu.about">About</a></li>
         </ul>
     </div>
 </div>
 <div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
-    <div class="time" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
+    <div class="time" i18n-title="@@title.app.server_time_param" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
     <div class="text">{{myDeviceName}}</div>
 </div>
 <div class="background"></div>
@@ -55,7 +55,7 @@
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active" i18n="@@menu.configuration">Configuration</a></li>
 </ul>
-<img src="assets/img/logo.png" class="logo" title="About" (click)="productLabelling()" >
+<img src="assets/img/logo.png" class="logo" i18n-title="@@title.app.about" title="About" (click)="productLabelling()" >
 <router-outlet ></router-outlet>
 <div
         class="scroll_up glyphicon glyphicon-menu-up animated"

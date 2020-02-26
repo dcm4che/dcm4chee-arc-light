@@ -8,7 +8,7 @@
         <div *ngIf="formelement.show || partSearch != ''" class="content" [ngClass]="{format: formelement.format}">
             <div class="download_content" *ngIf="formelement.show || partSearch != ''">
                 <a class="vendordata_button" *ngSwitchCase="'filedownload'" (click)="$event.preventDefault();downloadFile(formelement.downloadUrl)" i18n="@@download">Download</a>
-                <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" i18n-title title="Delete File"><i class="material-icons">clear</i></a>
+                <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" i18n-title="@@title.dynamic-form-element.delete_file" title="Delete File"><i class="material-icons">clear</i></a>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <a class="vendordata_button" *ngSwitchCase="'fileupload'" (click)="$event.preventDefault();uploadVendor(formelement.deviceName);" i18n="@@upload">Upload</a>
@@ -46,7 +46,7 @@
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="checkbox_parent"  *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key" [ngClass]="{'long_mode':formelement.options && formelement.options.length && formelement.options.length > 9}">
-                    <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" i18n-placeholder placeholder="Search...">
+                    <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" i18n-placeholder="@@placeholder.dynamic-form-element.search" placeholder="Search...">
                     <div *ngFor="let opt of formelement.options|search:search.value" >
                         <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event, formelement);opt.active = !opt.active" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
                     </div>
@@ -68,7 +68,7 @@
                          [ngClass]="{picker: (formelement.showDurationPicker && formelement.showDurationPicker[i])}" *ngFor="let item of formelement.value; let i=index">
                         <input *ngIf="formelement.type == 'number'" formControlName="{{i}}" type="number">
                         <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type" (click)="onFocuse(formelement,i)"  (mouseenter)="onMouseEnter(formelement,i)" (mouseleave)="onMouseLeave(formelement)">
-                        <span class="delete" i18n-title title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
+                        <span class="delete" i18n-title="@@title.dynamic-form-element.remove_this_value_from_the_array" title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
                         <attribute-info *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showPickerTooltipp && formelement.showPickerTooltipp[i] && item" [dictionary]="formelement.format" [value]="item"></attribute-info>
                         <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key]['controls'],i)"></dictionary-picker>
                         <time-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showTimePicker && formelement.showTimePicker[i]" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key]['controls'],i)"></time-picker>
@@ -107,12 +107,12 @@
                     <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'No child found')">
                         <ng-template let-select="select">
                             <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
-                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select, formelement.options)" i18n-title title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
-                            <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" i18n-title title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select, formelement.options)" i18n-title="@@title.dynamic-form-element.clone_this_param" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" i18n-title="@@title.dynamic-form-element.delete_this_label" title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
                         </ng-template>
                     </dcm-select>
-                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.addUrl, formelement.options)"  i18n-title title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
-                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  i18n-title title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
+                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.addUrl, formelement.options)"  i18n-title="@@title.dynamic-form-element.add_new_label" title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
+                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  i18n-title="@@title.dynamic-form-element.add_new_label" title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
 <!--                    <a [ngClass]="{'disabled':!form.valid}" class="button clone" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement)" title="Clone a {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
                     <a [ngClass]="{'disabled':!form.valid}" class="delete button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement)" title="Delete a {{formelement.label}} part"><i class="material-icons">clear</i></a>-->
                 </div>

@@ -2,7 +2,7 @@
     <div class="vex-dialog-form" (keyup)="change()">
         <h3 [innerHtml]="titleLabel"></h3>
         <div class="overlay" *ngIf="opendropdown" (click)="opendropdown = false"></div>
-        <input autocomplete="off" id="addStudyAttribut" class="addStudyAttribut" [(ngModel)]="addStudyAttribut" i18n-placeholder placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
+        <input autocomplete="off" id="addStudyAttribut" class="addStudyAttribut" [(ngModel)]="addStudyAttribut" i18n-placeholder="@@placeholder.add_new_attribute" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
         <div class="dropdown study_edit" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addStudyAttribut" (click)="$event.preventDefault();addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
         </div>

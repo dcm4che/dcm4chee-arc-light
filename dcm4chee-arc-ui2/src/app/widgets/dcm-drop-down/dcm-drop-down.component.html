@@ -20,7 +20,7 @@
   <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
     <div action="" class="search_block" *ngIf="showSearchField">
       <input type="checkbox" *ngIf="multiSelectMode" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
-      <input type="text" [ngClass]="{'single_input':!multiSelectMode}" placeholder="Search" [(ngModel)]="search">
+      <input type="text" [ngClass]="{'single_input':!multiSelectMode}" i18n-placeholder="@@placeholder.search" placeholder="Search" [(ngModel)]="search">
     </div>
       <ul *ngIf="!mixedMode" class="option_block">
           <li *ngIf="showStar" class="option" (click)="select('')">&nbsp;</li>

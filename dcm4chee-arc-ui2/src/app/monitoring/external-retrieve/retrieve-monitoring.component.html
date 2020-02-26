@@ -18,7 +18,7 @@
             <div class="option_block">
               <div class="interval_block">
                 <label>Interval:</label>
-                <input type="text" i18n-placeholder placeholder="Interval" [(ngModel)]="interval">
+                <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval" [(ngModel)]="interval">
                 <span>s</span>
               </div>
               <button class="btn-default submit" (click)="toggleAutoRefresh()">
@@ -44,7 +44,7 @@
           </div>
           <div class="filter_block">
             <div class="line">
-              <mat-select class="pull-left" [(ngModel)]="allAction" i18n-placeholder placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+              <mat-select class="pull-left" [(ngModel)]="allAction" i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                 <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
               </mat-select>
               <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="externalRetrieveEntries = []" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>
@@ -53,10 +53,10 @@
       </div>
     </div>
     <ng-container *ngIf="_.size(externalRetrieveEntries) > 0">
-      <button class="left_arrow arrow no_style"  title="Preview page" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getTasks(newerOffset(externalRetrieveEntries))">
+      <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getTasks(newerOffset(externalRetrieveEntries))">
         <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
       </button>
-      <button class="right_arrow arrow no_style" title="Next page" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getTasks(olderOffset(externalRetrieveEntries))">
+      <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getTasks(olderOffset(externalRetrieveEntries))">
         <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
       </button>
     </ng-container>
@@ -81,13 +81,13 @@
           <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
           <div class="action_block">
             <input type="checkbox" (change)="checkAll($event)">
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-titletitle="Cancel selected">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-title="@@title.cancel_selected" title="Cancel selected">
               <span class="glyphicon glyphicon-ban-circle"></span>
             </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-titletitle="Reschedule selected">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title="@@title.reschedule_selected" title="Reschedule selected">
               <span class="glyphicon glyphicon-repeat"></span>
             </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-titletitle="Delete selected">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-title="@@title.delete_selected" title="Delete selected">
               <span class="glyphicon glyphicon-remove-circle"></span>
             </a>
           </div>
@@ -100,7 +100,7 @@
         <th class="hideMobile hideOn800px" i18n="@@scheduled">Scheduled</th>
         <th class="hideMobile hideOn1400px" i18n="@@started">Started</th>
         <th class="hideMobile" i18n="@@finished_approx">Finished / Approx.</th>
-        <th class="hideMobile hideOn1200px" i18n-title title="Completed / Remainning / Failed" i18n="@@comp_rem_failed">Comp. / Rem. / Failed</th>
+        <th class="hideMobile hideOn1200px" i18n-title="@@title.completed_remainning_failed" title="Completed / Remainning / Failed" i18n="@@comp_rem_failed">Comp. / Rem. / Failed</th>
         <th class="hideMobile hideOn1200px" i18n="@@inst_sec">Inst. / sec</th>
       </tr>
       </thead>
@@ -109,13 +109,13 @@
         <tr *ngIf="batchGrouped">
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
           <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title title="Show Properties">
+            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@title.retrieve-monitoring.show_properties" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
             </a>
-              <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" i18n-title title="Show tasks detail">
+              <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" i18n-title="@@title.retrieve-monitoring.show_tasks_detail" title="Show tasks detail">
                   <span class="glyphicon glyphicon-list-alt"></span>
               </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" i18n-title title="Delete Task with this BatchID">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" i18n-title="@@title.retrieve-monitoring.delete_task_with_this_batchid" title="Delete Task with this BatchID">
               <span class="glyphicon glyphicon-remove-circle"></span>
             </a>
           </td>
@@ -132,16 +132,16 @@
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
           <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
               <input type="checkbox" [(ngModel)]="match.checked">
-              <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title title="Show Properties">
+              <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@title.retrieve-monitoring.show_properties" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
             </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" i18n-title title="Cancel">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" i18n-title="@@title.retrieve-monitoring.cancel" title="Cancel">
               <span class="glyphicon glyphicon-ban-circle"></span>
             </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}"  (click)="$event.preventDefault();reschedule(match)" href="" i18n-title title="Reschedule">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}"  (click)="$event.preventDefault();reschedule(match)" href="" i18n-title="@@title.retrieve-monitoring.reschedule" title="Reschedule">
               <span class="glyphicon glyphicon-repeat"></span>
             </a>
-            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title title="Delete">
+            <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title="@@title.retrieve-monitoring.delete" title="Delete">
               <span class="glyphicon glyphicon-remove-circle"></span>
             </a>
           </td>

@@ -37,7 +37,7 @@
                     </div>
                     <div class="filter_block">
                         <div class="line">
-                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder placeholder="Search device"/>
+                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder="@@placeholder.devices.search_device" placeholder="Search device"/>
                         </div>
                     </div>
                 </div>
@@ -60,18 +60,18 @@
                 <tr *ngFor="let device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit; let i = index">
                     <td class="buttons_td">
                         <span class="numbers">{{i+1}}.</span>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
+                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
                             <span class="glyphicon glyphicon-remove"></span>
                         </a>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
+                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.clone_device" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
                             <span class="glyphicon glyphicon-duplicate"></span>
                         </a>
                     </td>
                     <td><div *ngIf="device['dicomDeviceName']" >
-                        <a title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
+                        <a i18n-title="@@title.devices.edit_param" title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
                             {{device['dicomDeviceName']}}
                         </a>
                     </div></td>

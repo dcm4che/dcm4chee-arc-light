@@ -148,7 +148,7 @@
                                     <span class="description" i18n="@@create-ae.tcp_udp_port_this_a_service_is_listening_on">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
                                 </div>
                                 <div class="vex-dialog-buttons aet_buttons">
-                                    <button type="button" class="vex-dialog-button-primary vex-dialog-button vex-first"  (click)="addNewConnectionToDevice()" i18n-title title="Add the new connection to the selected device" [disabled]="!(_.hasIn(newAetModel,'dicomNetworkConnection[0].cn'))" i18n="@@create-ae.add_connection">Add connection</button>
+                                    <button type="button" class="vex-dialog-button-primary vex-dialog-button vex-first"  (click)="addNewConnectionToDevice()" i18n-title="@@title.create-ae.add_the_new_connection_to_the_selected_device" title="Add the new connection to the selected device" [disabled]="!(_.hasIn(newAetModel,'dicomNetworkConnection[0].cn'))" i18n="@@create-ae.add_connection">Add connection</button>
                                     <button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last" (click)="removeNewConnectionFromDevice()" i18n="@@create-ae.remove_connection">Remove connection</button>
                                 </div>
                             </div>
@@ -261,7 +261,7 @@
                                     </mat-select>
                                 </div>
                                 <div class="test_button">
-                                    <button (click)="testConnection()" i18n-title title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet" i18n="@@create-ae.test">TEST</button>
+                                    <button (click)="testConnection()" i18n-title="@@title.verify_aet_host_port" title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet" i18n="@@create-ae.test">TEST</button>
                                 </div>
                             </div>
                         </div>

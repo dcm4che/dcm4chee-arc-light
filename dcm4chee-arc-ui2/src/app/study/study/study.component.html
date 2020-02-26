@@ -20,7 +20,7 @@
             <div class="line">
               <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
-              <input *ngIf="patients && patients.length > 0"  i18n-title title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList"  i18n-placeholder placeholder="Search current list">
+              <input *ngIf="patients && patients.length > 0"  i18n-title="@@title.study.search_current_list" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList"  i18n-placeholder="@@placeholder.study.search_current_list" placeholder="Search current list">
             </div>
           </div>
           <div class="filter_block">
@@ -50,7 +50,7 @@
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down
-                   i18n-placeholder placeholder="Primary AET"
+                   i18n-placeholder="@@placeholder.study.primary_aet" placeholder="Primary AET"
                   [options]="diffOptions.aes"
                   [editable]="false"
                   [(model)]="diffOptions.primaryAET"
@@ -62,7 +62,7 @@
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
-                       i18n-placeholder placeholder="Secondary AET"
+                       i18n-placeholder="@@placeholder.study.secondary_aet" placeholder="Secondary AET"
                       [options]="diffOptions.aes"
                       [editable]="false"
                       [(model)]="diffOptions.secondaryAET"
@@ -85,11 +85,11 @@
     <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-            <li><button [disabled]="selectedElements.action" (click)="selectionAction('copy')"  i18n-title title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
-            <li><button [disabled]="selectedElements.action" (click)="selectionAction('move')"  i18n-title title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
-            <li><button [disabled]="selectedElements.action" (click)="selectionAction('link')"  i18n-title title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
-            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
-            <li><button (click)="selectionAction('paste')"  i18n-title title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
+            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
+            <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
         </ul>
         <ul *ngIf="checkboxFunctions" class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')" i18n="@@remove_all_selections">Remove all selections</button></li>
@@ -100,8 +100,8 @@
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
         </ul>
     </div>
-    <div class="left_arrow arrow"   i18n-title title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-    <div class="right_arrow arrow"  i18n-title title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+    <div class="left_arrow arrow"   i18n-title="@@title.study.preview_page" title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+    <div class="right_arrow arrow"  i18n-title="@@title.study.next_page" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
     <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
     <div id="clipboard" class="clipboard said"  *ngIf="selectedElements.preActionElements && selectedElements.preActionElements.size > 0 && selectedElements.action">
@@ -110,7 +110,7 @@
         </div>
         <div class="content" id="clipboard_content" *ngIf="showClipboardContent">
             <h5 i18n>Selected Objects to {{selectedElements.action}}</h5>
-            <a class="clear_clipboard"  i18n-title title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
+            <a class="clear_clipboard"  i18n-title="@@title.study.clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>
             <div class="table_block">

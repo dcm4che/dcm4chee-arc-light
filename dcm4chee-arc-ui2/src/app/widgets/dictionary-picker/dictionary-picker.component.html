@@ -1,6 +1,6 @@
 <div class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder placeholder="  Search..">
+    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
     <div class="dictionary_widget" >
         <ul class="list">
             <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)">{{dictionary.key}} : {{dictionary.text}}</li>

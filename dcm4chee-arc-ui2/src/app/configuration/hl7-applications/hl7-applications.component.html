@@ -14,7 +14,7 @@
                         <div class="line">
                             <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
                             <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
-                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder placeholder="Search device"/>
+                            <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder="@@placeholder.hl7-applications.search_device" placeholder="Search device"/>
                         </div>
                     </div>
                 </div>
@@ -26,19 +26,19 @@
                     <th i18n="@@device_name">Device Name</th>
                     <th i18n="@@hl7_application_description">HL7 Application Description</th>
                     <th i18n="@@hl7_application_name">Hl7 Application Name</th>
-                    <th i18n-title title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
+                    <th i18n-title="@@title.hl7-applications.dicom_network_connection" title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let device of hl7Applications | search:devicefilter | slice:moreHl7.start:moreHl7.limit; let i = index">
                     <td class="buttons_td">
                         <span class="numbers">{{i+1}}.</span>
-                        <a class="table_btn" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                        <a class="table_btn" i18n-title="@@title.hl7-applications.edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
                     </td>
                     <td><div *ngIf="device['dicomDeviceName']" >
-                        <a title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
+                        <a i18n-title="@@title.hl7-applications.edit_device"  title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
                             {{device['dicomDeviceName']}}
                         </a>
                     </div></td>

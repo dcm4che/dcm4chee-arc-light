@@ -14,13 +14,13 @@
                         <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@ae-list.extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
                         <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@ae-list.extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
 
-                        <a href="" (click)="$event.preventDefault();createAe()" class="more ng-hide" i18n-title title="Register new application entity"> <span class="glyphicon glyphicon-plus"></span><ng-container i18n="@@ae-list.new_aet">New AET</ng-container></a>
+                        <a href="" (click)="$event.preventDefault();createAe()" class="more ng-hide" i18n-title="@@title.ae-list.register_new_application_entity" title="Register new application entity"> <span class="glyphicon glyphicon-plus"></span><ng-container i18n="@@ae-list.new_aet">New AET</ng-container></a>
 
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <input autocomplete="off" id="aesfilter" class="aesfilter" [(ngModel)]="aesfilter" i18n-placeholder  placeholder="Search device"/>
+                        <input autocomplete="off" id="aesfilter" class="aesfilter" [(ngModel)]="aesfilter" i18n-placeholder="@@placeholder.search_device"  placeholder="Search device"/>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 <th i18n="@@ae-list.association_acceptor">Association Acceptor</th>
                 <th i18n="@@ae-list.application_cluster">Application Cluster</th>
                 <th i18n="@@ae-list.install">Installed</th>
-                <th i18n-title title="Dicom network connection" i18n="@@ae-list.net_connection">Net. Connection</th>
+                <th i18n-title="@@title.ae-list.dicom_network_connection" title="Dicom network connection" i18n="@@ae-list.net_connection">Net. Connection</th>
             </tr>
             </thead>
             <tbody>
@@ -47,13 +47,13 @@
                     <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
                         <span class="echo_icon"></span>
                     </a>
-                    <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
+                    <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.ae-list.delete_from_device_the_ae" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
                 </td>
                 <td>{{ae['dicomAETitle']}}</td>
                 <td>
-                    <a i18n-title title="Edit device" href="" routerLink="/device/edit/{{ae['dicomDeviceName']}}">
+                    <a i18n-title="@@title.ae-list.edit_device" title="Edit device" href="" routerLink="/device/edit/{{ae['dicomDeviceName']}}">
                         {{ae['dicomDeviceName']}}
                     </a>
                 </td>

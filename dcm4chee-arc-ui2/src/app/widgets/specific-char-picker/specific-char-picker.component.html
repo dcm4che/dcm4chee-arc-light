@@ -6,7 +6,7 @@
 </mat-select>
 <div *ngIf="mode && mode === 'configurator'"  class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder placeholder="  Search..">
+    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.specific-char-picker.__search" placeholder="  Search..">
     <div class="char_widget" >
         <div class="list">
             <div *ngFor="let chargroup of specificChar|search:filter" >

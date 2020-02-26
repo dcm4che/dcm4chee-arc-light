@@ -29,7 +29,7 @@
                     <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                         <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                         <td>
-                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title title="Show Properties">
+                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@title.storage-systems.show_properties" title="Show Properties">
                                 <span class="glyphicon glyphicon-list"></span>
                             </a>
                         </td>

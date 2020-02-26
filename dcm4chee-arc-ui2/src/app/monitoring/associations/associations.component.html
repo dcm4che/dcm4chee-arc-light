@@ -10,20 +10,20 @@
                         <div class="filter_block">
                             <div class="line">
                                 <label i18n="@@timer_sec">Timer (sec)</label>
-                                <input i18n-title title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
+                                <input i18n-title="@@title.associations.with_a_dot_you_can_set_milliseconds" title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
                             </div>
                             <div class="line">
                                 <div *ngIf="stopLoop" class="dummy"></div>
                                 <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
-                                <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" i18n-title title="Start getting associations">Start</button>
-                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title title="Stop auto refresh">Stop</button>
+                                <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" i18n-title="@@title.associations.start_getting_associations" title="Start getting associations">Start</button>
+                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@title.associations.stop_auto_refresh" title="Stop auto refresh">Stop</button>
                             </div>
                         </div>
                         <div class="filter_block height_2">
                             <div class="line">
                             </div>
                             <div class="line">
-                                <button type="button" class="btn-default submit pull-left" (click)="refresh()" i18n-title title="Get associations" i18n="@@refresh">Refresh</button>
+                                <button type="button" class="btn-default submit pull-left" (click)="refresh()" i18n-title="@@title.associations.get_associations" title="Get associations" i18n="@@refresh">Refresh</button>
                             </div>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                     <div class="filter single_block">
                         <div class="filter_block">
                             <div class="line">
-                                <div class="w45percent csv_button pull-left" (click)="downloadAssocImmage()" i18n-title title="Download copy of the table as csv-file">
+                                <div class="w45percent csv_button pull-left" (click)="downloadAssocImmage()" i18n-title="@@title.associations.download_copy_as_csv" title="Download copy of the table as csv-file">
                                     <span class="custom_icon csv_icon"></span>
                                     <span class="text" i18n="@@download_copy">Download copy</span>
                                 </div>
@@ -46,31 +46,31 @@
                 <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
                 <tr>
                     <th>
-                        <span i18n-title title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')" i18n="local_aet">
+                        <span i18n-title="@@title.associations.sort_by_local_ae_title" title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')" i18n="local_aet">
                             Local AE Title
                         </span>
                     </th>
                     <th>
-                        <span i18n-title title="Sort by initiated" class="pointer" (click)="sortBy('initiated')">
+                        <span i18n-title="@@title.associations.sort_by_initiated" title="Sort by initiated" class="pointer" (click)="sortBy('initiated')">
                             ⇆
                         </span>
                     </th>
                     <th>
-                        <span i18n-title title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')" i18n="remote_aet">
+                        <span i18n-title="@@title.associations.sort_by_remote_ae_title" title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')" i18n="remote_aet">
                             Remote AE Title
                         </span>
                     </th>
                     <th>
-                        <span  i18n-title title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')" i18n="invoked_ops">
+                        <span  i18n-title="@@title.associations.sort_by_invoked_ops" title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')" i18n="invoked_ops">
                             Invoked Ops.
                         </span>
                     </th>
-                    <th><span i18n-title  title="Sort by Performed Ops." class="pointer" (click)="sortBy('performedOps')" i18n="@@performed_ops">Performed Ops.</span></th>
-                    <th><span i18n-title title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" i18n="@@connection_time_server">Connection time (Server)</span></th>
-                    <th><span i18n-title title="Sort by Connection time (Local)" class="pointer" (click)="sortBy('browserTime')" i18n="@@connection_time_browser">Connection time (Browser)</span></th>
-                    <th><span i18n-title title="Sort by Duration" class="pointer" (click)="sortBy('openSinceOrder')" i18n="@@duration">Duration (hh:mm:ss.SSS)</span></th>
+                    <th><span i18n-title="@title.associations.sort_by_performed_ops"  title="Sort by Performed Ops." class="pointer" (click)="sortBy('performedOps')" i18n="@@performed_ops">Performed Ops.</span></th>
+                    <th><span i18n-title="@title.associations.sort_by_connection_time_server" title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" i18n="@@connection_time_server">Connection time (Server)</span></th>
+                    <th><span i18n-title="@title.associations.sort_by_connection_time_local" title="Sort by Connection time (Local)" class="pointer" (click)="sortBy('browserTime')" i18n="@@connection_time_browser">Connection time (Browser)</span></th>
+                    <th><span i18n-title="@@title.associations.sort_by_duration" title="Sort by Duration" class="pointer" (click)="sortBy('openSinceOrder')" i18n="@@duration">Duration (hh:mm:ss.SSS)</span></th>
                     <th *ngIf="others">
-                        <span i18n-title title="Sort by Other attributes" class="pointer" (click)="sortBy('others')" i18n="@@other_attr">Other attributes
+                        <span i18n-title="@@title.associations.sort_by_other_attributes" title="Sort by Other attributes" class="pointer" (click)="sortBy('others')" i18n="@@other_attr">Other attributes
                         </span>
                     </th>
                     <th i18n="@@abort">
