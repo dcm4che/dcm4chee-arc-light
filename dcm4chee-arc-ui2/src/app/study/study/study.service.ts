@@ -1754,7 +1754,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@mobalities:Modalities`,
+                    header: $localize `:@@modalities:Modalities`,
                     pathToValue: "[00080061].Value",
                     headerDescription: $localize `:@@study.modalities_in_study:Modalities in Study`,
                     widthWeight: 0.5,
