@@ -99,6 +99,9 @@ public class HL7PSUTask {
     @Column(name = "study_iuid", updatable = false)
     private String studyInstanceUID;
 
+    @Column(name = "series_iuid")
+    private String seriesInstanceUID;
+
     @OneToOne
     @JoinColumn(name = "mpps_fk", updatable = false)
     private MPPS mpps;
@@ -146,6 +149,14 @@ public class HL7PSUTask {
 
     public void setStudyInstanceUID(String studyInstanceUID) {
         this.studyInstanceUID = studyInstanceUID;
+    }
+
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUID;
+    }
+
+    public void setSeriesInstanceUID(String seriesInstanceUID) {
+        this.seriesInstanceUID = seriesInstanceUID;
     }
 
     public MPPS getMpps() {

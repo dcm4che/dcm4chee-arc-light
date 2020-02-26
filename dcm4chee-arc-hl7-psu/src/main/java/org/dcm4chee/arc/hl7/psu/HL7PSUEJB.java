@@ -101,12 +101,14 @@ public class HL7PSUEJB {
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .getSingleResult();
             task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
+            task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
             LOG.info("{}: Updated {}", ctx, task);
         } catch (NoResultException nre) {
             HL7PSUTask task = new HL7PSUTask();
             task.setDeviceName(device.getDeviceName());
             task.setAETitle(arcAE.getApplicationEntity().getAETitle());
             task.setStudyInstanceUID(ctx.getStudyInstanceUID());
+            task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
             task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
             em.persist(task);
             LOG.info("{}: Created {}", ctx, task);
@@ -191,12 +193,12 @@ public class HL7PSUEJB {
     }
 
     private void hl7MsgFieldsFromStudy(ArchiveAEExtension arcAE, HL7PSUTask task, HL7PSUMessage msg) {
-        Study study = findStudy(task);
-        if (study == null)
+        Series series = findSeries(task);
+        if (series == null)
             return;
 
-        setPIDPV1(msg, arcAE, study.getPatient());
-        msg.setStudy(study.getAttributes(), arcAE);
+        setPIDPV1(msg, arcAE, series.getStudy().getPatient());
+        msg.setStudySeriesAttrs(series, arcAE);
     }
 
     private Study findStudy(HL7PSUTask task) {
@@ -206,6 +208,18 @@ public class HL7PSUEJB {
                     .getSingleResult();
         } catch (NoResultException e) {
             LOG.info("Study referenced in HL7PSUTask {} does not exist", task);
+        }
+        return null;
+    }
+
+    private Series findSeries(HL7PSUTask task) {
+        try {
+            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                    .setParameter(1, task.getStudyInstanceUID())
+                    .setParameter(2, task.getSeriesInstanceUID())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            LOG.info("Series referenced in HL7PSUTask {} does not exist", task);
         }
         return null;
     }
