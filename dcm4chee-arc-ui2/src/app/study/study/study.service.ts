@@ -2435,7 +2435,7 @@ export class StudyService {
                 new TableSchemaElement({
                     type: "value",
                     header: $localize `:@@study.sp_physicians_name:SP Physician's Name`,
-                    pathToValue: "00400100.Value[0].00400006.Value[0]",
+                    pathToValue: "00400100.Value[0].00400006.Value[0].Alphabetic",
                     headerDescription: $localize `:@@study.scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
