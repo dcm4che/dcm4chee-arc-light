@@ -22,6 +22,8 @@ alter table study
 
 alter table study_query_attrs modify cuids_in_study varchar2(4000 char);
 
+alter table hl7psu_task add series_iuid varchar2(255 char);
+
 update mwl_item set admission_id = '*', institution = '*', department = '*';
 update study set admission_id = '*';
 
