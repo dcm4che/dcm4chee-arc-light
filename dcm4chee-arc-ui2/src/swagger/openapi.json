@@ -432,6 +432,12 @@
     "/aets/{aet}/rs/mwlitems/{study}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/mwlitems.json#/linkInstancesWithMWL"
     },
+    "/aets/{aet}/rs/mwlitems/{study}/{spsID}/status/{status}": {
+      "$ref": "paths/mwlitems.json#/status"
+    },
+    "/aets/{aet}/rs/mwlitems/status/{status}": {
+      "$ref": "paths/mwlitems.json#/mstatus"
+    },
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}": {
       "$ref": "paths/wado.json#/instances"
     },

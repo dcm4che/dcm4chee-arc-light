@@ -151,6 +151,77 @@
       }
     }
   },
+  "status": {
+    "post": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Change Status of Scheduled Procedure Step",
+      "operationId": "ChangeStatusSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/spsIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/spsStatusPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Change State of Scheduled Procedure Step successfully."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or Scheduled Procedure Step not found."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "mstatus": {
+    "post": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Change Status of matching Scheduled Procedure Steps",
+      "operationId": "ChangeStatusMatchingSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/spsStatusPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "linkInstancesWithMWL": {
     "post": {
       "tags": [

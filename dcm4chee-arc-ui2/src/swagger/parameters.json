@@ -224,6 +224,25 @@
       "type": "string"
     }
   },
+  "spsStatusPathParam": {
+    "name": "spsState",
+    "in": "path",
+    "description": "Scheduled Procedure Step Status",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "ARRIVED",
+        "READY",
+        "STARTED",
+        "DEPARTED",
+        "CANCELLED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    }
+  },
   "entityPathParam": {
     "name": "entity",
     "in": "path",
