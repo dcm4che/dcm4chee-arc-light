@@ -1,5 +1,6 @@
 -- part 1: can be applied on archive running archive 5.21
 alter table mwl_item add
+    local_aet varchar(255),
     admission_id varchar(255),
     institution varchar(255),
     department varchar(255),
@@ -18,7 +19,7 @@ alter table study_query_attrs alter column cuids_in_study varchar(4000);
 
 alter table hl7psu_task add series_iuid varchar(255);
 
-update mwl_item set admission_id = '*', institution = '*', department = '*';
+update mwl_item set local_aet = '*', admission_id = '*', institution = '*', department = '*';
 update study set admission_id = '*';
 
 alter table mwl_item add constraint FK_t4vpsywvy0axeutmdgc0ye3nk foreign key (inst_code_fk) references code;
@@ -38,10 +39,12 @@ create index FK_avp2oeuufo8axv5j184cchrop on series (dept_code_fk) ;
 create index FK_9fqno60wc3gr4376ov1xlfme4 on study (admid_issuer_fk) ;
 
 -- part 2: shall be applied on stopped archive before starting 5.22
-update mwl_item set admission_id = '*', institution = '*', department = '*' where admission_id is null;
+update mwl_item set local_aet = '*', admission_id = '*', institution = '*', department = '*' where local_aet is null;
 update study set admission_id = '*' where admission_id is null;
 
 -- part 3: can be applied on already running archive 5.22
+alter table mwl_item
+    alter column local_aet varchar not null;
 alter table mwl_item
     alter column admission_id varchar not null;
 alter table mwl_item
@@ -53,6 +56,7 @@ alter table study
     alter column admission_id varchar not null;
 
 
+create index UK_9ockpkbetj7a97for0s1jhasi on mwl_item (local_aet);
 create index UK_tlkw80b7pbutfj19vh6et2vs7 on mwl_item (admission_id);
 create index UK_8qkftk7n30hla3v1frep9vg2q on mwl_item (institution);
 create index UK_ksy3uy0rvpis1sqqeojlet7lb on mwl_item (department);
