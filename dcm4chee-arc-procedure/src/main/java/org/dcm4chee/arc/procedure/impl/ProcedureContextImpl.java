@@ -48,6 +48,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -71,6 +72,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String eventActionCode;
     private Exception exception;
     private String spsID;
+    private SPSStatus spsStatus;
     private Association as;
     private Attributes sourceInstanceRefs;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
@@ -171,6 +173,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setSpsID(String spsID) {
         this.spsID = spsID;
+    }
+
+    @Override
+    public SPSStatus getSpsStatus() {
+        return spsStatus;
+    }
+
+    @Override
+    public void setSpsStatus(SPSStatus spsStatus) {
+        this.spsStatus = spsStatus;
     }
 
     @Override

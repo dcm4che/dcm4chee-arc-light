@@ -69,6 +69,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -177,6 +178,29 @@ public class MwlRS {
                                 + spsID + " not found.",
                         Response.Status.NOT_FOUND));
             rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @POST
+    @Path("/mwlitems/{study}/{spsID}/status/{status}")
+    public void updateSPSStatus(
+            @PathParam("study") String studyIUID,
+            @PathParam("spsID") String spsID,
+            @PathParam("status")
+            @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELLED|DISCONTINUED|COMPLETED")
+            String spsStatus) {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        try {
+            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ctx.setStudyInstanceUID(studyIUID);
+            ctx.setSpsID(spsID);
+            ctx.setSpsStatus(SPSStatus.valueOf(spsStatus));
+            procedureService.updateMWLStatus(ctx);
+            rsForward.forward(RSOperation.UpdateMWL, arcAE, null, request);
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

@@ -45,6 +45,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
@@ -87,6 +88,10 @@ public interface ProcedureContext {
     String getSpsID();
 
     void setSpsID(String spsID);
+
+    SPSStatus getSpsStatus();
+
+    void setSpsStatus(SPSStatus spsStatus);
 
     Attributes getSourceInstanceRefs();
 

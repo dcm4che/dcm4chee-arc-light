@@ -110,12 +110,12 @@ public class DeleteMWLScheduler extends Scheduler {
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
         int deleted = 0;
         int count;
-        int MWLFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+        int mwlFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                     .getMWLFetchSize();
         do {
-            count = ejb.deleteMWLItems(spsStatus, before, MWLFetchSize);
+            count = ejb.deleteMWLItems(spsStatus, before, mwlFetchSize);
             deleted += count;
-        } while (count >= MWLFetchSize);
+        } while (count >= mwlFetchSize);
         if (deleted > 0)
             LOG.info("Deleted {} MWL Items with SPS Status {}", deleted, spsStatus);
     }

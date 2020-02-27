@@ -157,7 +157,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
     private volatile Duration deleteMWLPollingInterval;
-    private volatile int MWLFetchSize = 100;
+    private volatile int mwlFetchSize = 100;
     private volatile String[] deleteMWLDelay = {};
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
@@ -2655,11 +2655,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public int getMWLFetchSize() {
-        return MWLFetchSize;
+        return mwlFetchSize;
     }
 
-    public void setMWLFetchSize(int MWLFetchSize) {
-        this.MWLFetchSize = MWLFetchSize;
+    public void setMWLFetchSize(int mwlFetchSize) {
+        this.mwlFetchSize = mwlFetchSize;
     }
 
     public String[] getDeleteMWLDelay() {
@@ -2872,7 +2872,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         deleteMWLPollingInterval = arcdev.deleteMWLPollingInterval;
-        MWLFetchSize = arcdev.MWLFetchSize;
+        mwlFetchSize = arcdev.mwlFetchSize;
         deleteMWLDelay = arcdev.deleteMWLDelay;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

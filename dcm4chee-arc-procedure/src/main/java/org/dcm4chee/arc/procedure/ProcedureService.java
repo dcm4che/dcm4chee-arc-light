@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.procedure;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
@@ -68,6 +70,10 @@ public interface ProcedureService {
     void updateStudySeriesAttributes(ProcedureContext ctx);
 
     List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
+
+    void updateMWLStatus(ProcedureContext ctx);
+
+    int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize);
 
     MWLItem findMWLItem(ProcedureContext ctx);
 }

@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,6 +131,24 @@ public class ProcedureServiceImpl implements ProcedureService {
     @Override
     public List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status) {
         return ejb.updateMWLStatus(studyIUID, status);
+    }
+
+    @Override
+    public void updateMWLStatus(ProcedureContext ctx) {
+        try {
+            ejb.updateMWLStatus(ctx);
+        } catch (Exception e) {
+          ctx.setException(e);
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                procedureEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam,
+                                  int mwlFetchSize) {
+        return ejb.updateMatchingSPS(spsStatus, queryKeys, queryParam, mwlFetchSize);
     }
 
     public void onMPPS(@Observes MPPSContext ctx) {

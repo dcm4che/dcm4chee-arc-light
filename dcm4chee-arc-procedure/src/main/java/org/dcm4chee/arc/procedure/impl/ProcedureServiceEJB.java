@@ -54,6 +54,8 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 /**
@@ -160,7 +164,8 @@ public class ProcedureServiceEJB {
         try {
             return em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER, MWLItem.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
-                    .setParameter(2, ctx.getSpsID()).getSingleResult();
+                    .setParameter(2, ctx.getSpsID())
+                    .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
@@ -232,12 +237,12 @@ public class ProcedureServiceEJB {
             }
     }
 
-    public int deleteMWLItems(SPSStatus status, Date before, int MWLFetchSize) {
+    public int deleteMWLItems(SPSStatus status, Date before, int mwlFetchSize) {
         List<MWLItem> mwlItems = em.createNamedQuery(
                 MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE, MWLItem.class)
                 .setParameter(1, status)
                 .setParameter(2, before)
-                .setMaxResults(MWLFetchSize)
+                .setMaxResults(mwlFetchSize)
                 .getResultList();
         mwlItems.forEach(mwl -> em.remove(mwl));
         return mwlItems.size();
@@ -279,6 +284,51 @@ public class ProcedureServiceEJB {
         return em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, studyIUID)
                 .getResultList();
+    }
+
+    public void updateMWLStatus(ProcedureContext ctx) {
+        MWLItem mwlItem = findMWLItem(ctx);
+        if (mwlItem == null)
+            return;
+
+        updateMWLSPS(ctx.getSpsStatus(), mwlItem);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+    }
+
+    public int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<MWLItem> q = cb.createQuery(MWLItem.class);
+        QueryBuilder builder = new QueryBuilder(cb);
+        Root<MWLItem> mwlItem = q.from(MWLItem.class);
+        Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
+        List<Predicate> predicates = builder.mwlItemPredicates(
+                                                q,
+                                                patient,
+                                                mwlItem,
+                                                idWithIssuer != null ? new IDWithIssuer[]{ idWithIssuer } : IDWithIssuer.EMPTY,
+                                                queryKeys,
+                                                queryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+
+        TypedQuery<MWLItem> query = em.createQuery(q);
+        if (mwlFetchSize > 0)
+            query.setMaxResults(mwlFetchSize);
+
+        List<MWLItem> mwlItems = query.getResultList();
+        mwlItems.forEach(mwl -> updateMWLSPS(spsStatus, mwl));
+        return mwlItems.size();
+    }
+
+    private void updateMWLSPS(SPSStatus spsStatus, MWLItem mwl) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        Attributes attrs = mwl.getAttributes();
+        Attributes sps = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        attrs.remove(Tag.ScheduledProcedureStepSequence);
+        sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, spsStatus.name());
+        attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+        mwl.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
     }
 
     private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx,
