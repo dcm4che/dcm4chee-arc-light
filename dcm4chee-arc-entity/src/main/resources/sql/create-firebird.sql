@@ -83,6 +83,7 @@ alter table mpps add constraint UK_cyqglxijg7kebbj6oj821yx4d  unique (sop_iuid);
 alter table mwl_item add constraint UK_6qj8tkh6ib9w2pjqwvqe23ko  unique (dicomattrs_fk);
 alter table mwl_item add constraint UK_lerlqlaghhcs0oaj5irux4qig  unique (study_iuid, sps_id);
 create index UK_d0v5hjn1crha2nqbws4wj0yoj on mwl_item (updated_time);
+create index UK_9ockpkbetj7a97for0s1jhasi on mwl_item (local_aet);
 create index UK_2odo3oah39o400thy9bf0rgv0 on mwl_item (sps_id);
 create index UK_kedi0qimmvs83af3jxk471uxn on mwl_item (req_proc_id);
 create index UK_fpfq8q514gsime2dl8oo773d4 on mwl_item (study_iuid);

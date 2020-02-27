@@ -100,7 +100,6 @@ public class ProcedureServiceEJB {
         updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber, issuerOfAdmissionID);
     }
 
-
     private void updateProcedureForHL7(ProcedureContext ctx, Patient patient,
             IssuerEntity issuerOfAccessionNumber, IssuerEntity issuerOfAdmissionID) {
         Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx.getAttributes());
@@ -127,7 +126,8 @@ public class ProcedureServiceEJB {
             }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values())
-            createMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, issuerOfAdmissionID);
+            createMWL(ctx, ctx.getArchiveHL7AppExtension().getAETitle(),
+                    patient, mwlAttrs, issuerOfAccessionNumber, issuerOfAdmissionID);
     }
 
     private void updateMWL(ProcedureContext ctx,
@@ -150,7 +150,8 @@ public class ProcedureServiceEJB {
 
         MWLItem mwlItem = findMWLItem(ctx);
         if (mwlItem == null)
-            createMWL(ctx, patient, attrs, issuerOfAccessionNumber, issuerOfAdmissionID);
+            createMWL(ctx, ctx.getArchiveAEExtension().getApplicationEntity().getAETitle(),
+                    patient, attrs, issuerOfAccessionNumber, issuerOfAdmissionID);
         else
             updateMWL(ctx, issuerOfAccessionNumber, issuerOfAdmissionID, mwlItem, attrs);
     }
@@ -165,10 +166,11 @@ public class ProcedureServiceEJB {
         }
     }
 
-    private void createMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
+    private void createMWL(ProcedureContext ctx, String localAET, Patient patient, Attributes attrs,
             IssuerEntity issuerOfAccessionNumber, IssuerEntity issuerOfAdmissionID) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
+        mwlItem.setLocalAET(localAET);
         mwlItem.setPatient(patient);
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate))

@@ -99,6 +99,7 @@ import java.util.*;
         uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "sps_id" }),
         indexes = {
                 @Index(columnList = "updated_time"),
+                @Index(columnList = "local_aet"),
                 @Index(columnList = "sps_id"),
                 @Index(columnList = "req_proc_id"),
                 @Index(columnList = "study_iuid"),
@@ -137,6 +138,10 @@ public class MWLItem {
     @Basic(optional = false)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Basic(optional = false)
+    @Column(name = "local_aet", updatable = false)
+    private String localAET;
 
     @Basic(optional = false)
     @Column(name = "sps_id", updatable = false)
@@ -343,6 +348,14 @@ public class MWLItem {
     @PreUpdate
     public void onPreUpdate() {
         updatedTime = new Date();
+    }
+
+    public String getLocalAET() {
+        return localAET;
+    }
+
+    public void setLocalAET(String localAET) {
+        this.localAET = localAET;
     }
 
     public AttributesBlob getAttributesBlob() {
