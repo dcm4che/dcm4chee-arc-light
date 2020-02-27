@@ -717,6 +717,7 @@ public class QueryBuilder {
         code(predicates,
                 mwlItem.get(MWLItem_.institutionalDepartmentTypeCode),
                 keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
+        predicates.add(mwlItem.get(MWLItem_.localAET).in(queryParam.getAETitle(), "*"));
     }
 
     private <T> boolean anyOf(List<Predicate> predicates, Path<T> path, Function<String, T> valueOf,
