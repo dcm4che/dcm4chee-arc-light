@@ -190,7 +190,7 @@ export class AssociationsComponent implements OnDestroy{
         csv += $localize `:@@connection_open_for_hh_mm_ss:,Connection open for (hh:mm:ss)`;
 
         if (this.others){
-            csv += $localize `,Other attributes\n`;
+            csv += ',' + $localize `:@@other_attributes:Other attributes` + '\n';
         }else{
             csv += '\n';
         }

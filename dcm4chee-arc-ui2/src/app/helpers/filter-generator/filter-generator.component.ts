@@ -202,7 +202,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     removeFilterTemplate(filter){
         this.confirm({
-            content: $localize `@@remove_filter_template:Are you sure you want to remove this filter-template?`
+            content: $localize `:@@remove_filter_template:Are you sure you want to remove this filter-template?`
         }).subscribe((ok)=>{
             if(ok){
                 console.log("filter",filter);

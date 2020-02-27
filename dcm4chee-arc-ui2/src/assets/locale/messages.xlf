@@ -24,59 +24,80 @@
         <source>Edit Account</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">21</context>
+          <context context-type="linenumber">33</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.admin_realm" datatype="html">
         <source>Admin Realm</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="linenumber">34</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.wildfly_console" datatype="html">
         <source>Wildfly Console</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.app.go_to_wildfly_admin" datatype="html">
+        <source>Go to Wildfly Administration Console</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.logout" datatype="html">
         <source>Logout</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">24</context>
+          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.about" datatype="html">
         <source>About</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">25</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.app.server_time_param" datatype="html">
+        <source>Server time: <x id="INTERPOLATION" equiv-text="{{j4care.fullDateToString(currentServerTime)}}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.monitoring" datatype="html">
         <source>Monitoring</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="linenumber">53</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.navigation" datatype="html">
         <source>Navigation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">54</context>
         </context-group>
       </trans-unit>
       <trans-unit id="menu.configuration" datatype="html">
         <source>Configuration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.html</context>
-          <context context-type="linenumber">43</context>
+          <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="15b345e6a59d1aa1dd08ddabe726432267522d63" datatype="html">
+      <trans-unit id="title.app.about" datatype="html">
+        <source>About</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="html.page_not_found" datatype="html">
         <source>
   Page not found!
 </source>
@@ -84,7 +105,6 @@
           <context context-type="sourcefile">src/app/page-not-found/page-not-found.component.html</context>
           <context context-type="linenumber">1</context>
         </context-group>
-        <note priority="1" from="description">html.page_not_found</note>
       </trans-unit>
       <trans-unit id="control.archive_control" datatype="html">
         <source>Archive Control</source>
@@ -93,14 +113,14 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="c973da5b51eb7bd712984c3b587d0b83bfd270ee" datatype="html">
+      <trans-unit id="title.control.reload_archive" datatype="html">
         <source>Reload archive</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/control/control.component.html</context>
           <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="86ad69d7efc323d066b87541dc9bda4b040f04a4" datatype="html">
+      <trans-unit id="title.control.fetch_status" datatype="html">
         <source>Fetch status</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/control/control.component.html</context>
@@ -116,116 +136,104 @@
         <note priority="1" from="description">Title of the Monitoring queues page</note>
         <note priority="1" from="meaning">Title</note>
       </trans-unit>
-      <trans-unit id="7d49310535abb3792d8c9c991dd0d990d73d29af" datatype="html">
+      <trans-unit id="interval" datatype="html">
+        <source>Interval:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.interval" datatype="html">
         <source>Interval</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">20</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">20</context>
-        </context-group>
-        <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">21</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
-          <context context-type="linenumber">21</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
-          <context context-type="linenumber">23</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="d65025ea70b05a273e015e9ab6ae4b6144aa7e32" datatype="html">
+      <trans-unit id="placeholder.all_actions" datatype="html">
         <source>All actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">40</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">54</context>
-        </context-group>
-        <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">47</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
-          <context context-type="linenumber">45</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="e113e3450a367a1dff703fc5e0403a497ca73a7c" datatype="html">
-        <source>never</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
-          <context context-type="linenumber">40</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="87a6f2e666b797b3973f6fdc8151e9542b509da7" datatype="html">
+      <trans-unit id="title.preview_page" datatype="html">
         <source>Preview page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">47</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">20</context>
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">63</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">103</context>
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ce3cefb1cd0099aa5003dda16ec9eb21fd8ba789" datatype="html">
+      <trans-unit id="title.next_page" datatype="html">
         <source>Next page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">50</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">66</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="335439232f991259aee923efe3dba88e3d3018d0" datatype="html">
+      <trans-unit id="title.queues.cancel_selected" datatype="html">
         <source>Cancel selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">61</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">98</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="1579c7450da8dd43854fa717403be88c985816c3" datatype="html">
+      <trans-unit id="title.queues.reschedule_selected" datatype="html">
         <source>Reschedule selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">64</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">101</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="51a161ce175abcd44f6c6cbd0e996681bf553ac3" datatype="html">
+      <trans-unit id="title.queues.delete_selected" datatype="html">
         <source>Delete selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">67</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="queue" datatype="html">
@@ -341,84 +349,44 @@
         <note priority="1" from="description">Header of the table in the queues page</note>
         <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="5cd2286d986fff793d34b50df71936d9e3171c5f" datatype="html">
+      <trans-unit id="title.queues.show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">89</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">125</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">147</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">48</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-systems/storage-systems.component.html</context>
-          <context context-type="linenumber">32</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">112</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">135</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="d7b35c384aecd25a516200d6921836374613dfe7" datatype="html">
+      <trans-unit id="title.queues.cancel" datatype="html">
         <source>Cancel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">92</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">138</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="5ebf7ba02730ae84f98bed1f04d8ae090a5aa346" datatype="html">
+      <trans-unit id="title.queues.reschedule" datatype="html">
         <source>Reschedule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">95</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">153</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">141</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="826b25211922a1b46436589233cb6f1a163d89b7" datatype="html">
+      <trans-unit id="title.queues.delete" datatype="html">
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
           <context context-type="linenumber">98</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
-          <context context-type="linenumber">156</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
-          <context context-type="linenumber">51</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">144</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="7e3d66364fa3b27bd2ad666f1662ad35d4e77141" datatype="html">
+      <trans-unit id="placeholder.add_new_attribute" datatype="html">
         <source>Add new attribute</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/edit-patient/edit-patient.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/edit-mwl/edit-mwl.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/edit-study/edit-study.component.html</context>
           <context context-type="linenumber">5</context>
@@ -427,8 +395,24 @@
       <trans-unit id="CANCEL" datatype="html">
         <source>CANCEL</source>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/edit-patient/edit-patient.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/edit-mwl/edit-mwl.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/edit-study/edit-study.component.html</context>
           <context context-type="linenumber">14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
+          <context context-type="linenumber">274</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component.html</context>
+          <context context-type="linenumber">38</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
@@ -712,7 +696,7 @@
           <context context-type="linenumber">151</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="2c7051c7d22829598ea3582a42c329037224e748" datatype="html">
+      <trans-unit id="title.create-ae.add_the_new_connection_to_the_selected_device" datatype="html">
         <source>Add the new connection to the selected device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -872,18 +856,11 @@
           <context context-type="linenumber">273</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ce485e3659b0676f0b3633740e6b90733ab93a06" datatype="html">
+      <trans-unit id="title.verify_aet_host_port" datatype="html">
         <source>Verify AET, host and port before saving</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
           <context context-type="linenumber">264</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="create-ae.cancel" datatype="html">
-        <source>CANCEL</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
-          <context context-type="linenumber">274</context>
         </context-group>
       </trans-unit>
       <trans-unit id="delete-rejected.delete_instances_with_rejected_type" datatype="html">
@@ -900,7 +877,7 @@
           <context context-type="linenumber">10</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="de6c62c8d4e883bb72defe1b04f8cc2be89506af" datatype="html">
+      <trans-unit id="placeholder.delete_all_instances_before" datatype="html">
         <source>Delete all instances before this date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component.html</context>
@@ -942,7 +919,7 @@
           <context context-type="linenumber">12</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="4ab2bed3501130c49e579181f1f1d2d61ac16902" datatype="html">
+      <trans-unit id="placeholder.export.batch_id" datatype="html">
         <source>Batch ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
@@ -958,6 +935,17 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
           <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.if_checked_the_study_will_not_be_sent" datatype="html">
+        <source>If checked the study will not be sent</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
+          <context context-type="linenumber">25</context>
         </context-group>
       </trans-unit>
       <trans-unit id="ian_without_export" datatype="html">
@@ -1018,6 +1006,17 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
           <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="if_checked_the_study_will_not_be_sent" datatype="html">
+        <source>If checked the study will not be sent</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
+          <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="select_the_destination_aetitle_store_scp" datatype="html">
@@ -1163,15 +1162,11 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="30425abcb2ca17bc7f74857afd2d4a74e31b9b2b" datatype="html">
+      <trans-unit id="placeholder.upload-dicom.upload_file" datatype="html">
         <source>Upload file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/upload-dicom/upload-dicom.component.html</context>
           <context context-type="linenumber">19</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/dialogs/upload-files/upload-files.component.html</context>
-          <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="CLOSE" datatype="html">
@@ -1220,6 +1215,13 @@
           <context context-type="linenumber">15</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="placeholder.upload-files.upload_file" datatype="html">
+        <source>Upload file</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dialogs/upload-files/upload-files.component.html</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="captured_image_type" datatype="html">
         <source>Captured Image Type:</source>
         <context-group purpose="location">
@@ -1227,13 +1229,12 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="fa9c37861c6d25c8e800a9b39f1c61deecd9a7ee" datatype="html">
+      <trans-unit id="edit_attributes" datatype="html">
         <source>Edit Attributes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/upload-files/upload-files.component.html</context>
           <context context-type="linenumber">28</context>
         </context-group>
-        <note priority="1" from="description">edit_attributes</note>
       </trans-unit>
       <trans-unit id="START_UPLOADING" datatype="html">
         <source>START UPLOADING</source>
@@ -1242,12 +1243,15 @@
           <context context-type="linenumber">48</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="174cdf0b873ec7d8c6552d1deb74bca120f760b8" datatype="html">
+      <trans-unit id="placeholder.specific-char-picker.__search" datatype="html">
         <source>  Search..</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/specific-char-picker/specific-char-picker.component.html</context>
           <context context-type="linenumber">9</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.dictionary-picker.__search" datatype="html">
+        <source>  Search..</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dictionary-picker/dictionary-picker.component.html</context>
           <context context-type="linenumber">3</context>
@@ -1392,19 +1396,22 @@
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="67079bcc1b342cea10cd6438bef9077a0258661c" datatype="html">
+      <trans-unit id="schedule-picker.drop_herer_some_element" datatype="html">
         <source>Drop here some element to edit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">8</context>
         </context-group>
-        <note priority="1" from="description">schedule-picker.drop_herer_some_element</note>
       </trans-unit>
       <trans-unit id="monday" datatype="html">
         <source>Monday</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">100</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">111</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
@@ -1419,6 +1426,10 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">122</context>
         </context-group>
       </trans-unit>
@@ -1427,6 +1438,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">102</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">113</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
@@ -1441,6 +1456,10 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">114</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">124</context>
         </context-group>
       </trans-unit>
@@ -1449,6 +1468,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">104</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">115</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
@@ -1463,6 +1486,10 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">116</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
@@ -1474,64 +1501,12 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">127</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="a43c57a7cbebf57eb33a2eae5e994c91d9887596" datatype="html">
-        <source>Monday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">111</context>
-        </context-group>
-        <note priority="1" from="description">monday</note>
-      </trans-unit>
-      <trans-unit id="48a2a35957ce394eb2c59ae35c99642360af70ee" datatype="html">
-        <source>Tuesday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">112</context>
-        </context-group>
-        <note priority="1" from="description">tuesday</note>
-      </trans-unit>
-      <trans-unit id="b0af441f9ba8b82952b9ec10fb8c62e8fec67df9" datatype="html">
-        <source>Wednesday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">113</context>
-        </context-group>
-        <note priority="1" from="description">wednesday</note>
-      </trans-unit>
-      <trans-unit id="55c583b99c809818ec27df065ccf05357a6ac10b" datatype="html">
-        <source>Thursday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">114</context>
-        </context-group>
-        <note priority="1" from="description">thursday</note>
-      </trans-unit>
-      <trans-unit id="e91b54925dc5f490753f60f53ef6f8b4609e6215" datatype="html">
-        <source>Friday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">115</context>
-        </context-group>
-        <note priority="1" from="description">friday</note>
-      </trans-unit>
-      <trans-unit id="c0d2dd391a3eca8e841a5d0e035cd268280eb68e" datatype="html">
-        <source>Saturday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
-          <context context-type="linenumber">116</context>
-        </context-group>
-        <note priority="1" from="description">saturday</note>
-      </trans-unit>
-      <trans-unit id="8339364b054610983b7f2334bb807fff7613bddf" datatype="html">
-        <source>Sunday</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
           <context context-type="linenumber">117</context>
         </context-group>
-        <note priority="1" from="description">sunday</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>
+          <context context-type="linenumber">127</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="single_hour" datatype="html">
         <source>Single hour</source>
@@ -1583,6 +1558,13 @@
           <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="placeholder.modality.modality" datatype="html">
+        <source>Modality</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/modality/modality.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="modality.more" datatype="html">
         <source>more</source>
         <context-group purpose="location">
@@ -1590,13 +1572,12 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="23a0406e9ce8c81f68acdf369ef11aae57bdcbb9" datatype="html">
+      <trans-unit id="modality.less" datatype="html">
         <source>less</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/modality/modality.component.html</context>
           <context context-type="linenumber">14</context>
         </context-group>
-        <note priority="1" from="description">modality.less</note>
       </trans-unit>
       <trans-unit id="custom_modality_code" datatype="html">
         <source>Custom modality code:</source>
@@ -1605,7 +1586,7 @@
           <context context-type="linenumber">22</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="03c8bc9b6cdbbdf285a4d5cd88856185219e6815" datatype="html">
+      <trans-unit id="placeholder.date_formated" datatype="html">
         <source>Date (yyyymmdd)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
@@ -1616,35 +1597,41 @@
           <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="70cb9c19076e7a86402ed4d8c324bbd32d0d0082" datatype="html">
+      <trans-unit id="placeholder.from_formated" datatype="html">
         <source>from (yyyymmdd)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">44</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
+          <context context-type="linenumber">170</context>
+        </context-group>
       </trans-unit>
-      <trans-unit id="35612178675eea19ea44f4c7559a737e735227cf" datatype="html">
+      <trans-unit id="placeholder.to_formated" datatype="html">
         <source>to (yyyymmdd)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">75</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
+          <context context-type="linenumber">173</context>
+        </context-group>
       </trans-unit>
-      <trans-unit id="7fb1099e29660162f9154d5b2feee7743a423df6" datatype="html">
+      <trans-unit id="today" datatype="html">
         <source>Today</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">134</context>
         </context-group>
-        <note priority="1" from="description">today</note>
       </trans-unit>
-      <trans-unit id="b41f792601160b1c8a5a89b82a7afcaf5f0a4129" datatype="html">
+      <trans-unit id="this_month" datatype="html">
         <source>This Month</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">135</context>
         </context-group>
-        <note priority="1" from="description">this_month</note>
       </trans-unit>
       <trans-unit id="fast_picker" datatype="html">
         <source>Fast Picker</source>
@@ -1657,78 +1644,70 @@
           <context context-type="linenumber">155</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="e430eda9c785cd43465b7cbb400ee914f1057247" datatype="html">
+      <trans-unit id="yesterday" datatype="html">
         <source>Yesterday</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">141</context>
         </context-group>
-        <note priority="1" from="description">yesterday</note>
       </trans-unit>
-      <trans-unit id="8747ba4eb63eb7c88621592de81391a63a715cf8" datatype="html">
+      <trans-unit id="this_week" datatype="html">
         <source>This Week</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">142</context>
         </context-group>
-        <note priority="1" from="description">this_week</note>
       </trans-unit>
-      <trans-unit id="acb96491e686cda761bf8fc4359d1d267b6b997f" datatype="html">
+      <trans-unit id="last_week" datatype="html">
         <source>Last Week</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">143</context>
         </context-group>
-        <note priority="1" from="description">last_week</note>
       </trans-unit>
-      <trans-unit id="b5a1baf35ac0d2c832d6c953bd275d5e4d24900f" datatype="html">
+      <trans-unit id="last_month" datatype="html">
         <source>Last Month</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">144</context>
         </context-group>
-        <note priority="1" from="description">last_month</note>
       </trans-unit>
-      <trans-unit id="66d9345a528c9a1caa07d71d3756892babec9ec8" datatype="html">
+      <trans-unit id="this_quarter" datatype="html">
         <source>This Quarter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">145</context>
         </context-group>
-        <note priority="1" from="description">this_quarter</note>
       </trans-unit>
-      <trans-unit id="8364215f90354766b64a760b1e526e9f001b319d" datatype="html">
+      <trans-unit id="last_quarter" datatype="html">
         <source>Last Quarter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">146</context>
         </context-group>
-        <note priority="1" from="description">last_quarter</note>
       </trans-unit>
-      <trans-unit id="547c0bfd9f838ced4e32addd831a6caa3cf93c48" datatype="html">
+      <trans-unit id="this_year" datatype="html">
         <source>This Year</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">147</context>
         </context-group>
-        <note priority="1" from="description">this_year</note>
       </trans-unit>
-      <trans-unit id="982d7e498e7413f461d4e2d96796e5eee8cde08d" datatype="html">
+      <trans-unit id="last_year" datatype="html">
         <source>Last Year</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">148</context>
         </context-group>
-        <note priority="1" from="description">last_year</note>
       </trans-unit>
-      <trans-unit id="3d5885b6579ca23830b92f15c8ab8d57700a4d76" datatype="html">
+      <trans-unit id="title.use_duration_format" datatype="html">
         <source>Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range subtracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y =&gt; one year back, 2y3m =&gt; 2 years and 3 months back, t2h12m =&gt; 2 hours and 12 minutes from now etc.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">152</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="e4104931ad5e8672e55f90c056125736d7d91ecd" datatype="html">
+      <trans-unit id="placeholder.range-picker.hover_for_more_info" datatype="html">
         <source>Hover for more Info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
@@ -1742,25 +1721,18 @@
           <context context-type="linenumber">154</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="aa49c22ae7db2a7da504e4b99c5283b90a29c2e1" datatype="html">
+      <trans-unit id="placeholder.range-picker.maximal_study_date_range" datatype="html">
         <source>Maximal Study Date Range</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">159</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="82f84365c0043929b33aa16f07919a2a523672ca" datatype="html">
-        <source>from (hh:mm:ss)</source>
+      <trans-unit id="include_time" datatype="html">
+        <source>Include Time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
-          <context context-type="linenumber">170</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="75fb84cf5c1fec8d0610d101bcd5d8b49c83893f" datatype="html">
-        <source>to (hh:mm:ss)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
-          <context context-type="linenumber">173</context>
+          <context context-type="linenumber">166</context>
         </context-group>
       </trans-unit>
       <trans-unit id="between" datatype="html">
@@ -1768,6 +1740,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
           <context context-type="linenumber">178</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="single_date" datatype="html">
+        <source>Single Date</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/range-picker/range-picker.component.html</context>
+          <context context-type="linenumber">179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="after" datatype="html">
@@ -1793,7 +1772,7 @@
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="473729fcdf3e14e5ba046f7d164ab427585df39a" datatype="html">
+      <trans-unit id="placeholder.dynamic-field.search_list" datatype="html">
         <source>Search list...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamic-field/dynamic-field.component.html</context>
@@ -1805,6 +1784,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamic-field/dynamic-field.component.html</context>
           <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.search_dots" datatype="html">
+        <source>Search...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dcm-select/dcm-select.component.html</context>
+          <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
       <trans-unit id="csv-upload.upload_csv_title" datatype="html">
@@ -1832,27 +1818,47 @@
           <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="6d64760b5037d837cedaa74dc7be5e41a63e8673" datatype="html">
+      <trans-unit id="placeholder.study_size_range" datatype="html">
         <source>Study Size Range</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="8b8713045183394c4c86b66f808c54230bf66798" datatype="html">
+      <trans-unit id="title.size-range-picker.study_size_range_in_kb" datatype="html">
         <source>Study Size Range in KB</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="688a4572ccad07bc5d4110c12f9b97cf8c1083c7" datatype="html">
+      <trans-unit id="size-range-picker.title" datatype="html">
         <source>Set Size Range:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
           <context context-type="linenumber">8</context>
         </context-group>
-        <note priority="1" from="description">size-range-picker.title</note>
+      </trans-unit>
+      <trans-unit id="placeholder.min" datatype="html">
+        <source>min</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.max" datatype="html">
+        <source>max</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.unit" datatype="html">
+        <source>Unit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="selected" datatype="html">
         <source>selected</source>
@@ -1861,11 +1867,18 @@
           <context context-type="linenumber">7</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="7e892ba15f2c6c17e83510e273b3e10fc32ea016" datatype="html">
+      <trans-unit id="placeholder.dropdown.search" datatype="html">
         <source>Search</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dropdown/dropdown.component.html</context>
           <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.search" datatype="html">
+        <source>Search</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dcm-drop-down/dcm-drop-down.component.html</context>
+          <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="no_elements_found" datatype="html">
@@ -1951,6 +1964,27 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="placeholder.iod-form-generator.alphabetic" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}}"/> Alphabetic</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/helpers/iod-form-generator/iod-form-generator.component.html</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.iod-form-generator.ideographic" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}}"/> Ideographic</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/helpers/iod-form-generator/iod-form-generator.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.iod-form-generator.phonetic" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}}"/> Phonetic</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/helpers/iod-form-generator/iod-form-generator.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="extended_search" datatype="html">
         <source>Extended search</source>
         <context-group purpose="location">
@@ -1970,19 +2004,11 @@
           <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="2a94eeb68a659b9665215fbc4a77856531a9c48e" datatype="html">
+      <trans-unit id="placeholder.devices.search_device" datatype="html">
         <source>Search device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">40</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
-          <context context-type="linenumber">23</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
-          <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
       <trans-unit id="devices.device_name" datatype="html">
@@ -2041,29 +2067,32 @@
           <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="f82a25a6983b105ac528cae86916c03765796a4c" datatype="html">
+      <trans-unit id="title.devices.edit_device" datatype="html">
         <source>Edit device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">63</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
-          <context context-type="linenumber">56</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="d6ba2750ff04cb9805ff34c7df49113eb56514be" datatype="html">
+      <trans-unit id="title.devices.delete_device" datatype="html">
         <source>Delete device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">66</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="e6ce8c865b8b7285ca37bab6f5be0de45f0c726d" datatype="html">
+      <trans-unit id="title.devices.clone_device" datatype="html">
         <source>Clone device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.devices.edit_param" datatype="html">
+        <source>Edit <x id="INTERPOLATION" equiv-text="{{device[&apos;dicomDeviceName&apos;]}}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
+          <context context-type="linenumber">74</context>
         </context-group>
       </trans-unit>
       <trans-unit id="false" datatype="html">
@@ -2100,7 +2129,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">21</context>
+          <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="back:" datatype="html">
@@ -2111,6 +2140,24 @@
         </context-group>
         <note priority="1" from="description">:</note>
       </trans-unit>
+      <trans-unit id="placeholder.device-configuration.search" datatype="html">
+        <source>Search...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/device-configurator/device-configurator.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/device-configurator/device-configurator.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.search_in_this_part" datatype="html">
+        <source>Search in this part...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="download" datatype="html">
         <source>Download</source>
         <context-group purpose="location">
@@ -2118,14 +2165,14 @@
           <context context-type="linenumber">10</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="9ce1a0f44239a960521f629e8894684e429950c8" datatype="html">
+      <trans-unit id="title.dynamic-form-element.delete_file" datatype="html">
         <source>Delete File</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="8aa58cf00d949c509df91c621ab38131df0a7599" datatype="html">
+      <trans-unit id="placeholder.dynamic-form-element.search" datatype="html">
         <source>Search...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
@@ -2139,7 +2186,7 @@
           <context context-type="linenumber">62</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="4280a6093bf25d61a518102ca3d4dd01e7ee1d15" datatype="html">
+      <trans-unit id="title.dynamic-form-element.remove_this_value_from_the_array" datatype="html">
         <source>Remove this value from the array</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
@@ -2160,21 +2207,21 @@
           <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="0847ef1bbd4680c0b2b0c2b5c507cb1b6df73ceb" datatype="html">
+      <trans-unit id="title.dynamic-form-element.clone_this_param" datatype="html">
         <source>Clone this <x id="INTERPOLATION" equiv-text="{{formelement.label}}"/> part</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
           <context context-type="linenumber">110</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="a5275a2dc1fadfc0a3cfe690d7f92105e1781042" datatype="html">
+      <trans-unit id="title.dynamic-form-element.delete_this_label" datatype="html">
         <source>Delete this <x id="INTERPOLATION" equiv-text="{{formelement.label}}"/> part</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
           <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="1be7fa836959c9a6c45c40940bb22a8628e95433" datatype="html">
+      <trans-unit id="title.dynamic-form-element.add_new_label" datatype="html">
         <source>Add new <x id="INTERPOLATION" equiv-text="{{formelement.label}}"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
@@ -2199,6 +2246,13 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="placeholder.export.interval" datatype="html">
+        <source>Interval</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="download_csv" datatype="html">
         <source>Download CSV</source>
         <context-group purpose="location">
@@ -2210,11 +2264,15 @@
           <context context-type="linenumber">41</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
           <context context-type="linenumber">44</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="6ac96f46f1737325eb7b54a70f50ee9074fca44e" datatype="html">
+      <trans-unit id="upload_csv" datatype="html">
         <source>Upload CSV</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2224,7 +2282,13 @@
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">42</context>
         </context-group>
-        <note priority="1" from="description">@upload_csv</note>
+      </trans-unit>
+      <trans-unit id="placeholder.export.all_actions" datatype="html">
+        <source>All actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="batch_id_grouped" datatype="html">
         <source>Batch ID grouped</source>
@@ -2237,6 +2301,10 @@
           <context context-type="linenumber">50</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
           <context context-type="linenumber">52</context>
         </context-group>
@@ -2246,6 +2314,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">85</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
+          <context context-type="linenumber">59</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -2315,6 +2387,27 @@
           <context context-type="linenumber">76</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="title.export.cancel_selected" datatype="html">
+        <source>Cancel selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.export.reschedule_selected" datatype="html">
+        <source>Reschedule selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.export.delete_selected" datatype="html">
+        <source>Delete selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">104</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="modality" datatype="html">
         <source>Modality</source>
         <context-group purpose="location">
@@ -2329,14 +2422,14 @@
           <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="95915a20f1c946d90669892a85cb427ccc527c55" datatype="html">
+      <trans-unit id="title.export.number_of_instances" datatype="html">
         <source>Number of instances</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="0fab63123c7bd72db1d49e0ac40ee66233c0a6da" datatype="html">
+      <trans-unit id="title.export.export_task_id" datatype="html">
         <source>Export Task ID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2350,7 +2443,7 @@
           <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="16161af43fc356f773eed86532ba5840e7ca6eff" datatype="html">
+      <trans-unit id="title.export.scheduled_time" datatype="html">
         <source>Scheduled time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2364,7 +2457,7 @@
           <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="3def02423e808e7d82aa35549b61a199869a799f" datatype="html">
+      <trans-unit id="title.export.processing_duration" datatype="html">
         <source>Processing duration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2386,22 +2479,50 @@
           <context context-type="linenumber">26</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="a304c2bd78cd9f4cd1b21ca9dc74a72c2a14d8fc" datatype="html">
+      <trans-unit id="title.export.show_properties" datatype="html">
+        <source>Show Properties</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">125</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.export.show_tasks_detail" datatype="html">
         <source>Show Tasks Detail</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="5aaa9ce656e9ad2e11fee52fbcb3059fba123f33" datatype="html">
+      <trans-unit id="title.export.delete_task_with_this_batchid" datatype="html">
         <source>Delete Task with this BatchID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">131</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="title.cancel" datatype="html">
+        <source>Cancel</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
-          <context context-type="linenumber">118</context>
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.export.reschedule" datatype="html">
+        <source>Reschedule</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.export.delete" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
+          <context context-type="linenumber">156</context>
         </context-group>
       </trans-unit>
       <trans-unit id="associations.open_associations" datatype="html">
@@ -2418,21 +2539,28 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="91b808cc38b3c6146c295f335c8218b193fbc61c" datatype="html">
+      <trans-unit id="timer_sec" datatype="html">
+        <source>Timer (sec)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.associations.with_a_dot_you_can_set_milliseconds" datatype="html">
         <source>With a dot &apos;.&apos; you can set milliseconds for example: &apos;0.6&apos; = 600 milliseconds</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="670c13e7de951005da0a7926677c3f80aa8813d2" datatype="html">
+      <trans-unit id="title.associations.start_getting_associations" datatype="html">
         <source>Start getting associations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="6280c43c9c14961f404ec1e2d1a8593eaa6e92f4" datatype="html">
+      <trans-unit id="title.associations.stop_auto_refresh" datatype="html">
         <source>Stop auto refresh</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2446,7 +2574,7 @@
           <context context-type="linenumber">26</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="48e621a0cea566b85e44ea91d54b5753498f366c" datatype="html">
+      <trans-unit id="title.associations.get_associations" datatype="html">
         <source>Get associations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2460,14 +2588,14 @@
           <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="1514e9095d9d620e42acdd1d4d0df25d17dba9d7" datatype="html">
+      <trans-unit id="title.associations.download_copy_as_csv" datatype="html">
         <source>Download copy of the table as csv-file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="d5fe62b52485aeb58be64fca64ede3912828c6f3" datatype="html">
+      <trans-unit id="local_aet" datatype="html">
         <source>
                             Local AE Title
                         </source>
@@ -2475,40 +2603,29 @@
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">49</context>
         </context-group>
-        <note priority="1" from="description">local_aet</note>
       </trans-unit>
-      <trans-unit id="a74dabc57da765fbb2dbc93a36c8377532e73288" datatype="html">
+      <trans-unit id="title.associations.sort_by_local_ae_title" datatype="html">
         <source>Sort by Local AE Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">49</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="00b59b574a16994fb01cba59830ab7014b4ce109" datatype="html">
+      <trans-unit id="title.associations.sort_by_initiated" datatype="html">
         <source>Sort by initiated</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">54</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="967a31b3aedddb43c7f50b48343c110ea4ece516" datatype="html">
-        <source>
-                            Remote AE Title
-                        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
-          <context context-type="linenumber">59</context>
-        </context-group>
-        <note priority="1" from="description">remote_aet</note>
-      </trans-unit>
-      <trans-unit id="4082e9e726f46956edd087bb6ec1bd95d4f8b823" datatype="html">
+      <trans-unit id="title.associations.sort_by_remote_ae_title" datatype="html">
         <source>Sort by Remote AE Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="0c4265170008f7da4ac8dffac5bfe76c526d9e98" datatype="html">
+      <trans-unit id="invoked_ops" datatype="html">
         <source>
                             Invoked Ops.
                         </source>
@@ -2516,9 +2633,8 @@
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
           <context context-type="linenumber">64</context>
         </context-group>
-        <note priority="1" from="description">invoked_ops</note>
       </trans-unit>
-      <trans-unit id="b812730a8a483b875880947d061b5077fadd0205" datatype="html">
+      <trans-unit id="title.associations.sort_by_invoked_ops" datatype="html">
         <source>Sort by Invoked Ops.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2532,7 +2648,7 @@
           <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="5ad146bc22e8bff38592493d3864b7fd36152f18" datatype="html">
+      <trans-unit id="title.associations.sort_by_performed_ops" datatype="html">
         <source>Sort by Performed Ops.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2546,7 +2662,7 @@
           <context context-type="linenumber">69</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="227af07f54b66b42bc5652c5a3f7957b12b30e40" datatype="html">
+      <trans-unit id="title.associations.sort_by_connection_time_server" datatype="html">
         <source>Sort by Connection time (Server)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2560,7 +2676,7 @@
           <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="e98bb8a237d1c06711c6188011c493fc0435a781" datatype="html">
+      <trans-unit id="title.associations.sort_by_connection_time_local" datatype="html">
         <source>Sort by Connection time (Local)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2574,7 +2690,7 @@
           <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="3a4bf4ce0dcb0bf5b3afc204264f34ca28ded56c" datatype="html">
+      <trans-unit id="title.associations.sort_by_duration" datatype="html">
         <source>Sort by Duration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2589,7 +2705,7 @@
           <context context-type="linenumber">73</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="62d087758b4b6097ecf40bf93ed2b66288d51007" datatype="html">
+      <trans-unit id="title.associations.sort_by_other_attributes" datatype="html">
         <source>Sort by Other attributes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2612,17 +2728,26 @@
           <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="6d5547e047bff8b249638208b29c4d86ede80fd7" datatype="html">
+      <trans-unit id="html.storage_commitments" datatype="html">
         <source>Storage commitments</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="title.storage-commitment.preview_page" datatype="html">
+        <source>Preview page</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
-          <context context-type="linenumber">11</context>
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">20</context>
         </context-group>
-        <note priority="1" from="description">html.storage_commitments</note>
+      </trans-unit>
+      <trans-unit id="title.storage-commitment.next_page" datatype="html">
+        <source>Next page</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="requested" datatype="html">
         <source>Requested</source>
@@ -2650,6 +2775,20 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
           <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.storage-commitment.show_properties" datatype="html">
+        <source>Show Properties</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.storage-commitment.delete" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
+          <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
       <trans-unit id="vpn_key" datatype="html">
@@ -2684,11 +2823,18 @@
           <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="0d1dd4bf7612fdc276a25743b35e66b55660839a" datatype="html">
+      <trans-unit id="title.ae-list.register_new_application_entity" datatype="html">
         <source>Register new application entity</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
           <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.search_device" datatype="html">
+        <source>Search device</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
+          <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="ae-list.ae_title" datatype="html">
@@ -2754,35 +2900,33 @@
           <context context-type="linenumber">40</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="2f2cc26d6b6d10b181ebcd7ca0390dcca0838d46" datatype="html">
+      <trans-unit id="title.ae-list.dicom_network_connection" datatype="html">
         <source>Dicom network connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
           <context context-type="linenumber">40</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
-          <context context-type="linenumber">29</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="9c6b7251e3ddc373238122617b5589fe6362be14" datatype="html">
+      <trans-unit id="title.ae-list.delete_from_device_the_ae" datatype="html">
         <source>Delete from device the AE</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
           <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="3a114b3b3118722079f591b0db61a3da7b0630b6" datatype="html">
+      <trans-unit id="title.ae-list.edit_device" datatype="html">
+        <source>Edit device</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="html.storage_systems" datatype="html">
         <source>Storage systems</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-systems/storage-systems.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
-          <context context-type="linenumber">12</context>
-        </context-group>
-        <note priority="1" from="description">html.storage_systems</note>
       </trans-unit>
       <trans-unit id="storage_id" datatype="html">
         <source>Storage ID</source>
@@ -2854,71 +2998,88 @@
           <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="cf4984e9b0bf2ec260bf66f355cf4ac14dd3ba5f" datatype="html">
+      <trans-unit id="title.storage-systems.show_properties" datatype="html">
+        <source>Show Properties</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-systems/storage-systems.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="monitoring.tab.associations" datatype="html">
         <source>Associations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">3</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.associations</note>
       </trans-unit>
-      <trans-unit id="bbdf77278421c25f6efbe062bc2db1e7fa982d0d" datatype="html">
+      <trans-unit id="monitoring.tab.queues" datatype="html">
         <source>Queues</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">4</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.queues</note>
       </trans-unit>
-      <trans-unit id="5f19586aba912ec6eb123ec5ab609a3bcc073066" datatype="html">
+      <trans-unit id="monitoring.tab.export" datatype="html">
         <source>Export</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">5</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.export</note>
       </trans-unit>
-      <trans-unit id="931bec01bbca026a245cc1cbc73785d70204eb0c" datatype="html">
+      <trans-unit id="monitoring.tab.retrieve" datatype="html">
         <source>Retrieve</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">6</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.retrieve</note>
       </trans-unit>
-      <trans-unit id="a88d811c7e05a94901740fcee4bfb896fd41a18b" datatype="html">
+      <trans-unit id="monitoring.tab.diff" datatype="html">
         <source>Diff</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">7</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.diff</note>
       </trans-unit>
-      <trans-unit id="983dee37efe7a0666690c3f012c7f8773d1ff268" datatype="html">
+      <trans-unit id="monitoring.tab.storage_commitments" datatype="html">
+        <source>Storage commitments</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="monitoring.tab.storage_systems" datatype="html">
+        <source>Storage systems</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="monitoring.tab.storage_verification" datatype="html">
         <source>Storage verification</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">13</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
-          <context context-type="linenumber">5</context>
-        </context-group>
-        <note priority="1" from="description">monitoring.tab.storage_verification</note>
       </trans-unit>
-      <trans-unit id="447ffd4cbfd3d8c3ca8dd216c0a82ecadc24a7de" datatype="html">
+      <trans-unit id="monitoring.tab.metrics" datatype="html">
         <source>Metrics</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">14</context>
         </context-group>
-        <note priority="1" from="description">monitoring.tab.metrics</note>
       </trans-unit>
       <trans-unit id="hl7_applications.hl7_applications" datatype="html">
         <source>Hl7 Applications</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
           <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.hl7-applications.search_device" datatype="html">
+        <source>Search device</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
+          <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
       <trans-unit id="hl7_application_description" datatype="html">
@@ -2942,6 +3103,24 @@
           <context context-type="linenumber">29</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="title.hl7-applications.dicom_network_connection" datatype="html">
+        <source>Dicom network connection</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.hl7-applications.edit_device" datatype="html">
+        <source>Edit device</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="retrieve-monitoring.retrieve" datatype="html">
         <source>Retrieve</source>
         <context-group purpose="location">
@@ -2954,6 +3133,27 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.cancel_selected" datatype="html">
+        <source>Cancel selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.reschedule_selected" datatype="html">
+        <source>Reschedule selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.delete_selected" datatype="html">
+        <source>Delete selected</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="study_instance_uid" datatype="html">
@@ -2977,7 +3177,7 @@
           <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="40468d4f47f2340f0d7c0249141f0a0f447c987d" datatype="html">
+      <trans-unit id="title.completed_remainning_failed" datatype="html">
         <source>Completed / Remainning / Failed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -2991,11 +3191,64 @@
           <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="082da73492ee4f92a2fa87e99acc4db1bcb23a69" datatype="html">
+      <trans-unit id="title.retrieve-monitoring.show_properties" datatype="html">
+        <source>Show Properties</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">112</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">135</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.retrieve-monitoring.show_tasks_detail" datatype="html">
         <source>Show tasks detail</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
           <context context-type="linenumber">115</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.retrieve-monitoring.delete_task_with_this_batchid" datatype="html">
+        <source>Delete Task with this BatchID</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.retrieve-monitoring.cancel" datatype="html">
+        <source>Cancel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">138</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.retrieve-monitoring.reschedule" datatype="html">
+        <source>Reschedule</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.retrieve-monitoring.delete" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
+          <context context-type="linenumber">144</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="clear" datatype="html">
+        <source>Clear</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/helpers/filter-generator/filter-generator.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.filter-generator.clear_current_filters" datatype="html">
+        <source>Clear current filters</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/helpers/filter-generator/filter-generator.component.html</context>
+          <context context-type="linenumber">10</context>
         </context-group>
       </trans-unit>
       <trans-unit id="no_filter_template_found" datatype="html">
@@ -3019,6 +3272,41 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
           <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.diff-monitor.interval" datatype="html">
+        <source>Interval</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.diff-monitor.all_actions" datatype="html">
+        <source>All actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="html.storage_verification" datatype="html">
+        <source>Storage verification</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.storage-verification.interval" datatype="html">
+        <source>Interval</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="placeholder.storage-verification.all_actions" datatype="html">
+        <source>All actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="devices" datatype="html">
@@ -3095,112 +3383,126 @@
         <source>Close More Block<x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i&gt;"/><x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="91571741a63b9f08db443525251b2c98482961da" datatype="html">
+      <trans-unit id="title.study.search_current_list" datatype="html">
         <source>Search current local list ( That&apos;s NOT searching in the Server! )</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="linenumber">25</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="3a6f00c2eb4f4b7eea784e6f1d9937e9fbf0d323" datatype="html">
+      <trans-unit id="placeholder.study.search_current_list" datatype="html">
         <source>Search current list</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="linenumber">25</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="039b8799c0cee9cd92e02fda4e0fb8dd1622bc2a" datatype="html">
+      <trans-unit id="title.study.mark_selected_study_for_copy" datatype="html">
         <source>Mark selected study for copy</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">88</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="6b3a1a000901e586bbb4dd2c0f93c9e03dbef6f1" datatype="html">
-        <source>Mark selected study for move</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">89</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="990ce660e37477523392d818bb16e4dc2a33503a" datatype="html">
-        <source>Mark selected study for linking with MWL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
           <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="84380977b9862b2b48630bc195810690ef616085" datatype="html">
-        <source>Mark selected patient for merge</source>
+      <trans-unit id="title.study.mark_selected_study_for_move" datatype="html">
+        <source>Mark selected study for move</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
           <context context-type="linenumber">91</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ab6b24235a4b5acc1e96fd177b995195be9e30a0" datatype="html">
-        <source>Start the process of copying/moving/linking or merging</source>
+      <trans-unit id="title.study.mark_selected_study_for_linking_with_mwl" datatype="html">
+        <source>Mark selected study for linking with MWL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
           <context context-type="linenumber">92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.study.mark_selected_patient_for_merge" datatype="html">
+        <source>Mark selected patient for merge</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.study.start_the_process_of_copieng_moving_linked_or_merge" datatype="html">
+        <source>Start the process of copying/moving/linking or merging</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="remove_all_selections" datatype="html">
         <source>Remove all selections</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="select_all_studies" datatype="html">
         <source>Select all studies</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">96</context>
+          <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="unselect_all_studies" datatype="html">
         <source>Unselect all studies</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">99</context>
         </context-group>
       </trans-unit>
       <trans-unit id="select_all_patients" datatype="html">
         <source>Select all patients</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="unselect_all_patients" datatype="html">
         <source>Unselect all patients</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="hide_checkboxes" datatype="html">
         <source>Hide checkboxes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="85ac4731daf675dbe5fa80c4b546aae42469ba95" datatype="html">
+      <trans-unit id="title.study.preview_page" datatype="html">
+        <source>Preview page</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="title.study.next_page" datatype="html">
+        <source>Next page</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/study/study/study.component.html</context>
+          <context context-type="linenumber">106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="selected_objects_to_action" datatype="html">
         <source>Selected Objects to <x id="INTERPOLATION" equiv-text="{{selectedElements.action}}"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">112</context>
+          <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="7743937135715566480ecb5aaa583e78f2d7ca2e" datatype="html">
+      <trans-unit id="title.study.clear_clipboard" datatype="html">
         <source>Clear clipboard</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
-          <context context-type="linenumber">113</context>
+          <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="metrics.metrics" datatype="html">
