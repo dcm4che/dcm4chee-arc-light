@@ -107,6 +107,7 @@ public class ConfigurationRS {
             "STOW_RS|" +
             "QIDO_RS|" +
             "UPS_RS|" +
+            "MWL_RS|" +
             "DCM4CHEE_ARC|" +
             "DCM4CHEE_ARC_AET|" +
             "DCM4CHEE_ARC_AET_DIFF|" +

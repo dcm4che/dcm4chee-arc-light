@@ -1465,6 +1465,8 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
+                WebApplication.ServiceClass.UPS_RS,
+                WebApplication.ServiceClass.MWL_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
         device.addWebApplication(webapp);
 

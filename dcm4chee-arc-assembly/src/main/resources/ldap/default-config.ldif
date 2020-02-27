@@ -2443,6 +2443,8 @@ dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: UPS_RS
+dcmWebServiceClass: MWL_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
