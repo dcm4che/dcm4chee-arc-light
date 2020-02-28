@@ -1070,7 +1070,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (!this.appService.global.notSecure) {
                     token = response.token;
                 }
-                url = configuredUrlString.replace(/(&)(\w*)=(\{\}|_self|_blank)/g, (match, p1, p2, p3, offset, string) => {
+                url = configuredUrlString.replace(/(\?|&)(\w*)=(\{\}|_self|_blank)/g, (match, p1, p2, p3, offset, string) => {
                     switch (p2) {
                         case "studyUID":
                             return `${p1}${p2}=${model['0020000D'].Value[0]}`;
