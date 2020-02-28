@@ -3,7 +3,7 @@
     <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
     <div class="dictionary_widget" >
         <ul class="list">
-            <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)">{{dictionary.key}} : {{dictionary.text}}</li>
+            <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.key"></span> : <span [innerHTML]="dictionary.text"></span></li>
         </ul>
         <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0" i18n="@@searched_element_not_found">Searched element not found!</div>
     </div>

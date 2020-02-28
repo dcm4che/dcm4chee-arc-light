@@ -496,7 +496,7 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){
-            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmLanguageChooser'){
                 if(i != null){
                     formelement.showPicker = formelement.showPicker || {};
                     formelement.showPicker[i] = true;
@@ -540,7 +540,7 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onMouseEnter(formelement,i=null){
         if(formelement.format){
-            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmLanguageChooser'){
                 if(i != null){
                     formelement.showPickerTooltipp = formelement.showPickerTooltipp || {};
                     formelement.showPickerTooltipp[i] = true;

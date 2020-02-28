@@ -5,6 +5,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {SearchPipe} from "../../pipes/search.pipe";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {Globalvar} from "../../constants/globalvar";
 
 @Component({
   selector: 'dictionary-picker',
@@ -44,6 +45,14 @@ export class DictionaryPickerComponent implements OnInit {
                     this.dcmTags.push({
                         key:i,
                         text:m
+                    })
+                });
+                break;
+            case 'dcmLanguageChooser':
+                _.forEach(Globalvar.LANGUAGES.getAllLanguages,(m,i)=>{
+                    this.dcmTags.push({
+                        key:`<img src="${m.flag}"/>`,
+                        text:`${m.nativeName} (${i})`
                     })
                 });
                 break;
