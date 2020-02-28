@@ -156,7 +156,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeQueueMessagePollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
-    private volatile Duration deleteMWLPollingInterval;
+    private volatile Duration mwlPollingInterval;
     private volatile int mwlFetchSize = 100;
     private volatile String[] deleteMWLDelay = {};
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
@@ -300,6 +300,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
@@ -2027,6 +2028,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storeAccessControlIDRules;
     }
 
+    public void removeMWLIdleTimeout(MWLIdleTimeout mwlIdleTimeout) {
+        mwlIdleTimeoutList.remove(mwlIdleTimeout);
+    }
+
+    public void clearMWLIdleTimeouts() {
+        mwlIdleTimeoutList.clear();
+    }
+
+    public void addMWLIdleTimeout(MWLIdleTimeout mwlIdleTimeout) {
+        mwlIdleTimeoutList.add(mwlIdleTimeout);
+    }
+
+    public List<MWLIdleTimeout> getMWLIdleTimeouts() {
+        return mwlIdleTimeoutList;
+    }
+
     public RejectionNote getRejectionNote(String rjNoteID) {
         return rejectionNoteMap.get(rjNoteID);
     }
@@ -2646,12 +2663,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowQuicktime2MP4 = stowQuicktime2MP4;
     }
 
-    public Duration getDeleteMWLPollingInterval() {
-        return deleteMWLPollingInterval;
+    public Duration getMWLPollingInterval() {
+        return mwlPollingInterval;
     }
 
-    public void setDeleteMWLPollingInterval(Duration deleteMWLPollingInterval) {
-        this.deleteMWLPollingInterval = deleteMWLPollingInterval;
+    public void setMWLPollingInterval(Duration mwlPollingInterval) {
+        this.mwlPollingInterval = mwlPollingInterval;
     }
 
     public int getMWLFetchSize() {
@@ -2871,7 +2888,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
-        deleteMWLPollingInterval = arcdev.deleteMWLPollingInterval;
+        mwlPollingInterval = arcdev.mwlPollingInterval;
         mwlFetchSize = arcdev.mwlFetchSize;
         deleteMWLDelay = arcdev.deleteMWLDelay;
         attributeFilters.clear();
@@ -2924,6 +2941,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeCoercions.addAll(arcdev.attributeCoercions);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
+        mwlIdleTimeoutList.clear();
+        mwlIdleTimeoutList.addAll(arcdev.mwlIdleTimeoutList);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
         keycloakServerMap.clear();

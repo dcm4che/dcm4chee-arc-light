@@ -432,8 +432,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.isRestrictRetrieveSilently(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteMWLPollingInterval",
-                ext.getDeleteMWLPollingInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLPollingInterval",
+                ext.getMWLPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLFetchSize", ext.getMWLFetchSize(), 100);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteMWLDelay", ext.getDeleteMWLDelay());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
@@ -701,7 +701,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
-        ext.setDeleteMWLPollingInterval(toDuration(attrs.get("dcmDeleteMWLPollingInterval"), null));
+        ext.setMWLPollingInterval(toDuration(attrs.get("dcmMWLPollingInterval"), null));
         ext.setMWLFetchSize(LdapUtils.intValue(attrs.get("dcmMWLFetchSize"), 100));
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
     }
@@ -1194,9 +1194,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStowQuicktime2MP4(),
                 bb.isStowQuicktime2MP4(),
                 false);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteMWLPollingInterval",
-                aa.getDeleteMWLPollingInterval(),
-                bb.getDeleteMWLPollingInterval(),
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLPollingInterval",
+                aa.getMWLPollingInterval(),
+                bb.getMWLPollingInterval(),
                 null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMWLFetchSize",
                 aa.getMWLFetchSize(),

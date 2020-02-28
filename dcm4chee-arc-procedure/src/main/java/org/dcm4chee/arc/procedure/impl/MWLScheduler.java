@@ -58,11 +58,11 @@ import java.util.List;
  * @since Jan 2020
  */
 @ApplicationScoped
-public class DeleteMWLScheduler extends Scheduler {
+public class MWLScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteMWLScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MWLScheduler.class);
 
-    protected DeleteMWLScheduler() {
+    protected MWLScheduler() {
         super(Mode.scheduleWithFixedDelay);
     }
 
@@ -77,7 +77,7 @@ public class DeleteMWLScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getDeleteMWLPollingInterval();
+        return arcDev.getMWLPollingInterval();
     }
 
     @Override

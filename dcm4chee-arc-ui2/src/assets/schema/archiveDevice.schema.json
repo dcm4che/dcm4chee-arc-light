@@ -188,9 +188,9 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
-    "dcmDeleteMWLPollingInterval": {
-      "title": "Delete MWL Polling Interval",
-      "description": "Polling Interval for deleting MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, MWL Items will not get deleted.",
+    "dcmMWLPollingInterval": {
+      "title": "MWL Polling Interval",
+      "description": "Polling Interval for updating the status of idle MWL items and deleting MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, MWL Items will not get update or deleted.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -1665,6 +1665,15 @@
       "titleKey":"{dcmIDGeneratorName}",
       "items" : {
         "$ref": "idGenerator.schema.json"
+      }
+    },
+    "dcmMWLIdleTimeout": {
+      "title": "MWL Idle Timeout",
+      "description": "MWL Idle Timeout",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "mwlIdleTimeout.schema.json"
       }
     },
     "hl7ForwardRule": {

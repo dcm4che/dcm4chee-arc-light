@@ -1697,7 +1697,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.351 NAME 'hl7ORUAction'
   DESC 'Specifies action on receive of HL7 ORU^R01 message: IMPORT_REPORT (= transcode received HL7 ORU^R01 to DICOM SR), MWL_COMPLETED (= set Status of matching MWL items to COMPLETED).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.352 NAME 'dcmDeleteMWLPollingInterval'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.352 NAME 'dcmMWLPollingInterval'
   DESC 'Polling Interval for deleting MWL items in ISO-8601 duration format PnDTnHnMnS. If absent, MWL Items will not get deleted.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
@@ -1715,6 +1715,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.355 NAME 'dcmRecordAttributeModificatio
   DESC 'Indicates if modifications of attributes of stored objects are recorded in Items of the Original Attributes Sequence; true if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.356 NAME 'dcmMWLStatusOnIdle'
+  DESC 'Change Status of idle Scheduled Procedure Steps to specified value. Enumerated value: CANCELLED, DISCONTINUED, COMPLETED.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1745,7 +1750,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPurgeInstanceRecordsDelay $
     dcmPurgeInstanceRecordsPollingInterval $
     dcmPurgeInstanceRecordsFetchSize $
-    dcmDeleteMWLPollingInterval $
+    dcmMWLPollingInterval $
     dcmMWLFetchSize $
     dcmDeleteMWLDelay $
     dcmDeleteUPSPollingInterval $
@@ -2454,3 +2459,13 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmRequestingService $
     dcmProperty $
     dcmSchedule ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.39 NAME 'dcmMWLIdleTimeout'
+  DESC 'MWL Idle Timeout'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dicomAETitle $
+    dcmMWLStatusOnIdle $
+    dcmDuration )
+  MAY (
+    dcmAETitle ) )
