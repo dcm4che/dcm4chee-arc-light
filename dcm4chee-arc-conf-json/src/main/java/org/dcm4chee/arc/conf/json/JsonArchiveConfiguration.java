@@ -373,6 +373,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         writeUPSOnStoreList(writer, arcDev.listUPSOnStore());
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
+        writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
@@ -916,6 +917,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmIDGeneratorName", generator.getName(), null);
             writer.writeNotNullOrDef("dcmIDGeneratorFormat", generator.getFormat(), null);
             writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeMWLIdleTimeout(JsonWriter writer, Collection<MWLIdleTimeout> mwlIdleTimeoutList) {
+        writer.writeStartArray("dcmMWLIdleTimeout");
+        for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeoutList) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", mwlIdleTimeout.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomAETitle", mwlIdleTimeout.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmMWLStatusOnIdle", mwlIdleTimeout.getStatusOnIdle(), null);
+            writer.writeNotNullOrDef("dcmDuration", mwlIdleTimeout.getIdleTimeout(), null);
+            writer.writeNotEmpty("dcmAETitle", mwlIdleTimeout.getScheduledStationAETitles());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1740,6 +1755,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7UPSOnHL7":
                     loadUPSOnHL7List(arcDev.listUPSOnHL7(), reader);
+                    break;
+                case "dcmMWLIdleTimeout":
+                    loadMWLIdleTimeout(arcDev.getMWLIdleTimeouts(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -2997,6 +3015,39 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             upsOnHL7List.add(upsOnHL7);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadMWLIdleTimeout(Collection<MWLIdleTimeout> mwlIdleTimeouts, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            MWLIdleTimeout mwlIdleTimeout = new MWLIdleTimeout();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        mwlIdleTimeout.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        mwlIdleTimeout.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmMWLStatusOnIdle":
+                        mwlIdleTimeout.setStatusOnIdle(SPSStatus.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmDuration":
+                        mwlIdleTimeout.setIdleTimeout(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmAETitle":
+                        mwlIdleTimeout.setScheduledStationAETitles(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            mwlIdleTimeouts.add(mwlIdleTimeout);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

@@ -53,7 +53,7 @@ public class MWLIdleTimeout {
 
     private String aeTitle;
 
-    private String[] scheduledStationAETitles;
+    private String[] scheduledStationAETitles = {};
 
     private Duration idleTimeout;
 

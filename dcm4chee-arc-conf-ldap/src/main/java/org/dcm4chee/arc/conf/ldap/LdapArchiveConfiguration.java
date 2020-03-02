@@ -1241,6 +1241,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeMetricsDescriptors(diffs, arcDev.getMetricsDescriptors(), deviceDN);
         storeUPSOnStoreList(diffs, arcDev.listUPSOnStore(), deviceDN);
         storeUPSOnHL7List(diffs, arcDev.listUPSOnHL7(), deviceDN, config);
+        storeMWLIdleTimeouts(diffs, arcDev.getMWLIdleTimeouts(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1277,6 +1278,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadMetricsDescriptors(arcdev, deviceDN);
         loadUPSOnStoreList(arcdev.listUPSOnStore(), deviceDN);
         loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
+        loadMWLIdleTimeouts(arcdev.getMWLIdleTimeouts(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1323,6 +1325,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeMetricsDescriptors(diffs, aa.getMetricsDescriptors(), bb.getMetricsDescriptors(), deviceDN);
         mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), deviceDN);
         mergeUPSOnHL7List(diffs, aa.listUPSOnHL7(), bb.listUPSOnHL7(), deviceDN, config);
+        mergeMWLIdleTimeouts(diffs, aa.getMWLIdleTimeouts(), bb.getMWLIdleTimeouts(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -2676,6 +2679,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeMWLIdleTimeouts(ConfigurationChanges diffs, Collection<MWLIdleTimeout> mwlIdleTimeouts, String parentDN)
+            throws NamingException {
+        for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeouts) {
+            String dn = LdapUtils.dnOf("cn", mwlIdleTimeout.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, mwlIdleTimeout, new BasicAttributes(true)));
+        }
+    }
+
     private void storeUPSOnStoreList(
             ConfigurationChanges diffs, Collection<UPSOnStore> upsOnStoreList, String parentDN) throws NamingException {
         for (UPSOnStore upsOnStore : upsOnStoreList) {
@@ -2708,6 +2721,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportReoccurredInstances",
                 rule.getExportReoccurredInstances(), ExportReoccurredInstances.REPLACE);
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, MWLIdleTimeout mwlIdleTimeout, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmMWLIdleTimeout");
+        attrs.put("cn", mwlIdleTimeout.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", mwlIdleTimeout.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLStatusOnIdle", mwlIdleTimeout.getStatusOnIdle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", mwlIdleTimeout.getIdleTimeout(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", mwlIdleTimeout.getScheduledStationAETitles());
         return attrs;
     }
 
@@ -2833,6 +2856,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(ExportReoccurredInstances.class, attrs.get("dcmExportReoccurredInstances"),
                                 ExportReoccurredInstances.REPLACE));
                 exportRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadMWLIdleTimeouts(Collection<MWLIdleTimeout> mwlIdleTimeouts, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmMWLIdleTimeout)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                MWLIdleTimeout mwlIdleTimeout = new MWLIdleTimeout(LdapUtils.stringValue(attrs.get("cn"), null));
+                mwlIdleTimeout.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                mwlIdleTimeout.setStatusOnIdle(LdapUtils.enumValue(SPSStatus.class, attrs.get("dcmMWLStatusOnIdle"), null));
+                mwlIdleTimeout.setIdleTimeout(toDuration(attrs.get("dcmDuration"), null));
+                mwlIdleTimeout.setScheduledStationAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
+                mwlIdleTimeouts.add(mwlIdleTimeout);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3138,6 +3179,36 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeMWLIdleTimeouts(ConfigurationChanges diffs, Collection<MWLIdleTimeout> prevMWLIdleTimeouts,
+                                      Collection<MWLIdleTimeout> mwlIdleTimeouts, String parentDN)
+            throws NamingException {
+        for (MWLIdleTimeout prevMWLIdleTimeout : prevMWLIdleTimeouts) {
+            String cn = prevMWLIdleTimeout.getCommonName();
+            if (findMWLIdleTimeoutByCN(mwlIdleTimeouts, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeouts) {
+            String cn = mwlIdleTimeout.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            MWLIdleTimeout prevMWLIdleTimeout = findMWLIdleTimeoutByCN(prevMWLIdleTimeouts, cn);
+            if (prevMWLIdleTimeout == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                mwlIdleTimeout, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevMWLIdleTimeout, mwlIdleTimeout, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private void mergeUPSOnStoreList(
             ConfigurationChanges diffs, Collection<UPSOnStore> prevUPSOnStoreList, Collection<UPSOnStore> upsOnStoreList,
             String parentDN)
@@ -3212,6 +3283,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isExportPreviousEntity(), rule.isExportPreviousEntity(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportReoccurredInstances",
                 prev.getExportReoccurredInstances(), rule.getExportReoccurredInstances(), ExportReoccurredInstances.REPLACE);
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, MWLIdleTimeout prev,
+                                              MWLIdleTimeout mwlIdleTimeout, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
+                prev.getAETitle(), mwlIdleTimeout.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLStatusOnIdle",
+                prev.getStatusOnIdle(), mwlIdleTimeout.getStatusOnIdle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
+                prev.getIdleTimeout(), mwlIdleTimeout.getIdleTimeout(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAETitle",
+                prev.getScheduledStationAETitles(), mwlIdleTimeout.getScheduledStationAETitles());
         return mods;
     }
 
@@ -3324,6 +3408,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (ExportRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
+        return null;
+    }
+
+    private MWLIdleTimeout findMWLIdleTimeoutByCN(Collection<MWLIdleTimeout> mwlIdleTimeouts, String cn) {
+        for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeouts)
+            if (mwlIdleTimeout.getCommonName().equals(cn))
+                return mwlIdleTimeout;
         return null;
     }
 
