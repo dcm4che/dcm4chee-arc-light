@@ -40,6 +40,7 @@ import { DcmDropDownComponent } from './dcm-drop-down/dcm-drop-down.component';
 import { StudyTransferringOverviewComponent } from './dialogs/study-transferring-overview/study-transferring-overview.component';
 import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.component';
 import { CodeSelectorComponent } from './code-selector/code-selector.component';
+import { LanguagePickerComponent } from './language-picker/language-picker.component';
 
 
 @Injectable()
@@ -90,5 +91,6 @@ export const WidgetsComponents = [
     DcmDropDownComponent,
     StudyTransferringOverviewComponent,
     MediaViewerComponent,
-    CodeSelectorComponent
+    CodeSelectorComponent,
+    LanguagePickerComponent
 ];

@@ -1,0 +1,40 @@
+.language_widget_search{
+  position: absolute;
+  z-index: 99999;
+  margin-left: 15px;
+  margin-top: 7px;
+  min-width: 175px;
+  left: 0;
+}
+.language_widget{
+  max-height: 300px;
+  overflow: auto;
+  position: absolute;
+  z-index: 9999;
+  background: white;
+  -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
+  -moz-box-shadow:  3px 4px 8px 6px #cccccc;
+  box-shadow:  3px 4px 8px 6px #cccccc;
+  width: 650px;
+  .no_result{
+    padding: 0px 15px 30px 15px;
+    min-width: 205px;
+    font-size:18px;
+    color: #914f4f;
+  }
+  ul.list{
+    list-style: none;
+    padding: 10px 15px;
+    margin-top:30px;
+  }
+  ul li:hover{
+    background:#ccc;
+    cursor: pointer;
+  }
+}
+.close{
+  position: absolute;
+  z-index: 999999;
+  margin-left: 610px;
+  margin-top: 8px;
+}

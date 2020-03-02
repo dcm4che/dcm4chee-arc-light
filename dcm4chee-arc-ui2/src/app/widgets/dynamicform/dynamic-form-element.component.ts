@@ -446,6 +446,16 @@ export class DynamicFormElementComponent implements OnDestroy{
                         // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
                         formcontrol[i].setValue(e);
                         formelement.value[i] = e;
+                        if(_.hasIn(formelement,"format") && formelement.format === "dcmLanguageChooser"){
+                            let globalForm = this.formcomp.getForm();
+                            let valueObject = globalForm.value;
+                            valueObject["dcmDefaultLanguage"] = "test";
+                            this.form.patchValue(valueObject);
+
+                            this.form.controls.dcmDefaultLanguage
+                            console.log("this.form",this.form); // this.form.value.dcmDefaultLanguage
+                            console.log("this.formcomp",this.formcomp);
+                        }
                     }else{
                         if(e === "empty"){
                             formcontrol.setValue('');
@@ -462,6 +472,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         }
         formelement.showPicker = false;
         formelement.showTimePicker = false;
+        formelement.showLanguagePicker = false;
         formelement.showDurationPicker = false;
         formelement.showSchedulePicker = false;
         formelement.showCharSetPicker = false;
@@ -496,7 +507,15 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){
-            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmLanguageChooser'){
+            if(formelement.format === 'dcmLanguageChooser'){
+                if(i != null){
+                    formelement.showLanguagePicker = formelement.showLanguagePicker || {};
+                    formelement.showLanguagePicker[i] = true;
+                }else{
+                    formelement.showLanguagePicker = true;
+                }
+            }
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
                 if(i != null){
                     formelement.showPicker = formelement.showPicker || {};
                     formelement.showPicker[i] = true;
@@ -539,6 +558,14 @@ export class DynamicFormElementComponent implements OnDestroy{
         }
     }
     onMouseEnter(formelement,i=null){
+        if(formelement.format === 'dcmLanguageChooser'){
+            if(i != null){
+                formelement.showPickerTooltipp = formelement.showPickerTooltipp || {};
+                formelement.showPickerTooltipp[i] = true;
+            }else{
+                formelement.showPickerTooltipp = true;
+            }
+        }
         if(formelement.format){
             if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmLanguageChooser'){
                 if(i != null){

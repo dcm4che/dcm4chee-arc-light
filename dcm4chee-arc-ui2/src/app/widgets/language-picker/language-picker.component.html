@@ -1,0 +1,11 @@
+<div class="overlay" *ngIf="opendropdown" (click)="opendropdown = false"></div>
+<div class="widghet_content" (keydown)="keyDown($event)">
+    <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+    <input class="language_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
+    <div class="language_widget" >
+        <ul class="list">
+            <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.text"></span></li>
+        </ul>
+        <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0" i18n="@@searched_element_not_found">Searched element not found!</div>
+    </div>
+</div>

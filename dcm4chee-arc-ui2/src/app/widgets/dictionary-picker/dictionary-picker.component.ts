@@ -48,14 +48,6 @@ export class DictionaryPickerComponent implements OnInit {
                     })
                 });
                 break;
-            case 'dcmLanguageChooser':
-                _.forEach(Globalvar.LANGUAGES.getAllLanguages,(m,i)=>{
-                    this.dcmTags.push({
-                        key:`<img src="${m.flag}"/>`,
-                        text:`${m.nativeName} (${i})`
-                    })
-                });
-                break;
         }
     }
     ngAfterViewInit() {
