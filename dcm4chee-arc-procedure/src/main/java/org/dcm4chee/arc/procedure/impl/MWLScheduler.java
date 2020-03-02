@@ -190,7 +190,7 @@ public class MWLScheduler extends Scheduler {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(
                 device.getApplicationEntity(mwlIdleTimeout.getAETitle(), true));
         queryParam.setCombinedDatetimeMatching(true);
-        queryParam.setFuzzySemanticMatching(true);
+        queryParam.setFuzzySemanticMatching(false);
         return queryParam;
     }
 }
