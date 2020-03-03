@@ -1,4 +1,3 @@
-<div class="overlay" *ngIf="opendropdown" (click)="opendropdown = false"></div>
 <div class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <input class="language_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">

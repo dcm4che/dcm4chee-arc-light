@@ -26,6 +26,7 @@ export class FormElement<T>{
     showDurationPicker:boolean;
     showSchedulePicker:boolean;
     showCharSetPicker:boolean;
+    showLanguagePicker:boolean;
     options:any;
     constructor(options: {
         value?: T,
