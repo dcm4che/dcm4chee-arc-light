@@ -355,12 +355,28 @@ export class DeviceConfiguratorService{
     }
     updateDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
+            this.saveLanguageDataToLocalStorageOnSave();
             return this.$http.put('../devices/' + this.device.dicomDeviceName, this.device)
                 //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
         }
     }
+    saveLanguageDataToLocalStorageOnSave(){
+        console.log("languages",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages"));
+        console.log("defaultLanguage",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage"));
+        if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages")){
+            localStorage.setItem('dcmLanguages', _.get(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages"));
+        }else{
+            localStorage.removeItem('dcmLanguages');
+        }
+        if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage")){
+            localStorage.setItem('dcmDefaultLanguage', _.get(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage"));
+        }else{
+            localStorage.removeItem('dcmDefaultLanguage');
+        }
+    }
+
     createDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
             return this.$http.post('../devices/' + this.device.dicomDeviceName, this.device)

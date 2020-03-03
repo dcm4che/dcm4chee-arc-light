@@ -1285,15 +1285,20 @@ export class j4care {
     }
 
     static extractLanguageDateFromString(ldapLanguageString:string){
-        const regex = /([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)/;
-        let m;
-        if ((m = regex.exec(ldapLanguageString)) !== null) {
-            return {
-                code:m[1],
-                name:m[2],
-                nativeName:m[3],
-                flag:m[4]
+        try{
+            const regex = /([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)/;
+            let m;
+            if ((m = regex.exec(ldapLanguageString)) !== null) {
+                return {
+                    code:m[1],
+                    name:m[2],
+                    nativeName:m[3],
+                    flag:m[4]
+                }
             }
+        }catch (e) {
+            return undefined;
         }
+        return undefined;
     }
 }

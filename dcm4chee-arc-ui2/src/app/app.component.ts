@@ -69,9 +69,9 @@ export class AppComponent implements OnInit {
 
 
     ngOnInit(){
-        const savedLanguageCode = localStorage.getItem('language_code');
+        // const savedLanguageCode = localStorage.getItem('language_code');
 
-        // this.languageSwitcher = new LanguageSwitcher(["en","sq"],savedLanguageCode); //TODO get language list from some config
+        // this.languageSwitcher = new LanguageSwitcher(); //TODO get language list from some config
 
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
