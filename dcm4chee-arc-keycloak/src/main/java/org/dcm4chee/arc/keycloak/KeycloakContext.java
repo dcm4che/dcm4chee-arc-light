@@ -76,9 +76,11 @@ public class KeycloakContext {
         return ksc != null ? ksc.getToken().getExpiration() : 0;
     }
 
-    public Set<String> getUserRoles() {
-        return ksc != null
-                ? ksc.getToken().getRealmAccess().getRoles()
-                : Collections.emptySet();
+    public boolean isSecured() {
+        return ksc != null;
+    }
+
+    public boolean isUserInRole(String role) {
+        return ksc != null && ksc.getToken().getRealmAccess().isUserInRole(role);
     }
 }

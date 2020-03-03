@@ -132,9 +132,6 @@ public class StowRS {
     @Inject
     private Device device;
 
-    @Context
-    private HttpHeaders headers;
-
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
@@ -344,10 +341,11 @@ public class StowRS {
                         "No Web Application with STOW_RS service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
 
-        if (!headers.getRequestHeader("Authorization").isEmpty()
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured()
                 && webApplication.getProperties().containsKey("roles"))
             Arrays.stream(webApplication.getProperties().get("roles").split(","))
-                    .filter(role -> KeycloakContext.valueOf(request).getUserRoles().contains(role))
+                    .filter(keycloakContext::isUserInRole)
                     .findFirst()
                     .orElseThrow(() -> new WebApplicationException(errResponse(
                             "Web Application with STOW_RS service class does not list role of accessing user",
