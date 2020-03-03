@@ -638,12 +638,24 @@ export class DeviceConfiguratorService{
                             });
                         }else{
                             if(_.hasIn(m, "format")  && m.format === 'dcmDefaultLanguage'){
+                                console.log("default")
+                                let options = [];
+                                if(_.hasIn(device,"dcmLanguages")){
+                                    device.dcmLanguages.forEach(language=>{
+                                        let langObj = j4care.extractLanguageDateFromString(language);
+                                        options.push({
+                                            label: `${langObj.code} - ${langObj.name} - ${langObj.nativeName}`,
+                                            value: language,
+                                            active: language === value
+                                        })
+                                    })
+                                }
                                 form.push(
                                     new DropdownList({
                                         key: i,
                                         label: m.title,
                                         description: m.description,
-                                        options: [],
+                                        options: options,
                                         order: (5 + newOrderSuffix),
                                         validation: validation,
                                         value: value,

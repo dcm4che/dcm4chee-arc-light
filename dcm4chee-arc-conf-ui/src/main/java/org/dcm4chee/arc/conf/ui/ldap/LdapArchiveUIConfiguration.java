@@ -109,7 +109,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiWidgetAets", uiConfig.getWidgetAets());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmDefaultLanguage", uiConfig.getDefaultLanguage(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmLanguages", uiConfig.getLanguages());
         return attrs;
     }
 
@@ -389,7 +391,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
         uiConfig.setWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiWidgetAets")));
         uiConfig.setXdsUrl(LdapUtils.stringValue(attrs.get("dcmuiXDSInterfaceURL"),null));
+        uiConfig.setDefaultLanguage(LdapUtils.stringValue(attrs.get("dcmDefaultLanguage"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
+        uiConfig.setLanguages(LdapUtils.stringArray(attrs.get("dcmLanguages")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -685,7 +689,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmDefaultLanguage",prevUIConfig.getDefaultLanguage(),uiConfig.getDefaultLanguage(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmLanguages",prevUIConfig.getLanguages(),uiConfig.getLanguages());
         return mods;
     }
 

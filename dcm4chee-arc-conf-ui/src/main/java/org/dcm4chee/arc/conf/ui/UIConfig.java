@@ -54,6 +54,8 @@ public class UIConfig {
     private String[] widgetAets = {};
     private String xdsUrl;
     private String[] defaultWidgetAets = {};
+    private String[] languages = {};
+    private String defaultLanguage;
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
     private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
@@ -101,6 +103,22 @@ public class UIConfig {
 
     public void setXdsUrl(String xdsUrl) {
         this.xdsUrl = xdsUrl;
+    }
+
+    public String[] getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(String[] languages) {
+        this.languages = languages;
+    }
+
+    public String getDefaultLanguage() {
+        return defaultLanguage;
+    }
+
+    public void setDefaultLanguage(String defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
     }
 
     public String[] getDefaultWidgetAets() {
