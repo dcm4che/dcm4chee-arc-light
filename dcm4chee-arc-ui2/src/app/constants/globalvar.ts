@@ -1340,7 +1340,7 @@ export class Globalvar {
                 },{
                     tag:"p-calendar",
                     type:"text",
-                    filterKey:"PatientsBirthDate",
+                    filterKey:"PatientBirthDate",
                     description:$localize `:@@patients_birth_date:Patient's Birth Date`,
                     placeholder:$localize `:@@birth_date:Birth Date`
                 }
