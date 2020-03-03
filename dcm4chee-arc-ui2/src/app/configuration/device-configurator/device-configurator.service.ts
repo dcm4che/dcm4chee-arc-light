@@ -637,19 +637,34 @@ export class DeviceConfiguratorService{
                                 show: (this.defaultOpenBlock === 'attr')
                             });
                         }else{
-                            form.push(
-                                new InputText({
-                                    key: i,
-                                    label: m.title,
-                                    description: m.description,
-                                    type: 'string',
-                                    value: value,
-                                    order: (5 + newOrderSuffix),
-                                    validation: validation,
-                                    format: m.format,
-                                    show: (this.defaultOpenBlock === 'attr')
-                                })
-                            );
+                            if(_.hasIn(m, "format")  && m.format === 'dcmDefaultLanguage'){
+                                form.push(
+                                    new DropdownList({
+                                        key: i,
+                                        label: m.title,
+                                        description: m.description,
+                                        options: [],
+                                        order: (5 + newOrderSuffix),
+                                        validation: validation,
+                                        value: value,
+                                        show: (this.defaultOpenBlock === 'attr')
+                                    })
+                                );
+                            }else{
+                                form.push(
+                                    new InputText({
+                                        key: i,
+                                        label: m.title,
+                                        description: m.description,
+                                        type: 'string',
+                                        value: value,
+                                        order: (5 + newOrderSuffix),
+                                        validation: validation,
+                                        format: m.format,
+                                        show: (this.defaultOpenBlock === 'attr')
+                                    })
+                                );
+                            }
                         }
                     }
                 }

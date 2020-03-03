@@ -451,10 +451,25 @@ export class DynamicFormElementComponent implements OnDestroy{
                             let valueObject = globalForm.value;
                             valueObject["dcmDefaultLanguage"] = "test";
                             this.form.patchValue(valueObject);
-
-                            this.form.controls.dcmDefaultLanguage
-                            console.log("this.form",this.form); // this.form.value.dcmDefaultLanguage
-                            console.log("this.formcomp",this.formcomp);
+                            this.formcomp.formelements.forEach(element=>{
+                                if(element.key === "dcmDefaultLanguage"){
+                                    element.options = [];
+                                    if(_.hasIn(valueObject,"dcmLanguages")){
+                                        valueObject.dcmLanguages.forEach(language=>{
+                                            let langObj = j4care.extractLanguageDateFromString(language);
+                                            element.options.push({
+                                                label: `${langObj.code} - ${langObj.name} - ${langObj.nativeName}`,
+                                                value: language,
+                                                active: false
+                                            })
+                                        })
+                                    }
+                                }
+                            });
+                            this.form = this.formservice.toFormGroup(this.formelements);
+                            this.form.patchValue(valueObject);
+                            this.formcomp.setForm(this.form);
+                            this.formcomp.setFormModel(valueObject);
                         }
                     }else{
                         if(e === "empty"){

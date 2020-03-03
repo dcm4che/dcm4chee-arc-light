@@ -341,7 +341,7 @@ export class Globalvar {
                 code: 'ru',
                 name: 'Russian',
                 nativeName: 'Русский',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAMAAAAfZPc8AAAATlBMVEUNXq////8AVaoKXK4GWa2VuNz5+/4DV6zG2ewbZ7To8PcvdbpwoNAVY7HS4fBGhMLd6PQ1ebx3pdJAgMDB1epTjMYATaemxOJdlMrd6fTIjGVKAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCAYi0S+wIwAAADhJREFUGNNjYAACRiEGHICADCMawCODqgbFJJwyRNjDjwbwuJobCBhZuTEBhvH4XUQI4DaNqvYAAMxlAwaS/oOXAAAAAElFTkSuQmCC'
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARBAMAAADalBo9AAAAD1BMVEX///+qveEAOaaOMEvVKx7/j+iDAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCAgR8Hz8uwAAABdJREFUCNdjYKABUEICCmTzXJCAA3V4AGMLHTkaNKlFAAAAAElFTkSuQmCC'
             },
             de: {
                 code: 'de',

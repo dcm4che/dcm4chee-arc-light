@@ -19,6 +19,21 @@
         "type": "string"
       }
     },
+    "dcmLanguages":{
+      "title": "Available languages",
+      "description": "Set languages that should be available in the UI (The JSON-files to those language must exist in the code, if they don't exist open an Issue in github",
+      "type": "array",
+      "items":{
+        "type": "string"
+      },
+      "format": "dcmLanguageChooser"
+    },
+    "dcmDefaultLanguage":{
+      "title": "Default language",
+      "description": "Select default language for the UI",
+      "type": "string",
+      "format": "dcmDefaultLanguage"
+    },
     "dcmuiWidgetAets": {
       "title": "Widget AETs",
       "description": "Select the AETs that you wan't to see in the AET widget, where you can select in which of them the newly added AET should be as `Accepted Calling AE Title`",
