@@ -41,8 +41,6 @@ package org.dcm4chee.arc.keycloak;
 import org.keycloak.KeycloakSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
