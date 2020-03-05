@@ -95,6 +95,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeDiffConfigs(diffs, uiConfig, uiConfigDN);
         storeDashboardConfigs(diffs, uiConfig, uiConfigDN);
         storeElasticsearchConfigs(diffs, uiConfig, uiConfigDN);
+        storeLanguageConfigs(diffs, uiConfig, uiConfigDN);
         storeDeviceURL(diffs, uiConfig, uiConfigDN);
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
         storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
@@ -109,9 +110,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiWidgetAets", uiConfig.getWidgetAets());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
-        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmDefaultLanguage", uiConfig.getDefaultLanguage(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
-        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmLanguages", uiConfig.getLanguages());
         return attrs;
     }
 
@@ -327,6 +326,44 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiElasticsearchURLDN, storeTo(ldapObj, uiElasticsearchURL, new BasicAttributes(true)));
         }
     }
+
+    private void storeLanguageProfiles(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig)
+            throws NamingException {
+        for (UILanguageProfile uiLanguageProfile : uiLanguageConfig.getLanguageProfiles()) {
+            String uiLanguageProfileDN = LdapUtils.dnOf("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), uiLanguageConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
+                    diffs,
+                    uiLanguageProfileDN,
+                    ConfigurationChanges.ChangeType.C
+            );
+            config.createSubcontext(uiLanguageProfileDN, storeTo(ldapObj, uiLanguageProfile, new BasicAttributes(true)));
+        }
+    }
+
+    private void storeLanguageConfigs(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UILanguageConfig uiLanguageConfig : uiConfig.getLanguageConfigs()) {
+            String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfig.getName(), uiConfigDN);
+            config.createSubcontext(
+                    uiLanguageConfigDN,
+                    storeTo(uiLanguageConfig, new BasicAttributes(true))
+            );
+            storeLanguageProfile(diffs, uiLanguageConfigDN, uiLanguageConfig);
+        }
+    }
+
+    private void storeLanguageProfile(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig)
+            throws NamingException {
+        for (UILanguageProfile uiLanguageProfile : uiLanguageConfig.getLanguageProfiles()) {
+            String uiLanguageProfileDN = LdapUtils.dnOf("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), uiLanguageConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
+                    diffs,
+                    uiLanguageProfileDN,
+                    ConfigurationChanges.ChangeType.C
+            );
+            config.createSubcontext(uiLanguageProfileDN, storeTo(ldapObj, uiLanguageProfile, new BasicAttributes(true)));
+        }
+    }
     private void storeCompareSides(ConfigurationChanges diffs, String uiDashboardConfigDN, UIDashboardConfig uiDashboardConfig)
             throws NamingException {
         for (UICompareSide uiCompareSide : uiDashboardConfig.getCompareSides()) {
@@ -346,6 +383,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
+    private Attributes storeTo(UILanguageConfig uiLanguageConfig, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageConfig"));
+        attrs.put(new BasicAttribute("dcmuiLanguageConfigName", uiLanguageConfig.getName()));
+        return attrs;
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL uiElasticsearchURL, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURLObjects"));
         attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
@@ -354,6 +397,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAuditEnterpriseSiteID", uiElasticsearchURL.getAuditEnterpriseSiteID(), null);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchIsDefault",uiElasticsearchURL.isDefault(),false);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchInstalled",uiElasticsearchURL.isInstalled(),true);
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile uiLanguageProfile, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageProfileObjects"));
+        attrs.put(new BasicAttribute("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDefaultLanguage", uiLanguageProfile.getDefaultLanguage(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(), null);
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UICompareSide uiCompareSide, Attributes attrs) {
@@ -391,13 +442,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
         uiConfig.setWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiWidgetAets")));
         uiConfig.setXdsUrl(LdapUtils.stringValue(attrs.get("dcmuiXDSInterfaceURL"),null));
-        uiConfig.setDefaultLanguage(LdapUtils.stringValue(attrs.get("dcmDefaultLanguage"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
-        uiConfig.setLanguages(LdapUtils.stringArray(attrs.get("dcmLanguages")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
         loadElasticsearchConfigs(uiConfig, uiConfigDN);
+        loadLanguageConfigs(uiConfig, uiConfigDN);
         loadDeviceURLs(uiConfig, uiConfigDN);
         loadDeviceClusters(uiConfig, uiConfigDN);
         loadFilterTemplates(uiConfig, uiConfigDN);
@@ -621,6 +671,40 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             LdapUtils.safeClose(ne);
         }
     }
+
+    private void loadLanguageConfigs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiLanguageConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UILanguageConfig uiLanguageConfig = new UILanguageConfig((String) attrs.get("dcmuiLanguageConfigName").get());
+                String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName" , uiLanguageConfig.getName(), uiConfigDN);
+                loadLanguageProfile(uiLanguageConfig, uiLanguageConfigDN);
+                uiConfig.addLanguageConfig(uiLanguageConfig);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadLanguageProfile(UILanguageConfig uiLanguageConfig, String uiLanguageConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiLanguageConfigDN, "(objectclass=dcmuiLanguageProfileObjects)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UILanguageProfile uiLanguageProfile = new UILanguageProfile((String) attrs.get("dcmuiLanguageProfileName").get());
+                uiLanguageProfile.setDefaultLanguage(LdapUtils.stringValue(attrs.get("dcmuiDefaultLanguage"),null));
+                uiLanguageProfile.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmuiLanguageProfileRole")));
+                uiLanguageProfile.setUserName(LdapUtils.stringValue(attrs.get("dcmuiLanguageProfileUsername"),null));
+                uiLanguageConfig.addLanguageProfile(uiLanguageProfile);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
     private void loadCompareSide(UIDashboardConfig uiDashboardConfig, String uiDashboardConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
                 config.search(uiDashboardConfigDN, "(objectclass=dcmuiCompareSideObjects)");
@@ -677,6 +761,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeLanguageConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceURL(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceCluster(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
@@ -689,9 +774,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmDefaultLanguage",prevUIConfig.getDefaultLanguage(),uiConfig.getDefaultLanguage(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
-        LdapUtils.storeDiff(ldapObj,mods,"dcmLanguages",prevUIConfig.getLanguages(),uiConfig.getLanguages());
         return mods;
     }
 
@@ -1074,10 +1157,49 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             }
         }
     }
+    private void mergeLanguageConfigs(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        for (UILanguageConfig prevUILanguageConfig : prevUIConfig.getLanguageConfigs()) {
+            String prevUILanguageConfigName = prevUILanguageConfig.getName();
+            if (uiConfig.getLanguageConfig(prevUILanguageConfigName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiLanguageConfigName", prevUILanguageConfigName, uiConfigDN);
+                for (UILanguageProfile prevLanguageProfile : prevUILanguageConfig.getLanguageProfiles())
+                    deleteUILanguageProfile(diffs, prevLanguageProfile.getProfileName(), dn);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UILanguageConfig uiLanguageConfig : uiConfig.getLanguageConfigs()) {
+            String uiLanguageConfigName = uiLanguageConfig.getName();
+            String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfigName, uiConfigDN);
+            UILanguageConfig prevUILanguageConfig = prevUIConfig.getLanguageConfig(uiLanguageConfigName);
+            if (prevUILanguageConfig == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(
+                        uiLanguageConfigDN,
+                        storeTo(uiLanguageConfig, new BasicAttributes(true))
+                );
+                storeLanguageProfiles(diffs, uiLanguageConfigDN, uiLanguageConfig);
+            }
+            else{
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(uiLanguageConfigDN, storeUILanguageConfig(diffs, uiLanguageConfigDN, prevUILanguageConfig, uiLanguageConfig,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
 
     private void deleteUIElasticsearchURL(ConfigurationChanges diffs, String prevUIElasticsearchConfigName, String uiElasticsearcConfigDN)
             throws NamingException {
         String dn = LdapUtils.dnOf("dcmuiElasticsearchURLName", prevUIElasticsearchConfigName, uiElasticsearcConfigDN);
+        config.destroySubcontext(dn);
+        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+    }
+    private void deleteUILanguageProfile(ConfigurationChanges diffs, String prevUILanguageConfigName, String uiLanguageConfigDN)
+            throws NamingException {
+        String dn = LdapUtils.dnOf("dcmuiLanguageProfileName", prevUILanguageConfigName, uiLanguageConfigDN);
         config.destroySubcontext(dn);
         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
     }
@@ -1095,6 +1217,44 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeUIElasticsearchURLs(diffs, a, b, uiElasticsearcConfigDN);
         ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
         return mods;
+    }
+    private List<ModificationItem> storeUILanguageConfig(
+            ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig a, UILanguageConfig b,
+            ArrayList<ModificationItem> mods) throws NamingException {
+        ConfigurationChanges.ModifiedObject ldapObj =  ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.U);
+        mergeUILanguageProfiles(diffs, a, b, uiLanguageConfigDN);
+        ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+        return mods;
+    }
+
+    private void mergeUILanguageProfiles(
+            ConfigurationChanges diffs, UILanguageConfig prevUILanguageConfig,
+            UILanguageConfig uiLanguageConfig, String uiLanguageConfigDN) throws NamingException {
+        for (UILanguageProfile prevUILanguageProfile : prevUILanguageConfig.getLanguageProfiles()) {
+            String prevUILanguageProfileName = prevUILanguageProfile.getProfileName();
+            if (uiLanguageConfig.getLanguageProfile(prevUILanguageProfileName) == null)
+                deleteUILanguageProfile(diffs, prevUILanguageProfileName, uiLanguageConfigDN);
+        }
+        for (UILanguageProfile uiLanguageProfile : uiLanguageConfig.getLanguageProfiles()) {
+            String uiLanguageProfileName = uiLanguageProfile.getProfileName();
+            UILanguageProfile prevLanguageProfile = uiLanguageConfig.getLanguageProfile(uiLanguageProfileName);
+            String uiLanguageProfileDN = LdapUtils.dnOf("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), uiLanguageConfigDN);
+            if (prevLanguageProfile == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
+                        diffs,
+                        uiLanguageProfileDN,
+                        ConfigurationChanges.ChangeType.C
+                );
+                config.createSubcontext(uiLanguageProfileDN, storeTo(ldapObj, uiLanguageProfile, new BasicAttributes(true)));
+            }
+            else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(uiLanguageProfileDN, storeDiff(ldapObj, prevLanguageProfile, uiLanguageProfile,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
     }
 
     private void mergeUIElasticsearchURLs(
@@ -1144,6 +1304,19 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiElasticsearchInstalled",
                 prev.isInstalled(),
                 uiElasticsearchURL.isInstalled(), true) ;
+        return mods;
+    }
+    private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile prev,
+                                                              UILanguageProfile uiLanguageProfile, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDefaultLanguage",
+                prev.getDefaultLanguage(),
+                uiLanguageProfile.getDefaultLanguage(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiLanguageProfileRole",
+                prev.getAcceptedUserRoles(),
+                uiLanguageProfile.getAcceptedUserRoles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiLanguageProfileUsername",
+                prev.getUserName(),
+                uiLanguageProfile.getUserName(), null);
         return mods;
     }
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UICompareSide prev,

@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit(){
         // const savedLanguageCode = localStorage.getItem('language_code');
-
+        console.log("global",this.mainservice.global);
         // this.languageSwitcher = new LanguageSwitcher(); //TODO get language list from some config
 
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){

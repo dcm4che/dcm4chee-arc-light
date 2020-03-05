@@ -19,6 +19,7 @@ export class AuthGuard implements CanActivate {
     ) {}
 
     canActivate(route : ActivatedRouteSnapshot, state : RouterStateSnapshot){
+        console.log("in can activate", this.appservice);
         if(this.appservice.global && this.appservice.global.notSecure){
             return true;
         }else{

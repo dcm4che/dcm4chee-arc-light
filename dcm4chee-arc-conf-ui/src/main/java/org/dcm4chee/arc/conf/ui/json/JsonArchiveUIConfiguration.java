@@ -85,9 +85,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmuiModalities", uiConfig.getModalities());
         writer.writeNotEmpty("dcmuiWidgetAets", uiConfig.getWidgetAets());
         writer.writeNotNullOrDef("dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
-        writer.writeNotNullOrDef("dcmDefaultLanguage", uiConfig.getDefaultLanguage(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
-        writer.writeNotEmpty("dcmLanguages", uiConfig.getLanguages());
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
@@ -334,14 +332,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiXDSInterfaceURL":
                     uiConfig.setXdsUrl(reader.stringValue());
                     break;
-                case "dcmDefaultLanguage":
-                    uiConfig.setDefaultLanguage(reader.stringValue());
-                    break;
                 case "dcmuiDefaultWidgetAets":
                     uiConfig.setDefaultWidgetAets(reader.stringArray());
-                    break;
-                case "dcmLanguages":
-                    uiConfig.setLanguages(reader.stringArray());
                     break;
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);

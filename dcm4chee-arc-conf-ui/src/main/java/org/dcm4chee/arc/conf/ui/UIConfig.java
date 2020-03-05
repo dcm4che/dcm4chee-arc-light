@@ -54,8 +54,6 @@ public class UIConfig {
     private String[] widgetAets = {};
     private String xdsUrl;
     private String[] defaultWidgetAets = {};
-    private String[] languages = {};
-    private String defaultLanguage;
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
     private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
@@ -65,6 +63,7 @@ public class UIConfig {
     private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
     private Map<String, UIAetList> aetList  = new HashMap<>();
     private Map<String, UIWebAppList> webAppList  = new HashMap<>();
+    private Map<String, UILanguageConfig> languageConfig = new HashMap<>();
 
     public UIConfig() {
     }
@@ -103,22 +102,6 @@ public class UIConfig {
 
     public void setXdsUrl(String xdsUrl) {
         this.xdsUrl = xdsUrl;
-    }
-
-    public String[] getLanguages() {
-        return languages;
-    }
-
-    public void setLanguages(String[] languages) {
-        this.languages = languages;
-    }
-
-    public String getDefaultLanguage() {
-        return defaultLanguage;
-    }
-
-    public void setDefaultLanguage(String defaultLanguage) {
-        this.defaultLanguage = defaultLanguage;
     }
 
     public String[] getDefaultWidgetAets() {
@@ -281,5 +264,21 @@ public class UIConfig {
 
     public Collection<UIWebAppList> getWebAppLists(){
         return this.webAppList.values();
+    }
+
+    public UILanguageConfig getLanguageConfig(String name) {
+        return languageConfig.get(name);
+    }
+
+    public void addLanguageConfig(UILanguageConfig language) {
+        languageConfig.put(language.getName(), language);
+    }
+
+    public UILanguageConfig removeLanguageConfig(String name) {
+        return languageConfig.remove(name);
+    }
+
+    public Collection<UILanguageConfig> getLanguageConfigs() {
+        return languageConfig.values();
     }
 }

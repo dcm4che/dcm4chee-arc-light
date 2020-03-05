@@ -19,20 +19,14 @@
         "type": "string"
       }
     },
-    "dcmLanguages":{
-      "title": "Available languages",
-      "description": "Set languages that should be available in the UI (The JSON-files to those language must exist in the code, if they don't exist open an Issue in github",
+    "dcmuiLanguageConfig":{
+      "title": "Language Config",
+      "description": "Config the languages of the UI",
+      "titleKey":"{dcmuiLanguageConfigName}",
       "type": "array",
-      "items":{
-        "type": "string"
-      },
-      "format": "dcmLanguageChooser"
-    },
-    "dcmDefaultLanguage":{
-      "title": "Default language",
-      "description": "Select default language for the UI",
-      "type": "string",
-      "format": "dcmDefaultLanguage"
+      "items" : {
+        "$ref": "uiLanguage.schema.json"
+      }
     },
     "dcmuiWidgetAets": {
       "title": "Widget AETs",

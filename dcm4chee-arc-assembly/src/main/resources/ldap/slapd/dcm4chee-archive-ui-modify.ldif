@@ -332,12 +332,32 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.67  NAME 'dcmAcceptedUserName'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.68 NAME 'dcmLanguages'
-  DESC 'Default Widget AETs'
+  DESC 'Available languages'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.69 NAME 'dcmDefaultLanguage'
-  DESC 'XDS Interface URL'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.69 NAME 'dcmuiDefaultLanguage'
+  DESC 'Default Language'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.70 NAME 'dcmuiLanguageConfigName'
+  DESC 'Language Config Name'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.71 NAME 'dcmuiLanguageProfileName'
+  DESC 'Language Profile Name'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.72 NAME 'dcmuiLanguageProfileRole'
+  DESC 'Profile Role'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.73 NAME 'dcmuiLanguageProfileUsername'
+  DESC 'Username for language profile'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
@@ -485,3 +505,18 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.13 NAME 'dcmuiWebAppConfig'
     dcmuiWebAppListDescription $
     dcmAcceptedUserName $
     dcmAcceptedUserRole ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.14 NAME 'dcmuiLanguageConfig'
+  DESC 'Language Config'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiLanguageConfigName $
+    dcmLanguages ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.15 NAME 'dcmuiLanguageProfileObjects'
+  DESC 'UI Elasticsearch URL'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiLanguageProfileName $
+    dcmuiDefaultLanguage )
+  MAY (
+    dcmuiLanguageProfileRole $
+    dcmuiLanguageProfileUsername ) )
