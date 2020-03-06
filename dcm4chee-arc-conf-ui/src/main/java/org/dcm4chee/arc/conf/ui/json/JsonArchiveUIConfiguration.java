@@ -90,6 +90,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
         writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
+        writeUILanguageConfigs(writer, uiConfig.getLanguageConfigs());
         writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
@@ -230,6 +231,20 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
+    private void writeUILanguageConfigs(JsonWriter writer, Collection<UILanguageConfig> uiLanguageConfigs) {
+        if (uiLanguageConfigs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiLanguageConfig");
+        for (UILanguageConfig uiLanguageConfig : uiLanguageConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiLanguageConfigName", uiLanguageConfig.getName(), null);
+            writer.writeNotEmpty("dcmLanguages", uiLanguageConfig.getLanguages());
+            writeUILanguageProfile(writer, uiLanguageConfig.getLanguageProfiles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
 
     private void writeUIElasticsearchURL(JsonWriter writer, Collection<UIElasticsearchURL> uiElasticsearchURLS) {
         if (uiElasticsearchURLS.isEmpty())
@@ -244,6 +259,22 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiAuditEnterpriseSiteID", uiElasticsearchURL.getAuditEnterpriseSiteID(),null);
             writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
             writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeUILanguageProfile(JsonWriter writer, Collection<UILanguageProfile> uiLanguageProfiles) {
+        if (uiLanguageProfiles.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiLanguageProfileObjects");
+        for (UILanguageProfile uiLanguageProfile : uiLanguageProfiles) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), null);
+            writer.writeNotNullOrDef("dcmDefaultLanguage", uiLanguageProfile.getDefaultLanguage(),null);
+            writer.writeNotEmpty("dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles());
+            writer.writeNotNullOrDef("dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(),null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -352,6 +383,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiElasticsearchConfig":
                     loadUIElasticsearchConfigs(uiConfig, reader);
+                    break;
+                case "dcmuiLanguageConfig":
+                    loadUILanguageConfigs(uiConfig, reader);
                     break;
                 case "dcmuiDeviceURLObject":
                     loadUIDeviceURLs(uiConfig, reader);
@@ -568,6 +602,33 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private void loadUILanguageConfigs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UILanguageConfig uiLanguageConfig = new UILanguageConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiLanguageConfigName":
+                        uiLanguageConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmLanguages":
+                        uiLanguageConfig.setLanguages(reader.stringArray());
+                        break;
+                    case "dcmuiLanguageProfileObjects":
+                        loadUILanguageProfile(uiLanguageConfig, reader);
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addLanguageConfig(uiLanguageConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
     private void loadUIElasticsearchConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -623,6 +684,35 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiDiffConfig.addURL(uiElasticsearchURL);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUILanguageProfile(UILanguageConfig uiDiffConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UILanguageProfile uiLanguageProfile = new UILanguageProfile();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiLanguageProfileName":
+                        uiLanguageProfile.setProfileName(reader.stringValue());
+                        break;
+                    case "dcmDefaultLanguage":
+                        uiLanguageProfile.setDefaultLanguage(reader.stringValue());
+                        break;
+                    case "dcmuiLanguageProfileRole":
+                        uiLanguageProfile.setAcceptedUserRoles(reader.stringArray());
+                        break;
+                    case "dcmuiLanguageProfileUsername":
+                        uiLanguageProfile.setUserName(reader.stringValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDiffConfig.addLanguageProfile(uiLanguageProfile);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

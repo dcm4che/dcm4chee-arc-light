@@ -346,7 +346,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfig.getName(), uiConfigDN);
             config.createSubcontext(
                     uiLanguageConfigDN,
-                    storeTo(uiLanguageConfig, new BasicAttributes(true))
+                    storeTo(diffs,uiLanguageConfigDN, uiLanguageConfig, new BasicAttributes(true))
             );
             storeLanguageProfile(diffs, uiLanguageConfigDN, uiLanguageConfig);
         }
@@ -383,9 +383,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
-    private Attributes storeTo(UILanguageConfig uiLanguageConfig, Attributes attrs) {
+    private Attributes storeTo(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig, Attributes attrs) {
+        ConfigurationChanges.ModifiedObject ldapObj =
+                ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageConfig"));
         attrs.put(new BasicAttribute("dcmuiLanguageConfigName", uiLanguageConfig.getName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages(), null);
         return attrs;
     }
 
@@ -402,7 +405,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile uiLanguageProfile, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageProfileObjects"));
         attrs.put(new BasicAttribute("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDefaultLanguage", uiLanguageProfile.getDefaultLanguage(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultLanguage", uiLanguageProfile.getDefaultLanguage(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(), null);
         return attrs;
@@ -696,7 +699,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 UILanguageProfile uiLanguageProfile = new UILanguageProfile((String) attrs.get("dcmuiLanguageProfileName").get());
-                uiLanguageProfile.setDefaultLanguage(LdapUtils.stringValue(attrs.get("dcmuiDefaultLanguage"),null));
+                uiLanguageProfile.setDefaultLanguage(LdapUtils.stringValue(attrs.get("dcmDefaultLanguage"),null));
                 uiLanguageProfile.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmuiLanguageProfileRole")));
                 uiLanguageProfile.setUserName(LdapUtils.stringValue(attrs.get("dcmuiLanguageProfileUsername"),null));
                 uiLanguageConfig.addLanguageProfile(uiLanguageProfile);
@@ -1177,7 +1180,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                         ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
                 config.createSubcontext(
                         uiLanguageConfigDN,
-                        storeTo(uiLanguageConfig, new BasicAttributes(true))
+                        storeTo(diffs, uiLanguageConfigDN, uiLanguageConfig, new BasicAttributes(true))
                 );
                 storeLanguageProfiles(diffs, uiLanguageConfigDN, uiLanguageConfig);
             }
@@ -1308,7 +1311,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile prev,
                                                               UILanguageProfile uiLanguageProfile, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDefaultLanguage",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultLanguage",
                 prev.getDefaultLanguage(),
                 uiLanguageProfile.getDefaultLanguage(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiLanguageProfileRole",
