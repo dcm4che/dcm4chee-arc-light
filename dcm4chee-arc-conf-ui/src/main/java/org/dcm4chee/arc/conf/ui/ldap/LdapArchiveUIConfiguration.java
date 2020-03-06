@@ -388,7 +388,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageConfig"));
         attrs.put(new BasicAttribute("dcmuiLanguageConfigName", uiLanguageConfig.getName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages(),null);
         return attrs;
     }
 
@@ -684,6 +684,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UILanguageConfig uiLanguageConfig = new UILanguageConfig((String) attrs.get("dcmuiLanguageConfigName").get());
                 String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName" , uiLanguageConfig.getName(), uiConfigDN);
+                uiLanguageConfig.setLanguages(LdapUtils.stringArray(attrs.get("dcmLanguages")));
                 loadLanguageProfile(uiLanguageConfig, uiLanguageConfigDN);
                 uiConfig.addLanguageConfig(uiLanguageConfig);
             }

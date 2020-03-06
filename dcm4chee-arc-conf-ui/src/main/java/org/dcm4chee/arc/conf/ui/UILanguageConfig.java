@@ -1,10 +1,15 @@
 package org.dcm4chee.arc.conf.ui;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UILanguageConfig {
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveCtrl.class);
+
     private String name;
     private final Map<String,UILanguageProfile> languageProfile = new HashMap<>();
     private String[] languages = {};
@@ -35,6 +40,7 @@ public class UILanguageConfig {
     }
 
     public void setLanguages(String[] languages) {
+        LOG.info("setting languages {}",languages);
         this.languages = languages;
     }
 

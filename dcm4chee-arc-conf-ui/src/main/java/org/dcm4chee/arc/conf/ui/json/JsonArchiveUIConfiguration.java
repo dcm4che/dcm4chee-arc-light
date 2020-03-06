@@ -239,7 +239,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         for (UILanguageConfig uiLanguageConfig : uiLanguageConfigs) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiLanguageConfigName", uiLanguageConfig.getName(), null);
-            writer.writeNotEmpty("dcmLanguages", uiLanguageConfig.getLanguages());
+            writer.writeNotNullOrDef("dcmLanguages", uiLanguageConfig.getLanguages(), null);
             writeUILanguageProfile(writer, uiLanguageConfig.getLanguageProfiles());
             writer.writeEnd();
         }
