@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UILanguageConfig {
-    private static final Logger LOG = LoggerFactory.getLogger(ArchiveCtrl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UILanguageConfig.class);
 
     private String name;
     private final Map<String,UILanguageProfile> languageProfile = new HashMap<>();
