@@ -1469,6 +1469,10 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.MWL_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
         device.addWebApplication(webapp);
+        if (configType == configType.DOCKER) {
+            webapp.setProperty("IID_PATIENT_URL", "");
+            webapp.setProperty("IID_STUDY_URL", "");
+        }
 
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, null,
