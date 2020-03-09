@@ -388,7 +388,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageConfig"));
         attrs.put(new BasicAttribute("dcmuiLanguageConfigName", uiLanguageConfig.getName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages(),null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages());
         return attrs;
     }
 
