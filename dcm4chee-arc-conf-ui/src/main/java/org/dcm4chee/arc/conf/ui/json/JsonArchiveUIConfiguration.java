@@ -687,7 +687,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
-    private void loadUILanguageProfile(UILanguageConfig uiDiffConfig, JsonReader reader) {
+    private void loadUILanguageProfile(UILanguageConfig uiLanguageConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -712,7 +712,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            uiDiffConfig.addLanguageProfile(uiLanguageProfile);
+            uiLanguageConfig.addLanguageProfile(uiLanguageProfile);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
