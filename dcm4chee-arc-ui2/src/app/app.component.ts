@@ -20,6 +20,7 @@ import {Globalvar} from "./constants/globalvar";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
 import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
+import {HttpErrorHandler} from "./helpers/http-error-handler";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -52,7 +53,6 @@ export class AppComponent implements OnInit {
     sidenavopen = false;
     superUser:boolean = false;
     languageSwitcher:LanguageSwitcher;
-
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -61,7 +61,8 @@ export class AppComponent implements OnInit {
         private $http:J4careHttpService,
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
-        private _keycloakService: KeycloakService
+        private _keycloakService: KeycloakService,
+        public httpErrorHandler:HttpErrorHandler
     ){
         console.log("in app.component construct", window);
     }
@@ -73,6 +74,17 @@ export class AppComponent implements OnInit {
         console.log("global",this.mainservice.global);
         // this.languageSwitcher = new LanguageSwitcher(); //TODO get language list from some config
 
+        this.mainservice.globalSet$.subscribe(global=>{
+            console.log("testglobalset",global);
+            if(_.hasIn(global,"uiConfig")){
+
+            }
+        });
+/*        this.mainservice.getUiConfig().subscribe(res=>{
+            console.log("uiconfgi",res);
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        });*/
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
             this.init();
