@@ -49,7 +49,7 @@
     },
     "dcmuiLogoURL": {
       "title": "Logo URL",
-      "description": "Logo URL for changing the logo of the UI, it can be relative or absolute URL, the image should have the width of 140px",
+      "description": "Logo URL for changing the logo of the UI, it can be relative or absolute URL, the image should have the width of 140px and should be in format png with the transparent background",
       "type": "string"
     },
     "dcmuiDefaultWidgetAets": {
