@@ -110,6 +110,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiWidgetAets", uiConfig.getWidgetAets());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         return attrs;
     }
@@ -442,6 +444,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
         uiConfig.setWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiWidgetAets")));
         uiConfig.setXdsUrl(LdapUtils.stringValue(attrs.get("dcmuiXDSInterfaceURL"),null));
+        uiConfig.setBackgroundUrl(LdapUtils.stringValue(attrs.get("dcmuiBackgroundURL"),null));
+        uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
@@ -775,6 +779,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",prevUIConfig.getBackgroundUrl(),uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",prevUIConfig.getLogoUrl(),uiConfig.getLogoUrl(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
         return mods;
     }

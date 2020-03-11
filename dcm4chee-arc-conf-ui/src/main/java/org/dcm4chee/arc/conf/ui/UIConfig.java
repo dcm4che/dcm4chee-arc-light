@@ -53,6 +53,8 @@ public class UIConfig {
     private String[] modalities = {};
     private String[] widgetAets = {};
     private String xdsUrl;
+    private String backgroundUrl;
+    private String logoUrl;
     private String[] defaultWidgetAets = {};
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
@@ -102,6 +104,22 @@ public class UIConfig {
 
     public void setXdsUrl(String xdsUrl) {
         this.xdsUrl = xdsUrl;
+    }
+
+    public String getBackgroundUrl() {
+        return backgroundUrl;
+    }
+
+    public void setBackgroundUrl(String backgroundUrl) {
+        this.backgroundUrl = backgroundUrl;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 
     public String[] getDefaultWidgetAets() {

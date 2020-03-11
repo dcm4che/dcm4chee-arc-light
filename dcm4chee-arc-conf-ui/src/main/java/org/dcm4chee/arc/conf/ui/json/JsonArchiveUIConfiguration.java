@@ -85,6 +85,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmuiModalities", uiConfig.getModalities());
         writer.writeNotEmpty("dcmuiWidgetAets", uiConfig.getWidgetAets());
         writer.writeNotNullOrDef("dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
+        writer.writeNotNullOrDef("dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
+        writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
@@ -362,6 +364,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiXDSInterfaceURL":
                     uiConfig.setXdsUrl(reader.stringValue());
+                    break;
+                case "dcmuiBackgroundURL":
+                    uiConfig.setBackgroundUrl(reader.stringValue());
+                    break;
+                case "dcmuiLogoURL":
+                    uiConfig.setLogoUrl(reader.stringValue());
                     break;
                 case "dcmuiDefaultWidgetAets":
                     uiConfig.setDefaultWidgetAets(reader.stringArray());
