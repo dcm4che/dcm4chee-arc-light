@@ -6,12 +6,12 @@ dicomDeviceName: keycloak
 dcmTrustStoreType: JKS
 dcmKeyStorePin: secret
 dcmKeyStoreType: JKS
-dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: AUTH
 dcmTrustStorePin: secret
-dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
 
 dn: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -37,9 +37,9 @@ dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
-dcmTrustStoreURL: ${jboss.server.config.url}/dcm4chee-arc/cacerts.jks
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
-dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73

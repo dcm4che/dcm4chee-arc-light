@@ -98,10 +98,10 @@ class ArchiveDeviceFactory {
         };
 
         void configureKeyAndTrustStore(Device device) {
-            device.setTrustStoreURL("${jboss.server.config.url}/dcm4chee-arc/cacerts.jks");
+            device.setTrustStoreURL("${jboss.server.config.url}/keystores/cacerts.jks");
             device.setTrustStoreType("JKS");
             device.setTrustStorePin("secret");
-            device.setKeyStoreURL("${jboss.server.config.url}/dcm4chee-arc/key.jks");
+            device.setKeyStoreURL("${jboss.server.config.url}/keystores/key.jks");
             device.setKeyStoreType("JKS");
             device.setKeyStorePin("secret");
         }
