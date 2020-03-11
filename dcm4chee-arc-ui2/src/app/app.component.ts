@@ -21,6 +21,7 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
 import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
+import {LanguageConfig} from "./interfaces";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -71,13 +72,22 @@ export class AppComponent implements OnInit {
 
     ngOnInit(){
         // const savedLanguageCode = localStorage.getItem('language_code');
+/*        let languageConfig:any = localStorage.getItem('languageConfig');
         console.log("global",this.mainservice.global);
-        // this.languageSwitcher = new LanguageSwitcher(); //TODO get language list from some config
-
+        if(languageConfig){
+            this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig));
+        }*/
         this.mainservice.globalSet$.subscribe(global=>{
-            console.log("testglobalset",global);
             if(_.hasIn(global,"uiConfig")){
-
+/*                if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
+                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
+                        localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
+                        languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
+                        if(languageConfig){
+                            this.languageSwitcher = new LanguageSwitcher(languageConfig);
+                        }
+                    }
+                }*/
             }
         });
 /*        this.mainservice.getUiConfig().subscribe(res=>{

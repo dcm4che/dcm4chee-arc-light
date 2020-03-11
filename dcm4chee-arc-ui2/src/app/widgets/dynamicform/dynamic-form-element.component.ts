@@ -446,7 +446,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                         // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
                         formcontrol[i].setValue(e);
                         formelement.value[i] = e;
-                        if(_.hasIn(formelement,"format") && formelement.format === "dcmLanguageChooser"){
+/*                        if(_.hasIn(formelement,"format") && formelement.format === "dcmLanguageChooser"){
                             let globalForm = this.formcomp.getForm();
                             let valueObject = globalForm.value;
                             valueObject["dcmDefaultLanguage"] = "test";
@@ -470,7 +470,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                             this.form.patchValue(valueObject);
                             this.formcomp.setForm(this.form);
                             this.formcomp.setFormModel(valueObject);
-                        }
+                        }*/
                     }else{
                         if(e === "empty"){
                             formcontrol.setValue('');
