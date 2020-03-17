@@ -363,17 +363,17 @@ export class DeviceConfiguratorService{
         }
     }
     saveLanguageDataToLocalStorageOnSave(){
-        console.log("languages",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages"));
-        console.log("defaultLanguage",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage"));
+/*        console.log("languages",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0]"));
+        console.log("defaultLanguage",_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0]"));
         if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages")){
             localStorage.setItem('dcmLanguages', _.get(this.device,"dcmDevice.dcmuiConfig[0].dcmLanguages"));
         }else{
             localStorage.removeItem('dcmLanguages');
-        }
-        if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage")){
-            localStorage.setItem('dcmDefaultLanguage', _.get(this.device,"dcmDevice.dcmuiConfig[0].dcmDefaultLanguage"));
+        }*/
+        if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0]")){
+            localStorage.setItem('languageConfig', JSON.stringify(_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0]")));
         }else{
-            localStorage.removeItem('dcmDefaultLanguage');
+            localStorage.removeItem('languageConfig');
         }
     }
 
@@ -654,10 +654,11 @@ export class DeviceConfiguratorService{
                             });
                         }else{
                             if(_.hasIn(m, "format")  && m.format === 'dcmDefaultLanguage'){
-                                console.log("default")
+                                console.log("default",device);
+                                console.log("this.device",this.device);
                                 let options = [];
-                                if(_.hasIn(device,"dcmLanguages")){
-                                    device.dcmLanguages.forEach(language=>{
+                                if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0].dcmLanguages")){
+                                    (<string[]>_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0].dcmLanguages")).forEach(language=>{
                                         let langObj = j4care.extractLanguageDateFromString(language);
                                         options.push({
                                             label: `${langObj.code} - ${langObj.name} - ${langObj.nativeName}`,

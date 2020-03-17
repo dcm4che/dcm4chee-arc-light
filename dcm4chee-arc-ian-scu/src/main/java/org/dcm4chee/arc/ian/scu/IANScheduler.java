@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -107,7 +108,7 @@ public class IANScheduler extends Scheduler {
                     ianTaskPk = ianTask.getPk();
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
                     LOG.info("Check availability of {}", ianTask.getMpps());
-                    ian = createIANForMPPS(ae, ianTask.getMpps());
+                    ian = createIANForMPPS(ae, ianTask.getMpps(), true);
                     if (ian != null) {
                         LOG.info("Schedule {}", ianTask);
                         ejb.scheduleIANTask(ianTask, ian);
@@ -137,8 +138,7 @@ public class IANScheduler extends Scheduler {
                         }
                     } else {
                         if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout()
-                                && (ian = queryService.createIAN(ae, ianTask.getMpps().getStudyInstanceUID(), null,
-                                null,null, null)) != null) {
+                                && (ian = createIANForMPPS(ae, ianTask.getMpps(), false)) != null) {
                             LOG.warn("Timeout for {} exceeded - schedule IAN for available instances", ianTask);
                             ejb.scheduleIANTask(ianTask, ian);
                         } else {
@@ -227,7 +227,7 @@ public class IANScheduler extends Scheduler {
             ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET);
     }
 
-    private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
+    private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps, boolean allAvailable) {
         Attributes mppsAttrs = mpps.getAttributes();
         String studyInstanceUID = mpps.getStudyInstanceUID();
         Sequence perfSeriesSeq = mppsAttrs.getSequence(Tag.PerformedSeriesSequence);
@@ -238,22 +238,42 @@ public class IANScheduler extends Scheduler {
             String seriesInstanceUID = perfSeries.getString(Tag.SeriesInstanceUID);
             Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID,
                     null, null, null);
-            if (ianForSeries == null)
-                return null;
+            if (ianForSeries == null) {
+                if (allAvailable)
+                    return null;
+
+                continue;
+            }
 
             Attributes refSeries = ianForSeries.getSequence(Tag.ReferencedSeriesSequence).remove(0);
+            Sequence refImageSeq = perfSeries.getSequence(Tag.ReferencedImageSequence);
+            Sequence refNonImageSeq = perfSeries.getSequence(Tag.ReferencedNonImageCompositeSOPInstanceSequence);
             Sequence available = refSeries.getSequence(Tag.ReferencedSOPSequence);
-            if (!allAvailable(perfSeries.getSequence(Tag.ReferencedImageSequence), available) ||
-                !allAvailable(perfSeries.getSequence(Tag.ReferencedNonImageCompositeSOPInstanceSequence), available))
+            removeNotReferred(refImageSeq, refNonImageSeq, available);
+            if (allAvailable && !(containsAll(available, refImageSeq) && containsAll(available, refNonImageSeq))) {
                 return null;
-
-            refSeriesSeq.add(refSeries);
+            }
+            if (!available.isEmpty()) {
+                refSeriesSeq.add(refSeries);
+            }
+        }
+        if (refSeriesSeq.isEmpty()) {
+            return null;
         }
         ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1).add(refMPPS(mpps));
         return ian;
     }
 
-    private Attributes refMPPS(MPPS mpps) {
+    private static void removeNotReferred(Sequence refImageSeq, Sequence refNonImageSeq, Sequence available) {
+        Iterator<Attributes> iterator = available.iterator();
+        while (iterator.hasNext()) {
+            Attributes refSOP = iterator.next();
+            if (!contains(refImageSeq, refSOP) && !contains(refNonImageSeq, refSOP))
+                iterator.remove();
+        }
+    }
+
+    private static Attributes refMPPS(MPPS mpps) {
         Attributes refMPPS = new Attributes(3);
         refMPPS.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.ModalityPerformedProcedureStepSOPClass);
         refMPPS.setString(Tag.ReferencedSOPInstanceUID, VR.UI, mpps.getSopInstanceUID());
@@ -261,18 +281,18 @@ public class IANScheduler extends Scheduler {
         return refMPPS;
     }
 
-    private boolean allAvailable(Sequence performed, Sequence available) {
+    private static boolean containsAll(Sequence available, Sequence performed) {
         if (performed != null)
             for (Attributes ref : performed) {
-                if (!available(ref, available))
+                if (!contains(available, ref))
                     return false;
             }
         return true;
     }
 
-    private boolean available(Attributes performed, Sequence available) {
-        String iuid = performed.getString(Tag.ReferencedSOPInstanceUID);
-        for (Attributes ref : available) {
+    private static boolean contains(Sequence refSOPSeq, Attributes refSOP) {
+        String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
+        for (Attributes ref : refSOPSeq) {
             if (iuid.equals(ref.getString(Tag.ReferencedSOPInstanceUID)))
                 return true;
         }

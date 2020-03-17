@@ -76,7 +76,7 @@ export class PermissionService {
                         // return this.checkMenuTabAccess(url);
                         return response.call(this);
                     })
-                )
+                );
         else
             return response.call(this);
     }

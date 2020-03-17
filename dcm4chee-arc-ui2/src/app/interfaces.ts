@@ -308,3 +308,15 @@ export interface LanguageObject {
     nativeName:string;
     flag:string;
 }
+
+export interface LanguageConfig{
+    dcmuiLanguageConfigName:string;
+    dcmLanguages:string[];
+    dcmuiLanguageProfileObjects:LanguageProfile[]
+}
+export interface LanguageProfile{
+    dcmuiLanguageProfileName:string;
+    dcmDefaultLanguage:string;
+    dcmuiLanguageProfileRole:string[];
+    dcmuiLanguageProfileUsername:string;
+}

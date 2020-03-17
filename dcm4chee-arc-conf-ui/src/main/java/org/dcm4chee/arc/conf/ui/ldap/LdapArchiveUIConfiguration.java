@@ -110,6 +110,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiModalities", uiConfig.getModalities());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiWidgetAets", uiConfig.getWidgetAets());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         return attrs;
     }
@@ -344,15 +346,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             throws NamingException {
         for (UILanguageConfig uiLanguageConfig : uiConfig.getLanguageConfigs()) {
             String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfig.getName(), uiConfigDN);
-            config.createSubcontext(
-                    uiLanguageConfigDN,
-                    storeTo(diffs,uiLanguageConfigDN, uiLanguageConfig, new BasicAttributes(true))
-            );
-            storeLanguageProfile(diffs, uiLanguageConfigDN, uiLanguageConfig);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiLanguageConfigDN, storeTo(ldapObj1, uiLanguageConfig, new BasicAttributes(true)));
+            storeLanguageProfiles(diffs, uiLanguageConfigDN, uiLanguageConfig);
         }
     }
 
-    private void storeLanguageProfile(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig)
+/*    private void storeLanguageProfile(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig)
             throws NamingException {
         for (UILanguageProfile uiLanguageProfile : uiLanguageConfig.getLanguageProfiles()) {
             String uiLanguageProfileDN = LdapUtils.dnOf("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), uiLanguageConfigDN);
@@ -363,7 +364,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             );
             config.createSubcontext(uiLanguageProfileDN, storeTo(ldapObj, uiLanguageProfile, new BasicAttributes(true)));
         }
-    }
+    }*/
     private void storeCompareSides(ConfigurationChanges diffs, String uiDashboardConfigDN, UIDashboardConfig uiDashboardConfig)
             throws NamingException {
         for (UICompareSide uiCompareSide : uiDashboardConfig.getCompareSides()) {
@@ -383,9 +384,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
-    private Attributes storeTo(ConfigurationChanges diffs, String uiLanguageConfigDN, UILanguageConfig uiLanguageConfig, Attributes attrs) {
-        ConfigurationChanges.ModifiedObject ldapObj =
-                ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UILanguageConfig uiLanguageConfig, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageConfig"));
         attrs.put(new BasicAttribute("dcmuiLanguageConfigName", uiLanguageConfig.getName()));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages());
@@ -406,7 +405,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiLanguageProfileObjects"));
         attrs.put(new BasicAttribute("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultLanguage", uiLanguageProfile.getDefaultLanguage(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(), null);
         return attrs;
     }
@@ -445,6 +444,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setModalities(LdapUtils.stringArray(attrs.get("dcmuiModalities")));
         uiConfig.setWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiWidgetAets")));
         uiConfig.setXdsUrl(LdapUtils.stringValue(attrs.get("dcmuiXDSInterfaceURL"),null));
+        uiConfig.setBackgroundUrl(LdapUtils.stringValue(attrs.get("dcmuiBackgroundURL"),null));
+        uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
@@ -778,6 +779,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",prevUIConfig.getBackgroundUrl(),uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",prevUIConfig.getLogoUrl(),uiConfig.getLogoUrl(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
         return mods;
     }
@@ -1174,21 +1177,20 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
         for (UILanguageConfig uiLanguageConfig : uiConfig.getLanguageConfigs()) {
             String uiLanguageConfigName = uiLanguageConfig.getName();
-            String uiLanguageConfigDN = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfigName, uiConfigDN);
+            String dn = LdapUtils.dnOf("dcmuiLanguageConfigName", uiLanguageConfigName, uiConfigDN);
             UILanguageConfig prevUILanguageConfig = prevUIConfig.getLanguageConfig(uiLanguageConfigName);
             if (prevUILanguageConfig == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
-                config.createSubcontext(
-                        uiLanguageConfigDN,
-                        storeTo(diffs, uiLanguageConfigDN, uiLanguageConfig, new BasicAttributes(true))
-                );
-                storeLanguageProfiles(diffs, uiLanguageConfigDN, uiLanguageConfig);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiLanguageConfig, new BasicAttributes(true)));
+                storeLanguageProfiles(diffs, dn, uiLanguageConfig);
             }
             else{
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(uiLanguageConfigDN, storeUILanguageConfig(diffs, uiLanguageConfigDN, prevUILanguageConfig, uiLanguageConfig,
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeUILanguageConfig(diffs, dn, prevUILanguageConfig, uiLanguageConfig,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -1241,7 +1243,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
         for (UILanguageProfile uiLanguageProfile : uiLanguageConfig.getLanguageProfiles()) {
             String uiLanguageProfileName = uiLanguageProfile.getProfileName();
-            UILanguageProfile prevLanguageProfile = uiLanguageConfig.getLanguageProfile(uiLanguageProfileName);
+            UILanguageProfile prevLanguageProfile = prevUILanguageConfig.getLanguageProfile(uiLanguageProfileName);
             String uiLanguageProfileDN = LdapUtils.dnOf("dcmuiLanguageProfileName", uiLanguageProfile.getProfileName(), uiLanguageConfigDN);
             if (prevLanguageProfile == null) {
                 ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
@@ -1254,7 +1256,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             else {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(uiLanguageProfileDN, storeDiff(ldapObj, prevLanguageProfile, uiLanguageProfile,
+                config.modifyAttributes(uiLanguageProfileDN, storeLanguageProfile(ldapObj, prevLanguageProfile, uiLanguageProfile,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -1310,7 +1312,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiElasticsearchURL.isInstalled(), true) ;
         return mods;
     }
-    private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile prev,
+    private List<ModificationItem> storeLanguageProfile(ConfigurationChanges.ModifiedObject ldapObj, UILanguageProfile prev,
                                                               UILanguageProfile uiLanguageProfile, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultLanguage",
                 prev.getDefaultLanguage(),

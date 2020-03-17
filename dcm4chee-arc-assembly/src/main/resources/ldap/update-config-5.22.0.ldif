@@ -4,6 +4,12 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 changetype: modify
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
+-
+replace: dcmKeyStoreURL
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
+-
+replace: dcmTrustStoreURL
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
 
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
@@ -40,6 +46,7 @@ dcmImageWriteParam: compressionType=LOSSLESS
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
+replace: dcmImageWriteParam
 dcmImageWriteParam: compressionRatiofactor=10.0
 
 dn: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -62,3 +69,11 @@ changetype: modify
 add: dcmWebServiceClass
 dcmWebServiceClass: UPS_RS
 dcmWebServiceClass: MWL_RS
+
+dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmKeyStoreURL
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
+-
+replace: dcmTrustStoreURL
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks

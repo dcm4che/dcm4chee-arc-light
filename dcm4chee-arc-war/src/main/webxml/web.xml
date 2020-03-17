@@ -21,7 +21,7 @@
     <realm-name>${realm-name:dcm4che}</realm-name>
   </login-config>
   <security-role>
-    <role-name>user</role-name>
+    <role-name>${auth-user-role:user}</role-name>
   </security-role>
   -->
 </web-app>

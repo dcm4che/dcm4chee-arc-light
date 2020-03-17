@@ -66,8 +66,8 @@
       <directory>${basedir}/src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
       <includes>
-        <include>configuration/dcm4chee-arc/key.jks</include>
-        <include>configuration/dcm4chee-arc/cacerts.jks</include>
+        <include>configuration/keystores/key.jks</include>
+        <include>configuration/keystores/cacerts.jks</include>
       </includes>
       <lineEnding>keep</lineEnding>
     </fileSet>
