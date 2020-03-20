@@ -234,6 +234,7 @@ public class UPSContextImpl implements UPSContext {
                     ? httpRequestInfo.requesterUserID +
                         '@' + httpRequestInfo.requesterHost +
                         "->" + archiveAEExtension.getApplicationEntity().getAETitle()
-                    : socket.toString();
+                    : socket != null
+                        ? socket.toString() : archiveAEExtension.getApplicationEntity().getAETitle();
     }
 }
