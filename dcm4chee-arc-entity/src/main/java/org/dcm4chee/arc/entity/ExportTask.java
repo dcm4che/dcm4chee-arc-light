@@ -282,7 +282,9 @@ public class ExportTask {
             writer.writeNotNullOrDef("batchID", batchID, null);
             writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
             writer.writeNotNullOrDef("status", QueueMessage.Status.TO_SCHEDULE.toString(), null);
-            writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
+            if (scheduledTime != null) {
+                writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
+            }
         } else
             queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();

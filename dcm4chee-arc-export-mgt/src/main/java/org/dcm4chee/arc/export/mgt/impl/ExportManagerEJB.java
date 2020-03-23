@@ -46,6 +46,7 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -263,6 +264,12 @@ public class ExportManagerEJB implements ExportManager {
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
                                     HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
+        ApplicationEntity ae = device.getApplicationEntity(exporter.getAETitle(), true);
+        if (ae == null) {
+            LOG.warn("Failed to schedule {}: no such Archive AE Title - {}", exportTask, exporter.getAETitle());
+            exportTask.setScheduledTime(null);
+            return;
+        }
         LOG.info("Schedule {}", exportTask);
         QueueMessage queueMessage = queueManager.scheduleMessage(
                 exporter.getQueueName(),
@@ -270,8 +277,7 @@ public class ExportManagerEJB implements ExportManager {
                 exporter.getPriority(),
                 batchID, 0L);
         exportTask.setQueueMessage(queueMessage);
-        Attributes attrs = queryService.queryExportTaskInfo(
-                exportTask, device.getApplicationEntity(exporter.getAETitle(), true));
+        Attributes attrs = queryService.queryExportTaskInfo(exportTask, ae);
         if (attrs == null) {
             LOG.info("No Export Task Info found for {}", exportTask);
             return;

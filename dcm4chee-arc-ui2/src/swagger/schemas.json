@@ -1209,8 +1209,7 @@
         "dicomDeviceName",
         "ExporterID",
         "createdTime",
-        "updatedTime",
-        "scheduledTime"
+        "updatedTime"
       ],
       "properties": {
         "pk": {
