@@ -408,6 +408,7 @@
       "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. If absent, the attributes will not be updated. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
+        "PRESERVE",
         "SUPPLEMENT",
         "MERGE",
         "OVERWRITE",
@@ -419,6 +420,7 @@
       "description": "Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
+        "PRESERVE",
         "SUPPLEMENT",
         "MERGE",
         "OVERWRITE",
