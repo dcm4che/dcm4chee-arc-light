@@ -114,15 +114,12 @@ export class AppComponent implements OnInit {
     }
     initLanguage(){
         let languageConfig:any = localStorage.getItem('languageConfig');
-        console.log("global",this.mainservice.global);
-        console.log("this.user1",this.mainservice.user);
         if(languageConfig){
             this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
         }
         this.mainservice.globalSet$.subscribe(global=>{
             if(_.hasIn(global,"uiConfig")){
                 if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
-                    console.log("this.user",this.mainservice.user);
                     if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
                         localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
                         languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
@@ -136,7 +133,6 @@ export class AppComponent implements OnInit {
     }
     init(){
         this.setUserInformation(()=>{
-            console.log("afteruserinformation");
             this.initLanguage();
         });
         Date.prototype.toDateString = function() {
@@ -148,18 +144,18 @@ export class AppComponent implements OnInit {
         });
     }
     switchLanguage(language:LanguageObject){
-        if(language.code === "en"){
+/*        if(language.code === "en"){
             localStorage.removeItem('current_language');
-        }else{
+        }else{*/
             const localLanguage:LocalLanguageObject = {
                 language:language,
                 username:this.mainservice.user.user
             };
             localStorage.setItem('current_language', JSON.stringify(localLanguage));
-        }
+        //}
         setTimeout(()=>{
             location.reload();
-        },200);
+        },1);
     }
     testUser(){
         KeycloakService.keycloakAuth.loadUserInfo().success(user=>{

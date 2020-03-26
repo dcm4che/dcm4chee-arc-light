@@ -18,7 +18,15 @@ export class LanguageSwitcher {
             if(currentSavedLanguage && currentSavedLanguage.username === user.user){
                 this._currentSelectedLanguage = currentSavedLanguage.language;
             }else{
-                this._currentSelectedLanguage =  defaultConfigLanguage;
+                const localLanguage:LocalLanguageObject = {
+                    language:defaultConfigLanguage,
+                    username:user.user || ""
+                };
+                localStorage.setItem('current_language', JSON.stringify(localLanguage));
+                setTimeout(()=>{
+                    location.reload();
+                },1);
+                //this._currentSelectedLanguage =  defaultConfigLanguage;
             }
         }catch (e) {
             j4care.log("Error on language-switcher construct",e);
