@@ -1080,7 +1080,7 @@ export class StudyService {
                             }, {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
+                                    cssClass: `custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1567,7 +1567,7 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
-                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
+                                    cssClass: `custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1915,7 +1915,7 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
-                                    cssClass: $localize `:@@study.custom_icon_csv_icon_black:custom_icon csv_icon_black`,
+                                    cssClass: `custom_icon csv_icon_black`,
                                     text: ''
                                 },
                                 click: (e) => {
