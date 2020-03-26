@@ -1,13 +1,24 @@
 import {Globalvar} from "../constants/globalvar";
 import {LanguageConfig, LanguageObject} from "../interfaces";
 import {j4care} from "../helpers/j4care.service";
+import {AppService} from "../app.service";
+import {User} from "./user";
 
 export class LanguageSwitcher {
     private _currentSelectedLanguage:LanguageObject;
     private _languageList:LanguageObject[];
     private _open:boolean = false;
-    constructor(languageConfig:LanguageConfig){
+    constructor(languageConfig:LanguageConfig,user:User){
         try {
+            console.log("languageConfig",languageConfig);
+            console.log("languageConfiglanguegs",languageConfig.dcmLanguages);
+            console.log("languageConfiglanguegscode",j4care.extractLanguageDateFromString(languageConfig.dcmLanguages[0]));
+            this._languageList = languageConfig.dcmLanguages.map(language=>{
+                return j4care.extractLanguageDateFromString(language);
+            });
+            this._currentSelectedLanguage = j4care.extractLanguageDateFromString(j4care.getDefaultLanguageFromProfile(languageConfig,user));
+            console.log("languageConfig.dcmLanguages",languageConfig.dcmuiLanguageProfileObjects)
+            //currentSelectedLanguage
                 // const dcmLanguages = j4care.extractLanguageDateFromString(localStorage.getItem('dcmLanguages'));//TODO Its an array not a string so you can not use j4care.extractLanguageDateFromString directly
                 // const dcmDefaultLanguage = j4care.extractLanguageDateFromString(languageConfig);
                 const language_code = localStorage.getItem('language_code');

@@ -110,10 +110,10 @@ export class J4careHttpService{
             catchError(res=>{
                 j4care.log("In catch",res);
                 if(res.statusText === "Unauthorized"){
-                    return $this.refreshToken().flatMap((resp)=>{
+                    return $this.refreshToken().pipe(flatMap((resp)=>{
                         // this.setGlobalToken(resp,param);
                         return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
-                    });
+                    }));
                 }
                 return throwError(res);
             })

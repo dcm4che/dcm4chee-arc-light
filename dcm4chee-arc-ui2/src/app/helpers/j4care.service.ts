@@ -8,13 +8,21 @@ import {WindowRefService} from "./window-ref.service";
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
-import {J4careDateTime, J4careDateTimeMode, RangeObject, RangeUnit, StudyDateMode} from "../interfaces";
+import {
+    J4careDateTime,
+    J4careDateTimeMode, LanguageConfig,
+    LanguageProfile,
+    RangeObject,
+    RangeUnit,
+    StudyDateMode
+} from "../interfaces";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
 import { loadTranslations } from '@angular/localize';
+import {User} from "../models/user";
 declare const bigInt:Function;
 
 @Injectable()
@@ -1300,5 +1308,33 @@ export class j4care {
             return undefined;
         }
         return undefined;
+    }
+
+    static getDefaultLanguageFromProfile(languageConfig:LanguageConfig,user:User){
+        try{
+            let validProfiles:LanguageProfile[] = languageConfig.dcmuiLanguageProfileObjects.filter((profile:LanguageProfile)=>{
+                if(_.hasIn(profile, "dcmuiLanguageProfileUsername") && profile.dcmuiLanguageProfileUsername === user.user){
+                    return true;
+                }
+                if(_.hasIn(profile, "dcmuiLanguageProfileRole")){
+                    let valid = false;
+                    profile.dcmuiLanguageProfileRole.forEach(role=>{
+                        if(user.roles.indexOf(role) > -1){
+                            valid = true;
+                        }
+                    });
+                    return valid;
+                }
+                return false;
+            });
+            if(validProfiles && validProfiles.length > 0){
+                return validProfiles[0].dcmDefaultLanguage;
+            }
+        }catch (e) {
+            this.log("GetLanguageProfile in catch",e);
+            if (_.hasIn(languageConfig,"dcmLanguages[0]")){
+                return languageConfig.dcmLanguages[0];
+            }
+        }
     }
 }

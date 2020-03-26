@@ -115,7 +115,6 @@ export class KeycloakService {
         this.setUserSource.next(user);
     }
     getUserInfo():Observable<any>{
-        console.log("**********inget userINFO",this.userInfo);
         if(this.userInfo){
             return of(this.userInfo);
         }else{

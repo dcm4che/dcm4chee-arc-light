@@ -74,22 +74,28 @@ export class AppComponent implements OnInit {
         // const savedLanguageCode = localStorage.getItem('language_code');
 /*        let languageConfig:any = localStorage.getItem('languageConfig');
         console.log("global",this.mainservice.global);
-        if(languageConfig){
-            this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig));
-        }*/
-        this.mainservice.globalSet$.subscribe(global=>{
-            if(_.hasIn(global,"uiConfig")){
-/*                if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
-                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
-                        localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
-                        languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
-                        if(languageConfig){
-                            this.languageSwitcher = new LanguageSwitcher(languageConfig);
+        console.log("this.user1",this.mainservice.user);
+        console.log("_keycloakService",this._keycloakService.getUserInfo())
+        this._keycloakService.getUserInfo().subscribe(user=>{
+            console.log("user",user);
+            if(languageConfig){
+                this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig));
+            }
+            this.mainservice.globalSet$.subscribe(global=>{
+                if(_.hasIn(global,"uiConfig")){
+                    if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
+                        console.log("this.user",this.mainservice.user);
+                        if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
+                            localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
+                            languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
+                            if(languageConfig){
+                                this.languageSwitcher = new LanguageSwitcher(languageConfig);
+                            }
                         }
                     }
-                }*/
-            }
-        });
+                }
+            });
+        });*/
 /*        this.mainservice.getUiConfig().subscribe(res=>{
             console.log("uiconfgi",res);
         },err=>{
@@ -106,8 +112,33 @@ export class AppComponent implements OnInit {
             })
         }
     }
+    initLanguage(){
+        let languageConfig:any = localStorage.getItem('languageConfig');
+        console.log("global",this.mainservice.global);
+        console.log("this.user1",this.mainservice.user);
+        if(languageConfig){
+            this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
+        }
+        this.mainservice.globalSet$.subscribe(global=>{
+            if(_.hasIn(global,"uiConfig")){
+                if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
+                    console.log("this.user",this.mainservice.user);
+                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
+                        localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
+                        languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
+                        if(languageConfig){
+                            this.languageSwitcher = new LanguageSwitcher(languageConfig, this.mainservice.user);
+                        }
+                    }
+                }
+            }
+        });
+    }
     init(){
-        this.setUserInformation();
+        this.setUserInformation(()=>{
+            console.log("afteruserinformation");
+            this.initLanguage();
+        });
         Date.prototype.toDateString = function() {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
@@ -151,12 +182,13 @@ export class AppComponent implements OnInit {
                     recall.apply(this);
             });
     }
-    setUserInformation(){
+    setUserInformation(recall:Function){
         if(this.mainservice.global && this.mainservice.global.notSecure){
             this.user = null;
             this.realm = null;
             this.superUser = true;
             this.authServerUrl = null;
+            recall.apply(this);
         }else{
             try{
                 this.mainservice.getUser().subscribe((user:User)=>{
@@ -164,11 +196,13 @@ export class AppComponent implements OnInit {
                     this.realm = user.realm;
                     this.superUser = user.su;
                     this.authServerUrl = user.authServerUrl;
+                    recall.apply(this);
                 },(err)=>{
-
+                    recall.apply(this);
                 });
             }catch (e) {
                 j4care.log("User information couldn't be set",e);
+                recall.apply(this);
             }
         }
     }
