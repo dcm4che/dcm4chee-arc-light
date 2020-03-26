@@ -659,7 +659,7 @@ export class DeviceConfiguratorService{
                                 let options = [];
                                 if(_.hasIn(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0].dcmLanguages")){
                                     (<string[]>_.get(this.device,"dcmDevice.dcmuiConfig[0].dcmuiLanguageConfig[0].dcmLanguages")).forEach(language=>{
-                                        let langObj = j4care.extractLanguageDateFromString(language);
+                                        let langObj = j4care.extractLanguageDataFromString(language);
                                         options.push({
                                             label: `${langObj.code} - ${langObj.name} - ${langObj.nativeName}`,
                                             value: language,

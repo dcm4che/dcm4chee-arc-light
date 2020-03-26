@@ -1292,7 +1292,7 @@ export class j4care {
         return `${preMessage}${msg != "" ? ':':''}${msg}`;
     }
 
-    static extractLanguageDateFromString(ldapLanguageString:string){
+    static extractLanguageDataFromString(ldapLanguageString:string){
         try{
             const regex = /([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)/;
             let m;

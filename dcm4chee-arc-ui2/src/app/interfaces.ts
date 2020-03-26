@@ -320,3 +320,8 @@ export interface LanguageProfile{
     dcmuiLanguageProfileRole:string[];
     dcmuiLanguageProfileUsername:string;
 }
+
+export interface LocalLanguageObject{
+    language:LanguageObject,
+    username:string
+}

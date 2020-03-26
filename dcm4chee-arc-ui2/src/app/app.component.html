@@ -18,7 +18,7 @@
         <span>{{languageSwitcher.currentSelectedLanguage.nativeName}}</span>
     </div>
     <ul *ngIf="languageSwitcher.open" class="languages">
-        <li *ngFor="let lang of languageSwitcher.languageList" (click)="switchLanguage(lang.code)">
+        <li *ngFor="let lang of languageSwitcher.languageList" (click)="switchLanguage(lang)">
             <img src="{{lang.flag}}"> <span>{{lang.nativeName}}</span>
         </li>
     </ul>

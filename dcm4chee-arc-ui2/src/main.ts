@@ -6,16 +6,18 @@ import { environment } from './environments/environment';
 
 import { loadTranslations } from '@angular/localize';
 import { getTranslations, ParsedTranslationBundle } from '@locl/core';
+import {LocalLanguageObject} from "./app/interfaces";
 
 
-let languageCode = localStorage.getItem('language_code');
+const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+
 
 if (environment.production) {
   enableProdMode();
 }
 
-if(languageCode && languageCode != "en"){
-    getTranslations(`./assets/locale/${languageCode}.json`).then(
+if(currentSavedLanguage && currentSavedLanguage.language.code != "en"){
+    getTranslations(`./assets/locale/${currentSavedLanguage.language.code}.json`).then(
         (data: ParsedTranslationBundle) => {
             loadTranslations(data.translations as any);
             import('./app/app.module').then(module => {

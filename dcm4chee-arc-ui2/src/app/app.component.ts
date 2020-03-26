@@ -21,7 +21,7 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
 import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
-import {LanguageConfig} from "./interfaces";
+import {LanguageConfig, LanguageObject, LocalLanguageObject} from "./interfaces";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -147,11 +147,15 @@ export class AppComponent implements OnInit {
             this.initGetPDQServices();
         });
     }
-    switchLanguage(languageCode){
-        if(languageCode === "en"){
-            localStorage.removeItem('language_code');
+    switchLanguage(language:LanguageObject){
+        if(language.code === "en"){
+            localStorage.removeItem('current_language');
         }else{
-            localStorage.setItem('language_code', languageCode);
+            const localLanguage:LocalLanguageObject = {
+                language:language,
+                username:this.mainservice.user.user
+            };
+            localStorage.setItem('current_language', JSON.stringify(localLanguage));
         }
         setTimeout(()=>{
             location.reload();
