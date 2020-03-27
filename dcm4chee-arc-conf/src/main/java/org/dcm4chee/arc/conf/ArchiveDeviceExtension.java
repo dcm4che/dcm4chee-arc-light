@@ -92,6 +92,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int deleteUPSFetchSize = 100;
     private volatile Duration deleteUPSCompletedDelay;
     private volatile Duration deleteUPSCanceledDelay;
+    private volatile Duration upsProcessingPollingInterval;
+    private volatile int upsProcessingFetchSize = 100;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
     private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
@@ -279,6 +281,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
+    private final Map<String, UPSProcessingRule> upsProcessingRuleMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, MetricsDescriptor> metricsDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
@@ -550,6 +553,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeleteUPSCanceledDelay(Duration deleteUPSCanceledDelay) {
         this.deleteUPSCanceledDelay = deleteUPSCanceledDelay;
+    }
+
+    public Duration getUPSProcessingPollingInterval() {
+        return deleteUPSPollingInterval;
+    }
+
+    public void setUPSProcessingPollingInterval(Duration upsProcessingPollingInterval) {
+        this.upsProcessingPollingInterval = upsProcessingPollingInterval;
+    }
+
+    public int getUPSProcessingFetchSize() {
+        return upsProcessingFetchSize;
+    }
+
+    public void setUPSProcessingFetchSize(int upsProcessingFetchSize) {
+        this.upsProcessingFetchSize = upsProcessingFetchSize;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -1687,6 +1706,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : Collections.emptyList();
     }
 
+    public UPSProcessingRule getUPSProcessingRule(String commonName) {
+        return upsProcessingRuleMap.get(commonName);
+    }
+
+    public UPSProcessingRule removeUPSProcessingRule(String commonName) {
+        return upsProcessingRuleMap.remove(commonName);
+    }
+
+    public void addUPSProcessingRule(UPSProcessingRule rule) {
+        upsProcessingRuleMap.put(rule.getCommonName(), rule);
+    }
+
+    public Collection<UPSProcessingRule> getUPSProcessingRules() {
+        return upsProcessingRuleMap.values();
+    }
+
     public QueueDescriptor getQueueDescriptor(String queueName) {
         return queueDescriptorMap.get(queueName);
     }
@@ -2711,6 +2746,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteUPSFetchSize = arcdev.deleteUPSFetchSize;
         deleteUPSCompletedDelay = arcdev.deleteUPSCompletedDelay;
         deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
+        upsProcessingPollingInterval = arcdev.upsProcessingPollingInterval;
+        upsProcessingFetchSize = arcdev.upsProcessingFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
@@ -2901,6 +2938,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
+        upsProcessingRuleMap.clear();
+        upsProcessingRuleMap.putAll(arcdev.upsProcessingRuleMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
         metricsDescriptorMap.clear();

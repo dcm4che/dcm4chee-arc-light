@@ -408,7 +408,7 @@ public class UPSOnStore {
     @Override
     public String toString() {
         return "UPSOnStore{" +
-                "commonName='" + commonName + '\'' +
+                "cn='" + commonName + '\'' +
                 '}';
     }
 

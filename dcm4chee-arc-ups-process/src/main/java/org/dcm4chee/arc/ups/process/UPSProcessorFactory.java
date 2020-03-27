@@ -39,48 +39,27 @@
  *
  */
 
-package org.dcm4chee.arc.ups.impl;
+package org.dcm4chee.arc.ups.process;
 
-import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.conf.NamedQualifier;
+import org.dcm4chee.arc.conf.UPSProcessingRule;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Oct 2019
+ * @since Mar 2020
  */
 @ApplicationScoped
-public class UPSDeleteScheduler extends Scheduler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UPSDeleteScheduler.class);
-
+public class UPSProcessorFactory {
     @Inject
-    private UPSServiceEJB ejb;
+    private Instance<UPSProcessorProvider> providers;
 
-    protected UPSDeleteScheduler() {
-        super(Mode.scheduleWithFixedDelay);
-    }
-
-    @Override
-    protected Logger log() {
-        return LOG;
-    }
-
-    @Override
-    protected Duration getPollingInterval() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getDeleteUPSPollingInterval();
-    }
-
-    @Override
-    protected void execute() {
-        while (ejb.purgeUPSWithoutDeletionLock(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)));
+    public UPSProcessor getUPSProcessor(UPSProcessingRule descriptor) {
+        String scheme = descriptor.getUPSProcessorURI().getScheme();
+        UPSProcessorProvider provider = providers.select(new NamedQualifier(scheme)).get();
+        return provider.getUPSProcessor(descriptor);
     }
 }

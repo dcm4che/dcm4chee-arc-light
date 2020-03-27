@@ -27,6 +27,7 @@
     "dcmIanTaskFetchSize",
     "dcmSpanningCFindSCPPolicy",
     "dcmFallbackCMoveSCPRetries",
+    "dcmUPSProcessingFetchSize",
     "dcmExportTaskFetchSize",
     "dcmRetrieveTaskFetchSize",
     "dcmPurgeStorageFetchSize",
@@ -493,6 +494,20 @@
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
       "type": "string",
       "format": "dcmAETitle"
+    },
+    "dcmUPSProcessingPollingInterval": {
+      "title": "UPS Processing Polling Interval",
+      "description": "Polling Interval for Workitems ready for processing in ISO-8601 duration format PnDTnHnMnS.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSProcessingFetchSize": {
+      "title": "UPS Processing  Fetch Size",
+      "description": "Limit result set of DB query for Workitems ready for processing.",
+      "type": "integer",
+      "default": 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmExportTaskPollingInterval": {
       "title": "Export Task Polling Interval",
@@ -1656,6 +1671,15 @@
       "titleKey": "{cn}",
       "items": {
         "$ref": "upsOnHL7.schema.json"
+      }
+    },
+    "dcmUPSProcessingRule": {
+      "title": "UPS Processing Rules",
+      "description": "UPS Processing Rules.",
+      "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "upsProcessingRule.schema.json"
       }
     },
     "dcmIDGenerator": {

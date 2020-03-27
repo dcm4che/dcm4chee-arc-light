@@ -1721,6 +1721,21 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.356 NAME 'dcmMWLStatusOnIdle'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.357 NAME 'dcmUPSProcessingPollingInterval'
+  DESC 'Polling Interval for Workitems ready for processing in ISO-8601 duration format PnDTnHnMnS. If absent, Workitems will not get processed.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.358 NAME 'dcmUPSProcessingFetchSize'
+  DESC 'Limit result set of DB query for Workitems ready for processing; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.359 NAME 'dcmMaxThreads'
+  DESC 'Maximal number of threads used for processing of Workitems matching this rule. 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1800,6 +1815,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
     dcmDiffStudiesIncludefieldAll $
+    dcmUPSProcessingPollingInterval $
+    dcmUPSProcessingFetchSize $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
     dcmRetrieveTaskPollingInterval $
@@ -2469,3 +2486,27 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.39 NAME 'dcmMWLIdleTimeout'
     dcmDuration )
   MAY (
     dcmAETitle ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
+  DESC 'UPS Processing Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmURI $
+    dicomAETitle )
+  MAY (
+    dcmUPSPriority $
+    dcmUPSInputReadinessState $
+    dcmUPSLabel $
+    dcmUPSWorklistLabel $
+    dcmUPSScheduledWorkitemCode $
+    dcmUPSScheduledStationNameCode $
+    dcmUPSScheduledStationClassCode $
+    dcmUPSScheduledStationLocationCode $
+    dcmMaxThreads $
+    dcmMaxRetries $
+    dcmRetryDelay $
+    dcmMaxRetryDelay $
+    dcmRetryDelayMultiplier $
+    dcmRetryOnWarning $
+    dcmProperty $
+    dcmSchedule ) )
