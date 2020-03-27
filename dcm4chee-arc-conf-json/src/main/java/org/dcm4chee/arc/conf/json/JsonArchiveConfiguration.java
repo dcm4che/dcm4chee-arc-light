@@ -52,6 +52,7 @@ import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.Property;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.time.Period;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -347,6 +349,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmMWLPollingInterval", arcDev.getMWLPollingInterval(), null);
         writer.writeNotDef("dcmMWLFetchSize", arcDev.getMWLFetchSize(), 100);
         writer.writeNotEmpty("dcmDeleteMWLDelay", arcDev.getDeleteMWLDelay());
+        writer.writeNotNullOrDef("dcmUPSProcessingPollingInterval",
+                arcDev.getUPSProcessingPollingInterval(), null);
+        writer.writeNotDef("dcmUPSProcessingFetchSize", arcDev.getUPSProcessingFetchSize(), 100);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -373,6 +378,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         writeUPSOnStoreList(writer, arcDev.listUPSOnStore());
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
+        writeUPSProcessingRules(writer, arcDev.getUPSProcessingRules());
         writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
@@ -868,6 +874,42 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmSchedule", upsOnStore.getSchedules());
             writer.writeEnd();
         }
+        writer.writeEnd();
+    }
+
+    private void writeUPSProcessingRules(JsonWriter writer, Collection<UPSProcessingRule> upsProcessingRules) {
+        writer.writeStartArray("dcmUPSProcessingRule");
+        upsProcessingRules.forEach(upsProcessingRule -> {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", upsProcessingRule.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomAETitle", upsProcessingRule.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmURI", upsProcessingRule.getUPSProcessorURI(), null);
+            writer.writeNotEmpty("dcmProperty", upsProcessingRule.getProperties());
+            writer.writeNotEmpty("dcmSchedule", upsProcessingRule.getSchedules());
+            writer.writeNotDef("dcmMaxThreads", upsProcessingRule.getMaxThreads(), 1);
+            writer.writeNotNullOrDef("dcmUPSInputReadinessState",
+                    upsProcessingRule.getInputReadinessState(), InputReadinessState.READY);
+            writer.writeNotNullOrDef("dcmUPSPriority", upsProcessingRule.getUPSPriority(), null);
+            writer.writeNotNullOrDef("dcmUPSLabel", upsProcessingRule.getProcedureStepLabel(), null);
+            writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsProcessingRule.getWorklistLabel(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledWorkitemCode", upsProcessingRule.getScheduledWorkitemCode(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationNameCode", upsProcessingRule.getScheduledStationName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationClassCode", upsProcessingRule.getScheduledStationClass(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationLocationCode",
+                    upsProcessingRule.getScheduledStationLocation(), null);
+            writer.writeNotDef("dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
+            writer.writeNotNullOrDef("dcmRetryDelay",
+                    upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
+            writer.writeNotNullOrDef("dcmMaxRetryDelay", upsProcessingRule.getMaxRetryDelay(), null);
+            writer.writeNotDef("dcmRetryDelayMultiplier",
+                    upsProcessingRule.getRetryDelayMultiplier(), 100);
+            writer.writeNotDef("dcmRetryOnWarning", upsProcessingRule.isRetryOnWarning(), false);
+            writer.writeEnd();
+        });
         writer.writeEnd();
     }
 
@@ -1675,6 +1717,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmDeleteMWLDelay":
                     arcDev.setDeleteMWLDelay(reader.stringArray());
                     break;
+                case "dcmUPSProcessingPollingInterval":
+                    arcDev.setUPSProcessingPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmUPSProcessingFetchSize":
+                    arcDev.setUPSProcessingFetchSize(reader.intValue());
+                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -1752,6 +1800,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSOnStore":
                     loadUPSOnStoreList(arcDev.listUPSOnStore(), reader);
+                    break;
+                case "dcmUPSProcessingRule":
+                    loadUPSProcessingRules(arcDev.getUPSProcessingRules(), reader);
                     break;
                 case "hl7UPSOnHL7":
                     loadUPSOnHL7List(arcDev.listUPSOnHL7(), reader);
@@ -2940,6 +2991,82 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             upsOnStoreList.add(upsOnStore);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUPSProcessingRules(Collection<UPSProcessingRule> upsProcessingRules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UPSProcessingRule upsProcessingRule = new UPSProcessingRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        upsProcessingRule.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        upsProcessingRule.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        upsProcessingRule.setUPSProcessorURI(
+                                URI.create(StringUtils.replaceSystemProperties(reader.stringValue())));
+                        break;
+                    case "dcmProperty":
+                        upsProcessingRule.setProperties(reader.stringArray());
+                        break;
+                    case "dcmSchedule":
+                        upsProcessingRule.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
+                        break;
+                    case "dcmMaxThreads":
+                        upsProcessingRule.setMaxThreads(reader.intValue());
+                        break;
+                    case "dcmUPSInputReadinessState":
+                        upsProcessingRule.setInputReadinessState(InputReadinessState.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSPriority":
+                        upsProcessingRule.setUPSPriority(UPSPriority.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSLabel":
+                        upsProcessingRule.setProcedureStepLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSWorklistLabel":
+                        upsProcessingRule.setWorklistLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSScheduledWorkitemCode":
+                        upsProcessingRule.setScheduledWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationNameCode":
+                        upsProcessingRule.setScheduledStationName(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationClassCode":
+                        upsProcessingRule.setScheduledStationClass(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationLocationCode":
+                        upsProcessingRule.setScheduledStationLocation(new Code(reader.stringValue()));
+                        break;
+                    case "dcmMaxRetries":
+                        upsProcessingRule.setMaxRetries(reader.intValue());
+                        break;
+                    case "dcmRetryDelay":
+                        upsProcessingRule.setRetryDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmMaxRetryDelay":
+                        upsProcessingRule.setMaxRetryDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmRetryDelayMultiplier":
+                        upsProcessingRule.setRetryDelayMultiplier(reader.intValue());
+                        break;
+                    case "dcmRetryOnWarning":
+                        upsProcessingRule.setRetryOnWarning(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            upsProcessingRules.add(upsProcessingRule);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

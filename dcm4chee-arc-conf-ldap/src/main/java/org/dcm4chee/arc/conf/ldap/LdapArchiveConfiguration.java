@@ -53,6 +53,7 @@ import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.Property;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
@@ -436,6 +437,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getMWLPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLFetchSize", ext.getMWLFetchSize(), 100);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteMWLDelay", ext.getDeleteMWLDelay());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSProcessingPollingInterval",
+                ext.getUPSProcessingPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSProcessingFetchSize",
+                ext.getUPSProcessingFetchSize(), 100);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -704,6 +709,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMWLPollingInterval(toDuration(attrs.get("dcmMWLPollingInterval"), null));
         ext.setMWLFetchSize(LdapUtils.intValue(attrs.get("dcmMWLFetchSize"), 100));
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
+        ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
+        ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
     }
 
     @Override
@@ -1203,6 +1210,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getMWLFetchSize(),
                 100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLDelay", aa.getDeleteMWLDelay(), bb.getDeleteMWLDelay());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSProcessingPollingInterval",
+                aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSProcessingFetchSize",
+                aa.getUPSProcessingFetchSize(), bb.getUPSProcessingFetchSize(), 100);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1240,6 +1251,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
         storeMetricsDescriptors(diffs, arcDev.getMetricsDescriptors(), deviceDN);
         storeUPSOnStoreList(diffs, arcDev.listUPSOnStore(), deviceDN);
+        storeUPSProcessingRules(diffs, deviceDN, arcDev);
         storeUPSOnHL7List(diffs, arcDev.listUPSOnHL7(), deviceDN, config);
         storeMWLIdleTimeouts(diffs, arcDev.getMWLIdleTimeouts(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
@@ -1277,6 +1289,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadKeycloakServers(arcdev, deviceDN);
         loadMetricsDescriptors(arcdev, deviceDN);
         loadUPSOnStoreList(arcdev.listUPSOnStore(), deviceDN);
+        loadUPSProcessingRules(arcdev.getUPSProcessingRules(), deviceDN);
         loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
         loadMWLIdleTimeouts(arcdev.getMWLIdleTimeouts(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
@@ -1325,6 +1338,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeMetricsDescriptors(diffs, aa.getMetricsDescriptors(), bb.getMetricsDescriptors(), deviceDN);
         mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), deviceDN);
         mergeUPSOnHL7List(diffs, aa.listUPSOnHL7(), bb.listUPSOnHL7(), deviceDN, config);
+        mergeUPSProcessingRules(diffs, aa, bb, deviceDN);
         mergeMWLIdleTimeouts(diffs, aa.getMWLIdleTimeouts(), bb.getMWLIdleTimeouts(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
@@ -2699,6 +2713,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeUPSProcessingRules(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
+            throws NamingException {
+        for (UPSProcessingRule upsProcessingRule : arcDev.getUPSProcessingRules()) {
+            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", upsProcessingRule.getCommonName(), deviceDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, upsProcessingRule, new BasicAttributes(true)));
+        }
+    }
+
     static void storeUPSOnHL7List(
             ConfigurationChanges diffs, Collection<UPSOnHL7> upsOnHL7List, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
@@ -2794,6 +2818,46 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnStore.getConditions().getMap());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", upsOnStore.getSchedules());
+        return attrs;
+    }
+
+    private Attributes storeTo(
+            ConfigurationChanges.ModifiedObject ldapObj, UPSProcessingRule upsProcessingRule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmUPSOnStore");
+        attrs.put("cn", upsProcessingRule.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", upsProcessingRule.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsProcessingRule.getUPSProcessorURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsProcessingRule.getProperties());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", upsProcessingRule.getSchedules());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxThreads", upsProcessingRule.getMaxThreads(), 1);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
+                upsProcessingRule.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority",
+                upsProcessingRule.getUPSPriority(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel",
+                upsProcessingRule.getProcedureStepLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
+                upsProcessingRule.getWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
+                upsProcessingRule.getScheduledWorkitemCode(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsProcessingRule.getScheduledStationName(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsProcessingRule.getScheduledStationClass(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsProcessingRule.getScheduledStationLocation(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
+                upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetryDelay",
+                upsProcessingRule.getMaxRetryDelay(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier",
+                upsProcessingRule.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", upsProcessingRule.isRetryOnWarning(), false);
         return attrs;
     }
 
@@ -2932,6 +2996,41 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 upsOnStore.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 upsOnStoreList.add(upsOnStore);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadUPSProcessingRules(Collection<UPSProcessingRule> upsProcessingRules, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmUPSProcessingRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UPSProcessingRule upsProcessingRule = new UPSProcessingRule(LdapUtils.stringValue(attrs.get("cn"),null));
+                upsProcessingRule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                upsProcessingRule.setUPSProcessorURI(URI.create(
+                        StringUtils.replaceSystemProperties(LdapUtils.stringValue(attrs.get("dcmURI"), null))));
+                upsProcessingRule.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                upsProcessingRule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                upsProcessingRule.setMaxThreads(LdapUtils.intValue(attrs.get("dcmMaxThreads"), 1));
+                upsProcessingRule.setInputReadinessState(LdapUtils.enumValue(InputReadinessState.class,
+                                attrs.get("dcmUPSInputReadinessState"), InputReadinessState.READY));
+                upsProcessingRule.setUPSPriority(
+                        LdapUtils.enumValue(UPSPriority.class, attrs.get("dcmUPSPriority"), null));
+                upsProcessingRule.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
+                upsProcessingRule.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+                upsProcessingRule.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
+                upsProcessingRule.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsProcessingRule.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsProcessingRule.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsProcessingRule.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
+                upsProcessingRule.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), UPSProcessingRule.DEFAULT_RETRY_DELAY));
+                upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
+                upsProcessingRule.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
+                upsProcessingRule.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
+                upsProcessingRules.add(upsProcessingRule);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3240,6 +3339,37 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeUPSProcessingRules(ConfigurationChanges diffs, ArchiveDeviceExtension prev,
+                                         ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (UPSProcessingRule prevUPSProcessingRule : prev.getUPSProcessingRules()) {
+            String cn = prevUPSProcessingRule.getCommonName();
+            if (arcDev.getUPSProcessingRule(cn) == null) {
+                String dn = LdapUtils.dnOf("dcmUPSProcessingRule", cn, deviceDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UPSProcessingRule upsProcessingRule : arcDev.getUPSProcessingRules()) {
+            String cn = upsProcessingRule.getCommonName();
+            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", cn, deviceDN);
+            UPSProcessingRule prevUPSProcessingRule = prev.getUPSProcessingRule(cn);
+            if (prevUPSProcessingRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                upsProcessingRule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn,
+                        storeDiffs(ldapObj, prevUPSProcessingRule, upsProcessingRule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     static void mergeUPSOnHL7List(
             ConfigurationChanges diffs, Collection<UPSOnHL7> prevUPSOnHL7List, Collection<UPSOnHL7> upsOnHL7List,
             String parentDN, LdapDicomConfiguration config)
@@ -3363,6 +3493,45 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UPSProcessingRule prev,
+                                              UPSProcessingRule upsProcessingRule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
+                prev.getAETitle(), upsProcessingRule.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
+                prev.getUPSProcessorURI(), upsProcessingRule.getUPSProcessorURI(), null);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getProperties(), upsProcessingRule.getProperties());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), upsProcessingRule.getSchedules());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataThreads",
+                prev.getMaxThreads(), upsProcessingRule.getMaxThreads(), 1);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",
+                prev.getInputReadinessState(), upsProcessingRule.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
+                prev.getUPSPriority(), upsProcessingRule.getUPSPriority(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
+                prev.getProcedureStepLabel(), upsProcessingRule.getProcedureStepLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
+                prev.getWorklistLabel(), upsProcessingRule.getWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
+                prev.getScheduledWorkitemCode(), upsProcessingRule.getScheduledWorkitemCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationName(), upsProcessingRule.getScheduledStationName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClass(), upsProcessingRule.getScheduledStationClass(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocation(), upsProcessingRule.getScheduledStationLocation(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), upsProcessingRule.getMaxRetries(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
+                prev.getRetryDelay(), upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxRetryDelay",
+                prev.getMaxRetryDelay(), upsProcessingRule.getMaxRetryDelay(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryDelayMultiplier",
+                prev.getRetryDelayMultiplier(), upsProcessingRule.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning",
+                prev.isRetryOnWarning(), upsProcessingRule.isRetryOnWarning(), false);
+        return mods;
+    }
+
     private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
                                               UPSOnHL7 prev, UPSOnHL7 upsOnHL7, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
@@ -3422,6 +3591,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (UPSOnStore upsOnStore : upsOnStoreList)
             if (upsOnStore.getCommonName().equals(cn))
                 return upsOnStore;
+        return null;
+    }
+
+    private UPSProcessingRule findUPSProcessingRuleByCN(Collection<UPSProcessingRule> upsProcessingRules, String cn) {
+        for (UPSProcessingRule upsProcessingRule : upsProcessingRules)
+            if (upsProcessingRule.getCommonName().equals(cn))
+                return upsProcessingRule;
         return null;
     }
 
