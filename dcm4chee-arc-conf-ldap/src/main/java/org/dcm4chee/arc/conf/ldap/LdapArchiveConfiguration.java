@@ -1289,7 +1289,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadKeycloakServers(arcdev, deviceDN);
         loadMetricsDescriptors(arcdev, deviceDN);
         loadUPSOnStoreList(arcdev.listUPSOnStore(), deviceDN);
-        loadUPSProcessingRules(arcdev.getUPSProcessingRules(), deviceDN);
+        loadUPSProcessingRules(arcdev, deviceDN);
         loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
         loadMWLIdleTimeouts(arcdev.getMWLIdleTimeouts(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
@@ -2823,7 +2823,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private Attributes storeTo(
             ConfigurationChanges.ModifiedObject ldapObj, UPSProcessingRule upsProcessingRule, BasicAttributes attrs) {
-        attrs.put("objectclass", "dcmUPSOnStore");
+        attrs.put("objectclass", "dcmUPSProcessingRule");
         attrs.put("cn", upsProcessingRule.getCommonName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", upsProcessingRule.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsProcessingRule.getUPSProcessorURI(), null);
@@ -3002,7 +3002,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void loadUPSProcessingRules(Collection<UPSProcessingRule> upsProcessingRules, String parentDN) throws NamingException {
+    private void loadUPSProcessingRules(ArchiveDeviceExtension arcDev, String parentDN) throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmUPSProcessingRule)");
         try {
             while (ne.hasMore()) {
@@ -3030,7 +3030,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
                 upsProcessingRule.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
                 upsProcessingRule.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
-                upsProcessingRules.add(upsProcessingRule);
+                arcDev.addUPSProcessingRule(upsProcessingRule);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3345,14 +3345,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (UPSProcessingRule prevUPSProcessingRule : prev.getUPSProcessingRules()) {
             String cn = prevUPSProcessingRule.getCommonName();
             if (arcDev.getUPSProcessingRule(cn) == null) {
-                String dn = LdapUtils.dnOf("dcmUPSProcessingRule", cn, deviceDN);
+                String dn = LdapUtils.dnOf("cn", cn, deviceDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
         for (UPSProcessingRule upsProcessingRule : arcDev.getUPSProcessingRules()) {
             String cn = upsProcessingRule.getCommonName();
-            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", cn, deviceDN);
+            String dn = LdapUtils.dnOf("cn", cn, deviceDN);
             UPSProcessingRule prevUPSProcessingRule = prev.getUPSProcessingRule(cn);
             if (prevUPSProcessingRule == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =

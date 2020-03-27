@@ -1802,7 +1802,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadUPSOnStoreList(arcDev.listUPSOnStore(), reader);
                     break;
                 case "dcmUPSProcessingRule":
-                    loadUPSProcessingRules(arcDev.getUPSProcessingRules(), reader);
+                    loadUPSProcessingRules(arcDev, reader);
                     break;
                 case "hl7UPSOnHL7":
                     loadUPSOnHL7List(arcDev.listUPSOnHL7(), reader);
@@ -2995,7 +2995,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadUPSProcessingRules(Collection<UPSProcessingRule> upsProcessingRules, JsonReader reader) {
+    private void loadUPSProcessingRules(ArchiveDeviceExtension arcDev, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -3066,7 +3066,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            upsProcessingRules.add(upsProcessingRule);
+            arcDev.addUPSProcessingRule(upsProcessingRule);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
