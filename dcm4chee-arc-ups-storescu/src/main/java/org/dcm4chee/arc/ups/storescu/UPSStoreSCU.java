@@ -39,14 +39,30 @@
  *
  */
 
-package org.dcm4chee.arc.ups.process;
+package org.dcm4chee.arc.ups.storescu;
 
 import org.dcm4chee.arc.conf.UPSProcessingRule;
+import org.dcm4chee.arc.ups.process.UPSProcessingContext;
+import org.dcm4chee.arc.ups.process.UPSProcessor;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Mar 2020
  */
-public interface UPSProcessorProvider {
-    UPSProcessor getUPSProcessor(UPSProcessingRule rule);
+public class UPSStoreSCU implements UPSProcessor {
+    private final UPSProcessingRule rule;
+
+    public UPSStoreSCU(UPSProcessingRule rule) {
+        this.rule = rule;
+    }
+
+    @Override
+    public UPSProcessingRule getUPSProcessingRule() {
+        return rule;
+    }
+
+    @Override
+    public void process(UPSProcessingContext ctx) {
+        //TODO
+    }
 }

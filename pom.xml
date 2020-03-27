@@ -614,6 +614,7 @@
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
+    <module>dcm4chee-arc-ups-storescu</module>
   </modules>
 
   <build>
