@@ -127,6 +127,8 @@ export class AppComponent implements OnInit {
                             this.languageSwitcher = new LanguageSwitcher(languageConfig, this.mainservice.user);
                         }
                     }
+                    //TODO check if the current_language is the same with the default language of the uiConfig if not update default language in LDAP and Localstorage
+
                 }
             }
         });
@@ -152,6 +154,7 @@ export class AppComponent implements OnInit {
                 username:this.mainservice.user.user
             };
             localStorage.setItem('current_language', JSON.stringify(localLanguage));
+            //TODO update the uiConfig so that the new choose language to be the default one for this user
         //}
         setTimeout(()=>{
             location.reload();

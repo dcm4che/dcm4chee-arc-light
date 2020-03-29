@@ -991,7 +991,8 @@ export class Globalvar {
                     type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate",
                     description:$localize `:@@sps_start_date:SPS Start Date`,
-                    placeholder:$localize `:@@scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`
+                    placeholder:$localize `:@@scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`,
+                    onlyDate:true
                 },{
                     tag:"range-picker-time",
                     type:"text",

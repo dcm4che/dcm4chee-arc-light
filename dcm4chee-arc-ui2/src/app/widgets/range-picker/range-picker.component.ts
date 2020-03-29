@@ -314,6 +314,8 @@ export class RangePickerComponent implements OnInit {
         }
         this.showPicker = false;*/
         // this.filterChanged();
+        // this.singleDateModel =
+        this.mode = "single";
         this.setRange();
     }
     thisMonth(){

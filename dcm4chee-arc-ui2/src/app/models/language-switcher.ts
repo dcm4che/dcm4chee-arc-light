@@ -15,6 +15,7 @@ export class LanguageSwitcher {
             });
             const defaultConfigLanguage = j4care.extractLanguageDataFromString(j4care.getDefaultLanguageFromProfile(languageConfig,user));
             const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+            //TODO check if currentSavedLanguage and defaultConfigLanguage the same is
             if(currentSavedLanguage && currentSavedLanguage.username === user.user){
                 this._currentSelectedLanguage = currentSavedLanguage.language;
             }else{
