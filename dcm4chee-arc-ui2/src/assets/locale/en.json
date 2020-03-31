@@ -1423,7 +1423,6 @@
     "set_time": "Set time",
     "time-picker.now": "Now",
     "change_sps_single": "Change Scheduled Procedure Step Status of the MWL",
-    "change_sps_matching": "Change Scheduled Procedure Step Status of the matching MWL",
     "select_scheduled_procedure_step_status": "Select the Scheduled Procedure Step Status",
     "ARRIVED": "ARRIVED",
     "STARTED": "STARTED",
@@ -1431,16 +1430,11 @@
     "CANCELLED": "CANCELLED",
     "DISCONTINUED": "DISCONTINUED",
     "scheduled_procedure_step_status": "Scheduled Procedure Step Status",
-    "sps_status": "SPS Status",
     "sps_status_on_selections": "SPS Status on selections",
-    "study.short_delete_object": "Delete selections",
-    "study.delete_object": "Delete selected studies, series or instances permanently",
-    "change_sps_single": "Change Scheduled Procedure Step Status of the MWL",
     "change_sps_matching": "Change Scheduled Procedure Step Status of the matching MWL",
     "change_sps_selected": "Change Scheduled Procedure Step Status of the selected MWL",
     "mwl.status_changed_successfully": "Status changed successfully",
     "mwl.change_sps_status_on_matching": "Change SPS Status on matching MWL",
-    "mwl.status_changed_successfully": "Status changed successfully",
     "APPLY": "APPLY"
   }
 }
