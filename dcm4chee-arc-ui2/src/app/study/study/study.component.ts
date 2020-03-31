@@ -621,7 +621,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     instance.selected = selectedValue;
                                 })
                         })
-                })
+                });
+            if(patient.mwls && resetIds.indexOf("mwl") > -1)
+                patient.mwls.forEach(study=>{
+                    study.selected = selectedValue;
+                });
         })
     }
 
