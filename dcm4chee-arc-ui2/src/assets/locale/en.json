@@ -1421,6 +1421,16 @@
     "placeholder.specific-char-picker.__search": "  Search..",
     "time-picker.title": "Select time (hh:mm:ss)",
     "set_time": "Set time",
-    "time-picker.now": "Now"
+    "time-picker.now": "Now",
+    "change_sps_single": "Change Scheduled Procedure Step Status of the MWL",
+    "change_sps_matching": "Change Scheduled Procedure Step Status of the matching MWL",
+    "select_scheduled_procedure_step_status": "Select the Scheduled Procedure Step Status",
+    "ARRIVED": "ARRIVED",
+    "STARTED": "STARTED",
+    "DEPARTED": "DEPARTED",
+    "CANCELLED": "CANCELLED",
+    "DISCONTINUED": "DISCONTINUED",
+    "scheduled_procedure_step_status": "Scheduled Procedure Step Status",
+    "sps_status": "SPS Status"
   }
 }

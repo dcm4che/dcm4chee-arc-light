@@ -1421,6 +1421,16 @@
     "placeholder.specific-char-picker.__search": "de_  Search..",
     "time-picker.title": "de_Select time (hh:mm:ss)",
     "set_time": "de_Set time",
-    "time-picker.now": "de_Now"
+    "time-picker.now": "de_Now",
+    "change_sps_single": "de_Change Scheduled Procedure Step Status of the MWL",
+    "change_sps_matching": "de:Change Scheduled Procedure Step Status of the matching MWL",
+    "select_scheduled_procedure_step_status": "de_Select the Scheduled Procedure Step Status",
+    "ARRIVED": "de_ARRIVED",
+    "STARTED": "de_STARTED",
+    "DEPARTED": "de_DEPARTED",
+    "CANCELLED": "de_CANCELLED",
+    "DISCONTINUED": "de_DISCONTINUED",
+    "scheduled_procedure_step_status": "de_Scheduled Procedure Step Status",
+    "sps_status": "de_SPS Status"
   }
 }

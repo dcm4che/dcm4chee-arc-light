@@ -48,6 +48,7 @@ import {Error} from "tslint/lib/error";
 import {AppService} from "../../app.service";
 import {throwError} from 'rxjs/internal/observable/throwError';
 import { loadTranslations } from '@angular/localize';
+import {MwlDicom} from "../../models/mwl-dicom";
 
 @Injectable()
 export class StudyService {
@@ -2374,6 +2375,24 @@ export class StudyService {
                                     id: 'action-studies-mwl',
                                     param: 'upload'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon calendar_step_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "mwl",
+                                        action: "change_sps_status"
+                                    }, e);
+                                },
+                                title: $localize `:@@mwl.change_sps_status:Change SPS status`,
+                                permission: {
+                                    id: 'action-studies-mwl',
+                                    param: 'edit'
+                                }
                             }
                         ]
                     },
@@ -2872,6 +2891,23 @@ export class StudyService {
             return this.$http.post(url, mwl, header);
         }
         return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+    changeSPSStatusSingleMWL(dcmWebApp:DcmWebApp,spsState:string, mwlModel:MwlDicom){
+        const studyInstanceUID = _.get(mwlModel,"attrs[0020000D].Value[0]");
+        const spsID = _.get(mwlModel,"attrs[00400100].Value[0][00400009].Value[0]");
+        if(studyInstanceUID && spsID){
+            return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/${studyInstanceUID}/${spsID}/status/${spsState}`,{});
+        }else{
+            return throwError({
+                message: $localize `:@@scheduled_procedure_step_id_or_study_instance_uid_were_missing:Scheduled Procedure Step ID or Study Instance UID were missing!`
+            })
+        }
+    }
+    changeSPSStatusMatchingMWL(dcmWebApp:DcmWebApp){
+        this.getDicomURL("mwl",dcmWebApp)
+        ///aets/{aet}/rs/mwlitems/{study}/{spsID}/status/{status}
+        ///aets/{aet}/rs/mwlitems/status/{status}
+
     }
 
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {

@@ -639,6 +639,25 @@ p-calendar{
     background-position: center center;
     float: left;
   }
+  &.calendar_step_black{
+    background-image: url("assets/img/calendar_step.png");
+    background-repeat:no-repeat;
+    height:26px;
+    width:30px;
+    background-position: center center;
+    float: left;
+    &:hover{
+      background-image: url("assets/img/calendar_step_white.png");
+    }
+  }
+  &.calendar_step_white{
+    background-image: url("assets/img/calendar_step_white.png");
+    background-repeat:no-repeat;
+    height:26px;
+    width:30px;
+    background-position: center center;
+    float: left;
+  }
   &.pdf_icon{
     background-image: url("assets/img/pdf_icon.png");
     background-repeat:no-repeat;

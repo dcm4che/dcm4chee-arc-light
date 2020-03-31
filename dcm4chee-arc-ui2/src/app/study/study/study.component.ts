@@ -772,6 +772,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "update_access_control_id"){
                 this.updateAccessControlId(id.action, model);
             }
+            if(id.action === "change_sps_status"){
+                this.changeSPSStatus(model, true)
+            }
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
         }
@@ -1046,6 +1049,79 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }, (err) => {
             console.log('error', err);
         });
+    }
+
+    changeSPSStatus(model, singleMode:boolean){
+        console.log("model",model);
+        console.log("status",_.get(model,"attrs[00400100].Value[0][00400020].Value[0]"));
+        console.log("spsID",_.get(model,"attrs[00400100].Value[0][00400009].Value[0]"));
+        const currentStatus = _.get(model,"attrs[00400100].Value[0][00400020].Value[0]");
+        let headerMsg:string;
+        if(singleMode){
+            headerMsg = $localize `:@@change_sps_single:Change Scheduled Procedure Step Status of the MWL`;
+        }else{
+            headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the matching MWL`;
+        }
+        this.confirm({
+            content: headerMsg,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label_large",
+                            text:$localize `:@@select_scheduled_procedure_step_status:Select the Scheduled Procedure Step Status`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@sps_status:SPS Status`
+                        },
+                        {
+                            tag:"select",
+                            options:[
+                                new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
+                                new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
+                                new SelectDropdown("READY", $localize `:@@READY:READY`),
+                                new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
+                                new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
+                                new SelectDropdown("CANCELLED", $localize `:@@CANCELLED:CANCELLED`),
+                                new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`),
+                                new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                            ],
+                            filterKey:"spsState",
+                            description:$localize `:@@scheduled_procedure_step_status:Scheduled Procedure Step Status`,
+                            placeholder:$localize `:@@sps_status:SPS Status`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {
+                    spsState:currentStatus
+                }
+            },
+            saveButton: $localize `:@@APPLY:APPLY`
+        }).subscribe(ok=>{
+            if(ok && ok.schema_model.spsState &&  ((singleMode && ok.schema_model.spsState != currentStatus) || !singleMode)){
+                if(singleMode){
+                    this.service.changeSPSStatusSingleMWL(
+                            this.studyWebService.selectedWebService,
+                            ok.schema_model.spsState,
+                            model
+                    ).subscribe(res=>{
+                        this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                        _.set(model,"attrs[00400100].Value[0][00400020].Value[0]",ok.schema_model.spsState);
+                    },err=>{
+                        this.httpErrorHandler.handleError(err);
+                    })
+                }else{
+                    this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,)
+                }
+
+            }
+        })
     }
 
     /*
