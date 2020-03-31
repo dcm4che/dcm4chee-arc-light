@@ -2903,11 +2903,19 @@ export class StudyService {
             })
         }
     }
+    changeSPSStatusSelectedMWL(multipleObjects: SelectionActionElement,dcmWebApp:DcmWebApp,spsState:string){
+        let observables = [];
+        multipleObjects.preActionElements.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "mwl")).map((element: SelectedDetailObject) => {
+            const studyInstanceUID = _.get(element.object,"attrs[0020000D].Value[0]");
+            const spsID = _.get(element.object,"attrs[00400100].Value[0][00400009].Value[0]");
+            observables.push(this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/${studyInstanceUID}/${spsID}/status/${spsState}`,{}).pipe(
+                catchError(err => of({isError: true, error: err})),
+            ));
+        });
+        return forkJoin(observables);
+    }
     changeSPSStatusMatchingMWL(dcmWebApp:DcmWebApp, status:string, filters:any){
-        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}`,filters)
-        ///aets/{aet}/rs/mwlitems/{study}/{spsID}/status/{status}
-        ///aets/{aet}/rs/mwlitems/status/{status}
-
+        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}`,filters);
     }
 
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {

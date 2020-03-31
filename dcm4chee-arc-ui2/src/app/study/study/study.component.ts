@@ -198,7 +198,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
-            new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`)
+            new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
+            new SelectDropdown("change_sps_status_on_selections", $localize `:@@sps_status_on_selections:SPS Status on selections`, $localize `:@@change_sps_status_on_selected_mwl:Change SPS Status on selected MWL`)
         ],
         model:undefined
     };
@@ -394,7 +395,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.updateAccessControlId(e);
                break;
             case "change_sps_status_on_matching":
-                this.changeSPSStatus(e);
+                this.changeSPSStatus(e, "matching");
                break;
         }
         setTimeout(()=>{
@@ -422,6 +423,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         if(e === "update_access_control_id_to_selections"){
             this.updateAccessControlId(e);
+        }
+        if(e === "change_sps_status_on_selections"){
+            this.changeSPSStatus(e,"selected");
         }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
@@ -589,7 +593,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             "instance",
             "series",
             "patient",
-            "study"
+            "study",
+            "mwl"
         ];
         resetIds.forEach(id=>{
             newObject[id] = {};
@@ -777,7 +782,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.updateAccessControlId(id.action, model);
             }
             if(id.action === "change_sps_status"){
-                this.changeSPSStatus(model, true)
+                this.changeSPSStatus(model, "single")
             }
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
@@ -1055,16 +1060,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    changeSPSStatus(model, singleMode?:boolean){
+    changeSPSStatus(model, spsMode?:("single"|"selected"|"matching")){
         console.log("model",model);
         console.log("status",_.get(model,"attrs[00400100].Value[0][00400020].Value[0]"));
         console.log("spsID",_.get(model,"attrs[00400100].Value[0][00400009].Value[0]"));
         const currentStatus = _.get(model,"attrs[00400100].Value[0][00400020].Value[0]");
         let headerMsg:string;
-        if(singleMode){
-            headerMsg = $localize `:@@change_sps_single:Change Scheduled Procedure Step Status of the MWL`;
-        }else{
-            headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the matching MWL`;
+        switch (spsMode) {
+            case "single":
+                headerMsg = $localize `:@@change_sps_single:Change Scheduled Procedure Step Status of the MWL`;
+                break;
+            case "matching":
+                headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the matching MWL`;
+                break;
+            case "selected":
+                headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the selected MWL`;
+                break;
         }
         this.confirm({
             content: headerMsg,
@@ -1108,9 +1119,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@APPLY:APPLY`
         }).subscribe(ok=>{
-            if(ok && ok.schema_model.spsState &&  ((singleMode && ok.schema_model.spsState != currentStatus) || !singleMode)){
+            if(ok && ok.schema_model.spsState &&  ((spsMode === "single" && ok.schema_model.spsState != currentStatus) || spsMode != "single")){
                 this.cfpLoadingBar.start();
-                if(singleMode){
+                switch (spsMode) {
+                    case "single":
+                        this.service.changeSPSStatusSingleMWL(
+                            this.studyWebService.selectedWebService,
+                            ok.schema_model.spsState,
+                            model
+                        ).subscribe(res=>{
+                            this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                            this.cfpLoadingBar.complete();
+                            _.set(model,"attrs[00400100].Value[0][00400020].Value[0]",ok.schema_model.spsState);
+                        },err=>{
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                    case "matching":
+                        this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
+                            this.cfpLoadingBar.complete();
+                            this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                            this.search("current",{id:"submit"});
+                        },err=>{
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                    case "selected":
+                        this.service.changeSPSStatusSelectedMWL(
+                            this.selectedElements,
+                            this.studyWebService.selectedWebService,
+                            ok.schema_model.spsState
+                        ).subscribe(res=>{
+                            this.cfpLoadingBar.complete();
+                            try{
+                                const errorCount = res.filter((result:any)=>result && result.isError).length;
+                                if(errorCount > 0){
+                                    this.appService.showMsg($localize `:@@mwl.process_executed_successfully_detailed:Process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successful:`);
+                                }else{
+                                    this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                                }
+                                this.clearClipboard();
+                            }catch (e) {
+                                j4care.log("Error on change sps status on selected mode result",e);
+                                this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                            }
+                        },err=>{
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                        break;
+                }
+/*                if(spsMode === "matching"){
+                    this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
+                        this.cfpLoadingBar.complete();
+                        this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                        this.search("current",{id:"submit"});
+                    },err=>{
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    })
+                }else{
                     this.service.changeSPSStatusSingleMWL(
                             this.studyWebService.selectedWebService,
                             ok.schema_model.spsState,
@@ -1123,16 +1193,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);
                     })
-                }else{
-                    this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
-                        this.cfpLoadingBar.complete();
-                        this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
-                        this.search("current",{id:"submit"});
-                    },err=>{
-                        this.cfpLoadingBar.complete();
-                        this.httpErrorHandler.handleError(err);
-                    })
-                }
+                }*/
 
             }
         })
@@ -2157,6 +2218,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(option.value === "update_access_control_id_to_selections"){
                 return studyConfig && studyConfig.tab === "study";
+            }
+            if(option.value === "change_sps_status_on_selections"){
+                return studyConfig && studyConfig.tab === "mwl";
             }
             return true;
         });
