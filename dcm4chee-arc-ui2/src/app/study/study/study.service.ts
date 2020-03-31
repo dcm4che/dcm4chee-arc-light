@@ -2903,8 +2903,8 @@ export class StudyService {
             })
         }
     }
-    changeSPSStatusMatchingMWL(dcmWebApp:DcmWebApp){
-        this.getDicomURL("mwl",dcmWebApp)
+    changeSPSStatusMatchingMWL(dcmWebApp:DcmWebApp, status:string, filters:any){
+        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}`,filters)
         ///aets/{aet}/rs/mwlitems/{study}/{spsID}/status/{status}
         ///aets/{aet}/rs/mwlitems/status/{status}
 

@@ -186,6 +186,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("storage_verification",$localize `:@@study.storage_verification:Storage Verification`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download tudies as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@study.trigger_diff:Trigger Diff`),
+            new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
         ],
         model:undefined
     };
@@ -391,6 +392,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                break;
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
+               break;
+            case "change_sps_status_on_matching":
+                this.changeSPSStatus(e);
                break;
         }
         setTimeout(()=>{
@@ -1051,7 +1055,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    changeSPSStatus(model, singleMode:boolean){
+    changeSPSStatus(model, singleMode?:boolean){
         console.log("model",model);
         console.log("status",_.get(model,"attrs[00400100].Value[0][00400020].Value[0]"));
         console.log("spsID",_.get(model,"attrs[00400100].Value[0][00400009].Value[0]"));
@@ -1105,6 +1109,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@APPLY:APPLY`
         }).subscribe(ok=>{
             if(ok && ok.schema_model.spsState &&  ((singleMode && ok.schema_model.spsState != currentStatus) || !singleMode)){
+                this.cfpLoadingBar.start();
                 if(singleMode){
                     this.service.changeSPSStatusSingleMWL(
                             this.studyWebService.selectedWebService,
@@ -1112,12 +1117,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             model
                     ).subscribe(res=>{
                         this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                        this.cfpLoadingBar.complete();
                         _.set(model,"attrs[00400100].Value[0][00400020].Value[0]",ok.schema_model.spsState);
                     },err=>{
+                        this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);
                     })
                 }else{
-                    this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,)
+                    this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
+                        this.cfpLoadingBar.complete();
+                        this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                        this.search("current",{id:"submit"});
+                    },err=>{
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    })
                 }
 
             }
@@ -1347,15 +1361,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         return params;
     }
-    createStudyFilterParams(withoutPagination?:boolean, withoutDefaultQueryStudyParam?:boolean) {
+    createStudyFilterParams(withoutPagination?:boolean, withoutDefaultQueryStudyParam?:boolean, leaveSPSparamters?:boolean) {
         let filter = this.getFilterClone();
-        // delete filter["allAttributes"];
-        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
-        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
-/*        if(this._filter.filterModel["allAttributes"]){
-            filter["includefield"] = 'all';
-        }*/
-        // delete this._filter.filterModel["allAttributes"];
+        if(!leaveSPSparamters){
+            delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
+            delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
+        }
         if(withoutPagination){
             delete filter["size"];
             delete filter["offset"];
@@ -2097,25 +2108,31 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(option.value === "create_patient"){
                 return (studyConfig && studyConfig.tab === "patient")
             }else{
-                if(!(studyConfig && studyConfig.tab === "patient")){
-                    switch (option.value) {
-                        case "retrieve_multiple":
-                            return !internal && !(studyConfig && studyConfig.tab === "diff");
-
-                        case "export_multiple":
-                            return internal && !(studyConfig && studyConfig.tab === "diff");
-                        case "upload_dicom":
-                            return !(studyConfig && studyConfig.tab === "diff");
-                        case "permanent_delete":
-                            return internal && !(studyConfig && studyConfig.tab === "diff");
-                        case "trigger_diff":
-                            return studyConfig && studyConfig.tab === "diff";
-                        case "reject_multiple":
-                            return studyConfig && studyConfig.tab === "study";
-                    }
-                    return true;
+                if(studyConfig && studyConfig.tab === "mwl"){
+                    return option.value === "change_sps_status_on_matching";
                 }else{
-                    return false;
+                    if(!(studyConfig && studyConfig.tab === "patient")){
+                        switch (option.value) {
+                            case "retrieve_multiple":
+                                return !internal && !(studyConfig && studyConfig.tab === "diff");
+
+                            case "export_multiple":
+                                return internal && !(studyConfig && studyConfig.tab === "diff");
+                            case "upload_dicom":
+                                return !(studyConfig && studyConfig.tab === "diff");
+                            case "permanent_delete":
+                                return internal && !(studyConfig && studyConfig.tab === "diff");
+                            case "trigger_diff":
+                                return studyConfig && studyConfig.tab === "diff";
+                            case "reject_multiple":
+                                return studyConfig && studyConfig.tab === "study";
+                            case "change_sps_status_on_matching":
+                                return false;
+                        }
+                        return true;
+                    }else{
+                        return false;
+                    }
                 }
             }
         });
