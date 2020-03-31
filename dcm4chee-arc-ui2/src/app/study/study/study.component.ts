@@ -1074,7 +1074,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the matching MWL`;
                 break;
             case "selected":
-                headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the selected MWL`;
+                headerMsg = $localize `:@@change_sps_selected:Change Scheduled Procedure Step Status of the selected MWL`;
                 break;
         }
         this.confirm({

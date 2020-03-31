@@ -1431,6 +1431,16 @@
     "CANCELLED": "sq_CANCELLED",
     "DISCONTINUED": "sq_DISCONTINUED",
     "scheduled_procedure_step_status": "sq_Scheduled Procedure Step Status",
-    "sps_status": "sq_SPS Status"
+    "sps_status": "sq_SPS Status",
+    "sps_status_on_selections": "sq_SPS Status on selections",
+    "study.short_delete_object": "sq_Delete selections",
+    "study.delete_object": "sq_Delete selected studies, series or instances permanently",
+    "change_sps_single": "sq_Change Scheduled Procedure Step Status of the MWL",
+    "change_sps_matching": "sq_Change Scheduled Procedure Step Status of the matching MWL",
+    "change_sps_selected": "sq_Change Scheduled Procedure Step Status of the selected MWL",
+    "mwl.status_changed_successfully": "sq_Status changed successfully",
+    "mwl.change_sps_status_on_matching": "sq_Change SPS Status on matching MWL",
+    "mwl.status_changed_successfully": "sq_Status changed successfully",
+    "APPLY": "sq_APPLY"
   }
 }
