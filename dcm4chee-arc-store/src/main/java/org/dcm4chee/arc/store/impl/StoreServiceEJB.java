@@ -886,6 +886,7 @@ public class StoreServiceEJB {
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
+        Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection(false)))
             return pat;
 
@@ -922,6 +923,7 @@ public class StoreServiceEJB {
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
+        Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
             return study;
 
@@ -950,6 +952,7 @@ public class StoreServiceEJB {
 
         Attributes attrs = series.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
+        Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
             return series;
 
