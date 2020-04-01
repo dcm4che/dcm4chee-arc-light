@@ -9,7 +9,7 @@
           <div class="filter_block auto_reloader">
             <table>
               <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                <td>{{status}}:</td>
+                <td>{{statusValues[status].text}}:</td>
                 <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
                 <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
               </tr>
@@ -17,7 +17,7 @@
 
             <div class="option_block">
               <div class="interval_block">
-                <label>Interval:</label>
+                <label i18n="@@interval">Interval:</label>
                 <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval" [(ngModel)]="interval">
                 <span>s</span>
               </div>

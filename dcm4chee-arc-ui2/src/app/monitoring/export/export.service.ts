@@ -97,13 +97,33 @@ export class ExportService {
     }
     statusValues(){
         return [
-            "TO SCHEDULE",
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
+            {
+                value:"TO SCHEDULE",
+                text:$localize `:@@to_schedule:TO SCHEDULE`
+            },{
+                value:"SCHEDULED",
+                text:$localize `:@@SCHEDULED:SCHEDULED`
+            },
+            {
+                value:$localize `IN PROCESS`,
+                text:$localize `:@@in_process:IN PROCESS`
+            },
+            {
+                value:"COMPLETED",
+                text:$localize `:@@COMPLETED:COMPLETED`
+            },
+            {
+                value:"WARNING",
+                text:$localize `:@@WARNING:WARNING`
+            },
+            {
+                value:"FAILED",
+                text:$localize `:@@FAILED:FAILED`
+            },
+            {
+                value:"CANCELED",
+                text:$localize `:@@CANCELED:CANCELED`
+            }
         ];
     }
     getDialogSchema(exporters, devices, text?){

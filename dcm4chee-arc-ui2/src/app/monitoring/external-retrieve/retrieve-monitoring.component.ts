@@ -122,7 +122,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.service.statusValues().forEach(val =>{
             this.statusValues[val.value] = {
                 count: 0,
-                loader: false
+                loader: false,
+                text:val.text
             };
         });
 /*        if (!this.mainservice.user){

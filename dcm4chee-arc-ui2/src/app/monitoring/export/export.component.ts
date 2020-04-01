@@ -111,10 +111,11 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.initExporters(1);
         this.getAets();
         // this.init();
-        this.service.statusValues().forEach(status =>{
-            this.statusValues[status] = {
+        this.service.statusValues().forEach(val =>{
+            this.statusValues[val.value] = {
                 count: 0,
-                loader: false
+                loader: false,
+                text:val.text
             };
         });
         this.statusChange();

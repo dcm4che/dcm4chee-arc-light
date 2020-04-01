@@ -79,7 +79,7 @@ export class RetrieveMonitoringService {
                 text:$localize `:@@SCHEDULED:SCHEDULED`
             },
             {
-                value:$localize `:@@in_process:IN PROCESS`,
+                value:$localize `IN PROCESS`,
                 text:$localize `:@@in_process:IN PROCESS`
             },
             {
