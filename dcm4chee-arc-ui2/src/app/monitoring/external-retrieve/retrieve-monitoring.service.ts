@@ -43,7 +43,7 @@ export class RetrieveMonitoringService {
             ;
     }
     reschedule(pk, data){
-        return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, data);
+        return this.$http.post(`../monitor/retrieve/${pk}/reschedule${j4care.param(data)}`, {});
     }
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
