@@ -98,7 +98,7 @@ export class SelectionsDicomViewService {
               }),
               new TableSchemaElement({
                   type: "value",
-                  header:`:@@number_of_related_instances:#I`,
+                  header:$localize `:@@number_of_related_instances:#I`,
                   pathToValue: "[00201208].Value[0]",
                   headerDescription: $localize `:@@selections-dicom-view.number_of_study_related_instances:Number of Study Related Instances`,
                   widthWeight: 0.2,
@@ -160,7 +160,7 @@ export class SelectionsDicomViewService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: `:@@number_of_related_instances:#I`,
+                    header:$localize `:@@number_of_related_instances:#I`,
                     pathToValue: "00201209.Value[0]",
                     headerDescription: $localize `:@@selections-dicom-view.number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,

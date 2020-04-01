@@ -569,7 +569,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     });
                             }
                         }else{
-                            this.clearClipboard();
+/*                            if(this.selectedElements.action === "link" && this.studyConfig.tab === "mwl"){
+                                this.resetSetSelectionObject(["mwl"],false,true);
+                            }else{*/
+                                this.clearClipboard();
+                            // }
                         }
                         this.dialogRef = null;
                     });

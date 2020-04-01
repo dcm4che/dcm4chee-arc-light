@@ -2067,7 +2067,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: `:@@number_of_related_instances:#I`,
+                    header: $localize `:@@number_of_related_instances:#I`,
                     pathToValue: "00201209.Value[0]",
                     headerDescription: $localize `:@@study.number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,
