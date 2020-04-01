@@ -1435,6 +1435,9 @@
     "change_sps_selected": "sq_Change Scheduled Procedure Step Status of the selected MWL",
     "mwl.status_changed_successfully": "sq_Status changed successfully",
     "mwl.change_sps_status_on_matching": "sq_Change SPS Status on matching MWL",
-    "APPLY": "sq_APPLY"
+    "APPLY": "sq_APPLY",
+    "extensions": "sq_Extensions",
+    "dynamic-form.save": "sq_Save",
+    "devicelist": "sq_devicelist"
   }
 }

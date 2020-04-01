@@ -37,7 +37,7 @@ export class DeviceConfiguratorService{
         this.pagination = [
             {
                 url: '/device/devicelist',
-                title: 'devicelist',
+                title: $localize `:@@devicelist:devicelist`,
                 devicereff: undefined
             }
         ];

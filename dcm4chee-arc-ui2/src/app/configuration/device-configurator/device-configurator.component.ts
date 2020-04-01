@@ -120,7 +120,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     $this.service.pagination = $this.params = [
                                         {
                                             url: '/device/devicelist',
-                                            title: 'devicelist',
+                                            title: $localize `:@@devicelist:devicelist`,
                                             prefixArray:[],
                                             suffixArray:[],
                                             allArray:[],
@@ -560,7 +560,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             this.params = this.service.pagination = [
                  {
                      url: '/device/devicelist',
-                     title: 'devicelist',
+                     title: $localize `:@@devicelist:devicelist`,
                      prefixArray:[],
                      suffixArray:[],
                      allArray:[],

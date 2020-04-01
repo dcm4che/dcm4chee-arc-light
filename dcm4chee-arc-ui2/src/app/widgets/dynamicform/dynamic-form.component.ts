@@ -78,7 +78,7 @@ export class DynamicFormComponent implements OnInit{
             if (orderValue != parseInt(m.order)){
                 let title = '';
                 if (1 <= m.order && m.order < 3){
-                    title = 'Extensions';
+                    title = $localize `:@@extensions:Extensions`;
                     materialIconName = 'extension';
                     order = 0;
                 }else{
