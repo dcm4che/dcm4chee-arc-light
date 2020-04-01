@@ -468,6 +468,7 @@ public class QueueManagerEJB {
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
+        updateTaskDeviceName(entity);
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
@@ -483,6 +484,13 @@ public class QueueManagerEJB {
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
         }
+    }
+
+    private void updateTaskDeviceName(QueueMessage entity) {
+        if (entity.getExportTask() != null)
+            entity.getExportTask().setDeviceName(entity.getDeviceName());
+        if (entity.getRetrieveTask() != null)
+            entity.getRetrieveTask().setDeviceName(entity.getDeviceName());
     }
 
     private JMSRuntimeException toJMSRuntimeException(JMSException e) {
