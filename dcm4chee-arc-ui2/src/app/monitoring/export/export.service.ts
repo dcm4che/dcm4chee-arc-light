@@ -248,8 +248,8 @@ export class ExportService {
                         tag:"select",
                         options:this.statusValues().map(status=>{
                             return {
-                                text:status,
-                                value:status
+                                text:status.text,
+                                value:status.value
                             }
                         }),
                         filterKey:"status",
