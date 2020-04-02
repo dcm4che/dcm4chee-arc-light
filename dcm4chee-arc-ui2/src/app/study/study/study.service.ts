@@ -5,8 +5,8 @@ import {
     DicomLevel,
     DicomMode,
     DicomResponseType, DiffAttributeSet,
-    FilterSchema,
-    SelectDropdown, SelectedDetailObject, SelectionAction,
+    FilterSchema, FilterSchemaElement,
+    SelectDropdown, SelectedDetailObject, SelectionAction, StudyFilterConfig,
     UniqueSelectIdObject
 } from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
@@ -235,6 +235,62 @@ export class StudyService {
         });
         return dropdown;
     };
+
+    clearFilterObject(tab: DicomMode, filterObject:StudyFilterConfig){
+        const keys = this.getFilterKeysFromTab(tab);
+        Object.keys(filterObject.filterModel).forEach(filterKey=>{
+           if(keys.indexOf(filterKey) === -1){
+               delete filterObject.filterModel[filterKey];
+           }
+        });
+    }
+
+    getFilterKeysFromTab(tab:DicomMode){
+        if(tab){
+            return (()=>{
+                   switch (tab) {
+                    case "patient":
+                        return [
+                            ...Globalvar.PATIENT_FILTER_SCHEMA([], false),
+                            ...Globalvar.PATIENT_FILTER_SCHEMA([], true)
+                        ].filter(filter => {
+                            return filter.filterKey != "aet";
+                        });
+                        break;
+                    case "mwl":
+                        return [
+                            ...Globalvar.MWL_FILTER_SCHEMA(false),
+                            ...Globalvar.MWL_FILTER_SCHEMA(true)
+                        ];
+                        break;
+                    case "uwl":
+                        return [
+                            ...Globalvar.UWL_FILTER_SCHEMA(false),
+                            ...Globalvar.UWL_FILTER_SCHEMA(true)
+                        ];
+                        break;
+                    case "diff":
+                        return [
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],false),
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],true)
+                        ].filter(filter => {
+                            return filter.filterKey != "aet";
+                        });
+                        break;
+                    default:
+                        return [
+                            ...Globalvar.STUDY_FILTER_SCHEMA([],false),
+                            ...Globalvar.STUDY_FILTER_SCHEMA([],true)
+                        ].filter(filter => {
+                            return filter.filterKey != "aet";
+                        });
+                }
+            })().map((filterSchemaElement:FilterSchemaElement)=>{
+                return filterSchemaElement.filterKey;
+            })
+        }
+        return [];
+    }
 
     getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[], attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean) {
         let schema: FilterSchema;

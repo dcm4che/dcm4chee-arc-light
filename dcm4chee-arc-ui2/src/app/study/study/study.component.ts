@@ -258,7 +258,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.route.params.subscribe(params => {
             this.patients = [];
             this.internal = !this.internal;
-            console.log("this.selectedElements",this.selectedElements);
+            this.service.clearFilterObject(params.tab, this.filter);
             this.studyConfig.tab = undefined;
             setTimeout(()=>{
                 this.internal = !this.internal;
