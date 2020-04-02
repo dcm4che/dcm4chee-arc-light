@@ -99,30 +99,33 @@ export class ExportService {
         return [
             {
                 value:"TO SCHEDULE",
-                text:$localize `:@@to_schedule:TO SCHEDULE`
+                text:$localize `:@@to_schedule:TO SCHEDULE`,
+                key:"to-schedule"
             },{
                 value:"SCHEDULED",
-                text:$localize `:@@SCHEDULED:SCHEDULED`
-            },
-            {
-                value:$localize `IN PROCESS`,
-                text:$localize `:@@in_process:IN PROCESS`
-            },
-            {
+                text:$localize `:@@SCHEDULED:SCHEDULED`,
+                key:"scheduled"
+            },{
+                value:"IN PROCESS",
+                text:$localize `:@@in_process:IN PROCESS`,
+                key:"in-process"
+            },{
                 value:"COMPLETED",
-                text:$localize `:@@COMPLETED:COMPLETED`
-            },
-            {
+                text:$localize `:@@COMPLETED:COMPLETED`,
+                key:"completed"
+            },{
                 value:"WARNING",
-                text:$localize `:@@WARNING:WARNING`
-            },
-            {
+                text:$localize `:@@WARNING:WARNING`,
+                key:"warning"
+            },{
                 value:"FAILED",
-                text:$localize `:@@FAILED:FAILED`
+                text:$localize `:@@FAILED:FAILED`,
+                key:"failed"
             },
             {
                 value:"CANCELED",
-                text:$localize `:@@CANCELED:CANCELED`
+                text:$localize `:@@CANCELED:CANCELED`,
+                key:"canceled"
             }
         ];
     }
@@ -246,12 +249,7 @@ export class ExportService {
                     },
                     {
                         tag:"select",
-                        options:this.statusValues().map(status=>{
-                            return {
-                                text:status.text,
-                                value:status.value
-                            }
-                        }),
+                        options:this.statusValues(),
                         filterKey:"status",
                         showStar:true,
                         description:$localize `:@@export.status_of_tasks_to_filter_by:Status of tasks to filter by`,
