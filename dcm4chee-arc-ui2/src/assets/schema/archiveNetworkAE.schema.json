@@ -285,7 +285,7 @@
       "format": "dcmWebAppName"
     },
     "dcmFallbackWadoURIHttpStatusCode": {
-      "title": "Fallback C-Move SCP Retries",
+      "title": "Fallback WADO-URI HTTP Status Code",
       "description": "HTTP Status code of Redirect Response configured by Fallback WADO-URI Web Application Name. Overwrites value specified on Device level.",
       "type": "integer",
       "default": 303,
