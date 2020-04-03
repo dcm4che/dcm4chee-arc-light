@@ -441,6 +441,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSProcessingFetchSize",
                 ext.getUPSProcessingFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
+                ext.getFallbackWadoURIWebApplication(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
+                ext.getFallbackWadoURIHttpStatusCode(), 303);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -711,6 +715,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
         ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
+        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
+        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
     }
 
     @Override
@@ -1214,6 +1220,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSProcessingFetchSize",
                 aa.getUPSProcessingFetchSize(), bb.getUPSProcessingFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
+                aa.getFallbackWadoURIWebApplication(),
+                bb.getFallbackWadoURIWebApplication(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
+                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), 303);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1493,6 +1505,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.getRestrictRetrieveSilently(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.getStowQuicktime2MP4(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
+                ext.getFallbackWadoURIWebApplication(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
+                ext.getFallbackWadoURIHttpStatusCode());
     }
 
     @Override
@@ -1621,6 +1637,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), null));
         ext.setStowQuicktime2MP4(
                 LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), null));
+        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(
+                attrs.get("dcmFallbackWadoURIWebAppName"), null));
+        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(
+                attrs.get("dcmFallbackWadoURIHttpStatusCode"), null));
     }
 
     @Override
@@ -1828,6 +1848,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRestrictRetrieveSilently(), bb.getRestrictRetrieveSilently(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowQuicktime2MP4",
                 aa.getStowQuicktime2MP4(), bb.getStowQuicktime2MP4(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
+                aa.getFallbackWadoURIWebApplication(),
+                bb.getFallbackWadoURIWebApplication(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
+                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

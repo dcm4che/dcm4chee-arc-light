@@ -352,6 +352,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUPSProcessingPollingInterval",
                 arcDev.getUPSProcessingPollingInterval(), null);
         writer.writeNotDef("dcmUPSProcessingFetchSize", arcDev.getUPSProcessingFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName",
+                arcDev.getFallbackWadoURIWebApplication(), null);
+        writer.writeNotDef("dcmFallbackWadoURIHttpStatusCode",
+                arcDev.getFallbackWadoURIHttpStatusCode(), 303);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1084,6 +1088,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
         writer.writeNotNull("dcmRestrictRetrieveSilently", arcAE.getRestrictRetrieveSilently());
         writer.writeNotNull("dcmStowQuicktime2MP4", arcAE.getStowQuicktime2MP4());
+        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName", arcAE.getFallbackWadoURIWebApplication(), null);
+        writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1722,6 +1728,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSProcessingFetchSize":
                     arcDev.setUPSProcessingFetchSize(reader.intValue());
+                    break;
+                case "dcmFallbackWadoURIWebAppName":
+                    arcDev.setFallbackWadoURIWebApplication(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIHttpStatusCode":
+                    arcDev.setFallbackWadoURIHttpStatusCode(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3461,6 +3473,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStowQuicktime2MP4":
                     arcAE.setStowQuicktime2MP4(reader.booleanValue());
+                    break;
+                case "dcmFallbackWadoURIWebAppName":
+                    arcAE.setFallbackWadoURIWebApplication(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIHttpStatusCode":
+                    arcAE.setFallbackWadoURIHttpStatusCode(reader.intValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
