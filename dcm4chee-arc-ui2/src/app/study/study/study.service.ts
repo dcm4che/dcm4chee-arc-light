@@ -359,7 +359,7 @@ export class StudyService {
                 tag: "html-select",
                 options: webApps
                     .filter((webApp: DcmWebApp) => {
-                        return (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || tab != "uwl";
+                        return (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || (tab === "mwl" && webApp.dcmWebServiceClass.indexOf("MWL_RS") > -1) || (tab != "uwl" && tab != "mwl");
                     }).map((webApps: DcmWebApp) => {
                         return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
                     }),
