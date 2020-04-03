@@ -124,7 +124,9 @@ public class RetrieveManagerEJB {
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, ctx.getBatchID(), delay);
-            persist(createRetrieveTask(ctx, queueMessage), studyUID);
+            persist(createRetrieveTask(ctx, queueMessage),
+                    studyUID,
+                    new Date(System.currentTimeMillis() + delay));
             return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
@@ -145,6 +147,7 @@ public class RetrieveManagerEJB {
             QueueMessage queueMessage = queueManager.scheduleMessage(retrieveTask.getQueueName(), msg,
                     Message.DEFAULT_PRIORITY, retrieveTask.getBatchID(), 0L);
             retrieveTask.setQueueMessage(queueMessage);
+            retrieveTask.setScheduledTime(new Date());
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
@@ -200,14 +203,17 @@ public class RetrieveManagerEJB {
     public int createRetrieveTask(ExternalRetrieveContext ctx) {
         int count = 0;
         for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID)) {
-            persist(createRetrieveTask(ctx, null), studyUID);
+            persist(createRetrieveTask(ctx, null),
+                    studyUID,
+                    scheduledTime(ctx));
             count++;
         }
         return count;
     }
 
-    private void persist(RetrieveTask task, String studyUID) {
+    private void persist(RetrieveTask task, String studyUID, Date scheduledTime) {
         task.setStudyInstanceUID(studyUID);
+        task.setScheduledTime(scheduledTime);
         em.persist(task);
     }
 
@@ -222,7 +228,6 @@ public class RetrieveManagerEJB {
         task.setQueueName(ctx.getQueueName());
         task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
-        task.setScheduledTime(scheduledTime(ctx));
         return task;
     }
 
@@ -325,6 +330,7 @@ public class RetrieveManagerEJB {
             scheduleRetrieveTask(task, queueEvent.getRequest());
         else {
             LOG.info("Reschedule {}", task);
+            task.setScheduledTime(new Date());
             queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), task.getQueueName(), queueEvent);
         }
     }
