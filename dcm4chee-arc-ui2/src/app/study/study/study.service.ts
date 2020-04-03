@@ -883,6 +883,10 @@ export class StudyService {
             idObject.id += `_${attrs['00080018'].Value[0]}`;
             idObject.idParts.push(attrs['00080018'].Value[0]);
         }
+        if (dicomLevel === "mwl" && _.hasIn(attrs,"[00400100].Value[0][00400009].Value[0]")) {
+            idObject.id += `_${_.get(attrs,"[00400100].Value[0][00400009].Value[0]")}`;
+            idObject.idParts.push(_.get(attrs,"[00400100].Value[0][00400009].Value[0]"));
+        }
         return idObject;
     }
 
