@@ -1736,6 +1736,16 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.359 NAME 'dcmMaxThreads'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.360 NAME 'dcmFallbackWadoURIWebAppName'
+  DESC 'Name of external Web Application to redirect WADO URI requests if the requested Object is not available by this archive.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.361 NAME 'dcmFallbackWadoURIHttpStatusCode'
+  DESC 'HTTP Status code of Redirect Response configured by dcmFallbackWadoURIWebAppName. 303 (See Other) if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1811,6 +1821,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
+    dcmFallbackWadoURIWebAppName $
+    dcmFallbackWadoURIHttpStatusCode $
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
@@ -2016,6 +2028,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
+    dcmFallbackWadoURIWebAppName $
+    dcmFallbackWadoURIHttpStatusCode $
     dcmExternalRetrieveAEDestination $
     dcmAltCMoveSCP $
     dcmDiffStudiesIncludefieldAll $

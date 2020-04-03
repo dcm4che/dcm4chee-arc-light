@@ -27,6 +27,7 @@
     "dcmIanTaskFetchSize",
     "dcmSpanningCFindSCPPolicy",
     "dcmFallbackCMoveSCPRetries",
+    "dcmFallbackWadoURIHttpStatusCode",
     "dcmUPSProcessingFetchSize",
     "dcmExportTaskFetchSize",
     "dcmRetrieveTaskFetchSize",
@@ -488,6 +489,24 @@
       "type": "integer",
       "default": 0,
       "minimum": -1
+    },
+    "dcmFallbackWadoURIWebAppName": {
+      "title": "Fallback WADO-URI Web Application Name",
+      "description": "Name of external Web Application to redirect WADO URI requests if the requested Object is not available by this archive. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "format": "dcmWebAppName"
+    },
+    "dcmFallbackWadoURIHttpStatusCode": {
+      "title": "Fallback C-Move SCP Retries",
+      "description": "HTTP Status code of Redirect Response configured by Fallback WADO-URI Web Application Name. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "integer",
+      "default": 303,
+      "enum": [
+        301,
+        302,
+        303,
+        307
+       ]
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",

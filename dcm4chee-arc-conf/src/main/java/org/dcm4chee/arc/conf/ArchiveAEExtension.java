@@ -100,6 +100,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPCallingAET;
     private String fallbackCMoveSCPLeadingCFindSCP;
     private String fallbackCMoveSCPStudyOlderThan;
+    private String fallbackWadoURIWebApplication;
+    private Integer fallbackWadoURIHttpStatusCode;
     private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
     private Integer queryMaxNumberOfResults;
@@ -682,6 +684,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPRetries();
     }
 
+
+    public String getFallbackWadoURIWebApplication() {
+        return fallbackWadoURIWebApplication;
+    }
+
+    public void setFallbackWadoURIWebApplication(String fallbackWadoURIWebApplication) {
+        this.fallbackWadoURIWebApplication = fallbackWadoURIWebApplication;
+    }
+
+    public String fallbackWadoURIWebApplication() {
+        return fallbackWadoURIWebApplication != null
+                ? fallbackWadoURIWebApplication
+                : getArchiveDeviceExtension().getFallbackWadoURIWebApplication();
+    }
+
+    public Integer getFallbackWadoURIHttpStatusCode() {
+        return fallbackWadoURIHttpStatusCode;
+    }
+
+    public void setFallbackWadoURIHttpStatusCode(Integer fallbackWadoURIHttpStatusCode) {
+        this.fallbackWadoURIHttpStatusCode = fallbackWadoURIHttpStatusCode;
+    }
+
+    public int fallbackWadoURIHttpStatusCode() {
+        return fallbackWadoURIHttpStatusCode != null
+                ? fallbackWadoURIHttpStatusCode
+                : getArchiveDeviceExtension().getFallbackWadoURIHttpStatusCode();
+    }
     public String getExternalRetrieveAEDestination() {
         return externalRetrieveAEDestination;
     }
@@ -1553,6 +1583,8 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPCallingAET = aeExt.fallbackCMoveSCPCallingAET;
         fallbackCMoveSCPLeadingCFindSCP = aeExt.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
+        fallbackWadoURIWebApplication = aeExt.fallbackWadoURIWebApplication;
+        fallbackWadoURIHttpStatusCode = aeExt.fallbackWadoURIHttpStatusCode;
         externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;

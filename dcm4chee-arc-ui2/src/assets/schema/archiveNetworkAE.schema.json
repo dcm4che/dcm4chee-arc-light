@@ -278,6 +278,24 @@
       "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. Overwrites value specified on Device level.",
       "type": "integer"
     },
+    "dcmFallbackWadoURIWebAppName": {
+      "title": "Fallback WADO-URI Web Application Name",
+      "description": "Name of external Web Application to redirect WADO URI requests if the requested Object is not available by this archive. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmWebAppName"
+    },
+    "dcmFallbackWadoURIHttpStatusCode": {
+      "title": "Fallback C-Move SCP Retries",
+      "description": "HTTP Status code of Redirect Response configured by Fallback WADO-URI Web Application Name. Overwrites value specified on Device level.",
+      "type": "integer",
+      "default": 303,
+      "enum": [
+        301,
+        302,
+        303,
+        307
+      ]
+    },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage. Overwrites value specified on Device level.",

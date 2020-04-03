@@ -131,6 +131,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String fallbackCMoveSCPCallingAET;
     private volatile String fallbackCMoveSCPLeadingCFindSCP;
     private volatile int fallbackCMoveSCPRetries;
+    private volatile String fallbackWadoURIWebApplication;
+    private volatile int fallbackWadoURIHttpStatusCode = 303;
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
@@ -829,6 +831,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
         this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
+    }
+
+    public String getFallbackWadoURIWebApplication() {
+        return fallbackWadoURIWebApplication;
+    }
+
+    public void setFallbackWadoURIWebApplication(String fallbackWadoURIWebApplication) {
+        this.fallbackWadoURIWebApplication = fallbackWadoURIWebApplication;
+    }
+
+    public int getFallbackWadoURIHttpStatusCode() {
+        return fallbackWadoURIHttpStatusCode;
+    }
+
+    public void setFallbackWadoURIHttpStatusCode(int fallbackWadoURIHttpStatusCode) {
+        this.fallbackWadoURIHttpStatusCode = fallbackWadoURIHttpStatusCode;
     }
 
     public String getExternalRetrieveAEDestination() {
@@ -2790,6 +2808,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPCallingAET = arcdev.fallbackCMoveSCPCallingAET;
         fallbackCMoveSCPLeadingCFindSCP = arcdev.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
+        fallbackWadoURIWebApplication = arcdev.fallbackWadoURIWebApplication;
+        fallbackWadoURIHttpStatusCode = arcdev.fallbackWadoURIHttpStatusCode;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
