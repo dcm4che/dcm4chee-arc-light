@@ -358,7 +358,9 @@ export class StudyService {
             schema.push({
                 tag: "html-select",
                 options: webApps
-                    .map((webApps: DcmWebApp) => {
+                    .filter((webApp: DcmWebApp) => {
+                        return (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || tab != "uwl";
+                    }).map((webApps: DcmWebApp) => {
                         return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
                     }),
                 filterKey: 'webApp',
@@ -387,7 +389,6 @@ export class StudyService {
                 });*/
             }
             if(tab != "diff" && tab != "uwl"){
-                console.log("webapps",webApps);
                 if(showCount){
                     schema.push({
                         tag: "button",
