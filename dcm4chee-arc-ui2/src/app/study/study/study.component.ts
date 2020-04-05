@@ -254,12 +254,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.selectedElements = new SelectionActionElement({});
         }
+        console.log("this.studyWebService",this.studyWebService);
         this.getPatientAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
             this.internal = !this.internal;
             this.service.clearFilterObject(params.tab, this.filter);
             this.studyConfig.tab = undefined;
+            console.log("this.studyWebService",this.studyWebService);
             setTimeout(()=>{
                 this.internal = !this.internal;
                 this.studyConfig.tab = params.tab;
@@ -322,6 +324,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             Object.assign(this.filter.filterModel, object);
         }
+        //
+        console.log("this.studyWebService",this.studyWebService);
     }
 
     tabToTitleMap(tab:DicomMode){
@@ -2240,7 +2244,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.applicationEntities.aes,
             this._filter.quantityText,
             'main',
-            this.studyWebService.webServices,
+            this.studyWebService,
             this.diffAttributeSets,
             this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1
         );
@@ -2259,8 +2263,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.filterSchemaExpand.lineLength = undefined;
             this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
+            this.synchronizeSelectedWebAppWithFilter();
         }catch (e) {
             j4care.log("Error on schema set",e);
+        }
+    }
+    synchronizeSelectedWebAppWithFilter(){
+        if(this.studyWebService && this.studyWebService.selectedWebService && (!_.hasIn(this._filter.filterModel, "webApp") || this._filter.filterModel.webApp.dcmWebAppName != this.studyWebService.selectedWebService.dcmWebAppName)){
+            this._filter.filterModel.webApp = this.studyWebService.selectedWebService;
         }
     }
 

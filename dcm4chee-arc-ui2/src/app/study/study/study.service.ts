@@ -292,7 +292,7 @@ export class StudyService {
         return [];
     }
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), webApps?: DcmWebApp[], attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean) {
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -355,14 +355,21 @@ export class StudyService {
 
                 });
             }
+            let selectedInTheList = false;
+            let filteredWebApp = studyWebService.webServices.filter((webApp: DcmWebApp) => {
+                    const check = (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || (tab === "mwl" && webApp.dcmWebServiceClass.indexOf("MWL_RS") > -1) || (tab != "uwl" && tab != "mwl");
+                    selectedInTheList = selectedInTheList || (check && studyWebService.selectedWebService && webApp.dcmWebAppName === studyWebService.selectedWebService.dcmWebAppName);
+                    return check;
+                }).map((webApps: DcmWebApp) => {
+                    return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
+                });
+            console.log("selectedInTheList",selectedInTheList);
+            if(studyWebService.selectedWebService && !selectedInTheList){
+                studyWebService.selectedWebService = undefined;
+            }
             schema.push({
                 tag: "html-select",
-                options: webApps
-                    .filter((webApp: DcmWebApp) => {
-                        return (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || (tab === "mwl" && webApp.dcmWebServiceClass.indexOf("MWL_RS") > -1) || (tab != "uwl" && tab != "mwl");
-                    }).map((webApps: DcmWebApp) => {
-                        return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription);
-                    }),
+                options: filteredWebApp,
                 filterKey: 'webApp',
                 text: $localize `:@@study.web_app_service:Web App Service`,
                 title: $localize `:@@study.web_app_service:Web App Service`,
@@ -959,18 +966,12 @@ export class StudyService {
                         }
                         if (_.get(element, key) && (<any[]>_.get(element, key)).length > 0) {
                             let result = (<any[]>_.get(element, key)).filter((menu: TableAction) => {
-                                console.log("menu", menu);
-                                console.log("menu.permission", menu.permission);
-                                console.log("checkVisibility", this.permissionService.checkVisibility(menu.permission));
                                 if (menu.permission) {
                                     return this.permissionService.checkVisibility(menu.permission);
                                 }
                                 return true
                             });
-                            console.log("element", element);
-                            console.log("result", result);
                             _.set(element, key, result);
-                            console.log("result", result);
                         }
                     }
                 } else {
