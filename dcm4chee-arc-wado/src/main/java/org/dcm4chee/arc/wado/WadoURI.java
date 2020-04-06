@@ -40,16 +40,17 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
@@ -79,6 +80,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Stream;
@@ -109,6 +111,9 @@ public class WadoURI {
     private RetrieveService service;
 
     private HttpServletRequest request;
+
+    @Inject
+    private IWebApplicationCache iWebAppCache;
 
     @Inject
     private Device device;
@@ -257,8 +262,21 @@ public class WadoURI {
     }
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
-        if (!service.calculateMatches(ctx))
+        if (!service.calculateMatches(ctx)) {
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            String webAppName = arcAE.fallbackWadoURIWebApplication();
+            if (webAppName != null) {
+                try {
+                    ar.resume(Response.status(arcAE.fallbackWadoURIHttpStatusCode())
+                            .location(redirectURI(webAppName))
+                            .build());
+                    return;
+                } catch (Exception e) {
+                    LOG.warn("Failed to redirect to {}:\n", webAppName, e);
+                }
+            }
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
+        }
 
         List<InstanceLocations> matches = ctx.getMatches();
         int numMatches = matches.size();
@@ -282,7 +300,39 @@ public class WadoURI {
             ctx.setException(throwable);
             retrieveWado.fire(ctx);
         });
-        ar.resume(Response.ok(entity, mimeType).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).build());
+        ar.resume(Response.ok(entity, mimeType)
+                .lastModified(lastModified)
+                .tag(String.valueOf(lastModified.hashCode()))
+                .build());
+    }
+
+    private URI redirectURI(String webAppName) throws ConfigurationException {
+        WebApplication webApp = iWebAppCache.findWebApplication(webAppName);
+        if (!webApp.containsServiceClass(WebApplication.ServiceClass.WADO_URI)) {
+            throw new ConfigurationException("WebApplication: " + webAppName
+                    + " does not provide WADO-URI service");
+        }
+        if (webApp.getDevice().getDeviceName().equals(device.getDeviceName())) {
+            throw new ConfigurationException("WebApplication: " + webAppName
+                    + " is provided by this Device: " + device.getDeviceName() + " - prevent redirect to itself");
+        }
+        return URI.create(webApp.getServiceURL(selectConnection(webApp))
+                .append('?').append(request.getQueryString()).toString());
+    }
+
+    private Connection selectConnection(WebApplication webApp) throws ConfigurationException {
+        boolean https = "https:".equalsIgnoreCase(request.getRequestURL().substring(0,6));
+        Connection altConn = null;
+        for (Connection conn : webApp.getConnections()) {
+            if (conn.isInstalled() && (altConn = conn).isTls() == https) {
+                return conn;
+            }
+        }
+        if (altConn == null) {
+            throw new ConfigurationException(
+                    "No installed Network Connection for WebApplication: " + webApp.getApplicationName());
+        }
+        return altConn;
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
