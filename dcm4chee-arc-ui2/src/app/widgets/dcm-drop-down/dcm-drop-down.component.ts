@@ -40,7 +40,20 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showSearchField:boolean = false;
     @Input() mixedMode:boolean = false;
     @Input() maxSelectedValueShown = 2;
-    @Input() options:SelectDropdown<any>[];
+    private _options:SelectDropdown<any>[];
+    @Input()
+    set options(values:SelectDropdown<any>[]){
+        this._options = values;
+        values.forEach(((option:SelectDropdown<any>)=>{
+            if(option.selected){
+                this.selectedDropdown = option;
+                this.selectedValue = option.value;
+            }
+        }))
+    };
+    get options():SelectDropdown<any>[]{
+        return this._options;
+    }
     @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
     @Input() editable:boolean = false;
     @Input() min:number;

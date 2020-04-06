@@ -1937,7 +1937,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
     getAllStudiesToPatient(patient, filterModel, offset) {
-
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
 
@@ -2039,39 +2038,39 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         filters["orderby"] = 'SeriesNumber';
         this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
-            if (res){
-                let hasMore = res.length > this._filter.filterModel.limit;
-                if (res.length === 0){
-                    this.appService.showMsg($localize `:@@study.no_series_found:No matching series found!`);
-                    console.log('in reslength 0');
-                }else{
+                if (res){
+                    let hasMore = res.length > this._filter.filterModel.limit;
+                    if (res.length === 0){
+                        this.appService.showMsg($localize `:@@study.no_series_found:No matching series found!`);
+                        console.log('in reslength 0');
+                    }else{
 
-                    study.series = res.map((attrs, index) =>{
-                        return new SeriesDicom(
-                            study,
-                            attrs,
-                            offset*1 + index,
-                            hasMore,
-                            hasMore || offset > 0
-                        );
-                    });
-                    if (hasMore) {
-                        study.series.pop();
+                        study.series = res.map((attrs, index) =>{
+                            return new SeriesDicom(
+                                study,
+                                attrs,
+                                offset*1 + index,
+                                hasMore,
+                                hasMore || offset > 0
+                            );
+                        });
+                        if (hasMore) {
+                            study.series.pop();
+                        }
+                        console.log("study",study);
+                        console.log("patients",this.patients);
+                        // StudiesService.trim(this);
+                        study.showSeries = true;
                     }
-                    console.log("study",study);
-                    console.log("patients",this.patients);
-                    // StudiesService.trim(this);
-                    study.showSeries = true;
+                }else{
+                    this.appService.showMsg($localize `:@@study.no_matching_series:No matching series found!`);
                 }
-            }else{
-                this.appService.showMsg($localize `:@@study.no_matching_series:No matching series found!`);
-            }
-            this.cfpLoadingBar.complete();
-        },(err)=>{
+                this.cfpLoadingBar.complete();
+            },(err)=>{
                 j4care.log("Something went wrong on search", err);
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
-        });
+            });
     }
 
     getInstances(series:SeriesDicom, offset){
@@ -2238,6 +2237,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
+    setSchema(){
+        try{
+            // this.synchronizeSelectedWebAppWithFilter();
+            this._filter.filterSchemaMain.lineLength = undefined;
+            this._filter.filterSchemaExpand.lineLength = undefined;
+            this.setMainSchema();
+            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
+        }catch (e) {
+            j4care.log("Error on schema set",e);
+        }
+    }
+
     setMainSchema(){
         this._filter.filterSchemaMain  = this.service.getFilterSchema(
             this.studyConfig.tab,
@@ -2246,7 +2257,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             'main',
             this.studyWebService,
             this.diffAttributeSets,
-            this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1
+            this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
+            this.filter
         );
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
         this.filterButtonPath.size = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "size");
@@ -2257,20 +2269,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.filterButtonPath.size.pop();
         }
     }
-    setSchema(){
-        try{
-            this._filter.filterSchemaMain.lineLength = undefined;
-            this._filter.filterSchemaExpand.lineLength = undefined;
-            this.setMainSchema();
-            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
-            this.synchronizeSelectedWebAppWithFilter();
-        }catch (e) {
-            j4care.log("Error on schema set",e);
-        }
-    }
     synchronizeSelectedWebAppWithFilter(){
         if(this.studyWebService && this.studyWebService.selectedWebService && (!_.hasIn(this._filter.filterModel, "webApp") || this._filter.filterModel.webApp.dcmWebAppName != this.studyWebService.selectedWebService.dcmWebAppName)){
-            this._filter.filterModel.webApp = this.studyWebService.selectedWebService;
+            this.filter.filterModel.webApp = this.studyWebService.selectedWebService;
         }
     }
 
