@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.util.UIDUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -110,7 +111,9 @@ public class UPSOnHL7 {
     }
 
     public String getProcedureStepLabel(HL7Fields hl7Fields) {
-        return procedureStepLabel != null ? hl7Fields.get(procedureStepLabel, null) : null;
+        return Objects.requireNonNull(hl7Fields.get(procedureStepLabel, null),
+                "Missing value for Procedure Step Label at " + procedureStepLabel
+                        + " configured in UPSOnHL7[cn=" + commonName + "]");
     }
 
     public String getWorklistLabel() {
