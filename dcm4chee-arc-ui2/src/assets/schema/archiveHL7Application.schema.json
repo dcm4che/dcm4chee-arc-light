@@ -99,7 +99,7 @@
     },
     "hl7OrderMissingStudyIUIDPolicy": {
       "title": "HL7 Order Missing Study Instance UID Policy",
-      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages.",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
         "REJECT",
@@ -109,12 +109,22 @@
     },
     "hl7ImportReportMissingStudyIUIDPolicy": {
       "title": "HL7 Import Report Missing Study Instance UID Policy",
-      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Import Report (ORU) messages.",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Import Report (ORU) messages. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
         "REJECT",
         "GENERATE",
         "ACCESSION_BASED"
+      ]
+    },
+    "hl7ReferredMergedPatientPolicy": {
+      "title": "HL7 Referred Merged Patient Policy",
+      "description": "Specifies policy on incoming HL7 messages referring an already merged Patient. REJECT: reject any such HL7 message, IGNORE: ignore any such HL7 message, IGNORE_DUPLICATE_MERGE: Ignore only duplicate HL7 Merge messages, Reject any other such Message. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "IGNORE",
+        "IGNORE_DUPLICATE_MERGE"
       ]
     },
     "hl7DicomCharacterSet": {

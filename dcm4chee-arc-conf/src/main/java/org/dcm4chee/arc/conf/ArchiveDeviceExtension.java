@@ -259,8 +259,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
-    private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy
-            = HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
+    private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
+            HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
+    private volatile HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy =
+            HL7ReferredMergedPatientPolicy.REJECT;
     private volatile String hl7DicomCharacterSet;
     private volatile boolean hl7VeterinaryUsePatientName;
     private volatile int csvUploadChunkSize = 100;
@@ -2604,6 +2606,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
     }
 
+    public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
+        return hl7ReferredMergedPatientPolicy;
+    }
+
+    public void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy) {
+        this.hl7ReferredMergedPatientPolicy = hl7ReferredMergedPatientPolicy;
+    }
+
     public String getHl7DicomCharacterSet() {
         return hl7DicomCharacterSet;
     }
@@ -2934,6 +2944,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         validateUID = arcdev.validateUID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
         relationalQueryNegotiationLenient = arcdev.relationalQueryNegotiationLenient;

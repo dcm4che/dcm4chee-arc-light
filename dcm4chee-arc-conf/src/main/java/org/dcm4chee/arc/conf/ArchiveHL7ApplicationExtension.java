@@ -65,6 +65,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private Boolean hl7UseNullValue;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
+    private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
     private HL7ORUAction[] hl7ORUAction = {};
@@ -98,6 +99,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
         hl7ORUAction = arcapp.hl7ORUAction;
@@ -494,6 +496,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHl7ImportReportMissingStudyIUIDPolicy(HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy) {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
+    public HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy() {
+        return hl7ReferredMergedPatientPolicy != null
+                ? hl7ReferredMergedPatientPolicy
+                : getArchiveDeviceExtension().getHl7ReferredMergedPatientPolicy();
+    }
+
+    public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
+        return hl7ReferredMergedPatientPolicy;
+    }
+
+    public void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy) {
+        this.hl7ReferredMergedPatientPolicy = hl7ReferredMergedPatientPolicy;
     }
 
     public String hl7DicomCharacterSet() {
