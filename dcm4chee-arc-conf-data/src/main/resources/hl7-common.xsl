@@ -211,6 +211,24 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="cnn2pnAttr">
+    <xsl:param name="tag"/>
+    <xsl:param name="cn"/>
+    <xsl:param name="cn26" select="$cn/component"/>
+    <xsl:if test="$cn26 or $cn = '&quot;&quot;'">
+      <xsl:call-template name="pnAttr">
+        <xsl:with-param name="tag" select="$tag"/>
+        <xsl:with-param name="val" select="string($cn/text())"/>
+        <xsl:with-param name="fn" select="string($cn/subcomponent[1]/text())"/>
+        <xsl:with-param name="gn" select="string($cn/subcomponent[2]/text())"/>
+        <xsl:with-param name="mn" select="string($cn/subcomponent[3]/text())"/>
+        <xsl:with-param name="ns" select="string($cn/subcomponent[4]/text())"/>
+        <xsl:with-param name="np" select="string($cn/subcomponent[5]/text())"/>
+        <xsl:with-param name="deg" select="string($cn/subcomponent[6]/text())"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template name="codeItem">
     <xsl:param name="sqtag"/>
     <xsl:param name="code"/>

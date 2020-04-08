@@ -179,7 +179,7 @@
         </xsl:call-template>
         <xsl:apply-templates select="following-sibling::TQ1[1]" mode="sps"/>
         <!-- Scheduled Performing Physican Name -->
-        <xsl:call-template name="cn2pnAttr">
+        <xsl:call-template name="cnn2pnAttr">
           <xsl:with-param name="tag" select="'00400006'"/>
           <xsl:with-param name="cn" select="$obr-sps/field[34]"/>
         </xsl:call-template>

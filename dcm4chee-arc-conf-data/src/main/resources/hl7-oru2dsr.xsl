@@ -299,7 +299,7 @@
         <!-- Verifying Observer Name -->
         <xsl:choose>
           <xsl:when test="field[32]/component">
-            <xsl:call-template name="cn2pnAttr">
+            <xsl:call-template name="cnn2pnAttr">
               <xsl:with-param name="tag" select="'0040A075'"/>
               <xsl:with-param name="cn" select="field[32]"/>
             </xsl:call-template>
@@ -405,7 +405,7 @@
           <xsl:with-param name="meaning" select="'Person Observer Name'"/>
         </xsl:call-template>
         <!--Person Name-->
-        <xsl:call-template name="cn2pnAttr">
+        <xsl:call-template name="cnn2pnAttr">
           <xsl:with-param name="tag" select="'0040A123'"/>
           <xsl:with-param name="cn" select="field[32]"/>
         </xsl:call-template>
