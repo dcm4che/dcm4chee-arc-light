@@ -908,7 +908,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     deletePatient(patient){
         // console.log("study",study);
-        if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
+        // if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
+        const patientId = this.service.getPatientId(patient.attrs);
+        if (!patientId || patientId === ""){
             this.appService.showError($localize `:@@study.cant_delete_with_empty_id:Cannot delete patient with empty Patient ID!`);
             this.cfpLoadingBar.complete();
         }else{
@@ -918,7 +920,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    this.service.deletePatient(this.studyWebService.selectedWebService, this.service.getPatientId(patient.attrs)).subscribe(
+                    this.service.deletePatient(this.studyWebService.selectedWebService, patientId).subscribe(
                         (response) => {
                             $this.appService.showMsg($localize `:@@study.patient_deleted:Patient deleted successfully!`);
                             // patients.splice(patientkey,1);
