@@ -445,6 +445,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFallbackWadoURIWebApplication(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
                 ext.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ReferredMergedPatientPolicy",
+                ext.getHl7ReferredMergedPatientPolicy(), HL7ReferredMergedPatientPolicy.REJECT);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -717,6 +719,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
         ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
         ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
+        ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(
+                HL7ReferredMergedPatientPolicy.class, attrs.get("hl7ReferredMergedPatientPolicy"),
+                HL7ReferredMergedPatientPolicy.REJECT));
     }
 
     @Override
@@ -1226,6 +1231,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
                 aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ReferredMergedPatientPolicy",
+                aa.getHl7ReferredMergedPatientPolicy(), bb.getHl7ReferredMergedPatientPolicy(),
+                HL7ReferredMergedPatientPolicy.REJECT);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

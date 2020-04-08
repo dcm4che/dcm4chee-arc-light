@@ -356,6 +356,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getFallbackWadoURIWebApplication(), null);
         writer.writeNotDef("dcmFallbackWadoURIHttpStatusCode",
                 arcDev.getFallbackWadoURIHttpStatusCode(), 303);
+        writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy", arcDev.getHl7ReferredMergedPatientPolicy(),
+                HL7ReferredMergedPatientPolicy.REJECT);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1734,6 +1736,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackWadoURIHttpStatusCode":
                     arcDev.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "hl7ReferredMergedPatientPolicy":
+                    arcDev.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

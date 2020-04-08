@@ -171,6 +171,11 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
                             .setErrorLocation("MRG^1^1")
                             .setUserMessage("MRG-1 matches PID-3"));
+        } catch (PatientMergedException e) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.UnknownKeyIdentifier)
+                            .setUserMessage(e.getMessage()));
         } catch (Exception e) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
