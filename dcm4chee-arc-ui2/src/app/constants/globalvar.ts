@@ -908,9 +908,20 @@ export class Globalvar {
         if(hidden){
             return [
                 {
-                    tag:"input",
+                    tag:"select",
                     type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    options:[
+                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
+                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
+                        new SelectDropdown("READY", $localize `:@@READY:READY`),
+                        new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
+                        new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
+                        new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                        new SelectDropdown("CANCELLED", $localize `:@@CANCELLED:CANCELLED`),
+                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
+                    ],
+                    showStar:true,
                     description:$localize `:@@sps_status:SPS Status`,
                     placeholder:$localize `:@@sps_status:SPS Status`
                 },{
