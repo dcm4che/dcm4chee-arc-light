@@ -2151,7 +2151,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     filterChanged(){
         if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
             this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp.dcmWebAppName"));
-            this.internal = !(this.appService.archiveDeviceName && this.studyWebService.selectedWebService.dicomDeviceName && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
+            this.internal = !(this.appService.archiveDeviceName && _.hasIn(this.studyWebService, "selectedWebService.dicomDeviceName") && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
             if(!this.internal){
                 delete this._filter.filterModel.includefield;
             }else{
@@ -2239,7 +2239,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     setSchema(){
         try{
-            // this.synchronizeSelectedWebAppWithFilter();
+            this.synchronizeSelectedWebAppWithFilter();
             this._filter.filterSchemaMain.lineLength = undefined;
             this._filter.filterSchemaExpand.lineLength = undefined;
             this.setMainSchema();
@@ -2897,7 +2897,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     setTrash(){
-        if (this.studyWebService.selectedWebService.dicomAETitleObject && this.studyWebService.selectedWebService.dicomAETitleObject.dcmHideNotRejectedInstances){
+        if (_.hasIn(this.studyWebService,"selectedWebService.dicomAETitleObject") && this.studyWebService.selectedWebService.dicomAETitleObject.dcmHideNotRejectedInstances){
             if (!this.trash.rjcode){
                 this.service.getRejectNotes({dcmRevokeRejection:true})
                     .subscribe((res)=>{

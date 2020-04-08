@@ -96,21 +96,21 @@ export class Globalvar {
                         'vr': 'CS',
                         'Value': ['F']
                     },
-                    'title': 'Female'
+                    'title': $localize `:@@female:Female`
                 },
                 {
                     obj: {
                         'vr': 'CS',
                         'Value': ['M']
                     },
-                    'title': 'Male'
+                    'title': $localize `:@@male:Male`
                 },
                 {
                     obj: {
                         'vr': 'CS',
                         'Value': ['O']
                     },
-                    'title': 'Other'
+                    'title': $localize `:@@other:Other`
                 }
             ]
         };
