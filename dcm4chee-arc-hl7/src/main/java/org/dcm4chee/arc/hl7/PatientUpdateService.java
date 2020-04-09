@@ -46,15 +46,17 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
@@ -69,6 +71,7 @@ import java.net.Socket;
 @ApplicationScoped
 @Typed(HL7Service.class)
 class PatientUpdateService extends DefaultHL7Service {
+    private static final Logger LOG = LoggerFactory.getLogger(PatientUpdateService.class);
 
     private static final String[] MESSAGE_TYPES = {
             "ADT^A01",
@@ -110,7 +113,6 @@ class PatientUpdateService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        HL7Segment msh = msg.msh();
 
         Attributes attrs = transform(msg, arcHL7App);
         if (arcHL7App.hl7VeterinaryUsePatientName())
@@ -124,39 +126,50 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
                             .setErrorLocation("PID^1^3")
                             .setUserMessage("Missing PID-3"));
+
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
-        if (mrg == null) {
-            try {
-                Patient patient = patientService.updatePatient(ctx);
-                archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
-                return patient;
-            } catch (PatientMergedException e) {
-                throw new HL7Exception(
-                        new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.UnknownKeyIdentifier)
-                                .setUserMessage(e.getMessage()));
-            } catch (NonUniquePatientException e) {
-                throw new HL7Exception(
-                        new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
-                                .setUserMessage(e.getMessage()));
-            } catch (Exception e) {
-                throw new HL7Exception(
-                        new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
-                                .setUserMessage(e.getMessage()));
-            }
-        }
+        if (mrg == null)
+            return createOrUpdatePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
 
         ctx.setPreviousAttributes(mrg);
         if (ctx.getPreviousPatientID() == null)
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
-                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                        .setErrorLocation("MRG^1^1")
-                        .setUserMessage("Missing MRG-1"));
+                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                            .setErrorLocation("MRG^1^1")
+                            .setUserMessage("Missing MRG-1"));
+
+        return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
+    }
+
+    private static Patient createOrUpdatePatient(
+            PatientService patientService, PatientMgtContext ctx, ArchiveHL7Message archiveHL7Message,
+            UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         try {
-            return "ADT^A47".equals(msh.getMessageType())
+            return patientService.updatePatient(ctx);
+        } catch (NonUniquePatientException e) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
+                            .setUserMessage(e.getMessage()));
+        } catch (Exception e) {
+            if (reject(e, arcHL7App, msg))
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
+                                .setUserMessage(e.getMessage()));
+            else
+                return null;
+        } finally {
+            archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
+        }
+    }
+
+    private static Patient changePIDOrMergePatient(
+            PatientService patientService, PatientMgtContext ctx, ArchiveHL7Message archiveHL7Message,
+            UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
+        try {
+            return "ADT^A47".equals(msg.msh().getMessageType())
                     ? patientService.changePatientID(ctx)
                     : patientService.mergePatient(ctx);
         } catch (PatientTrackingNotAllowedException e) {
@@ -171,19 +184,36 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
                             .setErrorLocation("MRG^1^1")
                             .setUserMessage("MRG-1 matches PID-3"));
-        } catch (PatientMergedException e) {
-            throw new HL7Exception(
-                    new ERRSegment(msg.msh())
-                            .setHL7ErrorCode(ERRSegment.UnknownKeyIdentifier)
-                            .setUserMessage(e.getMessage()));
         } catch (Exception e) {
-            throw new HL7Exception(
-                    new ERRSegment(msg.msh())
-                            .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
-                            .setUserMessage(e.getMessage()));
+            if (reject(e, arcHL7App, msg))
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.ApplicationInternalError)
+                                .setUserMessage(e.getMessage()));
+            else
+                return null;
         } finally {
             archiveHL7Message.setPatRecEventActionCode(ctx.getEventActionCode());
         }
+    }
+
+    private static boolean reject(Exception e, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg)
+            throws HL7Exception {
+        Exception cause = (Exception) e.getCause();
+        if (cause instanceof PatientMergedException) {
+            if (arcHL7App.hl7ReferredMergedPatientPolicy() == HL7ReferredMergedPatientPolicy.REJECT
+                    || (arcHL7App.hl7ReferredMergedPatientPolicy() == HL7ReferredMergedPatientPolicy.IGNORE_DUPLICATE_MERGE
+                        && !msg.msh().getMessageType().equals("ADT^A40")))
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.UnknownKeyIdentifier)
+                                .setUserMessage(e.getMessage()));
+
+            LOG.info("Ignore HL7ReferredMergedPatientPolicy[{}] for message type {} : {}",
+                    arcHL7App.hl7ReferredMergedPatientPolicy(), msg.msh().getMessageType(), e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     private static void useHL7VeterinaryPatientName(Attributes attrs) {
