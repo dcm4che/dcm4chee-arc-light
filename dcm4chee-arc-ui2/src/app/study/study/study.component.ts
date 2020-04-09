@@ -1251,9 +1251,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 console.log("Prepared URL: ", url);
                 console.groupEnd();
                 if (target) {
-                    window.open(url, target);
+                    window.open(encodeURI(url), target);
                 } else {
-                    window.open(url);
+                    window.open(encodeURI(url));
                 }
             });
         }catch(e){
