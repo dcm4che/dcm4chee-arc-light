@@ -1530,11 +1530,11 @@ public class ArchiveAEExtension extends AEExtension {
                 getArchiveDeviceExtension().getMultipleStoreAssociations());
     }
 
-    public boolean isRetrieveTaskWarningOnNoMatch() {
+    public Boolean getRetrieveTaskWarningOnNoMatch() {
         return retrieveTaskWarningOnNoMatch;
     }
 
-    public void setRetrieveTaskWarningOnNoMatch(boolean retrieveTaskWarningOnNoMatch) {
+    public void setRetrieveTaskWarningOnNoMatch(Boolean retrieveTaskWarningOnNoMatch) {
         this.retrieveTaskWarningOnNoMatch = retrieveTaskWarningOnNoMatch;
     }
 
@@ -1544,11 +1544,11 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isRetrieveTaskWarningOnNoMatch();
     }
 
-    public boolean isRetrieveTaskWarningOnWarnings() {
+    public Boolean getRetrieveTaskWarningOnWarnings() {
         return retrieveTaskWarningOnWarnings;
     }
 
-    public void setRetrieveTaskWarningOnWarnings(boolean retrieveTaskWarningOnWarnings) {
+    public void setRetrieveTaskWarningOnWarnings(Boolean retrieveTaskWarningOnWarnings) {
         this.retrieveTaskWarningOnWarnings = retrieveTaskWarningOnWarnings;
     }
 

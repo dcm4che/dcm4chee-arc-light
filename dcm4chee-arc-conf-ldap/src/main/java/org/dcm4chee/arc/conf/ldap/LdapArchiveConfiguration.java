@@ -447,6 +447,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFallbackWadoURIHttpStatusCode(), 303);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), HL7ReferredMergedPatientPolicy.REJECT);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
+                ext.isRetrieveTaskWarningOnNoMatch(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
+                ext.isRetrieveTaskWarningOnWarnings(), false);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -722,6 +726,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(
                 HL7ReferredMergedPatientPolicy.class, attrs.get("hl7ReferredMergedPatientPolicy"),
                 HL7ReferredMergedPatientPolicy.REJECT));
+        ext.setRetrieveTaskWarningOnNoMatch(
+                LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), false));
+        ext.setRetrieveTaskWarningOnWarnings(
+                LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), false));
     }
 
     @Override
@@ -1234,6 +1242,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ReferredMergedPatientPolicy",
                 aa.getHl7ReferredMergedPatientPolicy(), bb.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveTaskWarningOnNoMatch",
+                aa.isRetrieveTaskWarningOnNoMatch(),
+                bb.isRetrieveTaskWarningOnNoMatch(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveTaskWarningOnWarnings",
+                aa.isRetrieveTaskWarningOnWarnings(),
+                bb.isRetrieveTaskWarningOnWarnings(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1517,6 +1533,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFallbackWadoURIWebApplication(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
                 ext.getFallbackWadoURIHttpStatusCode());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
+                ext.getRetrieveTaskWarningOnNoMatch(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
+                ext.getRetrieveTaskWarningOnWarnings(), null);
     }
 
     @Override
@@ -1649,6 +1669,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmFallbackWadoURIWebAppName"), null));
         ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(
                 attrs.get("dcmFallbackWadoURIHttpStatusCode"), null));
+        ext.setRetrieveTaskWarningOnNoMatch(
+                LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), null));
+        ext.setRetrieveTaskWarningOnWarnings(
+                LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), null));
     }
 
     @Override
@@ -1862,6 +1886,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
                 aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskWarningOnNoMatch",
+                aa.getRetrieveTaskWarningOnNoMatch(),
+                bb.getRetrieveTaskWarningOnNoMatch(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskWarningOnWarnings",
+                aa.getRetrieveTaskWarningOnWarnings(),
+                bb.getRetrieveTaskWarningOnWarnings(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

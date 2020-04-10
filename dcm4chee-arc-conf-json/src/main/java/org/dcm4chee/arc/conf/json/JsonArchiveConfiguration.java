@@ -358,6 +358,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getFallbackWadoURIHttpStatusCode(), 303);
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy", arcDev.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);
+        writer.writeNotDef("dcmRetrieveTaskWarningOnNoMatch",
+                arcDev.isRetrieveTaskWarningOnNoMatch(), false);
+        writer.writeNotDef("dcmRetrieveTaskWarningOnWarnings",
+                arcDev.isRetrieveTaskWarningOnWarnings(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1092,6 +1096,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowQuicktime2MP4", arcAE.getStowQuicktime2MP4());
         writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName", arcAE.getFallbackWadoURIWebApplication(), null);
         writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
+        writer.writeNotNull("dcmRetrieveTaskWarningOnNoMatch", arcAE.getRetrieveTaskWarningOnNoMatch());
+        writer.writeNotNull("dcmRetrieveTaskWarningOnWarnings", arcAE.getRetrieveTaskWarningOnWarnings());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1739,6 +1745,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ReferredMergedPatientPolicy":
                     arcDev.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmRetrieveTaskWarningOnNoMatch":
+                    arcDev.setRetrieveTaskWarningOnNoMatch(reader.booleanValue());
+                    break;
+                case "dcmRetrieveTaskWarningOnWarnings":
+                    arcDev.setRetrieveTaskWarningOnWarnings(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3484,6 +3496,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackWadoURIHttpStatusCode":
                     arcAE.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "dcmRetrieveTaskWarningOnNoMatch":
+                    arcAE.setRetrieveTaskWarningOnNoMatch(reader.booleanValue());
+                    break;
+                case "dcmRetrieveTaskWarningOnWarnings":
+                    arcAE.setRetrieveTaskWarningOnWarnings(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
