@@ -48,12 +48,11 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +60,12 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
+import static org.dcm4che3.net.TransferCapability.Role.SCU;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -113,20 +115,30 @@ public class CStoreSCUImpl implements CStoreSCU {
         ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
             aarq.setCallingAET(ctx.getLocalAETitle());
-        boolean configuredTCs = !destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
+        boolean noDestinationRestriction = destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
             InstanceLocations inst = iter.next();
             String cuid = inst.getSopClassUID();
-            TransferCapability configuredTC = configuredTCs ? destAE.getTransferCapabilityFor(cuid, SCP) : null;
+            TransferCapability localTC = localAE.getTransferCapabilityFor(cuid, SCU);
+            TransferCapability destTC = noDestinationRestriction ? null : destAE.getTransferCapabilityFor(cuid, SCP);
             if (!aarq.containsPresentationContextFor(cuid) && !isVideo(inst)) {
-                addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, configuredTC);
-                addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, configuredTC);
+                if (noDestinationRestriction) {
+                    addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC);
+                    addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC);
+                } else {
+                    addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC, destTC);
+                    addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC, destTC);
+                }
             }
             for (Location location : inst.getLocations()) {
                 String tsuid = location.getTransferSyntaxUID();
                 if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
                         !tsuid.equals(UID.ExplicitVRLittleEndian))
-                    addPresentationContext(aarq, cuid, tsuid, configuredTC);
+                    if (noDestinationRestriction) {
+                        addPresentationContext(aarq, cuid, tsuid, localTC);
+                    } else {
+                        addPresentationContext(aarq, cuid, tsuid, localTC, destTC);
+                    }
             }
         }
         return aarq;
@@ -148,8 +160,14 @@ public class CStoreSCUImpl implements CStoreSCU {
         return false;
     }
 
-    private void addPresentationContext(AAssociateRQ aarq, String cuid, String ts, TransferCapability configuredTCs) {
-        if (configuredTCs == null || configuredTCs.containsTransferSyntax(ts))
+    private static void addPresentationContext(AAssociateRQ aarq, String cuid, String ts,
+            TransferCapability tc1, TransferCapability tc2) {
+        if (tc1 != null && tc1.containsTransferSyntax(ts))
+            addPresentationContext(aarq, cuid, ts, tc2);
+    }
+
+    private static void addPresentationContext(AAssociateRQ aarq, String cuid, String ts, TransferCapability tc) {
+        if (tc != null && tc.containsTransferSyntax(ts))
             aarq.addPresentationContextFor(cuid, ts);
     }
 

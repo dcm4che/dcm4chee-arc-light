@@ -97,6 +97,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
+import static org.dcm4che3.net.TransferCapability.Role.SCU;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -593,15 +594,16 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public boolean restrictRetrieveAccordingTransferCapabilities(RetrieveContext ctx) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        if (ctx.getDestinationAE().getTransferCapabilitiesWithRole(SCP).isEmpty()) {
-            return true;
-        }
+        ApplicationEntity destAE = ctx.getDestinationAE();
+        boolean noDestinationRestriction = destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         Collection<InstanceLocations> matches = ctx.getMatches();
         Iterator<InstanceLocations> iter = matches.iterator();
         boolean restrictRetrieveSilently = arcAE.restrictRetrieveSilently();
         while (iter.hasNext()) {
             InstanceLocations match = iter.next();
-            if (ctx.getDestinationAE().getTransferCapabilityFor(match.getSopClassUID(), SCP) == null) {
+            if (!(ctx.getLocalApplicationEntity().hasTransferCapabilityFor(match.getSopClassUID(), SCU)
+                    && (noDestinationRestriction
+                    || destAE.hasTransferCapabilityFor(match.getSopClassUID(), SCP)))) {
                 iter.remove();
                 if (restrictRetrieveSilently) {
                     ctx.decrementNumberOfMatches();
