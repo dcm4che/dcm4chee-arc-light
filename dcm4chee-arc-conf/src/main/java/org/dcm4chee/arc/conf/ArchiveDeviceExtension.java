@@ -140,6 +140,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int exportTaskFetchSize = 100;
     private volatile Duration retrieveTaskPollingInterval;
     private volatile int retrieveTaskFetchSize = 100;
+    private volatile boolean retrieveTaskWarningOnNoMatch;
+    private volatile boolean retrieveTaskWarningOnWarnings;
     private volatile Duration deleteRejectedPollingInterval;
     private volatile int deleteRejectedFetchSize = 100;
     private volatile Duration purgeStoragePollingInterval;
@@ -2718,6 +2720,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.retrieveTaskFetchSize = retrieveTaskFetchSize;
     }
 
+    public boolean isRetrieveTaskWarningOnNoMatch() {
+        return retrieveTaskWarningOnNoMatch;
+    }
+
+    public void setRetrieveTaskWarningOnNoMatch(boolean retrieveTaskWarningOnNoMatch) {
+        this.retrieveTaskWarningOnNoMatch = retrieveTaskWarningOnNoMatch;
+    }
+
+    public boolean isRetrieveTaskWarningOnWarnings() {
+        return retrieveTaskWarningOnWarnings;
+    }
+
+    public void setRetrieveTaskWarningOnWarnings(boolean retrieveTaskWarningOnWarnings) {
+        this.retrieveTaskWarningOnWarnings = retrieveTaskWarningOnWarnings;
+    }
+
     public boolean isStowQuicktime2MP4() {
         return stowQuicktime2MP4;
     }
@@ -2827,6 +2845,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
         retrieveTaskPollingInterval = arcdev.retrieveTaskPollingInterval;
         retrieveTaskFetchSize = arcdev.retrieveTaskFetchSize;
+        retrieveTaskWarningOnNoMatch = arcdev.retrieveTaskWarningOnNoMatch;
+        retrieveTaskWarningOnWarnings = arcdev.retrieveTaskWarningOnWarnings;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
         deleteRejectedFetchSize = arcdev.deleteRejectedFetchSize;
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;

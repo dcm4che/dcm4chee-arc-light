@@ -31,6 +31,8 @@
     "dcmUPSProcessingFetchSize",
     "dcmExportTaskFetchSize",
     "dcmRetrieveTaskFetchSize",
+    "dcmRetrieveTaskWarningOnNoMatch",
+    "dcmRetrieveTaskWarningOnWarnings",
     "dcmPurgeStorageFetchSize",
     "dcmFailedToDeleteFetchSize",
     "dcmDeleteStudyBatchSize",
@@ -556,6 +558,18 @@
       "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
+    },
+    "dcmRetrieveTaskWarningOnNoMatch": {
+      "title": "Retrieve Task Warning on no Match",
+      "description": "Indicates if the result status of Retrieve Tasks shall be set to WARNING if none of the requested objects was found on the C-MOVE SCP. May be overwritten by configured values for particular Archive HL7 Application.\",",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetrieveTaskWarningOnWarnings": {
+      "title": "Retrieve Task Warning on Warnings",
+      "description": "Indicates if the result status of Retrieve Tasks shall be set to WARNING if there are Warning Sub-Operations, even if the retrieve of all objects was successful. May be overwritten by configured values for particular Archive HL7 Application.\",",
+      "type": "boolean",
+      "default": false
     },
     "dcmPurgeStoragePollingInterval": {
       "title": "Purge Storage Polling Interval",

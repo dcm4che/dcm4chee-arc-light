@@ -43,6 +43,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -99,7 +100,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
                 ejb.updateRetrieveTask(queueMessage, rsp.getCommand());
             }
             externalRetrieve.fire(ctx.setResponse(rsp.getCommand()));
-            return toOutcome(ctx);
+            return toOutcome(ctx, localAE.getAEExtensionNotNull(ArchiveAEExtension.class));
         } finally {
             try {
                 as.release();
@@ -109,7 +110,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
         }
     }
 
-    private Outcome toOutcome(ExternalRetrieveContext ctx) {
+    private Outcome toOutcome(ExternalRetrieveContext ctx, ArchiveAEExtension arcAE) {
         int status = ctx.getStatus();
         Attributes keys = ctx.getKeys();
         StringBuilder sb = new StringBuilder(256)
@@ -137,7 +138,10 @@ public class RetrieveManagerImpl implements RetrieveManager {
         }
         return new Outcome(
                 status == Status.Success
-                    ? QueueMessage.Status.COMPLETED
+                    ? arcAE.retrieveTaskWarningOnNoMatch() && ctx.completed() == 0 && ctx.warning() == 0
+                        || arcAE.retrieveTaskWarningOnWarnings() && ctx.warning() == 0
+                        ? QueueMessage.Status.WARNING
+                        : QueueMessage.Status.COMPLETED
                     : status == Status.OneOrMoreFailures && (ctx.completed() > 0 || ctx.warning() > 0)
                         ? QueueMessage.Status.WARNING
                         : QueueMessage.Status.FAILED,

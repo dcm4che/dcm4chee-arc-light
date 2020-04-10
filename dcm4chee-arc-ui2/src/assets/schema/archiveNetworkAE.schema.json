@@ -607,6 +607,16 @@
       "description": "Indicates if QuickTime containers received in STOW-RS Metadata and Bulkdata requests shall be converted to MP4 containers encapsulated in created DICOM instances. The conversion requires that ffmpeg is installed and the ffmpeg CLI utility is available in the PATH. Otherwise Quicktime containers will get encapsulated in the stored DICOM object verbatim, with a declared DICOM MPEG-4 Transfer Syntax which reflects the encoding of the video stream in the container, but contradicts the actual container format. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "dcmRetrieveTaskWarningOnNoMatch": {
+      "title": "Retrieve Task Warning on no Match",
+      "description": "Indicates if the result status of Retrieve Tasks shall be set to WARNING if none of the requested objects was found on the C-MOVE SCP. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmRetrieveTaskWarningOnWarnings": {
+      "title": "Retrieve Task Warning on Warnings",
+      "description": "Indicates if the result status of Retrieve Tasks shall be set to WARNING if there are Warning Sub-Operations, even if the retrieve of all objects was successful. Overwrites value specified on Device level",
+      "type": "boolean"
+    },
     "dcmFallbackCMoveSCPCallingAET": {
       "title": "Fallback C-Move SCP Calling AE title",
       "description": "Calling AE Title used in A-ASSOCIATE-RQ to configured Fallback C-MOVE SCP. If absent, the AE Title of the external C-MOVE SCU is used. Overwrites value specified on Device level.",

@@ -147,6 +147,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean stowRetiredTransferSyntax;
     private Boolean stowExcludeAPPMarkers;
     private Boolean restrictRetrieveSilently;
+    private Boolean retrieveTaskWarningOnNoMatch;
+    private Boolean retrieveTaskWarningOnWarnings;
     private Boolean stowQuicktime2MP4;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
@@ -1528,6 +1530,34 @@ public class ArchiveAEExtension extends AEExtension {
                 getArchiveDeviceExtension().getMultipleStoreAssociations());
     }
 
+    public boolean isRetrieveTaskWarningOnNoMatch() {
+        return retrieveTaskWarningOnNoMatch;
+    }
+
+    public void setRetrieveTaskWarningOnNoMatch(boolean retrieveTaskWarningOnNoMatch) {
+        this.retrieveTaskWarningOnNoMatch = retrieveTaskWarningOnNoMatch;
+    }
+
+    public boolean retrieveTaskWarningOnNoMatch() {
+        return retrieveTaskWarningOnNoMatch != null
+                ? retrieveTaskWarningOnNoMatch
+                : getArchiveDeviceExtension().isRetrieveTaskWarningOnNoMatch();
+    }
+
+    public boolean isRetrieveTaskWarningOnWarnings() {
+        return retrieveTaskWarningOnWarnings;
+    }
+
+    public void setRetrieveTaskWarningOnWarnings(boolean retrieveTaskWarningOnWarnings) {
+        this.retrieveTaskWarningOnWarnings = retrieveTaskWarningOnWarnings;
+    }
+
+    public boolean retrieveTaskWarningOnWarnings() {
+        return retrieveTaskWarningOnWarnings != null
+                ? retrieveTaskWarningOnWarnings
+                : getArchiveDeviceExtension().isRetrieveTaskWarningOnWarnings();
+    }
+
     public Boolean getStowQuicktime2MP4() {
         return stowQuicktime2MP4;
     }
@@ -1632,6 +1662,8 @@ public class ArchiveAEExtension extends AEExtension {
         stowRetiredTransferSyntax = aeExt.stowRetiredTransferSyntax;
         stowExcludeAPPMarkers = aeExt.stowExcludeAPPMarkers;
         restrictRetrieveSilently = aeExt.restrictRetrieveSilently;
+        retrieveTaskWarningOnNoMatch = aeExt.retrieveTaskWarningOnNoMatch;
+        retrieveTaskWarningOnWarnings = aeExt.retrieveTaskWarningOnWarnings;
         stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         acceptedMoveDestinations.clear();
