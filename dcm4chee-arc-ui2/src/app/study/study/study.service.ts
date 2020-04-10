@@ -355,30 +355,19 @@ export class StudyService {
 
                 });
             }
-            let selectedInTheList = false;
-            let filteredWebApp = studyWebService.webServices.filter((webApp: DcmWebApp) => {
-                    const check = (tab === "uwl" && webApp.dcmWebServiceClass.indexOf("UPS_RS") > -1) || (tab === "mwl" && webApp.dcmWebServiceClass.indexOf("MWL_RS") > -1) || (tab != "uwl" && tab != "mwl");
-                    selectedInTheList = selectedInTheList || (check && studyWebService.selectedWebService && webApp.dcmWebAppName === studyWebService.selectedWebService.dcmWebAppName);
-                    return check;
-                }).map((webApps: DcmWebApp) => {
-                    return new SelectDropdown(webApps, webApps.dcmWebAppName, webApps.dicomDescription, undefined,undefined, webApps);
-                    //value:any,text:string, title?:string, label?:any, htmlLabel?:string, wholeObject?:T, selected?:boolean
-                });
-            console.log("selectedInTheList",selectedInTheList);
-            if(studyWebService.selectedWebService && !selectedInTheList){
-                studyWebService.selectedWebService = undefined;
-            }
-            // if(studyWebService && studyWebService.selectedWebService && (!_.hasIn(filter.filterModel, "webApp") || filter.filterModel.webApp.dcmWebAppName != studyWebService.selectedWebService.dcmWebAppName)){
-                filteredWebApp.forEach((select:SelectDropdown<DcmWebApp>)=>{
-                    if(studyWebService && studyWebService.selectedWebService && select.wholeObject.dcmWebAppName === studyWebService.selectedWebService.dcmWebAppName){
-                        // filter.filterModel.webApp = select.wholeObject;
-                        select.selected = true;
-                    }
-                });
-            // }
             schema.push({
                 tag: "html-select",
-                options: filteredWebApp,
+                options: studyWebService.webServices.map((webApp: DcmWebApp) => {
+                    return new SelectDropdown(
+                        webApp,
+                        webApp.dcmWebAppName,
+                        webApp.dicomDescription,
+                        undefined,
+                        undefined,
+                        webApp,
+                        (studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebAppName === webApp.dcmWebAppName)
+                    );
+                }),
                 filterKey: 'webApp',
                 text: $localize `:@@study.web_app_service:Web App Service`,
                 title: $localize `:@@study.web_app_service:Web App Service`,

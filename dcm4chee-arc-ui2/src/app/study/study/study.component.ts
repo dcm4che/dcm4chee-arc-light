@@ -265,35 +265,51 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             setTimeout(()=>{
                 this.internal = !this.internal;
                 this.studyConfig.tab = params.tab;
-/*                const id = `study_${this.studyConfig.tab}`;
-                if (_.hasIn(this.appService.global, id) && this.appService.global[id]){
-                    _.forEach(this.appService.global[id], (m, i) => {
-                        this[i] = m;
-                    });
-                    delete this.appService.global[id];
-                }else{*/
-                    if(this.studyConfig.tab === "diff"){
+                /*                const id = `study_${this.studyConfig.tab}`;
+                                if (_.hasIn(this.appService.global, id) && this.appService.global[id]){
+                                    _.forEach(this.appService.global[id], (m, i) => {
+                                        this[i] = m;
+                                    });
+                                    delete this.appService.global[id];
+                                }else{*/
+                /*                    if(this.studyConfig.tab === "diff"){
+                                        this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
+                                    }else{
+                                        this.currentWebAppClass = "QIDO_RS";
+                                    }*/
+                switch (this.studyConfig.tab) {
+                    case "diff":
                         this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
-                    }else{
+                        break;
+                    case "mwl":
+                        this.currentWebAppClass = "MWL_RS";
+                        break;
+                    case "uwl":
+                        this.currentWebAppClass = "UPS_RS";
+                        break;
+                    default:
                         this.currentWebAppClass = "QIDO_RS";
-                    }
-                    this.studyConfig.title = this.tabToTitleMap(params.tab);
-                    if(this.studyConfig.tab === "diff"){
-                        this.getDiffAttributeSet(this, ()=>{
-                            this.getApplicationEntities();
-                        });
-                    }
-                    this.more = false;
-                    this._filter.filterModel.offset = 0;
-                    this.tableParam.tableSchema  = this.getSchema();
-                    if(!this.studyWebService){
-                        this.initWebApps();
-                    }else{
-                        this.setSchema();
-                        this.initExporters(2);
-                        this.initRjNotes(2);
-                        this.getQueueNames();
-                    }
+                }
+                if(_.hasIn(this.studyWebService,"selectedWebService") && !_.hasIn(this._filter,"filterModel.webApp")){
+                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
+                };
+                this.studyConfig.title = this.tabToTitleMap(params.tab);
+                if(this.studyConfig.tab === "diff"){
+                    this.getDiffAttributeSet(this, ()=>{
+                        this.getApplicationEntities();
+                    });
+                }
+                this.more = false;
+                this._filter.filterModel.offset = 0;
+                this.tableParam.tableSchema  = this.getSchema();
+                this.initWebApps();
+                /*                    if(!this.studyWebService){
+                                    }else{
+                                        this.setSchema();
+                                        this.initExporters(2);
+                                        this.initRjNotes(2);
+                                        this.getQueueNames();
+                                    }*/
                 // }
             },1);
         });
@@ -3380,7 +3396,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             )
             .subscribe(
                 (webApps:DcmWebApp[])=> {
-                    this.studyWebService = new StudyWebService({
+                    console.log("this.studyWebService",this.studyWebService);
+                    console.log("this.filter",this.filter.filterModel);
+                    this.studyWebService= new StudyWebService({
                         webServices:webApps.map((webApp:DcmWebApp)=>{
                             aetsTemp.forEach((aet)=>{
                                 if(webApp.dicomAETitle && webApp.dicomAETitle === aet.dicomAETitle){
@@ -3389,7 +3407,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             });
                             this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL','IID_PATIENT_URL']);
                             return webApp;
-                        })
+                        }),
+                        selectedWebService:_.get(this.studyWebService,"selectedWebService")
                     });
                     this.aets = aetsTemp;
                     console.log("ates",this.aets);

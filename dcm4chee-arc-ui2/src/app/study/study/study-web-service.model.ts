@@ -1,4 +1,5 @@
 import {DcmWebApp} from "../../models/dcm-web-app";
+import * as _ from "lodash";
 
 export class StudyWebService {
     private _webServices:DcmWebApp[];
@@ -12,7 +13,13 @@ export class StudyWebService {
         } = {}
     ){
         this.webServices = object.webServices;
-        this.selectedWebService = object.selectedWebService;
+        if(_.hasIn(object,"selectedWebService.dcmWebAppName")){
+            object.webServices.forEach((webService:DcmWebApp)=>{
+               if(object.selectedWebService.dcmWebAppName === webService.dcmWebAppName){
+                   this.selectedWebService = webService;
+               }
+            });
+        }
     }
 
     seletWebAppFromWebAppName(dcmWebAppName:string){
