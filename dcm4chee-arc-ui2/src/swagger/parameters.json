@@ -1437,7 +1437,7 @@
   "dcmQueueNameRetrieve": {
     "name": "dcmQueueName",
     "in": "query",
-    "description": "name of retrieve queue to filter by",
+    "description": "name of retrieve queue to schedule retrieve task",
     "schema": {
       "$ref": "schemas.json#/dcmQueueNameRetrieve"
     }
