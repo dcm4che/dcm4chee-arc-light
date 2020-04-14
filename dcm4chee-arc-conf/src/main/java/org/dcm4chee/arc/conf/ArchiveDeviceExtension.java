@@ -2605,7 +2605,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
-                throw new IllegalArgumentException("StoreSCUofMoveSCP in incorrect format : " + s);
+                throw new IllegalArgumentException("CStoreSCUofCMoveSCP in incorrect format : " + s);
             setCStoreSCUofCMoveSCP(s.substring(0, index), s.substring(index+1));
         }
     }
