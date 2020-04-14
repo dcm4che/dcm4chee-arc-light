@@ -104,7 +104,7 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     private static boolean bindByCMoveSCP(RetrieveContext ctx, String cMoveSCP) {
         return ctx.getArchiveAEExtension().getArchiveDeviceExtension()
-                .getCStoreSCUofCMoveSCPs().values().contains(cMoveSCP);
+                .getCStoreSCUOfCMoveSCPs().values().contains(cMoveSCP);
     }
 
     @Override

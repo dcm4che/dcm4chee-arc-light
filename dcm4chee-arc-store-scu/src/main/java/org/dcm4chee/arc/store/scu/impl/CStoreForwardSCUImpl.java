@@ -97,7 +97,7 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
         if (storeSCU == null)
             return null;
 
-        String aeTitle = storeSession.getArchiveDeviceExtension().getCStoreSCUofCMoveSCPs().get(storeSCU);
+        String aeTitle = storeSession.getArchiveDeviceExtension().getCStoreSCUOfCMoveSCPs().get(storeSCU);
         if (aeTitle == null)
             aeTitle = storeContext.getMoveOriginatorAETitle();
 
