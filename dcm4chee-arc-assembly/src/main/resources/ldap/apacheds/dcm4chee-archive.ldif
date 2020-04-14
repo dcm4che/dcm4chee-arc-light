@@ -4811,7 +4811,7 @@ objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
 m-oid: 1.2.40.0.13.1.15.110.3.365
-m-name: dcmCStoreSCUofCMoveSCP
+m-name: dcmCStoreSCUOfCMoveSCP
 m-description: Indicates to identify received C-STORE RQs as caused by a forward
  ed C-MOVE RQs by the Calling AET in the A-Associate-RQ in format <Calling AET>=
  <C-MOVE-SCP>. Typically <Calling AET> and <C-MOVE-SCP> are equal. If no value i
@@ -5522,7 +5522,7 @@ m-may: dcmFallbackWadoURIHttpStatusCode
 m-may: dcmExternalRetrieveAEDestination
 m-may: dcmXDSiImagingDocumentSourceAETitle
 m-may: dcmAltCMoveSCP
-m-may: dcmCStoreSCUofCMoveSCP
+m-may: dcmCStoreSCUOfCMoveSCP
 m-may: dcmDiffStudiesIncludefieldAll
 m-may: dcmUPSProcessingPollingInterval
 m-may: dcmUPSProcessingFetchSize
