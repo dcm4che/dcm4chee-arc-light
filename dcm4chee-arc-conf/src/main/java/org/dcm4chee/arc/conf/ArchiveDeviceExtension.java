@@ -314,7 +314,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
     private final Map<String, String> importReportTemplateParams = new HashMap<>();
-    private final Map<String, String> cStoreSCUofCMoveSCP = new HashMap<>();
+    private final Map<String, String> cStoreSCUOfCMoveSCP = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -2592,21 +2592,21 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
-    public Map<String, String> getCStoreSCUofCMoveSCPs() {
-        return cStoreSCUofCMoveSCP;
+    public Map<String, String> getCStoreSCUOfCMoveSCPs() {
+        return cStoreSCUOfCMoveSCP;
     }
 
-    public void setCStoreSCUofCMoveSCP(String storeSCU, String moveSCP) {
-        cStoreSCUofCMoveSCP.put(storeSCU, moveSCP);
+    public void setCStoreSCUOfCMoveSCP(String storeSCU, String moveSCP) {
+        cStoreSCUOfCMoveSCP.put(storeSCU, moveSCP);
     }
 
-    public void setCStoreSCUofCMoveSCPs(String[] ss) {
-        cStoreSCUofCMoveSCP.clear();
+    public void setCStoreSCUOfCMoveSCPs(String[] ss) {
+        cStoreSCUOfCMoveSCP.clear();
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
                 throw new IllegalArgumentException("CStoreSCUofCMoveSCP in incorrect format : " + s);
-            setCStoreSCUofCMoveSCP(s.substring(0, index), s.substring(index+1));
+            setCStoreSCUOfCMoveSCP(s.substring(0, index), s.substring(index+1));
         }
     }
 
@@ -3062,7 +3062,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
         importReportTemplateParams.clear();
         importReportTemplateParams.putAll(arcdev.importReportTemplateParams);
-        cStoreSCUofCMoveSCP.clear();
-        cStoreSCUofCMoveSCP.putAll(arcdev.cStoreSCUofCMoveSCP);
+        cStoreSCUOfCMoveSCP.clear();
+        cStoreSCUOfCMoveSCP.putAll(arcdev.cStoreSCUOfCMoveSCP);
     }
 }

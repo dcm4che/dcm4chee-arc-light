@@ -451,6 +451,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isRetrieveTaskWarningOnNoMatch(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
                 ext.isRetrieveTaskWarningOnWarnings(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCStoreSCUOfCMoveSCP", ext.getCStoreSCUOfCMoveSCPs());
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -730,6 +731,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), false));
         ext.setRetrieveTaskWarningOnWarnings(
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), false));
+        ext.setCStoreSCUOfCMoveSCPs(LdapUtils.stringArray(attrs.get("dcmCStoreSCUOfCMoveSCP")));
     }
 
     @Override
@@ -1250,6 +1252,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isRetrieveTaskWarningOnWarnings(),
                 bb.isRetrieveTaskWarningOnWarnings(),
                 false);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmCStoreSCUOfCMoveSCP",
+                aa.getCStoreSCUOfCMoveSCPs(), bb.getCStoreSCUOfCMoveSCPs());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

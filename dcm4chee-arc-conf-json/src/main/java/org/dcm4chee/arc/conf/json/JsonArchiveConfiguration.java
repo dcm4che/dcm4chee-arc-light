@@ -362,6 +362,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.isRetrieveTaskWarningOnNoMatch(), false);
         writer.writeNotDef("dcmRetrieveTaskWarningOnWarnings",
                 arcDev.isRetrieveTaskWarningOnWarnings(), false);
+        writer.writeNotEmpty("dcmCStoreSCUOfCMoveSCP", arcDev.getCStoreSCUOfCMoveSCPs());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1751,6 +1752,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveTaskWarningOnWarnings":
                     arcDev.setRetrieveTaskWarningOnWarnings(reader.booleanValue());
+                    break;
+                case "dcmCStoreSCUOfCMoveSCP":
+                    arcDev.setCStoreSCUOfCMoveSCPs(reader.stringArray());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
