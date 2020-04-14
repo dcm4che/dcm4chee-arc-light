@@ -2115,6 +2115,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.364 NAME 'dcmRetrieveTaskWarningOnWarning
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.365 NAME 'dcmCStoreSCUofCMoveSCP'
+  DESC 'Indicates to identify received C-STORE RQs as caused by a forwarded C-MOVE RQs by the Calling AET in the A-Associate-RQ in format <Calling AET>=<C-MOVE-SCP>. Typically <Calling AET> and <C-MOVE-SCP> are equal. If no value is configured for a particular C-MOVE SCP, attribute (0000,1030) Move Originator Application Entity Title in the C-STORE RQ is used to find the corresponding forwarded C-MOVE RQ to forward the received C-STORE RQ to the original Move Destination.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2195,6 +2200,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
+    dcmCStoreSCUofCMoveSCP $
     dcmDiffStudiesIncludefieldAll $
     dcmUPSProcessingPollingInterval $
     dcmUPSProcessingFetchSize $

@@ -93,17 +93,18 @@ public class CMoveSCUImpl implements CMoveSCU {
             }
             ctx.setFallbackAssociation(fwdas);
             rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
-            storeForwardSCU.addRetrieveContext(ctx, callingAET);
-            fwdas.addAssociationListener(new AssociationListener() {
-                @Override
-                public void onClose(Association association) {
-                    storeForwardSCU.removeRetrieveContext(ctx, callingAET);
-                }
-            });
+            String cMoveSCPorCallingAET = bindByCMoveSCP(ctx, otherCMoveSCP) ? otherCMoveSCP : callingAET;
+            storeForwardSCU.addRetrieveContext(ctx, cMoveSCPorCallingAET);
+            fwdas.addAssociationListener(as -> storeForwardSCU.removeRetrieveContext(ctx, cMoveSCPorCallingAET));
             return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
+    }
+
+    private static boolean bindByCMoveSCP(RetrieveContext ctx, String cMoveSCP) {
+        return ctx.getArchiveAEExtension().getArchiveDeviceExtension()
+                .getCStoreSCUofCMoveSCPs().values().contains(cMoveSCP);
     }
 
     @Override
@@ -118,13 +119,9 @@ public class CMoveSCUImpl implements CMoveSCU {
             } else {
                 ctx.setFallbackAssociation(fwdas);
                 rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
-                storeForwardSCU.addRetrieveContext(ctx, callingAET);
-                fwdas.addAssociationListener(new AssociationListener() {
-                    @Override
-                    public void onClose(Association association) {
-                        storeForwardSCU.removeRetrieveContext(ctx, callingAET);
-                    }
-                });
+                String cMoveSCPorCallingAET = bindByCMoveSCP(ctx, otherCMoveSCP) ? otherCMoveSCP : callingAET;
+                storeForwardSCU.addRetrieveContext(ctx, cMoveSCPorCallingAET);
+                fwdas.addAssociationListener(as -> storeForwardSCU.removeRetrieveContext(ctx, cMoveSCPorCallingAET));
                 new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd).forwardMoveRQ();
             }
         } catch (Exception e) {

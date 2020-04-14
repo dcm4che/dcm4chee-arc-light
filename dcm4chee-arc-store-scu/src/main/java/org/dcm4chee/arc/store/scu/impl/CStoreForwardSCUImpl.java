@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -91,7 +92,15 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
     }
 
     private CStoreForward forStoreContext(StoreContext storeContext) {
-        String aeTitle = storeContext.getMoveOriginatorAETitle();
+        StoreSession storeSession = storeContext.getStoreSession();
+        String storeSCU = storeSession.getCallingAET();
+        if (storeSCU == null)
+            return null;
+
+        String aeTitle = storeSession.getArchiveDeviceExtension().getCStoreSCUofCMoveSCPs().get(storeSCU);
+        if (aeTitle == null)
+            aeTitle = storeContext.getMoveOriginatorAETitle();
+
         if (aeTitle == null)
             return null;
 
