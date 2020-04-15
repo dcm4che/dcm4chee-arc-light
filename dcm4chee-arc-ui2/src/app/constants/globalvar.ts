@@ -924,10 +924,6 @@ export class Globalvar {
                     showStar:true,
                     description:$localize `:@@sps_status:SPS Status`,
                     placeholder:$localize `:@@sps_status:SPS Status`
-                },{
-                    tag:"checkbox",
-                    filterKey:"onlyDefault",
-                    text:$localize `:@@only_default:Only Default`
                 },
                 {
                     tag:"input",

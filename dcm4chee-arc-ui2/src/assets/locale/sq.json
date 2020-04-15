@@ -294,7 +294,6 @@
     "dynamic_formater.ui_elasticsearch_url": "sq_Create first an UI Elasticsearch URL!",
     "dynamic_formater.keycloak_server": "sq_Create first an Keycloak Server!",
     "sps_status": "sq_SPS Status",
-    "only_default": "sq_Only Default",
     "scheduled_performing_physicians_name": "sq_Scheduled Performing Physician's Name",
     "sp_physicians_name": "sq_SP Physician's Name",
     "patient_name": "sq_Patient name",
