@@ -165,6 +165,7 @@
     bottom: 0;
     text-align: center;
     width:100%;
+    color: black;
 }
 .schedulepicker .schedule_drodown_buttons .button.calendar{
     background:url("../../../assets/img/calendar.png");
