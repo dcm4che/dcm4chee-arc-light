@@ -3380,7 +3380,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.initRjNotes(retries - 1);
                 });
     }
-    aets;
+    // aets;
     initWebApps(){
         let aetsTemp;
         this.service.getAets().pipe(
@@ -3410,8 +3410,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }),
                         selectedWebService:_.get(this.studyWebService,"selectedWebService")
                     });
-                    this.aets = aetsTemp;
-                    console.log("ates",this.aets);
+                   this.applicationEntities.aes = aetsTemp.map((ae:Aet)=>{
+                        return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
+                    });
+                    // this.aets = aetsTemp;
+                    // console.log("ates",this.aets);
                     // this.getDevices();
                     this.setSchema();
                     this.initExporters(2);

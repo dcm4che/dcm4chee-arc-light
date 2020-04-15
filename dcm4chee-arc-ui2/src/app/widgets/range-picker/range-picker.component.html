@@ -149,9 +149,11 @@
                         </ng-container>
                     </ul>
                 </li>
-                <li *ngIf="smartPickerActive" class="smart_input"><input type="text" i18n-title="@@title.use_duration_format" title="Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range subtracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y => one year back, 2y3m => 2 years and 3 months back, t2h12m => 2 hours and 12 minutes from now etc." i18n-placeholder="@@placeholder.range-picker.hover_for_more_info" placeholder="Hover for more Info" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)"></li>
+                <li *ngIf="smartPickerActive" class="smart_input">
+                    <input type="text" i18n-title="@@title.use_duration_format" title="Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range subtracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y => one year back, 2y3m => 2 years and 3 months back, t2h12m => 2 hours and 12 minutes from now etc." i18n-placeholder="@@placeholder.range-picker.hover_for_more_info" placeholder="Hover for more Info" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)">
+                </li>
                 <li (click)="smartPicker()">
-                    <span class="smart_picker" *ngIf="!smartPickerActive" i18n="@@smart_picker">Smart Picker</span>
+                    <span class="smart_picker" *ngIf="!smartPickerActive" i18n="@@smart_picker" i18n-title="@@title.use_duration_format" title="Use duration format (ISO 8601) ((P)nYnMnDTnHnMnS or (P)nW) to set first date/time of the range subtracted from today/now (Format is not case sensitive and P on start is optional). For Example 1y => one year back, 2y3m => 2 years and 3 months back, t2h12m => 2 hours and 12 minutes from now etc.">Smart Picker</span>
                     <span class="smart_picker" *ngIf="smartPickerActive" i18n="@@fast_picker">Fast Picker</span>
                 </li>
             </ul>
