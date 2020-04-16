@@ -1460,7 +1460,8 @@ export class Globalvar {
                 tag:"range-picker-limit",
                 type:"text",
                 filterKey:"StudyDate",
-                description:$localize `:@@study_date:Study date`
+                description:$localize `:@@study_date:Study date`,
+                onlyDate:true
             },{
                 tag:"range-picker-time",
                 type:"text",
