@@ -2127,6 +2127,18 @@ mat-form-field{
     select.dropdown{
       position: static !important;
     }
+    mat-select{
+      .mat-select-trigger{
+        border: 1px solid #ccc;
+        .mat-select-value{
+          line-height: 30px;
+          height: 30px;
+        }
+        .mat-select-value-text{
+          padding-left: 7px;
+        }
+      }
+    }
   }
 }
 .dynamicform:not(.hiddencontent){

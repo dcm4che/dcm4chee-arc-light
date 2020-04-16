@@ -36,6 +36,7 @@ export class FormElement<T>{
         order?: number,
         description?: string,
         controlType?: string,
+        type?:string,
         show?: boolean;
         format?: string;
     } = {}) {
@@ -48,5 +49,8 @@ export class FormElement<T>{
         this.controlType = options.controlType || '';
         this.show = options.show || false;
         this.format = options.format || undefined;
+        if(options.type){
+            this.type = options.type;
+        }
     }
 }

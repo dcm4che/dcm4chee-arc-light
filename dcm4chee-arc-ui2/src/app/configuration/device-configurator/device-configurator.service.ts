@@ -1057,18 +1057,41 @@ export class DeviceConfiguratorService{
                 }
                 break;
             case 'integer':
-                form.push(
-                    new InputNumber({
-                        key: i,
-                        label: m.title,
-                        description: m.description,
-                        value: parseFloat(value),
-                        type: 'number',
-                        order: (5 + newOrderSuffix),
-                        validation: validation,
-                        show: (this.defaultOpenBlock === 'attr')
-                    })
-                );
+                if(_.hasIn(m, 'enum')){
+                    _.forEach(m.enum, (opt) => {
+                        options.push({
+                            label: opt,
+                            value: opt,
+                            active: (opt === value) ? true : false
+                        });
+                    });
+                    form.push(
+                        new DropdownList({
+                            key: i,
+                            label: m.title,
+                            description: m.description,
+                            options: new OrderByPipe().transform(options,'label'),
+                            order: (5 + newOrderSuffix),
+                            validation: validation,
+                            value: value,
+                            type: 'number',
+                            show: (this.defaultOpenBlock === 'attr')
+                        }),
+                    );
+                }else{
+                    form.push(
+                        new InputNumber({
+                            key: i,
+                            label: m.title,
+                            description: m.description,
+                            value: parseFloat(value),
+                            type: 'number',
+                            order: (5 + newOrderSuffix),
+                            validation: validation,
+                            show: (this.defaultOpenBlock === 'attr')
+                        })
+                    );
+                }
                 break;
             default:
                 if(_.hasIn(device,i) && _.size(value) < 1){
