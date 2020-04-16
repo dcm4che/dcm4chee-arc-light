@@ -647,7 +647,7 @@ export class UploadFilesComponent implements OnInit {
                                             console.log($localize `:@@upload-files.in_response:in response`, JSON.parse(xmlHttpRequest.response));
                                         } else {
                                             $this.percentComplete[file.name]['showLoader'] = false;
-                                            console.log($localize `:@@upload-files.in_respons_error:in respons error`, xmlHttpRequest.status);
+                                            console.log($localize `:@@upload-files.in_respons_error:in response error`, xmlHttpRequest.status);
                                             console.log('statusText', xmlHttpRequest.statusText);
                                             $this.percentComplete[file.name]['value'] = 0;
                                             $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + $localize `:@@upload-files._: ` + xmlHttpRequest.statusText;

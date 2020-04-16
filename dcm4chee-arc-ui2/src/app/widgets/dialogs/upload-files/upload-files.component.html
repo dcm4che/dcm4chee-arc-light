@@ -12,7 +12,7 @@
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
-            <label i18n="@@chose_a_file_to_upload">Chose a File to upload:</label><br>
+            <label i18n="@@chose_a_file_to_upload">Choose a File to upload:</label><br>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@placeholder.upload-files.upload_file" placeholder="Upload file"  accept="image/jpeg, image/png, image/gif, image/tiff ,video/mpeg,video/mp4,video/quicktime,application/pdf" multiple>
             <ng-container *ngIf="isImage">
                 <label i18n="@@captured_image_type">Captured Image Type:</label>

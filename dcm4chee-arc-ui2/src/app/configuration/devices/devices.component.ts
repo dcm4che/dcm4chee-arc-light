@@ -213,7 +213,7 @@ export class DevicesComponent implements OnInit{
                 console.log('devicename', devicename.dicomDeviceName);
                 console.log('indexof', _.indexOf(deviceNameList, parameters.result.input));
                 if (_.indexOf(deviceNameList, parameters.result.input) > -1){
-                    $this.mainservice.showError($localize `:@@devices.name_exist:This name already exists, please chose another one!`);
+                    $this.mainservice.showError($localize `:@@devices.name_exist:This name already exists, please choose another one!`);
                     $this.cfpLoadingBar.complete();
                 }else{
                     $this.$http.get(
