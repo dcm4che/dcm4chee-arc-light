@@ -259,7 +259,7 @@ export class AppService implements OnInit, OnDestroy{
                         this.setGlobal(global);
                     }catch(e){
                         console.warn("Permission not found!",e);
-                        this.showError($localize `:@@app.permission_not_found:Permission not found!`);
+                        this.showError($localize `:@@permission_not_found:Permission not found!`);
                     }
                     return res;
                 }));

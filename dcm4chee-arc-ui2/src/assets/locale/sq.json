@@ -1,8 +1,7 @@
 {
   "locale": "en",
   "translations": {
-    "title.app.about": "sq_About",
-    "menu.about": "sq_About",
+    "about": "sq_About",
     "menu.edit_account": "sq_Edit Account",
     "menu.admin_realm": "sq_Admin Realm",
     "title.app.go_to_wildfly_admin": "sq_Go to Wildfly Administration Console",
@@ -12,13 +11,11 @@
     "menu.monitoring": "sq_Monitoring",
     "menu.navigation": "sq_Navigation",
     "menu.configuration": "sq_Configuration",
-    "app.attribute_exist": "sq_Attribute already exists!",
     "app.info": "sq_Info ",
     "app.info_message": "sq_Info message!",
     "msg.error": "sq_Error",
     "msg.info": "sq_Info",
     "msg.warning": "sq_Warning",
-    "app.permission_not_found": "sq_Permission not found!",
     "ae-list.application_entries_list": "sq_Application Entities list",
     "title.ae-list.register_new_application_entity": "sq_Register new application entity",
     "ae-list.new_aet": "sq_New AET",
