@@ -617,7 +617,7 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
-    "dcmDeleteStudyBatchSize": {
+    "dcmDeleteStudyChunkSize": {
       "title": "Delete Study Chunk Size",
       "description": "Number of Instances deleted in one DB transaction on permanent deletion of Studies.",
       "type": "integer",
