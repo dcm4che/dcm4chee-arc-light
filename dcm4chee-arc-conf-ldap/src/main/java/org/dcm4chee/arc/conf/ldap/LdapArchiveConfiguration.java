@@ -452,6 +452,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
                 ext.isRetrieveTaskWarningOnWarnings(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCStoreSCUOfCMoveSCP", ext.getCStoreSCUOfCMoveSCPs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteStudyChunkSize", ext.getDeleteStudyChunkSize(), 100);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -732,6 +733,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRetrieveTaskWarningOnWarnings(
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), false));
         ext.setCStoreSCUOfCMoveSCPs(LdapUtils.stringArray(attrs.get("dcmCStoreSCUOfCMoveSCP")));
+        ext.setDeleteStudyChunkSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyChunkSize"), 100));
     }
 
     @Override
@@ -1254,6 +1256,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 false);
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmCStoreSCUOfCMoveSCP",
                 aa.getCStoreSCUOfCMoveSCPs(), bb.getCStoreSCUOfCMoveSCPs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudyChunkSize",
+                aa.getDeleteStudyChunkSize(),
+                bb.getDeleteStudyChunkSize(),
+                100);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

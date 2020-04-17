@@ -964,7 +964,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteStudyChunkSize(int deleteStudyChunkSize) {
-        this.deleteStudyChunkSize = greaterZero(deleteStudyBatchSize, "deleteStudyChunkSize");
+        this.deleteStudyChunkSize = greaterZero(deleteStudyChunkSize, "deleteStudyChunkSize");
     }
 
     public boolean isDeletePatientOnDeleteLastStudy() {
