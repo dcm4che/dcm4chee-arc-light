@@ -52,6 +52,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +62,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -141,10 +142,11 @@ public class DeletionServiceImpl implements DeletionService {
                        PatientMgtContext pCtx) throws Exception {
         StudyDeleteContext ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
         try {
-            studyDeleted(ctx, study, arcAE, pCtx);
+            LOG.info("Start deleting {} from database", study);
+            deleteStudy(ctx, study, arcAE, pCtx);
             LOG.info("Successfully delete {} from database", study);
         } catch (Exception e) {
-            LOG.warn("Failed to delete {} on {}", study, e);
+            LOG.warn("Failed to delete {} from database:\n", study, e);
             ctx.setException(e);
             throw e;
         } finally {
@@ -154,59 +156,55 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Override
     public void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE) {
-        em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
+        LOG.info("Start deleting {} from database", ctx.getPatient());
+        List<Study> resultList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, ctx.getPatient())
-                .getResultList()
-                .forEach(study -> {
-                    try {
-                        deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx);
-                    } catch (Exception e) {
-                        ctx.setException(e);
-                    }
-                });
-        if (ctx.getException() == null) {
+                .getResultList();
+        try {
+            for (Study study : resultList) {
+                deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx);
+            }
             patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} from database:\n", ctx.getPatient(), e);
+            ctx.setException(e);
+        } finally {
+            patientMgtEvent.fire(ctx);
         }
-
-        patientMgtEvent.fire(ctx);
     }
 
-    private void studyDeleted(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
+    private void deleteStudy(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx)
             throws Exception {
-        AllowDeleteStudyPermanently allowDeleteStudy = AllowDeleteStudyPermanently.ALWAYS;
-        ctx.setStudy(study);
-        ctx.setPatient(study.getPatient());
-        if (pCtx == null) {
-            ctx.setDeletePatientOnDeleteLastStudy(arcAE.getArchiveDeviceExtension().isDeletePatientOnDeleteLastStudy());
-            allowDeleteStudy = arcAE.allowDeleteStudy();
-        }
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         RejectionState rejectionState = study.getRejectionState();
-
-        if (rejectionState == RejectionState.NONE && allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
-            ejb.findSeriesWithPurgedInstances(study.getPk())
-                    .forEach(series ->
-                        {
-                            try {
-                                storeService.restoreInstances(
-                                        storeService.newStoreSession(device.getApplicationEntities().iterator().next()),
-                                        study.getStudyInstanceUID(),
-                                        series.getSeriesInstanceUID(),
-                                        device.getDeviceExtension(ArchiveDeviceExtension.class).getPurgeInstanceRecordsDelay());
-                            } catch (IOException e) {
-                                LOG.info("Restore instances failed for series {} \n", series.getSeriesInstanceUID(), e);
-                            }
-                        });
-            ejb.deleteStudy(ctx);
+        if (pCtx == null) {
+            if (arcAE.allowDeleteStudy() == AllowDeleteStudyPermanently.REJECTED
+                && (rejectionState == RejectionState.NONE || rejectionState == RejectionState.PARTIAL))
+                    throw new StudyNotEmptyException(
+                            "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
+            ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
+        }
+        if (rejectionState == RejectionState.EMPTY) {
+            ejb.deleteEmptyStudy(ctx);
             return;
         }
-
-        if (rejectionState == RejectionState.COMPLETE
-                || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS)
-            ejb.deleteStudy(ctx);
-        else if (rejectionState == RejectionState.EMPTY)
-            ejb.deleteEmptyStudy(ctx);
-        else
-            throw new StudyNotEmptyException("Study is not empty.");
+        List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
+        if (!seriesWithPurgedInstances.isEmpty()) {
+            StoreSession session = storeService.newStoreSession(arcAE.getApplicationEntity());
+            for (Series series : seriesWithPurgedInstances) {
+                storeService.restoreInstances(
+                        session,
+                        study.getStudyInstanceUID(),
+                        series.getSeriesInstanceUID(),
+                        arcDev.getPurgeInstanceRecordsDelay());
+            }
+        }
+        int limit = arcDev.getDeleteStudyChunkSize();
+        int n;
+        do {
+            n = ejb.deleteStudy(ctx, limit);
+            LOG.debug("Deleted {} instances of {}", n, study);
+        } while (n == limit);
     }
 }

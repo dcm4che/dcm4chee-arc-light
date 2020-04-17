@@ -77,29 +77,32 @@ import java.util.Date;
                 query = "select distinct l.storageID from Location l " +
                         "where l.instance.series.study.pk=?1 and l.objectType=?2"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE,
-                query = "select l from Location l join l.instance i join i.series ser join ser.study st " +
+                query = "select l from Location l join fetch l.instance i join i.series ser join ser.study st " +
                         "where exists (" +
                         "select ri from RejectedInstance ri " +
                         "where ri.studyInstanceUID = st.studyInstanceUID " +
                         "and ri.seriesInstanceUID = ser.seriesInstanceUID " +
                         "and ri.sopInstanceUID = i.sopInstanceUID " +
                         "and ri.rejectionNoteCode = ?1) " +
-                        "order by l.pk"),
+                        "order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE,
-                query = "select l from Location l join l.instance i " +
+                query = "select l from Location l join fetch l.instance i " +
                         "where i.conceptNameCode=?1 order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE_BEFORE,
-                query = "select l from Location l join l.instance i join i.series ser join ser.study st " +
+                query = "select l from Location l join fetch l.instance i join i.series ser join ser.study st " +
                         "where exists (" +
                         "select ri from RejectedInstance ri " +
                         "where ri.studyInstanceUID = st.studyInstanceUID " +
                         "and ri.seriesInstanceUID = ser.seriesInstanceUID " +
                         "and ri.sopInstanceUID = i.sopInstanceUID " +
                         "and ri.rejectionNoteCode = ?1 and ri.createdTime < ?2) " +
-                        "order by l.pk"),
+                        "order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE,
-                query = "select l from Location l join l.instance i " +
+                query = "select l from Location l join fetch l.instance i " +
                         "where i.conceptNameCode=?1 and i.updatedTime<?2 order by i.pk"),
+        @NamedQuery(name = Location.FIND_BY_STUDY_PK_ORDER_BY_INSTANCE_PK,
+                query = "select l from Location l join fetch l.instance i " +
+                        "where i.series.study.pk=?1 order by i.pk"),
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
@@ -137,6 +140,7 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
+    public static final String FIND_BY_STUDY_PK_ORDER_BY_INSTANCE_PK = "Location.FindByStudyPkOrderByInstancePk";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
     public static final String SET_DIGEST = "Location.SetDigest";

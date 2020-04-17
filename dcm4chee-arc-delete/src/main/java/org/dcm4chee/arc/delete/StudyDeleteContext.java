@@ -57,8 +57,6 @@ public interface StudyDeleteContext {
 
     Study getStudy();
 
-    void setStudy(Study study);
-
     List<Instance> getInstances();
 
     void addInstance(Instance inst);
@@ -68,8 +66,6 @@ public interface StudyDeleteContext {
     void setException(Exception exception);
 
     Patient getPatient();
-
-    void setPatient(Patient patient);
 
     HttpServletRequestInfo getHttpServletRequestInfo();
 

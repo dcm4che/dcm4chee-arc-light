@@ -147,6 +147,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStoragePollingInterval;
     private volatile int purgeStorageFetchSize = 100;
     private volatile int deleteStudyBatchSize = 10;
+    private volatile int deleteStudyChunkSize = 100;
     private volatile boolean deletePatientOnDeleteLastStudy = false;
     private volatile Duration failedToDeletePollingInterval;
     private volatile int failedToDeleteFetchSize = 100;
@@ -956,6 +957,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
         this.deleteStudyBatchSize = greaterZero(deleteStudyBatchSize, "deleteStudyBatchSize");
+    }
+
+    public int getDeleteStudyChunkSize() {
+        return deleteStudyChunkSize;
+    }
+
+    public void setDeleteStudyChunkSize(int deleteStudyChunkSize) {
+        this.deleteStudyChunkSize = greaterZero(deleteStudyBatchSize, "deleteStudyChunkSize");
     }
 
     public boolean isDeletePatientOnDeleteLastStudy() {
@@ -2871,6 +2880,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
+        deleteStudyChunkSize = arcdev.deleteStudyChunkSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         failedToDeletePollingInterval = arcdev.failedToDeletePollingInterval;
         failedToDeleteFetchSize = arcdev.failedToDeleteFetchSize;

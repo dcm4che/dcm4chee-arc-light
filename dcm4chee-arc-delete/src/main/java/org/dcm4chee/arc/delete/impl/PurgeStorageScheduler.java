@@ -354,9 +354,14 @@ public class PurgeStorageScheduler extends Scheduler {
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(pkUID.pk);
             ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
             try {
-                Study study = ejb.deleteStudy(ctx);
+                int limit = arcDev.getDeleteStudyChunkSize();
+                int n;
+                do {
+                    n = ejb.deleteStudy(ctx, limit);
+                    LOG.debug("Deleted {} instances of Study[pk={}]", n, pkUID.pk);
+                } while (n == limit);
                 removed++;
-                LOG.info("Successfully delete {} on {}", study, desc);
+                LOG.info("Successfully delete {} on {}", ctx.getStudy(), desc);
             } catch (Exception e) {
                 LOG.warn("Failed to delete {} on {}", pkUID, desc, e);
                 ctx.setException(e);

@@ -280,12 +280,24 @@ public class DeletionServiceEJB {
                 .executeUpdate();
     }
 
-    public Study deleteStudy(StudyDeleteContext ctx) {
+    public int deleteStudy(StudyDeleteContext ctx, int limit) {
         Long studyPk = ctx.getStudyPk();
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
+        LOG.debug("Query for objects of Study[pk={}]", studyPk);
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_ORDER_BY_INSTANCE_PK, Location.class)
                 .setParameter(1, studyPk)
+                .setMaxResults(limit)
                 .getResultList();
-        return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
+        if (!locations.isEmpty()) {
+            LOG.debug("Found {} objects of Study[pk={}]", locations.size(), studyPk);
+            Collection<Instance> insts = removeOrMarkToDelete(locations, limit);
+            LOG.debug("Marked {}/{} objects/instances of Study[pk={} for deletion}",
+                    locations.size(), insts.size(), studyPk);
+            deleteInstances(insts, ctx);
+            LOG.debug("Deleted {} instances of Study[pk={}]", insts.size(), studyPk);
+        } else {
+            LOG.debug("No objects of Study[pk={}] found", studyPk);
+        }
+        return locations.size();
     }
 
     public boolean hasObjectsOnStorage(Long studyPk, StorageDescriptor desc) {
@@ -332,7 +344,7 @@ public class DeletionServiceEJB {
             return false;
         }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
-        Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
+        Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
         LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
                 locations.size(), insts.size(), study, storageIDs);
         Set<Long> seriesPks = new HashSet<>();
@@ -378,9 +390,17 @@ public class DeletionServiceEJB {
         if (before != null)
             query.setParameter(2, before);
 
+        LOG.debug("Invoke {}", queryName);
         List<Location> locations = query.setMaxResults(limit).getResultList();
-        if (!locations.isEmpty())
-            deleteInstances(removeOrMarkToDelete(locations, limit, true));
+        if (!locations.isEmpty()) {
+            LOG.debug("{} - Found {} objects", queryName, locations.size());
+            Collection<Instance> insts = removeOrMarkToDelete(locations, limit);
+            LOG.debug("{} - Marked {}/{} objects/instances", queryName, locations.size(), insts.size());
+            deleteInstances(insts, null);
+            LOG.debug("{} - Deleted {} instances", queryName, insts.size());
+        } else {
+            LOG.debug("{} - No objects found", queryName);
+        }
         return locations.size();
     }
 
@@ -390,7 +410,7 @@ public class DeletionServiceEJB {
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
-    private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit, boolean resetSize) {
+    private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit) {
         int size = locations.size();
         int initialCapacity = size * 4 / 3;
         HashMap<Long, Instance> insts = new HashMap<>(initialCapacity);
@@ -405,12 +425,6 @@ public class DeletionServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-
-            if (resetSize) {
-                Series series = inst.getSeries();
-                series.resetSize();
-                series.getStudy().resetSize();
-            }
             storeEjb.removeOrMarkToDelete(location);
         }
         for (UIDMap uidMap : uidMaps.values())
@@ -418,14 +432,16 @@ public class DeletionServiceEJB {
         return insts.values();
     }
 
-    private void deleteInstances(Collection<Instance> insts) {
+    private void deleteInstances(Collection<Instance> insts, StudyDeleteContext ctx) {
         HashMap<Long, Series> series = new HashMap<>();
         for (Instance inst : insts) {
             Series ser = inst.getSeries();
             if (!series.containsKey(ser.getPk())) {
                 series.put(ser.getPk(), ser);
                 deleteSeriesQueryAttributes(ser);
+                ser.resetSize();
             }
+            if (ctx != null) ctx.addInstance(inst);
             em.remove(inst);
             em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
                     .setParameter(1, ser.getStudy().getStudyInstanceUID())
@@ -439,6 +455,7 @@ public class DeletionServiceEJB {
             if (!studies.containsKey(study.getPk())) {
                 studies.put(study.getPk(), study);
                 deleteStudyQueryAttributes(study);
+                study.resetSize();
             }
             if (countInstancesOfSeries(ser) == 0) {
                 if (ser.getMetadata() != null)
@@ -456,51 +473,21 @@ public class DeletionServiceEJB {
 
             if (countSeriesOfStudy(study) == 0) {
                 em.remove(study);
+                if (ctx != null && ctx.isDeletePatientOnDeleteLastStudy()
+                        && countStudiesOfPatient(study.getPatient()) == 0) {
+                    PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
+                    patMgtCtx.setPatient(study.getPatient());
+                    patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+                    patMgtCtx.setAttributes(study.getPatient().getAttributes());
+                    patMgtCtx.setPatientID(IDWithIssuer.pidOf(study.getPatient().getAttributes()));
+                    patientService.deletePatient(patMgtCtx);
+                }
             } else {
                 if (study.getRejectionState() == RejectionState.PARTIAL
                         && !hasSeriesWithOtherRejectionState(study, RejectionState.NONE))
                     study.setRejectionState(RejectionState.NONE);
             }
         }
-    }
-
-    private Study deleteStudy(Collection<Instance> insts, StudyDeleteContext ctx) {
-        Patient patient = null;
-        Study study = null;
-        HashMap<Long, Series> series = new HashMap<>();
-        for (Instance inst : insts) {
-            Series ser = inst.getSeries();
-            if (!series.containsKey(ser.getPk())) {
-                series.put(ser.getPk(), ser);
-            }
-            ctx.addInstance(inst);
-            em.remove(inst);
-            em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
-                    .setParameter(1, ser.getStudy().getStudyInstanceUID())
-                    .setParameter(2, ser.getSeriesInstanceUID())
-                    .setParameter(3, inst.getSopInstanceUID())
-                    .executeUpdate();
-        }
-        for (Series ser : series.values()) {
-            if (study == null) {
-                ctx.setStudy(study = ser.getStudy());
-                ctx.setPatient(patient = study.getPatient());
-            }
-            if (ser.getMetadata() != null)
-                ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
-            em.remove(ser);
-        }
-        study.getPatient().decrementNumberOfStudies();
-        em.remove(study);
-        if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
-            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
-            patMgtCtx.setPatient(patient);
-            patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-            patMgtCtx.setAttributes(patient.getAttributes());
-            patMgtCtx.setPatientID(IDWithIssuer.pidOf(patient.getAttributes()));
-            patientService.deletePatient(patMgtCtx);
-        }
-        return study;
     }
 
     private boolean hasRejectedInstances(Series series) {

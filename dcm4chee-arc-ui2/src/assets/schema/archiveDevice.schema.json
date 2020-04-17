@@ -36,6 +36,7 @@
     "dcmPurgeStorageFetchSize",
     "dcmFailedToDeleteFetchSize",
     "dcmDeleteStudyBatchSize",
+    "dcmDeleteStudyChunkSize",
     "dcmDeletePatientOnDeleteLastStudy",
     "dcmDeleteRejectedFetchSize",
     "dcmLeadingCFindSCPQueryCacheSize",
@@ -610,9 +611,17 @@
     },
     "dcmDeleteStudyBatchSize": {
       "title": "Delete Study Batch Size",
-      "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again.",
+      "description": "Number of Studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again.",
       "type": "integer",
       "default": 10,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDeleteStudyBatchSize": {
+      "title": "Delete Study Chunk Size",
+      "description": "Number of Instances deleted in one DB transaction on permanent deletion of Studies.",
+      "type": "integer",
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },

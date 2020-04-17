@@ -58,8 +58,6 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     private final Long studyPk;
     private final List<Instance> instances = new ArrayList<>();
-    private Patient patient;
-    private Study study;
     private Exception exception;
     private HttpServletRequestInfo httpServletRequestInfo;
     private boolean deletePatientOnDeleteLastStudy;
@@ -75,12 +73,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     @Override
     public Study getStudy() {
-        return study;
-    }
-
-    @Override
-    public void setStudy(Study study) {
-        this.study = study;
+        return instances.isEmpty() ? null : instances.get(0).getSeries().getStudy();
     }
 
     @Override
@@ -105,12 +98,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     @Override
     public Patient getPatient() {
-        return patient;
-    }
-
-    @Override
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+        return instances.isEmpty() ? null : instances.get(0).getSeries().getStudy().getPatient();
     }
 
     @Override
