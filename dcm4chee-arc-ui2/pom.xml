@@ -64,6 +64,13 @@
       <artifactId>dcm4chee-arc-conf-keycloak</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-lang</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -102,7 +109,6 @@
               <execution>
                 <!--<id>npm run-script prod</id>-->
                 <id>yarn run prod</id>
-                <phase>prepare-package</phase>
                 <goals>
                   <goal>yarn</goal>
                 </goals>
