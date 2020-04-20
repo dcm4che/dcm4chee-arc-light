@@ -117,7 +117,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     }
     statusChange(){
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == $localize `:@@queues.in_process:IN PROCESS`){
+            if(this.filterObject.status == "SCHEDULED" || this.filterObject.status == $localize `:@@in_process:IN PROCESS`){
                 return o.value != 'reschedule';
             }else{
                 if(this.filterObject.status === '*')

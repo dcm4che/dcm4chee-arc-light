@@ -25,7 +25,7 @@ export class StorageVerificationService {
           },
           {
               value:"IN PROCESS",
-              text:$localize `:@@queues.in_process:IN PROCESS`
+              text:$localize `:@@in_process:IN PROCESS`
           },
           {
               value:"COMPLETED",

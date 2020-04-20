@@ -27,7 +27,7 @@ export class DiffMonitorService {
             },
             {
                 value:"IN PROCESS",
-                text:$localize `:@@IN_PROCESS:IN PROCESS`
+                text:$localize `:@@in_process:IN PROCESS`
             },
             {
                 value:"COMPLETED",
