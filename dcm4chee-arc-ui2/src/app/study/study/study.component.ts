@@ -3053,11 +3053,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 }`;
                         }else{
                             if(mode === 'multipleExport'){
-/*                                let checkbox = `${
-                                    (result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''
-                                }${
-                                    (result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''
-                                }`;*/
                                 let checkbox = "";
                                 if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
                                     checkbox = '&' + checkbox;
