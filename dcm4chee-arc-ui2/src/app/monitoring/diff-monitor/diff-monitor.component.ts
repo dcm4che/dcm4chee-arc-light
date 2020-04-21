@@ -43,8 +43,8 @@ export class DiffMonitorComponent implements OnInit {
     interval = 10;
     timer = {
         started:false,
-        startText:$localize `:@@diff-monitor.start_auto_refresh:Start Auto Refresh`,
-        stopText:$localize `:@@diff-monitor.stop_auto_refresh:Stop Auto Refresh`
+        startText:$localize `:@@start_auto_refresh:Start Auto Refresh`,
+        stopText:$localize `:@@stop_auto_refresh:Stop Auto Refresh`
     };
     Object = Object;
     filterTreeHeight = 3;
@@ -54,13 +54,13 @@ export class DiffMonitorComponent implements OnInit {
     allActionsOptions = [
         {
             value:"cancel",
-            label:$localize `:@@diff-monitor.cancel_all_matching_tasks:Cancel all matching tasks`
+            label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
             value:"reschedule",
-            label:$localize `:@@diff-monitor.reschedule_all_matching_tasks:Reschedule all matching tasks`
+            label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
             value:"delete",
-            label:$localize `:@@diff-monitor.delete_all_matching_tasks:Delete all matching tasks`
+            label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
     constructor(

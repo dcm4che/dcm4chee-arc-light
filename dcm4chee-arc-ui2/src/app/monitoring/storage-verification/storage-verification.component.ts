@@ -33,20 +33,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     count;
     timer = {
       started:false,
-      startText:$localize `:@@storage-verification.start_auto_refresh:Start Auto Refresh`,
-      stopText:$localize `:@@storage-verification.stop_auto_refresh:Stop Auto Refresh`
+      startText:$localize `:@@start_auto_refresh:Start Auto Refresh`,
+      stopText:$localize `:@@stop_auto_refresh:Stop Auto Refresh`
     };
     allActionsActive = [];
     allActionsOptions = [
       {
           value:"cancel",
-          label:$localize `:@@storage-verification.cancel_all_matching_tasks:Cancel all matching tasks`
+          label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
       },{
           value:"reschedule",
-          label:$localize `:@@storage-verification.reschedule_all_matching_tasks:Reschedule all matching tasks`
+          label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
       },{
           value:"delete",
-          label:$localize `:@@storage-verification.delete_all_matching_tasks:Delete all matching tasks`
+          label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
       }
     ];
     allAction;

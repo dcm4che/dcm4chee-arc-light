@@ -52,14 +52,14 @@ export class WebAppsListService {
             filterKey:"dicomDeviceName",
             options:devices,
             showStar:true,
-            description:$localize `:@@web-apps-list.device_name:Device Name`,
-            placeholder:$localize `:@@web-apps-list.device_name:Device Name`
+            description:$localize `:@@device_name:Device Name`,
+            placeholder:$localize `:@@device_name:Device Name`
         },{
             tag:"input",
             type:"text",
             filterKey:"dicomDescription",
-            description:$localize `:@@web-apps-list.device_description:Device Description`,
-            placeholder:$localize `:@@web-apps-list.device_description:Device Description`
+            description:$localize `:@@device_description:Device Description`,
+            placeholder:$localize `:@@device_description:Device Description`
         },{
             tag:"input",
             type:"text",

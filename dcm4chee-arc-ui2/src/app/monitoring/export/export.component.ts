@@ -36,8 +36,8 @@ export class ExportComponent implements OnInit, OnDestroy {
     exportTasks = [];
     timer = {
         started:false,
-        startText:$localize `:@@export.start_auto_refresh:Start Auto Refresh`,
-        stopText:$localize `:@@export.stop_auto_refresh:Stop Auto Refresh`
+        startText:$localize `:@@start_auto_refresh:Start Auto Refresh`,
+        stopText:$localize `:@@stop_auto_refresh:Stop Auto Refresh`
     };
     statusValues = {};
     refreshInterval;
@@ -53,13 +53,13 @@ export class ExportComponent implements OnInit, OnDestroy {
     allActionsOptions = [
         {
             value:"cancel",
-            label:$localize `:@@export.cancel_all_matching_tasks:Cancel all matching tasks`
+            label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
             value:"reschedule",
-            label:$localize `:@@export.reschedule_all_matching_tasks:Reschedule all matching tasks`
+            label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
             value:"delete",
-            label:$localize `:@@export.delete_all_matching_tasks:Delete all matching tasks`
+            label:$localize `:@@edelete_all_matching_tasks:Delete all matching tasks`
         }
     ];
     allActionsActive = [];

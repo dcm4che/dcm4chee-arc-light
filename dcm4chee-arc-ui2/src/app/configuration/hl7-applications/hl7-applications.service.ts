@@ -21,8 +21,8 @@ export class Hl7ApplicationsService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@hl7-applications.device_name:Device name`,
-                placeholder:$localize `:@@hl7-applications.device_name:Device name`
+                description:$localize `:@@device_name:Device name`,
+                placeholder:$localize `:@@device_name:Device name`
             },{
                 tag:"input",
                 type:"text",

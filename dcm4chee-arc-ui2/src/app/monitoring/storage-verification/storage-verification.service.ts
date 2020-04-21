@@ -89,7 +89,7 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'cancel', e);
                       },
-                      title:$localize `:@@storage-verification.cancel_this_task:Cancel this task`
+                      title:$localize `:@@cancel_this_task:Cancel this task`
                   },
                   {
                       icon:{
@@ -277,7 +277,7 @@ export class StorageVerificationService {
             showStar:true,
             filterKey:"dicomDeviceName",
             description:$localize `:@@storage-verification.device_name_to_filter_by:Device Name to filter by`,
-            placeholder:$localize `:@@storage-verification.device_name:Device Name`
+            placeholder:$localize `:@@device_name:Device Name`
         },
         {
             tag:"select",

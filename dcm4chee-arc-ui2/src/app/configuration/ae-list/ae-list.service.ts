@@ -58,8 +58,8 @@ export class AeListService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@ae-list.device_name:Device name`,
-                placeholder:$localize `:@@ae-list.device_name:Device name`
+                description:$localize `:@@device_name:Device name`,
+                placeholder:$localize `:@@device_name:Device name`
             },{
                 tag:"input",
                 type:"text",

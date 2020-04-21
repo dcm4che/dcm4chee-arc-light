@@ -470,7 +470,7 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.device_description" datatype="html">
+      <trans-unit id="device_description" datatype="html">
         <source>Device Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -545,7 +545,7 @@
           <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.primary_device_type" datatype="html">
+      <trans-unit id="primary_device_type" datatype="html">
         <source>Primary Device Type</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -2011,7 +2011,7 @@
           <context context-type="linenumber">40</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.device_name" datatype="html">
+      <trans-unit id="device_name" datatype="html">
         <source>Device Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
@@ -2025,7 +2025,7 @@
           <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.device_description" datatype="html">
+      <trans-unit id="device_description" datatype="html">
         <source>Device Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
@@ -2039,14 +2039,14 @@
           <context context-type="linenumber">52</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.model_name" datatype="html">
+      <trans-unit id="model_name" datatype="html">
         <source>Model Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">53</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.primary_device_type" datatype="html">
+      <trans-unit id="primary_device_type" datatype="html">
         <source>Primary device type</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
@@ -2560,7 +2560,7 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.associations.stop_auto_refresh" datatype="html">
+      <trans-unit id="associations.stop_auto_refresh" datatype="html">
         <source>Stop auto refresh</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/associations/associations.component.html</context>
@@ -2844,7 +2844,7 @@
           <context context-type="linenumber">32</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.device_name" datatype="html">
+      <trans-unit id="device_name" datatype="html">
         <source>Device Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>

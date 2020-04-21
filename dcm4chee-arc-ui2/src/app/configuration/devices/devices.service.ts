@@ -174,14 +174,14 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@devices.device_name:Device name`,
-                placeholder:$localize `:@@devices.device_name:Device name`
+                description:$localize `:@@device_name:Device name`,
+                placeholder:$localize `:@@device_name:Device name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceDescription",
-                description:$localize `:@@devices.device_description:Device description`,
-                placeholder:$localize `:@@devices.device_description:Device description`
+                description:$localize `:@@device_description:Device description`,
+                placeholder:$localize `:@@device_description:Device description`
             },{
                 tag:"input",
                 type:"text",
@@ -192,14 +192,14 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomManufacturerModelName",
-                description:$localize `:@@devices.manufacturer_model_name:Manufacturer model name`,
-                placeholder:$localize `:@@devices.manufacturer_model_name:Manufacturer model name`
+                description:$localize `:@@manufacturer_model_name:Manufacturer model name`,
+                placeholder:$localize `:@@manufacturer_model_name:Manufacturer model name`
             },{
                 tag:"input",
                 type:"text",
                 filterKey:"dicomSoftwareVersion",
-                description:$localize `:@@devices.software_version:Software version`,
-                placeholder:$localize `:@@devices.software_version:Software version`
+                description:$localize `:@@software_version:Software version`,
+                placeholder:$localize `:@@software_version:Software version`
             },{
                 tag:"input",
                 type:"text",
@@ -210,8 +210,8 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomPrimaryDeviceType",
-                description:$localize `:@@devices.primary_device_type:Primary device type`,
-                placeholder:$localize `:@@devices.primary_device_type:Primary device type`
+                description:$localize `:@@primary_device_type:Primary device type`,
+                placeholder:$localize `:@@primary_device_type:Primary device type`
             },{
                 tag:"input",
                 type:"text",

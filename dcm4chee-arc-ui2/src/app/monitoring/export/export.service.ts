@@ -224,7 +224,7 @@ export class ExportService {
                         showStar:true,
                         filterKey:"dicomDeviceName",
                         description:$localize `:@@export.device_name_to_filter_by:Device Name to filter by`,
-                        placeholder:$localize `:@@export.device_name:Device Name`
+                        placeholder:$localize `:@@device_name:Device Name`
                     }
                 ],
                 [

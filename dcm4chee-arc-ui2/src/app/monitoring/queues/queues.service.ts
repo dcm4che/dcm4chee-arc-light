@@ -179,8 +179,8 @@ export class QueuesService{
                 }),
                 showStar:true,
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@queues.device_name:Device name`,
-                placeholder:$localize `:@@queues.device_name:Device name`
+                description:$localize `:@@device_name:Device name`,
+                placeholder:$localize `:@@device_name:Device name`
             },
             {
                 tag:"label",

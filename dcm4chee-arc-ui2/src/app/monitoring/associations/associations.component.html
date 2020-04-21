@@ -16,7 +16,7 @@
                                 <div *ngIf="stopLoop" class="dummy"></div>
                                 <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
                                 <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" i18n-title="@@title.associations.start_getting_associations" title="Start getting associations">Start</button>
-                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@title.associations.stop_auto_refresh" title="Stop auto refresh">Stop</button>
+                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@stop_auto_refresh" title="Stop auto refresh">Stop</button>
                             </div>
                         </div>
                         <div class="filter_block height_2">
