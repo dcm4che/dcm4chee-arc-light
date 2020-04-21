@@ -33,8 +33,8 @@ export class Hl7ApplicationsService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomApplicationCluster",
-                description:$localize `:@@hl7-applications.application_cluster:Application Cluster`,
-                placeholder:$localize `:@@hl7-applications.application_cluster:Application Cluster`
+                description:$localize `:@@application_cluster:Application Cluster`,
+                placeholder:$localize `:@@application_cluster:Application Cluster`
             },
             {
                 tag: "button",

@@ -96,8 +96,8 @@ export class WebAppsListService {
             tag:"input",
             type:"text",
             filterKey:"dicomApplicationCluster",
-            description:$localize `:@@web-apps-list.application_cluster:Application Cluster`,
-            placeholder:$localize `:@@web-apps-list.application_cluster:Application Cluster`
+            description:$localize `:@@application_cluster:Application Cluster`,
+            placeholder:$localize `:@@application_cluster:Application Cluster`
         },
         {
             tag:"button",

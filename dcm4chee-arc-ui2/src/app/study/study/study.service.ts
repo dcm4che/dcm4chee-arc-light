@@ -1807,9 +1807,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.accession_number:Accession Number`,
+                    header: $localize `:@@accession_number:Accession Number`,
                     pathToValue: "[00080050].Value[0]",
-                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
+                    headerDescription: $localize `:@@accession_number:Accession Number`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -2521,9 +2521,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.accession_number:Accession Number`,
+                    header: $localize `:@@accession_number:Accession Number`,
                     pathToValue: "00080050.Value[0]",
-                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
+                    headerDescription: $localize `:@@accession_number:Accession Number`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -2792,10 +2792,10 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.accession_number:Accession Number`,
+                    header: $localize `:@@accession_number:Accession Number`,
                     pathToValue: "[00080050].Value[0]",
                     showBorderPath:"[00080050].showBorder",
-                    headerDescription: $localize `:@@study.accession_number:Accession Number`,
+                    headerDescription: $localize `:@@accession_number:Accession Number`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),

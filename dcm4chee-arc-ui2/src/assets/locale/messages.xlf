@@ -792,7 +792,7 @@
           <context context-type="linenumber">195</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.application_cluster" datatype="html">
+      <trans-unit id="application_cluster" datatype="html">
         <source>Application Cluster</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -2879,7 +2879,7 @@
           <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.application_cluster" datatype="html">
+      <trans-unit id="application_cluster" datatype="html">
         <source>Application Cluster</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
