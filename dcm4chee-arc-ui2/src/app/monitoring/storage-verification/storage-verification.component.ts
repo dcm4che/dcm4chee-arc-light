@@ -143,8 +143,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:$localize `:@@storage-verification.batch_id:Batch ID`,
-                        placeholder:$localize `:@@storage-verification.batch_id:Batch ID`
+                        description:$localize `:@@batch_id:Batch ID`,
+                        placeholder:$localize `:@@batch_id:Batch ID`
                     },
                     {
                         tag:"select",

@@ -130,9 +130,9 @@ export class StorageVerificationService {
           },
           {
               type:"model",
-              title:$localize `:@@storage-verification.batch_id:Batch ID`,
+              title:$localize `:@@batch_id:Batch ID`,
               key:"batchID",
-              description:$localize `:@@storage-verification.batch_id:Batch ID`,
+              description:$localize `:@@batch_id:Batch ID`,
               widthWeight:0.8,
               calculatedWidth:"20%"
           },
@@ -209,9 +209,9 @@ export class StorageVerificationService {
                 calculatedWidth:"6%"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.batch_id:Batch ID`,
+                title:$localize `:@@batch_id:Batch ID`,
                 key:"batchID",
-                description:$localize `:@@storage-verification.batch_id:Batch ID`,
+                description:$localize `:@@batch_id:Batch ID`,
                 widthWeight:0.4,
                 calculatedWidth:"20%"
             },{
@@ -316,8 +316,8 @@ export class StorageVerificationService {
             tag:"input",
             type:"text",
             filterKey:"batchID",
-            description:$localize `:@@storage-verification.batch_id:Batch ID`,
-            placeholder:$localize `:@@storage-verification.batch_id:Batch ID`
+            description:$localize `:@@batch_id:Batch ID`,
+            placeholder:$localize `:@@batch_id:Batch ID`
         },        {
             tag:"select",
             options:[

@@ -115,8 +115,8 @@ export class StorageCommitmentService {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:$localize `:@@storage-commitment.batch_id:Batch ID`,
-                        placeholder:$localize `:@@storage-commitment.batch_id:Batch ID`
+                        description:$localize `:@@batch_id:Batch ID`,
+                        placeholder:$localize `:@@batch_id:Batch ID`
                     }
                 ],
                 [

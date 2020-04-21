@@ -1368,7 +1368,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.birth_date:Birth Date`,
+                    header: $localize `:@@birth_date:Birth Date`,
                     pathToValue: "00100030.Value[0]",
                     headerDescription: $localize `:@@study.patients_birth_date:Patient's Birth Date`,
                     widthWeight: 0.5,
@@ -2105,7 +2105,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.body_part:Body Part`,
                     pathToValue: "00180015.Value[0]",
-                    headerDescription: $localize `:@@study.body_part_examined:Body Part Examined`,
+                    headerDescription: $localize `:@@body_part_examined:Body Part Examined`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),

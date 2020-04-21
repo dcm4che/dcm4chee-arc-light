@@ -244,8 +244,8 @@ export class ExportService {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:$localize `:@@export.batch_id:Batch ID`,
-                        placeholder:$localize `:@@export.batch_id:Batch ID`
+                        description:$localize `:@@batch_id:Batch ID`,
+                        placeholder:$localize `:@@batch_id:Batch ID`
                     },
                     {
                         tag:"select",

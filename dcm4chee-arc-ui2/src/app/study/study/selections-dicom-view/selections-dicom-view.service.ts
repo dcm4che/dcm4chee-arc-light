@@ -146,7 +146,7 @@ export class SelectionsDicomViewService {
                     type: "value",
                     header: $localize `:@@selections-dicom-view.body_part:Body Part`,
                     pathToValue: "00180015.Value[0]",
-                    headerDescription: $localize `:@@selections-dicom-view.body_part_examined:Body Part Examined`,
+                    headerDescription: $localize `:@@body_part_examined:Body Part Examined`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),

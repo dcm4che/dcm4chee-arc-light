@@ -3203,14 +3203,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 ],[
                     {
                         tag:"label",
-                        text:$localize `:@@study.batch_ID:Batch ID`
+                        text:$localize `:@@batch_ID:Batch ID`
                     },
                     {
                         tag:"input",
                         type:"text",
                         filterKey:"batchID",
-                        description:$localize `:@@study.batch_ID:Batch ID`,
-                        placeholder:$localize `:@@study.batch_ID:Batch ID`
+                        description:$localize `:@@batch_ID:Batch ID`,
+                        placeholder:$localize `:@@batch_ID:Batch ID`
                     }
                 ]
                 ]

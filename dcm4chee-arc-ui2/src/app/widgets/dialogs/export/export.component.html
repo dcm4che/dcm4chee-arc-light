@@ -16,7 +16,7 @@
                 </div>
                 <br>
                 <div>
-                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@placeholder.export.batch_id" placeholder="Batch ID">
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
                 </div>
                 <br>
                 <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
@@ -85,7 +85,7 @@
                 <br>
                 <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
                     <p i18n="@@batch_id">Batch ID:</p>
-                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@placeholder.export.batch_id" placeholder="Batch ID">
+                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
                 </div>
                 <br>
             </div>
