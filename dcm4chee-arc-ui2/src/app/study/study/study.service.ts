@@ -2975,7 +2975,7 @@ export class StudyService {
         return forkJoin(observables);
     }
     changeSPSStatusMatchingMWL(dcmWebApp:DcmWebApp, status:string, filters:any){
-        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}`,filters);
+        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}${j4care.param(filters)}`,{});
     }
 
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
