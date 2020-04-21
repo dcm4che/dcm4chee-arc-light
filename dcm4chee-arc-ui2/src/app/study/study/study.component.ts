@@ -431,7 +431,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.exporter(
                     undefined,
                 $localize `:@@study.export_selected_object:Export selected objects`,
-                $localize `:@@object_will_not_be_sent:Object will not be sent!`,
                 $localize `:@@single:single`,
                     undefined,
                     undefined,
@@ -2943,7 +2942,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.exporter(
             '',
             $localize `:@@study.retrieve_matching_studies_depending:Retrieve matching studies depending on selected filters, from external C-MOVE SCP`,
-            '',
             'multiple-retrieve',
             {},
             ""
@@ -2953,7 +2951,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.exporter(
             '',
             $localize `:@@study.export_all_matching_studies:Export all matching studies`,
-            $localize `:@@study.studies_will_not_be_send:Studies will not be sent!`,
             'multipleExport',
             {},
             "study"
@@ -2964,7 +2961,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.exporter(
             this.service.studyURL(study.attrs, this.studyWebService.selectedWebService),
             $localize `:@@study.export_study:Export study`,
-            $localize `:@@study.study_will_not_be_sent:Study will not be sent!`,
             'single',
             study.attrs,
             "study"
@@ -2974,7 +2970,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.exporter(
             this.service.seriesURL(series.attrs, this.studyWebService.selectedWebService),
             $localize `:@@export_series:Export series`,
-            `:@@series_will_not_be_sent:Series will not be sent!`,
             'single',
             series.attrs,
             "series"
@@ -2984,13 +2979,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.exporter(
             this.service.instanceURL(instance.attrs, this.studyWebService.selectedWebService),
             $localize `:@@export_instance:Export instance`,
-            $localize `:@@series_will_not_be_sent:Series will not be sent!`,
             'single',
             instance.attrs,
             "instance"
         );
     };
-    exporter(url, title, warning, mode, objectAttr, dicomMode, multipleObjects?:SelectionActionElement){
+    exporter(url, title, mode, objectAttr, dicomMode, multipleObjects?:SelectionActionElement){
         let $this = this;
         let id;
         let urlRest;
@@ -3022,7 +3016,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.queues = this.queues;
-        this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
  /*       if(!internal) {

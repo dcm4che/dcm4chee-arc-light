@@ -14,7 +14,6 @@ export class ExportDialogComponent{
     private _aes;
     private _dicomPrefixes;
     _ = _;
-    private _warning;
     private _title;
     private _okButtonLabel;
     private _externalAetMode;
@@ -74,14 +73,6 @@ export class ExportDialogComponent{
 
     set okButtonLabel(value) {
         this._okButtonLabel = value;
-    }
-
-    get warning() {
-        return this._warning;
-    }
-
-    set warning(value) {
-        this._warning = value;
     }
 
     get title() {
