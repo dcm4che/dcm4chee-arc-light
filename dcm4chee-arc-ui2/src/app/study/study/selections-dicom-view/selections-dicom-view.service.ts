@@ -67,9 +67,9 @@ export class SelectionsDicomViewService {
           return [
               new TableSchemaElement({
                   type: "value",
-                  header: $localize `:@@selections-dicom-view.study_id:Study ID`,
+                  header: $localize `:@@study_id:Study ID`,
                   pathToValue: "[00200010].Value[0]",
-                  headerDescription: $localize `:@@selections-dicom-view.study_id:Study ID`,
+                  headerDescription: $localize `:@@study_id:Study ID`,
                   widthWeight: 0.9,
                   calculatedWidth: "20%"
               }), new TableSchemaElement({
@@ -259,9 +259,9 @@ export class SelectionsDicomViewService {
                     calculatedWidth: "20%"
                 }),new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.study_id:Study ID`,
+                    header: $localize `:@@study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
-                    headerDescription: $localize `:@@selections-dicom-view.study_id:Study ID`,
+                    headerDescription: $localize `:@@study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),

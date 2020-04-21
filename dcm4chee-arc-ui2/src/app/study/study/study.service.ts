@@ -1767,9 +1767,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_id:Study ID`,
+                    header: $localize `:@@study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
-                    headerDescription: $localize `:@@study.study_id:Study ID`,
+                    headerDescription: $localize `:@@study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
@@ -2746,10 +2746,10 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_id:Study ID`,
+                    header: $localize `:@@study_id:Study ID`,
                     pathToValue: "[00200010].Value[0]",
                     showBorderPath:"[00200010].showBorder",
-                    headerDescription: $localize `:@@study.study_id:Study ID`,
+                    headerDescription: $localize `:@@study_id:Study ID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
