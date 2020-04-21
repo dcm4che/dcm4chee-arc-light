@@ -19,12 +19,12 @@
                     <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
                 </div>
                 <br>
-                <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
+<!--                <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
                     <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@export.storage_commitment_without_export">Storage commitment without export</ng-container>
                 </label><br>
                 <label i18n-title="@@title.if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning">
                     <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export">IAN without export</ng-container>
-                </label>
+                </label>-->
                 <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
                     <span class="text-danger">{{warning}}</span>
                 </div>
@@ -65,12 +65,12 @@
                     <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
                 </mat-select>
             </div>
-            <label i18n-title="@@if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
+<!--            <label i18n-title="@@if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> <ng-container i18n="@@storage_commitment_without_export">Storage commitment without export</ng-container>
             </label><br>
             <label i18n-title="@@if_checked_the_study_will_not_be_sent" title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> <ng-container i18n="@@ian_without_export"></ng-container>
-            </label>
+            </label>-->
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
                 <span class="text-danger">{{warning}}</span>
             </div>
