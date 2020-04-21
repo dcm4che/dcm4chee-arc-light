@@ -379,7 +379,7 @@ export class StudyService {
                 tag: "button",
                 id: "submit",
                 text: $localize `:@@SUBMIT:SUBMIT`,
-                description: tab === "diff" ? $localize `:@@study.show_diffs:Show DIFFs` : $localize `:@@study.query_studies:Query Studies`
+                description: tab === "diff" ? $localize `:@@study.show_diffs:Show DIFFs` : $localize `:@@query_studies:Query Studies`
             });
             if(tab != "diff" && tab != "uwl"){
                 schema.push({
@@ -401,7 +401,7 @@ export class StudyService {
                         text: quantityText.count,
                         showRefreshIcon: true,
                         showDynamicLoader: false,
-                        description: $localize `:@@study.query_only_the_count:QUERY ONLY THE COUNT`
+                        description: $localize `:@@query_only_the_count:QUERY ONLY THE COUNT`
                     });
                 }else{
                     schema.push({
@@ -416,7 +416,7 @@ export class StudyService {
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     text: quantityText.size,
-                    description: $localize `:@@study.query_only_the_size:QUERY ONLY THE SIZE`
+                    description: $localize `:@@query_only_the_size:QUERY ONLY THE SIZE`
                 })
             }
         }
@@ -1343,18 +1343,18 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.patients_name:Patient's Name`,
+                    header: $localize `:@@patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: $localize `:@@study.patients_name:Patient's Name`,
+                    headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.patient_id:Patient ID`,
+                    header: $localize `:@@patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: $localize `:@@study.patient_id:Patient ID`,
+                    headerDescription: $localize `:@@patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -1775,17 +1775,17 @@ export class StudyService {
                     cssClass:"border-left"
                 }), new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    header: $localize `:@@study_instance_uid:Study Instance UID`,
                     pathToValue: "[0020000D].Value[0]",
-                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_date:Study Date`,
+                    header: $localize `:@@study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
-                    headerDescription: $localize `:@@study.study_date:Study Date`,
+                    headerDescription: $localize `:@@study_date:Study Date`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
@@ -1817,7 +1817,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@modalities:Modalities`,
                     pathToValue: "[00080061].Value",
-                    headerDescription: $localize `:@@study.modalities_in_study:Modalities in Study`,
+                    headerDescription: $localize `:@@modalities_in_study:Modalities in Study`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
@@ -1831,9 +1831,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@number_of_study_related_series:#S`,
+                    header: $localize `:@@number_of_related_series:#S`,
                     pathToValue: "[00201206].Value[0]",
-                    headerDescription: $localize `:@@study.number_of_study_related_series:Number of Study Related Series`,
+                    headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
@@ -1841,7 +1841,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@number_of_related_instances:#I`,
                     pathToValue: "[00201208].Value[0]",
-                    headerDescription: $localize `:@@study.number_of_study_related_instances:Number of Study Related Instances`,
+                    headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 })
@@ -2489,9 +2489,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    header: $localize `:@@study_instance_uid:Study Instance UID`,
                     pathToValue: "0020000D.Value[0]",
-                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
                     widthWeight: 3.5,
                     calculatedWidth: "20%"
                 }),
@@ -2756,19 +2756,19 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    header: $localize `:@@study_instance_uid:Study Instance UID`,
                     pathToValue: "[0020000D].Value[0]",
                     showBorderPath:"[0020000D].showBorder",
-                    headerDescription: $localize `:@@study.study_instance_uid:Study Instance UID`,
+                    headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
                     widthWeight: 3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_date:Study Date`,
+                    header: $localize `:@@study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
                     showBorderPath:"[00080020].showBorder",
-                    headerDescription: $localize `:@@study.study_date:Study Date`,
+                    headerDescription: $localize `:@@study_date:Study Date`,
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
@@ -2804,7 +2804,7 @@ export class StudyService {
                     header: $localize `:@@modalities:Modalities`,
                     pathToValue: "[00080061].Value[0]",
                     showBorderPath:"[00080061].showBorder",
-                    headerDescription: $localize `:@@study.modalities_in_study:Modalities in Study`,
+                    headerDescription: $localize `:@@modalities_in_study:Modalities in Study`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
@@ -2822,7 +2822,7 @@ export class StudyService {
                     header: $localize `:@@studynumber:#S`,
                     pathToValue: "[00201206].Value[0]",
                     showBorderPath:"[00201206].showBorder",
-                    headerDescription: $localize `:@@study.number_of_study_related_series:Number of Study Related Series`,
+                    headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,
                     widthWeight: 0.4,
                     calculatedWidth: "20%"
                 }),
@@ -2831,7 +2831,7 @@ export class StudyService {
                     header: $localize `:@@number_of_instances:#I`,
                     pathToValue: "[00201208].Value[0]",
                     showBorderPath:"[00201208].showBorder",
-                    headerDescription: $localize `:@@study.number_of_study_related_instances:Number of Study Related Instances`,
+                    headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
                     widthWeight: 0.4,
                     calculatedWidth: "20%"
                 })

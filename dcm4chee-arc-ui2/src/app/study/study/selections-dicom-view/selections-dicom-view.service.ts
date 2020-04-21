@@ -13,17 +13,17 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
+                    header: $localize `:@@patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
+                    headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
+                    header: $localize `:@@patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
+                    headerDescription: $localize `:@@patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -74,25 +74,25 @@ export class SelectionsDicomViewService {
                   calculatedWidth: "20%"
               }), new TableSchemaElement({
                   type: "value",
-                  header: $localize `:@@selections-dicom-view.study_instance_uid:Study Instance UID`,
+                  header: $localize `:@@study_instance_uid:Study Instance UID`,
                   pathToValue: "[0020000D].Value[0]",
-                  headerDescription: $localize `:@@selections-dicom-view.study_instance_uid:Study Instance UID`,
+                  headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
                   widthWeight: 3,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
                   type: "value",
-                  header: $localize `:@@selections-dicom-view.study_date:Study Date`,
+                  header: $localize `:@@study_date:Study Date`,
                   pathToValue: "[00080020].Value[0]",
-                  headerDescription: $localize `:@@selections-dicom-view.study_date:Study Date`,
+                  headerDescription: $localize `:@@study_date:Study Date`,
                   widthWeight: 0.6,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
                   type: "value",
-                  header: $localize `:@@number_of_patient_related_studies:#S`,
+                  header: $localize `:@@number_of_related_series:#S`,
                   pathToValue: "[00201206].Value[0]",
-                  headerDescription: $localize `:@@selections-dicom-view.number_of_study_related_series:Number of Study Related Series`,
+                  headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,
                   widthWeight: 0.2,
                   calculatedWidth: "20%"
               }),
@@ -100,7 +100,7 @@ export class SelectionsDicomViewService {
                   type: "value",
                   header:$localize `:@@number_of_related_instances:#I`,
                   pathToValue: "[00201208].Value[0]",
-                  headerDescription: $localize `:@@selections-dicom-view.number_of_study_related_instances:Number of Study Related Instances`,
+                  headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
                   widthWeight: 0.2,
                   calculatedWidth: "20%"
               }),
@@ -244,17 +244,17 @@ export class SelectionsDicomViewService {
             return [
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
+                    header: $localize `:@@patients_name:Patient's Name`,
                     pathToValue: "00100010.Value[0].Alphabetic",
-                    headerDescription: $localize `:@@selections-dicom-view.patients_name:Patient's Name`,
+                    headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
+                    header: $localize `:@@patient_id:Patient ID`,
                     pathToValue: "00100020.Value[0]",
-                    headerDescription: $localize `:@@selections-dicom-view.patient_id:Patient ID`,
+                    headerDescription: $localize `:@@patient_id:Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),new TableSchemaElement({

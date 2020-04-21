@@ -252,7 +252,7 @@ export class RetrieveMonitoringService {
                         tag:"button",
                         id:"count",
                         text:countText,
-                        description:$localize `:@@querie_only_the_count:QUERIE ONLY THE COUNT`
+                        description:$localize `:@@query_only_the_count:QUERY ONLY THE COUNT`
                     },
                     {
                         tag:"button",

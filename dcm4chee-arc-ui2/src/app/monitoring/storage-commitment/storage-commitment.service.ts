@@ -109,8 +109,8 @@ export class StorageCommitmentService {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyUID",
-                        description:$localize `:@@storage-commitment.study_instance_uid:Study Instance UID`,
-                        placeholder:$localize `:@@storage-commitment.study_instance_uid:Study Instance UID`
+                        description:$localize `:@@study_instance_uid:Study Instance UID`,
+                        placeholder:$localize `:@@study_instance_uid:Study Instance UID`
                     },{
                         tag:"input",
                         type:"text",

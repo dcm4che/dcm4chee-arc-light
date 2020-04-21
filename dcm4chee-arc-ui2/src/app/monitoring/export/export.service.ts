@@ -299,7 +299,7 @@ export class ExportService {
                         type:"text",
                         filterKey:"StudyInstanceUID",
                         description:$localize `:@@export.unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
-                        placeholder:$localize `:@@export.study_instance_uid:Study Instance UID`
+                        placeholder:$localize `:@@study_instance_uid:Study Instance UID`
                     }
                 ],
                 [
@@ -307,7 +307,7 @@ export class ExportService {
                         tag:"button",
                         id:"count",
                         text:countText,
-                        description:$localize `:@@export.querie_only_the_count:QUERIE ONLY THE COUNT`
+                        description:$localize `:@@query_only_the_count:QUERY ONLY THE COUNT`
                     },
                     {
                         tag:"button",

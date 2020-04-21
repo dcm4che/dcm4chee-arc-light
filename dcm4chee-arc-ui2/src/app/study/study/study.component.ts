@@ -2032,7 +2032,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         // this.studies.pop();
                     }
                 }else{
-                    this.appService.showMsg($localize `:@@study.no_studies_found:No Studies found!`);
+                    this.appService.showMsg($localize `:@@no_studies_found:No Studies found!`);
                 }
                 this.cfpLoadingBar.complete();
             }, err => {

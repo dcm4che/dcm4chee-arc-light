@@ -149,37 +149,37 @@ export class Globalvar {
                 value: '-StudyDate,-StudyTime',
                 label: $localize `:@@orderby.study_date_asc:<label class="order_label">Study</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'StudyDate,StudyTime',
                 label: $localize `:@@orderby.study_date_desc:<label class="order_label">Study</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby.study_alph_asc:<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby.study_name_asc:<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby.study_alph_desc:<label class="order_label">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby.study_name_desc:<label class="order_label">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
@@ -245,37 +245,37 @@ export class Globalvar {
                 value: '-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: 'PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@globalvar.query_studies:Query Studies`
+                title:$localize `:@@query_studies:Query Studies`
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',

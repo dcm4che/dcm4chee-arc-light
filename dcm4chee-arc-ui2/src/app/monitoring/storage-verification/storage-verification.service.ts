@@ -138,9 +138,9 @@ export class StorageVerificationService {
           },
           {
               type:"model",
-              title:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`,
+              title:$localize `:@@study_instance_uid:Study Instance UID`,
               key:"StudyInstanceUID",
-              description:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`,
+              description:$localize `:@@study_instance_uid:Study Instance UID`,
               widthWeight:2,
               calculatedWidth:"20%"
           },
@@ -292,7 +292,7 @@ export class StorageVerificationService {
             type:"text",
             filterKey:"StudyInstanceUID",
             description:$localize `:@@storage-verification.unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
-            placeholder:$localize `:@@storage-verification.study_instance_uid:Study Instance UID`
+            placeholder:$localize `:@@study_instance_uid:Study Instance UID`
         },
         {
             tag:"select",
@@ -358,7 +358,7 @@ export class StorageVerificationService {
             tag:"button",
             id:"count",
             text:countText,
-            description:$localize `:@@storage-verification.querie_only_the_count:QUERIE ONLY THE COUNT`
+            description:$localize `:@@query_only_the_count:QUERY ONLY THE COUNT`
         },
         {
             tag:"button",

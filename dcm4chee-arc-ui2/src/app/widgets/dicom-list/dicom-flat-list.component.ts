@@ -72,7 +72,7 @@ export class DicomFlatListComponent implements OnInit {
             cssClass:"hideMobile"
         },
         {
-            title:$localize `:@@number_of_patient_related_studies:#S`,
+            title:$localize `:@@number_of_related_series:#S`,
             code:"00201206",
             description:$localize `:@@number_of_study_related_series:Number of Study Related Series`,
             widthWeight:0.2,
