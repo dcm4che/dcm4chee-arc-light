@@ -721,7 +721,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../../../../../dcm4chee-arc-lang/master/src/main/webapp/assets/schema/attributeFilter.schema.json"
+                "$ref": "../../../../../../dcm4chee-arc-lang/master/src/main/webapp/assets/schema/attributeFilter.schema.json"
               }
             }
           }
