@@ -213,8 +213,18 @@ export class AppComponent implements OnInit {
         KeycloakService.keycloakAuth.logout();
     }
     gotToWildflyConsole(e){
-        e.preventDefault();
-        window.open(            `//${window.location.hostname}:9990`, "_blank");
+        try{
+            let url;
+            if(window.location.protocol.toLowerCase() === "https:"){
+                url = `//${window.location.hostname}:${this.mainservice["management-https-port"]}`
+            }else{
+                url = `//${window.location.hostname}:${this.mainservice["management-http-port"]}`
+            }
+            e.preventDefault();
+            window.open(url, "_blank");
+        }catch (e) {
+            window.open(`//${window.location.hostname}:9990`, "_blank");
+        }
     }
     closeFromOutside(){
         if(this.showMenu)
@@ -343,6 +353,8 @@ export class AppComponent implements OnInit {
                 (res) => {
                     // $this.mainservice["deviceName"] = res.dicomDeviceName;
                     $this.mainservice["xRoad"] = res.xRoad || false;
+                    $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
+                    $this.mainservice["management-https-port"] = res["management-https-port"] || 9993;
                     this.getDeviceInfo(res.dicomDeviceName)
                         .subscribe(
                             arc => {
