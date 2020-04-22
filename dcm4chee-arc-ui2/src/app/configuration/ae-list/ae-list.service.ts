@@ -64,8 +64,8 @@ export class AeListService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomAETitle",
-                description:$localize `:@@ae-list.ae_title:AE Title`,
-                placeholder:$localize `:@@ae-list.ae_title:AE Title`
+                description:$localize `:@@aetitle:AE Title`,
+                placeholder:$localize `:@@aetitle:AE Title`
             },{
                 tag:"input",
                 type:"text",

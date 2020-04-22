@@ -171,7 +171,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     $this.deviceConfiguratorService.device = {};
                     $this.deviceConfiguratorService.schema = {};
                     $this.controlService.reloadArchive().subscribe((res) => {
-                            $this.mainservice.showMsg($localize `:@@dynamic-form-element.archive_reloaded_successfully:Archive reloaded successfully`);
+                            $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                             $this.router.navigateByUrl('blank').then(() => {
                                 $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                             });

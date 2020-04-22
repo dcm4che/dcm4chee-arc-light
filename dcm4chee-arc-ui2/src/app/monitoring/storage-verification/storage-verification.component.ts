@@ -152,7 +152,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                             {
                                 value:"DB_RECORD_EXISTS",
                                 text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
-                                title:$localize `:@@storage-verification.check_for_existence_of_db_records:Check for existence of DB records`
+                                title:$localize `:@@check_for_existence_of_db_records:Check for existence of DB records`
                             },
                             {
                                 value:"OBJECT_EXISTS",
@@ -177,7 +177,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                             {
                                 value:"S3_MD5SUM",
                                 text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
-                                title:$localize `:@@storage-verification.check_md5_checksum_of_object_on_s3_storage_system:Check MD5 checksum of object on S3 Storage System`
+                                title:$localize `:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                             }
                         ],
                         showStar:true,

@@ -58,7 +58,7 @@
                 <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.queues.cancel_selected" title="Cancel selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.cancel_selected" title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title="@@title.queues.reschedule_selected" title="Reschedule selected">
@@ -89,7 +89,7 @@
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@title.queues.show_properties" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.queues.cancel" title="Cancel">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.cancel" title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title="@@title.queues.reschedule" title="Reschedule">

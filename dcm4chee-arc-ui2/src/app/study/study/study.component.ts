@@ -191,7 +191,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         model:undefined
     };
     actionsSelections = {
-        placeholder: $localize `:@@study.actions_for_selections:Actions for selections`,
+        placeholder: $localize `:@@actions_for_selections:Actions for selections`,
         options:[
             new SelectDropdown("toggle_checkboxes", $localize `:@@study.short_toggle_checkboxes:Toggle checkboxes`, $localize `:@@study.toggle_checkboxes:Toggle checkboxes for selection`),
             new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
@@ -3147,7 +3147,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             {
                                 value:"DB_RECORD_EXISTS",
                                 text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
-                                title:$localize `:@@study.check_db:Check for existence of DB records`
+                                title:$localize `:@@check_for_existence_of_db_records:Check for existence of DB records`
                             },
                             {
                                 value:"OBJECT_EXISTS",
@@ -3172,7 +3172,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             {
                                 value:"S3_MD5SUM",
                                 text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
-                                title:$localize `:@@study.check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
+                                title:$localize `:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                             }
                         ],
                         showStar:true,
@@ -3242,7 +3242,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     {
                                         value:"DB_RECORD_EXISTS",
                                         text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
-                                        title:$localize `:@@study.check_db:Check for existence of DB records`
+                                        title:$localize `:@@check_for_existence_of_db_records:Check for existence of DB records`
                                     },
                                     {
                                         value:"OBJECT_EXISTS",
@@ -3267,7 +3267,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     {
                                         value:"S3_MD5SUM",
                                         text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
-                                        title:$localize `:@@study.check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
+                                        title:$localize `:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                                     }
                                 ],
                                 showStar:true,

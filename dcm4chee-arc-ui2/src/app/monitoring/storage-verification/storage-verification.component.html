@@ -42,7 +42,7 @@
                   <div class="filter_block">
                     <div class="line">
                       <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
-                      <mat-select [(ngModel)]="allAction"  i18n-placeholder="@@placeholder.storage-verification.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                      <mat-select [(ngModel)]="allAction"  i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                         <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                       </mat-select>
                     </div>

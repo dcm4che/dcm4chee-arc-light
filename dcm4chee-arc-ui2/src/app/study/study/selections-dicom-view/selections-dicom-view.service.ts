@@ -98,7 +98,7 @@ export class SelectionsDicomViewService {
               }),
               new TableSchemaElement({
                   type: "value",
-                  header:$localize `:@@number_of_related_instances:#I`,
+                  header:$localize `:@@number_of_instances:#I`,
                   pathToValue: "[00201208].Value[0]",
                   headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
                   widthWeight: 0.2,
@@ -144,7 +144,7 @@ export class SelectionsDicomViewService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.body_part:Body Part`,
+                    header: $localize `:@@body_part:Body Part`,
                     pathToValue: "00180015.Value[0]",
                     headerDescription: $localize `:@@body_part_examined:Body Part Examined`,
                     widthWeight: 0.9,
@@ -160,7 +160,7 @@ export class SelectionsDicomViewService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header:$localize `:@@number_of_related_instances:#I`,
+                    header:$localize `:@@number_of_instances:#I`,
                     pathToValue: "00201209.Value[0]",
                     headerDescription: $localize `:@@selections-dicom-view.number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,
@@ -206,9 +206,9 @@ export class SelectionsDicomViewService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@selections-dicom-view.content_date:Content Date`,
+                    header: $localize `:@@content_date:Content Date`,
                     pathToValue: "00080023.Value[0]",
-                    headerDescription: $localize `:@@selections-dicom-view.content_date:Content Date`,
+                    headerDescription: $localize `:@@content_date:Content Date`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),

@@ -212,7 +212,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     saveFilterTemplate(){
         if(!this.appService.deviceName){
             this.confirm({
-                content: $localize `:@@device_name_not_found:Archive device name not found, reload the page and try again!`
+                content: $localize `:@@archive_device_name_not_found:Archive device name not found, reload the page and try again!`
             }).subscribe((ok)=>{});
         }else{
             console.log("device name",this.appService.deviceName);

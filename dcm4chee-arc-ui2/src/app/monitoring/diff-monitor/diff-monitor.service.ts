@@ -254,7 +254,7 @@ export class DiffMonitorService {
                 type:"model",
                 title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
-                description: $localize `:@@ae_title_of_the_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
+                description: $localize `:@@aet_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
@@ -354,7 +354,7 @@ export class DiffMonitorService {
                 type:"model",
                 title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
-                description:$localize `:@@ae_title_of_the_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
+                description:$localize `:@@aet_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{

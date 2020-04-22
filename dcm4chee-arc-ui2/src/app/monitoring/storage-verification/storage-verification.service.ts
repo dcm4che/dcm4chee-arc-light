@@ -284,8 +284,8 @@ export class StorageVerificationService {
             options:localAET,
             showStar:true,
             filterKey:"LocalAET",
-            description:$localize `:@@storage-verification.archive_ae_title_to_filter_by:Archive AE Title to filter by`,
-            placeholder:$localize `:@@storage-verification.archive_ae_title:Archive AE Title`
+            description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`,
+            placeholder:$localize `:@@archive_ae_title:Archive AE Title`
         },
         {
             tag:"input",
@@ -305,7 +305,7 @@ export class StorageVerificationService {
         {
             tag:"range-picker",
             filterKey:"createdTime",
-            description:$localize `:@@storage-verification.created_date:Created Date`
+            description:$localize `:@@created_date:Created Date`
         },
         {
             tag:"range-picker",

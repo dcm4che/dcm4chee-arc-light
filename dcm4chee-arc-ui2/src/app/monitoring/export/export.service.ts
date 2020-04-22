@@ -261,7 +261,7 @@ export class ExportService {
                     {
                         tag:"range-picker",
                         filterKey:"createdTime",
-                        description:$localize `:@@export.created_date:Created Date`
+                        description:$localize `:@@created_date:Created Date`
                     },
                     {
                         tag:"range-picker",

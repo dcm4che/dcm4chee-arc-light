@@ -215,7 +215,7 @@
           <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.cancel_selected" datatype="html">
+      <trans-unit id="title.cancel_selected" datatype="html">
         <source>Cancel selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -356,7 +356,7 @@
           <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.cancel" datatype="html">
+      <trans-unit id="title.cancel" datatype="html">
         <source>Cancel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -726,7 +726,7 @@
           <context context-type="linenumber">161</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.ae_title" datatype="html">
+      <trans-unit id="ae_title" datatype="html">
         <source>AE Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -2283,7 +2283,7 @@
           <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.export.all_actions" datatype="html">
+      <trans-unit id="placeholder.all_actions" datatype="html">
         <source>All actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2387,7 +2387,7 @@
           <context context-type="linenumber">76</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.cancel_selected" datatype="html">
+      <trans-unit id="title.cancel_selected" datatype="html">
         <source>Cancel selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2837,7 +2837,7 @@
           <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.ae_title" datatype="html">
+      <trans-unit id="aetitle" datatype="html">
         <source>AETitle</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
@@ -3216,7 +3216,7 @@
           <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.retrieve-monitoring.cancel" datatype="html">
+      <trans-unit id="title.cancel" datatype="html">
         <source>Cancel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3281,7 +3281,7 @@
           <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.diff-monitor.all_actions" datatype="html">
+      <trans-unit id="placeholder.all_actions" datatype="html">
         <source>All actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
@@ -3302,7 +3302,7 @@
           <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.storage-verification.all_actions" datatype="html">
+      <trans-unit id="placeholder.all_actions" datatype="html">
         <source>All actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>

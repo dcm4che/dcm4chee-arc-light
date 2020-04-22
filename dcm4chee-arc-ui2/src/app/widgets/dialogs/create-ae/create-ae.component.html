@@ -162,7 +162,7 @@
                         <div  id="networkae" class="content" *ngIf="showae===true">
                             <!--<div angular-validator  sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"  sf-options="sfOptions"></div>-->
                             <div class="inputblock">
-                                <label class="title" i18n="@@create-ae.ae_title">AE Title</label>
+                                <label class="title" i18n="@@ae_title">AE Title</label>
                                 <input type="text" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomAETitle">
                                 <span class="description" i18n="@@create-ae.unique_ae_title">Unique AE title for this Network AE</span>
                             </div>
@@ -216,7 +216,7 @@
                         <h4 (click)="showAetList=true;showae=false;showselectdevice=false;showconnselecteddevice=false;showconn=false;showdevice=false" i18n="@@create-ae.set_the_new_application_entity">Set the new Application Entity as 'Accepted Calling AE Title' to following AETs:</h4>
                         <div class="content" *ngIf="showAetList">
                             <div class="inputblock">
-                                <label class="title" i18n="@@create-ae.ae_title">AE Title</label>
+                                <label class="title" i18n="@@ae_title">AE Title</label>
                                 <div class="input_part">
 <!--                                    <j4care-select [(model)]="selectedForAcceptedCallingAET" [placeholder]="'Select AET'" [multiSelectMode]="true" [maxSelectedValueShown]="1" [showSearchField]="true">
                                         <j4care-option [value]="''" [title]="'Clear selection'">Clear</j4care-option>

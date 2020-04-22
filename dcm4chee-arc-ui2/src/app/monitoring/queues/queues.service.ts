@@ -195,7 +195,7 @@ export class QueuesService{
             {
                 tag:"range-picker",
                 filterKey:"createdTime",
-                description:$localize `:@@queues.created_date:Created Date`
+                description:$localize `:@@created_date:Created Date`
             },
             {
                 tag:"range-picker",

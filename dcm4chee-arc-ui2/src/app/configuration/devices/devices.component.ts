@@ -296,7 +296,7 @@ export class DevicesComponent implements OnInit{
                 $this.$http.put('../devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
                     $this.mainservice.showMsg($localize `:@@devices.exporter_description_appended:The new exporter description appended successfully to the device: ${re.device.dicomDeviceName}:@@dicomDeviceName:`);
                     $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
-                        $this.mainservice.showMsg($localize `:@@devices.archive_reloaded:Archive reloaded successfully!`);
+                        $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });
                 }, (err) => {
                     $this.httpErrorHandler.handleError(err);

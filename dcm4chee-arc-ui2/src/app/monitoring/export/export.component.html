@@ -51,7 +51,7 @@
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select class="pull-left"  [(ngModel)]="allAction" i18n-placeholder="@@placeholder.export.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <mat-select class="pull-left"  [(ngModel)]="allAction" i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                             <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
                         </mat-select>
                         <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>
@@ -95,7 +95,7 @@
                 <th (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-title="@@title.export.cancel_selected" title="Cancel selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-title="@@title.cancel_selected" title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title="@@title.export.reschedule_selected" title="Reschedule selected">
