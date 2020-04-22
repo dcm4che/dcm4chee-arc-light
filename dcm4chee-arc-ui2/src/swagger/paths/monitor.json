@@ -60,7 +60,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../../../../../../dcm4chee-arc-lang/master/src/main/webapp/assets/schema/metrics.schema.json"
+                "$ref": "../schemas.json#/metrics"
               }
             }
           }
@@ -114,7 +114,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas.json#/metrics"
+                "$ref": "../schemas.json#/metric"
               }
             }
           }
