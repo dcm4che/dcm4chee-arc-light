@@ -3257,7 +3257,7 @@ export class StudyService {
                     setExpirationDateToNever: false,
                     FreezeExpirationDate: false
                 };
-                title = $localize `:@@unfreeze_expiration_date:Unfreeze/Unprotect Expiration Date of the Study`;
+                title = $localize `:@@unfreeze_unprotect_expiration_date_of_the_study:Unfreeze/Unprotect Expiration Date of the Study`;
                 schema = [
                     [
                         [

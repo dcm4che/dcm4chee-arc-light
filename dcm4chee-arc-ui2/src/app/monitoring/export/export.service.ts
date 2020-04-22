@@ -298,7 +298,7 @@ export class ExportService {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyInstanceUID",
-                        description:$localize `:@@export.unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
+                        description:$localize `:@@unique_identifier_of_the_study_to_filter_by:Unique Identifier of the Study to filter by`,
                         placeholder:$localize `:@@study_instance_uid:Study Instance UID`
                     }
                 ],

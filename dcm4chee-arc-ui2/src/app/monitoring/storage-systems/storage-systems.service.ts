@@ -119,8 +119,8 @@ export class StorageSystemsService {
                                 {"value":"MB",text:"MB"},
                                 {"value":"BYTE",text:"Byte"},
                             ],
-                            placeholder:$localize `:@@unite:Unite`,
-                            title:$localize `:@@unite:Unite`
+                            placeholder:$localize `:@@unit:Unit`,
+                            title:$localize `:@@unit:Unit`
                         }
                     }
                 ]

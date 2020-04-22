@@ -349,7 +349,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             "study": $localize `:@@study.studies:Studies`,
             "patient": $localize `:@@study.patients:Patients`,
             "mwl": $localize `:@@study.mwl:MWL`,
-            "uwl": $localize `:@@study.uwl:UWL`,
+            "uwl": $localize `:@@uwl:UWL`,
             "diff": $localize `:@@study.difference:Difference`
         }[tab] || $localize `:@@study.studies:Studies`;
     };

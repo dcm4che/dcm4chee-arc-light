@@ -1853,7 +1853,7 @@
           <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.unit" datatype="html">
+      <trans-unit id="unit" datatype="html">
         <source>Unit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/size-range-picker/size-range-picker.component.html</context>
@@ -3365,7 +3365,7 @@
           <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="navigation.tab.uwl" datatype="html">
+      <trans-unit id="uwl" datatype="html">
         <source>UWL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study-tab.component.ts</context>
