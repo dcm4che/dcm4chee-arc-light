@@ -1834,7 +1834,7 @@ export class StudyService {
                     header: $localize `:@@number_of_related_series:#S`,
                     pathToValue: "[00201206].Value[0]",
                     headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,
-                    widthWeight: 0.2,
+                    widthWeight: 0.3,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
@@ -1842,7 +1842,7 @@ export class StudyService {
                     header: $localize `:@@number_of_related_instances:#I`,
                     pathToValue: "[00201208].Value[0]",
                     headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
-                    widthWeight: 0.2,
+                    widthWeight: 0.3,
                     calculatedWidth: "20%"
                 })
             ],
