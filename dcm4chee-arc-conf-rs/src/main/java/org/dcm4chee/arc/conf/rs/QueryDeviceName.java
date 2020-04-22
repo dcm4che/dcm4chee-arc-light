@@ -88,6 +88,8 @@ public class QueryDeviceName {
                 gen.writeStartObject();
                 gen.write("dicomDeviceName", device.getDeviceName());
                 gen.write("super-user-role", System.getProperty("super-user-role", "admin"));
+                gen.write("management-http-port", intSystemProperty("jboss.management.http.port", 9990));
+                gen.write("management-https-port", intSystemProperty("jboss.management.https.port", 9993));
                 if (arcDev != null) {
                     writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
                     writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);
@@ -98,6 +100,14 @@ public class QueryDeviceName {
             }).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static int intSystemProperty(String key, int defVal) {
+        try {
+            return Integer.parseInt(System.getProperty(key));
+        } catch (Exception e) {
+            return defVal;
         }
     }
 

@@ -721,7 +721,9 @@
           "type": "object",
           "required": [
             "dicomDeviceName",
-            "super-user-role"
+            "super-user-role",
+            "management-http-port",
+            "management-https-port"
           ],
           "properties": {
             "dicomDeviceName": {
@@ -729,6 +731,12 @@
             },
             "super-user-role": {
               "type": "string"
+            },
+            "management-http-port": {
+              "type": "integer"
+            },
+            "management-https-port": {
+              "type": "integer"
             },
             "xRoad": {
               "type": "boolean"
