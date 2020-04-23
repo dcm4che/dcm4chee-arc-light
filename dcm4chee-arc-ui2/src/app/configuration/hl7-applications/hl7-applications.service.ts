@@ -40,7 +40,7 @@ export class Hl7ApplicationsService {
                 tag: "button",
                 id: "submit",
                 text: $localize `:@@SUBMIT:SUBMIT`,
-                description: $localize `:@@hl7-applications.query_devices:Query Devices`
+                description: $localize `:@@query_devices:Query Devices`
             }
         ],2)
     }

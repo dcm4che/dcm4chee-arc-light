@@ -327,7 +327,7 @@ export class DiffMonitorComponent implements OnInit {
                                                 (res) => {
                                                     this.getDiffTasks(this.filterObject['offset'] || 0);
                                                     this.cfpLoadingBar.complete();
-                                                    this.mainservice.showMsg($localize `:@@diff-monitor.task_rescheduled:Task rescheduled successfully!`);
+                                                    this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`);
                                                 },
                                                 (err) => {
                                                     this.cfpLoadingBar.complete();

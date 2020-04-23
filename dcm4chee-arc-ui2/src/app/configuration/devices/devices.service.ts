@@ -239,7 +239,7 @@ export class DevicesService {
                 tag: "button",
                 id: "submit",
                 text: $localize `:@@SUBMIT:SUBMIT`,
-                description: $localize `:@@devices.query_devices:Query Devices`
+                description: $localize `:@@query_devices:Query Devices`
             }
         ],2)
     }

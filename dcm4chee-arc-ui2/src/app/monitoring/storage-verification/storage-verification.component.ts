@@ -189,7 +189,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         tag:"checkbox",
                         filterKey:"storageVerificationUpdateLocationStatus",
                         text:$localize `:@@storage-verification.update_location:Update location`,
-                        description:$localize `:@@storage-verification.update_location_db:Update Location DB`
+                        description:$localize `:@@update_location_db:Update Location DB`
                     },
                     {
                         tag:"checkbox",

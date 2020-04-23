@@ -369,9 +369,9 @@ export class StudyService {
                     );
                 }),
                 filterKey: 'webApp',
-                text: $localize `:@@study.web_app_service:Web App Service`,
-                title: $localize `:@@study.web_app_service:Web App Service`,
-                placeholder: $localize `:@@study.web_app_service:Web App Service`,
+                text: $localize `:@@web_app_service:Web App Service`,
+                title: $localize `:@@web_app_service:Web App Service`,
+                placeholder: $localize `:@@web_app_service:Web App Service`,
                 cssClass: 'study_order',
                 showSearchField: true
             });
@@ -389,7 +389,7 @@ export class StudyService {
 /*                schema.push({
                     tag: "button",
                     id: "trigger_diff",
-                    text: $localize `:@@study.trigger_diff:TRIGGER DIFF`,
+                    text: $localize `:@@trigger_diff:Trigger Diff`,
                     description: $localize `:@@study.trigger_diffs:Trigger DIFFs`
                 });*/
             }
@@ -1133,7 +1133,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: $localize `:@@study.upload_file:Upload file`,
+                                title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
@@ -1575,7 +1575,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: $localize `:@@study.upload_file:Upload file`,
+                                title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
@@ -1949,7 +1949,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: $localize `:@@study.upload_file:Upload file`,
+                                title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2430,7 +2430,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: $localize `:@@study.upload_file:Upload file`,
+                                title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'upload'
@@ -2618,7 +2618,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
-                                title: $localize `:@@study.upload_file:Upload file`,
+                                title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'upload'
@@ -2651,9 +2651,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.worklist_label:Worklist Label`,
+                    header: $localize `:@@worklist_label:Worklist Label`,
                     pathToValue: "00741202.Value[0]",
-                    headerDescription: $localize `:@@study.worklist_label:Worklist Label`,
+                    headerDescription: $localize `:@@worklist_label:Worklist Label`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"

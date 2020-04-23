@@ -1162,7 +1162,7 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.upload-dicom.upload_file" datatype="html">
+      <trans-unit id="upload_file" datatype="html">
         <source>Upload file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/upload-dicom/upload-dicom.component.html</context>
@@ -1215,7 +1215,7 @@
           <context context-type="linenumber">15</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.upload-files.upload_file" datatype="html">
+      <trans-unit id="upload_file" datatype="html">
         <source>Upload file</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/upload-files/upload-files.component.html</context>
@@ -3012,7 +3012,7 @@
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.queues" datatype="html">
+      <trans-unit id="queues" datatype="html">
         <source>Queues</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>

@@ -266,7 +266,7 @@ export class ExportService {
                     {
                         tag:"range-picker",
                         filterKey:"updatedTime",
-                        description:$localize `:@@export.updated_date:Updated Date`
+                        description:$localize `:@@updated_date:Updated Date`
                     }
                 ],
                 [

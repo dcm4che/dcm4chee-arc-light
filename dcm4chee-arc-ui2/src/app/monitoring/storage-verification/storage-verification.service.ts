@@ -310,7 +310,7 @@ export class StorageVerificationService {
         {
             tag:"range-picker",
             filterKey:"updatedTime",
-            description:$localize `:@@storage-verification.updated_date:Updated Date`
+            description:$localize `:@@updated_date:Updated Date`
         },
         {
             tag:"input",

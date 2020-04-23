@@ -175,7 +175,7 @@ export class StorageCommitmentComponent implements OnInit {
             content: $localize `:@@storage-commitment.select_before_date_and_status_to_delete_all_storage_commitments:Select before date and status to delete all storage commitments`,
             select: select,
             date: {
-                placeholder: $localize `:@@storage-commitment.updated_before:Updated before`,
+                placeholder: $localize `:@@updated_before:Updated before`,
                 format: 'yy-mm-dd'
             },
             result: {

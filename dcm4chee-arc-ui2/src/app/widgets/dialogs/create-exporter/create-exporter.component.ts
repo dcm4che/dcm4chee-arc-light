@@ -56,7 +56,7 @@ export class CreateExporterComponent implements OnInit{
                 "type": "string"
             },
             "dcmQueueName": {
-                "title": $localize `:@@create-exporter.queue_name:Queue Name`,
+                "title": $localize `:@@queue_name:Queue Name`,
                 "description": $localize `:@@create-exporter.jms_queue_name:JMS Queue Name`,
                 "type": "string",
                 "enum" : [

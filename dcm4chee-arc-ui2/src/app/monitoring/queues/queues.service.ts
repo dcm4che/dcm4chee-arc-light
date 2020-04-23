@@ -152,7 +152,7 @@ export class QueuesService{
                 }),
                 showStar:true,
                 filterKey:"queueName",
-                description:$localize `:@@queues.queue_name:Queue name`,
+                description:$localize `:@@queue_name:Queue Name`,
                 placeholder:$localize `:@@queue:Queue`
             },{
                 tag:"select",
@@ -200,7 +200,7 @@ export class QueuesService{
             {
                 tag:"range-picker",
                 filterKey:"updatedTime",
-                description:$localize `:@@queues.updated_date:Updated Date`
+                description:$localize `:@@updated_date:Updated Date`
             },{
                 tag:"input",
                 type:"text",

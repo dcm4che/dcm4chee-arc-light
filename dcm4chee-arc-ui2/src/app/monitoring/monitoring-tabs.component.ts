@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     template: `
     <ul class="nav nav-tabs" role="tablist">
         <li [permission]="{id:'tab-monitoring->associations',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active" i18n="@@monitoring.tab.associations">Associations</a></li>
-        <li [permission]="{id:'tab-monitoring->queues',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active" i18n="@@monitoring.tab.queues">Queues</a></li>
+        <li [permission]="{id:'tab-monitoring->queues',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active" i18n="@@queues">Queues</a></li>
         <li [permission]="{id:'tab-monitoring->export',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active" i18n="@@monitoring.tab.export">Export</a></li>
         <li [permission]="{id:'tab-monitoring->external_retrieve',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/external" routerLinkActive="active" i18n="@@monitoring.tab.retrieve">Retrieve</a></li>
         <li [permission]="{id:'tab-monitoring->diff',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/diff" routerLinkActive="active" i18n="@@monitoring.tab.diff">Diff</a></li>

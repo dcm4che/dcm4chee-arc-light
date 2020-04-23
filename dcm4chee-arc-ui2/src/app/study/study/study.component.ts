@@ -185,7 +185,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
             new SelectDropdown("storage_verification",$localize `:@@study.storage_verification:Storage Verification`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
-            new SelectDropdown("trigger_diff",$localize `:@@study.trigger_diff:Trigger Diff`),
+            new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
         ],
         model:undefined
@@ -193,7 +193,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     actionsSelections = {
         placeholder: $localize `:@@actions_for_selections:Actions for selections`,
         options:[
-            new SelectDropdown("toggle_checkboxes", $localize `:@@study.short_toggle_checkboxes:Toggle checkboxes`, $localize `:@@study.toggle_checkboxes:Toggle checkboxes for selection`),
+            new SelectDropdown("toggle_checkboxes", $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
             new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
@@ -3183,7 +3183,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 ],[
                     {
                         tag:"label",
-                        text:$localize `:@@study.update_location_DB:Update Location DB`
+                        text:$localize `:@@update_location_db:Update Location DB`
                     },
                     {
                         tag:"checkbox",
@@ -3278,7 +3278,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ],[
                         {
                             tag:"label",
-                            text:$localize `:@@study.update_location_DB:Update Location DB`
+                            text:$localize `:@@update_location_db:Update Location DB`
                         },
                         {
                             tag:"checkbox",
