@@ -930,7 +930,7 @@
           <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="export.storage_commitment_without_export" datatype="html">
+      <trans-unit id="storage_commitment_without_export" datatype="html">
         <source>Storage commitment without export</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
