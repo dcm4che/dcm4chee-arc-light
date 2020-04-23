@@ -216,14 +216,14 @@ export class AppComponent implements OnInit {
         try{
             let url;
             if(window.location.protocol.toLowerCase() === "https:"){
-                url = `//${window.location.hostname}:${this.mainservice["management-https-port"]}`
+                url = `//${window.location.hostname}:${this.mainservice["management-https-port"]}/console`
             }else{
-                url = `//${window.location.hostname}:${this.mainservice["management-http-port"]}`
+                url = `//${window.location.hostname}:${this.mainservice["management-http-port"]}/console`
             }
             e.preventDefault();
             window.open(url, "_blank");
         }catch (e) {
-            window.open(`//${window.location.hostname}:9990`, "_blank");
+            window.open(`//${window.location.hostname}:9990/console`, "_blank");
         }
     }
     closeFromOutside(){
