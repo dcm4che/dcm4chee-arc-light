@@ -70,6 +70,7 @@ public class FileSystemStorage extends AbstractStorage {
     private final Path checkMountFilePath;
     private final OpenOption[] openOptions;
     private final CreateDirectories createDirectories;
+    private final int retryCreateDirectories;
 
     @FunctionalInterface
     private interface CreateDirectories {
@@ -89,6 +90,7 @@ public class FileSystemStorage extends AbstractStorage {
         createDirectories = Boolean.parseBoolean(descriptor.getProperty("altCreateDirectories", null))
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
+        retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "1"));
     }
 
     private static Path altCreateDirectories(Path path, FileAttribute<?>... fileAttributes)
@@ -146,8 +148,21 @@ public class FileSystemStorage extends AbstractStorage {
 
     private FileStore getFileStore() throws IOException {
         Path dir = Paths.get(rootURI);
-        createDirectories.apply(dir);
+        createDirectories(dir);
         return Files.getFileStore(dir);
+    }
+
+    private Path createDirectories(Path path) throws IOException {
+        int retries = retryCreateDirectories;
+        for (;;) {
+            try {
+                return createDirectories.apply(path);
+            } catch (NoSuchFileException e) {
+                if (--retries <= 0)
+                    throw e;
+                LOG.info("Failed to create directories {} - retry:\n", path, e);
+            }
+        }
     }
 
     @Override
@@ -159,7 +174,7 @@ public class FileSystemStorage extends AbstractStorage {
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
-        createDirectories.apply(dir);
+        createDirectories(dir);
         OutputStream stream = null;
         while (stream == null)
             try {
