@@ -158,7 +158,7 @@ public class FileSystemStorage extends AbstractStorage {
             try {
                 return createDirectories.apply(path);
             } catch (NoSuchFileException e) {
-                if (--retries <= 0)
+                if (--retries < 0)
                     throw e;
                 LOG.info("Failed to create directories {} - retry:\n", path, e);
             }
