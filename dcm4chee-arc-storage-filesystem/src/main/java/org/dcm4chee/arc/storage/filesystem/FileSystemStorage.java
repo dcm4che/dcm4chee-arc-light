@@ -90,7 +90,7 @@ public class FileSystemStorage extends AbstractStorage {
         createDirectories = Boolean.parseBoolean(descriptor.getProperty("altCreateDirectories", null))
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
-        retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "1"));
+        retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "0"));
     }
 
     private static Path altCreateDirectories(Path path, FileAttribute<?>... fileAttributes)
