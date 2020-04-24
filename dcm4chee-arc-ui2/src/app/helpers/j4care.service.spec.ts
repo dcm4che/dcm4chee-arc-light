@@ -527,7 +527,7 @@ describe('j4care', () => {
 
     it("Should extract language object from the language ldap string",()=>{
         expect(
-            j4care.extractLanguageDateFromString("sq|Albanian|Shqip|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAMAAAAmuJTXAAAAk1BMVEXkHiAAAADyICLpHiHtHyHwHyLjHiAHAQH1ICIMAQERAgIXAwPbHR87CAgdBAR5EBFyDxBDCQkjBAVrDg+5GBqRExSAERLHGhxZDAxRCwvfHR8zBwfTHB6pFhguBgaLEhPMGx2uFxjXHB4oBQW+GRtlDQ5KCgqFERKfFRa0GBmaFBbQGx1gDA2WFBWkFhfDGhv7ISOYvxptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEDohkVwNywAAAGFJREFUGNNjYCACiAKxGKYwI4M4IyMDIyMTkIUmI8vIzQgCehgyCIAuIw4V58eQgenCtAdiIC8DFhlWDqAMswqGDAsDF8ggRmkGZqymSQIpdiyBwM4ojyt8GHGGHCcDUQAAgI8BvQ5YgHoAAAAASUVORK5CYII=")
+            j4care.extractLanguageDataFromString("sq|Albanian|Shqip|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAMAAAAmuJTXAAAAk1BMVEXkHiAAAADyICLpHiHtHyHwHyLjHiAHAQH1ICIMAQERAgIXAwPbHR87CAgdBAR5EBFyDxBDCQkjBAVrDg+5GBqRExSAERLHGhxZDAxRCwvfHR8zBwfTHB6pFhguBgaLEhPMGx2uFxjXHB4oBQW+GRtlDQ5KCgqFERKfFRa0GBmaFBbQGx1gDA2WFBWkFhfDGhv7ISOYvxptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEDohkVwNywAAAGFJREFUGNNjYCACiAKxGKYwI4M4IyMDIyMTkIUmI8vIzQgCehgyCIAuIw4V58eQgenCtAdiIC8DFhlWDqAMswqGDAsDF8ggRmkGZqymSQIpdiyBwM4ojyt8GHGGHCcDUQAAgI8BvQ5YgHoAAAAASUVORK5CYII=")
         ).toEqual({
             code:"sq",
             name:"Albanian",
@@ -536,11 +536,11 @@ describe('j4care', () => {
         });
 
         expect(
-            j4care.extractLanguageDateFromString("")
+            j4care.extractLanguageDataFromString("")
         ).toEqual(undefined);
 
         expect(
-            j4care.extractLanguageDateFromString(undefined)
+            j4care.extractLanguageDataFromString(undefined)
         ).toEqual(undefined);
     })
 });
