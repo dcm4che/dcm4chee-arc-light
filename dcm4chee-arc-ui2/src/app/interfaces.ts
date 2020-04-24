@@ -296,7 +296,7 @@ export interface DiffAttributeSet {
     type: string;
 }
 
-export type AccessControlIDMode = "update_access_control_id" | "update_access_control_id_to_matching"|"update_access_control_id_to_selections";
+export type AccessControlIDMode = "level_access_control_id" | "update_access_control_id_to_matching"|"update_access_control_id_to_selections";
 
 export interface OptionsTree {
     label?:string;

@@ -677,6 +677,17 @@ p-calendar{
       background-image: url("assets/img/csv_icon.png");
     }
   }
+  &.hand_shake_black{
+    background-image: url("assets/img/hand_shake_black.png");
+    background-repeat:no-repeat;
+    height:100%;
+    width:25px;
+    background-position: center center;
+    float: left;
+    &:hover{
+      background-image: url("assets/img/hand_shake_white.png");
+    }
+  }
 }
 .checkbox_button{
   padding-left: 1vw;

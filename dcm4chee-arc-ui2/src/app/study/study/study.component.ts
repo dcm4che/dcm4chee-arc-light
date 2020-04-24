@@ -187,6 +187,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
+            new SelectDropdown("schedule_storage_commit_for_matching",$localize `:@@schedule_storage_commit_for_matching:Schedule Storage Commitment for matching`),
         ],
         model:undefined
     };
@@ -198,6 +199,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
+            new SelectDropdown("send_storage_commitment_request_for_selections", $localize `:@@send_storage_commitment_request_for_selections:Send Storage Commitment Request for selections`, $localize `:@@send_storage_commitment_request_for_selected_objects:Send Storage Commitment Request for selected objects`),
             new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
             new SelectDropdown("change_sps_status_on_selections", $localize `:@@sps_status_on_selections:SPS Status on selections`, $localize `:@@change_sps_status_on_selected_mwl:Change SPS Status on selected MWL`)
         ],
@@ -414,6 +416,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
                break;
+            case "schedule_storage_commit_for_matching":
+                this.sendStorageCommitmentRequest(undefined,undefined,true);
+               break;
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
                break;
@@ -445,6 +450,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         if(e === "change_sps_status_on_selections"){
             this.changeSPSStatus(e,"selected");
+        }
+        if(e === "send_storage_commitment_request_for_selections"){
+            this.sendStorageCommitmentRequest();
         }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
@@ -809,7 +817,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.updateAccessControlId(id.action, model);
             }
             if(id.action === "change_sps_status"){
-                this.changeSPSStatus(model, "single")
+                this.changeSPSStatus(model, "single");
+            }
+            if(id.action === "send_storage_commit"){
+                this.sendStorageCommitmentRequest(id.level , model);
             }
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
@@ -2503,6 +2514,92 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
+    sendStorageCommitmentRequest(dicomLevel?:DicomLevel, model?:any, matching?:boolean){
+        let dialogText;
+        if(matching){
+            dialogText = $localize `:@@schedule_storage_commitment_of_matching_studies_from_external_storage_commitment_scp:Schedule Storage Commitment of matching Studies from external Storage Commitment SCP`
+        }else{
+            switch (dicomLevel){
+                case "series":
+                    dialogText = $localize `:@@request_storage_commitment_of_series_from_external_storage_commitment_scp:Request Storage Commitment of Series from external Storage Commitment SCP`
+                    break;
+                case "instance":
+                    dialogText = $localize `:@@request_storage_commitment_of_instance_from_external_storage_commitment_scp:Request Storage Commitment of Instance from external Storage Commitment SCP`
+                    break;
+                default:
+                    dialogText = $localize `:@@request_storage_commitment_of_study_from_external_storage_commitment_scp:Request Storage Commitment of Study from external Storage Commitment SCP`
+                    break;
+            }
+        }
+        this.confirm({
+            content: dialogText,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes,
+                            filterKey:"stgCmtSCP",
+                            description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
+                            placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SEND:SEND`
+        }).subscribe((ok)=>{
+            if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
+                let service;
+                let msg;
+                if(matching){
+                    service = this.service.sendStorageCommitmentRequestForMatching(this.studyWebService, ok.schema_model.stgCmtSCP, this.createStudyFilterParams(true,true));
+                    msg = $localize `:@@storage_commitment_of_matching_studies_from_external_storage_commitment_scp_was_scheduled:Storage Commitment of matching Studies from external Storage Commitment SCP was scheduled successfully`;
+                }else{
+                    if(dicomLevel){
+                        switch (dicomLevel){
+                            case "series":
+                                msg = $localize `:@@storage_commitment_of_series_from_external_storage_commitment_scp_requested:Storage Commitment of Series from external Storage Commitment SCP was requested successfully`;
+                                break;
+                            case "instance":
+                                msg = $localize `:@@storage_commitment_of_instance_from_external_storage_commitment_scp_requested:Storage Commitment of Instance from external Storage Commitment SCP was requested successfully`;
+                                break;
+                            default:
+                                msg = $localize `:@@storage_commitment_of_study_from_external_storage_commitment_scp_requested:Storage Commitment of Study from external Storage Commitment SCP was requested successfully`;
+                                break;
+                        }
+                        service = this.service.sendStorageCommitmentRequestForSingle(model.attrs,this.studyWebService,dicomLevel, ok.schema_model.stgCmtSCP);
+                    }else{
+                        //Selected
+                        msg = $localize `:@@storage_commitment_of_selected_objects_from_external_storage_commitment_scp_was_requested:Storage Commitment of selected objects from external Storage Commitment SCP was requested successfully`;
+                        service = this.service.sendStorageCommitmentRequestForSelected(this.selectedElements,this.studyWebService,ok.schema_model.stgCmtSCP);
+                    }
+                }
+                this.cfpLoadingBar.start();
+                service.subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    if(matching){
+                        msg = j4care.prepareCountMessage(msg, res);
+                    }
+                    this.appService.showMsg(msg);
+                    if(!matching && !dicomLevel){
+                        this.clearClipboard();
+                    }
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
             saveLabel:$localize `:@@SAVE:SAVE`,
@@ -3517,29 +3614,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    testSecure(){
-        this.appService.isSecure().subscribe((res)=>{
-            console.log("secured",res);
-        })
-    }
-
-    testAet(){
-        this.service.testAet("http://test-ng:8080/dcm4chee-arc/ui2/rs/aets", this.studyWebService.selectedWebService).subscribe(res=>{
-            console.log("res",res);
-        },err=>{
-            console.log("err",err);
-        });
-        // this.service.test(this.selectedWebAppService);
-    }
-    testStudy(){
-        this.service.testAet("http://test-ng:8080/dcm4chee-arc/aets/TEST/rs/studies?limit=21&offset=0&includefield=all", this.studyWebService.selectedWebService).subscribe(res=>{
-            console.log("res",res);
-        },err=>{
-            console.log("err",err);
-        });
-        // this.service.test(this.selectedWebAppService);
-    }
-
     ngAfterContentChecked(): void {
         this.changeDetector.detectChanges();
     }
@@ -3556,6 +3630,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
        if(this.selectedElements){
            this.service.selectedElements = this.selectedElements;
        }
+
+
 /*       let stateObject = {
            isOpen:this.isOpen,
            studyConfig:this.studyConfig,

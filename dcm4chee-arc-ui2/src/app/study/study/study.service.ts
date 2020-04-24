@@ -949,6 +949,25 @@ export class StudyService {
 
     scheduleStorageVerification = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
 
+    sendStorageCommitmentRequestForMatching(studyWebService: StudyWebService,stgCmtSCP:string, filters:any){
+        return this.$http.post(
+            `${this.getDicomURL("study", studyWebService.selectedWebService)}/stgcmt/${stgCmtSCP}${j4care.param(filters)}`,
+            {}
+        );
+    }
+    sendStorageCommitmentRequestForSelected(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, stgCmtSCP:string){
+        return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study" || element.dicomLevel === "instance" || element.dicomLevel === "series")).map((element: SelectedDetailObject) => {
+            return this.$http.post(
+                `${this.getURL(element.object.attrs, studyWebService.selectedWebService, element.dicomLevel)}/stgcmt/dicom:${stgCmtSCP}`,
+                {}
+            );
+        })));
+    }
+    sendStorageCommitmentRequestForSingle(attrs,studyWebService: StudyWebService, level: DicomLevel, stgCmtSCP:string){
+        let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgcmt/dicom:${stgCmtSCP}`;
+        return this.$http.post(url, {});
+    }
+
     getDevices() {
         return this.devicesService.getDevices();
     }
@@ -1667,6 +1686,27 @@ export class StudyService {
                                     id: 'action-studies-study',
                                     param: 'edit'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon hand_shake_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "send_storage_commit"
+                                    }, e);
+                                },
+                                title: $localize `:@@send_storage_commitment_request_for_study:Send Storage Commitment Request for this study`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
                             }, {
                                 icon: {
                                     tag: 'span',
@@ -1992,6 +2032,27 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon hand_shake_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "send_storage_commit"
+                                    }, e);
+                                },
+                                title: $localize `:@@study.send_storage_commitment_request_for_series:Send Storage Commitment Request for this series`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
                             }
                         ]
                     },
@@ -2261,6 +2322,27 @@ export class StudyService {
                                 title: $localize `:@@study.view_dicom_object:View DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
+                                    param: 'visible'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon hand_shake_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "instance",
+                                        action: "send_storage_commit"
+                                    }, e);
+                                },
+                                title: $localize `:@@study.send_storage_commitment_request_for_study:Send Storage Commitment Request for this instance`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
                             }
@@ -2901,13 +2983,13 @@ export class StudyService {
             return schema;
     }
     updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
-        return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
+        return forkJoin((<any[]>multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
             return this.$http.put(
                 `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
                 {},
                 this.jsonHeader
             );
-        }));
+        })));
     }
     updateAccessControlId(matchingMode:AccessControlIDMode, selectedWebService:DcmWebApp, accessControlID:string, studyInstanceUID?:string, filters?:any){
         if(matchingMode === "update_access_control_id_to_matching"){
