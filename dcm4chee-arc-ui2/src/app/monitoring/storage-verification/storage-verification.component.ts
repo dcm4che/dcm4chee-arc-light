@@ -233,8 +233,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             let aet = filter["aet"];
             delete filter["aet"];
             this.service.scheduleStorageVerification(filter, aet).subscribe((res)=>{
-                this.mainservice.showMsg($localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`);
                 this.cfpLoadingBar.complete();
+                this.mainservice.showMsg($localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`);
                 setTimeout(()=>{
                     this.filterObject["batchID"] = filter["batchID"] || this.service.getUniqueID();
                     this.batchGrouped = true;
@@ -300,8 +300,12 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     case "cancel":
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:@@deleted: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"count")){
+                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:@@count: tasks canceled successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_canceled:Tasks canceled successfully!`);
+                            }
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
@@ -316,8 +320,12 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res) => {
-                                    this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                                     this.cfpLoadingBar.complete();
+                                    if(_.hasIn(res,"count")){
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                                    }else{
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled:Tasks rescheduled successfully!`);
+                                    }
                                 }, (err) => {
                                     this.cfpLoadingBar.complete();
                                     this.httpErrorHandler.handleError(err);
@@ -329,8 +337,12 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     case "delete":
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"deleted")){
+                                this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
+                            }
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
@@ -497,7 +509,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
+            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`)
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getTasks(filters);

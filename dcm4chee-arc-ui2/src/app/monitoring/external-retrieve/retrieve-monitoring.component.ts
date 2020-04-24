@@ -418,7 +418,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 switch (this.allAction){
                 case "cancel":
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                                this.mainservice.showMsg($localize `:@@tasks_canceled:${res.count} ' tasks canceled successfully!`);
+                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count} ' tasks canceled successfully!`);
                                 this.cfpLoadingBar.complete();
                             }, (err) => {
                                 this.cfpLoadingBar.complete();
@@ -437,8 +437,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                     filter["scheduledTime"] = res.schema_model.scheduledTime;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res)=>{
-                                    this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                                     this.cfpLoadingBar.complete();
+                                    if(_.hasIn(res,"count")){
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                                    }else{
+                                        this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`);
+                                    }
                                 }, (err) => {
                                     this.cfpLoadingBar.complete();
                                     this.httpErrorHandler.handleError(err);
@@ -452,7 +456,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     break;
                 case "delete":
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
+                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -477,8 +481,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`)
                         this.cfpLoadingBar.complete();
+                        if(_.hasIn(res,"count")){
+                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:@@count: tasks deleted successfully!`);
+                        }else{
+                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
+                        }
                         this.getTasks(0)
                     }, (err) => {
                         this.cfpLoadingBar.complete();

@@ -416,8 +416,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if (ok) {
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter).subscribe((res) => {
-                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.count} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"count")){
+                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:@@count: tasks canceled successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_canceled:Tasks canceled successfully!`);
+                            }
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
@@ -438,8 +442,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                             filter["scheduledTime"] = ok.schema_model.scheduledTime;
                         }
                         this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
                             this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"count")){
+                                this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_rescheduled:Tasks rescheduled successfully!`);
+                            }
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
@@ -456,8 +464,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(filter).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_deleted:${res.deleted} tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"deleted")){
+                                this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
+                            }
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
@@ -669,12 +681,17 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
                     .subscribe(
                         (res) => {
-                            this.mainservice.showMsg($localize `:@@tasks_rescheduled:${res.count}:@@count: tasks rescheduled successfully!`);
-                                this.cfpLoadingBar.complete();
+                            this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"count")){
+                                this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`);
+
+                            }
                         },
                         (err) => {
+                            this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
-                                this.cfpLoadingBar.complete();
                         });
 
             }
