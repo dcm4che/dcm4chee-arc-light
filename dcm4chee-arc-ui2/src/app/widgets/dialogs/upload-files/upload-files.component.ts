@@ -441,7 +441,7 @@ export class UploadFilesComponent implements OnInit {
                                         ]
                                     };
                                 }
-                                studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
+                                studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
                                     "vr": "IS",
                                     "Value": [
                                         i + 1
@@ -454,7 +454,7 @@ export class UploadFilesComponent implements OnInit {
                                             _.get(studyObject, "00201209.Value[0]")*1 + 1
                                         ]
                                     };
-                                    studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
+                                    studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
                                         "vr": "IS",
                                         "Value": [
                                             _.get(studyObject, "00201209.Value[0]")*1 + i*1 + 1
@@ -467,7 +467,7 @@ export class UploadFilesComponent implements OnInit {
                                             this.seriesNumber || 0
                                         ]
                                     };
-                                    studyObject["00200013"] = { //"00200013":$localize `:@@upload-files.instance_number:Instance Number`
+                                    studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
                                         "vr": "IS",
                                         "Value": [
                                             i + 1

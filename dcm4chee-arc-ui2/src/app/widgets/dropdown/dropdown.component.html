@@ -18,7 +18,7 @@
     <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
         <div action="" class="search_block" *ngIf="showSearchField">
             <input type="checkbox" [(ngModel)]="isAllCheck"(change)="allChecked($event)">
-            <input type="text" i18n-placeholder="@@placeholder.dropdown.search" placeholder="Search" [(ngModel)]="search" (keyup)="searchEvent()">
+            <input type="text" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search" (keyup)="searchEvent()">
         </div>
         <ng-content></ng-content>
     </div>

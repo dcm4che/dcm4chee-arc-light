@@ -184,7 +184,7 @@ export class QueuesService{
             },
             {
                 tag:"label",
-                text:$localize `:@@queues.page_size:Page size`
+                text:$localize `:@@page_size:Page Size`
             },
             {
                 tag:"input",
@@ -214,13 +214,13 @@ export class QueuesService{
                 tag:"button",
                 text:countText,
                 id:"count",
-                description:$localize `:@@queues.get_count:Get Count`
+                description:$localize `:@@get_count:Get Count`
             },
             {
                 tag:"button",
                 id:"submit",
                 text:$localize `:@@SUBMIT:SUBMIT`,
-                description:$localize `:@@queues.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+                description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
             }
         ]
     }

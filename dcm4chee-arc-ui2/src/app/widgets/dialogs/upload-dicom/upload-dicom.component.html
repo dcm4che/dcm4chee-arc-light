@@ -9,7 +9,7 @@
                 </mat-select>
             </ng-container>
             <ng-container *ngIf="selectedWebApp">
-                <label i18n="@@upload-dicom.select_the_stow_rs_server">Select the STOW-RS server:</label>
+                <label i18n="@@select_the_stow_rs_server">Select the STOW-RS server:</label>
                 <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>

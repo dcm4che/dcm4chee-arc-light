@@ -185,18 +185,18 @@ export class StudiesService {
     getPrepareParameterForExpiriationDialog(study, exporters, infinit){
         let expiredDate:Date;
         let yearRange = "1800:2100";
-        let title = $localize `:@@studies.set_expired_date_for_the_study.:Set expired date for the study.`;
+        let title = $localize `:@@set_expired_date_for_the_study:Set expired date for the study.`;
         let schema:any = [
             [
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@studies.expired_date:Expired date`
+                        text:$localize `:@@expired_date:Expired Date`
                     },
                     {
                         tag:"p-calendar",
                         filterKey:"expiredDate",
-                        description:$localize `:@@studies.expired_date:Expired Date`
+                        description:$localize `:@@expired_date:Expired Date`
                     }
                 ]
             ]
@@ -214,18 +214,18 @@ export class StudiesService {
                         [
                             {
                                 tag:"label",
-                                text:$localize `:@@studies.expired_date:Expired Date`
+                                text:$localize `:@@expired_date:Expired Date`
                             },
                             {
                                 tag:"p-calendar",
                                 filterKey:"expiredDate",
-                                description:$localize `:@@studies.expired_date:Expired Date`
+                                description:$localize `:@@expired_date:Expired Date`
                             }
                         ]
                     ]
                 ];
             }else{
-                title = $localize `:@@studies.freeze_protect_expiration_date_of_the_study:Freeze/Protect Expiration Date of the Study`;
+                title = $localize `:@@freeze_protect_expiration_date_of_the_study:Freeze/Protect Expiration Date of the Study`;
                 schemaModel = {
                     setExpirationDateToNever:true,
                     FreezeExpirationDate:true
@@ -235,7 +235,7 @@ export class StudiesService {
                         [
                             {
                                 tag:"label",
-                                text:$localize `:@@studies.expired_date:Expired date`,
+                                text:$localize `:@@expired_date:Expired Date`,
                                 showIf:(model)=>{
                                     return !model.setExpirationDateToNever
                                 }
@@ -243,7 +243,7 @@ export class StudiesService {
                             {
                                 tag:"p-calendar",
                                 filterKey:"expiredDate",
-                                description:$localize `:@@studies.expired_date:Expired Date`,
+                                description:$localize `:@@expired_date:Expired Date`,
                                 showIf:(model)=>{
                                     return !model.setExpirationDateToNever
                                 }
@@ -255,8 +255,8 @@ export class StudiesService {
                         {
                             tag:"checkbox",
                             filterKey:"setExpirationDateToNever",
-                            description:$localize `:@@studies.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`,
-                            text:$localize `:@@studies.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`
+                            description:$localize `:@@set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`,
+                            text:$localize `:@@set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`
                         }
                         ],[
                             {
@@ -265,8 +265,8 @@ export class StudiesService {
                             {
                                 tag:"checkbox",
                                 filterKey:"FreezeExpirationDate",
-                                description:$localize `:@@studies.freeze_expiration_date:Freeze Expiration Date`,
-                                text:$localize `:@@studies.freeze_expiration_date:Freeze Expiration Date`
+                                description:$localize `:@@freeze_expiration_date:Freeze Expiration Date`,
+                                text:$localize `:@@freeze_expiration_date:Freeze Expiration Date`
                             }
                         ]
                     ]
@@ -704,7 +704,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         let url;
         if(accesMode === 'external'){
             if(!sendingHl7App || !receivingHl7App){
-                return throwError({error:$localize `:@@hl7_applications_not_found!:Hl7Applications not found!`});
+                return throwError({error:$localize `:@@hl7_applications_not_found:Hl7Applications not found!`});
             }else{
                 url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients?queue=true`;
             }

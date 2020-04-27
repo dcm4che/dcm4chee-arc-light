@@ -29,7 +29,7 @@ export class Globalvar {
                 'MR': $localize `:@@modalities.magnetic_resonance:Magnetic Resonance`,
                 'MG': $localize `:@@modalities.mammography:Mammography`,
                 'NM': $localize `:@@modalities.nuclear_medicine:Nuclear Medicine`,
-                'OT': $localize `:@@modalities.other:Other`,
+                'OT': $localize `:@@other:Other`,
                 'PT': $localize `:@@modalities.pet:Positron emission tomography (PET)`,
                 'PR': $localize `:@@modalities.presentation_state:Presentation State`,
                 'US': $localize `:@@modalities.ultrasound:Ultrasound`,
@@ -956,8 +956,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"IssuerOfPatientID",
-                    description:$localize `:@@issuer_of_patient:Issuer of patient`,
-                    placeholder:$localize `:@@issuer_of_patient:Issuer of patient`
+                    description:$localize `:@@issuer_of_patient:Issuer of Patient`,
+                    placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
                 },{
                     tag:"input",
                     type:"text",
@@ -1242,14 +1242,14 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"InstitutionName",
-                    description:$localize `:@@institution_name:Institution name`,
-                    placeholder:$localize `:@@institution_name:Institution name`
+                    description:$localize `:@@institution_name:Institution Name`,
+                    placeholder:$localize `:@@institution_name:Institution Name`
                 },{
                     tag:"input",
                     type:"text",
                     filterKey:"StationName",
-                    description:$localize `:@@station_name:Station name`,
-                    placeholder:$localize `:@@station_name:Station name`
+                    description:$localize `:@@station_name:Station Name`,
+                    placeholder:$localize `:@@station_name:Station Name`
                 },{
                     tag:"multi-select",
                     filterKey:"SOPClassesInStudy",
@@ -1263,8 +1263,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"SeriesDescription",
-                    description:$localize `:@@series_description:Series description`,
-                    placeholder:$localize `:@@series_description:Series description`
+                    description:$localize `:@@series_description:Series Description`,
+                    placeholder:$localize `:@@series_description:Series Description`
                 },
                 {
                     tag:"checkbox",
@@ -1406,8 +1406,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"StudyDescription",
-                description:$localize `:@@study_description:Study description`,
-                placeholder:$localize `:@@study_description:Study description`
+                description:$localize `:@@study_description:Study Description`,
+                placeholder:$localize `:@@study_description:Study Description`
             },
             {
                 tag:"modality",
@@ -1493,8 +1493,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"StationName",
-                    description:$localize `:@@station_name:Station name`,
-                    placeholder:$localize `:@@station_name:Station name`
+                    description:$localize `:@@station_name:Station Name`,
+                    placeholder:$localize `:@@station_name:Station Name`
                 },
                 {
                     tag:"multi-select",
@@ -1522,8 +1522,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyDescription",
-                    description:$localize `:@@study_description:Study description`,
-                    placeholder:$localize `:@@study_description:Study description`
+                    description:$localize `:@@study_description:Study Description`,
+                    placeholder:$localize `:@@study_description:Study Description`
                 },{
                     tag:"select",
                     options:aets,
@@ -1682,7 +1682,7 @@ export class Globalvar {
                 tag:"select",
                 filterKey:"includefield",
                 options:[
-                    new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@globalvar.search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                    new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                     new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@globalvar.all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,

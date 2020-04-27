@@ -20,7 +20,7 @@
         <h3 i18n="@@selected_target_mwl">Selected target MWL</h3>
         <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname">Patient Name:<b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
         <ng-template #noname>Patient ID: <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-template>
-        <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]"><ng-container i18n="@@study-transferring-overview.scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]"><ng-container i18n="@@scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
         <br>
     </div>
     <div *ngSwitchDefault>

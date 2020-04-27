@@ -1,4 +1,4 @@
-<input type="text" [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" i18n-placeholder="@@placeholder.modality.modality" placeholder="Modality"  class="col-md-12 input_field"/>
+<input type="text" [(ngModel)]="model" (keyup)="selectModality(model)" (click)="showModalitySelector = !showModalitySelector" i18n-placeholder="@@modality" placeholder="Modality"  class="col-md-12 input_field"/>
 <div class="modality_selector [hidden]" *ngIf="showModalitySelector"  (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['form-group','more_block','more','input_field', 'no-closing-on-click']">
   <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
   <div class="common">

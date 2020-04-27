@@ -102,8 +102,8 @@
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
         </ul>
     </div>
-    <div class="left_arrow arrow"   i18n-title="@@title.study.preview_page" title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-    <div class="right_arrow arrow"  i18n-title="@@title.study.next_page" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+    <div class="left_arrow arrow"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+    <div class="right_arrow arrow"  i18n-title="@@title.next_page" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
     <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
     <div id="clipboard" class="clipboard said"  *ngIf="selectedElements.preActionElements && selectedElements.preActionElements.size > 0 && selectedElements.action">

@@ -172,7 +172,7 @@ export class StorageCommitmentComponent implements OnInit {
         ];
 
         let parameters: any = {
-            content: $localize `:@@storage-commitment.select_before_date_and_status_to_delete_all_storage_commitments:Select before date and status to delete all storage commitments`,
+            content: $localize `:@@select_before_date_and_status_to_delete_all_storage_commitments:Select before date and status to delete all storage commitments`,
             select: select,
             date: {
                 placeholder: $localize `:@@updated_before:Updated before`,

@@ -121,8 +121,8 @@ export class WebAppsListService {
             }),
             new TableSchemaElement({
                 type:"value",
-                title:$localize `:@@dame:Name`,
-                header: $localize `:@@dame:Name`,
+                title:$localize `:@@name:Name`,
+                header: $localize `:@@name:Name`,
                 widthWeight:1,
                 pathToValue:"dcmWebAppName"
             }),

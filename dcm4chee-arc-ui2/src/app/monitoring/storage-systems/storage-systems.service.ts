@@ -130,14 +130,14 @@ export class StorageSystemsService {
                         tag:"input",
                         type:"text",
                         filterKey:"dcmStorageClusterID",
-                        placeholder:$localize `:@@storage-systems.storage_cluster_id:Storage Cluster ID`,
-                        description:$localize `:@@storage-systems.storage_cluster_id:Storage Cluster ID`
+                        placeholder:$localize `:@@storage_cluster_id:Storage Cluster ID`,
+                        description:$localize `:@@storage_cluster_id:Storage Cluster ID`
                     },
                     {
                         tag:"button",
                         id:"submit",
                         text:$localize `:@@SUBMIT:SUBMIT`,
-                        description:$localize `:@@storage-systems.get_storage_commitments:Get Storage commitments`
+                        description:$localize `:@@get_storage_commitments:Get Storage commitments`
                     }
                 ],[]
             ]

@@ -229,7 +229,7 @@
           <context context-type="linenumber">64</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.delete_selected" datatype="html">
+      <trans-unit id="title.delete_selected" datatype="html">
         <source>Delete selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -349,7 +349,7 @@
         <note priority="1" from="description">Header of the table in the queues page</note>
         <note priority="1" from="meaning">Table Header</note>
       </trans-unit>
-      <trans-unit id="title.queues.show_properties" datatype="html">
+      <trans-unit id="show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -370,7 +370,7 @@
           <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.delete" datatype="html">
+      <trans-unit id="title.delete" datatype="html">
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -484,7 +484,7 @@
           <context context-type="linenumber">23</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.station_name" datatype="html">
+      <trans-unit id="station_name" datatype="html">
         <source>Station Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -498,7 +498,7 @@
           <context context-type="linenumber">28</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.institution_name" datatype="html">
+      <trans-unit id="institution_name" datatype="html">
         <source>Institution Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -559,7 +559,7 @@
           <context context-type="linenumber">75</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.installed" datatype="html">
+      <trans-unit id="installed" datatype="html">
         <source>Installed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -594,7 +594,7 @@
           <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.name" datatype="html">
+      <trans-unit id="name" datatype="html">
         <source>Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -652,7 +652,7 @@
           <context context-type="linenumber">148</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.select.existing_device" datatype="html">
+      <trans-unit id="select_existing_device" datatype="html">
         <source>Select existing device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -661,8 +661,8 @@
       </trans-unit>
       <trans-unit id="create-ae.select_device_to_connect_the_ae" datatype="html">
         <source>
-                                    Select device to connect the AE to:
-                                </source>
+            Select device to connect the AE to:
+        </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
           <context context-type="linenumber">119</context>
@@ -682,7 +682,7 @@
           <context context-type="linenumber">130</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.dns_name_for_this_particular_connection" datatype="html">
+      <trans-unit id="create-ae.dns_name_for_this_particular_conn" datatype="html">
         <source>DNS name for this particular connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -744,7 +744,7 @@
           <context context-type="linenumber">167</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-ae.network_connecton_refernce" datatype="html">
+      <trans-unit id="create-ae.network_connection_reference" datatype="html">
         <source>Network Connection Reference</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-ae/create-ae.component.html</context>
@@ -891,7 +891,7 @@
           <context context-type="linenumber">33</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="create-exporter.exporter" datatype="html">
+      <trans-unit id="exporter" datatype="html">
         <source>Exporter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/create-exporter/create-exporter.component.html</context>
@@ -912,7 +912,7 @@
           <context context-type="linenumber">8</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="export.select_exporter" datatype="html">
+      <trans-unit id="select_the_exporter" datatype="html">
         <source>Select the exporter:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
@@ -1148,7 +1148,7 @@
           <context context-type="linenumber">6</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="upload-dicom.select_the_stow_rs_server" datatype="html">
+      <trans-unit id="select_the_stow_rs_server" datatype="html">
         <source>Select the STOW-RS server:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/upload-dicom/upload-dicom.component.html</context>
@@ -1558,7 +1558,7 @@
           <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.modality.modality" datatype="html">
+      <trans-unit id="modality" datatype="html">
         <source>Modality</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/modality/modality.component.html</context>
@@ -1772,7 +1772,7 @@
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.dynamic-field.search_list" datatype="html">
+      <trans-unit id="search_list" datatype="html">
         <source>Search list...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamic-field/dynamic-field.component.html</context>
@@ -1786,7 +1786,7 @@
           <context context-type="linenumber">10</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.search_dots" datatype="html">
+      <trans-unit id="search_dot" datatype="html">
         <source>Search...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dcm-select/dcm-select.component.html</context>
@@ -1867,14 +1867,14 @@
           <context context-type="linenumber">7</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.dropdown.search" datatype="html">
+      <trans-unit id="search" datatype="html">
         <source>Search</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dropdown/dropdown.component.html</context>
           <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.search" datatype="html">
+      <trans-unit id="search" datatype="html">
         <source>Search</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dcm-drop-down/dcm-drop-down.component.html</context>
@@ -1922,7 +1922,7 @@
           <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="study-transferring-overview.scheduled_station_ae_title" datatype="html">
+      <trans-unit id="scheduled_station_ae_title" datatype="html">
         <source>Scheduled Station AE Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/study-transferring-overview/study-transferring-overview.component.html</context>
@@ -2032,7 +2032,7 @@
           <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.manufacturer" datatype="html">
+      <trans-unit id="manufacturer" datatype="html">
         <source>Manufacturer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
@@ -2053,21 +2053,21 @@
           <context context-type="linenumber">54</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.station_name" datatype="html">
+      <trans-unit id="station_name" datatype="html">
         <source>Station Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">55</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="devices.installed" datatype="html">
+      <trans-unit id="installed" datatype="html">
         <source>Installed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
           <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.devices.edit_device" datatype="html">
+      <trans-unit id="edit_device" datatype="html">
         <source>Edit device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/devices/devices.component.html</context>
@@ -2140,7 +2140,7 @@
         </context-group>
         <note priority="1" from="description">:</note>
       </trans-unit>
-      <trans-unit id="placeholder.device-configuration.search" datatype="html">
+      <trans-unit id="search_dot" datatype="html">
         <source>Search...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/device-configurator/device-configurator.component.html</context>
@@ -2172,7 +2172,7 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.dynamic-form-element.search" datatype="html">
+      <trans-unit id="search_dot" datatype="html">
         <source>Search...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dynamicform/dynamic-form-element.component.html</context>
@@ -2401,7 +2401,7 @@
           <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.delete_selected" datatype="html">
+      <trans-unit id="title.delete_selected" datatype="html">
         <source>Delete selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2443,8 +2443,8 @@
           <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.scheduled_time" datatype="html">
-        <source>Scheduled time</source>
+      <trans-unit id="scheduled_time" datatype="html">
+        <source>Scheduled Time</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
           <context context-type="linenumber">115</context>
@@ -2479,7 +2479,7 @@
           <context context-type="linenumber">26</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.show_properties" datatype="html">
+      <trans-unit id="show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2497,7 +2497,7 @@
           <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.delete_task_with_this_batchid" datatype="html">
+      <trans-unit id="title.delete_task_with_this_batchid" datatype="html">
         <source>Delete Task with this BatchID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2518,7 +2518,7 @@
           <context context-type="linenumber">153</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.delete" datatype="html">
+      <trans-unit id="title.delete" datatype="html">
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2735,14 +2735,14 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.storage-commitment.preview_page" datatype="html">
+      <trans-unit id="title.preview_page" datatype="html">
         <source>Preview page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
           <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.storage-commitment.next_page" datatype="html">
+      <trans-unit id="title.next_page" datatype="html">
         <source>Next page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
@@ -2777,14 +2777,14 @@
           <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.storage-commitment.show_properties" datatype="html">
+      <trans-unit id="show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
           <context context-type="linenumber">48</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.storage-commitment.delete" datatype="html">
+      <trans-unit id="title.delete" datatype="html">
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-commitment/storage-commitment.component.html</context>
@@ -2805,7 +2805,7 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.extended_search" datatype="html">
+      <trans-unit id="extended_search" datatype="html">
         <source>Extended search</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
@@ -2858,7 +2858,7 @@
           <context context-type="linenumber">34</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.description" datatype="html">
+      <trans-unit id="description" datatype="html">
         <source>Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
@@ -2886,21 +2886,21 @@
           <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.install" datatype="html">
+      <trans-unit id="installed" datatype="html">
         <source>Installed</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
           <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="ae-list.net_connection" datatype="html">
+      <trans-unit id="net_connection" datatype="html">
         <source>Net. Connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
           <context context-type="linenumber">40</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.ae-list.dicom_network_connection" datatype="html">
+      <trans-unit id="title.dicom_network_connection" datatype="html">
         <source>Dicom network connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
@@ -2914,7 +2914,7 @@
           <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.ae-list.edit_device" datatype="html">
+      <trans-unit id="edit_device" datatype="html">
         <source>Edit device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/ae-list/ae-list.component.html</context>
@@ -2998,7 +2998,7 @@
           <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.storage-systems.show_properties" datatype="html">
+      <trans-unit id="show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-systems/storage-systems.component.html</context>
@@ -3019,14 +3019,14 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.export" datatype="html">
+      <trans-unit id="export.export" datatype="html">
         <source>Export</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.retrieve" datatype="html">
+      <trans-unit id="retrieve" datatype="html">
         <source>Retrieve</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
@@ -3040,22 +3040,22 @@
           <context context-type="linenumber">7</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.storage_commitments" datatype="html">
+      <trans-unit id="storage_commitments" datatype="html">
         <source>Storage commitments</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.storage_systems" datatype="html">
+      <trans-unit id="storage_systems" datatype="html">
         <source>Storage systems</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">12</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.storage_verification" datatype="html">
-        <source>Storage verification</source>
+      <trans-unit id="storage_verification" datatype="html">
+        <source>Storage Verification</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
           <context context-type="linenumber">13</context>
@@ -3068,7 +3068,7 @@
           <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="hl7_applications.hl7_applications" datatype="html">
+      <trans-unit id="hl7_applications" datatype="html">
         <source>Hl7 Applications</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
@@ -3103,14 +3103,14 @@
           <context context-type="linenumber">29</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.hl7-applications.dicom_network_connection" datatype="html">
+      <trans-unit id="title.dicom_network_connection" datatype="html">
         <source>Dicom network connection</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
           <context context-type="linenumber">29</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.hl7-applications.edit_device" datatype="html">
+      <trans-unit id="edit_device" datatype="html">
         <source>Edit device</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/configuration/hl7-applications/hl7-applications.component.html</context>
@@ -3121,7 +3121,7 @@
           <context context-type="linenumber">41</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="retrieve-monitoring.retrieve" datatype="html">
+      <trans-unit id="retrieve" datatype="html">
         <source>Retrieve</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3191,7 +3191,7 @@
           <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.retrieve-monitoring.show_properties" datatype="html">
+      <trans-unit id="show_properties" datatype="html">
         <source>Show Properties</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3209,7 +3209,7 @@
           <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.retrieve-monitoring.delete_task_with_this_batchid" datatype="html">
+      <trans-unit id="title.delete_task_with_this_batchid" datatype="html">
         <source>Delete Task with this BatchID</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3230,7 +3230,7 @@
           <context context-type="linenumber">141</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.retrieve-monitoring.delete" datatype="html">
+      <trans-unit id="title.delete" datatype="html">
         <source>Delete</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3288,8 +3288,8 @@
           <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="html.storage_verification" datatype="html">
-        <source>Storage verification</source>
+      <trans-unit id="storage_verification" datatype="html">
+        <source>Storage Verification</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>
           <context context-type="linenumber">5</context>
@@ -3344,21 +3344,21 @@
           <context context-type="linenumber">7</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="navigation.tab.studies" datatype="html">
+      <trans-unit id="studies" datatype="html">
         <source>Studies</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study-tab.component.ts</context>
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="navigation.tab.patients" datatype="html">
+      <trans-unit id="patients" datatype="html">
         <source>Patients</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study-tab.component.ts</context>
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="navigation.tab.mwl" datatype="html">
+      <trans-unit id="mwl" datatype="html">
         <source>MWL</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study-tab.component.ts</context>
@@ -3477,14 +3477,14 @@
           <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.study.preview_page" datatype="html">
+      <trans-unit id="title.preview_page" datatype="html">
         <source>Preview page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>
           <context context-type="linenumber">105</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.study.next_page" datatype="html">
+      <trans-unit id="title.next_page" datatype="html">
         <source>Next page</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/study/study/study.component.html</context>

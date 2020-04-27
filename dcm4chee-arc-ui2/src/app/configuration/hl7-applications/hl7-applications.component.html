@@ -2,7 +2,7 @@
     <config-tab></config-tab>
     <!--<div class="devicelist_block">-->
         <div class="tab-content">
-            <h2 i18n="@@hl7_applications.hl7_applications">Hl7 Applications</h2>
+            <h2 i18n="@@hl7_applications">Hl7 Applications</h2>
             <div class="filter_line" *ngIf="advancedConfig">
                 <div class="filter_block">
                     <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="getHl7ApplicationsList(0)" [filterTreeHeight]="filterHeight"></filter-generator>
@@ -26,19 +26,19 @@
                     <th i18n="@@device_name">Device Name</th>
                     <th i18n="@@hl7_application_description">HL7 Application Description</th>
                     <th i18n="@@hl7_application_name">Hl7 Application Name</th>
-                    <th i18n-title="@@title.hl7-applications.dicom_network_connection" title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
+                    <th i18n-title="@@title.dicom_network_connection" title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let device of hl7Applications | search:devicefilter | slice:moreHl7.start:moreHl7.limit; let i = index">
                     <td class="buttons_td">
                         <span class="numbers">{{i+1}}.</span>
-                        <a class="table_btn" i18n-title="@@title.hl7-applications.edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                        <a class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
                     </td>
                     <td><div *ngIf="device['dicomDeviceName']" >
-                        <a i18n-title="@@title.hl7-applications.edit_device"  title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
+                        <a i18n-title="@@edit_device"  title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
                             {{device['dicomDeviceName']}}
                         </a>
                     </div></td>

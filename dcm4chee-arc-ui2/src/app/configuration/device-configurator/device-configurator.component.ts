@@ -135,7 +135,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.controlService.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
-                                    $this.mainservice.showMsg( $localize `:@@device-configurator.reload_successful:Reload successful`);
+                                    $this.mainservice.showMsg( $localize `:@@reload_successful:Reload successful`);
                                         $this.cfpLoadingBar.complete();
                                 }, (err) => {
                                     $this.cfpLoadingBar.complete();
@@ -156,7 +156,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }else{
                     _.assign($this.service.device, deviceClone);
                     console.warn('devicename is missing', this.service.device);
-                    $this.mainservice.showError($localize `:@@device-configurator.device_name_is_missing:Device name is missing!`);
+                    $this.mainservice.showError($localize `:@@device_name_missing:Device name is missing!`);
                 }
             }else{
                 let updateDevice = this.service.updateDevice();
@@ -183,7 +183,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.controlService.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
-                                    $this.mainservice.showMsg($localize `:@@device-configurator.reload_successful:Reload successful`);
+                                    $this.mainservice.showMsg($localize `:@@reload_successful:Reload successful`);
                                     if(this.mainservice.deviceName === this.service.device.dicomDeviceName){
                                         try{
                                             let global = _.cloneDeep(this.mainservice.global);
