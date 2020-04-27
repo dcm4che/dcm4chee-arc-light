@@ -2016,25 +2016,6 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
-                                    cssClass: `custom_icon csv_icon_black`,
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    console.log("e", e);
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "instance",
-                                        action: "download_csv"
-                                    }, e);
-                                },
-                                title: $localize `:@@study.download_as_csv:Download as CSV`,
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            },{
-                                icon: {
-                                    tag: 'span',
                                     cssClass: `custom_icon hand_shake_black`,
                                     text: ''
                                 },
@@ -2051,6 +2032,25 @@ export class StudyService {
                                 },
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon csv_icon_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    console.log("e", e);
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "instance",
+                                        action: "download_csv"
+                                    }, e);
+                                },
+                                title: $localize `:@@study.download_as_csv:Download as CSV`,
+                                permission: {
+                                    id: 'action-studies-download',
                                     param: 'visible'
                                 }
                             }
