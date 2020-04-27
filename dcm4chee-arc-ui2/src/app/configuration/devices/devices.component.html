@@ -49,18 +49,18 @@
                     <th i18n="@@device_name">Device Name</th>
                     <th i18n="@@devices.department_name">Department Name</th>
                     <th i18n="@@device_description">Device Description</th>
-                    <th i18n="@@devices.manufacturer">Manufacturer</th>
+                    <th i18n="@@.manufacturer">Manufacturer</th>
                     <th i18n="@@model_name">Model Name</th>
                     <th i18n="@@primary_device_type">Primary device type</th>
-                    <th i18n="@@devices.station_name">Station Name</th>
-                    <th i18n="@@devices.installed">Installed</th>
+                    <th i18n="@@station_name">Station Name</th>
+                    <th i18n="@@installed">Installed</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit; let i = index">
                     <td class="buttons_td">
                         <span class="numbers">{{i+1}}.</span>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
                         <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">

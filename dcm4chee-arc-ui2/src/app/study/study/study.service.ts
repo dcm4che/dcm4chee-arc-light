@@ -1379,9 +1379,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.issuer_of_patient:Issuer of Patient`,
+                    header: $localize `:@@issuer_of_patient:Issuer of Patient`,
                     pathToValue: "00100021.Value[0]",
-                    headerDescription: $localize `:@@study.issuer_of_patient_id:Issuer of Patient ID`,
+                    headerDescription: $localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -1389,7 +1389,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@birth_date:Birth Date`,
                     pathToValue: "00100030.Value[0]",
-                    headerDescription: $localize `:@@study.patients_birth_date:Patient's Birth Date`,
+                    headerDescription: $localize `:@@patients_birth_date:Patient's Birth Date`,
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
@@ -1397,7 +1397,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@sex:Sex`,
                     pathToValue: "00100040.Value[0]",
-                    headerDescription: $localize `:@@study.patients_sex:Patient's Sex`,
+                    headerDescription: $localize `:@@patients_sex:Patient's Sex`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
@@ -1411,9 +1411,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@number_of_patient_related_studies:#S`,
+                    header: $localize `:@@number_of_related_studies:#S`,
                     pathToValue: "00201200.Value[0]",
-                    headerDescription: $localize `:@@study.number_of_patient_related_studies:Number of Patient Related Studies`,
+                    headerDescription: $localize `:@@number_of_patient_related_studies:Number of Patient Related Studies`,
                     widthWeight: 0.2,
                     calculatedWidth: "20%"
                 })
@@ -1863,9 +1863,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_description:Study Description`,
+                    header: $localize `:@@study_description:Study Description`,
                     pathToValue: "[00081030].Value[0]",
-                    headerDescription: $localize `:@@study.study_description:Study Description`,
+                    headerDescription: $localize `:@@study_description:Study Description`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -2008,7 +2008,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: $localize `:@@study.export_series:Export series`,
+                                title: $localize `:@@export_series:Export series`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'export'
@@ -2131,18 +2131,18 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.station_name:Station Name`,
+                    header: $localize `:@@station_name:Station Name`,
                     pathToValue: "00081010.Value[0]",
-                    headerDescription: $localize `:@@study.station_name:Station Name`,
+                    headerDescription: $localize `:@@station_name:Station Name`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.series_number:Series Number`,
+                    header: $localize `:@@series_number:Series Number`,
                     pathToValue: "00200011.Value[0]",
-                    headerDescription: $localize `:@@study.series_number:Series Number`,
+                    headerDescription: $localize `:@@series_number:Series Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2180,9 +2180,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.series_description:Series Description`,
+                    header: $localize `:@@series_description:Series Description`,
                     pathToValue: "0008103E.Value[0]",
-                    headerDescription: $localize `:@@study.series_description:Series Description`,
+                    headerDescription: $localize `:@@series_description:Series Description`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2190,7 +2190,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@number_of_instances:#I`,
                     pathToValue: "00201209.Value[0]",
-                    headerDescription: $localize `:@@study.number_of_series_related_instances:Number of Series Related Instances`,
+                    headerDescription: $localize `:@@number_of_series_related_instances:Number of Series Related Instances`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 })
@@ -2300,7 +2300,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: $localize `:@@study.export_instance:Export instance`,
+                                title: $localize `:@@export_instance:Export instance`,
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: 'export'
@@ -2393,18 +2393,18 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.sop_class_uid:SOP Class UID`,
+                    header: $localize `:@@sop_class_uid:SOP Class UID`,
                     pathToValue: "00080016.Value[0]",
-                    headerDescription: $localize `:@@study.sop_class_uid:SOP Class UID`,
+                    headerDescription: $localize `:@@sop_class_uid:SOP Class UID`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.instance_number:Instance Number`,
+                    header: $localize `:@@instance_number:Instance Number`,
                     pathToValue: "00200013.Value[0]",
-                    headerDescription: $localize `:@@study.instance_number:Instance Number`,
+                    headerDescription: $localize `:@@instance_number:Instance Number`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2436,7 +2436,7 @@ export class StudyService {
                     type: "value",
                     header: "#F",
                     pathToValue: "00280008.Value[0]",
-                    headerDescription: $localize `:@@study.number_of_frames:Number of Frames`,
+                    headerDescription: $localize `:@@number_of_frames:Number of Frames`,
                     widthWeight: 0.3,
                     calculatedWidth: "20%"
                 })
@@ -2579,9 +2579,9 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.sps_start_date:SPS Start Date`,
+                    header: $localize `:@@sps_start_date:SPS Start Date`,
                     pathToValue: "00400100.Value[0].00400002.Value[0]",
-                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`,
+                    headerDescription: $localize `:@@scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -2589,15 +2589,15 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.sps_start:SPS Start`,
                     pathToValue: "00400100.Value[0].00400003.Value[0]",
-                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`,
+                    headerDescription: $localize `:@@scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.sp_physicians_name:SP Physician's Name`,
+                    header: $localize `:@@sp_physicians_name:SP Physician's Name`,
                     pathToValue: "00400100.Value[0].00400006.Value[0].Alphabetic",
-                    headerDescription: $localize `:@@study.scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
+                    headerDescription: $localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -2629,7 +2629,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.ss_aet:SS AET`,
                     pathToValue: "00400100.Value[0].00400001.Value",
-                    headerDescription: $localize `:@@study.scheduled_station_ae_title:Scheduled Station AE Title`,
+                    headerDescription: $localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`,
                     widthWeight: 1.5,
                     calculatedWidth: "20%"
                 })
@@ -2744,7 +2744,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.input_readiness:Input Readiness`,
                     pathToValue: "00404041.Value[0]",
-                    headerDescription: $localize `:@@study.input_readiness_state:Input Readiness State`,
+                    headerDescription: $localize `:@@input_readiness_state:Input Readiness State`,
                     widthWeight: 1.4,
                     calculatedWidth: "20%"
                 }),
@@ -2752,7 +2752,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.procedure_step:Procedure Step`,
                     pathToValue: "00741000.Value[0]",
-                    headerDescription: $localize `:@@study.procedure_step_state:Procedure Step State`,
+                    headerDescription: $localize `:@@procedure_step_state:Procedure Step State`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -2760,7 +2760,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.step_priority:Step Priority`,
                     pathToValue: "00741200.Value[0]",
-                    headerDescription: $localize `:@@study.scheduled_procedure_step_priority:Scheduled Procedure Step Priority`,
+                    headerDescription: $localize `:@@scheduled_procedure_step_priority:Scheduled Procedure Step Priority`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2768,15 +2768,15 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.start_date_and_time:Start Date and Time`,
                     pathToValue: "00404005.Value[0]",
-                    headerDescription: $localize `:@@study.scheduled_procedure_step_start_date_and_time:Scheduled Procedure Step Start Date and Time`,
+                    headerDescription: $localize `:@@scheduled_procedure_step_start_date_and_time:Scheduled Procedure Step Start Date and Time`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.procedure_step_label:Procedure Step Label`,
+                    header: $localize `:@@procedure_step_label:Procedure Step Label`,
                     pathToValue: "00741204.Value[0]",
-                    headerDescription: $localize `:@@study.procedure_step_label:Procedure Step Label`,
+                    headerDescription: $localize `:@@procedure_step_label:Procedure Step Label`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -2785,7 +2785,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.e._completion_time:E. Completion Time`,
                     pathToValue: "00404011.Value[0]",
-                    headerDescription: $localize `:@@study.expected_completion_date_and_time:Expected Completion Date and Time`,
+                    headerDescription: $localize `:@@expected_completion_date_and_time:Expected Completion Date and Time`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
@@ -2794,7 +2794,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.step_m._date_and_time:Step M. Date and Time`,
                     pathToValue: "00404010.Value[0]",
-                    headerDescription: $localize `:@@study.scheduled_procedure_step_modification_date_and_time:Scheduled Procedure Step Modification Date and Time`,
+                    headerDescription: $localize `:@@scheduled_procedure_step_modification_date_and_time:Scheduled Procedure Step Modification Date and Time`,
                     widthWeight: 4,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
@@ -2865,10 +2865,10 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.sp_physicians_name:SP Physician's Name`,
+                    header: $localize `:@@sp_physicians_name:SP Physician's Name`,
                     pathToValue: "00400100.Value[0].00400006.Value[0]",
                     showBorderPath:"00400100.Value[0].00400006.showBorder",
-                    headerDescription: $localize `:@@study.scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
+                    headerDescription: $localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -2892,10 +2892,10 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.study_description:Study Description`,
+                    header: $localize `:@@study_description:Study Description`,
                     pathToValue: "[00081030].Value[0]",
                     showBorderPath:"[00081030].showBorder",
-                    headerDescription: $localize `:@@study.study_description:Study Description`,
+                    headerDescription: $localize `:@@study_description:Study Description`,
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -3316,18 +3316,18 @@ export class StudyService {
 
     getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
         let expiredDate: Date;
-        let title = $localize `:@@study.set_expired_date_for_the_study.:Set expired date for the study.`;
+        let title = $localize `:@@set_expired_date_for_the_study:Set expired date for the study.`;
         let schema: any = [
             [
                 [
                     {
                         tag: "label",
-                        text: $localize `:@@study.expired_date:Expired date`
+                        text: $localize `:@@expired_date:Expired date`
                     },
                     {
                         tag: "p-calendar",
                         filterKey: "expiredDate",
-                        description: $localize `:@@study.expired_date:Expired Date`
+                        description: $localize `:@@expired_date:Expired Date`
                     }
                 ]
             ]
@@ -3345,18 +3345,18 @@ export class StudyService {
                         [
                             {
                                 tag: "label",
-                                text: $localize `:@@study.expired_date:Expired Date`
+                                text: $localize `:@@expired_date:Expired Date`
                             },
                             {
                                 tag: "p-calendar",
                                 filterKey: "expiredDate",
-                                description: $localize `:@@study.expired_date:Expired Date`
+                                description: $localize `:@@expired_date:Expired Date`
                             }
                         ]
                     ]
                 ];
             } else {
-                title = $localize `:@@freeze_expiration_date:Freeze/Protect Expiration Date of the Study`;
+                title = $localize `:@@freeze_protect_expiration_date_of_the_study:Freeze/Protect Expiration Date of the Study`;
                 schemaModel = {
                     setExpirationDateToNever: true,
                     FreezeExpirationDate: true
@@ -3366,7 +3366,7 @@ export class StudyService {
                         [
                             {
                                 tag: "label",
-                                text: $localize `:@@study.expired_date:Expired date`,
+                                text: $localize `:@@expired_date:Expired date`,
                                 showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
@@ -3374,7 +3374,7 @@ export class StudyService {
                             {
                                 tag: "p-calendar",
                                 filterKey: "expiredDate",
-                                description: $localize `:@@study.expired_date:Expired Date`,
+                                description: $localize `:@@expired_date:Expired Date`,
                                 showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
@@ -3386,8 +3386,8 @@ export class StudyService {
                         {
                             tag: "checkbox",
                             filterKey: "setExpirationDateToNever",
-                            description: $localize `:@@study.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`,
-                            text: $localize `:@@study.set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`
+                            description: $localize `:@@set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`,
+                            text: $localize `:@@set_expiration_date_to_never_if_you_want_also_to_protect_the_study:Set Expiration Date to 'never' if you want also to protect the study`
                         }
                     ], [
                         {
@@ -3396,8 +3396,8 @@ export class StudyService {
                         {
                             tag: "checkbox",
                             filterKey: "FreezeExpirationDate",
-                            description: $localize `:@@study.freeze_expiration_date:Freeze Expiration Date`,
-                            text: $localize `:@@study.freeze_expiration_date:Freeze Expiration Date`
+                            description: $localize `:@@freeze_expiration_date:Freeze Expiration Date`,
+                            text: $localize `:@@freeze_expiration_date:Freeze Expiration Date`
                         }
                     ]
                     ]
@@ -3673,7 +3673,7 @@ export class StudyService {
             case "merge":
                 return $localize `:@@selection.action.merge:Merge`;
             default:
-                return $localize `:@@selection.action.move:Move`;
+                return $localize `:@@move:Move`;
         }
     }
 }

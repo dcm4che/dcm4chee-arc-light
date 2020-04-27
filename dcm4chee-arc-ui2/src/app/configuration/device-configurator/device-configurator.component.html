@@ -15,7 +15,7 @@
                         <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
                         <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
-                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@placeholder.device-configuration.search" placeholder="Search..."></li>
+                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
                             <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a><span class="compare_button"(click)="compare(prefix)"><i class="material-icons">compare_arrows</i></span>
                             </li>
@@ -36,7 +36,7 @@
                         <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
                         <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
-                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@placeholder.device-configuration.search" placeholder="Search..."></li>
+                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
                             <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a><span class="compare_button"(click)="compare(prefix)"><i class="material-icons">compare_arrows</i></span>
                             </li>

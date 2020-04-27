@@ -1,7 +1,7 @@
 <div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2 i18n="@@html.storage_systems">Storage systems</h2>
+        <h2 i18n="@@storage_systems">Storage systems</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
@@ -29,7 +29,7 @@
                     <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                         <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                         <td>
-                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@title.storage-systems.show_properties" title="Show Properties">
+                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
                                 <span class="glyphicon glyphicon-list"></span>
                             </a>
                         </td>

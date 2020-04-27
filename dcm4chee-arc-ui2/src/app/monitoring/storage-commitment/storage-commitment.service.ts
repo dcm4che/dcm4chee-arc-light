@@ -79,28 +79,28 @@ export class StorageCommitmentService {
                         }),
                         showStar:true,
                         filterKey:"ExporterID",
-                        description:$localize `:@@storage-commitment.exporter_id:Exporter ID`,
-                        placeholder:$localize `:@@storage-commitment.exporter_id:Exporter ID`
+                        description:$localize `:@@exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@exporter_id:Exporter ID`
                     },
                     {
                         tag:"select",
                         options:this.statusValue,
                         filterKey:"status",
                         showStar:true,
-                        description:$localize `:@@storage-commitment.status_of_tasks_to_filter_by:Status of tasks to filter by`,
+                        description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
                         placeholder:$localize `:@@status:Status`
                     }
                 ],
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@storage-commitment.page_size:Page Size`
+                        text:$localize `:@@page_size:Page Size`
                     },
                     {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:$localize `:@@storage-commitment.page_size:Page Size`
+                        description:$localize `:@@page_size:Page Size`
                     }
                 ]
             ],[
@@ -124,7 +124,7 @@ export class StorageCommitmentService {
                         tag:"button",
                         id:"submit",
                         text:$localize `:@@SUBMIT:SUBMIT`,
-                        description:$localize `:@@storage-commitment.get_storage_commitments:Get Storage commitments`
+                        description:$localize `:@@get_storage_commitments:Get Storage commitments`
                     },{
                         tag:"dummy"
                     }

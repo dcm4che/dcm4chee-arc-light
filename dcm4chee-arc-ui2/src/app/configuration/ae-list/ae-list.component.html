@@ -11,8 +11,8 @@
             <div class="filter single_block">
                 <div class="filter_block">
                     <div class="line">
-                        <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@ae-list.extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                        <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@ae-list.extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                        <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                        <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
 
                         <a href="" (click)="$event.preventDefault();createAe()" class="more ng-hide" i18n-title="@@title.ae-list.register_new_application_entity" title="Register new application entity"> <span class="glyphicon glyphicon-plus"></span><ng-container i18n="@@ae-list.new_aet">New AET</ng-container></a>
 
@@ -32,12 +32,12 @@
                 <th i18n="@@aetitle">AETitle</th>
                 <th i18n="@@device_name">Device Name</th>
                 <th i18n="@@ae-list.other_ae_title">Other AETitle</th>
-                <th i18n="@@ae-list.description">Description</th>
+                <th i18n="@@description">Description</th>
                 <th i18n="@@ae-list.association_initiator">Association Initiator</th>
                 <th i18n="@@ae-list.association_acceptor">Association Acceptor</th>
                 <th i18n="@@application_cluster">Application Cluster</th>
-                <th i18n="@@ae-list.install">Installed</th>
-                <th i18n-title="@@title.ae-list.dicom_network_connection" title="Dicom network connection" i18n="@@ae-list.net_connection">Net. Connection</th>
+                <th i18n="@@installed">Installed</th>
+                <th i18n-title="@@title.dicom_network_connection" title="Dicom network connection" i18n="@@net_connection">Net. Connection</th>
             </tr>
             </thead>
             <tbody>
@@ -53,7 +53,7 @@
                 </td>
                 <td>{{ae['dicomAETitle']}}</td>
                 <td>
-                    <a i18n-title="@@title.ae-list.edit_device" title="Edit device" href="" routerLink="/device/edit/{{ae['dicomDeviceName']}}">
+                    <a i18n-title="@@edit_device" title="Edit device" href="" routerLink="/device/edit/{{ae['dicomDeviceName']}}">
                         {{ae['dicomDeviceName']}}
                     </a>
                 </td>

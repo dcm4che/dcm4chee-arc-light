@@ -141,7 +141,7 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@export.exporter_id:Exporter ID`,
+                        text:$localize `:@@exporter_id:Exporter ID`,
                     },
                     {
                         tag:"select",
@@ -152,8 +152,8 @@ export class ExportService {
                             }
                         }),
                         filterKey:"selectedExporter",
-                        description:$localize `:@@export.exporter_id:Exporter ID`,
-                        placeholder:$localize `:@@export.exporter_id:Exporter ID`
+                        description:$localize `:@@exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@exporter_id:Exporter ID`
                     }
                 ],
                 [
@@ -184,13 +184,13 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@export.scheduled_time:Scheduled Time`
+                        text:$localize `:@@scheduled_time:Scheduled Time`
                     },
                     {
                         tag:"single-date-time-picker",
                         type:"text",
                         filterKey:"scheduledTime",
-                        description:$localize `:@@export.scheduled_times:Scheduled times`
+                        description:$localize `:@@scheduled_time:Scheduled Time`
                     }
                 ]
             ]
@@ -210,8 +210,8 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"ExporterID",
-                        description:$localize `:@@export.exporter_id:Exporter ID`,
-                        placeholder:$localize `:@@export.exporter_id:Exporter ID`
+                        description:$localize `:@@exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@exporter_id:Exporter ID`
                     },
                     {
                         tag:"select",
@@ -223,7 +223,7 @@ export class ExportService {
                         }),
                         showStar:true,
                         filterKey:"dicomDeviceName",
-                        description:$localize `:@@export.device_name_to_filter_by:Device Name to filter by`,
+                        description:$localize `:@@device_name_to_filter_by:Device Name to filter by`,
                         placeholder:$localize `:@@device_name:Device Name`
                     }
                 ],
@@ -236,7 +236,7 @@ export class ExportService {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:$localize `:@@export.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+                        description:$localize `:@@.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ],
                 [
@@ -252,7 +252,7 @@ export class ExportService {
                         options:this.statusValues(),
                         filterKey:"status",
                         showStar:true,
-                        description:$localize `:@@export.status_of_tasks_to_filter_by:Status of tasks to filter by`,
+                        description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
                         placeholder:$localize `:@@status:Status`
                     }
                 ]
@@ -313,7 +313,7 @@ export class ExportService {
                         tag:"button",
                         id:"submit",
                         text:$localize `:@@SUBMIT:SUBMIT`,
-                        description:$localize `:@@export.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+                        description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ]
             ]

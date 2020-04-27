@@ -319,7 +319,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     tag:"range-picker-time",
                     type:"text",
                     filterKey:"scheduledTime",
-                    description:$localize `:@@scheduled_times:Scheduled times`
+                    description:$localize `:@@scheduled_time:Scheduled time`
                 },
                 {
                     tag:"input",

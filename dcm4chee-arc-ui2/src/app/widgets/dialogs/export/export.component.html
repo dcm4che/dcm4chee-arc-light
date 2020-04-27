@@ -9,7 +9,7 @@
             </label>
             <ng-container *ngIf="noDicomExporters.length > 0">
                 <div class="noneDicomBlock">
-                    <p i18n="@@export.select_exporter">Select the exporter:</p>
+                    <p i18n="@@select_the_exporter">Select the exporter:</p>
                     <mat-select [(ngModel)]="result.selectedExporter">
                         <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
                     </mat-select>

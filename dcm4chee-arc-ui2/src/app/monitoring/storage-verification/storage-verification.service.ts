@@ -101,7 +101,7 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'reschedule', e);
                       },
-                      title:$localize `:@@storage-verification.reschedule_this_task:Reschedule this task`
+                      title:$localize `:@@reschedule_this_task:Reschedule this task`
                   },
                   {
                       icon:{
@@ -113,7 +113,7 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'delete', e);
                       },
-                      title:$localize `:@@storage-verification.delete_this_task:Delete this task`
+                      title:$localize `:@@delete_this_task:Delete this task`
                   }
               ],
               description:$localize `:@@index:Index`,
@@ -122,9 +122,9 @@ export class StorageVerificationService {
           },
           {
               type:"model",
-              title:$localize `:@@storage-verification.local_aet:Local AET`,
+              title:$localize `:@@localaet:Local AET`,
               key:"LocalAET",
-              description:$localize `:@@storage-verification.local_aet:Local AET`,
+              description:$localize `:@@localaet:Local AET`,
               widthWeight:0.8,
               calculatedWidth:"20%"
           },
@@ -216,14 +216,14 @@ export class StorageVerificationService {
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.primary_aet:Primary AET`,
+                title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
                 description:$localize `:@@aet_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.secondary_aet:Secondary AET`,
+                title:$localize `:@@secondary_aet:Secondary AET`,
                 key:"SecondaryAET",
                 description:$localize `:@@ae_title_of_the_secondary_c_find_scp:AE Title of the secondary C-FIND SCP`,
                 widthWeight:1,
@@ -232,27 +232,27 @@ export class StorageVerificationService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.scheduled_time_range:Scheduled time range`,
+                title:$localize `:@@scheduled_time_range:Scheduled time range`,
                 key:"scheduledTimeRange",
-                description:$localize `:@@storage-verification.scheduled_time_range:Scheduled time range`,
+                description:$localize `:@@scheduled_time_range:Scheduled time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.processing_start_time_range:Processing start time range`,
+                title:$localize `:@@processing_start_time_range:Processing start time range`,
                 key:"processingStartTimeRange",
-                description:$localize `:@@storage-verification.processing_start_time_range:Processing start time range`,
+                description:$localize `:@@processing_start_time_range:Processing start time range`,
                 widthWeight:1.4,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:$localize `:@@storage-verification.processing_end_time_range:Processing end time range`,
+                title:$localize `:@@processing_end_time_range:Processing end time range`,
                 key:"processingEndTimeRange",
-                description:$localize `:@@storage-verification.processing_end_time_range:Processing end time range`,
+                description:$localize `:@@processing_end_time_range:Processing end time range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
@@ -276,7 +276,7 @@ export class StorageVerificationService {
             options:devices,
             showStar:true,
             filterKey:"dicomDeviceName",
-            description:$localize `:@@storage-verification.device_name_to_filter_by:Device Name to filter by`,
+            description:$localize `:@@device_name_to_filter_by:Device Name to filter by`,
             placeholder:$localize `:@@device_name:Device Name`
         },
         {
@@ -299,7 +299,7 @@ export class StorageVerificationService {
             options:this.statusValues(),
             filterKey:"status",
             showStar:true,
-            description:$localize `:@@storage-verification.status_of_tasks_to_filter_by:Status of tasks to filter by`,
+            description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
             placeholder:$localize `:@@status:Status`
         },
         {
@@ -351,7 +351,7 @@ export class StorageVerificationService {
             tag:"input",
             type:"number",
             filterKey:"limit",
-            description:$localize `:@@storage-verification.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+            description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
         },
 
         {
@@ -364,7 +364,7 @@ export class StorageVerificationService {
             tag:"button",
             id:"submit",
             text:$localize `:@@SUBMIT:SUBMIT`,
-            description:$localize `:@@storage-verification.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+            description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
         }
     ]
   }

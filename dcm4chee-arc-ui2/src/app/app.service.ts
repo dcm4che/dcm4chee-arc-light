@@ -121,7 +121,7 @@ export class AppService implements OnInit, OnDestroy{
     }
     showError(msg:string){
         this.setMessageSource.next({
-            "title":$localize `:@@msg.error:Error`,
+            "title":$localize `:@@error:Error`,
             "text":msg,
             "status":"error"
         })

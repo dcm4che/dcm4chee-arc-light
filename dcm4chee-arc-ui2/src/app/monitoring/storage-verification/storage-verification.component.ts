@@ -167,12 +167,12 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                             {
                                 value:"OBJECT_FETCH",
                                 text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
-                                title:$localize `:@@storage-verification.fetch_object_from_storage_system:Fetch object from Storage System`
+                                title:$localize `:@@fetch_object_from_storage_system:Fetch object from Storage System`
                             },
                             {
                                 value:"OBJECT_CHECKSUM",
                                 text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
-                                title:$localize `:@@storage-verification.recalculate_checksum_of_object_on_storage_system:recalculate checksum of object on Storage System`
+                                title:$localize `:@@recalculate_checksum_of_object_on_storage_system:recalculate checksum of object on Storage System`
                             },
                             {
                                 value:"S3_MD5SUM",
@@ -182,8 +182,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         ],
                         showStar:true,
                         filterKey:"storageVerificationPolicy",
-                        description:$localize `:@@storage-verification.verification_policy:Verification Policy`,
-                        placeholder:$localize `:@@storage-verification.verification_policy:Verification Policy`
+                        description:$localize `:@@verification_policy:Verification Policy`,
+                        placeholder:$localize `:@@verification_policy:Verification Policy`
                     },
                     {
                         tag:"checkbox",
@@ -195,7 +195,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         tag:"checkbox",
                         filterKey:"storageVerificationFailed",
                         text:$localize `:@@storage-verification.failed_verification:Failed verification`,
-                        description:$localize `:@@storage-verification.failed_storage_verification:Failed storage verification`
+                        description:$localize `:@@failed_storage_verification:Failed storage verification`
                     },
                     {
                         tag:"button",

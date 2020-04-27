@@ -174,7 +174,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     dialogRef: MatDialogRef<any>;
     lastPressedCode;
     moreFunctionConfig = {
-        placeholder: $localize `:@@study.more_functions:More functions`,
+        placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
             new SelectDropdown("upload_dicom",$localize`:@@study.create_patient:Upload DICOM Object`),
@@ -183,7 +183,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_multiple",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
-            new SelectDropdown("storage_verification",$localize `:@@study.storage_verification:Storage Verification`),
+            new SelectDropdown("storage_verification",$localize `:@@storage_verification:Storage Verification`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
@@ -348,12 +348,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     tabToTitleMap(tab:DicomMode){
         return {
-            "study": $localize `:@@study.studies:Studies`,
-            "patient": $localize `:@@study.patients:Patients`,
-            "mwl": $localize `:@@study.mwl:MWL`,
+            "study": $localize `:@@studies:Studies`,
+            "patient": $localize `:@@patients:Patients`,
+            "mwl": $localize `:@@mwl:MWL`,
             "uwl": $localize `:@@uwl:UWL`,
             "diff": $localize `:@@study.difference:Difference`
-        }[tab] || $localize `:@@study.studies:Studies`;
+        }[tab] || $localize `:@@studies:Studies`;
     };
 
     get more(): boolean {
@@ -2069,7 +2069,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (res){
                     let hasMore = res.length > this._filter.filterModel.limit;
                     if (res.length === 0){
-                        this.appService.showMsg($localize `:@@study.no_series_found:No matching series found!`);
+                        this.appService.showMsg($localize `:@@study.no_matching_series:No matching series found!`);
                         console.log('in reslength 0');
                     }else{
 
@@ -2682,7 +2682,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         (res)=>{
                             _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
                             _.set(study,"attrs.77771023.vr","DA");
-                            this.appService.showMsg( $localize `:@@study.expired_date_set:Expired date set successfully!`);
+                            this.appService.showMsg( $localize `:@@expired_date_set:Expired date set successfully!`);
                             this.cfpLoadingBar.complete();
                         },
                         (err)=>{
@@ -2691,7 +2691,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     );
                 }else{
-                    this.appService.showError($localize `:@@study.expired_date_required:Expired date is required!`);
+                    this.appService.showError($localize `:@@expired_date_required:Expired date is required!`);
                 }
             }
         });
@@ -2778,7 +2778,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         let parameters: any = {
-            content: $localize `:@@study.select_rejected_type:Select rejected type`,
+            content: $localize `:@@select_rejected_type:Select rejected type`,
             select: select,
             result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
             saveButton: $localize `:@@REJECT:REJECT`
@@ -2831,7 +2831,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@study.select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton: $localize `:@@REJECT:REJECT`
@@ -2869,7 +2869,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@study.select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton:  $localize `:@@REJECT:REJECT`
@@ -2923,7 +2923,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@study.select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton:  $localize `:@@REJECT:REJECT`
@@ -2980,7 +2980,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@study.select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejected_type:Select rejected type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton:  $localize `:@@REJECT:REJECT`
@@ -3227,7 +3227,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag:"label",
-                            text:$localize `:@@study.failed_storage_verification:Failed storage verification`
+                            text:$localize `:@@failed_storage_verification:Failed storage verification`
                         },
                         {
                             tag:"checkbox",
@@ -3236,7 +3236,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ],[
                     {
                         tag:"label",
-                        text:$localize `:@@study.verification_policy:Verification Policy`
+                        text:$localize `:@@verification_policy:Verification Policy`
                     },
                     {
                         tag:"select",
@@ -3259,12 +3259,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             {
                                 value:"OBJECT_FETCH",
                                 text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
-                                title:$localize `:@@study.fetch_from_storage_system:Fetch object from Storage System`
+                                title:$localize `:@@fetch_from_storage_system:Fetch object from Storage System`
                             },
                             {
                                 value:"OBJECT_CHECKSUM",
                                 text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
-                                title:$localize `:@@study.recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
+                                title:$localize `:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                             },
                             {
                                 value:"S3_MD5SUM",
@@ -3274,8 +3274,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ],
                         showStar:true,
                         filterKey:"storageVerificationPolicy",
-                        description:$localize `:@@study.verification_policy:Verification Policy`,
-                        placeholder:$localize `:@@study.verification_policy:Verification Policy`
+                        description:$localize `:@@verification_policy:Verification Policy`,
+                        placeholder:$localize `:@@verification_policy:Verification Policy`
                     }
                 ],[
                     {
@@ -3354,12 +3354,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     {
                                         value:"OBJECT_FETCH",
                                         text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
-                                        title:$localize `:@@study.fetch_from_storage_system:Fetch object from Storage System`
+                                        title:$localize `:@@fetch_from_storage_system:Fetch object from Storage System`
                                     },
                                     {
                                         value:"OBJECT_CHECKSUM",
                                         text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
-                                        title:$localize `:@@study.recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
+                                        title:$localize `:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                                     },
                                     {
                                         value:"S3_MD5SUM",
@@ -3369,8 +3369,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 ],
                                 showStar:true,
                                 filterKey:"storageVerificationPolicy",
-                                description:$localize `:@@study.verification_policy:Verification Policy`,
-                                placeholder:$localize `:@@study.verification_policy:Verification Policy`,
+                                description:$localize `:@@verification_policy:Verification Policy`,
+                                placeholder:$localize `:@@verification_policy:Verification Policy`,
                             }
                         ],[
                         {

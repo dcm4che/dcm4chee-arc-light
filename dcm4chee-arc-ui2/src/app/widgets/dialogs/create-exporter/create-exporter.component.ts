@@ -46,8 +46,8 @@ export class CreateExporterComponent implements OnInit{
         ],
         "properties": {
             "dcmExporterID": {
-                "title": $localize `:@@create-exporter.exporter_id:Exporter ID`,
-                "description": $localize `:@@create-exporter.exporter_id:Exporter ID`,
+                "title": $localize `:@@exporter_id:Exporter ID`,
+                "description": $localize `:@@exporter_id:Exporter ID`,
                 "type": "string"
             },
             "dcmURI": {

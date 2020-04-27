@@ -98,10 +98,10 @@
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" i18n-title="@@title.cancel_selected" title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title="@@title.export.reschedule_selected" title="Reschedule selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title="@@title.reschedule_selected" title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-title="@@title.export.delete_selected" title="Delete selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-title="@@title.delete_selected" title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </div>
@@ -112,7 +112,7 @@
                 <th i18n="@@exporter_id" i18n-title="@@title.export.export_task_id" title="Export Task ID">Exporter ID</th>
                 <th i18n="@@status">Status</th>
                 <th i18n="@@failures">Failures</th>
-                <th i18n="@@queue_time" i18n-title="@@title.export.scheduled_time" title="Scheduled time">Queue time</th>
+                <th i18n="@@queue_time" i18n-title="@@scheduled_time" title="Scheduled Time">Queue time</th>
                 <th i18n="@@export_time" i18n-title="@@title.export.processing_duration" title="Processing duration">Export time</th>
                 <th i18n="@@device_name">Device name</th>
             </tr>
@@ -122,13 +122,13 @@
                 <tr *ngIf="batchGrouped">
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@title.export.show_properties" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@show_properties" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
                         <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" i18n-title="@@title.export.show_tasks_detail" title="Show Tasks Detail">
                             <span class="glyphicon glyphicon-list-alt"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" i18n-title="@@title.export.delete_task_with_this_batchid" title="Delete Task with this BatchID">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();deleteBatchedTask(match)" href="" i18n-title="@@title.delete_task_with_this_batchid" title="Delete Task with this BatchID">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>
@@ -144,16 +144,16 @@
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input type="checkbox" [(ngModel)]="match.checked">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@title.export.show_properties" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" i18n-title="@@show_properties" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" i18n-title="@@title.cancel" title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" i18n-title="@@title.export.reschedule" title="Reschedule">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" i18n-title="@@title.reschedule" title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title="@@title.export.delete" title="Delete">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title="@@title.delete" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

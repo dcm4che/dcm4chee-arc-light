@@ -1,7 +1,7 @@
 <div class="main_content monitoring white_design">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
-        <h2 i18n="@@html.storage_commitments">Storage commitments</h2>
+        <h2 i18n="@@storage_commitments">Storage commitments</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="storage-commitment" [model]="filters" (submit)="search(0)"></filter-generator>
@@ -17,10 +17,10 @@
             </div>
         </div>
         <ng-container *ngIf="_.size(matches) > 0">
-            <button class="left_arrow arrow no_style"   i18n-title="@@title.storage-commitment.preview_page" title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+            <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
-            <button class="right_arrow arrow no_style"  i18n-title="@@title.storage-commitment.next_page" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+            <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button>
         </ng-container>
@@ -45,10 +45,10 @@
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td>
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@title.storage-commitment.show_properties" title="Show Properties">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.storage-commitment.delete" title="Delete">
+                        <a (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

@@ -45,7 +45,7 @@ export class DevicesComponent implements OnInit{
     filterSchema;
     w = 2;
     moreFunctionConfig = {
-        placeholder: $localize `:@@devices.more_functions:More functions`,
+        placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_exporter",$localize `:@@devices.create_exporter:Create exporter`),
             new SelectDropdown("create_device",$localize `:@@devices.create_device:Create device`)
@@ -177,7 +177,7 @@ export class DevicesComponent implements OnInit{
                 if (result){
                     $this.cfpLoadingBar.start();
                     $this.$http.delete('../devices/' + device.dicomDeviceName).subscribe((res) => {
-                        $this.mainservice.showMsg($localize `:@@device_delected_successfully:Device deleted successfully!`);
+                        $this.mainservice.showMsg($localize `:@@device_deleted_successfully:Device deleted successfully!`);
                         $this.getDevices();
                         $this.cfpLoadingBar.complete();
                     }, (err) => {

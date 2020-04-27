@@ -128,13 +128,13 @@ export class DevicesService {
                 schema.form_schema[0][0].push([
                     {
                         tag:"label",
-                        text:$localize `:@@devices.scheduled_time:Scheduled Time`
+                        text:$localize `:@@scheduled_time:Scheduled Time`
                     }
                     ,{
                         tag:"range-picker-time",
                         type:"text",
                         filterKey:"scheduledTime",
-                        description:$localize `:@@devices.scheduled_time:Scheduled Time`
+                        description:$localize `:@@scheduled_time:Scheduled Time`
                     }
                 ]);
             }
@@ -186,8 +186,8 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomManufacturer",
-                description:$localize `:@@devices.manufacturer:Manufacturer`,
-                placeholder:$localize `:@@devices.manufacturer:Manufacturer`
+                description:$localize `:@@manufacturer:Manufacturer`,
+                placeholder:$localize `:@@manufacturer:Manufacturer`
             },{
                 tag:"input",
                 type:"text",
@@ -204,8 +204,8 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomStationName",
-                description:$localize `:@@devices.station_name:Station name`,
-                placeholder:$localize `:@@devices.station_name:Station name`
+                description:$localize `:@@station_name:Station Name`,
+                placeholder:$localize `:@@station_name:Station Name`
             },{
                 tag:"input",
                 type:"text",
@@ -216,8 +216,8 @@ export class DevicesService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomInstitutionName",
-                description:$localize `:@@devices.institution_name:Institution name`,
-                placeholder:$localize `:@@devices.institution_name:Institution name`
+                description:$localize `:@@institution_name:Institution Name`,
+                placeholder:$localize `:@@institution_name:Institution Name`
             },{
                 tag:"input",
                 type:"text",
