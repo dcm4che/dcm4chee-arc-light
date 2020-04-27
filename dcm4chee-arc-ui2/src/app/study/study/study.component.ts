@@ -2531,6 +2531,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     break;
             }
         }
+        console.log("archiveDevice",this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -2544,7 +2545,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         {
                             tag:"select",
                             type:"text",
-                            options:this.applicationEntities.aes,
+                            options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
                             filterKey:"stgCmtSCP",
                             description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
                             placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
@@ -3469,18 +3470,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     // aets;
     initWebApps(){
         let aetsTemp;
+        let aesTemp;
         this.service.getAets().pipe(
-                map((aets:Aet[])=>{
-                    aetsTemp = aets;
-                }),
-                switchMap(()=>{
-                    let filter = {
-                        dcmWebServiceClass: this.currentWebAppClass
-                    };
-                    return this.service.getWebApps(filter)
-                })
-            )
-            .subscribe(
+            map((aets:Aet[])=>{
+                aetsTemp = aets;
+            }),
+            switchMap(()=>{
+                return this.service.getAes()
+            }),
+            switchMap((aes)=>{
+                aesTemp = aes;
+                let filter = {
+                    dcmWebServiceClass: this.currentWebAppClass
+                };
+                return this.service.getWebApps(filter)
+            })
+        ).subscribe(
                 (webApps:DcmWebApp[])=> {
                     console.log("this.studyWebService",this.studyWebService);
                     console.log("this.filter",this.filter.filterModel);
@@ -3496,7 +3501,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }),
                         selectedWebService:_.get(this.studyWebService,"selectedWebService")
                     });
-                   this.applicationEntities.aes = aetsTemp.map((ae:Aet)=>{
+                    this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
+                        return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
+                    });
+                    this.applicationEntities.aes = aesTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                     });
                     // this.aets = aetsTemp;
