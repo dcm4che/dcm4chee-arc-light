@@ -967,6 +967,24 @@ export class StudyService {
         let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgcmt/dicom:${stgCmtSCP}`;
         return this.$http.post(url, {});
     }
+    sendInstanceAvailabilityNotificationForMatching(studyWebService: StudyWebService,ianscp:string, filters:any){
+        return this.$http.post(
+            `${this.getDicomURL("study", studyWebService.selectedWebService)}/ian/${ianscp}${j4care.param(filters)}`,
+            {}
+        );
+    }
+    sendInstanceAvailabilityNotificationForSelected(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, ianscp:string){
+        return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study" || element.dicomLevel === "instance" || element.dicomLevel === "series")).map((element: SelectedDetailObject) => {
+            return this.$http.post(
+                `${this.getURL(element.object.attrs, studyWebService.selectedWebService, element.dicomLevel)}/ian/dicom:${ianscp}`,
+                {}
+            );
+        })));
+    }
+    sendInstanceAvailabilityNotificationForSingle(attrs,studyWebService: StudyWebService, level: DicomLevel, ianscp:string){
+        let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/ian/dicom:${ianscp}`;
+        return this.$http.post(url, {});
+    }
 
     getDevices() {
         return this.devicesService.getDevices();
@@ -1707,7 +1725,28 @@ export class StudyService {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
-                            }, {
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon ticker_export_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "send_instance_availability_notification"
+                                    }, e);
+                                },
+                                title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this study`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
+                            },{
                                 icon: {
                                     tag: 'span',
                                     cssClass: 'glyphicon glyphicon-eye-open',
@@ -2037,6 +2076,27 @@ export class StudyService {
                             },{
                                 icon: {
                                     tag: 'span',
+                                    cssClass: `custom_icon ticker_export_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "send_instance_availability_notification"
+                                    }, e);
+                                },
+                                title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Series`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
                                     cssClass: `custom_icon csv_icon_black`,
                                     text: ''
                                 },
@@ -2338,6 +2398,27 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: $localize `:@@study.send_storage_commitment_request_for_study:Send Storage Commitment Request for this instance`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-verify_storage_commitment',
+                                    param: 'visible'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon ticker_export_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "instance",
+                                        action: "send_instance_availability_notification"
+                                    }, e);
+                                },
+                                title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Instance`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },

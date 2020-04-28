@@ -683,9 +683,20 @@ p-calendar{
     height:100%;
     width:25px;
     background-position: center center;
-    float: left;
+    //float: left;
     &:hover{
       background-image: url("assets/img/hand_shake_white.png");
+    }
+  }
+  &.ticker_export_black{
+    background-image: url("assets/img/ticker_export_black.png");
+    background-repeat:no-repeat;
+    height:100%;
+    width:25px;
+    background-position: center center;
+    //float: left;
+    &:hover{
+      background-image: url("assets/img/ticker_export_white.png");
     }
   }
 }

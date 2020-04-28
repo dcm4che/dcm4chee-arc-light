@@ -188,6 +188,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("schedule_storage_commit_for_matching",$localize `:@@schedule_storage_commit_for_matching:Schedule Storage Commitment for matching`),
+            new SelectDropdown("instance_availability_notification_for_matching",$localize `:@@instance_availability_notification_for_matching:Instance Availability Notification for matching`),
         ],
         model:undefined
     };
@@ -200,6 +201,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
             new SelectDropdown("send_storage_commitment_request_for_selections", $localize `:@@send_storage_commitment_request_for_selections:Send Storage Commitment Request for selections`, $localize `:@@send_storage_commitment_request_for_selected_objects:Send Storage Commitment Request for selected objects`),
+            new SelectDropdown("send_ian_request_for_selections", $localize `:@@send_ian_request_for_selections:Send IAN for selections`, $localize `:@@send_instance_availability_notification_request_for_selected_objects:Send Instance Availability Notification Request for selected objects`),
             new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
             new SelectDropdown("change_sps_status_on_selections", $localize `:@@sps_status_on_selections:SPS Status on selections`, $localize `:@@change_sps_status_on_selected_mwl:Change SPS Status on selected MWL`)
         ],
@@ -419,6 +421,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "schedule_storage_commit_for_matching":
                 this.sendStorageCommitmentRequest(undefined,undefined,true);
                break;
+            case "instance_availability_notification_for_matching":
+                this.sendInstanceAvailabilityNotification(undefined,undefined,true);
+               break;
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
                break;
@@ -453,6 +458,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         if(e === "send_storage_commitment_request_for_selections"){
             this.sendStorageCommitmentRequest();
+        }
+        if(e === "send_ian_request_for_selections"){
+            this.sendInstanceAvailabilityNotification();
         }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
@@ -821,6 +829,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(id.action === "send_storage_commit"){
                 this.sendStorageCommitmentRequest(id.level , model);
+            }
+            if(id.action === "send_instance_availability_notification"){
+                this.sendInstanceAvailabilityNotification(id.level , model);
             }
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
@@ -2582,6 +2593,93 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         //Selected
                         msg = $localize `:@@storage_commitment_of_selected_objects_from_external_storage_commitment_scp_was_requested:Storage Commitment of selected objects from external Storage Commitment SCP was requested successfully`;
                         service = this.service.sendStorageCommitmentRequestForSelected(this.selectedElements,this.studyWebService,ok.schema_model.stgCmtSCP);
+                    }
+                }
+                this.cfpLoadingBar.start();
+                service.subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    if(matching){
+                        msg = j4care.prepareCountMessage(msg, res);
+                    }
+                    this.appService.showMsg(msg);
+                    if(!matching && !dicomLevel){
+                        this.clearClipboard();
+                    }
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
+    sendInstanceAvailabilityNotification(dicomLevel?:DicomLevel, model?:any, matching?:boolean){
+        let dialogText;
+        if(matching){
+            dialogText = $localize `:@@schedule_instance_availability_of_matching_studies_to_external_instance_availability_scp:Schedule Instance Availability of matching Studies to external Instance Availability SCP`
+        }else{
+            switch (dicomLevel){
+                case "series":
+                    dialogText = $localize `:@@request_instance_availability_of_series_to_external_instance_availability_scp:Request Instance Availability of Series to external Instance Availability SCP`
+                    break;
+                case "instance":
+                    dialogText = $localize `:@@request_instance_availability_of_instance_to_external_instance_availability_scp:Request Instance Availability of Instance to external Instance Availability SCP`
+                    break;
+                default:
+                    dialogText = $localize `:@@request_instance_availability_of_study_to_external_instance_availability_scp:Request Instance Availability of Study to external Instance Availability SCP`
+                    break;
+            }
+        }
+        console.log("archiveDevice",this.appService.archiveDeviceName);
+        this.confirm({
+            content: dialogText,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
+                            filterKey:"ianscp",
+                            description:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`,
+                            placeholder:$localize `:@@instance_availability_notification_scp_ae_title:Instance Availability Notification SCP AE Title`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SEND:SEND`
+        }).subscribe((ok)=>{
+            if(ok && _.hasIn(ok, "schema_model.ianscp")){
+                let service;
+                let msg;
+                if(matching){
+                    service = this.service.sendInstanceAvailabilityNotificationForMatching(this.studyWebService, ok.schema_model.ianscp, this.createStudyFilterParams(true,true));
+                    msg = $localize `:@@instance_availability_of_matching_studies_to_external_instance_availability_scp_was_scheduled:Instance Availability of matching Studies to external Instance Availability SCP was scheduled successfully`;
+                }else{
+                    if(dicomLevel){
+                        switch (dicomLevel){
+                            case "series":
+                                msg = $localize `:@@instance_availability_of_series_to_external_instance_availability_scp_requested:Instance Availability of Series to external Instance Availability SCP was requested successfully`;
+                                break;
+                            case "instance":
+                                msg = $localize `:@@instance_availability_of_instance_to_external_instance_availability_scp_requested:Instance Availability of Instance to external Instance Availability SCP was requested successfully`;
+                                break;
+                            default:
+                                msg = $localize `:@@instance_availability_of_study_to_external_instance_availability_scp_requested:Instance Availability of Study to external Instance Availability SCP was requested successfully`;
+                                break;
+                        }
+                        service = this.service.sendInstanceAvailabilityNotificationForSingle(model.attrs,this.studyWebService,dicomLevel, ok.schema_model.ianscp);
+                    }else{
+                        //Selected
+                        msg = $localize `:@@instance_availability_of_selected_objects_to_external_instance_availability_scp_was_requested:Instance Availability of selected objects to external Instance Availability SCP was requested successfully`;
+                        service = this.service.sendInstanceAvailabilityNotificationForSelected(this.selectedElements,this.studyWebService,ok.schema_model.ianscp);
                     }
                 }
                 this.cfpLoadingBar.start();
