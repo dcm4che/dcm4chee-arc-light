@@ -53,13 +53,14 @@
       padding-left: 0;
       float: left;
       width: 100%;
+      overflow: hidden;
       .option.active {
         background: #cccccc;
       }
       .option {
         width: 100%;
         height: 30px;
-        padding: 0px 10px;
+        padding: 0px 20px;
         &.tree{
           padding: 0px 25px;
         }
@@ -74,6 +75,7 @@
           height: 30px;
           line-height: 30px;
           color: black;
+          white-space: nowrap;
           &.with_checkbox{
             width:calc(100% - 30px);
           }
