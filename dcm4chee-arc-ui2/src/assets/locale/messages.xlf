@@ -222,7 +222,7 @@
           <context context-type="linenumber">61</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.reschedule_selected" datatype="html">
+      <trans-unit id="title.reschedule_selected" datatype="html">
         <source>Reschedule selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -363,7 +363,7 @@
           <context context-type="linenumber">92</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.queues.reschedule" datatype="html">
+      <trans-unit id="title.reschedule" datatype="html">
         <source>Reschedule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/queues/queues.component.html</context>
@@ -2246,7 +2246,7 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.export.interval" datatype="html">
+      <trans-unit id="placeholder.interval" datatype="html">
         <source>Interval</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2394,7 +2394,7 @@
           <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.reschedule_selected" datatype="html">
+      <trans-unit id="title.reschedule_selected" datatype="html">
         <source>Reschedule selected</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -2511,7 +2511,7 @@
           <context context-type="linenumber">150</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.export.reschedule" datatype="html">
+      <trans-unit id="title.reschedule" datatype="html">
         <source>Reschedule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/export/export.component.html</context>
@@ -3061,7 +3061,7 @@
           <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="monitoring.tab.metrics" datatype="html">
+      <trans-unit id="metrics.metrics" datatype="html">
         <source>Metrics</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/monitoring-tabs.component.ts</context>
@@ -3223,7 +3223,7 @@
           <context context-type="linenumber">138</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="title.retrieve-monitoring.reschedule" datatype="html">
+      <trans-unit id="title.reschedule" datatype="html">
         <source>Reschedule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/external-retrieve/retrieve-monitoring.component.html</context>
@@ -3274,7 +3274,7 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.diff-monitor.interval" datatype="html">
+      <trans-unit id="placeholder.interval" datatype="html">
         <source>Interval</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/diff-monitor/diff-monitor.component.html</context>
@@ -3295,7 +3295,7 @@
           <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="placeholder.storage-verification.interval" datatype="html">
+      <trans-unit id="placeholder.interval" datatype="html">
         <source>Interval</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/monitoring/storage-verification/storage-verification.component.html</context>

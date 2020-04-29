@@ -1487,8 +1487,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"InstitutionName",
-                    description:$localize `:@@institution_name:Institution name`,
-                    placeholder:$localize `:@@institution_name:Institution name`
+                    description:$localize `:@@institution_name:Institution Name`,
+                    placeholder:$localize `:@@institution_name:Institution Name`
                 },{
                     tag:"input",
                     type:"text",
@@ -1683,7 +1683,7 @@ export class Globalvar {
                 filterKey:"includefield",
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@globalvar.all_available_attributes:all available attributes`)
+                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,

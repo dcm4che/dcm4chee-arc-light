@@ -1880,7 +1880,7 @@ export class StudyService {
                     type: "value",
                     header: $localize `:@@study.r._physicians_name:R. Physician's Name`,
                     pathToValue: "[00080090].Value[0].Alphabetic",
-                    headerDescription: $localize `:@@study.referring_physicians_name:Referring Physician's Name`,
+                    headerDescription: $localize `:@@referring_physician_name:Referring physician name`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -2982,7 +2982,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@studynumber:#S`,
+                    header: $localize `:@@number_of_related_series:#S`,
                     pathToValue: "[00201206].Value[0]",
                     showBorderPath:"[00201206].showBorder",
                     headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,

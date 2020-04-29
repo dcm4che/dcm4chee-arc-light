@@ -203,7 +203,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     downloadCsv(){
         this.confirm({
             content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
-            cancelButton:$localize `:@@No:No`,
+            cancelButton:$localize `:@@no:No`,
             saveButton:$localize `:@@Yes:Yes`,
             result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
@@ -466,7 +466,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.service.deleteAll(filter).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
                             if(_.hasIn(res,"deleted")){
-                                this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`);
+                                this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
                             }

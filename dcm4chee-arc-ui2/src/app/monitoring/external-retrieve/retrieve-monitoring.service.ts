@@ -198,7 +198,7 @@ export class RetrieveMonitoringService {
                         filterKey:"status",
                         showStar:true,
                         description:$localize `:@@status_of_tasks_to_filter_by:Status of tasks to filter by`,
-                        placeholder:$localize `:@@Status:Status`
+                        placeholder:$localize `:@@status:Status`
                     }
                 ]
             ],[

@@ -273,7 +273,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     downloadCsv(){
         this.confirm({
             content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
-            cancelButton:$localize `:@@No:No`,
+            cancelButton:$localize `:@@no:No`,
             saveButton:$localize `:@@Yes:Yes`,
             result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
@@ -456,7 +456,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     break;
                 case "delete":
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`)
+                            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -483,7 +483,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     this.service.deleteAll(filter).subscribe((res)=>{
                         this.cfpLoadingBar.complete();
                         if(_.hasIn(res,"count")){
-                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:@@count: tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@task_deleted:${res.count}:@@count: tasks deleted successfully!`);
                         }else{
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
                         }

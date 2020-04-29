@@ -11,6 +11,6 @@
         <span *ngIf="!_.hasIn(study[table_element.code],'Value[0].Alphabetic') && _.hasIn(study[table_element.code],'Value[0]')">{{study[table_element.code]?.Value[0] || ''}}</span>
       </div>
     </div>
-    <button class="load_more" *ngIf="dicomObject && moreStudies.limit <= dicomObject.length" (click)="loadMoreStudiesOnScroll()"><i *ngIf="moreStudies.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><ng-container i18n="@@More">More</ng-container></button>
+    <button class="load_more" *ngIf="dicomObject && moreStudies.limit <= dicomObject.length" (click)="loadMoreStudiesOnScroll()"><i *ngIf="moreStudies.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><ng-container i18n="@@more">More</ng-container></button>
   </div>
 </div>

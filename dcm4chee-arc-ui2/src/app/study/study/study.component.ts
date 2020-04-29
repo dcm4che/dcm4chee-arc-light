@@ -1360,7 +1360,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
-            content:$localize `:@@use_semicolon:Do you want to use semicolon as delimiter?`,
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
             cancelButton:$localize `:@@no:No`,
             saveButton:$localize `:@@Yes:Yes`,
             result:$localize `:@@yes:yes`
@@ -3483,7 +3483,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ],[
                         {
                             tag:"label",
-                            text:$localize `:@@storage_ID:Storage ID`
+                            text:$localize `:@@storage_id:Storage ID`
                         },{
                             tag:"select",
                             options:storages.map(storage=> new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
@@ -3508,9 +3508,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 // console.log("response",response);
                                 let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
                                 let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
-                                let msgStatus = $localize `:@@Info:Info`;
+                                let msgStatus = $localize `:@@info:Info`;
                                 if (failed > 0 && success > 0) {
-                                    msgStatus = $localize `:@@Warning:Warning`;
+                                    msgStatus = $localize `:@@warning:Warning`;
                                     this.appService.setMessage({
                                         'title': msgStatus,
                                         'text': $localize `:@@failed_of:${failed} of ${success + failed} failed!`,

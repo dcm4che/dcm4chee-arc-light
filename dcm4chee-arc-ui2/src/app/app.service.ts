@@ -128,14 +128,14 @@ export class AppService implements OnInit, OnDestroy{
     }
     showMsg(msg:string){
         this.setMessageSource.next({
-            "title":$localize `:@@msg.info:Info`,
+            "title":$localize `:@@info:Info`,
             "text":msg,
             "status":"info"
         })
     }
     showWarning(msg:string){
         this.setMessageSource.next({
-            "title":$localize `:@@msg.warning:Warning`,
+            "title":$localize `:@@warning:Warning`,
             "text":msg,
             "status":"warning"
         })

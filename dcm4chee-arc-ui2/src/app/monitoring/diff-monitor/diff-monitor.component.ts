@@ -297,7 +297,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted} tasks deleted successfully!`);
+            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`);
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getDiffTasks(filters);
@@ -434,7 +434,7 @@ export class DiffMonitorComponent implements OnInit {
     downloadCsv(){
         this.confirm({
             content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
-            cancelButton:$localize `:@@No:No`,
+            cancelButton:$localize `:@@no:No`,
             saveButton:$localize `:@@Yes:Yes`,
             result:$localize `:@@yes:yes`
         }).subscribe((ok)=>{
