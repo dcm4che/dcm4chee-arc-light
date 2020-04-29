@@ -81,7 +81,7 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.stopArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatus();
-            this.appservices.showMsg($localize`:@@control.archive_stoped:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: stoped successfully`);
+            this.appservices.showMsg($localize`:@@control.archive_stopped:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: stoped successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();

@@ -407,7 +407,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }
             }else {
                 //We assume that the user tryes to go one level deeper than allowed
-                $this.mainservice.showError($localize `:@@device-configur.parent_dont_exist:Parent didn't exist, save first the parent`);
+                $this.mainservice.showError($localize `:@@device-configurator.parent_dont_exist:Parent didn't exist, save first the parent`);
                 $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length - 1].url);
                 $this.cfpLoadingBar.complete();
             }

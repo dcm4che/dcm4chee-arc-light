@@ -2160,7 +2160,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     series.instances = [];
                     if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
                         series.instances.pop();
-                        this.appService.showMsg($localize `:@@study.no_matching_instancess:No matching Instancess found!`);
+                        this.appService.showMsg($localize `:@@study.no_matching_instances:No matching Instancess found!`);
                     }
                 }
                 this.cfpLoadingBar.complete();
@@ -3296,7 +3296,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.service.export(urlRest)
                                 .subscribe(
                                 (result) => {
-                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.comand_executed:Command executed successfully!`));
+                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.command_executed:Command executed successfully!`));
                                     $this.cfpLoadingBar.complete();
                                 },
                                 (err) => {

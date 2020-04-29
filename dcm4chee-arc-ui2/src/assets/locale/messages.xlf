@@ -905,7 +905,7 @@
           <context context-type="linenumber">5</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="export.create_frist_exporter" datatype="html">
+      <trans-unit id="export.create_first_exporter" datatype="html">
         <source>Create first an exporter!</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/export/export.component.html</context>
@@ -1396,7 +1396,7 @@
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="schedule-picker.drop_herer_some_element" datatype="html">
+      <trans-unit id="schedule-picker.drop_here_some_element" datatype="html">
         <source>Drop here some element to edit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/schedule-picker/schedule-picker.component.html</context>

@@ -36,8 +36,8 @@ export class StorageSystemsService {
             text:$localize `:@@hcp:hcp`,
             value:"hcp"
         },{
-            text:$localize `:@@documentu:documentu`,
-            value:"documentu"
+            text:$localize `:@@documentum:documentum`,
+            value:"documentum"
         }
     ];
     search(filters, offset) {

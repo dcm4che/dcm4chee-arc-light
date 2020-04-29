@@ -5,7 +5,7 @@
           (dragleave)="dragleave($event)"
     >
         <!--{{draggedElements | json}}-->
-        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="@@schedule-picker.drop_herer_some_element">Drop here some element to edit</div>
+        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="@@schedule-picker.drop_here_some_element">Drop here some element to edit</div>
         <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
                 <div *ngSwitchCase="'single_hour'" class="element single">
                     <select name="single_hour" id="single_hour" [(ngModel)]="item.model">

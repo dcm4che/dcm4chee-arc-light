@@ -713,61 +713,61 @@ export class Globalvar {
             dcmArchiveAETitle:{
                 key:'dicomAETitle',
                 labelKey:'{dicomAETitle}',
-                msg:$localize `:@@dynamic_formater.create_first_aet:Create first an AE Title!`,
+                msg:$localize `:@@dynamic_formatter.create_first_aet:Create first an AE Title!`,
                 pathInDevice:'dicomNetworkAE'
             },
             dcmQueueName:{
                 key:'dcmQueueName',
                 labelKey:'{dicomDescription} ({dcmQueueName})',
-                msg:$localize `:@@dynamic_formater.configure_first_an_queue:Configure first an Queue`,
+                msg:$localize `:@@dynamic_formatter.configure_first_a_queue:Configure first an Queue`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmQueue'
             },
             dcmExporterID:{
                 key:'dcmExporterID',
                 labelKey:'{dcmExporterID}',
-                msg:$localize `:@@dynamic_formater.exporter:Create first an Exporter!`,
+                msg:$localize `:@@dynamic_formatter.exporter:Create first an Exporter!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmExporter'
             },
             dcmStorageID:{
                 key:'dcmStorageID',
                 labelKey:'{dcmStorageID}',
-                msg:$localize `:@@dynamic_formater.storage:Create first an Storage!`,
+                msg:$localize `:@@dynamic_formatter.storage:Create first an Storage!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmStorage'
             },
             dcmQueryRetrieveViewID:{
                 key:'dcmQueryRetrieveViewID',
                 labelKey:'{dcmQueryRetrieveViewID}',
-                msg:$localize `:@@dynamic_formater.query_retrieve_view:Create first an Query Retrieve View!`,
+                msg:$localize `:@@dynamic_formatter.query_retrieve_view:Create first an Query Retrieve View!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView'
             },
             dcmRejectionNoteCode:{
                 key:'dcmRejectionNoteCode',
                 labelKey:'{dcmRejectionNoteLabel}',
-                msg:$localize `:@@dynamic_formater.rejection_note:Create first an Rejection Note!`,
+                msg:$localize `:@@dynamic_formatter.rejection_note:Create first an Rejection Note!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmRejectionNote'
             },
             dcmuiDeviceURLObject:{
                 key:'dcmuiDeviceURLName',
                 labelKey:'{dcmuiDeviceURLName}',
-                msg:$localize `:@@dynamic_formater.ui _device_url:Create first an UI Device URL!`,
+                msg:$localize `:@@dynamic_formatter.ui _device_url:Create first an UI Device URL!`,
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiDeviceURLObject'
             },
             dcmuiDeviceClusterObject:{
                 key:'dcmuiDeviceClusterName',
                 labelKey:'{dcmuiDeviceClusterName}',
-                msg:$localize `:@@dynamic_formater.ui_device_cluster:Create first an UI Device Cluster!`,
+                msg:$localize `:@@dynamic_formatter.ui_device_cluster:Create first an UI Device Cluster!`,
                 pathInDevice:'dcmDevice.dcmuiConfig["0"].dcmuiDeviceClusterObject'
             },
             dcmuiElasticsearchConfig:{
                 key:'dcmuiElasticsearchURLName',
                 labelKey:'{dcmuiElasticsearchURLName}',
-                msg:$localize `:@@dynamic_formater.ui_elasticsearch_url:Create first an UI Elasticsearch URL!`,
+                msg:$localize `:@@dynamic_formatter.ui_elasticsearch_url:Create first an UI Elasticsearch URL!`,
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiElasticsearchConfig[0].dcmuiElasticsearchURLObjects'
             },
             dcmKeycloakServer:{
                 key:'dcmKeycloakServerID',
                 labelKey:'{dcmKeycloakServerID}',
-                msg:$localize `:@@dynamic_formater.keycloak_server:Create first an Keycloak Server!`,
+                msg:$localize `:@@dynamic_formatter.keycloak_server:Create first an Keycloak Server!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmKeycloakServer'
             }
 /*            dicomDeviceName:{
@@ -1312,7 +1312,7 @@ export class Globalvar {
                     filterKey:"ExpirationState",
                     showStar:true,
                     options:[
-                        new SelectDropdown("UPDATEABLE", $localize `:@@UPDATEABLE:UPDATEABLE`),
+                        new SelectDropdown("UPDATABLE", $localize `:@@UPDATABLE:UPDATABLE`),
                         new SelectDropdown("FROZEN", $localize `:@@FROZEN:FROZEN`),
                         new SelectDropdown("REJECTED", $localize `:@@REJECTED:REJECTED`),
                         new SelectDropdown("EXPORT_SCHEDULED", $localize `:@@EXPORT_SCHEDULED:EXPORT_SCHEDULED`),

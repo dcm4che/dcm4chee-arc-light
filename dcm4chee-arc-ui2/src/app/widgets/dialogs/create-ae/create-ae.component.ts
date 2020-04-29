@@ -320,7 +320,7 @@ export class CreateAeComponent implements OnInit{
                     }
                 }else{
                     if(this.dicomConnectionns.length === 0){
-                        this.mainservice.showError($localize `:@@create-ae.no_dicom_connecion:No DICOM connection found!`);
+                        this.mainservice.showError($localize `:@@create-ae.no_dicom_connection:No DICOM connection found!`);
                         this.cfpLoadingBar.complete();
                         return;
                     }else{

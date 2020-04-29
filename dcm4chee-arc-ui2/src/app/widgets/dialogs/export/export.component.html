@@ -5,7 +5,7 @@
         <p *ngIf="count && mode==='multiple'">{{count}} <ng-container i18n="@@export.studies_selected_to_be_retrieved">studies selected to be retrieved</ng-container></p>
         <div class="content" *ngIf="mode === 'multipleExport'">
             <label *ngIf="noDicomExporters.length === 0" class="text-danger">
-                <input type="radio" name="exportType" value="nonedicom" DISABLED> <ng-container i18n="@@export.create_frist_exporter">Create first an exporter!</ng-container>
+                <input type="radio" name="exportType" value="nonedicom" DISABLED> <ng-container i18n="@@export.create_first_exporter">Create first an exporter!</ng-container>
             </label>
             <ng-container *ngIf="noDicomExporters.length > 0">
                 <div class="noneDicomBlock">

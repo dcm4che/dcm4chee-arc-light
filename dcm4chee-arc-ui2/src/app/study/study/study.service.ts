@@ -2175,7 +2175,7 @@ export class StudyService {
                                     action: "toggle_instances"
                                 }, e);
                             },
-                            title: $localize `:@@study.show_instaces:Show Instaces`,
+                            title: $localize `:@@study.show_instances:Show Instances`,
                             showIf: (e) => {
                                 return !e.showInstances
                             },
