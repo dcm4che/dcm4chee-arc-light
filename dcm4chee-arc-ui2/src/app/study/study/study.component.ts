@@ -1265,26 +1265,32 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     openViewer(model, mode){
         try {
             let token;
-            let target;
             let url;
+            const target = this.studyWebService.selectedWebService['IID_URL_TARGET'] || '';
             let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
+            let studyUID = this.service.getStudyInstanceUID(model) || "";
+            let patientID = this.service.getPatientId(model);
+            let patientBirthDate = _.get(model, "00100030.Value.0");
+            let accessionNumber = _.get(model, "00080050.Value.0");
+            let replaceDoubleBraces = (url, result) => {
+                return url.replace(/{{(.+?)}}/g, (_, g1) => {
+                    console.log("g1",g1);
+                    return result[g1] == null ? g1 : result[g1]
+                })
+            };
+            let substitutions;
             this.service.getTokenService(this.studyWebService).subscribe((response) => {
                 if (!this.appService.global.notSecure) {
                     token = response.token;
                 }
-                url = configuredUrlString.replace(/(\?|&)(\w*)=(\{\}|_self|_blank)/g, (match, p1, p2, p3, offset, string) => {
-                    switch (p2) {
-                        case "studyUID":
-                            return `${p1}${p2}=${model['0020000D'].Value[0]}`;
-                        case "patientID":
-                            return `${p1}${p2}=${this.service.getPatientId(model)}`;
-                        case "access_token":
-                            return `${p1}${p2}=${token}`;
-                        case "target":
-                            target = `${p3}`;
-                            return "";
-                    }
-                }).trim();
+                substitutions = {
+                    "patientID": patientID,
+                    "patientBirthDate":patientBirthDate,
+                    "studyUID": studyUID,
+                    "accessionNumber": accessionNumber,
+                    "access_token": token
+                };
+                url = replaceDoubleBraces(configuredUrlString, substitutions).trim();
                 console.log("Prepared URL: ", url);
                 console.groupEnd();
                 if (target) {
@@ -3594,7 +3600,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     webApp.dicomAETitleObject = aet;
                                 }
                             });
-                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL','IID_PATIENT_URL']);
+                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET']);
                             return webApp;
                         }),
                         selectedWebService:_.get(this.studyWebService,"selectedWebService")
