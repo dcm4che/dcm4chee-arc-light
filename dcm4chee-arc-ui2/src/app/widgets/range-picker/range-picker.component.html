@@ -178,7 +178,7 @@
             </div>
             <ul class="interval" *ngIf="!onlySingleMode">
                 <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')" i18n="@@between">Between</li>
-                <li *ngIf="onlyTime" class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')" i18n="@@specific_time">Specific Time</li>
+                <li *ngIf="onlyTime" class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')" i18n-title="@@specific_time" title="Specific Time" i18n="@@spec_time">Spec. Time</li>
                 <li *ngIf="!onlyTime" class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')" i18n="@@single_date">Single Date</li>
                 <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')" i18n="@@after">After</li>
                 <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')" i18n="@@before">Before</li>
