@@ -67,10 +67,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -105,7 +103,10 @@ class ImportReportService extends DefaultHL7Service {
             try {
                 importReport(hl7App, s, msg);
             } catch (Exception e) {
-                throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.ApplicationRecordLocked)
+                                .setUserMessage(e.getMessage()));
             }
         }
         return archiveHL7Message;
@@ -205,32 +206,28 @@ class ImportReportService extends DefaultHL7Service {
     }
 
     private void store(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-                       Attributes attrs) {
+                       Attributes attrs) throws Exception {
         try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
             StoreContext ctx = storeService.newStoreContext(session);
             ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
             ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
             ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             storeService.store(ctx, attrs);
-        } catch (IOException e) {
-            LOG.info("Exception caught on storing imported report from ORU^R01 {}. \n", msg, e);
         }
     }
 
     private void processHL7ORUAction(
             ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-            Attributes attrs) {
-        Stream.of(arcHL7App.hl7ORUAction())
-                .forEach(action -> {
-                    if (action == HL7ORUAction.IMPORT_REPORT)
-                        store(arcHL7App, s, ae, msg, attrs);
-                    else
-                        procedureService.updateMWLStatus(attrs.getString(Tag.StudyInstanceUID), SPSStatus.COMPLETED);
-                });
+            Attributes attrs) throws Exception {
+        for (HL7ORUAction action : arcHL7App.hl7ORUAction())
+            if (action == HL7ORUAction.IMPORT_REPORT)
+                store(arcHL7App, s, ae, msg, attrs);
+            else
+                procedureService.updateMWLStatus(attrs.getString(Tag.StudyInstanceUID), SPSStatus.COMPLETED);
     }
 
     private void mstore(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-                        Attributes attrs, List<String> suids) {
+                        Attributes attrs, List<String> suids) throws Exception {
         int n = suids.size();
         Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
         for (String suid : suids)
