@@ -1537,22 +1537,6 @@
       "default": false
     }
   },
-  "only-stgcmt": {
-    "name": "only-stgcmt",
-    "in": "query",
-    "description": "Only enable storage commitment without export",
-    "schema": {
-      "type": "boolean"
-    }
-  },
-  "only-ian": {
-    "name": "only-ian",
-    "in": "query",
-    "description": "Only enable Instance Availability Notification without export",
-    "schema": {
-      "type": "boolean"
-    }
-  },
   "merge": {
     "name": "merge",
     "in": "query",

@@ -49,12 +49,10 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
-import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +61,6 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -96,22 +93,8 @@ public class ExporterRS {
     @Inject
     private ExporterFactory exporterFactory;
 
-    @Inject
-    private IANScheduler ianScheduler;
-
-    @Inject
-    private StgCmtSCU stgCmtSCU;
-
     @PathParam("AETitle")
     private String aet;
-
-    @QueryParam("only-stgcmt")
-    @Pattern(regexp = "true|false")
-    private String onlyStgCmt;
-
-    @QueryParam("only-ian")
-    @Pattern(regexp = "true|false")
-    private String onlyIAN;
 
     @QueryParam("batchID")
     private String batchID;
@@ -155,8 +138,6 @@ public class ExporterRS {
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
-        boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
-        boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (arcDev == null)
             return errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
@@ -164,22 +145,9 @@ public class ExporterRS {
 
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter != null) {
-            if (bOnlyIAN && exporter.getIanDestinations().length == 0)
-                return errResponse("No IAN Destinations configured", Response.Status.NOT_FOUND);
-
-            if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
-                return errResponse("No Storage Commitment SCP configured", Response.Status.NOT_FOUND);
-
             try {
-                if (bOnlyIAN || bOnlyStgCmt) {
-                    ExportContext ctx = createExportContext(studyUID, seriesUID, objectUID, exporter);
-                    if (bOnlyIAN)
-                        ianScheduler.scheduleIAN(ctx, exporter);
-                    if (bOnlyStgCmt)
-                        stgCmtSCU.scheduleStorageCommit(ctx, exporter);
-                } else
-                    exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
-                            HttpServletRequestInfo.valueOf(request), batchID, studyUID);
+                exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
+                        HttpServletRequestInfo.valueOf(request), batchID, studyUID);
             } catch (QueueSizeLimitExceededException e) {
                 return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
             } catch (Exception e) {
@@ -192,12 +160,6 @@ public class ExporterRS {
         URI exportURI = toDicomURI(exporterID);
         if (exportURI == null)
             return errResponse("Export destination should start with dicom:", Response.Status.NOT_FOUND);
-        if (bOnlyStgCmt)
-            return errResponse(
-                    "only-stgcmt=true not allowed with exporterID: " + exporterID, Response.Status.BAD_REQUEST);
-        if (bOnlyIAN)
-            return errResponse(
-                    "only-ian=true not allowed with exporterID: " + exporterID, Response.Status.BAD_REQUEST);
 
         try {
             RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(

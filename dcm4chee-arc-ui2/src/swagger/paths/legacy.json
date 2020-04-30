@@ -14,12 +14,6 @@
           "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
-        },
-        {
           "$ref": "../parameters.json#/filter"
         },
         {
@@ -172,12 +166,6 @@
           "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
-        },
-        {
           "$ref": "../parameters.json#/filter"
         },
         {
@@ -278,12 +266,6 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
-        },
-        {
           "$ref": "../parameters.json#/filter"
         },
         {
@@ -379,12 +361,6 @@
         },
         {
           "$ref": "../parameters.json#/ExporterIDPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -485,12 +461,6 @@
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -594,12 +564,6 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/only-stgcmt"
-        },
-        {
-          "$ref": "../parameters.json#/only-ian"
         },
         {
           "$ref": "../parameters.json#/filter"

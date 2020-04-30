@@ -53,14 +53,12 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
-import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,20 +98,6 @@ class ExportMatching {
 
     @Inject
     private ExporterFactory exporterFactory;
-
-    @Inject
-    private IANScheduler ianScheduler;
-
-    @Inject
-    private StgCmtSCU stgCmtSCU;
-
-    @QueryParam("only-stgcmt")
-    @Pattern(regexp = "true|false")
-    private String onlyStgCmt;
-
-    @QueryParam("only-ian")
-    @Pattern(regexp = "true|false")
-    private String onlyIAN;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -200,16 +184,6 @@ class ExportMatching {
             if (exporter == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
 
-            boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
-            if (bOnlyIAN && exporter.getIanDestinations().length == 0)
-                return errResponse(Response.Status.NOT_FOUND,
-                        "No IAN Destinations configured in Exporter: " + exporterID);
-
-            boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
-            if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
-                return errResponse(Response.Status.NOT_FOUND,
-                        "No Storage Commitment SCP configured in Exporter: " + exporterID);
-
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
             String warning = null;
             int count = 0;
@@ -222,14 +196,7 @@ class ExportMatching {
                         if (match == null)
                             continue;
 
-                        if (bOnlyIAN || bOnlyStgCmt) {
-                            ExportContext exportContext = createExportContext(aet, match, qrlevel, exporter);
-                            if (bOnlyIAN)
-                                ianScheduler.scheduleIAN(exportContext, exporter);
-                            if (bOnlyStgCmt)
-                                stgCmtSCU.scheduleStorageCommit(exportContext, exporter);
-                        } else
-                            scheduleExportTask(exporter, match, qrlevel);
+                        scheduleExportTask(exporter, match, qrlevel);
                         count++;
                     }
                 } catch (QueueSizeLimitExceededException e) {
