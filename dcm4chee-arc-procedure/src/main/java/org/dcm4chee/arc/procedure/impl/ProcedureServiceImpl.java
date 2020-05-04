@@ -161,7 +161,7 @@ public class ProcedureServiceImpl implements ProcedureService {
             ProcedureContext pCtx = createProcedureContextAssociation(ctx.getAssociation());
             mppsStatus = mppsStatus.equals("IN PROGRESS") ? SPSStatus.STARTED.toString() : mppsStatus;
             pCtx.setPatient(mergedMPPS.getPatient());
-            pCtx.setStudyInstanceUID(ssaAttr.getString(Tag.StudyInstanceUID));
+            pCtx.setAttributes(ssaAttr);
             if (ssaAttr.getString(Tag.ScheduledProcedureStepID) != null) {
                 try {
                     ejb.updateSPSStatus(pCtx, mppsStatus);
