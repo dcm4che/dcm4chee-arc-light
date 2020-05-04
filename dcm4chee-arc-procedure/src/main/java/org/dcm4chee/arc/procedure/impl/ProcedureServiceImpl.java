@@ -152,19 +152,19 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     public void onMPPS(@Observes MPPSContext ctx) {
-        Attributes attr = ctx.getAttributes();
-        String mppsStatus = attr.getString(Tag.PerformedProcedureStepStatus);
+        String mppsStatus = ctx.getAttributes().getString(Tag.PerformedProcedureStepStatus);
         if (mppsStatus != null) {
             MPPS mergedMPPS = ctx.getMPPS();
             Attributes mergedMppsAttr = mergedMPPS.getAttributes();
             Attributes ssaAttr = mergedMppsAttr.getNestedDataset(Tag.ScheduledStepAttributesSequence);
             ProcedureContext pCtx = createProcedureContextAssociation(ctx.getAssociation());
-            mppsStatus = mppsStatus.equals("IN PROGRESS") ? SPSStatus.STARTED.toString() : mppsStatus;
             pCtx.setPatient(mergedMPPS.getPatient());
             pCtx.setAttributes(ssaAttr);
+            pCtx.setSpsStatus(mppsStatus.equals("IN PROGRESS") ? SPSStatus.STARTED : SPSStatus.valueOf(mppsStatus));
+            pCtx.setMppsUID(mergedMPPS.getSopInstanceUID());
             if (ssaAttr.getString(Tag.ScheduledProcedureStepID) != null) {
                 try {
-                    ejb.updateSPSStatus(pCtx, mppsStatus);
+                    ejb.updateSPSStatus(pCtx);
                 } catch (RuntimeException e) {
                     pCtx.setException(e);
                     LOG.warn(e.getMessage());

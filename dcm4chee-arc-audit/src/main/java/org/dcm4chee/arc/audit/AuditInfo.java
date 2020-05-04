@@ -87,6 +87,7 @@ class AuditInfo {
     static final int EXPIRATION_DATE = 36;
     static final int FIND_SCP = 37;
     static final int QUEUE_NAME = 38;
+    static final int STATUS = 39;
 
     private final String[] fields;
 
@@ -130,7 +131,8 @@ class AuditInfo {
                 String.valueOf(i.failed),
                 i.expirationDate,
                 i.findSCP,
-                i.queueName
+                i.queueName,
+                i.status
         };
     }
 

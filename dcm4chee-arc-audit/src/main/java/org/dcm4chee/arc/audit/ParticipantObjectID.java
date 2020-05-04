@@ -149,6 +149,7 @@ class ParticipantObjectID {
             AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);
+        instanceInfo.addMpps(auditInfo);
 
         boolean hasPatient = auditInfo.getField(AuditInfo.P_ID) != null;
         ParticipantObjectIdentificationBuilder[] studyPatParticipants

@@ -76,6 +76,8 @@ class ProcedureRecordAuditService {
                 .callingHost(procCtx.getRemoteHostName())
                 .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
                 .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
+                .mppsUID(procCtx.getMppsUID())
+                .status(procCtx.getStatus())
                 .outcome(outcome(procCtx.getException()));
     }
 

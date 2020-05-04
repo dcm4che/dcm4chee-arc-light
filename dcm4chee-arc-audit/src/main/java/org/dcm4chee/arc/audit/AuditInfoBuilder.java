@@ -93,6 +93,7 @@ class AuditInfoBuilder {
     final int failed;
     final String expirationDate;
     final String queueName;
+    final String status;
 
     static class Builder {
         private String callingHost;
@@ -134,6 +135,7 @@ class AuditInfoBuilder {
         private int failed;
         private String expirationDate;
         private String queueName;
+        private String status;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -306,6 +308,10 @@ class AuditInfoBuilder {
             queueName = val;
             return this;
         }
+        Builder status(String val) {
+            status = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -351,6 +357,7 @@ class AuditInfoBuilder {
         failed = builder.failed;
         expirationDate = builder.expirationDate;
         queueName = builder.queueName;
+        status = builder.status;
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

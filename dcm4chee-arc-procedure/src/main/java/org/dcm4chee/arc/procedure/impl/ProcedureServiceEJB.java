@@ -245,15 +245,15 @@ public class ProcedureServiceEJB {
         return mwlItems.size();
     }
 
-    public void updateSPSStatus(ProcedureContext ctx, String status) {
+    public void updateSPSStatus(ProcedureContext ctx) {
         List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (MWLItem mwl : mwlItems) {
             Attributes mwlAttrs = mwl.getAttributes();
             Attributes spsItemMWL = mwlAttrs
                     .getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(status)) {
-                spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, status);
+            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(ctx.getSpsStatus().name())) {
+                spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus().name());
                 mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }

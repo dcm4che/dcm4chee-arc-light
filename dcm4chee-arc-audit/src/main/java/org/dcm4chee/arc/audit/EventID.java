@@ -118,6 +118,7 @@ class EventID {
             Patient.VerificationStatus patVerificationStatus = patVerStatus != null
                     ? Patient.VerificationStatus.valueOf(patVerStatus) : null;
             String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+            String status = auditInfo.getField(AuditInfo.STATUS);
 
             this.eventTypeCode = patMismatchCode != null
                     ? patMismatchEventTypeCode(auditInfo) : eventType.eventTypeCode;
@@ -134,10 +135,14 @@ class EventID {
                     : outcome != null
                         ? patVerificationStatus != null
                             ? patVerificationStatus.name() + " " + outcome
-                            : outcome
+                            : status != null
+                                ? status + " " + outcome
+                                : outcome
                         : patVerificationStatus != null
                             ? patVerificationStatus.name()
-                            : auditInfo.getField(AuditInfo.WARNING);
+                            : status != null
+                                ? status
+                                : auditInfo.getField(AuditInfo.WARNING);
         }
 
         private AuditMessages.EventTypeCode patMismatchEventTypeCode(AuditInfo auditInfo) {
