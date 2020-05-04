@@ -316,6 +316,38 @@ export class j4care {
             return null;
         }
     }
+    static createDateFromDuration(durationObject){
+        let today = new Date();
+        let newDate = new Date();
+        Object.keys(durationObject).forEach(key => {
+            if(durationObject[key]){
+                switch (key){
+                    case 'Week':
+                        newDate.setDate(today.getDate()-(7*durationObject[key]));
+                        break;
+                    case 'FullYear':
+                        newDate.setFullYear(today.getFullYear()-durationObject[key]);
+                        break;
+                    case 'Date':
+                        newDate.setDate(today.getDate()-durationObject[key]);
+                        break;
+                    case 'Hours':
+                        newDate.setHours(today.getHours()-durationObject[key]);
+                        break;
+                    case 'Minutes':
+                        newDate.setMinutes(today.getMinutes()-durationObject[key]);
+                        break;
+                    case 'Month':
+                        newDate.setMonth(today.getMonth()-durationObject[key]);
+                        break;
+                    case 'Seconds':
+                        newDate.setSeconds(today.getSeconds()-durationObject[key]);
+                        break;
+                }
+            }
+        });
+        return newDate;
+    }
     static getSingleDateTimeValueFromInt(value){
         if(value)
             if(value < 10)

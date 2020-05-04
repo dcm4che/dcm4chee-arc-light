@@ -1273,9 +1273,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let patientBirthDate = _.get(model, "00100030.Value.0");
             let accessionNumber = _.get(model, "00080050.Value.0");
             let replaceDoubleBraces = (url, result) => {
-                return url.replace(/{{(.+?)}}/g, (_, g1) => {
-                    console.log("g1",g1);
-                    return result[g1] == null ? g1 : result[g1]
+                return url.replace(/{{(currentDateTime-)?(.+?)}}/g, (match, g1, g2) => {
+                    if(g1){
+                        return j4care.formatDate(j4care.createDateFromDuration(j4care.extractDurationFromValue(g2)),"yyyy-MM-dd");
+                    }else{
+                        return result[g2] == null ? g2 : result[g2];
+                    }
                 })
             };
             let substitutions;
