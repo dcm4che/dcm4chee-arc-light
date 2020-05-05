@@ -20,6 +20,7 @@
             "outputPath": "target/webapp",
             "index": "src/index.html",
             "main": "src/main.ts",
+            "crossOrigin": "use-credentials",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": false,
@@ -105,7 +106,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "dcm4chee-arc-ui2:build"
+            "browserTarget": "dcm4chee-arc-ui2:build",
+            "crossOrigin": "use-credentials"
           },
           "configurations": {
             "production": {
