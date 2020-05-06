@@ -57,6 +57,8 @@ import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.NoSuchFileException;
@@ -75,6 +77,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class CloudStorage extends AbstractStorage {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CloudStorage.class);
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
@@ -130,6 +133,11 @@ public class CloudStorage extends AbstractStorage {
         ctxBuilder.overrides(overrides);
         ctxBuilder.modules(Collections.singleton(new SLF4JLoggingModule()));
         context = ctxBuilder.buildView(BlobStoreContext.class);
+    }
+
+    @Override
+    protected Logger log() {
+        return LOG;
     }
 
     @Override

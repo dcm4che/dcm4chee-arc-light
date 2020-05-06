@@ -40,8 +40,10 @@
 
 package org.dcm4chee.arc.storage;
 
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.security.DigestInputStream;
@@ -111,11 +113,32 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         checkAccessable();
-        long startTime = System.nanoTime();
-        OutputStream stream = openOutputStreamA(ctx);
+        long startTime0 = System.nanoTime();
+        OutputStream stream;
+        int retries = descriptor.getMaxRetries();
+        Duration retryDelay = descriptor.getRetryDelay();
+        for (;;) {
+            try {
+                stream = openOutputStreamA(ctx);
+                break;
+            } catch (IOException e) {
+                if (--retries < 0)
+                    throw e;
+                log().info("Failed to open {} for writing at {} - retry:\n", ctx.getStoragePath(), descriptor, e);
+                if (retryDelay != null) {
+                    try {
+                        Thread.sleep(retryDelay.getSeconds());
+                    } catch (InterruptedException ie) {
+                        log().info("Delay of retry got interrupted:\n", ie);
+                    }
+                }
+                startTime0 = System.nanoTime();
+            }
+        }
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
         }
+        long startTime = startTime0;
         return new FilterOutputStream(new BufferedOutputStream(stream)) {
             @Override
             public void write(int b) throws IOException {
@@ -159,10 +182,28 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public void copy(InputStream in, WriteContext ctx) throws IOException {
         checkAccessable();
-        long startTime = System.nanoTime();
-        copyA(in, ctx);
-        metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
-                ctx.getContentLength(), startTime);
+        int retries = descriptor.getMaxRetries();
+        Duration retryDelay = descriptor.getRetryDelay();
+        for (;;) {
+            try {
+                long startTime = System.nanoTime();
+                copyA(in, ctx);
+                metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
+                        ctx.getContentLength(), startTime);
+                return;
+            } catch (IOException e) {
+                if (--retries < 0)
+                    throw e;
+                log().info("Failed to copy stream to {} at {} - retry:\n", ctx.getStoragePath(), descriptor, e);
+                if (retryDelay != null) {
+                    try {
+                        Thread.sleep(retryDelay.getSeconds());
+                    } catch (InterruptedException ie) {
+                        log().info("Delay of retry got interrupted:\n", ie);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -187,6 +228,8 @@ public abstract class AbstractStorage implements Storage {
     public long getTotalSpace() throws IOException {
         return -1L;
     }
+
+    protected abstract Logger log();
 
     protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;
 

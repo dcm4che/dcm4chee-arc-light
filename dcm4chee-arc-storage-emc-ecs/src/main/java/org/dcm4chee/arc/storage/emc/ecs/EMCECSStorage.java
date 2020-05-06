@@ -57,6 +57,8 @@ import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URI;
@@ -73,6 +75,7 @@ public class EMCECSStorage extends AbstractStorage {
 
     public static final String PROPERTY_URL_CONNECTION_CLIENT_HANDLER = "emc-ecs-s3.URLConnectionClientHandler";
 
+    private static final Logger LOG = LoggerFactory.getLogger(EMCECSStorage.class);
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
@@ -109,6 +112,11 @@ public class EMCECSStorage extends AbstractStorage {
                 Boolean.parseBoolean(descriptor.getProperty(PROPERTY_URL_CONNECTION_CLIENT_HANDLER, null))
                         ? new URLConnectionClientHandler()
                         : null);
+    }
+
+    @Override
+    protected Logger log() {
+        return LOG;
     }
 
     @Override

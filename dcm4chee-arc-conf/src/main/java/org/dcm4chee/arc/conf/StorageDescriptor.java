@@ -60,6 +60,8 @@ public final class StorageDescriptor {
     private String storageURIStr;
     private URI storageURI;
     private String digestAlgorithm;
+    private int maxRetries;
+    private Duration retryDelay;
     private Availability instanceAvailability = Availability.ONLINE;
     private String storageClusterID;
     private String exportStorageID;
@@ -125,6 +127,22 @@ public final class StorageDescriptor {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException("No such algorithm: " + algorithm);
         }
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public Duration getRetryDelay() {
+        return retryDelay;
+    }
+
+    public void setRetryDelay(Duration retryDelay) {
+        this.retryDelay = retryDelay;
     }
 
     public Availability getInstanceAvailability() {

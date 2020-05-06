@@ -2510,6 +2510,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmURI )
   MAY (
     dcmDigestAlgorithm $
+    dcmMaxRetries $
+    dcmRetryDelay $
     dcmRetrieveAET $
     dcmInstanceAvailability $
     dcmStorageClusterID $

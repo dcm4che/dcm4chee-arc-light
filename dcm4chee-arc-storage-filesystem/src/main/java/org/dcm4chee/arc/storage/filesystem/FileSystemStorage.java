@@ -93,6 +93,11 @@ public class FileSystemStorage extends AbstractStorage {
         retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "0"));
     }
 
+    @Override
+    protected Logger log() {
+        return LOG;
+    }
+
     private static Path altCreateDirectories(Path path, FileAttribute<?>... fileAttributes)
             throws IOException {
         try {
