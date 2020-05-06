@@ -469,6 +469,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
             writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince",
                     st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
+            writer.writeNotDef("dcmMaxRetries", st.getMaxRetries(), 0);
+            writer.writeNotNullOrDef("dcmRetryDelay", st.getRetryDelay(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2002,6 +2004,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDeleteStudiesNotUsedSince":
                         st.setRetentionPeriods(RetentionPeriod.DeleteStudies.NotUsedSince, reader.stringArray());
+                        break;
+                    case "dcmMaxRetries":
+                        st.setMaxRetries(reader.intValue());
+                        break;
+                    case "dcmRetryDelay":
+                        st.setRetryDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

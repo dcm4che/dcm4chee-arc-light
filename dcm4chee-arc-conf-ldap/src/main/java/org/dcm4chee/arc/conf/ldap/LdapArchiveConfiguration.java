@@ -2302,6 +2302,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.ReceivedBefore));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteStudiesNotUsedSince",
                 descriptor.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries",
+                descriptor.getMaxRetries(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay", descriptor.getRetryDelay(), null);
         return attrs;
     }
 
@@ -2342,6 +2345,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringArray(attrs.get("dcmDeleteStudiesReceivedBefore")));
                 desc.setRetentionPeriods(RetentionPeriod.DeleteStudies.NotUsedSince,
                         LdapUtils.stringArray(attrs.get("dcmDeleteStudiesNotUsedSince")));
+                desc.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
+                desc.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), null));
                 arcdev.addStorageDescriptor(desc);
             }
         } finally {
@@ -2426,6 +2431,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudiesNotUsedSince",
                 prev.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince),
                 desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries",
+                prev.getMaxRetries(), desc.getMaxRetries(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
+                prev.getRetryDelay(), desc.getRetryDelay(), null);
         return mods;
     }
 
