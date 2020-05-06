@@ -124,10 +124,10 @@ public abstract class AbstractStorage implements Storage {
             } catch (IOException e) {
                 if (--retries < 0)
                     throw e;
-                log().info("Failed to open {} for writing at {} - retry:\n", ctx.getStoragePath(), descriptor, e);
+                log().info("Failed to write to {} - retry:\n", descriptor, e);
                 if (retryDelay != null) {
                     try {
-                        Thread.sleep(retryDelay.getSeconds());
+                        Thread.sleep(retryDelay.getSeconds() * 1000);
                     } catch (InterruptedException ie) {
                         log().info("Delay of retry got interrupted:\n", ie);
                     }
@@ -194,10 +194,10 @@ public abstract class AbstractStorage implements Storage {
             } catch (IOException e) {
                 if (--retries < 0)
                     throw e;
-                log().info("Failed to copy stream to {} at {} - retry:\n", ctx.getStoragePath(), descriptor, e);
+                log().info("Failed to write to {} - retry:\n", descriptor, e);
                 if (retryDelay != null) {
                     try {
-                        Thread.sleep(retryDelay.getSeconds());
+                        Thread.sleep(retryDelay.getSeconds() * 1000);
                     } catch (InterruptedException ie) {
                         log().info("Delay of retry got interrupted:\n", ie);
                     }
