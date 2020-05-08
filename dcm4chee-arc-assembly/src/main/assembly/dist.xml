@@ -56,11 +56,17 @@
         <include>cli/add-data-source-${db}.cli</include>
         <include>cli/add-jms-queues.cli</include>
         <include>configuration/dcm4chee-arc/ldap.properties</include>
-        <include>ldap/**</include>
         <include>rs/**</include>
       </includes>
       <lineEnding>dos</lineEnding>
-      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/main/resources</directory>
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>ldap/**</include>
+      </includes>
+      <lineEnding>unix</lineEnding>
     </fileSet>
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
@@ -102,7 +108,6 @@
     <dependencySet>
       <outputDirectory>.</outputDirectory>
       <includes>
-        <include>org.dcm4che:dcm4che-conf-ldap-schema</include>
         <include>org.dcm4che.dcm4chee-arc:dcm4chee-arc-entity</include>
       </includes>
       <unpack>true</unpack>
@@ -111,6 +116,20 @@
           <exclude>META-INF/**</exclude>
         </excludes>
         <lineEnding>dos</lineEnding>
+      </unpackOptions>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>org.dcm4che:dcm4che-conf-ldap-schema</include>
+      </includes>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>META-INF/**</exclude>
+        </excludes>
+        <lineEnding>unix</lineEnding>
       </unpackOptions>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
