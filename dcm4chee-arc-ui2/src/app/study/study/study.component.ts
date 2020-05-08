@@ -2169,7 +2169,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     series.instances = [];
                     if (series.moreInstances = (series.instances.length > this._filter.filterModel.limit)) {
                         series.instances.pop();
-                        this.appService.showMsg($localize `:@@study.no_matching_instances:No matching Instancess found!`);
+                        this.appService.showMsg($localize `:@@study.no_matching_instances:No matching Instances found!`);
                     }
                 }
                 this.cfpLoadingBar.complete();

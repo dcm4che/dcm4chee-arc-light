@@ -106,8 +106,8 @@ export class StorageSystemsService {
                             type:"number",
                             min:1,
                             filterKey:"usableSpaceBelow",
-                            placeholder:$localize `:@@storage-systems.usablespace_below:Usablespace below`,
-                            title:$localize `:@@storage-systems.usablespace_below:Usablespace below`
+                            placeholder:$localize `:@@storage-systems.usablespace_below:UsableSpace below`,
+                            title:$localize `:@@storage-systems.usablespace_below:UsableSpace below`
                         },
                         secondField:{
                             tag:"select",
