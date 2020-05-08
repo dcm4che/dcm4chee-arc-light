@@ -81,6 +81,10 @@ public interface ProcedureContext {
 
     void setException(Exception exception);
 
+    String getOutcomeMsg();
+
+    void setOutcomeMsg(String outcomeMsg);
+
     void setStudyInstanceUID(String studyUID);
 
     Association getAssociation();

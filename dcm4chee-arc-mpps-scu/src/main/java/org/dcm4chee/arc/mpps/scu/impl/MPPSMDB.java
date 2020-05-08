@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.mpps.scu.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Dimse;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -88,11 +90,21 @@ public class MPPSMDB implements MessageListener {
                     msg.getStringProperty("RemoteAET"),
                     Dimse.valueOf(msg.getStringProperty("DIMSE")),
                     msg.getStringProperty("SOPInstanceUID"),
-                    attrs);
+                    attrs,
+                    procAttrs(msg));
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
+    }
+
+    private Attributes procAttrs(Message msg) throws JMSException {
+        Attributes procAttrs = new Attributes(4);
+        procAttrs.setString(Tag.AccessionNumber, VR.SH, msg.getStringProperty("AccessionNumber"));
+        procAttrs.setString(Tag.StudyInstanceUID, VR.UI, msg.getStringProperty("StudyInstanceUID"));
+        procAttrs.setString(Tag.PatientName, VR.PN, msg.getStringProperty("PatientName"));
+        procAttrs.setString(Tag.PatientID, VR.LO, msg.getStringProperty("PatientID"));
+        return procAttrs;
     }
 }

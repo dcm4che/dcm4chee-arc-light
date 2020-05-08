@@ -51,6 +51,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -72,13 +73,14 @@ class ProcedureRecordAuditService {
 
     ProcedureRecordAuditService(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
         procCtx = ctx;
+        Patient patient = procCtx.getPatient();
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(procCtx.getRemoteHostName())
                 .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
-                .pIDAndName(procCtx.getPatient().getAttributes(), arcDev)
+                .pIDAndName(patient != null ? patient.getAttributes() : ctx.getAttributes(), arcDev)
                 .mppsUID(procCtx.getMppsUID())
                 .status(procCtx.getStatus())
-                .outcome(outcome(procCtx.getException()));
+                .outcome(procCtx.getOutcomeMsg() != null ? procCtx.getOutcomeMsg() : outcome(procCtx.getException()));
     }
 
     ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {

@@ -71,6 +71,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Attributes attributes;
     private String eventActionCode;
     private Exception exception;
+    private String outcomeMsg;
     private String spsID;
     private SPSStatus spsStatus;
     private Association as;
@@ -155,6 +156,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public String getOutcomeMsg() {
+        return outcomeMsg;
+    }
+
+    @Override
+    public  void setOutcomeMsg(String outcomeMsg) {
+        this.outcomeMsg = outcomeMsg;
     }
 
     @Override
