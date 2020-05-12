@@ -44,6 +44,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
@@ -202,13 +203,16 @@ class AuditUtils {
             StoreSession storeSession = ctx.getStoreSession();
             boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
                                                         && storeSession.getHttpRequest() == null;
-            return ctx.getStoredInstance().getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
+            Instance storedInstance = ctx.getStoredInstance();
+            Instance previousInstance = ctx.getPreviousInstance();
+            return storedInstance.getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
+                    || (previousInstance != null
+                            && previousInstance.getSopInstanceUID().equals(storedInstance.getSopInstanceUID())
+                            && previousInstance.getSeries().getStudy().getPk() != storedInstance.getSeries().getStudy().getPk())
                     ? isSchedulerDeletedExpiredStudies
-                        ? PRMDLT_SCH
-                        : RJ_COMPLET
+                        ? PRMDLT_SCH : RJ_COMPLET
                     : isSchedulerDeletedExpiredStudies
-                        ? RJ_SCH_FEW
-                        : RJ_PARTIAL;
+                        ? RJ_SCH_FEW : RJ_PARTIAL;
         }
 
         static EventType forStudyDeleted(StudyDeleteContext ctx) {

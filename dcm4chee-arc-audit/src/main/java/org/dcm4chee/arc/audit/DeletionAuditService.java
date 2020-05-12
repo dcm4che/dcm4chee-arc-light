@@ -47,6 +47,7 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -67,39 +68,51 @@ class DeletionAuditService {
 
     static AuditInfoBuilder[] instancesDeletedAuditInfo(StoreContext ctx, ArchiveDeviceExtension arcDev) {
         StoreSession storeSession = ctx.getStoreSession();
-        Attributes attr = ctx.getAttributes();
         boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
                 && storeSession.getHttpRequest() == null;
 
-        AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(attr, arcDev)
-                .pIDAndName(attr, arcDev)
-                .outcome(outcome(ctx))
-                .warning(warning(ctx));
-
         List<AuditInfoBuilder> auditInfoBuilders = new ArrayList<>();
         auditInfoBuilders.add(isSchedulerDeletedExpiredStudies
-                ? schedulerRejectedAuditInfo(infoBuilder, arcDev.getDevice().getDeviceName())
-                : userRejectedAuditInfo(ctx, infoBuilder));
-        buildRejectionSOPAuditInfo(auditInfoBuilders, attr);
+                ? schedulerRejectedAuditInfo(ctx, arcDev)
+                : userRejectedAuditInfo(ctx, arcDev));
+        buildRejectionSOPAuditInfo(auditInfoBuilders, ctx.getAttributes());
         return auditInfoBuilders.toArray(new AuditInfoBuilder[0]);
     }
 
-    private static AuditInfoBuilder schedulerRejectedAuditInfo(AuditInfoBuilder.Builder infoBuilder, String devName) {
-        return infoBuilder.callingUserID(devName).build();
+    private static AuditInfoBuilder schedulerRejectedAuditInfo(StoreContext ctx, ArchiveDeviceExtension arcDev) {
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(arcDev.getDevice().getDeviceName())
+                .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                .pIDAndName(ctx.getAttributes(), arcDev)
+                .outcome(outcome(ctx))
+                .warning(warning(ctx))
+                .build();
     }
 
-    private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, AuditInfoBuilder.Builder infoBuilder) {
+    private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, ArchiveDeviceExtension arcDev) {
         StoreSession storeSession = ctx.getStoreSession();
         HttpServletRequestInfo req = storeSession.getHttpRequest();
         String callingAET = storeSession.getCallingAET();
-        return infoBuilder
+        AuditInfoBuilder.Builder auditInfoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(storeSession.getRemoteHostName())
                 .callingUserID(req != null
                         ? req.requesterUserID
                         : callingAET != null
                         ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
                 .calledUserID(req != null ? req.requestURI : storeSession.getCalledAET())
+                .outcome(outcome(ctx))
+                .warning(warning(ctx));
+
+        if (ctx.getPreviousInstance() != null) {
+            Study prevStudy = ctx.getPreviousInstance().getSeries().getStudy();
+            return auditInfoBuilder.studyUIDAccNumDate(prevStudy.getAttributes(), arcDev)
+                            .pIDAndName(prevStudy.getPatient().getAttributes(), arcDev)
+                            .build();
+        }
+
+        return auditInfoBuilder
+                .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                .pIDAndName(ctx.getAttributes(), arcDev)
                 .build();
     }
 
@@ -133,6 +146,14 @@ class DeletionAuditService {
     }
 
     private static void buildRejectionSOPAuditInfo(List<AuditInfoBuilder> auditInfoBuilders, Attributes attrs) {
+        if (attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence) == null) {
+            auditInfoBuilders.add(new AuditInfoBuilder.Builder()
+                    .sopCUID(attrs.getString(Tag.SOPClassUID))
+                    .sopIUID(attrs.getString(Tag.SOPInstanceUID))
+                    .build());
+            return;
+        }
+
         attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence).forEach(studyRef ->
                 studyRef.getSequence(Tag.ReferencedSeriesSequence).forEach(seriesRef ->
                         seriesRef.getSequence(Tag.ReferencedSOPSequence).forEach(sopRef ->

@@ -56,6 +56,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
@@ -185,10 +186,10 @@ public class AuditService {
                 auditLogger);
     }
 
-    private void spoolInstancesDeleted(StoreContext ctx) {
+    private void spoolInstancesDeleted(StoreContext ctx, String suffix) {
         AuditUtils.EventType eventType = AuditUtils.EventType.forInstancesDeleted(ctx);
         try {
-            writeSpoolFile(eventType,null,
+            writeSpoolFile(eventType,suffix,
                     DeletionAuditService.instancesDeletedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.warn("Failed to spool Instances Deleted [AuditEventType={}]\n", eventType, e);
@@ -408,7 +409,7 @@ public class AuditService {
 
             RejectionNote rejectionNote = ctx.getRejectionNote();
             if (rejectionNote != null && !rejectionNote.isRevokeRejection()) {
-                spoolInstancesDeleted(ctx);
+                spoolInstancesDeleted(ctx, null);
                 return;
             }
 
@@ -472,6 +473,9 @@ public class AuditService {
                     + '-' + ctx.getStudyInstanceUID();
             suffix = outcome != null ? suffix.concat("_ERROR") : suffix;
             writeSpoolFile(AuditUtils.EventType.forInstanceStored(ctx), suffix, info, instanceInfo);
+            if (ctx.getPreviousInstance() != null
+                    && ctx.getPreviousInstance().getSopInstanceUID().equals(ctx.getStoredInstance().getSopInstanceUID()))
+                spoolInstancesDeleted(ctx, suffix);
             if (ctx.getImpaxReportPatientMismatch() != null) {
                 AuditInfoBuilder patMismatchInfo = infoBuilder
                         .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
@@ -950,6 +954,7 @@ public class AuditService {
                 try {
                     Files.createDirectories(dir);
                     Path filePath = eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
+                            || (suffix != null && eventType.eventClass == AuditUtils.EventClass.USER_DELETED)
                             ? filePath(file, dir, auditInfoBuilders)
                             : filePath(eventType, dir, auditInfoBuilders);
                     if (eventTime == null)
