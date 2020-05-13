@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -100,7 +101,7 @@ public class AuditScheduler extends Scheduler {
             if (!logger.isInstalled())
                 continue;
 
-            Path dir = auditSpoolDirPath.resolve(logger.getCommonName().replaceAll("\\W", "_"));
+            Path dir = auditSpoolDirPath.resolve(new AttributesFormat(logger.getCommonName()).toString());
             if (!Files.isDirectory(dir))
                 continue;
 
