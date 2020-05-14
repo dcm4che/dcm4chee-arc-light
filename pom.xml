@@ -60,7 +60,7 @@
     <dcm4che.version>${project.version}</dcm4che.version>
     <keycloak.version>10.0.1</keycloak.version>
     <apache-commons-csv.version>1.7</apache-commons-csv.version>
-    <jclouds.version>2.2.0</jclouds.version>
+    <jclouds.version>2.2.1</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
 
     <!-- JPA -->
