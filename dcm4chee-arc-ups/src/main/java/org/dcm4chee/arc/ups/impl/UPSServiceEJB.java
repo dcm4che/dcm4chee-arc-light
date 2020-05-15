@@ -327,6 +327,8 @@ public class UPSServiceEJB {
             throws DicomServiceException {
         UPS ups = findUPS(ctx);
         Attributes attrs = ups.getAttributes();
+        if (ctx.getMergeAttributes() != null)
+            attrs.addAll(ctx.getMergeAttributes());
         switch (upsState) {
             case IN_PROGRESS:
                 switch (ups.getProcedureStepState()) {

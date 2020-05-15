@@ -1770,6 +1770,16 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.366 NAME 'dcmDeleteStudyChunkSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.367 NAME 'dcmUPSPerformedWorkitemCode'
+  DESC 'Item of Performed Workitem Code Sequence (0040,4019) in processed UPS in format (CV, CSD, "CM").'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.368 NAME 'dcmUPSPerformedStationNameCode'
+  DESC 'Item of Performed Station Name Code Sequence (0040,4028) in processed UPS in format (CV, CSD, "CM").'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2550,6 +2560,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
     dcmUPSScheduledStationLocationCode $
+    dcmUPSPerformedWorkitemCode $
+    dcmUPSPerformedStationNameCode $
     dcmMaxThreads $
     dcmMaxRetries $
     dcmRetryDelay $

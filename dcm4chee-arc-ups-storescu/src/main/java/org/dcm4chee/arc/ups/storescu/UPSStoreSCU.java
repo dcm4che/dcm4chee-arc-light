@@ -41,28 +41,50 @@
 
 package org.dcm4chee.arc.ups.storescu;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
-import org.dcm4chee.arc.ups.process.UPSProcessingContext;
-import org.dcm4chee.arc.ups.process.UPSProcessor;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.process.AbstractUPSProcessor;
+
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Mar 2020
  */
-public class UPSStoreSCU implements UPSProcessor {
-    private final UPSProcessingRule rule;
+public class UPSStoreSCU extends AbstractUPSProcessor {
+    private final RetrieveService retrieveService;
+    private final CStoreSCU storeSCU;
+    private final String destAET;
+    private final Map<String, RetrieveTask> retrieveTaskMap;
 
-    public UPSStoreSCU(UPSProcessingRule rule) {
-        this.rule = rule;
+    public UPSStoreSCU(UPSProcessingRule rule, UPSService upsService, RetrieveService retrieveService,
+            CStoreSCU storeSCU, Map<String, RetrieveTask> retrieveTaskMap) {
+        super(rule, upsService);
+        this.retrieveService = retrieveService;
+        this.storeSCU = storeSCU;
+        this.destAET = rule.getUPSProcessorURI().getSchemeSpecificPart();
+        this.retrieveTaskMap = retrieveTaskMap;
     }
 
     @Override
-    public UPSProcessingRule getUPSProcessingRule() {
-        return rule;
-    }
-
-    @Override
-    public void process(UPSProcessingContext ctx) {
-        //TODO
+    protected void processA(Attributes ups) throws Exception {
+        for (Attributes item : ups.getSequence(Tag.InputInformationSequence)) {
+            RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
+                    rule.getAETitle(),
+                    item.getString(Tag.StudyInstanceUID),
+                    item.getString(Tag.SeriesInstanceUID),
+                    item.getSequence(Tag.ReferencedSOPSequence),
+                    destAET);
+            if (retrieveService.calculateMatches(retrieveContext)
+                    && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext)) {
+                storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
+            }
+        }
     }
 }

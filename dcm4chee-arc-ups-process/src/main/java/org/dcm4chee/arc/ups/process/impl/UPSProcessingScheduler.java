@@ -53,7 +53,6 @@ import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
-import org.dcm4chee.arc.ups.process.UPSProcessingContext;
 import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,6 +145,7 @@ public class UPSProcessingScheduler extends Scheduler {
     }
 
     private class ProcessWorkitems implements Runnable {
+        private final ArchiveAEExtension arcAE;
         private final UPSProcessor processor;
         private final QueryContext queryContext;
 
@@ -153,8 +153,9 @@ public class UPSProcessingScheduler extends Scheduler {
             ApplicationEntity ae = Objects.requireNonNull(
                     device.getApplicationEntity(rule.getAETitle(), true),
                     () -> String.format("No such Archive AE - %s", rule.getAETitle()));
+            arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
             this.processor = processorProvider.getUPSProcessor(rule);
-            QueryParam queryParam = new QueryParam(ae);
+            QueryParam queryParam = new QueryParam(arcAE);
             this.queryContext = queryService.newQueryContext(ae, queryParam);
             queryContext.setQueryKeys(getQueryKeys(rule));
             queryContext.setOrderByTags(orderByTags);
@@ -197,23 +198,17 @@ public class UPSProcessingScheduler extends Scheduler {
                         semaphore.acquire();
                         device.execute(() -> {
                             try {
-                                process(match);
+                                processor.process(arcAE, match);
                             } finally {
                                 semaphore.release();
                             }
                         });
                     } else {
-                        process(match);
+                        processor.process(arcAE, match);
                     }
                 } while (query.hasMoreMatches());
             }
             return true;
-        }
-
-        private void process(Attributes match) {
-            UPSProcessingContext ctx = new UPSProcessingContext();
-            processor.process(ctx);
-            //TODO
         }
     }
 }

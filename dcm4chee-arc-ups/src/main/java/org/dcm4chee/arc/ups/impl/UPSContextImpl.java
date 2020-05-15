@@ -70,6 +70,7 @@ public class UPSContextImpl implements UPSContext {
     private final Socket socket;
     private final Patient patient;
     private Attributes attributes;
+    private Attributes mergeAttributes;
     private String upsInstanceUID;
     private String requesterAET;
     private String subscriberAET;
@@ -210,6 +211,16 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public void setAttributes(Attributes attributes) {
         this.attributes = attributes;
+    }
+
+    @Override
+    public Attributes getMergeAttributes() {
+        return mergeAttributes;
+    }
+
+    @Override
+    public void setMergeAttributes(Attributes mergeAttributes) {
+        this.mergeAttributes = mergeAttributes;
     }
 
     @Override

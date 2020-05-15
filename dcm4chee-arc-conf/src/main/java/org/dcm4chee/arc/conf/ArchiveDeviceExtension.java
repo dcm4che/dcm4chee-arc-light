@@ -564,7 +564,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public Duration getUPSProcessingPollingInterval() {
-        return deleteUPSPollingInterval;
+        return upsProcessingPollingInterval;
     }
 
     public void setUPSProcessingPollingInterval(Duration upsProcessingPollingInterval) {

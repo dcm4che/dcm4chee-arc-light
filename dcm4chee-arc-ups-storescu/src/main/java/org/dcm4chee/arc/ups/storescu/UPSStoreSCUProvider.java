@@ -41,12 +41,20 @@
 
 package org.dcm4chee.arc.ups.storescu;
 
+import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
 import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -55,8 +63,20 @@ import javax.inject.Named;
 @ApplicationScoped
 @Named("storescu")
 public class UPSStoreSCUProvider implements UPSProcessorProvider {
+
+    @Inject
+    private RetrieveService retrieveService;
+
+    @Inject
+    private CStoreSCU storeSCU;
+
+    @Inject
+    private UPSService upsService;
+
+    private final Map<String, RetrieveTask> retrieveTaskMap = Collections.synchronizedMap(new HashMap<>());
+
     @Override
     public UPSProcessor getUPSProcessor(UPSProcessingRule rule) {
-        return new UPSStoreSCU(rule);
+        return new UPSStoreSCU(rule, upsService, retrieveService, storeSCU, retrieveTaskMap);
     }
 }

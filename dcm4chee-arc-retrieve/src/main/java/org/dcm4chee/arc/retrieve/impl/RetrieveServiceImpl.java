@@ -193,6 +193,18 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public RetrieveContext newRetrieveContextSTORE(
+            String localAET, String studyUID, String seriesUID, Sequence refSopSeq, String destAET)
+            throws ConfigurationException {
+        RetrieveContext ctx = newRetrieveContext(localAET, refSopSeq);
+        ctx.setStudyInstanceUIDs(studyUID);
+        ctx.setSeriesInstanceUIDs(seriesUID);
+        ctx.setDestinationAETitle(destAET);
+        ctx.setDestinationAE(aeCache.findApplicationEntity(destAET));
+        return ctx;
+    }
+
+    @Override
     public RetrieveContext newRetrieveContextIOCM(
             HttpServletRequestInfo request, String localAET, String studyUID, String... seriesUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);

@@ -80,7 +80,11 @@ public class QueryParam {
     private long maxStudySize;
 
     public QueryParam(ApplicationEntity ae) {
-        this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        this(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
+    }
+
+    public QueryParam(ArchiveAEExtension arcAE) {
+        this.arcAE = arcAE;
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
     }

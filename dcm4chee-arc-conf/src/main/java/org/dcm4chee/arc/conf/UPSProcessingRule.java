@@ -57,6 +57,16 @@ import java.util.Objects;
  */
 public class UPSProcessingRule {
     public static final Duration DEFAULT_RETRY_DELAY = Duration.valueOf("PT1M");
+    private static final Code DEFAULT_PERFORMED_WORKITEM_CODE = new Code(
+            "NO_WORKITEM_CODE",
+            "99DCM4CHEE",
+            null,
+            "No Workitem Code specified");
+    private static final Code DEFAULT_PERFORMED_STATION_NAME_CODE = new Code(
+            "NO_STATION_NAME",
+            "99DCM4CHEE",
+            null,
+            "No Station Name specified");
 
     private String commonName;
     private URI upsProcessorURI;
@@ -68,6 +78,8 @@ public class UPSProcessingRule {
     private Code scheduledStationName;
     private Code scheduledStationClass;
     private Code scheduledStationLocation;
+    private Code performedWorkitemCode = DEFAULT_PERFORMED_WORKITEM_CODE;
+    private Code performedStationNameCode = DEFAULT_PERFORMED_STATION_NAME_CODE;
     private String aeTitle;
     private int maxThreads = 1;
     private int maxRetries = 0;
@@ -162,6 +174,22 @@ public class UPSProcessingRule {
 
     public void setScheduledStationLocation(Code scheduledStationLocation) {
         this.scheduledStationLocation = scheduledStationLocation;
+    }
+
+    public Code getPerformedWorkitemCode() {
+        return performedWorkitemCode;
+    }
+
+    public void setPerformedWorkitemCode(Code performedWorkitemCode) {
+        this.performedWorkitemCode = Objects.requireNonNull(performedWorkitemCode);
+    }
+
+    public Code getPerformedStationNameCode() {
+        return performedStationNameCode;
+    }
+
+    public void setPerformedStationNameCode(Code performedStationNameCode) {
+        this.performedStationNameCode = performedStationNameCode;
     }
 
     public String getAETitle() {

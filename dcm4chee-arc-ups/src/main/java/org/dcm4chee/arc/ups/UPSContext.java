@@ -95,6 +95,10 @@ public interface UPSContext {
 
     void setAttributes(Attributes attributes);
 
+    Attributes getMergeAttributes();
+
+    void setMergeAttributes(Attributes mergeAttributes);
+
     List<UPSEvent> getUPSEvents();
 
     void addUPSEvent(UPSEvent.Type cancelRequested, String upsInstanceUID, Attributes eventInformation,

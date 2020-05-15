@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.ups.process;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 
 /**
@@ -50,5 +52,5 @@ import org.dcm4chee.arc.conf.UPSProcessingRule;
 public interface UPSProcessor {
     UPSProcessingRule getUPSProcessingRule();
 
-    void process(UPSProcessingContext ctx);
+    void process(ArchiveAEExtension arcAE, Attributes ups);
 }
