@@ -2933,6 +2933,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
                 upsProcessingRule.getScheduledStationLocation(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSPerformedWorkitemCode",
+                upsProcessingRule.getPerformedWorkitemCode(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSPerformedStationNameCode",
+                upsProcessingRule.getPerformedStationNameCode(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
                 upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
@@ -3108,6 +3114,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
                 upsProcessingRule.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
                 upsProcessingRule.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsProcessingRule.setPerformedWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSPerformedWorkitemCode")));
+                upsProcessingRule.setPerformedStationNameCode(LdapUtils.codeValue(attrs.get("dcmUPSPerformedStationNameCode")));
                 upsProcessingRule.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 upsProcessingRule.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), UPSProcessingRule.DEFAULT_RETRY_DELAY));
                 upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
@@ -3603,6 +3611,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getScheduledStationClass(), upsProcessingRule.getScheduledStationClass(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
                 prev.getScheduledStationLocation(), upsProcessingRule.getScheduledStationLocation(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPerformedWorkitemCode",
+                prev.getPerformedWorkitemCode(), upsProcessingRule.getPerformedWorkitemCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPerformedStationNameCode",
+                prev.getPerformedStationNameCode(), upsProcessingRule.getPerformedStationNameCode(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), upsProcessingRule.getMaxRetries(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
                 prev.getRetryDelay(), upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);

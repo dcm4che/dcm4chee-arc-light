@@ -915,6 +915,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledStationLocationCode",
                     upsProcessingRule.getScheduledStationLocation(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSPerformedWorkitemCode",
+                    upsProcessingRule.getPerformedWorkitemCode(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSPerformedStationNameCode",
+                    upsProcessingRule.getPerformedStationNameCode(), null);
             writer.writeNotDef("dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
             writer.writeNotNullOrDef("dcmRetryDelay",
                     upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
@@ -3090,6 +3096,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSScheduledStationLocationCode":
                         upsProcessingRule.setScheduledStationLocation(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSPerformedWorkitemCode":
+                        upsProcessingRule.setPerformedWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSPerformedStationNameCode":
+                        upsProcessingRule.setPerformedStationNameCode(new Code(reader.stringValue()));
                         break;
                     case "dcmMaxRetries":
                         upsProcessingRule.setMaxRetries(reader.intValue());
