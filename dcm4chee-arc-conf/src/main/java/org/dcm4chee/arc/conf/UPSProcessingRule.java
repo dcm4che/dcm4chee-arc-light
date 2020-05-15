@@ -57,12 +57,12 @@ import java.util.Objects;
  */
 public class UPSProcessingRule {
     public static final Duration DEFAULT_RETRY_DELAY = Duration.valueOf("PT1M");
-    private static final Code DEFAULT_PERFORMED_WORKITEM_CODE = new Code(
+    public static final Code DEFAULT_PERFORMED_WORKITEM_CODE = new Code(
             "NO_WORKITEM_CODE",
             "99DCM4CHEE",
             null,
             "No Workitem Code specified");
-    private static final Code DEFAULT_PERFORMED_STATION_NAME_CODE = new Code(
+    public static final Code DEFAULT_PERFORMED_STATION_NAME_CODE = new Code(
             "NO_STATION_NAME",
             "99DCM4CHEE",
             null,

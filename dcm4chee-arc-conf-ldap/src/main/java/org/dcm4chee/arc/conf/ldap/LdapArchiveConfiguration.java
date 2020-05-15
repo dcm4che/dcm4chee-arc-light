@@ -3114,8 +3114,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
                 upsProcessingRule.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
                 upsProcessingRule.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
-                upsProcessingRule.setPerformedWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSPerformedWorkitemCode")));
-                upsProcessingRule.setPerformedStationNameCode(LdapUtils.codeValue(attrs.get("dcmUPSPerformedStationNameCode")));
+                upsProcessingRule.setPerformedWorkitemCode(StringUtils.maskNull(
+                        LdapUtils.codeValue(attrs.get("dcmUPSPerformedWorkitemCode")),
+                        UPSProcessingRule.DEFAULT_PERFORMED_WORKITEM_CODE));
+                upsProcessingRule.setPerformedStationNameCode(StringUtils.maskNull(
+                        LdapUtils.codeValue(attrs.get("dcmUPSPerformedStationNameCode")),
+                        UPSProcessingRule.DEFAULT_PERFORMED_STATION_NAME_CODE));
                 upsProcessingRule.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 upsProcessingRule.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), UPSProcessingRule.DEFAULT_RETRY_DELAY));
                 upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
