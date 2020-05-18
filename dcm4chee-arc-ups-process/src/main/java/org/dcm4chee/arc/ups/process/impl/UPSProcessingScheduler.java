@@ -184,7 +184,7 @@ public class UPSProcessingScheduler extends Scheduler {
                 throws DicomServiceException, InterruptedException {
             queryContext.getQueryKeys().setDateRange(Tag.ScheduledProcedureStepStartDateTime, VR.DT,
                     new DateRange(null, Calendar.getInstance().getTime()));
-            try (Query query = queryService.createUPSQuery(queryContext)) {
+            try (Query query = queryService.createUPSWithoutQueryEvent(queryContext)) {
                 query.executeQuery(arcDev.getUPSProcessingFetchSize());
                 if (!query.hasMoreMatches()) {
                     return false;

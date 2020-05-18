@@ -774,7 +774,7 @@ public class QueryBuilder {
             performerCode(predicates, q, ups,
                 scheduledHumanPerformersSequence.getSequence(Tag.HumanPerformerCodeSequence).get(0));
         dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
-                keys.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
+                keys.getDateRange(Tag.ScheduledProcedureStepStartDateTime), FormatDate.DT);
         dateRange(predicates, ups.get(UPS_.expectedCompletionDateAndTime),
                 keys.getDateRange(Tag.ExpectedCompletionDateTime), FormatDate.DT);
         dateRange(predicates, ups.get(UPS_.scheduledProcedureStepExpirationDateTime),

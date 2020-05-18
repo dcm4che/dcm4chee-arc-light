@@ -730,7 +730,8 @@ public class UPSServiceEJB {
         String iuid = rule.getInstanceUID(ctx.getAttributes());
         try {
             UPS ups = findUPS(iuid);
-            switch (rule.getIncludeInputInformation()) {
+            UPSOnStore.IncludeInputInformation includeInputInformation = rule.getIncludeInputInformation();
+            switch (includeInputInformation) {
                 case APPEND:
                     if (ups.getProcedureStepState() == UPSState.SCHEDULED) break;
                 case SINGLE:
@@ -738,14 +739,9 @@ public class UPSServiceEJB {
                     LOG.info("{}: {} already exists", ctx.getStoreSession(), ups);
                     return null;
                 default:
-                    try {
-                        do {
-                            ups = findUPS(iuid = UIDUtils.createNameBasedUID(iuid.getBytes()));
-                        } while (rule.getIncludeInputInformation()
-                                == UPSOnStore.IncludeInputInformation.SINGLE_OR_CREATE
-                                || ups.getProcedureStepState() != UPSState.SCHEDULED);
-                    } catch (NoResultException e) {
-                        return createOnStore(iuid, ctx, now, rule);
+                    while (includeInputInformation == UPSOnStore.IncludeInputInformation.SINGLE_OR_CREATE
+                        || ups.getProcedureStepState() != UPSState.SCHEDULED) {
+                        ups = findUPS(iuid = UIDUtils.createNameBasedUID(iuid.getBytes()));
                     }
             }
             LOG.info("{}: update existing {}", ctx.getStoreSession(), ups);

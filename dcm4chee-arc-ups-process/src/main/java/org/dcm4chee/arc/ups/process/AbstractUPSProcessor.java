@@ -42,12 +42,15 @@
 package org.dcm4chee.arc.ups.process;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -56,6 +59,14 @@ import java.util.Date;
  * @since Apr 2020
  */
 public abstract class AbstractUPSProcessor implements UPSProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractUPSProcessor.class);
+    private static final int[] EXCLUDE_FROM_REPLACEMENT = {
+            Tag.SOPClassUID,
+            Tag.SOPInstanceUID,
+            Tag.ScheduledProcedureStepModificationDateTime,
+            Tag.ProcedureStepProgressInformationSequence,
+            Tag.UnifiedProcedureStepPerformedProcedureSequence
+    };
     protected final UPSProcessingRule rule;
     protected final UPSService upsService;
 
@@ -82,23 +93,69 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         try {
             upsService.changeUPSState(upsCtx);
         } catch (DicomServiceException e) {
-            //TODO
-            e.printStackTrace();
+            switch(e.getStatus()) {
+                case Status.UPSAlreadyInProgress:
+                    LOG.info("UPS[uid={}] already IN PROCESS", upsCtx.getUPSInstanceUID());
+                    break;
+                case Status.UPSMayNoLongerBeUpdated:
+                    LOG.info("UPS[uid={}] may no longer be updated", upsCtx.getUPSInstanceUID());
+                    break;
+                default:
+                    LOG.warn("Failed to change status of UPS[uid={}] to IN PROCESS:\n", upsCtx.getUPSInstanceUID(), e);
+            }
             return;
         }
+        Attributes replacement = null;
         try {
             processA(ups);
             transaction.setString(Tag.ProcedureStepState, VR.CS, "COMPLETED");
         } catch (Exception e) {
             transaction.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
+            replacement = retryUPS(ups, e);
         }
         setPerformedProcedureStepEndDateTime(upsCtx);
         try {
             upsService.changeUPSState(upsCtx);
         } catch (DicomServiceException e) {
-            //TODO
-            e.printStackTrace();
+            LOG.warn("Failed to change status of UPS[uid={}] to {}:\n",
+                    upsCtx.getUPSInstanceUID(),
+                    transaction.getString(Tag.ProcedureStepState),
+                    e);
         }
+        if (replacement != null) {
+            try {
+                upsCtx.setUPSInstanceUID(UIDUtils.createUID());
+                upsCtx.setAttributes(replacement);
+                upsService.createUPS(upsCtx);
+            } catch (DicomServiceException e) {
+                LOG.warn("Failed to schedule replacement of UPS[uid={}]\n", ups.getString(Tag.SOPInstanceUID), e);
+            }
+        }
+    }
+
+    private Attributes retryUPS(Attributes ups, Exception e) {
+        Sequence seq = ups.getSequence(Tag.ReplacedProcedureStepSequence);
+        long delay = rule.getRetryDelayInSeconds((seq != null ? seq.size() : 0) + 1);
+        if (delay < 0) {
+            LOG.warn("Failed to process UPS[uid={}]:\n", ups.getString(Tag.SOPInstanceUID), e);
+            return null;
+        }
+        LOG.info("Failed to process UPS[uid={}] - retry:\n", ups.getString(Tag.SOPInstanceUID), e);
+        Attributes replacement = new Attributes(ups.size());
+        replacement.addNotSelected(ups, EXCLUDE_FROM_REPLACEMENT);
+        replacement.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT,
+                new Date(System.currentTimeMillis() + delay * 1000));
+        replacement.setString(Tag.ProcedureStepState, VR.CS,"SCHEDULED");
+        replacement.ensureSequence(Tag.ReplacedProcedureStepSequence, 1)
+                .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
+        return replacement;
+    }
+
+    private static Attributes refSOP(String cuid, String iuid) {
+        Attributes item = new Attributes(2);
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
+        return item;
     }
 
     protected void initPerformedProcedure(UPSContext upsCtx, Attributes ups) {
