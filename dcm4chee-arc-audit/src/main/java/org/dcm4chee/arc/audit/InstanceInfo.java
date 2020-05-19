@@ -90,7 +90,7 @@ class InstanceInfo {
     }
 
     void addStudyDate(AuditInfo info) {
-        String studyDt = info.getField(AuditInfo.ACC_NUM);
+        String studyDt = info.getField(AuditInfo.STUDY_DATE);
         if (studyDt != null)
             studyDate.add(studyDt);
     }
