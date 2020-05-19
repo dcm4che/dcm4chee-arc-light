@@ -99,7 +99,10 @@ class ExternalRetrieveAuditService {
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
                 activeParticipants(auditLogger, eventType, auditInfo, aeCache),
-                ParticipantObjectID.studyPOI(auditInfo).build());
+                ParticipantObjectID.studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
+                        .detail(AuditMessages.createParticipantObjectDetail(
+                                "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
+                        .build());
     }
     
     private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditUtils.EventType eventType,

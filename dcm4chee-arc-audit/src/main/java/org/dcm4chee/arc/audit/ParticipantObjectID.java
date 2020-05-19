@@ -116,12 +116,13 @@ class ParticipantObjectID {
     static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
             AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType, AuditLogger auditLogger) {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
-        ParticipantObjectIdentificationBuilder.Builder studyPOIBuilder = studyPOI(auditInfo)
+        ParticipantObjectIdentificationBuilder.Builder studyPOIBuilder = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
+                .detail(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
                 .desc(participantObjDesc(
                         auditInfo,
                         instanceInfoLines,
                         auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID())
-                        .build());
+                .build());
 
         if ((eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
                 && !eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read)
@@ -136,7 +137,9 @@ class ParticipantObjectID {
     static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
             AuditInfo auditInfo, InstanceInfo instanceInfo) {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
-        studyPatParticipants[0] = studyPOI(auditInfo)
+        studyPatParticipants[0] = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
+                                    .detail(AuditMessages.createParticipantObjectDetail(
+                                            "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
                                     .desc(participantObjDesc(instanceInfo, true)
                                             .build())
                                     .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation)
@@ -155,11 +158,11 @@ class ParticipantObjectID {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants
                 = new ParticipantObjectIdentificationBuilder[hasPatient ? 2 : 1];
         List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
-        if (auditInfo.getField(AuditInfo.EXPIRATION_DATE) != null)
-            participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
-                    "Expiration Date",
-                    auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
-        studyPatParticipants[0] = studyPOI(auditInfo)
+        participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
+                    "ExpirationDate", auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
+        participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
+                "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        studyPatParticipants[0] = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
                 .desc(participantObjDesc(instanceInfo, auditLogger.isIncludeInstanceUID()).build())
                 .detail(participantObjectDetails.toArray(new ParticipantObjectDetail[0]))
                 .build();
@@ -172,7 +175,7 @@ class ParticipantObjectID {
             SpoolFileReader reader, AuditInfo auditInfo, AuditLogger auditLogger) {
         ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
         String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
-        studyPatParticipants[0] = studyPOI(studyUIDs[0], null)
+        studyPatParticipants[0] = studyPOI(studyUIDs[0])
                                     .desc(participantObjDesc(auditInfo, reader.getInstanceLines(),
                                             studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null
                                                     || auditLogger.isIncludeInstanceUID())
@@ -184,24 +187,17 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder.Builder studyPOI(AuditInfo auditInfo) {
-        return studyPOI(
-                auditInfo.getField(AuditInfo.STUDY_UID),
-                auditInfo.getField(AuditInfo.STUDY_DATE));
-    }
-
-    private static ParticipantObjectIdentificationBuilder.Builder studyPOI(String uid, String studyDate) {
+    static ParticipantObjectIdentificationBuilder.Builder studyPOI(String uid) {
         return new ParticipantObjectIdentificationBuilder.Builder(
                 uid,
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .detail(AuditMessages.createParticipantObjectDetail("StudyDate", studyDate));
+                AuditMessages.ParticipantObjectTypeCodeRole.Report);
     }
 
     static ParticipantObjectIdentificationBuilder studyPOI(
             String studyUID, InstanceInfo instanceInfo, boolean showIUID) {
-        return studyPOI(studyUID, null)
+        return studyPOI(studyUID)
                 .desc(participantObjDesc(instanceInfo, showIUID).build())
                 .detail(instanceInfo.getStudyDate().stream()
                         .map(studyDate -> AuditMessages.createParticipantObjectDetail("StudyDate", studyDate))
