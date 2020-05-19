@@ -289,9 +289,8 @@ public class QueryRS {
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (IllegalStateException| ConfigurationException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (ConnectException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+        } catch (IOException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

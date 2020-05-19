@@ -35,7 +35,7 @@
           "description": "Internal Server Error."
         },
         "502": {
-          "description": "Instance Availability Notification SCP Failure",
+          "description": "Connection Refused or Instance Availability Notification SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -86,7 +86,7 @@
           "description": "Internal Server Error."
         },
         "502": {
-          "description": "Instance Availability Notification SCP Failure",
+          "description": "Connection Refused or Instance Availability Notification SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -140,7 +140,7 @@
           "description": "Internal Server Error."
         },
         "502": {
-          "description": "Instance Availability Notification SCP Failure",
+          "description": "Connection Refused or Instance Availability Notification SCP Failure",
           "content": {
             "application/json": {
               "schema": {

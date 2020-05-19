@@ -199,9 +199,8 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-        } catch (DicomServiceException e) {
-            throw new WebApplicationException(errResponse(
-                    errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
+        } catch (IOException e) {
+            throw new WebApplicationException(errResponse(errorMessage(e), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -232,9 +231,8 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-        } catch (DicomServiceException e) {
-            throw new WebApplicationException(errResponse(
-                    errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
+        } catch (IOException e) {
+            throw new WebApplicationException(errResponse(errorMessage(e), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -340,9 +338,12 @@ public class DiffRS {
                 .setSecondaryAE(checkAE(originalAET, aeCache.get(originalAET)));
     }
 
-    private static String errorMessage(int status, String errorComment) {
-        String statusAsString = statusAsString(status);
-        return errorComment == null ? statusAsString : statusAsString + " - " + errorComment;
+    private static String errorMessage(IOException e) {
+        if (e instanceof DicomServiceException) {
+            String statusAsString = statusAsString(((DicomServiceException) e).getStatus());
+            return e.getMessage() == null ? statusAsString : statusAsString + " - " + e.getMessage();
+        }
+        return e.getMessage();
     }
 
     private static String count(int count) {
