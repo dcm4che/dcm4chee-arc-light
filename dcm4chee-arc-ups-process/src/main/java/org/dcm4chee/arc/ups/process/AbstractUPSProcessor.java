@@ -89,7 +89,7 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         transaction.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         transaction.setString(Tag.ProcedureStepState, VR.CS, "IN PROGRESS");
         upsCtx.setAttributes(transaction);
-        initPerformedProcedure(upsCtx, ups);
+        Attributes performedProcedure = initPerformedProcedure(upsCtx, ups);
         try {
             upsService.changeUPSState(upsCtx);
         } catch (DicomServiceException e) {
@@ -107,13 +107,14 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         }
         Attributes replacement = null;
         try {
-            processA(ups);
+            processA(upsCtx, ups);
             transaction.setString(Tag.ProcedureStepState, VR.CS, "COMPLETED");
-        } catch (Exception e) {
+            performedProcedure.setDate(Tag.PerformedProcedureStepEndDateTime, VR.DT, new Date());
+        } catch (UPSProcessorException e) {
             transaction.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
+            setReasonForCancellation(upsCtx, e);
             replacement = retryUPS(ups, e);
         }
-        setPerformedProcedureStepEndDateTime(upsCtx);
         try {
             upsService.changeUPSState(upsCtx);
         } catch (DicomServiceException e) {
@@ -158,8 +159,9 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         return item;
     }
 
-    protected void initPerformedProcedure(UPSContext upsCtx, Attributes ups) {
-        Attributes mergeAttributes = new Attributes(1);
+    protected Attributes initPerformedProcedure(UPSContext upsCtx, Attributes ups) {
+        Attributes mergeAttributes = new Attributes(2);
+        mergeAttributes.ensureSequence(Tag.ProcedureStepProgressInformationSequence, 1);
         Sequence sq = mergeAttributes.newSequence(Tag.UnifiedProcedureStepPerformedProcedureSequence, 1);
         Attributes performedProcedure = new Attributes();
         performedProcedure.newSequence(Tag.PerformedWorkitemCodeSequence, 1)
@@ -170,13 +172,28 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         performedProcedure.setDate(Tag.PerformedProcedureStepStartDateTime, VR.DT, new Date());
         sq.add(performedProcedure);
         upsCtx.setMergeAttributes(mergeAttributes);
+        return performedProcedure;
     }
 
-    private void setPerformedProcedureStepEndDateTime(UPSContext upsCtx) {
-        Attributes performedProcedure = upsCtx.getMergeAttributes()
-                .getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence);
-        performedProcedure.setDate(Tag.PerformedProcedureStepEndDateTime, VR.DT, new Date());
+    protected Attributes getPerformedProcedureStep(UPSContext upsCtx) {
+        return upsCtx.getMergeAttributes().getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence);
     }
 
-    protected abstract void processA(Attributes ups) throws Exception;
+    private void setReasonForCancellation(UPSContext upsCtx, UPSProcessorException e) {
+        Sequence sq = upsCtx.getMergeAttributes().getSequence(Tag.ProcedureStepProgressInformationSequence);
+        Attributes progressInformation;
+        if (sq.isEmpty()) {
+            sq.add(progressInformation = new Attributes());
+        } else {
+            progressInformation = sq.get(0);
+        }
+        progressInformation.setDate(Tag.ProcedureStepCancellationDateTime, VR.DT, new Date());
+        if (e.reasonCode != null) {
+            progressInformation.newSequence(Tag.ProcedureStepDiscontinuationReasonCodeSequence, 1)
+                    .add(e.reasonCode.toItem());
+        }
+        progressInformation.setString(Tag.ReasonForCancellation, VR.LT, e.getMessage());
+    }
+
+    protected abstract void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException;
 }

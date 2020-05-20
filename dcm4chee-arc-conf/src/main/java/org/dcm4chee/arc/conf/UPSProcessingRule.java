@@ -41,10 +41,7 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -86,7 +83,6 @@ public class UPSProcessingRule {
     private Duration retryDelay = DEFAULT_RETRY_DELAY;
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
-    private boolean retryOnWarning;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -249,14 +245,6 @@ public class UPSProcessingRule {
 
     public void setRetryDelayMultiplier(int retryDelayMultiplier) {
         this.retryDelayMultiplier = retryDelayMultiplier;
-    }
-
-    public boolean isRetryOnWarning() {
-        return retryOnWarning;
-    }
-
-    public void setRetryOnWarning(boolean retryOnWarning) {
-        this.retryOnWarning = retryOnWarning;
     }
 
     public ScheduleExpression[] getSchedules() {

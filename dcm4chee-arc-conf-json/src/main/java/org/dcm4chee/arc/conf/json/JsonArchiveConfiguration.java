@@ -927,7 +927,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMaxRetryDelay", upsProcessingRule.getMaxRetryDelay(), null);
             writer.writeNotDef("dcmRetryDelayMultiplier",
                     upsProcessingRule.getRetryDelayMultiplier(), 100);
-            writer.writeNotDef("dcmRetryOnWarning", upsProcessingRule.isRetryOnWarning(), false);
             writer.writeEnd();
         });
         writer.writeEnd();
@@ -3114,9 +3113,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRetryDelayMultiplier":
                         upsProcessingRule.setRetryDelayMultiplier(reader.intValue());
-                        break;
-                    case "dcmRetryOnWarning":
-                        upsProcessingRule.setRetryOnWarning(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

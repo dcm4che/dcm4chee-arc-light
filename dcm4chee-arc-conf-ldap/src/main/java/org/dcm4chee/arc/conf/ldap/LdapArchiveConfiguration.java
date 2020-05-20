@@ -2946,7 +2946,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.getMaxRetryDelay(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier",
                 upsProcessingRule.getRetryDelayMultiplier(), 100);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", upsProcessingRule.isRetryOnWarning(), false);
         return attrs;
     }
 
@@ -3124,7 +3123,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), UPSProcessingRule.DEFAULT_RETRY_DELAY));
                 upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
                 upsProcessingRule.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
-                upsProcessingRule.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
                 arcDev.addUPSProcessingRule(upsProcessingRule);
             }
         } finally {
@@ -3626,8 +3624,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getMaxRetryDelay(), upsProcessingRule.getMaxRetryDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetryDelayMultiplier",
                 prev.getRetryDelayMultiplier(), upsProcessingRule.getRetryDelayMultiplier(), 100);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning",
-                prev.isRetryOnWarning(), upsProcessingRule.isRetryOnWarning(), false);
         return mods;
     }
 

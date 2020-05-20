@@ -195,6 +195,8 @@ public interface RetrieveContext extends Closeable {
 
     void addFailedSOPInstanceUID(String iuid);
 
+    boolean isFailedSOPInstanceUID(String iuid);
+
     String[] failedSOPInstanceUIDs();
 
     int remaining();

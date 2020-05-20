@@ -39,38 +39,32 @@
  *
  */
 
-package org.dcm4chee.arc.ups.storescu;
+package org.dcm4chee.arc.ups.process;
 
-import org.dcm4chee.arc.conf.UPSProcessingRule;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.store.scu.CStoreSCU;
-import org.dcm4chee.arc.ups.UPSService;
-import org.dcm4chee.arc.ups.process.UPSProcessor;
-import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import org.dcm4che3.data.Code;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Mar 2020
+ * @since May 2020
  */
-@ApplicationScoped
-@Named("storescu")
-public class UPSStoreSCUProvider implements UPSProcessorProvider {
+public class UPSProcessorException extends Exception {
+    public final Code reasonCode;
 
-    @Inject
-    private RetrieveService retrieveService;
+    public UPSProcessorException(String message) {
+        this(message, null);
+    }
 
-    @Inject
-    private CStoreSCU storeSCU;
+    public UPSProcessorException(Throwable cause) {
+        this(cause, null);
+    }
 
-    @Inject
-    private UPSService upsService;
+    public UPSProcessorException(String message, Code reasonCode) {
+        super(message);
+        this.reasonCode = reasonCode;
+    }
 
-    @Override
-    public UPSProcessor getUPSProcessor(UPSProcessingRule rule) {
-        return new UPSStoreSCU(rule, upsService, retrieveService, storeSCU);
+    public UPSProcessorException(Throwable cause, Code reasonCode) {
+        super(cause);
+        this.reasonCode = reasonCode;
     }
 }

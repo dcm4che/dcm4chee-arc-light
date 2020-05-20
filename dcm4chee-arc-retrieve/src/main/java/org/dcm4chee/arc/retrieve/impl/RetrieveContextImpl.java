@@ -457,6 +457,11 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public boolean isFailedSOPInstanceUID(String iuid) {
+        return failedSOPInstanceUIDs.contains(iuid);
+    }
+
+    @Override
     public String[] failedSOPInstanceUIDs() {
         return failedSOPInstanceUIDs.toArray(StringUtils.EMPTY_STRING);
     }
