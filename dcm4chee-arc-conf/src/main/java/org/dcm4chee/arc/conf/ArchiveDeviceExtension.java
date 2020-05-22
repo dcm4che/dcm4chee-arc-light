@@ -288,7 +288,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
-    private final Map<String, UPSProcessingRule> upsProcessingRuleMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, MetricsDescriptor> metricsDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
@@ -297,6 +296,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
+    private final List<UPSProcessingRule> upsProcessingRuleList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
     private final List<HL7ExportRule> hl7ExportRules = new ArrayList<>();
@@ -1738,22 +1738,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : Collections.emptyList();
     }
 
-    public UPSProcessingRule getUPSProcessingRule(String commonName) {
-        return upsProcessingRuleMap.get(commonName);
-    }
-
-    public UPSProcessingRule removeUPSProcessingRule(String commonName) {
-        return upsProcessingRuleMap.remove(commonName);
-    }
-
-    public void addUPSProcessingRule(UPSProcessingRule rule) {
-        upsProcessingRuleMap.put(rule.getCommonName(), rule);
-    }
-
-    public Collection<UPSProcessingRule> getUPSProcessingRules() {
-        return upsProcessingRuleMap.values();
-    }
-
     public QueueDescriptor getQueueDescriptor(String queueName) {
         return queueDescriptorMap.get(queueName);
     }
@@ -1885,6 +1869,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Collection<UPSOnHL7> listUPSOnHL7() {
         return upsOnHL7List;
+    }
+
+    public void removeUPSProcessingRule(UPSProcessingRule rule) {
+        upsProcessingRuleList.remove(rule);
+    }
+
+    public void clearUPSProcessingRules() {
+        upsProcessingRuleList.clear();
+    }
+
+    public void addUPSProcessingRule(UPSProcessingRule rule) {
+        upsProcessingRuleList.add(rule);
+    }
+
+    public Collection<UPSProcessingRule> listUPSProcessingRules() {
+        return upsProcessingRuleList;
     }
 
     public void removeExportRule(ExportRule rule) {
@@ -3018,8 +3018,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
-        upsProcessingRuleMap.clear();
-        upsProcessingRuleMap.putAll(arcdev.upsProcessingRuleMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
         metricsDescriptorMap.clear();
@@ -3032,6 +3030,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         upsOnStoreList.addAll(arcdev.upsOnStoreList);
         upsOnHL7List.clear();
         upsOnHL7List.addAll(arcdev.upsOnHL7List);
+        upsProcessingRuleList.clear();
+        upsProcessingRuleList.addAll(arcdev.upsProcessingRuleList);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         exportPriorsRules.clear();

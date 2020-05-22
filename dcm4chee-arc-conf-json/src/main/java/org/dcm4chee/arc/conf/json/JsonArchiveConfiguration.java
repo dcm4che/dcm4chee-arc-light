@@ -62,7 +62,6 @@ import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.time.Period;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -390,7 +389,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         writeUPSOnStoreList(writer, arcDev.listUPSOnStore());
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
-        writeUPSProcessingRules(writer, arcDev.getUPSProcessingRules());
+        writeUPSProcessingRules(writer, arcDev.listUPSProcessingRules());
         writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
@@ -837,7 +836,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmUPSOnStore");
         for (UPSOnStore upsOnStore : upsOnStoreList) {
             writer.writeStartObject();
-            writer.writeNotNullOrDef("cn", upsOnStore.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmUPSOnStoreID", upsOnStore.getUPSOnStoreID(), null);
             writer.writeNotNullOrDef("dcmUPSLabel", upsOnStore.getProcedureStepLabel(), null);
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnStore.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(
@@ -895,7 +894,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmUPSProcessingRule");
         upsProcessingRules.forEach(upsProcessingRule -> {
             writer.writeStartObject();
-            writer.writeNotNullOrDef("cn", upsProcessingRule.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmUPSProcessingRuleID", upsProcessingRule.getUPSProcessingRuleID(), null);
             writer.writeNotNullOrDef("dicomAETitle", upsProcessingRule.getAETitle(), null);
             writer.writeNotNullOrDef("dcmURI", upsProcessingRule.getUPSProcessorURI(), null);
             writer.writeNotEmpty("dcmProperty", upsProcessingRule.getProperties());
@@ -936,7 +935,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("hl7UPSOnHL7");
         for (UPSOnHL7 upsOnHL7 : upsOnHL7List) {
             writer.writeStartObject();
-            writer.writeNotNullOrDef("cn", upsOnHL7.getCommonName(), null);
+            writer.writeNotNullOrDef("hl7UPSOnHL7ID", upsOnHL7.getUPSOnHL7ID(), null);
             writer.writeNotEmpty("dcmProperty", upsOnHL7.getConditions().getMap());
             writer.writeNotEmpty("dcmSchedule", upsOnHL7.getSchedules());
             writer.writeNotNullOrDef("dcmUPSLabel", upsOnHL7.getProcedureStepLabel(), null);
@@ -2944,8 +2943,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             UPSOnStore upsOnStore = new UPSOnStore();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
-                    case "cn":
-                        upsOnStore.setCommonName(reader.stringValue());
+                    case "dcmUPSOnStoreID":
+                        upsOnStore.setUPSOnStoreID(reader.stringValue());
                         break;
                     case "dcmUPSLabel":
                         upsOnStore.setProcedureStepLabel(reader.stringValue());
@@ -3053,8 +3052,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             UPSProcessingRule upsProcessingRule = new UPSProcessingRule();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
-                    case "cn":
-                        upsProcessingRule.setCommonName(reader.stringValue());
+                    case "dcmUPSProcessingRuleID":
+                        upsProcessingRule.setUPSProcessingRuleID(reader.stringValue());
                         break;
                     case "dicomAETitle":
                         upsProcessingRule.setAETitle(reader.stringValue());
@@ -3132,8 +3131,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             UPSOnHL7 upsOnHL7 = new UPSOnHL7();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
-                    case "cn":
-                        upsOnHL7.setCommonName(reader.stringValue());
+                    case "hl7UPSOnHL7ID":
+                        upsOnHL7.setUPSOnHL7ID(reader.stringValue());
                         break;
                     case "dcmUPSLabel":
                         upsOnHL7.setProcedureStepLabel(reader.stringValue());

@@ -106,8 +106,8 @@ public class UPSProcessingScheduler extends Scheduler {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         if (arcDev.getUPSProcessingPollingInterval() == null) return;
         Calendar now = Calendar.getInstance();
-        for (UPSProcessingRule rule : arcDev.getUPSProcessingRules()) {
-            if (!inProcess.containsKey(rule.getCommonName())
+        for (UPSProcessingRule rule : arcDev.listUPSProcessingRules()) {
+            if (!inProcess.containsKey(rule.getUPSProcessingRuleID())
                     && ScheduleExpression.emptyOrAnyContains(now, rule.getSchedules())) {
                 try {
                     device.execute(new ProcessWorkitems(rule));
@@ -167,7 +167,7 @@ public class UPSProcessingScheduler extends Scheduler {
             UPSProcessingRule rule = processor.getUPSProcessingRule();
             int permits = rule.getMaxThreads();
             Semaphore semaphore = permits > 1 ? new Semaphore(permits) : null;
-            inProcess.put(rule.getCommonName(), this);
+            inProcess.put(rule.getUPSProcessingRuleID(), this);
             try {
                 while (processMatching(arcDev, semaphore));
                 if (semaphore != null) {
@@ -176,7 +176,7 @@ public class UPSProcessingScheduler extends Scheduler {
             } catch (Exception e) {
                 LOG.warn("Failure on processing {}:/n", rule, e);
             } finally {
-                inProcess.remove(rule.getCommonName());
+                inProcess.remove(rule.getUPSProcessingRuleID());
             }
         }
 

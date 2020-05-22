@@ -2138,6 +2138,21 @@ attributetype ( 1.2.40.0.13.1.15.110.3.368 NAME 'dcmUPSPerformedStationNameCode'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.369 NAME 'dcmUPSOnStoreID'
+  DESC 'ID of UPS on Store Rule'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.370 NAME 'hl7UPSOnHL7ID'
+  DESC 'ID of UPS on HL7 Rule'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.371 NAME 'dcmUPSProcessingRuleID'
+  DESC 'ID of UPS Processing Rule'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2865,7 +2880,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
   DESC 'UPS on Store'
   SUP top STRUCTURAL
   MUST (
-    cn $
+    dcmUPSOnStoreID $
     dcmUPSLabel )
   MAY (
     dcmUPSPriority $
@@ -2898,10 +2913,10 @@ objectclass ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmSchedule ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
-  DESC 'UPS on Store'
+  DESC 'UPS on HL7'
   SUP top STRUCTURAL
   MUST (
-    cn $
+    hl7UPSOnHL7ID $
     dcmURI $
     dcmUPSLabel )
   MAY (
@@ -2937,7 +2952,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
   DESC 'UPS Processing Rule'
   SUP top STRUCTURAL
   MUST (
-    cn $
+    dcmUPSProcessingRuleID $
     dcmURI $
     dicomAETitle )
   MAY (

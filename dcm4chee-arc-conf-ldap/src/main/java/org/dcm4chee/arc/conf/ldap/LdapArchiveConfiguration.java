@@ -2789,7 +2789,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private void storeUPSOnStoreList(
             ConfigurationChanges diffs, Collection<UPSOnStore> upsOnStoreList, String parentDN) throws NamingException {
         for (UPSOnStore upsOnStore : upsOnStoreList) {
-            String dn = LdapUtils.dnOf("cn", upsOnStore.getCommonName(), parentDN);
+            String dn = LdapUtils.dnOf("dcmUPSOnStoreID", upsOnStore.getUPSOnStoreID(), parentDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(dn, storeTo(ldapObj, upsOnStore, new BasicAttributes(true)));
@@ -2798,8 +2798,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void storeUPSProcessingRules(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
-        for (UPSProcessingRule upsProcessingRule : arcDev.getUPSProcessingRules()) {
-            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", upsProcessingRule.getCommonName(), deviceDN);
+        for (UPSProcessingRule upsProcessingRule : arcDev.listUPSProcessingRules()) {
+            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", upsProcessingRule.getUPSProcessingRuleID(), deviceDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(dn, storeTo(ldapObj, upsProcessingRule, new BasicAttributes(true)));
@@ -2810,7 +2810,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ConfigurationChanges diffs, Collection<UPSOnHL7> upsOnHL7List, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (UPSOnHL7 upsOnHL7 : upsOnHL7List) {
-            String dn = LdapUtils.dnOf("cn", upsOnHL7.getCommonName(), parentDN);
+            String dn = LdapUtils.dnOf("hl7UPSOnHL7ID", upsOnHL7.getUPSOnHL7ID(), parentDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(dn, storeTo(ldapObj, upsOnHL7, new BasicAttributes(true)));
@@ -2843,7 +2843,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UPSOnStore upsOnStore, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmUPSOnStore");
-        attrs.put("cn", upsOnStore.getCommonName());
+        attrs.put("dcmUPSOnStoreID", upsOnStore.getUPSOnStoreID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel", upsOnStore.getProcedureStepLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority", upsOnStore.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
@@ -2907,7 +2907,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(
             ConfigurationChanges.ModifiedObject ldapObj, UPSProcessingRule upsProcessingRule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmUPSProcessingRule");
-        attrs.put("cn", upsProcessingRule.getCommonName());
+        attrs.put("dcmUPSProcessingRuleID", upsProcessingRule.getUPSProcessingRuleID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", upsProcessingRule.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsProcessingRule.getUPSProcessorURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsProcessingRule.getProperties());
@@ -2951,7 +2951,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UPSOnHL7 upsOnHL7, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7UPSOnHL7");
-        attrs.put("cn", upsOnHL7.getCommonName());
+        attrs.put("hl7UPSOnHL7ID", upsOnHL7.getUPSOnHL7ID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel", upsOnHL7.getProcedureStepLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority", upsOnHL7.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
@@ -3038,7 +3038,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                UPSOnStore upsOnStore = new UPSOnStore(LdapUtils.stringValue(attrs.get("cn"), null));
+                UPSOnStore upsOnStore = new UPSOnStore(LdapUtils.stringValue(attrs.get("dcmUPSOnStoreID"), null));
                 upsOnStore.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
                 upsOnStore.setUPSPriority(
                         LdapUtils.enumValue(UPSPriority.class,
@@ -3096,7 +3096,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                UPSProcessingRule upsProcessingRule = new UPSProcessingRule(LdapUtils.stringValue(attrs.get("cn"),null));
+                UPSProcessingRule upsProcessingRule = new UPSProcessingRule(
+                        LdapUtils.stringValue(attrs.get("dcmUPSProcessingRuleID"),null));
                 upsProcessingRule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 upsProcessingRule.setUPSProcessorURI(URI.create(
                         StringUtils.replaceSystemProperties(LdapUtils.stringValue(attrs.get("dcmURI"), null))));
@@ -3137,7 +3138,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                UPSOnHL7 upsOnHL7 = new UPSOnHL7(LdapUtils.stringValue(attrs.get("cn"), null));
+                UPSOnHL7 upsOnHL7 = new UPSOnHL7(LdapUtils.stringValue(attrs.get("hl7UPSOnHL7ID"), null));
                 upsOnHL7.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
                 upsOnHL7.setUPSPriority(
                         LdapUtils.enumValue(UPSPriority.class,
@@ -3406,17 +3407,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String parentDN)
             throws NamingException {
         for (UPSOnStore prevUPSOnStore : prevUPSOnStoreList) {
-            String cn = prevUPSOnStore.getCommonName();
-            if (findUPSOnStoreByCN(upsOnStoreList, cn) == null) {
-                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            String id = prevUPSOnStore.getUPSOnStoreID();
+            if (findUPSOnStoreByID(upsOnStoreList, id) == null) {
+                String dn = LdapUtils.dnOf("dcmUPSOnStoreID", id, parentDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
         for (UPSOnStore rule : upsOnStoreList) {
-            String cn = rule.getCommonName();
-            String dn = LdapUtils.dnOf("cn", cn, parentDN);
-            UPSOnStore prevUPSOnStore = findUPSOnStoreByCN(prevUPSOnStoreList, cn);
+            String id = rule.getUPSOnStoreID();
+            String dn = LdapUtils.dnOf("dcmUPSOnStoreID", id, parentDN);
+            UPSOnStore prevUPSOnStore = findUPSOnStoreByID(prevUPSOnStoreList, id);
             if (prevUPSOnStore == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -3435,18 +3436,18 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private void mergeUPSProcessingRules(ConfigurationChanges diffs, ArchiveDeviceExtension prev,
                                          ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
-        for (UPSProcessingRule prevUPSProcessingRule : prev.getUPSProcessingRules()) {
-            String cn = prevUPSProcessingRule.getCommonName();
-            if (arcDev.getUPSProcessingRule(cn) == null) {
-                String dn = LdapUtils.dnOf("cn", cn, deviceDN);
+        for (UPSProcessingRule prevUPSProcessingRule : prev.listUPSProcessingRules()) {
+            String id = prevUPSProcessingRule.getUPSProcessingRuleID();
+            if (findUPSProcessingRuleByID(arcDev.listUPSProcessingRules(), id) == null) {
+                String dn = LdapUtils.dnOf("dcmUPSProcessingRuleID", id, deviceDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
-        for (UPSProcessingRule upsProcessingRule : arcDev.getUPSProcessingRules()) {
-            String cn = upsProcessingRule.getCommonName();
-            String dn = LdapUtils.dnOf("cn", cn, deviceDN);
-            UPSProcessingRule prevUPSProcessingRule = prev.getUPSProcessingRule(cn);
+        for (UPSProcessingRule upsProcessingRule : arcDev.listUPSProcessingRules()) {
+            String id = upsProcessingRule.getUPSProcessingRuleID();
+            String dn = LdapUtils.dnOf("dcmUPSProcessingRuleID", id, deviceDN);
+            UPSProcessingRule prevUPSProcessingRule = findUPSProcessingRuleByID( prev.listUPSProcessingRules(), id);
             if (prevUPSProcessingRule == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -3468,17 +3469,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (UPSOnHL7 prevUPSOnHL7 : prevUPSOnHL7List) {
-            String cn = prevUPSOnHL7.getCommonName();
-            if (findUPSOnHL7ByCN(upsOnHL7List, cn) == null) {
-                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            String id = prevUPSOnHL7.getUPSOnHL7ID();
+            if (findUPSOnHL7ByID(upsOnHL7List, id) == null) {
+                String dn = LdapUtils.dnOf("hl7UPSOnHL7ID", id, parentDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
         for (UPSOnHL7 rule : upsOnHL7List) {
-            String cn = rule.getCommonName();
-            String dn = LdapUtils.dnOf("cn", cn, parentDN);
-            UPSOnHL7 prevUPSOnHL7 = findUPSOnHL7ByCN(prevUPSOnHL7List, cn);
+            String id = rule.getUPSOnHL7ID();
+            String dn = LdapUtils.dnOf("hl7UPSOnHL7ID", id, parentDN);
+            UPSOnHL7 prevUPSOnHL7 = findUPSOnHL7ByID(prevUPSOnHL7List, id);
             if (prevUPSOnHL7 == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
@@ -3682,23 +3683,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return null;
     }
 
-    private UPSOnStore findUPSOnStoreByCN(Collection<UPSOnStore> upsOnStoreList, String cn) {
+    private UPSOnStore findUPSOnStoreByID(Collection<UPSOnStore> upsOnStoreList, String id) {
         for (UPSOnStore upsOnStore : upsOnStoreList)
-            if (upsOnStore.getCommonName().equals(cn))
+            if (upsOnStore.getUPSOnStoreID().equals(id))
                 return upsOnStore;
         return null;
     }
 
-    private UPSProcessingRule findUPSProcessingRuleByCN(Collection<UPSProcessingRule> upsProcessingRules, String cn) {
+    private UPSProcessingRule findUPSProcessingRuleByID(Collection<UPSProcessingRule> upsProcessingRules, String id) {
         for (UPSProcessingRule upsProcessingRule : upsProcessingRules)
-            if (upsProcessingRule.getCommonName().equals(cn))
+            if (upsProcessingRule.getUPSProcessingRuleID().equals(id))
                 return upsProcessingRule;
         return null;
     }
 
-    private static UPSOnHL7 findUPSOnHL7ByCN(Collection<UPSOnHL7> upsOnHL7List, String cn) {
+    private static UPSOnHL7 findUPSOnHL7ByID(Collection<UPSOnHL7> upsOnHL7List, String id) {
         for (UPSOnHL7 upsOnHL7 : upsOnHL7List)
-            if (upsOnHL7.getCommonName().equals(cn))
+            if (upsOnHL7.getUPSOnHL7ID().equals(id))
                 return upsOnHL7;
         return null;
     }

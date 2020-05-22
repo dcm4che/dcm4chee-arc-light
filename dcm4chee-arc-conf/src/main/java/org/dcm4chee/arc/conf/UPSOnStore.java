@@ -58,7 +58,7 @@ public class UPSOnStore {
     public enum IncludeInputInformation {
         NO, SINGLE, APPEND, SINGLE_OR_CREATE, APPEND_OR_CREATE;
     }
-    private String commonName;
+    private String upsOnStoreID;
     private ScheduleExpression[] schedules = {};
     private Conditions conditions = new Conditions();
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
@@ -92,16 +92,16 @@ public class UPSOnStore {
 
     public UPSOnStore() {}
 
-    public UPSOnStore(String commonName) {
-        setCommonName(commonName);
+    public UPSOnStore(String upsOnStoreID) {
+        setUPSOnStoreID(upsOnStoreID);
     }
 
-    public String getCommonName() {
-        return commonName;
+    public String getUPSOnStoreID() {
+        return upsOnStoreID;
     }
 
-    public void setCommonName(String commonName) {
-        this.commonName = commonName;
+    public void setUPSOnStoreID(String upsOnStoreID) {
+        this.upsOnStoreID = upsOnStoreID;
     }
 
     public ScheduleExpression[] getSchedules() {
@@ -408,7 +408,7 @@ public class UPSOnStore {
     @Override
     public String toString() {
         return "UPSOnStore{" +
-                "cn='" + commonName + '\'' +
+                "cn='" + upsOnStoreID + '\'' +
                 '}';
     }
 

@@ -51,7 +51,6 @@ import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.Storage;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

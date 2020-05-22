@@ -52,7 +52,7 @@ import java.util.Objects;
  * @since Jan 2020
  */
 public class UPSOnHL7 {
-    private String commonName;
+    private String upsOnHL7ID;
     private HL7Conditions conditions = new HL7Conditions();
     private ScheduleExpression[] schedules = {};
     private String procedureStepLabel;
@@ -74,16 +74,16 @@ public class UPSOnHL7 {
 
     public UPSOnHL7() {}
 
-    public UPSOnHL7(String commonName) {
-        this.commonName = commonName;
+    public UPSOnHL7(String upsOnHL7ID) {
+        this.upsOnHL7ID = upsOnHL7ID;
     }
 
-    public String getCommonName() {
-        return commonName;
+    public String getUPSOnHL7ID() {
+        return upsOnHL7ID;
     }
 
-    public void setCommonName(String commonName) {
-        this.commonName = commonName;
+    public void setUPSOnHL7ID(String UPSOnHL7ID) {
+        this.upsOnHL7ID = UPSOnHL7ID;
     }
 
     public HL7Conditions getConditions() {
@@ -113,7 +113,7 @@ public class UPSOnHL7 {
     public String getProcedureStepLabel(HL7Fields hl7Fields) {
         return Objects.requireNonNull(hl7Fields.get(procedureStepLabel, null),
                 "Missing value for Procedure Step Label at " + procedureStepLabel
-                        + " configured in UPSOnHL7[cn=" + commonName + "]");
+                        + " configured in UPSOnHL7[cn=" + upsOnHL7ID + "]");
     }
 
     public String getWorklistLabel() {
@@ -274,7 +274,7 @@ public class UPSOnHL7 {
     @Override
     public String toString() {
         return "UPSOnHL7{" +
-                "commonName='" + commonName + '\'' +
+                "commonName='" + upsOnHL7ID + '\'' +
                 '}';
     }
 }

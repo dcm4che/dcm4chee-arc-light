@@ -65,7 +65,7 @@ public class UPSProcessingRule {
             null,
             "No Station Name specified");
 
-    private String commonName;
+    private String upsProcessingRuleID;
     private URI upsProcessorURI;
     private UPSPriority upsPriority;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
@@ -88,16 +88,16 @@ public class UPSProcessingRule {
 
     public UPSProcessingRule() {}
 
-    public UPSProcessingRule(String commonName) {
-        setCommonName(commonName);
+    public UPSProcessingRule(String upsProcessingRuleID) {
+        setUPSProcessingRuleID(upsProcessingRuleID);
     }
 
-    public String getCommonName() {
-        return commonName;
+    public String getUPSProcessingRuleID() {
+        return upsProcessingRuleID;
     }
 
-    public void setCommonName(String commonName) {
-        this.commonName = commonName;
+    public void setUPSProcessingRuleID(String UPSProcessingRuleID) {
+        this.upsProcessingRuleID = UPSProcessingRuleID;
     }
 
     public URI getUPSProcessorURI() {
@@ -281,7 +281,7 @@ public class UPSProcessingRule {
     @Override
     public String toString() {
         return "UPSProcessingRule{" +
-                "cn='" + commonName + '\'' +
+                "cn='" + upsProcessingRuleID + '\'' +
                 '}';
     }
 }
