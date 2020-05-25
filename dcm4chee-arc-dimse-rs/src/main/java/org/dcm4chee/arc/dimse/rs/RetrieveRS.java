@@ -229,6 +229,8 @@ public class RetrieveRS {
                     : export(destAET, keys);
         } catch (IllegalStateException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (IOException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         } catch (IllegalArgumentException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {

@@ -64,6 +64,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -158,6 +159,8 @@ public class StgCmtSCURS {
             return Response.status(rspStatus)
                     .entity(entity(actionInfo, dimseRSP))
                     .build();
+        } catch (IOException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

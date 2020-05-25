@@ -67,6 +67,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -229,6 +230,8 @@ public class RejectRS {
                         Tag.SeriesInstanceUID);
             } catch (DicomServiceException e) {
                 return failed(e.getStatus(), e.getMessage(), null);
+            } catch (IOException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
             } catch (Exception e) {
                 return failed(Status.ProcessingFailure, e.getMessage(), null);
             }
@@ -256,6 +259,8 @@ public class RejectRS {
                     default:
                         return failed(status, errorComment, matches);
                 }
+            } catch (IOException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
             } catch (Exception e) {
                 return failed(Status.ProcessingFailure, e.getMessage(), matches);
             }
