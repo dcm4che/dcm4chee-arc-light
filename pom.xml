@@ -221,7 +221,7 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-sqlserver</artifactId>
-        <version>7.4.1.jre11</version>
+        <version>8.2.2.jre11</version>
         <type>zip</type>
       </dependency>
     </dependencies>
