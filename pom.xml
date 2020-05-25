@@ -203,7 +203,7 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-mysql</artifactId>
-        <version>8.0.18</version>
+        <version>8.0.20</version>
         <type>zip</type>
       </dependency>
       <dependency>
