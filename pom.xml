@@ -215,7 +215,7 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-psql</artifactId>
-        <version>42.2.10</version>
+        <version>42.2.12</version>
         <type>zip</type>
       </dependency>
       <dependency>
