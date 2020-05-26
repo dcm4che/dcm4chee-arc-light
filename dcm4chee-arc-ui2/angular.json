@@ -45,7 +45,23 @@
               "src/app/constants/dcm4chee-arc-dict-names.js",
               "src/app/constants/dcm4che-dict-cuids.js",
               "src/app/constants/dcm4che-dict-tsuids.js",
-              "src/app/constants/elscint-dict-names.js"
+              "src/app/constants/elscint-dict-names.js",
+              "src/app/constants/agfa-adc-compact-dict-names.js",
+              "src/app/constants/agfa-adc-nx-dict-names.js",
+              "src/app/constants/agfa-ag-hpstate-dict-names.js",
+              "src/app/constants/agfa-dict-names.js",
+              "src/app/constants/agfa-displayable-images-dict-names.js",
+              "src/app/constants/agfa-kosd-1.0-dict-names.js",
+              "src/app/constants/agfa-pacs-archive-mirroring-1.0-dict-names.js",
+              "src/app/constants/agfa-xeroverse-dict-names.js",
+              "src/app/constants/agility-overlay-dict-names.js",
+              "src/app/constants/agility-runtime-dict-names.js",
+              "src/app/constants/mitra-linked-attributes-1.0-dict-names.js",
+              "src/app/constants/mitra-markup-1.0-dict-names.js",
+              "src/app/constants/mitra-object-attributes-1.0-dict-names.js",
+              "src/app/constants/mitra-object-document-1.0-dict-names.js",
+              "src/app/constants/mitra-object-utf8-attributes-1.0-dict-names.js",
+              "src/app/constants/mitra-presentation-1.0-dict-names.js"
             ]
           },
           "configurations": {
