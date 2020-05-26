@@ -434,13 +434,13 @@ export class Globalvar {
         return {
             '00100020': {
                 'create': {
-                    placeholder: $localize `:@@globalvar.to_generate_it_automatically_leave_it_blank:To generate it automatically leave it blank`,
+                    placeholder: $localize `:@@leave_it_blank_to_generate_it_automatically:Leave it blank to generate it automatically!`,
                     action: 'replace'
                 }
             },
             '0020000D': {
                 'create': {
-                    placeholder: $localize `:@@globalvar.to_generate_it_automatically_leave_it_blank:To generate it automatically leave it blank`,
+                    placeholder: $localize `:@@leave_it_blank_to_generate_it_automatically:Leave it blank to generate it automatically!`,
                     action: 'replace'
                 },
                 'edit': {

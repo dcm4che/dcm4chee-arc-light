@@ -77,7 +77,7 @@ export class CreateExporterComponent implements OnInit{
             },
             "dcmInstanceAvailability": {
                 "title": $localize `:@@create-exporter.instance_availability:Instance Availability`,
-                "description": $localize `:@@create-exporter.instance_availability.:Instance Availability.`,
+                "description": $localize `:@@create-exporter.instance_availability:Instance Availability`,
                 "type": "string",
                 "default": "ONLINE",
                 "enum": [
