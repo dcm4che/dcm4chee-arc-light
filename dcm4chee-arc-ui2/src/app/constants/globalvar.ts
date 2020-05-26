@@ -1037,7 +1037,7 @@ export class Globalvar {
                         label:$localize `:@@coding_scheme_designator_00080102:Coding scheme designator (0008,0102)`
                     }
                 ],
-                description:$localize `:@@scheduled_station_name_code_sequence_00404026:Scheduled Station Class Code Sequence (0040,4026)`,
+                description:$localize `:@@scheduled_station_class_code_sequence_00404026:Scheduled Station Class Code Sequence (0040,4026)`,
                 placeholder:$localize `:@@station_class_code:Station Class Code`
             },{
                 tag:"code-selector",
@@ -1050,7 +1050,7 @@ export class Globalvar {
                         label:$localize `:@@coding_scheme_designator_00080102:Coding scheme designator (0008,0102)`
                     }
                 ],
-                description: $localize `:@@scheduled_station_name_code_sequence_00404027:Scheduled Station Geographic Location Code Sequence (0040,4027)`,
+                description: $localize `:@@scheduled_station_geographic_location_code_sequence_00404027:Scheduled Station Geographic Location Code Sequence (0040,4027)`,
                 placeholder: $localize `:@@geographic_location_code:Geographic Location Code`
             },{
                 tag:"code-selector",
