@@ -62,6 +62,7 @@ public class UPSOnHL7 {
     private Duration startDateTimeDelay;
     private Duration completionDateTimeDelay;
     private String instanceUIDBasedOnName;
+    private String destinationAE;
     private Code scheduledWorkitemCode;
     private Code scheduledStationName;
     private Code scheduledStationClass;
@@ -172,6 +173,14 @@ public class UPSOnHL7 {
         return instanceUIDBasedOnName != null
                 ? UIDUtils.createNameBasedUID(hl7Fields.get(instanceUIDBasedOnName, "*").getBytes(StandardCharsets.UTF_8))
                 : UIDUtils.createUID();
+    }
+
+    public String getDestinationAE() {
+        return destinationAE;
+    }
+
+    public void setDestinationAE(String destinationAE) {
+        this.destinationAE = destinationAE;
     }
 
     public Code getScheduledWorkitemCode() {

@@ -856,6 +856,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeStudyInstanceUID", upsOnStore.isIncludeStudyInstanceUID(), false);
             writer.writeNotDef(
                     "dcmUPSIncludeReferencedRequest", upsOnStore.isIncludeReferencedRequest(), false);
+            writer.writeNotNullOrDef("dcmDestinationAE", upsOnStore.getDestinationAE(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
             writer.writeNotNullOrDef(
@@ -949,6 +950,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     upsOnHL7.getCompletionDateTimeDelay(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSInstanceUIDBasedOnName", upsOnHL7.getInstanceUIDBasedOnName(), null);
+            writer.writeNotNullOrDef("dcmDestinationAE", upsOnHL7.getDestinationAE(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnHL7.getScheduledWorkitemCode(), null);
             writer.writeNotNullOrDef(
@@ -2977,6 +2979,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmUPSIncludeReferencedRequest":
                         upsOnStore.setIncludeReferencedRequest(reader.booleanValue());
                         break;
+                    case "dcmDestinationAE":
+                        upsOnStore.setDestinationAE(reader.stringValue());
+                        break;
                     case "dcmUPSScheduledWorkitemCode":
                         upsOnStore.setScheduledWorkitemCode(new Code(reader.stringValue()));
                         break;
@@ -3154,6 +3159,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSInstanceUIDBasedOnName":
                         upsOnHL7.setInstanceUIDBasedOnName(reader.stringValue());
+                        break;
+                    case "dcmDestinationAE":
+                        upsOnHL7.setDestinationAE(reader.stringValue());
                         break;
                     case "dcmUPSScheduledWorkitemCode":
                         upsOnHL7.setScheduledWorkitemCode(new Code(reader.stringValue()));

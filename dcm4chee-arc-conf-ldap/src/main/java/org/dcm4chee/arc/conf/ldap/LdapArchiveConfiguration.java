@@ -2861,6 +2861,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
                 upsOnStore.isIncludeReferencedRequest(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE",
+                upsOnStore.getDestinationAE(), null);
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnStore.getScheduledWorkitemCode(), null);
@@ -2963,6 +2965,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel", upsOnHL7.getWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnHL7.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE",
+                upsOnHL7.getDestinationAE(), null);
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnHL7.getScheduledWorkitemCode(), null);
@@ -3061,6 +3065,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
                 upsOnStore.setIncludeReferencedRequest(
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeReferencedRequest"), false));
+                upsOnStore.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnStore.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
                 upsOnStore.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
                 upsOnStore.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
@@ -3154,6 +3159,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnHL7.setInstanceUIDBasedOnName(
                         LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
                 upsOnHL7.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnHL7.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnHL7.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
                 upsOnHL7.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
                 upsOnHL7.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
@@ -3546,6 +3552,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isIncludeStudyInstanceUID(), upsOnStore.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeReferencedRequest",
                 prev.isIncludeReferencedRequest(), upsOnStore.isIncludeReferencedRequest(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
+                prev.getDestinationAE(), upsOnStore.getDestinationAE(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnStore.getScheduledWorkitemCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
@@ -3644,6 +3652,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getWorklistLabel(), upsOnHL7.getWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInstanceUIDBasedOnName",
                 prev.getInstanceUIDBasedOnName(), upsOnHL7.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
+                prev.getDestinationAE(), upsOnHL7.getDestinationAE(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnHL7.getScheduledWorkitemCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",

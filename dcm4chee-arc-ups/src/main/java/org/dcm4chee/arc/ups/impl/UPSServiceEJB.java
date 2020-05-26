@@ -745,9 +745,10 @@ public class UPSServiceEJB {
                     }
             }
             LOG.info("{}: update existing {}", ctx.getStoreSession(), ups);
-            updateIncludeInputInformation(ups.getAttributes().getSequence(Tag.InputInformationSequence), ctx);
-            ups.setAttributes(ups.getAttributes(),
-                    ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+            Attributes attrs = ups.getAttributes();
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getStartDateTimeDelay()));
+            updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
+            ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
             return ups;
         } catch (NoResultException e) {
             return createOnStore(iuid, ctx, now, rule);
@@ -804,6 +805,9 @@ public class UPSServiceEJB {
                 attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
             }
         }
+        if (rule.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
+            attrs.newSequence(Tag.OutputDestinationSequence, 1).add(outputStorage(rule.getDestinationAE()));
+        }
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority)) {
             attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
@@ -819,6 +823,14 @@ public class UPSServiceEJB {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
         return attrs;
+    }
+
+    private static Attributes outputStorage(String destinationAE) {
+        Attributes dicomStorage = new Attributes(1);
+        dicomStorage.setString(Tag.DestinationAE, VR.AE, destinationAE);
+        Attributes outputDestination = new Attributes(1);
+        outputDestination.newSequence(Tag.DICOMStorageSequence, 1).add(dicomStorage);
+        return outputDestination;
     }
 
     private static Attributes referencedRequest(StoreContext storeCtx, UPSOnStore rule) {
@@ -882,6 +894,10 @@ public class UPSServiceEJB {
             setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
         if (!attrs.contains(Tag.InputReadinessState))
             attrs.setString(Tag.InputReadinessState, VR.CS, upsOnHL7.getInputReadinessState().name());
+        if (upsOnHL7.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
+            attrs.newSequence(Tag.OutputDestinationSequence, 1)
+                    .add(outputStorage(upsOnHL7.getDestinationAE()));
+        }
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
             attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsOnHL7.getUPSPriority().name());

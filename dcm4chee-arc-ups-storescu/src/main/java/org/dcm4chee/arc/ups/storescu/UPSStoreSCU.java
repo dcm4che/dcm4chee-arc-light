@@ -42,10 +42,7 @@
 package org.dcm4chee.arc.ups.storescu;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -66,7 +63,7 @@ import java.util.*;
 public class UPSStoreSCU extends AbstractUPSProcessor {
     private final RetrieveService retrieveService;
     private final CStoreSCU storeSCU;
-    private final String destAET;
+    private final String defDestinationAE;
     private final RetrieveLevel retrieveLevel;
     private final boolean completeOnFailures;
 
@@ -75,7 +72,7 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
         super(rule, upsService);
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
-        this.destAET = rule.getUPSProcessorURI().getSchemeSpecificPart();
+        this.defDestinationAE = rule.getUPSProcessorURI().getSchemeSpecificPart();
         this.retrieveLevel = RetrieveLevel.valueOf(rule.getProperty("retrieveLevel", "IMAGE"));
         this.completeOnFailures = Boolean.parseBoolean(rule.getProperty("completeOnFailures", null));
     }
@@ -83,8 +80,9 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
         RetrieveContext retrieveContext;
+        String destinationAE = destinationAEOf(ups);
         try {
-            retrieveContext = calculateMatches(ups);
+            retrieveContext = calculateMatches(ups, destinationAE);
         } catch (Exception e) {
             throw new UPSProcessorException(e);
         }
@@ -101,7 +99,7 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
             Sequence outputInfomationSeq = performedProcedure.getSequence(Tag.OutputInformationSequence);
             for (InstanceLocations match : retrieveContext.getMatches()) {
                 if (!retrieveContext.isFailedSOPInstanceUID(match.getSopInstanceUID())) {
-                    refSOPSequence(outputInfomationSeq, match, destAET).add(toSOPRef(match));
+                    refSOPSequence(outputInfomationSeq, match, destinationAE).add(toSOPRef(match));
                 }
             }
             if (!completeOnFailures && retrieveContext.failed() > 0)
@@ -109,7 +107,16 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
         }
     }
 
-    private RetrieveContext calculateMatches(Attributes ups) throws DicomServiceException, ConfigurationException {
+    private String destinationAEOf(Attributes ups) {
+        Attributes outputDestination, dicomStorage;
+        return (outputDestination = ups.getNestedDataset(Tag.OutputDestinationSequence)) != null
+                && (dicomStorage = outputDestination.getNestedDataset(Tag.DICOMStorageSequence)) != null
+                ? dicomStorage.getString(Tag.DestinationAE, defDestinationAE)
+                : defDestinationAE;
+    }
+
+    private RetrieveContext calculateMatches(Attributes ups, String destAET)
+            throws DicomServiceException, ConfigurationException {
         RetrieveContext retrieveContext = null;
         Set<String> suids = new HashSet<>();
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {

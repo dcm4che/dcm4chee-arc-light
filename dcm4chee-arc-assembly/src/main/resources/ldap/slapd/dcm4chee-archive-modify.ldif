@@ -1792,6 +1792,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.371 NAME 'dcmUPSProcessingRuleID'
   DESC 'ID of UPS Processing Rule'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.372 NAME 'dcmDestinationAE'
+   DESC 'Title of a DICOM Application Entity to which Instances will be stored'
+   EQUALITY caseExactIA5Match
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+   SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2520,6 +2525,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmRequestedProcedureDescription $
     dcmRequestingPhysician $
     dcmRequestingService $
+    dcmDestinationAE $
     dcmURI $
     dcmNoKeywords $
     dcmProperty $
@@ -2546,6 +2552,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmUPSScheduledHumanPerformerName $
     dcmUPSScheduledHumanPerformerOrganization $
     dcmRequestingService $
+    dcmDestinationAE $
     dcmProperty $
     dcmSchedule ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.39 NAME 'dcmMWLIdleTimeout'
