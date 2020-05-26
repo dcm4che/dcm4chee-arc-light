@@ -283,7 +283,7 @@ export class StudiesService {
             schemaModel = {
                 expiredDate:j4care.formatDate(expiredDate,'yyyyMMdd')
             };
-            title += $localize `:@@studies.set_exporter_if_you_wan't_to_export_on_expiration_date_too:<p>Set exporter if you wan't to export on expiration date too.`;
+            title += $localize `:@@studies.set_exporter_if_you_want_to_export_on_expiration_date_too:<p>Set exporter if you want to export on expiration date too.`;
             schema[0].push([
                 {
                     tag:"label",
