@@ -832,13 +832,13 @@
       "$ref": "paths/iocm.json#/dimse.instance.reject"
     },
     "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/iocm.json#/dimse.study.reject"
+      "$ref": "paths/iocm.json#/dimse.study.queryReject"
     },
     "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/iocm.json#/dimse.series.reject"
+      "$ref": "paths/iocm.json#/dimse.series.queryReject"
     },
     "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "$ref": "paths/iocm.json#/dimse.instance.reject"
+      "$ref": "paths/iocm.json#/dimse.instance.queryReject"
     },
     "/aets/{aet}/rs/studies_": {
       "$ref": "paths/iocm.json#/studies"
