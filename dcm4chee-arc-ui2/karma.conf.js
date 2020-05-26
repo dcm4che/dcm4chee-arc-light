@@ -26,7 +26,6 @@ module.exports = function (config) {
         files:[
             "src/app/constants/dcm4che-dict-names.js",
             "src/app/constants/dcm4chee-arc-dict-names.js",
-            "src/app/constants/elscint-dict-names.js",
             "src/app/constants/dcm4che-dict-cuids.js",
             "src/app/constants/dcm4che-dict-tsuids.js",
             "src/app/constants/elscint-dict-names.js"
