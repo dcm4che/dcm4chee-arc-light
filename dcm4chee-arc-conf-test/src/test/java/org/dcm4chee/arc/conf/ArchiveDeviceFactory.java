@@ -1004,6 +1004,10 @@ class ArchiveDeviceFactory {
             SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELLED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
     };
 
+    static final Code DICOM_EXPORT =
+            new Code("DICOM_EXPORT", "99DCM4CHEE", null, "Export by DICOM Storage");
+    static final Code DCM4CHEE_ARC =
+            new Code("dcm4chee-arc", "99DCM4CHEE", null, "dcm4chee-arc");
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
             new Code("110514", "DCM", null, "Incorrect worklist entry selected");
     static final Code REJECTED_FOR_QUALITY_REASONS =
@@ -1267,6 +1271,10 @@ class ArchiveDeviceFactory {
             null,
             "Radiology");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration UPS_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration DELETE_UPS_POLLING_INTERVAL = Duration.valueOf("PT1H");
+    static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P1D");
+    static final Duration DELETE_UPS_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
@@ -1710,6 +1718,14 @@ class ArchiveDeviceFactory {
         ext.setStorageVerificationAETitle(AE_TITLE);
         ext.setCompressionAETitle(AE_TITLE);
 
+        ext.setUPSProcessingPollingInterval(UPS_PROCESSING_POLLING_INTERVAL);
+        ext.setDeleteUPSPollingInterval(DELETE_UPS_POLLING_INTERVAL);
+        ext.setDeleteUPSCanceledDelay(DELETE_UPS_CANCELED_DELAY);
+        ext.setDeleteUPSCompletedDelay(DELETE_UPS_COMPLETED_DELAY);
+
+        ext.addUPSProcessingRule(newUPSProcessingRule(
+                "DICOM_EXPORT", DICOM_EXPORT, DCM4CHEE_ARC, "storescu:STORESCP"));
+
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesAETitle(AE_TITLE);
         ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
@@ -2040,6 +2056,17 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
+    }
+
+    private static UPSProcessingRule newUPSProcessingRule(
+            String upsLabel, Code workItemCode, Code stationNameCode, String uri) {
+        UPSProcessingRule rule = new UPSProcessingRule(upsLabel);
+        rule.setAETitle(AE_TITLE);
+        rule.setProcedureStepLabel(upsLabel);
+        rule.setPerformedWorkitemCode(workItemCode);
+        rule.setPerformedStationNameCode(stationNameCode);
+        rule.setUPSProcessorURI(URI.create(uri));
+        return rule;
     }
 
     private static AttributeSet newAttributeSet(

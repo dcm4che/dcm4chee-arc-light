@@ -28,6 +28,7 @@ objectClass: dcmDevice
 
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSendPendingCMoveInterval: PT5S
+dcmDeleteUPSCanceledDelay: P1D
 dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
 dcmTrustStoreType: JKS
@@ -40,6 +41,7 @@ dcmKeyStoreType: JKS
 dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73
@@ -60,16 +62,17 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
-dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
+dcmUPSProcessingPollingInterval: PT1M
 dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
 dcmDiffTaskProgressUpdateInterval: PT10S
+dcmDeleteUPSCompletedDelay: P1D
 dcmSendPendingCGet: TRUE
 hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
@@ -92,6 +95,7 @@ dicomInstalled: TRUE
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
 dcmPurgeStoragePollingInterval: PT5M
+dcmDeleteUPSPollingInterval: PT1H
 dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -2812,6 +2816,15 @@ dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")
 dcmQueryRetrieveViewID: hideRejected
 objectClass: dcmQueryRetrieveView
+
+dn: dcmUPSProcessingRuleID=DICOM_EXPORT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (DICOM_EXPORT, 99DCM4CHEE, "Export by DICOM Storage")
+dcmUPSLabel: DICOM_EXPORT
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: DICOM_EXPORT
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmURI: storescu:STORESCP
 
 dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Show instances rejected for Quality Reasons

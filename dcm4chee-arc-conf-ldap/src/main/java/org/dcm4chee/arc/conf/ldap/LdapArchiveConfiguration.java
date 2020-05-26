@@ -2799,7 +2799,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private void storeUPSProcessingRules(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
         for (UPSProcessingRule upsProcessingRule : arcDev.listUPSProcessingRules()) {
-            String dn = LdapUtils.dnOf("dcmUPSProcessingRule", upsProcessingRule.getUPSProcessingRuleID(), deviceDN);
+            String dn = LdapUtils.dnOf("dcmUPSProcessingRuleID", upsProcessingRule.getUPSProcessingRuleID(), deviceDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(dn, storeTo(ldapObj, upsProcessingRule, new BasicAttributes(true)));
