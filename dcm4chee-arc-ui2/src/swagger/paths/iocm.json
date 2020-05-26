@@ -1127,7 +1127,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "description": "Connection Refused or C-FIND-SCP or C-STORE SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -1187,7 +1187,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "description": "Connection Refused or C-FIND-SCP or C-STORE SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -1250,7 +1250,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "C-FIND-SCP or C-STORE SCP Failure",
+          "description": "Connection Refused or C-FIND-SCP or C-STORE SCP Failure",
           "content": {
             "application/json": {
               "schema": {

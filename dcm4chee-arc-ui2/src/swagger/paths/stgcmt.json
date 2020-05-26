@@ -133,7 +133,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "Storage Commitment SCP Failure",
+          "description": "Connection Refused or Storage Commitment SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -184,7 +184,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "Storage Commitment SCP Failure",
+          "description": "Connection Refused or Storage Commitment SCP Failure",
           "content": {
             "application/json": {
               "schema": {
@@ -238,7 +238,7 @@
           "description": "Internal Server Error"
         },
         "502": {
-          "description": "Storage Commitment SCP Failure",
+          "description": "Connection Refused or Storage Commitment SCP Failure",
           "content": {
             "application/json": {
               "schema": {
