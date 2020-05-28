@@ -1272,6 +1272,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let patientID = this.service.getPatientId(model);
             let patientBirthDate = _.get(model, "00100030.Value.0");
             let accessionNumber = _.get(model, "00080050.Value.0");
+            let dcmWebServicePath = this.studyWebService.selectedWebService.dcmWebServicePath;
             let replaceDoubleBraces = (url, result) => {
                 return url.replace(/{{(currentDateTime-)?(.+?)}}/g, (match, g1, g2) => {
                     if(g1){
@@ -1291,7 +1292,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "patientBirthDate":patientBirthDate,
                     "studyUID": studyUID,
                     "accessionNumber": accessionNumber,
-                    "access_token": token
+                    "access_token": token,
+                    "qidoBasePath": dcmWebServicePath
                 };
                 url = replaceDoubleBraces(configuredUrlString, substitutions).trim();
                 console.log("Prepared URL: ", url);
