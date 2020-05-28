@@ -28,7 +28,7 @@ objectClass: dcmDevice
 
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSendPendingCMoveInterval: PT5S
-dcmDeleteUPSCanceledDelay: P1D
+dcmDeleteUPSCanceledDelay: P7D
 dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
 dcmTrustStoreType: JKS

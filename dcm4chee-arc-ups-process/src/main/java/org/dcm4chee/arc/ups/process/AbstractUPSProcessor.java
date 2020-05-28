@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups.process;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
@@ -111,9 +112,31 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
             transaction.setString(Tag.ProcedureStepState, VR.CS, "COMPLETED");
             performedProcedure.setDate(Tag.PerformedProcedureStepEndDateTime, VR.DT, new Date());
         } catch (UPSProcessorException e) {
-            transaction.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
-            setReasonForCancellation(upsCtx, e);
-            replacement = retryUPS(ups, e);
+            if (rule.isIgnoreDiscontinuationReasonCodes(e.reasonCode)) {
+                transaction.setString(Tag.ProcedureStepState, VR.CS, "COMPLETED");
+                performedProcedure.setDate(Tag.PerformedProcedureStepEndDateTime, VR.DT, new Date());
+                if (!performedProcedure.containsValue(Tag.PerformedProcedureStepDescription)) {
+                    performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, e.getMessage());
+                }
+            } else {
+                transaction.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
+                long delay;
+                if (!rule.isRescheduleDiscontinuationReasonCodes(e.reasonCode) || (delay = retryDelay(ups)) < 0) {
+                    LOG.warn("Failed to process UPS[uid={}]:\n", ups.getString(Tag.SOPInstanceUID), e);
+                    setReasonForCancellation(upsCtx, e.getMessage(), e.reasonCode);
+                } else {
+                    LOG.info("Failed to process UPS[uid={}] - retry:\n", ups.getString(Tag.SOPInstanceUID), e);
+                    setReasonForCancellation(upsCtx, e.getMessage(),
+                            ProcedureDiscontinuationReasons.DiscontinuedProcedureStepRescheduled);
+                    replacement = new Attributes(ups.size());
+                    replacement.addNotSelected(ups, EXCLUDE_FROM_REPLACEMENT);
+                    replacement.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT,
+                            new Date(System.currentTimeMillis() + delay * 1000));
+                    replacement.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+                    replacement.ensureSequence(Tag.ReplacedProcedureStepSequence, 1)
+                            .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
+                 }
+            }
         }
         try {
             upsService.changeUPSState(upsCtx);
@@ -134,22 +157,9 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         }
     }
 
-    private Attributes retryUPS(Attributes ups, Exception e) {
+    private long retryDelay(Attributes ups) {
         Sequence seq = ups.getSequence(Tag.ReplacedProcedureStepSequence);
-        long delay = rule.getRetryDelayInSeconds((seq != null ? seq.size() : 0) + 1);
-        if (delay < 0) {
-            LOG.warn("Failed to process UPS[uid={}]:\n", ups.getString(Tag.SOPInstanceUID), e);
-            return null;
-        }
-        LOG.info("Failed to process UPS[uid={}] - retry:\n", ups.getString(Tag.SOPInstanceUID), e);
-        Attributes replacement = new Attributes(ups.size());
-        replacement.addNotSelected(ups, EXCLUDE_FROM_REPLACEMENT);
-        replacement.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT,
-                new Date(System.currentTimeMillis() + delay * 1000));
-        replacement.setString(Tag.ProcedureStepState, VR.CS,"SCHEDULED");
-        replacement.ensureSequence(Tag.ReplacedProcedureStepSequence, 1)
-                .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
-        return replacement;
+        return rule.getRetryDelayInSeconds((seq != null ? seq.size() : 0) + 1);
     }
 
     private static Attributes refSOP(String cuid, String iuid) {
@@ -179,20 +189,22 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         return upsCtx.getMergeAttributes().getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence);
     }
 
-    private void setReasonForCancellation(UPSContext upsCtx, UPSProcessorException e) {
+    protected Attributes getProgressInformation(UPSContext upsCtx) {
         Sequence sq = upsCtx.getMergeAttributes().getSequence(Tag.ProcedureStepProgressInformationSequence);
-        Attributes progressInformation;
-        if (sq.isEmpty()) {
-            sq.add(progressInformation = new Attributes());
-        } else {
-            progressInformation = sq.get(0);
+        if (!sq.isEmpty()) {
+            return sq.get(0);
         }
+        Attributes progressInformation = new Attributes();
+        sq.add(progressInformation);
+        return progressInformation;
+    }
+
+    private void setReasonForCancellation(UPSContext upsCtx, String reason, Code reasonCode) {
+        Attributes progressInformation = getProgressInformation(upsCtx);
         progressInformation.setDate(Tag.ProcedureStepCancellationDateTime, VR.DT, new Date());
-        if (e.reasonCode != null) {
-            progressInformation.newSequence(Tag.ProcedureStepDiscontinuationReasonCodeSequence, 1)
-                    .add(e.reasonCode.toItem());
-        }
-        progressInformation.setString(Tag.ReasonForCancellation, VR.LT, e.getMessage());
+        progressInformation.newSequence(Tag.ProcedureStepDiscontinuationReasonCodeSequence, 1)
+                .add(reasonCode.toItem());
+        progressInformation.setString(Tag.ReasonForCancellation, VR.LT,reason);
     }
 
     protected abstract void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException;

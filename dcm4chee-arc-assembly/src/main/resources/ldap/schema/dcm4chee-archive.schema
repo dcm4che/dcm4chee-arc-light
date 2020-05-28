@@ -1866,43 +1866,50 @@ attributetype ( 1.2.40.0.13.1.15.110.3.323 NAME 'dcmUPSScheduledWorkitemCode'
   DESC 'Item of Scheduled Workitem Code Sequence (0040,4018) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.324 NAME 'dcmUPSScheduledStationNameCode'
   DESC 'Item of Scheduled Station Name Code Sequence (0040,4025) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.325 NAME 'dcmUPSScheduledStationClassCode'
   DESC 'Item of Scheduled Station Class Code Sequence (0040,4026) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.326 NAME 'dcmUPSScheduledStationLocationCode'
   DESC 'Item of Scheduled Station Geographic Location Code Sequence (0040,4027) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.327 NAME 'dcmUPSScheduledHumanPerformerCode'
   DESC 'Item of Human Performer Code Sequence (0040,4009) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.328 NAME 'dcmUPSScheduledHumanPerformerName'
   DESC 'Value of Human Performer Name (0040,4037) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.329 NAME 'dcmUPSScheduledHumanPerformerOrganization'
   DESC 'Value of Human Performer Organization (0040,4036) in Item of Scheduled Human Performers Sequence (0040,4034) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.330 NAME 'dcmUPSStartDateTimeDelay'
   DESC 'Delay of Scheduled Procedure Step Start DateTime (0040,4005) in created UPS from receive time in format PnDTnHnMn.nS. No delay if absent.'
@@ -1920,37 +1927,43 @@ attributetype ( 1.2.40.0.13.1.15.110.3.332 NAME 'dcmAdmissionID'
   DESC 'Value of Admission ID (0038,0010) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.333 NAME 'dcmAccessionNumber'
   DESC 'Value of Accession Number (0008,0050) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.334 NAME 'dcmRequestedProcedureID'
   DESC 'Value of Requested Procedure ID (0040,1001) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.335 NAME 'dcmRequestedProcedureDescription'
   DESC 'Value of Requested Procedure Description (0032,1060) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.336 NAME 'dcmRequestingPhysician'
   DESC 'Value of Requesting Physician (0032,1032) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.337 NAME 'dcmRequestingService'
   DESC 'Value of Requesting Service (0032,1033) in Item of Referenced Request Sequence (0040,A370) in created UPS. {attributeID} will be replaced by the value of that attribute in the received dataset.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.338 NAME 'dcmRestrictRetrieveSilently'
   DESC 'Indicates if the set of requested objects to retrieve shall be silently (=without counting not transferred object as failures) restricted according the Transfer Capabilities of the Retrieve Destination. Otherwise the number of requested objects for which no Transfer Capability is configured for the Retrieve Destination and therefore are not retrieved is counted as failures. Only effective, if the Retrieve Destination has configured at least one Transfer Capability with SCP role; false if absent.'
@@ -2130,34 +2143,51 @@ attributetype ( 1.2.40.0.13.1.15.110.3.367 NAME 'dcmUPSPerformedWorkitemCode'
   DESC 'Item of Performed Workitem Code Sequence (0040,4019) in processed UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.368 NAME 'dcmUPSPerformedStationNameCode'
   DESC 'Item of Performed Station Name Code Sequence (0040,4028) in processed UPS in format (CV, CSD, "CM").'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.369 NAME 'dcmUPSOnStoreID'
   DESC 'ID of UPS on Store Rule'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.370 NAME 'hl7UPSOnHL7ID'
   DESC 'ID of UPS on HL7 Rule'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.371 NAME 'dcmUPSProcessingRuleID'
   DESC 'ID of UPS Processing Rule'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.372 NAME 'dcmDestinationAE'
    DESC 'Title of a DICOM Application Entity to which Instances will be stored'
    EQUALITY caseExactIA5Match
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.373 NAME 'dcmUPSRescheduleDiscontinuationReasonCode'
+  DESC 'Specifies Discontinuation Reason Code in format (CV, CSD, "CM") to reschedule the canceled UPS.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.374 NAME 'dcmUPSIgnoreDiscontinuationReasonCode'
+  DESC 'Specifies Discontinuation Reason Code in format (CV, CSD, "CM") to ignore and change UPS State to COMPLETED.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2898,6 +2928,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmUPSIncludeInputInformation $
     dcmUPSIncludeStudyInstanceUID $
     dcmUPSIncludeReferencedRequest $
+    dcmDestinationAE $
     dcmUPSScheduledWorkitemCode $
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
@@ -2913,7 +2944,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmRequestedProcedureDescription $
     dcmRequestingPhysician $
     dcmRequestingService $
-    dcmDestinationAE $
     dcmURI $
     dcmNoKeywords $
     dcmProperty $
@@ -2933,6 +2963,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmUPSCompletionDateTimeDelay $
     dcmUPSWorklistLabel $
     dcmUPSInstanceUIDBasedOnName $
+    dcmDestinationAE $
+    dcmEntity $
     dcmUPSScheduledWorkitemCode $
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
@@ -2941,7 +2973,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmUPSScheduledHumanPerformerName $
     dcmUPSScheduledHumanPerformerOrganization $
     dcmRequestingService $
-    dcmDestinationAE $
     dcmProperty $
     dcmSchedule ) )
 
@@ -2974,6 +3005,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
     dcmUPSScheduledStationLocationCode $
     dcmUPSPerformedWorkitemCode $
     dcmUPSPerformedStationNameCode $
+    dcmUPSRescheduleDiscontinuationReasonCode $
+    dcmUPSIgnoreDiscontinuationReasonCode $
     dcmMaxThreads $
     dcmMaxRetries $
     dcmRetryDelay $

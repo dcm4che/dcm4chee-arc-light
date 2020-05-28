@@ -1273,7 +1273,7 @@ class ArchiveDeviceFactory {
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration UPS_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration DELETE_UPS_POLLING_INTERVAL = Duration.valueOf("PT1H");
-    static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P1D");
+    static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P7D");
     static final Duration DELETE_UPS_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.valueOf("PT5M");

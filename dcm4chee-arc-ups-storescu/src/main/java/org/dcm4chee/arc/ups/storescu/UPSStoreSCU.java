@@ -42,7 +42,10 @@
 package org.dcm4chee.arc.ups.storescu;
 
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ScopeOfAccumlation;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -64,8 +67,6 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
     private final RetrieveService retrieveService;
     private final CStoreSCU storeSCU;
     private final String defDestinationAE;
-    private final RetrieveLevel retrieveLevel;
-    private final boolean completeOnFailures;
 
     public UPSStoreSCU(UPSProcessingRule rule, UPSService upsService, RetrieveService retrieveService,
             CStoreSCU storeSCU) {
@@ -73,37 +74,29 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
         this.defDestinationAE = rule.getUPSProcessorURI().getSchemeSpecificPart();
-        this.retrieveLevel = RetrieveLevel.valueOf(rule.getProperty("retrieveLevel", "IMAGE"));
-        this.completeOnFailures = Boolean.parseBoolean(rule.getProperty("completeOnFailures", null));
     }
 
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
-        RetrieveContext retrieveContext;
         String destinationAE = destinationAEOf(ups);
         try {
-            retrieveContext = calculateMatches(ups, destinationAE);
-        } catch (Exception e) {
-            throw new UPSProcessorException(e);
-        }
-        if (retrieveContext != null
-                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext)) {
-            try {
+            RetrieveContext retrieveContext = calculateMatches(ups, destinationAE);
+            if (retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext)) {
                 storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
-            } catch (Exception e) {
-                throw new UPSProcessorException(e);
-            }
-            String outcomeDescription = retrieveContext.getOutcomeDescription();
-            Attributes performedProcedure = getPerformedProcedureStep(upsCtx);
-            performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, outcomeDescription);
-            Sequence outputInfomationSeq = performedProcedure.getSequence(Tag.OutputInformationSequence);
-            for (InstanceLocations match : retrieveContext.getMatches()) {
-                if (!retrieveContext.isFailedSOPInstanceUID(match.getSopInstanceUID())) {
-                    refSOPSequence(outputInfomationSeq, match, destinationAE).add(toSOPRef(match));
+                String outcomeDescription = retrieveContext.getOutcomeDescription();
+                Attributes performedProcedure = getPerformedProcedureStep(upsCtx);
+                performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, outcomeDescription);
+                Sequence outputInformationSeq = performedProcedure.getSequence(Tag.OutputInformationSequence);
+                for (InstanceLocations match : retrieveContext.getMatches()) {
+                    if (!retrieveContext.isFailedSOPInstanceUID(match.getSopInstanceUID())) {
+                        refSOPSequence(outputInformationSeq, match, destinationAE).add(toSOPRef(match));
+                    }
                 }
+                if (retrieveContext.status() != Status.Success)
+                    throw new UPSProcessorException(retrieveContext.status(), outcomeDescription);
             }
-            if (!completeOnFailures && retrieveContext.failed() > 0)
-                throw new UPSProcessorException(outcomeDescription);
+        } catch (DicomServiceException e) {
+            throw new UPSProcessorException(e.getStatus(), e);
         }
     }
 
@@ -116,12 +109,12 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
     }
 
     private RetrieveContext calculateMatches(Attributes ups, String destAET)
-            throws DicomServiceException, ConfigurationException {
+            throws DicomServiceException {
         RetrieveContext retrieveContext = null;
+        RetrieveLevel retrieveLevel = RetrieveLevel.of(getScheduledProcessingParameter(ups, ScopeOfAccumlation.CODE));
         Set<String> suids = new HashSet<>();
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
-            RetrieveContext tmp = retrieveLevel.newRetrieveContextSTORE(
-                    retrieveService, rule.getAETitle(), inputInformation, destAET, suids);
+            RetrieveContext tmp = newRetrieveContext(retrieveLevel, inputInformation, destAET, suids);
             if (tmp != null && retrieveService.calculateMatches(tmp)) {
                 if (retrieveContext == null) {
                     retrieveContext = tmp;
@@ -133,6 +126,30 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
             }
         }
         return retrieveContext;
+    }
+
+    private RetrieveContext newRetrieveContext(RetrieveLevel retrieveLevel, Attributes inputInformation,
+            String destAET, Set<String> suids) throws DicomServiceException {
+        try {
+            return retrieveLevel.newRetrieveContextSTORE(
+                    retrieveService, rule.getAETitle(), inputInformation, destAET, suids);
+        } catch (ConfigurationNotFoundException e) {
+            throw new DicomServiceException(Status.MoveDestinationUnknown, e.getMessage());
+        } catch (ConfigurationException e) {
+            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
+        }
+    }
+
+    private Optional<Code> getScheduledProcessingParameter(Attributes ups, Code conceptName) {
+        Sequence seq = ups.getSequence(Tag.ScheduledProcessingParametersSequence);
+        if (seq == null)
+            return Optional.empty();
+
+        return seq.stream()
+                .filter(item -> conceptName.equalsIgnoreMeaning(
+                        new Code(item.getNestedDataset(Tag.ConceptNameCodeSequence))))
+                .map(item -> new Code(item.getNestedDataset(Tag.ConceptCodeSequence)))
+                .findFirst();
     }
 
     private enum RetrieveLevel {
@@ -170,6 +187,13 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
                         destAET);
             }
         };
+
+        public static RetrieveLevel of(Optional<Code> scopeOfAccumlation) {
+            return scopeOfAccumlation.isPresent() ?
+                    (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Study) ? STUDY :
+                            (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Series) ? SERIES : IMAGE))
+                    : IMAGE;
+        }
 
         abstract RetrieveContext newRetrieveContextSTORE(RetrieveService retrieveService, String aet,
                 Attributes inputInformation, String destAET, Set<String> suids) throws ConfigurationException;

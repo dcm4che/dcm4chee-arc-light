@@ -85,6 +85,7 @@ public class UPSOnStore {
     private Code scheduledStationLocation;
     private Code scheduledHumanPerformer;
     private String destinationAE;
+    private Entity scopeOfAccumulation;
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
@@ -381,6 +382,14 @@ public class UPSOnStore {
 
     public void setDestinationAE(String destinationAE) {
         this.destinationAE = destinationAE;
+    }
+
+    public Entity getScopeOfAccumulation() {
+        return scopeOfAccumulation;
+    }
+
+    public void setScopeOfAccumulation(Entity scopeOfAccumulation) {
+        this.scopeOfAccumulation = scopeOfAccumulation;
     }
 
     public String getXSLTStylesheetURI() {

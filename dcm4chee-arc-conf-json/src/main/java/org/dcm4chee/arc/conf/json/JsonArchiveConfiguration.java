@@ -857,6 +857,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef(
                     "dcmUPSIncludeReferencedRequest", upsOnStore.isIncludeReferencedRequest(), false);
             writer.writeNotNullOrDef("dcmDestinationAE", upsOnStore.getDestinationAE(), null);
+            writer.writeNotNullOrDef("dcmEntity", upsOnStore.getScopeOfAccumulation(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
             writer.writeNotNullOrDef(
@@ -921,6 +922,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmUPSPerformedStationNameCode",
                     upsProcessingRule.getPerformedStationNameCode(), null);
+            writer.writeNotEmpty(
+                    "dcmRescheduleDiscontinuationReasonCode",
+                    upsProcessingRule.getRescheduleDiscontinuationReasonCodes());
+            writer.writeNotEmpty(
+                    "dcmIgnoreDiscontinuationReasonCode",
+                    upsProcessingRule.getIgnoreDiscontinuationReasonCodes());
             writer.writeNotDef("dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
             writer.writeNotNullOrDef("dcmRetryDelay",
                     upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
@@ -2982,6 +2989,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmDestinationAE":
                         upsOnStore.setDestinationAE(reader.stringValue());
                         break;
+                    case "dcmEntity":
+                        upsOnStore.setScopeOfAccumulation(Entity.valueOf(reader.stringValue()));
+                        break;
                     case "dcmUPSScheduledWorkitemCode":
                         upsOnStore.setScheduledWorkitemCode(new Code(reader.stringValue()));
                         break;
@@ -3105,6 +3115,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSPerformedStationNameCode":
                         upsProcessingRule.setPerformedStationNameCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmRescheduleDiscontinuationReasonCode":
+                        upsProcessingRule.setRescheduleDiscontinuationReasonCodes(reader.codeArray());
+                        break;
+                    case "dcmIgnoreDiscontinuationReasonCode":
+                        upsProcessingRule.setIgnoreDiscontinuationReasonCodes(reader.codeArray());
                         break;
                     case "dcmMaxRetries":
                         upsProcessingRule.setMaxRetries(reader.intValue());

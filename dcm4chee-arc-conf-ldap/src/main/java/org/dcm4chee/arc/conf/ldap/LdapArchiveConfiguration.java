@@ -2863,6 +2863,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.isIncludeReferencedRequest(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE",
                 upsOnStore.getDestinationAE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmEntity",
+                upsOnStore.getScopeOfAccumulation(), null);
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnStore.getScheduledWorkitemCode(), null);
@@ -2941,6 +2943,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSPerformedStationNameCode",
                 upsProcessingRule.getPerformedStationNameCode(), null);
+        LdapUtils.storeNotEmpty(
+                ldapObj, attrs, "dcmRescheduleDiscontinuationReasonCode",
+                upsProcessingRule.getRescheduleDiscontinuationReasonCodes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIgnoreDiscontinuationReasonCode",
+                upsProcessingRule.getIgnoreDiscontinuationReasonCodes());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", upsProcessingRule.getMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
                 upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);
@@ -3066,6 +3073,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setIncludeReferencedRequest(
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeReferencedRequest"), false));
                 upsOnStore.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
+                upsOnStore.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 upsOnStore.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
                 upsOnStore.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
                 upsOnStore.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
@@ -3125,6 +3133,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setPerformedStationNameCode(StringUtils.maskNull(
                         LdapUtils.codeValue(attrs.get("dcmUPSPerformedStationNameCode")),
                         UPSProcessingRule.DEFAULT_PERFORMED_STATION_NAME_CODE));
+                upsProcessingRule.setRescheduleDiscontinuationReasonCodes(
+                        LdapUtils.codeArray(attrs.get("dcmRescheduleDiscontinuationReasonCode")));
+                upsProcessingRule.setIgnoreDiscontinuationReasonCodes(
+                        LdapUtils.codeArray(attrs.get("dcmIgnoreDiscontinuationReasonCode")));
                 upsProcessingRule.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 upsProcessingRule.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), UPSProcessingRule.DEFAULT_RETRY_DELAY));
                 upsProcessingRule.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
@@ -3554,6 +3566,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isIncludeReferencedRequest(), upsOnStore.isIncludeReferencedRequest(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
                 prev.getDestinationAE(), upsOnStore.getDestinationAE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity",
+                prev.getScopeOfAccumulation(), upsOnStore.getScopeOfAccumulation(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnStore.getScheduledWorkitemCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
@@ -3626,6 +3640,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getPerformedWorkitemCode(), upsProcessingRule.getPerformedWorkitemCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPerformedStationNameCode",
                 prev.getPerformedStationNameCode(), upsProcessingRule.getPerformedStationNameCode(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRescheduleDiscontinuationReasonCode",
+                prev.getRescheduleDiscontinuationReasonCodes(),
+                upsProcessingRule.getRescheduleDiscontinuationReasonCodes());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIgnoreDiscontinuationReasonCode",
+                prev.getIgnoreDiscontinuationReasonCodes(),
+                upsProcessingRule.getIgnoreDiscontinuationReasonCodes());
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), upsProcessingRule.getMaxRetries(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
                 prev.getRetryDelay(), upsProcessingRule.getRetryDelay(), UPSProcessingRule.DEFAULT_RETRY_DELAY);

@@ -42,6 +42,8 @@
 package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
+import org.dcm4che3.dcmr.ScopeOfAccumlation;
 import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
@@ -88,7 +90,7 @@ import java.util.stream.Collectors;
 @Stateless
 public class UPSServiceEJB {
 
-    private static Logger LOG = LoggerFactory.getLogger(UPSServiceEJB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UPSServiceEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
@@ -716,12 +718,7 @@ public class UPSServiceEJB {
                 attrs.getNestedDataset(Tag.ProcedureStepDiscontinuationReasonCodeSequence);
         if (reasonCode == null || reasonCode.isEmpty()) {
             attrs.newSequence(Tag.ProcedureStepDiscontinuationReasonCodeSequence, 1)
-                    .add(new Code(
-                            "110513",
-                            "DCM",
-                            null,
-                            "Discontinued for unspecified reason")
-                            .toItem());
+                    .add(ProcedureDiscontinuationReasons.DiscontinuedForUnspecifiedReason.toItem());
         }
     }
 
@@ -822,7 +819,36 @@ public class UPSServiceEJB {
                 && !attrs.contains(Tag.InputInformationSequence)) {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
+        addScheduledProcessingParameter(attrs, ScopeOfAccumlation.CODE,
+                toScopeOfAccumlation(rule.getScopeOfAccumulation()));
         return attrs;
+    }
+
+    private static void addScheduledProcessingParameter(Attributes attrs, Code conceptName, Code code) {
+        if (code != null)
+            attrs.ensureSequence(Tag.ScheduledProcessingParametersSequence, 2)
+                    .add(toContentItem(conceptName, code));
+    }
+
+    private static Attributes toContentItem(Code conceptName, Code code) {
+        Attributes item = new Attributes(3);
+        item.setString(Tag.ValueType, VR.CS, "CODE");
+        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(conceptName.toItem());
+        item.newSequence(Tag.ConceptCodeSequence, 1).add(code.toItem());
+        return item;
+    }
+
+    private static Code toScopeOfAccumlation(Entity scopeOfAccumulation) {
+        if (scopeOfAccumulation != null)
+            switch (scopeOfAccumulation) {
+                case Study:
+                    return ScopeOfAccumlation.Study;
+                case Series:
+                    return ScopeOfAccumlation.Series;
+                case MPPS:
+                    return ScopeOfAccumlation.PerformedProcedureStep;
+            }
+        return null;
     }
 
     private static Attributes outputStorage(String destinationAE) {

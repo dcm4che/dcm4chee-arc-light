@@ -47,6 +47,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -77,6 +78,8 @@ public class UPSProcessingRule {
     private Code scheduledStationLocation;
     private Code performedWorkitemCode = DEFAULT_PERFORMED_WORKITEM_CODE;
     private Code performedStationNameCode = DEFAULT_PERFORMED_STATION_NAME_CODE;
+    private Code[] rescheduleDiscontinuationReasonCodes = {};
+    private Code[] ignoreDiscontinuationReasonCodes = {};
     private String aeTitle;
     private int maxThreads = 1;
     private int maxRetries = 0;
@@ -186,6 +189,34 @@ public class UPSProcessingRule {
 
     public void setPerformedStationNameCode(Code performedStationNameCode) {
         this.performedStationNameCode = performedStationNameCode;
+    }
+
+    public Code[] getRescheduleDiscontinuationReasonCodes() {
+        return rescheduleDiscontinuationReasonCodes;
+    }
+
+    public void setRescheduleDiscontinuationReasonCodes(Code[] rescheduleDiscontinuationReasonCodes) {
+        this.rescheduleDiscontinuationReasonCodes = rescheduleDiscontinuationReasonCodes;
+    }
+
+    public boolean isRescheduleDiscontinuationReasonCodes(Code code) {
+        return rescheduleDiscontinuationReasonCodes.length == 0
+                || Stream.of(rescheduleDiscontinuationReasonCodes)
+                .anyMatch(ignore -> ignore.equalsIgnoreMeaning(code));
+    }
+
+    public Code[] getIgnoreDiscontinuationReasonCodes() {
+        return ignoreDiscontinuationReasonCodes;
+    }
+
+    public void setIgnoreDiscontinuationReasonCodes(Code[] ignoreDiscontinuationReasonCodes) {
+        this.ignoreDiscontinuationReasonCodes = ignoreDiscontinuationReasonCodes;
+    }
+
+    public boolean isIgnoreDiscontinuationReasonCodes(Code code) {
+        return rescheduleDiscontinuationReasonCodes.length > 0
+                && Stream.of(ignoreDiscontinuationReasonCodes)
+                .anyMatch(ignore -> ignore.equalsIgnoreMeaning(code));
     }
 
     public String getAETitle() {

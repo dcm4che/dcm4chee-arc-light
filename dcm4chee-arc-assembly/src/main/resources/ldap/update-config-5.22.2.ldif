@@ -6,7 +6,7 @@ replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 replace: dcmDeleteUPSCanceledDelay
-dcmDeleteUPSCanceledDelay: P1D
+dcmDeleteUPSCanceledDelay: P7D
 -
 replace: dcmUPSProcessingPollingInterval
 dcmUPSProcessingPollingInterval: PT1M

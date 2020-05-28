@@ -42,6 +42,9 @@
 package org.dcm4chee.arc.ups.process;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.util.TagUtils;
+
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -50,21 +53,30 @@ import org.dcm4che3.data.Code;
 public class UPSProcessorException extends Exception {
     public final Code reasonCode;
 
-    public UPSProcessorException(String message) {
-        this(message, null);
-    }
-
-    public UPSProcessorException(Throwable cause) {
-        this(cause, null);
-    }
-
-    public UPSProcessorException(String message, Code reasonCode) {
+    public UPSProcessorException(Code reasonCode, String message) {
         super(message);
-        this.reasonCode = reasonCode;
+        this.reasonCode = Objects.requireNonNull(reasonCode);
     }
 
-    public UPSProcessorException(Throwable cause, Code reasonCode) {
+    public UPSProcessorException(Code reasonCode, Throwable cause) {
         super(cause);
-        this.reasonCode = reasonCode;
+        this.reasonCode = Objects.requireNonNull(reasonCode);
+    }
+
+    public UPSProcessorException(int status, String message) {
+        this(reasonCodeOf(status), message);
+    }
+
+    public UPSProcessorException(int status, Throwable cause) {
+        this(reasonCodeOf(status), cause);
+    }
+
+    private static Code reasonCodeOf(int status) {
+        String codeValue = TagUtils.shortToHexString(status);
+        return new Code(
+                codeValue,
+                "99DCM4CHEE",
+                null,
+                "DICOM Status Code: " + codeValue);
     }
 }
