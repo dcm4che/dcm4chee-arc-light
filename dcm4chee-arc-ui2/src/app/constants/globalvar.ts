@@ -918,7 +918,7 @@ export class Globalvar {
                         new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
                         new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
                         new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
-                        new SelectDropdown("CANCELLED", $localize `:@@CANCELLED:CANCELLED`),
+                        new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
                         new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
                     ],
                     showStar:true,

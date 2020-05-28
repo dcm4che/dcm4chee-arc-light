@@ -1152,7 +1152,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 new SelectDropdown("READY", $localize `:@@READY:READY`),
                                 new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
                                 new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
-                                new SelectDropdown("CANCELLED", $localize `:@@CANCELLED:CANCELLED`),
+                                new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
                                 new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`),
                                 new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
                             ],

@@ -16,6 +16,13 @@ dcmDeleteUPSCompletedDelay: P1D
 -
 replace: dcmDeleteUPSPollingInterval
 dcmDeleteUPSPollingInterval: PT1H
+-
+replace: dcmHideSPSWithStatusFromMWL
+dcmHideSPSWithStatusFromMWL: STARTED
+dcmHideSPSWithStatusFromMWL: DEPARTED
+dcmHideSPSWithStatusFromMWL: CANCELED
+dcmHideSPSWithStatusFromMWL: DISCONTINUED
+dcmHideSPSWithStatusFromMWL: COMPLETED
 
 dn: dcmUPSProcessingRuleID=DICOM_EXPORT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -26,3 +33,12 @@ dicomAETitle: DCM4CHEE
 dcmUPSProcessingRuleID: DICOM_EXPORT
 dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
 dcmURI: storescu:STORESCP
+
+dn: dcmSPSStatus=CANCELLED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmSPSStatus=CANCELED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmSPSStatus: CANCELED
+hl7OrderControlStatus: CA_CA
+objectClass: hl7OrderSPSStatus

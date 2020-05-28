@@ -190,7 +190,7 @@ public class MwlRS {
             @PathParam("study") String studyIUID,
             @PathParam("spsID") String spsID,
             @PathParam("status")
-            @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELLED|DISCONTINUED|COMPLETED")
+            @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELED|DISCONTINUED|COMPLETED")
             String spsStatus) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();

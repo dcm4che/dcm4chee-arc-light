@@ -240,7 +240,7 @@ class ArchiveDeviceFactory {
 
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {
             newHL7OrderSPSStatus("SCHEDULED", "NW_SC", "NW_IP", "XO_SC"),
-            newHL7OrderSPSStatus("CANCELLED", "CA_CA"),
+            newHL7OrderSPSStatus("CANCELED", "CA_CA"),
             newHL7OrderSPSStatus("DISCONTINUED", "DC_CA"),
             newHL7OrderSPSStatus("COMPLETED", "XO_CM")
     };
@@ -1001,7 +1001,7 @@ class ArchiveDeviceFactory {
             UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
     };
     static final SPSStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
-            SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELLED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
+            SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
     };
 
     static final Code DICOM_EXPORT =

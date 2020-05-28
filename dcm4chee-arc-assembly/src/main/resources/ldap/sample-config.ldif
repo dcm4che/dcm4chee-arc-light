@@ -207,7 +207,7 @@ dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
-dcmHideSPSWithStatusFromMWL: CANCELLED
+dcmHideSPSWithStatusFromMWL: CANCELED
 dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmWadoSupportedPRClasses: 1.2.840.10008.5.1.4.1.1.11.1
@@ -2773,6 +2773,11 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/RSClient
 
+dn: dcmSPSStatus=CANCELED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: CANCELED
+hl7OrderControlStatus: CA_CA
+objectClass: hl7OrderSPSStatus
+
 dn: dcmStorageID=metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json
 dcmProperty: checkMountFile=NO_MOUNT
@@ -2961,11 +2966,6 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCU
-
-dn: dcmSPSStatus=CANCELLED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmSPSStatus: CANCELLED
-hl7OrderControlStatus: CA_CA
-objectClass: hl7OrderSPSStatus
 
 dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: COMPLETED

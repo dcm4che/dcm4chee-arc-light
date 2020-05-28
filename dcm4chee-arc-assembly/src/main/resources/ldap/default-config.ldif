@@ -105,7 +105,7 @@ dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
-dcmHideSPSWithStatusFromMWL: CANCELLED
+dcmHideSPSWithStatusFromMWL: CANCELED
 dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmWadoSupportedPRClasses: 1.2.840.10008.5.1.4.1.1.11.1
@@ -2269,6 +2269,11 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/RSClient
 
+dn: dcmSPSStatus=CANCELED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: CANCELED
+hl7OrderControlStatus: CA_CA
+objectClass: hl7OrderSPSStatus
+
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Hide instances rejected for Quality Reasons
@@ -2424,11 +2429,6 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCU
-
-dn: dcmSPSStatus=CANCELLED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmSPSStatus: CANCELLED
-hl7OrderControlStatus: CA_CA
-objectClass: hl7OrderSPSStatus
 
 dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: COMPLETED

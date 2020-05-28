@@ -237,7 +237,7 @@
         "READY",
         "STARTED",
         "DEPARTED",
-        "CANCELLED",
+        "CANCELED",
         "DISCONTINUED",
         "COMPLETED"
       ]

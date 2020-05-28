@@ -429,7 +429,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.85 NAME 'hl7ScheduleProcedureTemplat
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.86 NAME 'dcmHideSPSWithStatusFromMWL'
-  DESC 'Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED'
+  DESC 'Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.87 NAME 'hl7LogFilePattern'
@@ -690,7 +690,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.138 NAME 'hl7OrderScheduledStationDe
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
    SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.139 NAME 'dcmSPSStatus'
-  DESC 'Scheduled Procedure Step Status code. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED'
+  DESC 'Scheduled Procedure Step Status code. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1721,7 +1721,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.353 NAME 'dcmMWLFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.354 NAME 'dcmDeleteMWLDelay'
-  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting MWL items. Status specific delays can be specified by prefix SCHEDULED:, ARRIVED:, READY:, STARTED:, DEPARTED:, CANCELLED:, DISCONTINUED:, COMPLETED:. If absent, MWL Items will not get deleted.'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for deleting MWL items. Status specific delays can be specified by prefix SCHEDULED:, ARRIVED:, READY:, STARTED:, DEPARTED:, CANCELED:, DISCONTINUED:, COMPLETED:. If absent, MWL Items will not get deleted.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.355 NAME 'dcmRecordAttributeModification'
@@ -1730,7 +1730,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.355 NAME 'dcmRecordAttributeModifica
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.356 NAME 'dcmMWLStatusOnIdle'
-  DESC 'Change Status of idle Scheduled Procedure Steps to specified value. Enumerated value: CANCELLED, DISCONTINUED, COMPLETED.'
+  DESC 'Change Status of idle Scheduled Procedure Steps to specified value. Enumerated value: CANCELED, DISCONTINUED, COMPLETED.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

@@ -106,7 +106,7 @@ public class UpdateSPSMatchingRS {
     @Path("/mwlitems/status/{status}")
     public Response updateSPSStatus(
             @PathParam("status")
-            @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELLED|DISCONTINUED|COMPLETED")
+            @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELED|DISCONTINUED|COMPLETED")
             String spsStatus) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
