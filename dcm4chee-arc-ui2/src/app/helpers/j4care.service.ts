@@ -1159,8 +1159,11 @@ export class j4care {
     /*
     * Return the whole url from passed DcmWebApp
     * */
-    static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp):string{
+    static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp, withoutServicePath?:boolean):string{
         try{
+            if(withoutServicePath){
+                return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}`;
+            }
             return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);

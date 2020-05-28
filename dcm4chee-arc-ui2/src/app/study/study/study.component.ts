@@ -1273,6 +1273,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let patientBirthDate = _.get(model, "00100030.Value.0");
             let accessionNumber = _.get(model, "00080050.Value.0");
             let dcmWebServicePath = this.studyWebService.selectedWebService.dcmWebServicePath;
+            let qidoBaseURL = j4care.getUrlFromDcmWebApplication(this.studyWebService.selectedWebService, true);
             let replaceDoubleBraces = (url, result) => {
                 return url.replace(/{{(currentDateTime-)?(.+?)}}/g, (match, g1, g2) => {
                     if(g1){
@@ -1293,7 +1294,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "studyUID": studyUID,
                     "accessionNumber": accessionNumber,
                     "access_token": token,
-                    "qidoBasePath": dcmWebServicePath
+                    "qidoBasePath": dcmWebServicePath,
+                    "qidoBaseURL": qidoBaseURL
                 };
                 url = replaceDoubleBraces(configuredUrlString, substitutions).trim();
                 console.log("Prepared URL: ", url);
