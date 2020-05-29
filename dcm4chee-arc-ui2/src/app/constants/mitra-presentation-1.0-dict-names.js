@@ -6,8 +6,8 @@ DCM4CHE.elementName.addDictionary({
 "0029xx03":"Invert",
 "0029xx04":"Has Tabstop",
 "0029xx05":"Smooth Rotation",
-"0029xx10":"_0029_xx10_",
-"0029xx11":"_0029_xx11_",
-"0029xx12":"_0029_xx12_",
-"0029xx13":"_0029_xx13_"
+"0029xx10":"?",
+"0029xx11":"?",
+"0029xx12":"?",
+"0029xx13":"?"
 });

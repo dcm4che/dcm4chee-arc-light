@@ -31,9 +31,6 @@ DCM4CHE.elementName = (function (dictionary) {
         tag = tag.slice(0,2) + "xx" + tag.slice(4);
       }
     }
-    if(tag === "all"){
-        return dictionary;
-    }
     while (i--) {
       if (privateCreator === tables[i].privateCreator) {
         value = tables[i][tag];
