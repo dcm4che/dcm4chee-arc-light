@@ -68,7 +68,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String AUDIT_UNKNOWN_PATIENT_ID = "<none>";
     public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
-            "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+            "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.dcm";
     public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
 
     private volatile String defaultCharacterSet;
