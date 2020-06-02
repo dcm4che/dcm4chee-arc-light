@@ -1480,6 +1480,7 @@ class ArchiveDeviceFactory {
         if (configType == configType.DOCKER) {
             webapp.setProperty("IID_PATIENT_URL", "");
             webapp.setProperty("IID_STUDY_URL", "");
+            webapp.setProperty("IID_URL_TARGET", "");
         }
 
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
