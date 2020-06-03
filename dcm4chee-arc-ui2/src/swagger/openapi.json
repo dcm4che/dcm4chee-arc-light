@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.22.0"
+    "version": "5.22.2"
   },
   "servers": [
     {
