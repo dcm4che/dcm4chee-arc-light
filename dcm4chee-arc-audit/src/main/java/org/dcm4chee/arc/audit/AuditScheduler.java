@@ -42,7 +42,6 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -52,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -96,27 +95,29 @@ public class AuditScheduler extends Scheduler {
         if (ext == null || auditSpoolDir == null || duration == null)
             return;
 
-        Path auditSpoolDirPath = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
         for (AuditLogger logger : ext.getAuditLoggers()) {
             if (!logger.isInstalled())
                 continue;
 
-            Path dir = auditSpoolDirPath.resolve(new AttributesFormat(logger.getCommonName()).toString());
-            if (!Files.isDirectory(dir))
-                continue;
+            try {
+                Path dir = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir))
+                        .resolve(URLEncoder.encode(logger.getCommonName(), "UTF-8"));
+                if (!Files.isDirectory(dir))
+                    continue;
 
-            final long maxLastModifiedTime = System.currentTimeMillis() - duration.getSeconds() * 1000L;
-            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, file ->
-                    !file.getFileName().toString().endsWith(FAILED)
-                        && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime)) {
-                for (Path path : dirStream) {
-                    if (arcDev.getAuditPollingInterval() == null)
-                        return;
+                final long maxLastModifiedTime = System.currentTimeMillis() - duration.getSeconds() * 1000L;
+                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, file ->
+                        !file.getFileName().toString().endsWith(FAILED)
+                            && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime)) {
+                    for (Path path : dirStream) {
+                        if (arcDev.getAuditPollingInterval() == null)
+                            return;
 
-                    service.auditAndProcessFile(logger, path);
+                        service.auditAndProcessFile(logger, path);
+                    }
                 }
-            } catch (IOException e) {
-                LOG.warn("Failed to access Audit Spool Directory - {}", dir, e);
+            } catch (Exception e) {
+                LOG.warn("Failed to access Audit Spool Directory for logger - {}", logger, e);
             }
         }
     }

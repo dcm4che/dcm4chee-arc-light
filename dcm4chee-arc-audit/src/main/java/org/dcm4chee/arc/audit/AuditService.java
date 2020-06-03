@@ -52,7 +52,6 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
@@ -83,6 +82,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -887,10 +887,10 @@ public class AuditService {
         return log.getConnections().get(0).getHostname();
     }
 
-    private Path toDirPath(AuditLogger auditLogger) {
+    private Path toDirPath(AuditLogger auditLogger) throws UnsupportedEncodingException {
         return Paths.get(
                 StringUtils.replaceSystemProperties(getArchiveDevice().getAuditSpoolDirectory()),
-                new AttributesFormat(auditLogger.getCommonName()).toString());
+                URLEncoder.encode(auditLogger.getCommonName(), "UTF-8"));
     }
 
     private void writeSpoolFile(
@@ -909,10 +909,10 @@ public class AuditService {
         }
         FileTime eventTime = null;
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+        for (AuditLogger auditLogger : ext.getAuditLoggers())
             if (auditLogger.isInstalled()) {
-                Path dir = toDirPath(auditLogger);
                 try {
+                    Path dir = toDirPath(auditLogger);
                     Files.createDirectories(dir);
                     Path file = Files.createTempFile(dir, eventType.name(), null);
                     try (BufferedOutputStream out = new BufferedOutputStream(
@@ -936,7 +936,6 @@ public class AuditService {
                             eventType, auditLogger.getCommonName(), e);
                 }
             }
-        }
     }
 
     private void writeSpoolFile(AuditUtils.EventType eventType, String suffix, AuditInfoBuilder... auditInfoBuilders) {
@@ -947,10 +946,10 @@ public class AuditService {
         }
         FileTime eventTime = null;
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+        for (AuditLogger auditLogger : ext.getAuditLoggers())
             if (auditLogger.isInstalled()) {
-                Path dir = toDirPath(auditLogger);
                 try {
+                    Path dir = toDirPath(auditLogger);
                     Files.createDirectories(dir);
                     Path filePath = eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
                             || (suffix != null && eventType.eventClass == AuditUtils.EventClass.USER_DELETED)
@@ -967,7 +966,6 @@ public class AuditService {
                             file, auditLogger.getCommonName(), e);
                 }
             }
-        }
     }
 
     private Path filePath(AuditUtils.EventType eventType, Path dir, AuditInfoBuilder... auditInfoBuilders)
