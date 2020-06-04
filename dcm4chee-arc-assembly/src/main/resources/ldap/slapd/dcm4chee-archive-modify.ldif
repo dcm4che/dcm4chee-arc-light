@@ -2574,7 +2574,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.38 NAME 'hl7UPSOnHL7'
     dcmUPSWorklistLabel $
     dcmUPSInstanceUIDBasedOnName $
     dcmDestinationAE $
-    dcmEntity $
     dcmUPSScheduledWorkitemCode $
     dcmUPSScheduledStationNameCode $
     dcmUPSScheduledStationClassCode $
