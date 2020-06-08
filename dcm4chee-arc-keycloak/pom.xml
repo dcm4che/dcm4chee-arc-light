@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.22.2</version>
+    <version>5.22.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
