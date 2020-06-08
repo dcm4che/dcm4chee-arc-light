@@ -45,12 +45,16 @@ import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.media.DicomDirWriter;
+import org.dcm4che3.media.RecordFactory;
+import org.dcm4che3.media.RecordType;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -111,6 +115,7 @@ import java.util.zip.ZipOutputStream;
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
+    private static final RecordFactory RECORD_FACTORY = new RecordFactory();
 
     @Inject
     private RetrieveService service;
@@ -141,6 +146,10 @@ public class WadoRS {
 
     @QueryParam("accept")
     private List<String> accept;
+
+    @QueryParam("dicomdir")
+    @Pattern(regexp = "true|false")
+    private String dicomdir;
 
     @QueryParam("charset")
     private String charset;
@@ -178,6 +187,7 @@ public class WadoRS {
     private DecompressFramesOutput decompressFramesOutput;
     private Response.Status responseStatus;
     private java.nio.file.Path spoolDirectory;
+    private java.nio.file.Path dicomdirPath;
 
     @Override
     public String toString() {
@@ -1218,11 +1228,22 @@ public class WadoRS {
             try {
                 Set<String> dirPaths = new HashSet<>();
                 ZipOutputStream zip = new ZipOutputStream(out);
-                for (InstanceLocations inst : insts) {
-                    String name = pathFormat.format(inst.getAttributes());
-                    addDirEntries(zip, name, dirPaths);
-                    zip.putNextEntry(new ZipEntry(name));
-                    new DicomObjectOutput(ctx, inst, acceptableZipTransferSyntaxes).write(zip);
+                try (DicomDirWriter dicomDirWriter = dicomDirWriter()) {
+                    for (InstanceLocations inst : insts) {
+                        String name = pathFormat.format(inst.getAttributes());
+                        addDirEntries(zip, name, dirPaths);
+                        zip.putNextEntry(new ZipEntry(name));
+                        DicomObjectOutput output = new DicomObjectOutput(ctx, inst, acceptableZipTransferSyntaxes);
+                        output.write(zip);
+                        zip.closeEntry();
+                        if (dicomDirWriter != null) {
+                            addDicomDirRecords(dicomDirWriter, output.getFileMetaInformation(), inst.getAttributes(), toFileIDs(name));
+                        }
+                    }
+                }
+                if (dicomdirPath != null) {
+                    zip.putNextEntry(new ZipEntry("DICOMDIR"));
+                    Files.copy(dicomdirPath, zip);
                     zip.closeEntry();
                 }
                 zip.finish();
@@ -1252,6 +1273,47 @@ public class WadoRS {
             if (e.getCause() instanceof IOException)
                 throw (IOException) e.getCause();
         }
+    }
+
+    private void addDicomDirRecords(DicomDirWriter writer, Attributes fmi, Attributes dataset, String[] fileIDs)
+            throws IOException {
+        String pid = dataset.getString(Tag.PatientID, null);
+        String styuid = dataset.getString(Tag.StudyInstanceUID, null);
+        String seruid = dataset.getString(Tag.SeriesInstanceUID, null);
+
+        if (pid == null) {
+            dataset.setString(Tag.PatientID, VR.LO, pid = styuid);
+        }
+        Attributes patRec = writer.findPatientRecord(pid);
+        if (patRec == null) {
+            patRec = RECORD_FACTORY.createRecord(RecordType.PATIENT, null,
+                    dataset, null, null);
+            writer.addRootDirectoryRecord(patRec);
+        }
+        Attributes studyRec = writer.findStudyRecord(patRec, styuid);
+        if (studyRec == null) {
+            studyRec = RECORD_FACTORY.createRecord(RecordType.STUDY, null,
+                    dataset, null, null);
+            writer.addLowerDirectoryRecord(patRec, studyRec);
+        }
+
+        Attributes seriesRec = writer.findSeriesRecord(studyRec, seruid);
+        if (seriesRec == null) {
+            seriesRec = RECORD_FACTORY.createRecord(RecordType.SERIES, null,
+                    dataset, null, null);
+            writer.addLowerDirectoryRecord(studyRec, seriesRec);
+        }
+
+        Attributes instRec = RECORD_FACTORY.createRecord(dataset, fmi, fileIDs);
+        writer.addLowerDirectoryRecord(seriesRec, instRec);
+    }
+
+    private static String[] toFileIDs(String filePath) {
+        return StringUtils.split(truncateSuffix(filePath, ".dcm"), '/');
+    }
+
+    private static String truncateSuffix(String filePath, String suffix) {
+        return filePath.endsWith(suffix) ? filePath.substring(0, filePath.length() - 4) : filePath;
     }
 
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,
@@ -1368,6 +1430,17 @@ public class WadoRS {
         for (int i = 1; i < frameList.length; i++) {
             if (frameList[i-1] > frameList[i])
                 return (spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null));
+        }
+        return null;
+    }
+
+    private DicomDirWriter dicomDirWriter() throws IOException {
+        if (Boolean.parseBoolean(dicomdir)) {
+            spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null);
+            dicomdirPath = Files.createFile(spoolDirectory.resolve("DICOMDIR"));
+            File file = dicomdirPath.toFile();
+            DicomDirWriter.createEmptyDirectory(file, UIDUtils.createUID(), null, null, null);
+            return DicomDirWriter.open(file);
         }
         return null;
     }

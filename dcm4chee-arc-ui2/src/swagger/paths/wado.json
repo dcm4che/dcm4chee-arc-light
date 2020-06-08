@@ -15,6 +15,9 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveAccept"
+        },
+        {
+          "$ref": "../parameters.json#/dicomdir"
         }
       ],
       "responses": {
@@ -116,6 +119,9 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveAccept"
+        },
+        {
+          "$ref": "../parameters.json#/dicomdir"
         }
       ],
       "responses": {
@@ -126,7 +132,7 @@
           "description": "There was a problem with the request."
         },
         "404": {
-          "description": "Study or Series does not exist."
+          "description": "Series does not exist."
         },
         "500": {
           "description": "Internal Server Error."
@@ -135,7 +141,7 @@
     }
   },
   "instances": {
-    "post": {
+    "get": {
       "tags": [
         "WADO-RS"
       ],
@@ -156,17 +162,20 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveAccept"
+        },
+        {
+          "$ref": "../parameters.json#/dicomdir"
         }
       ],
       "responses": {
         "200": {
-          "$ref": "../responses.json#/retrievedThumbnail"
+          "$ref": "../responses.json#/retrievedInstances"
         },
         "400": {
           "description": "There was a problem with the request."
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title."
+          "description": "Instance does not exist."
         },
         "500": {
           "description": "Internal Server Error."

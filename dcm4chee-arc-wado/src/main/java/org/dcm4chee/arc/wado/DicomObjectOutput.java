@@ -60,11 +60,16 @@ public class DicomObjectOutput implements StreamingOutput {
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
     private final Collection<String> tsuids;
+    private Attributes fileMetaInformation;
 
     public DicomObjectOutput(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
         this.ctx = ctx;
         this.inst = inst;
         this.tsuids = tsuids.contains("*") ? Collections.EMPTY_LIST : tsuids;
+    }
+
+    public Attributes getFileMetaInformation() {
+        return fileMetaInformation;
     }
 
     @Override
@@ -77,6 +82,7 @@ public class DicomObjectOutput implements StreamingOutput {
                     return out;
                 }
             });
+            fileMetaInformation = transcoder.getFileMetaInformation();
         }
     }
 }

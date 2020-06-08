@@ -528,6 +528,15 @@
       "$ref": "schemas.json#/wadoRetrieveThumbnailAccept"
     }
   },
+  "dicomdir": {
+    "name": "dicomdir",
+    "in": "query",
+    "description": "If present with a value of true a DICOMDIR file will be included in the returned ZIP payload.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "contentType": {
     "name": "contentType",
     "in": "query",
