@@ -74,11 +74,12 @@ public class UPSStudySize extends AbstractUPSProcessor {
             String studyIUID = inputInformation.getString(Tag.StudyInstanceUID);
             if (suids.add(studyIUID)) {
                 long studySize = querySizeEJB.calculateStudySize(studyIUID);
-                String outcomeDescription = studySize >= 0
-                        ? "Calculated size of Study[uid=" + studyIUID + ",size=" + studySize + ']'
-                        : "No such Study[uid=" + studyIUID + ']';
-                Attributes performedProcedure = getPerformedProcedureStep(upsCtx);
-                performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, outcomeDescription);
+                getPerformedProcedureStep(upsCtx).setString(
+                        Tag.PerformedProcedureStepDescription,
+                        VR.LO,
+                        studySize >= 0
+                                ? "Calculated size of Study[uid=" + studyIUID + ",size=" + studySize + ']'
+                                : "No such Study[uid=" + studyIUID + ']');
             }
         });
     }
