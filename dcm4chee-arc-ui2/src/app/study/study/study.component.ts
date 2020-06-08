@@ -1645,26 +1645,49 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             filter['batchID'] = this.batchID;
         }*/
         delete filterModel.orderby;
-        this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
-            console.log("res",res);
-            this.patients = [];
-            this._filter.filterModel.offset = filterModel.offset;
-            /*            this.morePatients = undefined;
-                        this.moreDiffs = undefined;
-                        this.moreStudies = undefined;*/
 
-            if (_.size(res) > 0) {
-                // this.moreDiffs = res.length > this.limit;
-                this.prepareDiffData(res, filterModel.offset);
-            }else{
-                this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
-            }
-            this.cfpLoadingBar.complete();
-        },err=>{
-            this.patients = [];
-            this.httpErrorHandler.handleError(err);
-            this.cfpLoadingBar.complete();
-        });
+        if(_.hasIn(filterModel,"taskPK")){
+            this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
+                console.log("res",res);
+                this.cfpLoadingBar.complete();
+                this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
+                /*            this.morePatients = undefined;
+                            this.moreDiffs = undefined;
+                            this.moreStudies = undefined;*/
+
+                if (_.size(res) > 0) {
+                    // this.moreDiffs = res.length > this.limit;
+                    this.prepareDiffData(res, filterModel.offset);
+                }else{
+                    this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
+                }
+            },err=>{
+                this.patients = [];
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+            });
+        }else{
+            this.service.triggerDiff(filterModel, this.studyWebService,"study", "object").subscribe(res=>{
+                this.cfpLoadingBar.complete();
+                this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
+                /*            this.morePatients = undefined;
+                            this.moreDiffs = undefined;
+                            this.moreStudies = undefined;*/
+
+                if (_.size(res) > 0) {
+                    // this.moreDiffs = res.length > this.limit;
+                    this.prepareDiffData(res, filterModel.offset);
+                }else{
+                    this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
+                }
+            },err=>{
+                this.cfpLoadingBar.complete();
+                this.patients = [];
+                this.httpErrorHandler.handleError(err);
+            })
+        }
     }
 
 /*    getDiffTaskResults(params,offset?){

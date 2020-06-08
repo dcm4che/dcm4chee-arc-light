@@ -460,14 +460,14 @@ export class StudyService {
     }
 
     triggerDiff(filterModel, studyWebService:StudyWebService, mode: DicomMode, dicomResponseType:DicomResponseType, file?:File, fileField?:number){
-        if(_.get(studyWebService, "selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+        if(_.get(studyWebService, "selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET_DIFF") > -1){
             if(dicomResponseType === "csv"){
-                return this.$http.post(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType, fileField), file);
+                return this.$http.post(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType, fileField) + j4care.objToUrlParams(filterModel, true), file);
             }else{
-                return this.$http.get(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType))
+                return this.$http.get(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType) + j4care.objToUrlParams(filterModel, true))
             }
         }else{
-            return throwError({error:$localize `:@@webapp_with_service_class_not_found:Web Application Service with the web service class ${'DCM4CHEE_ARC_AET'}:@@webServiceClass not found!`})
+            return throwError({error:$localize `:@@webapp_with_service_class_not_found:Web Application Service with the web service class ${'DCM4CHEE_ARC_AET_DIFF'}:@@webServiceClass: not found!`})
         }
     }
     getDiff(filterModel, studyWebService: StudyWebService, responseType?: DicomResponseType): Observable<any> {
