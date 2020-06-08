@@ -601,8 +601,11 @@
     <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-process</module>
+    <module>dcm4chee-arc-ups-query-attrs</module>
     <module>dcm4chee-arc-ups-rs</module>
     <module>dcm4chee-arc-ups-scp</module>
+    <module>dcm4chee-arc-ups-storescu</module>
+    <module>dcm4chee-arc-ups-study-size</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
@@ -614,8 +617,6 @@
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
-    <module>dcm4chee-arc-ups-storescu</module>
-    <module>dcm4chee-arc-ups-study-size</module>
   </modules>
 
   <build>
