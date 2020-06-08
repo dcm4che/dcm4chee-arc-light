@@ -1026,6 +1026,16 @@ class ArchiveDeviceFactory {
             INCORRECT_MODALITY_WORKLIST_ENTRY,
             DATA_RETENTION_POLICY_EXPIRED
     };
+
+    static final String UPS_QUERY_ATTRS_LABEL = "QUERY_ATTRS";
+    static final String UPS_STUDY_SIZE_LABEL = "STUDY_SIZE";
+    static final String UPS_QUERY_ATTRS = "Calculate Query Attributes";
+    static final String UPS_STUDY_SIZE = "Calculate Study Size";
+    static final Code QUERY_ATTRS =
+            new Code(UPS_QUERY_ATTRS_LABEL, "99DCM4CHEE", null, UPS_QUERY_ATTRS);
+    static final Code STUDY_SIZE =
+            new Code(UPS_STUDY_SIZE_LABEL, "99DCM4CHEE", null, UPS_STUDY_SIZE);
+
     static final QueryRetrieveView REGULAR_USE_VIEW =
             createQueryRetrieveView("regularUse",
                     new Code[]{REJECTED_FOR_QUALITY_REASONS},
@@ -1211,17 +1221,18 @@ class ArchiveDeviceFactory {
     static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
     static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
     static final URI CALC_STUDY_SIZE_EXPORTER_URI = URI.create("study-size:dummyPath");
-    static final Duration CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT6M");
 
     static final String CALC_QUERY_ATTRS_EXPORTER_ID = "CalculateQueryAttributes";
     static final String CALC_QUERY_ATTRS_EXPORTER_DESC = "Calculate Query Attributes";
     static final URI CALC_QUERY_ATTRS_EXPORTER_URI = URI.create("query-attrs:hideRejected");
-    static final Duration CALC_QUERY_ATTRS_DELAY = Duration.valueOf("PT5M");
 
     static final String NEARLINE_STORAGE_EXPORTER_ID = "CopyToNearlineStorage";
     static final String NEARLINE_STORAGE_EXPORTER_DESC = "Copy to NEARLINE Storage";
     static final URI NEARLINE_STORAGE_EXPORTER_URI = URI.create("storage:nearline");
     static final Duration NEARLINE_STORAGE_DELAY = Duration.valueOf("PT1M");
+
+    static final Duration UPS_CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT6M");
+    static final Duration UPS_CALC_QUERY_ATTRS_DELAY = Duration.valueOf("PT5M");
 
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
@@ -1726,6 +1737,15 @@ class ArchiveDeviceFactory {
 
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "DICOM_EXPORT", DICOM_EXPORT, DCM4CHEE_ARC, "storescu:STORESCP"));
+        ext.addUPSProcessingRule(newUPSProcessingRule(
+                UPS_QUERY_ATTRS_LABEL, QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
+        ext.addUPSProcessingRule(newUPSProcessingRule(
+                UPS_STUDY_SIZE_LABEL, STUDY_SIZE, DCM4CHEE_ARC, "studySize:dummyPath"));
+
+        ext.addUPSOnStore(newUPSOnStore(UPS_QUERY_ATTRS, UPS_QUERY_ATTRS_LABEL,
+                "CalculateQueryAttrs-{StudyInstanceUID}", UPS_CALC_QUERY_ATTRS_DELAY));
+        ext.addUPSOnStore(newUPSOnStore(UPS_STUDY_SIZE, UPS_STUDY_SIZE_LABEL,
+                "CalculateStudySize-{StudyInstanceUID}", UPS_CALC_STUDY_SIZE_DELAY));
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesAETitle(AE_TITLE);
@@ -1846,24 +1866,12 @@ class ArchiveDeviceFactory {
         studySizeExporter.setAETitle(AE_TITLE);
         ext.addExporterDescriptor(studySizeExporter);
 
-        ExportRule calcStudySizeRule = new ExportRule(CALC_STUDY_SIZE_EXPORTER_DESC);
-        calcStudySizeRule.setEntity(Entity.Study);
-        calcStudySizeRule.setExportDelay(CALC_STUDY_SIZE_DELAY);
-        calcStudySizeRule.setExporterIDs(CALC_STUDY_SIZE_EXPORTER_ID);
-        ext.addExportRule(calcStudySizeRule);
-
         ExporterDescriptor studySeriesQueryAttrExporter = new ExporterDescriptor(CALC_QUERY_ATTRS_EXPORTER_ID);
         studySeriesQueryAttrExporter.setDescription(CALC_QUERY_ATTRS_EXPORTER_DESC);
         studySeriesQueryAttrExporter.setExportURI(CALC_QUERY_ATTRS_EXPORTER_URI);
         studySeriesQueryAttrExporter.setQueueName("Export4");
         studySeriesQueryAttrExporter.setAETitle(AE_TITLE);
         ext.addExporterDescriptor(studySeriesQueryAttrExporter);
-
-        ExportRule studySeriesQueryAttrExportRule = new ExportRule(CALC_QUERY_ATTRS_EXPORTER_DESC);
-        studySeriesQueryAttrExportRule.setEntity(Entity.Study);
-        studySeriesQueryAttrExportRule.setExportDelay(CALC_QUERY_ATTRS_DELAY);
-        studySeriesQueryAttrExportRule.setExporterIDs(CALC_QUERY_ATTRS_EXPORTER_ID);
-        ext.addExportRule(studySeriesQueryAttrExportRule);
 
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
@@ -2067,6 +2075,16 @@ class ArchiveDeviceFactory {
         rule.setPerformedWorkitemCode(workItemCode);
         rule.setPerformedStationNameCode(stationNameCode);
         rule.setUPSProcessorURI(URI.create(uri));
+        return rule;
+    }
+
+    private static UPSOnStore newUPSOnStore(
+            String upsOnStoreID, String procedureStepLabel, String instanceUIDBasedOnName, Duration startDelay) {
+        UPSOnStore rule = new UPSOnStore(upsOnStoreID);
+        rule.setProcedureStepLabel(procedureStepLabel);
+        rule.setIncludeInputInformation(UPSOnStore.IncludeInputInformation.APPEND_OR_CREATE);
+        rule.setInstanceUIDBasedOnName(instanceUIDBasedOnName);
+        rule.setStartDateTimeDelay(startDelay);
         return rule;
     }
 
