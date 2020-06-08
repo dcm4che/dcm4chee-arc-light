@@ -615,6 +615,7 @@
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
     <module>dcm4chee-arc-ups-storescu</module>
+    <module>dcm4chee-arc-ups-study-size</module>
   </modules>
 
   <build>

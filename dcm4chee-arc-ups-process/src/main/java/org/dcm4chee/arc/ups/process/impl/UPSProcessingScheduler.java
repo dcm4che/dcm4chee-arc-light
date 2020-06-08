@@ -53,6 +53,7 @@ import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
+import org.dcm4chee.arc.ups.process.UPSProcessorFactory;
 import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class UPSProcessingScheduler extends Scheduler {
     private QueryService queryService;
 
     @Inject
-    private UPSProcessorProvider processorProvider;
+    private UPSProcessorFactory processorFactory;
 
     private Map<String, ProcessWorkitems> inProcess = new ConcurrentHashMap<>();
 
@@ -154,7 +155,7 @@ public class UPSProcessingScheduler extends Scheduler {
                     device.getApplicationEntity(rule.getAETitle(), true),
                     () -> String.format("No such Archive AE - %s", rule.getAETitle()));
             arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
-            this.processor = processorProvider.getUPSProcessor(rule);
+            this.processor = processorFactory.getUPSProcessor(rule);
             QueryParam queryParam = new QueryParam(arcAE);
             this.queryContext = queryService.newQueryContext(ae, queryParam);
             queryContext.setQueryKeys(getQueryKeys(rule));
