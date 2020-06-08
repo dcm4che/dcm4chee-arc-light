@@ -187,7 +187,7 @@ export interface StudyPageConfig {
     title:string;
 }
 
-export type DicomResponseType = 'object'|'count'|'size';
+export type DicomResponseType = 'object'|'count'|'size'|'csv';
 
 export interface DcmNetworkConnection{
     dcmBindAddress?:string;

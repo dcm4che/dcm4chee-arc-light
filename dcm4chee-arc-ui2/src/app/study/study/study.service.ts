@@ -459,6 +459,17 @@ export class StudyService {
         )
     }
 
+    triggerDiff(filterModel, studyWebService:StudyWebService, mode: DicomMode, dicomResponseType:DicomResponseType, file?:File, fileField?:number){
+        if(_.get(studyWebService, "selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1){
+            if(dicomResponseType === "csv"){
+                return this.$http.post(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType, fileField), file);
+            }else{
+                return this.$http.get(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType))
+            }
+        }else{
+            return throwError({error:$localize `:@@webapp_with_service_class_not_found:Web Application Service with the web service class ${'DCM4CHEE_ARC_AET'}:@@webServiceClass not found!`})
+        }
+    }
     getDiff(filterModel, studyWebService: StudyWebService, responseType?: DicomResponseType): Observable<any> {
         //http://shefki-lifebook:8080/dcm4chee-arc/monitor/diff/batch/testnew34/studies
         let header: HttpHeaders;
@@ -701,7 +712,7 @@ export class StudyService {
         }
     }
 
-    getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): string {
+    getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType, csvField?:number): string {
         console.log("object", dcmWebApp);
         if(dcmWebApp){
             try {
@@ -736,6 +747,8 @@ export class StudyService {
                         if (responseType === "size")
                             url += '/size';
                     }
+                    if (responseType && responseType === "csv")
+                        url += `/csv:${csvField}`;
                     return url;
                 }else{
                     j4care.log('Url is undefined');
