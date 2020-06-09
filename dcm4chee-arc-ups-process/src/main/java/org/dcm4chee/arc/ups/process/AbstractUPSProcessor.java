@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
@@ -68,12 +69,30 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
             Tag.ProcedureStepProgressInformationSequence,
             Tag.UnifiedProcedureStepPerformedProcedureSequence
     };
+    public static final Code BAD_UPS = new Code(
+            "BAD_UPS",
+            "99DCM4CHEE",
+            null,
+            "Unified Procedure Step does not meet processing requirements");
+    public static final Code NOOP_UPS = new Code(
+            "NOP_UPS",
+            "99DCM4CHEE",
+            null,
+            "Processing Unified Procedure Step with no operation");
+    public static final Code FAILED_UPS = new Code(
+            "FAILED_UPS",
+            "99DCM4CHEE",
+            null,
+            "Failure on processing Unified Procedure Step");
     protected final UPSProcessingRule rule;
     protected final UPSService upsService;
+    protected final boolean inputInformationRequired;
 
-    public AbstractUPSProcessor(UPSProcessingRule rule, UPSService upsService) {
+
+    public AbstractUPSProcessor(UPSProcessingRule rule, UPSService upsService, boolean inputInformationRequired) {
         this.rule = rule;
         this.upsService = upsService;
+        this.inputInformationRequired = inputInformationRequired;
     }
 
     @Override
@@ -108,7 +127,14 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         }
         Attributes replacement = null;
         try {
-            processA(upsCtx, ups);
+            verify(ups);
+            try {
+                processA(upsCtx, ups);
+            } catch (DicomServiceException e) {
+                throw new UPSProcessorException(reasonCodeOf(e.getStatus()), e);
+            } catch (Exception e) {
+                throw new UPSProcessorException(FAILED_UPS, e);
+            }
             transaction.setString(Tag.ProcedureStepState, VR.CS, "COMPLETED");
             performedProcedure.setDate(Tag.PerformedProcedureStepEndDateTime, VR.DT, new Date());
         } catch (UPSProcessorException e) {
@@ -121,7 +147,9 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
             } else {
                 transaction.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
                 long delay;
-                if (!rule.isRescheduleDiscontinuationReasonCodes(e.reasonCode) || (delay = retryDelay(ups)) < 0) {
+                if (BAD_UPS.equalsIgnoreMeaning(e.reasonCode)
+                        || !rule.isRescheduleDiscontinuationReasonCodes(e.reasonCode)
+                        || (delay = retryDelay(ups)) < 0) {
                     LOG.warn("Failed to process UPS[uid={}]:\n", ups.getString(Tag.SOPInstanceUID), e);
                     setReasonForCancellation(upsCtx, e.getMessage(), e.reasonCode);
                 } else {
@@ -155,6 +183,11 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
                 LOG.warn("Failed to schedule replacement of UPS[uid={}]\n", ups.getString(Tag.SOPInstanceUID), e);
             }
         }
+    }
+
+    protected void verify(Attributes ups) throws UPSProcessorException {
+        if (inputInformationRequired && !ups.containsValue(Tag.InputInformationSequence))
+            throw new UPSProcessorException(BAD_UPS, "Missing Input Information");
     }
 
     private long retryDelay(Attributes ups) {
@@ -207,5 +240,14 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         progressInformation.setString(Tag.ReasonForCancellation, VR.LT,reason);
     }
 
-    protected abstract void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException;
+    protected abstract void processA(UPSContext upsCtx, Attributes ups) throws Exception;
+
+    private static Code reasonCodeOf(int status) {
+        String codeValue = TagUtils.shortToHexString(status);
+        return new Code(
+                codeValue + "_UPS",
+                "99DCM4CHEE",
+                null,
+                "Processing Unified Procedure Step failed with DICOM Status Code: " + codeValue);
+    }
 }

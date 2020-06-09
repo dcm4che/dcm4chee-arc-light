@@ -53,6 +53,10 @@ import java.util.Objects;
 public class UPSProcessorException extends Exception {
     public final Code reasonCode;
 
+    public UPSProcessorException(Code reasonCode) {
+        this(reasonCode, reasonCode.getCodeMeaning());
+    }
+
     public UPSProcessorException(Code reasonCode, String message) {
         super(message);
         this.reasonCode = Objects.requireNonNull(reasonCode);
@@ -63,20 +67,8 @@ public class UPSProcessorException extends Exception {
         this.reasonCode = Objects.requireNonNull(reasonCode);
     }
 
-    public UPSProcessorException(int status, String message) {
-        this(reasonCodeOf(status), message);
-    }
-
-    public UPSProcessorException(int status, Throwable cause) {
-        this(reasonCodeOf(status), cause);
-    }
-
-    private static Code reasonCodeOf(int status) {
-        String codeValue = TagUtils.shortToHexString(status);
-        return new Code(
-                codeValue,
-                "99DCM4CHEE",
-                null,
-                "DICOM Status Code: " + codeValue);
+    public UPSProcessorException(Code reasonCode, String message, Throwable cause) {
+        super(message, cause);
+        this.reasonCode = Objects.requireNonNull(reasonCode);
     }
 }

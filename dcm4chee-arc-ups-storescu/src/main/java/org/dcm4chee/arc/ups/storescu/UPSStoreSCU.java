@@ -70,33 +70,32 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
 
     public UPSStoreSCU(UPSProcessingRule rule, UPSService upsService, RetrieveService retrieveService,
             CStoreSCU storeSCU) {
-        super(rule, upsService);
+        super(rule, upsService, true);
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
         this.defDestinationAE = rule.getUPSProcessorURI().getSchemeSpecificPart();
     }
 
     @Override
-    protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
+    protected void processA(UPSContext upsCtx, Attributes ups) throws Exception {
         String destinationAE = destinationAEOf(ups);
-        try {
-            RetrieveContext retrieveContext = calculateMatches(ups, destinationAE);
-            if (retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext)) {
-                storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
-                String outcomeDescription = retrieveContext.getOutcomeDescription();
-                Attributes performedProcedure = getPerformedProcedureStep(upsCtx);
-                performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, outcomeDescription);
-                Sequence outputInformationSeq = performedProcedure.getSequence(Tag.OutputInformationSequence);
-                for (InstanceLocations match : retrieveContext.getMatches()) {
-                    if (!retrieveContext.isFailedSOPInstanceUID(match.getSopInstanceUID())) {
-                        refSOPSequence(outputInformationSeq, match, destinationAE).add(toSOPRef(match));
-                    }
+        RetrieveContext retrieveContext = calculateMatches(ups, destinationAE);
+        if (retrieveContext == null) {
+            throw new UPSProcessorException(NOOP_UPS, "No matching Instances found");
+        }
+        if (retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext)) {
+            storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
+            String outcomeDescription = retrieveContext.getOutcomeDescription();
+            Attributes performedProcedure = getPerformedProcedureStep(upsCtx);
+            performedProcedure.setString(Tag.PerformedProcedureStepDescription, VR.LO, outcomeDescription);
+            Sequence outputInformationSeq = performedProcedure.getSequence(Tag.OutputInformationSequence);
+            for (InstanceLocations match : retrieveContext.getMatches()) {
+                if (!retrieveContext.isFailedSOPInstanceUID(match.getSopInstanceUID())) {
+                    refSOPSequence(outputInformationSeq, match, destinationAE).add(toSOPRef(match));
                 }
-                if (retrieveContext.status() != Status.Success)
-                    throw new UPSProcessorException(retrieveContext.status(), outcomeDescription);
             }
-        } catch (DicomServiceException e) {
-            throw new UPSProcessorException(e.getStatus(), e);
+            if (retrieveContext.status() != Status.Success)
+                throw new DicomServiceException(retrieveContext.status(), outcomeDescription);
         }
     }
 

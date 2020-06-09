@@ -63,7 +63,7 @@ public class UPSStudySize extends AbstractUPSProcessor {
     private final QuerySizeEJB querySizeEJB;
 
     public UPSStudySize(UPSProcessingRule rule, UPSService upsService, QuerySizeEJB querySizeEJB) {
-        super(rule, upsService);
+        super(rule, upsService, true);
         this.querySizeEJB = querySizeEJB;
     }
 
