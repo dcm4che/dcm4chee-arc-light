@@ -418,12 +418,8 @@
                     >
                         <ng-container *ngSwitchCase="'index'">{{diff.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
-                            <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="diff.selected = !diff.selected">
-                                                            <span *ngIf="!diff.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                            <span *ngIf="diff.selected" class="glyphicon glyphicon-check"></span>
-                                                        </button>-->
                             <ng-container *ngFor="let action of diff_table.actions">
-                                <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title() || ''}}">
+                                <a *ngIf="(!action.showIf || action.showIf(uwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                                 </a>
