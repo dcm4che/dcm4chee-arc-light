@@ -1,0 +1,44 @@
+version: 1
+
+dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmUPSProcessingRuleID=STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
+dcmUPSLabel: STUDY_SIZE
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: STUDY_SIZE
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmURI: studySize:dummyPath
+
+dn: dcmUPSProcessingRuleID=QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
+dcmUPSLabel: QUERY_ATTRS
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: QUERY_ATTRS
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmURI: queryAttrs:dummyPath
+
+dn: dcmUPSOnStoreID=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmUPSStartDateTimeDelay: PT6M
+dcmUPSOnStoreID: Calculate Study Size
+dcmUPSInstanceUIDBasedOnName: CalculateStudySize-{StudyInstanceUID}
+objectClass: dcmUPSOnStore
+dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSLabel: STUDY_SIZE
+
+dn: dcmUPSOnStoreID=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmUPSStartDateTimeDelay: PT5M
+dcmUPSOnStoreID: Calculate Query Attributes
+dcmUPSInstanceUIDBasedOnName: CalculateQueryAttrs-{StudyInstanceUID}
+objectClass: dcmUPSOnStore
+dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSLabel: QUERY_ATTRS

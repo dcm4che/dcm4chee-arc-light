@@ -3007,13 +3007,6 @@ dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
 
-dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: CalculateStudySize
-dcmDuration: PT6M
-dcmEntity: Study
-objectClass: dcmExportRule
-cn: Calculate Study Size
-
 dn: cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageReaderFactory
 cn: Image Reader Factory
@@ -3272,13 +3265,6 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=De
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
 
-dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: CalculateQueryAttributes
-dcmDuration: PT5M
-dcmEntity: Study
-objectClass: dcmExportRule
-cn: Calculate Query Attributes
-
 dn: cn=Forward to HL7RCV|DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: MSH-3=FORWARD
 objectClass: hl7ForwardRule
@@ -3391,6 +3377,15 @@ dcmQueryRetrieveViewID: regularUse
 objectClass: dcmQueryRetrieveView
 dcmShowInstancesRejectedByCode: (113001, DCM, "Rejected for Quality Reasons")
 
+dn: dcmUPSProcessingRuleID=STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
+dcmUPSLabel: STUDY_SIZE
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: STUDY_SIZE
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmURI: studySize:dummyPath
+
 dn: dcmWebAppName=IOCM_WRONG_MWL-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
 dcmWebServiceClass: WADO_URI
@@ -3404,6 +3399,15 @@ dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,c
 dcmIDGeneratorName: AccessionNumber
 dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
+
+dn: dcmUPSProcessingRuleID=QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
+dcmUPSLabel: QUERY_ATTRS
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: QUERY_ATTRS
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmURI: queryAttrs:dummyPath
 
 dn: dcmWebAppName=IOCM_PAT_SAFETY-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Patient Safety Reasons
@@ -3458,6 +3462,14 @@ dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
+dn: dcmUPSOnStoreID=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmUPSStartDateTimeDelay: PT6M
+dcmUPSOnStoreID: Calculate Study Size
+dcmUPSInstanceUIDBasedOnName: CalculateStudySize-{StudyInstanceUID}
+objectClass: dcmUPSOnStore
+dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSLabel: STUDY_SIZE
+
 dn: dcmExporterID=CalculateQueryAttributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CalculateQueryAttributes
 dicomDescription: Calculate Query Attributes
@@ -3500,6 +3512,14 @@ dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+
+dn: dcmUPSOnStoreID=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmUPSStartDateTimeDelay: PT5M
+dcmUPSOnStoreID: Calculate Query Attributes
+dcmUPSInstanceUIDBasedOnName: CalculateQueryAttrs-{StudyInstanceUID}
+objectClass: dcmUPSOnStore
+dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSLabel: QUERY_ATTRS
 
 dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: ScheduledProcedureStepID
