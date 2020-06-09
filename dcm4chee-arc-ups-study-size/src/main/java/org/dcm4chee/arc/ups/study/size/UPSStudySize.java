@@ -70,17 +70,25 @@ public class UPSStudySize extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
         Set<String> suids = new HashSet<>();
-        ups.getSequence(Tag.InputInformationSequence).forEach(inputInformation -> {
+        StringBuilder outcome = new StringBuilder("Calculated size of Studies[");
+        StringBuilder outcomeNoOp = new StringBuilder("No operation - calculate size for Studies[uids=");
+        for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             String studyIUID = inputInformation.getString(Tag.StudyInstanceUID);
             if (suids.add(studyIUID)) {
                 long studySize = querySizeEJB.calculateStudySize(studyIUID);
-                getPerformedProcedureStep(upsCtx).setString(
-                        Tag.PerformedProcedureStepDescription,
-                        VR.LO,
-                        studySize >= 0
-                                ? "Calculated size of Study[uid=" + studyIUID + ",size=" + studySize + ']'
-                                : "No such Study[uid=" + studyIUID + ']');
+                if (studySize >= 0)
+                    outcome.append("uid=").append(studyIUID).append(", size=").append(studySize).append("\n");
+                else 
+                    outcomeNoOp.append(studyIUID).append(",\n");
             }
-        });
+        }
+        outcome.append(']');
+        outcomeNoOp.append(']');
+
+        if (outcome.toString().equals("Calculated size of Studies[]"))
+            throw new UPSProcessorException(NOOP_UPS, "No matching studies found for calculation of Query Attributes");
+
+        getPerformedProcedureStep(upsCtx).setString(
+                Tag.PerformedProcedureStepDescription, VR.LO, outcome + "\n" + outcomeNoOp);
     }
 }

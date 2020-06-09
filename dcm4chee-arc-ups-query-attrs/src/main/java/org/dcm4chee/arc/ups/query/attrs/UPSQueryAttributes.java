@@ -70,15 +70,23 @@ public class UPSQueryAttributes extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
         Set<String> suids = new HashSet<>();
-        ups.getSequence(Tag.InputInformationSequence).forEach(inputInformation -> {
+        StringBuilder outcome = new StringBuilder("Calculated query attributes for Studies[uids=");
+        StringBuilder outcomeNoOp = new StringBuilder("No operation - calculate query attributes for Studies[uids=");
+        for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             String studyIUID = inputInformation.getString(Tag.StudyInstanceUID);
-            if (suids.add(studyIUID))
-                getPerformedProcedureStep(upsCtx).setString(
-                        Tag.PerformedProcedureStepDescription,
-                        VR.LO,
-                        queryAttributesEJB.calculateStudyQueryAttributes(studyIUID)
-                            ? "Calculated Query attributes for Study[uid=" + studyIUID + ']'
-                            : "No such Study[uid=" + studyIUID + ']');
-        });
+            if (suids.add(studyIUID)) 
+                if (queryAttributesEJB.calculateStudyQueryAttributes(studyIUID))
+                    outcome.append(studyIUID).append(",\n");
+                else
+                    outcomeNoOp.append(studyIUID).append(",\n");
+        }
+        outcome.append(']');
+        outcomeNoOp.append(']');
+        
+        if (outcome.toString().equals("Calculated Query attributes for Studies[uids=]"))
+            throw new UPSProcessorException(NOOP_UPS, "No matching studies found for calculation of Query Attributes");
+
+        getPerformedProcedureStep(upsCtx).setString(
+                Tag.PerformedProcedureStepDescription, VR.LO, outcome + "\n" + outcomeNoOp);
     }
 }
