@@ -36,6 +36,7 @@ dcmUPSIncludeInputInformation: APPEND_OR_CREATE
 dcmUPSLabel: STUDY_SIZE
 
 dn: dcmUPSOnStoreID=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dcmUPSStartDateTimeDelay: PT5M
 dcmUPSOnStoreID: Calculate Query Attributes
 dcmUPSInstanceUIDBasedOnName: CalculateQueryAttrs-{StudyInstanceUID}
