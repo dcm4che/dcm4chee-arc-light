@@ -63,7 +63,7 @@ public class UPSQueryAttributes extends AbstractUPSProcessor {
     private final QueryAttributesEJB queryAttributesEJB;
 
     public UPSQueryAttributes(UPSProcessingRule rule, UPSService upsService, QueryAttributesEJB queryAttributesEJB) {
-        super(rule, upsService);
+        super(rule, upsService, true);
         this.queryAttributesEJB = queryAttributesEJB;
     }
 
