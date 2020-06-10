@@ -70,25 +70,38 @@ public class UPSStudySize extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
         Set<String> suids = new HashSet<>();
-        StringBuilder outcome = new StringBuilder("Calculated size of Studies[");
-        StringBuilder outcomeNoOp = new StringBuilder("No operation - calculate size for Studies[uids=");
+        int success = 0;
+        int noOp = 0;
+        long studySize = 0L;
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             String studyIUID = inputInformation.getString(Tag.StudyInstanceUID);
             if (suids.add(studyIUID)) {
-                long studySize = querySizeEJB.calculateStudySize(studyIUID);
-                if (studySize >= 0)
-                    outcome.append("uid=").append(studyIUID).append(", size=").append(studySize).append("\n");
-                else 
-                    outcomeNoOp.append(studyIUID).append(",\n");
+                long studySize1 = querySizeEJB.calculateStudySize(studyIUID);
+                if (studySize1 == -1L) {
+                    noOp++;
+                    continue;
+                }
+                studySize = studySize1;
+                success++;
             }
         }
-        outcome.append(']');
-        outcomeNoOp.append(']');
 
-        if (outcome.toString().equals("Calculated size of Studies[]"))
-            throw new UPSProcessorException(NOOP_UPS, "No matching studies found for calculation of Query Attributes");
+        if (success == 0)
+            throw new UPSProcessorException(NOOP_UPS, "No matching studies found for calculation of Study Size");
 
         getPerformedProcedureStep(upsCtx).setString(
-                Tag.PerformedProcedureStepDescription, VR.LO, outcome + "\n" + outcomeNoOp);
+                Tag.PerformedProcedureStepDescription, VR.LO, outcome(success, noOp, studySize));
+    }
+
+    private String outcome(int success, int noOp, long studySize) {
+        return noOp == 0
+                ? success == 1
+                    ? "Calculated study size = " + studySize
+                    : "Calculated size of " + success + "studies"
+                : noOp == 1
+                    ? success == 1
+                        ? "Calculated size for one study = " + studySize + ", whereas one study was not found"
+                        : "Calculated size of " + success + "studies, whereas one study was not found"
+                    : "Calculated size of " + success + "studies, whereas " + noOp + " studies were not found";
     }
 }

@@ -70,23 +70,33 @@ public class UPSQueryAttributes extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws UPSProcessorException {
         Set<String> suids = new HashSet<>();
-        StringBuilder outcome = new StringBuilder("Calculated query attributes for Studies[uids=");
-        StringBuilder outcomeNoOp = new StringBuilder("No operation - calculate query attributes for Studies[uids=");
+        int success = 0;
+        int noOp = 0;
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             String studyIUID = inputInformation.getString(Tag.StudyInstanceUID);
             if (suids.add(studyIUID)) 
                 if (queryAttributesEJB.calculateStudyQueryAttributes(studyIUID))
-                    outcome.append(studyIUID).append(",\n");
+                    success++;
                 else
-                    outcomeNoOp.append(studyIUID).append(",\n");
+                    noOp++;
         }
-        outcome.append(']');
-        outcomeNoOp.append(']');
         
-        if (outcome.toString().equals("Calculated Query attributes for Studies[uids=]"))
+        if (success == 0)
             throw new UPSProcessorException(NOOP_UPS, "No matching studies found for calculation of Query Attributes");
 
         getPerformedProcedureStep(upsCtx).setString(
-                Tag.PerformedProcedureStepDescription, VR.LO, outcome + "\n" + outcomeNoOp);
+                Tag.PerformedProcedureStepDescription, VR.LO, outcome(success, noOp));
+    }
+
+    private String outcome(int success, int noOp) {
+        return noOp == 0
+                ? success == 1
+                    ? "Calculated query attributes of one study"
+                    : "Calculated query attributes of " + success + "studies"
+                : noOp == 1
+                    ? success == 1
+                        ? "Calculated query attributes for one study, whereas one study was not found"
+                        : "Calculated query attributes of " + success + "studies, whereas one study was not found"
+                    : "Calculated query attributes of " + success + "studies, whereas " + noOp + " studies were not found";
     }
 }
