@@ -171,6 +171,7 @@ dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmSeriesMetadataPollingInterval: PT1M
+dcmRejectIfNoUserIdentity: FALSE
 dcmOverwritePolicy: SAME_SOURCE
 dcmDiffTaskProgressUpdateInterval: PT10S
 dcmDeleteUPSCompletedDelay: P1D
