@@ -1,45 +1,54 @@
 version: 1
 
+dn: dcmUPSProcessingRuleID=DICOM_EXPORT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmUPSScheduledWorkitemCode
+dcmUPSScheduledWorkitemCode: (DICOM_EXPORT, 99DCM4CHEE, "Export by DICOM Storage")
+-
+delete: dcmUPSLabel
+
 dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
 
 dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
 
-dn: dcmUPSProcessingRuleID=STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmUPSProcessingRuleID=CALC_STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 objectClass: dcmUPSProcessingRule
-dcmUPSPerformedWorkitemCode: (STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
-dcmUPSLabel: STUDY_SIZE
+dcmUPSPerformedWorkitemCode: (CALC_STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
 dicomAETitle: DCM4CHEE
-dcmUPSProcessingRuleID: STUDY_SIZE
+dcmUPSProcessingRuleID: CALC_STUDY_SIZE
 dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (CALC_STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
 dcmURI: studySize:dummyPath
 
-dn: dcmUPSProcessingRuleID=QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmUPSProcessingRuleID=CALC_QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 objectClass: dcmUPSProcessingRule
-dcmUPSPerformedWorkitemCode: (QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
-dcmUPSLabel: QUERY_ATTRS
+dcmUPSPerformedWorkitemCode: (CALC_QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
 dicomAETitle: DCM4CHEE
-dcmUPSProcessingRuleID: QUERY_ATTRS
+dcmUPSProcessingRuleID: CALC_QUERY_ATTRS
 dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (CALC_QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
 dcmURI: queryAttrs:dummyPath
 
-dn: dcmUPSOnStoreID=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmUPSOnStoreID=CALC_STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmUPSStartDateTimeDelay: PT6M
-dcmUPSOnStoreID: Calculate Study Size
-dcmUPSInstanceUIDBasedOnName: CalculateStudySize-{StudyInstanceUID}
+dcmUPSOnStoreID: CALC_STUDY_SIZE
+dcmUPSInstanceUIDBasedOnName: CALC_STUDY_SIZE-{StudyInstanceUID}
 objectClass: dcmUPSOnStore
 dcmUPSIncludeInputInformation: APPEND_OR_CREATE
-dcmUPSLabel: STUDY_SIZE
+dcmUPSLabel: CALC_STUDY_SIZE
+dcmUPSScheduledWorkitemCode: (CALC_STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
 
-dn: dcmUPSOnStoreID=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmUPSOnStoreID=CALC_QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmUPSStartDateTimeDelay: PT5M
-dcmUPSOnStoreID: Calculate Query Attributes
-dcmUPSInstanceUIDBasedOnName: CalculateQueryAttrs-{StudyInstanceUID}
+dcmUPSOnStoreID: CALC_QUERY_ATTRS
+dcmUPSInstanceUIDBasedOnName: CALC_QUERY_ATTRS-{StudyInstanceUID}
 objectClass: dcmUPSOnStore
 dcmUPSIncludeInputInformation: APPEND_OR_CREATE
-dcmUPSLabel: QUERY_ATTRS
+dcmUPSLabel: CALC_QUERY_ATTRS
+dcmUPSScheduledWorkitemCode: (CALC_QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")

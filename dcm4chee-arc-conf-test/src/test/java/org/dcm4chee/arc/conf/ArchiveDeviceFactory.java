@@ -1006,6 +1006,10 @@ class ArchiveDeviceFactory {
 
     static final Code DICOM_EXPORT =
             new Code("DICOM_EXPORT", "99DCM4CHEE", null, "Export by DICOM Storage");
+    static final Code CALC_QUERY_ATTRS =
+            new Code("CALC_QUERY_ATTRS", "99DCM4CHEE", null, "Calculate Query Attributes");
+    static final Code CALC_STUDY_SIZE =
+            new Code("CALC_STUDY_SIZE", "99DCM4CHEE", null, "Calculate Study Size");
     static final Code DCM4CHEE_ARC =
             new Code("dcm4chee-arc", "99DCM4CHEE", null, "dcm4chee-arc");
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
@@ -1026,15 +1030,6 @@ class ArchiveDeviceFactory {
             INCORRECT_MODALITY_WORKLIST_ENTRY,
             DATA_RETENTION_POLICY_EXPIRED
     };
-
-    static final String UPS_QUERY_ATTRS_LABEL = "QUERY_ATTRS";
-    static final String UPS_STUDY_SIZE_LABEL = "STUDY_SIZE";
-    static final String UPS_QUERY_ATTRS = "Calculate Query Attributes";
-    static final String UPS_STUDY_SIZE = "Calculate Study Size";
-    static final Code QUERY_ATTRS =
-            new Code(UPS_QUERY_ATTRS_LABEL, "99DCM4CHEE", null, UPS_QUERY_ATTRS);
-    static final Code STUDY_SIZE =
-            new Code(UPS_STUDY_SIZE_LABEL, "99DCM4CHEE", null, UPS_STUDY_SIZE);
 
     static final QueryRetrieveView REGULAR_USE_VIEW =
             createQueryRetrieveView("regularUse",
@@ -1738,14 +1733,16 @@ class ArchiveDeviceFactory {
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "DICOM_EXPORT", DICOM_EXPORT, DCM4CHEE_ARC, "storescu:STORESCP"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
-                UPS_QUERY_ATTRS_LABEL, QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
+                "CALC_QUERY_ATTRS", CALC_QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
-                UPS_STUDY_SIZE_LABEL, STUDY_SIZE, DCM4CHEE_ARC, "studySize:dummyPath"));
+                "CALC_STUDY_SIZE", CALC_STUDY_SIZE, DCM4CHEE_ARC, "studySize:dummyPath"));
 
-        ext.addUPSOnStore(newUPSOnStore(UPS_QUERY_ATTRS, UPS_QUERY_ATTRS_LABEL,
-                "CalculateQueryAttrs-{StudyInstanceUID}", UPS_CALC_QUERY_ATTRS_DELAY));
-        ext.addUPSOnStore(newUPSOnStore(UPS_STUDY_SIZE, UPS_STUDY_SIZE_LABEL,
-                "CalculateStudySize-{StudyInstanceUID}", UPS_CALC_STUDY_SIZE_DELAY));
+        ext.addUPSOnStore(newUPSOnStore("CALC_QUERY_ATTRS", "CALC_QUERY_ATTRS",
+                CALC_QUERY_ATTRS, "CALC_QUERY_ATTRS-{StudyInstanceUID}",
+                UPS_CALC_QUERY_ATTRS_DELAY));
+        ext.addUPSOnStore(newUPSOnStore("CALC_STUDY_SIZE", "CALC_STUDY_SIZE",
+                CALC_STUDY_SIZE, "CALC_STUDY_SIZE-{StudyInstanceUID}",
+                UPS_CALC_STUDY_SIZE_DELAY));
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesAETitle(AE_TITLE);
@@ -2068,20 +2065,21 @@ class ArchiveDeviceFactory {
     }
 
     private static UPSProcessingRule newUPSProcessingRule(
-            String upsLabel, Code workItemCode, Code stationNameCode, String uri) {
-        UPSProcessingRule rule = new UPSProcessingRule(upsLabel);
+            String ruleID, Code workItemCode, Code stationNameCode, String uri) {
+        UPSProcessingRule rule = new UPSProcessingRule(ruleID);
         rule.setAETitle(AE_TITLE);
-        rule.setProcedureStepLabel(upsLabel);
+        rule.setScheduledWorkitemCode(workItemCode);
         rule.setPerformedWorkitemCode(workItemCode);
         rule.setPerformedStationNameCode(stationNameCode);
         rule.setUPSProcessorURI(URI.create(uri));
         return rule;
     }
 
-    private static UPSOnStore newUPSOnStore(
-            String upsOnStoreID, String procedureStepLabel, String instanceUIDBasedOnName, Duration startDelay) {
+    private static UPSOnStore newUPSOnStore(String upsOnStoreID, String procedureStepLabel, Code workItemCode,
+            String instanceUIDBasedOnName, Duration startDelay) {
         UPSOnStore rule = new UPSOnStore(upsOnStoreID);
         rule.setProcedureStepLabel(procedureStepLabel);
+        rule.setScheduledWorkitemCode(workItemCode);
         rule.setIncludeInputInformation(UPSOnStore.IncludeInputInformation.APPEND_OR_CREATE);
         rule.setInstanceUIDBasedOnName(instanceUIDBasedOnName);
         rule.setStartDateTimeDelay(startDelay);
