@@ -53,19 +53,13 @@ import java.util.Calendar;
 public class ExportRule {
 
     private String commonName;
-
     private ScheduleExpression[] schedules = {};
-
     private Conditions conditions = new Conditions();
-
+    private String exporterDeviceName;
     private String[] exporterIDs = {};
-
     private Entity entity;
-
     private Duration exportDelay;
-
     private boolean exportPreviousEntity;
-
     private ExportReoccurredInstances exportReoccurredInstances = ExportReoccurredInstances.REPLACE;
 
     public ExportRule() {
@@ -97,6 +91,14 @@ public class ExportRule {
 
     public void setConditions(Conditions conditions) {
         this.conditions = conditions;
+    }
+
+    public String getExporterDeviceName() {
+        return exporterDeviceName;
+    }
+
+    public void setExporterDeviceName(String exporterDeviceName) {
+        this.exporterDeviceName = exporterDeviceName;
     }
 
     public String[] getExporterIDs() {
@@ -159,6 +161,7 @@ public class ExportRule {
                 "cn=" + commonName +
                 ", conditions=" + conditions +
                 ", schedules=" + Arrays.toString(schedules) +
+                ", exporterDeviceName=" + exporterDeviceName +
                 ", exporterIDs=" + Arrays.toString(exporterIDs) +
                 ", entity=" + entity +
                 ", exporterDelay=" + exportDelay +
