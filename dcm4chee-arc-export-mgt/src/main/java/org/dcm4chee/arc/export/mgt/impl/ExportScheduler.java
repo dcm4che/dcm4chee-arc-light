@@ -102,29 +102,29 @@ public class ExportScheduler extends Scheduler {
                 continue;
             }
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
+            String exporterDeviceName = exporterDeviceName(rule);
             switch (rule.getEntity()) {
                 case Study:
-                    createOrUpdateStudyExportTask(session, exporterID,
-                            ctx.getStudyInstanceUID(),
-                            scheduledTime);
+                    createOrUpdateStudyExportTask(session, exporterDeviceName, exporterID,
+                            ctx.getStudyInstanceUID(), scheduledTime);
                     if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentStudy())
-                        createOrUpdateStudyExportTask(session, exporterID,
+                        createOrUpdateStudyExportTask(session, exporterDeviceName, exporterID,
                                 ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                                 scheduledTime);
                     break;
                 case Series:
-                    createOrUpdateSeriesExportTask(session, exporterID,
+                    createOrUpdateSeriesExportTask(session, exporterDeviceName, exporterID,
                             ctx.getStudyInstanceUID(),
                             ctx.getSeriesInstanceUID(),
                             scheduledTime);
                     if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentSeries())
-                        createOrUpdateSeriesExportTask(session, exporterID,
+                        createOrUpdateSeriesExportTask(session, exporterDeviceName, exporterID,
                                 ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                                 ctx.getPreviousInstance().getSeries().getSeriesInstanceUID(),
                                 scheduledTime);
                     break;
                 case Instance:
-                    createOrUpdateInstanceExportTask(session, exporterID,
+                    createOrUpdateInstanceExportTask(session, exporterDeviceName, exporterID,
                             ctx.getStudyInstanceUID(),
                             ctx.getSeriesInstanceUID(),
                             ctx.getSopInstanceUID(),
@@ -132,6 +132,11 @@ public class ExportScheduler extends Scheduler {
                     break;
             }
         }
+    }
+
+    private String exporterDeviceName(ExportRule rule) {
+        return rule.getExporterDeviceName() == null || rule.getExporterDeviceName().equals(device.getDeviceName())
+                ? device.getDeviceName() : rule.getExporterDeviceName();
     }
 
     private ExporterDescriptor getExporterDesc(ExportRule rule, String exporterID, ArchiveDeviceExtension arcDev) {
@@ -157,14 +162,14 @@ public class ExportScheduler extends Scheduler {
         return cal.getTime();
     }
 
-    private boolean createOrUpdateStudyExportTask(StoreSession session, String exporterID,
+    private boolean createOrUpdateStudyExportTask(StoreSession session, String exporterDeviceName, String exporterID,
             String studyIUID, Date scheduledTime) {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateStudyExportTask(exporterID, studyIUID, scheduledTime);
+                ejb.createOrUpdateStudyExportTask(exporterDeviceName, exporterID, studyIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -182,14 +187,14 @@ public class ExportScheduler extends Scheduler {
         }
     }
 
-    private boolean createOrUpdateSeriesExportTask(StoreSession session, String exporterID,
+    private boolean createOrUpdateSeriesExportTask(StoreSession session, String exporterDeviceName, String exporterID,
             String studyIUID, String seriesIUID, Date scheduledTime) {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateSeriesExportTask(exporterID, studyIUID, seriesIUID, scheduledTime);
+                ejb.createOrUpdateSeriesExportTask(exporterDeviceName, exporterID, studyIUID, seriesIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -207,15 +212,16 @@ public class ExportScheduler extends Scheduler {
         }
     }
 
-    private boolean createOrUpdateInstanceExportTask(StoreSession session, String exporterID,
+    private boolean createOrUpdateInstanceExportTask(StoreSession session, String exporterDeviceName, String exporterID,
             String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime) {
-        ejb.createOrUpdateInstanceExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
+        ejb.createOrUpdateInstanceExportTask(exporterDeviceName, exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateInstanceExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
+                ejb.createOrUpdateInstanceExportTask(
+                        exporterDeviceName, exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {

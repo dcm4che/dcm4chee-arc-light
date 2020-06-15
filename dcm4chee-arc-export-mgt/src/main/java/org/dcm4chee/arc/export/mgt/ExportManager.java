@@ -60,11 +60,19 @@ import java.util.List;
 public interface ExportManager {
     void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime);
 
+    void createOrUpdateStudyExportTask(String exporterDeviceName, String exporterID, String studyIUID, Date scheduledTime);
+
     void createOrUpdateSeriesExportTask(
             String exporterID, String studyIUID, String seriesIUID, Date scheduledTime);
 
+    void createOrUpdateSeriesExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
+                                        Date scheduledTime);
+
     void createOrUpdateInstanceExportTask(
             String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime);
+
+    void createOrUpdateInstanceExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
+                                          String sopIUID, Date scheduledTime);
 
     List<Long> findExportTasksToSchedule(int fetchSize);
 
