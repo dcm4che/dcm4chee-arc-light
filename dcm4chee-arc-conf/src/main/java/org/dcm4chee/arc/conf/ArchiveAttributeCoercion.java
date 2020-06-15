@@ -50,6 +50,8 @@ import org.dcm4che3.util.AttributesFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,6 +76,7 @@ public class ArchiveAttributeCoercion {
     private boolean trimISO2022CharacterSet;
     private UseCallingAETitleAsCoercion.Type useCallingAETitleAs;
     private int[] nullifyTags = {};
+    private boolean nullifyPixelData;
     private NullifyIssuer nullifyIssuerOfPatientID;
     private MergeAttribute[] mergeAttributes = {};
     private Issuer[] issuerOfPatientIDs = {};
@@ -253,6 +256,12 @@ public class ArchiveAttributeCoercion {
 
     public void setNullifyTags(int[] nullifyTags) {
         this.nullifyTags = nullifyTags;
+        this.nullifyPixelData = nullifyTags != null
+                && IntStream.of(nullifyTags).anyMatch(tag -> tag == Tag.PixelData);
+    }
+
+    public boolean isNullifyPixelData() {
+        return nullifyPixelData;
     }
 
     public NullifyIssuer getNullifyIssuerOfPatientID() {

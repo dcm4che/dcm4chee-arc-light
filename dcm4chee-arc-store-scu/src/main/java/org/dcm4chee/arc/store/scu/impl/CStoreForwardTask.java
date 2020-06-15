@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -123,8 +124,11 @@ class CStoreForwardTask implements Runnable {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
+                ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                if (rule != null)
+                    transcoder.setNullifyPixelData(rule.isNullifyPixelData());
                 TranscoderDataWriter data = new TranscoderDataWriter(transcoder,
-                        service.getAttributesCoercion(ctx, inst));
+                        service.getAttributesCoercion(ctx, inst, rule));
                 DimseRSPHandler rspHandler = new CStoreRSPHandler(inst);
                 long startTime = System.nanoTime();
                 storeas.cstore(cuid, iuid, ctx.getPriority(),

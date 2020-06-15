@@ -50,6 +50,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Location;
@@ -213,10 +214,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
-                AttributesCoercion coerce = service.getAttributesCoercion(ctx, inst);
+                ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                if (rule != null)
+                    transcoder.setNullifyPixelData(rule.isNullifyPixelData());
+                AttributesCoercion coerce = service.getAttributesCoercion(ctx, inst, rule);
                 if (coerce != null)
                     iuid = coerce.remapUID(iuid);
-
                 TranscoderDataWriter data = new TranscoderDataWriter(transcoder, coerce);
                 outstandingRSP.add(inst);
                 long startTime = System.nanoTime();

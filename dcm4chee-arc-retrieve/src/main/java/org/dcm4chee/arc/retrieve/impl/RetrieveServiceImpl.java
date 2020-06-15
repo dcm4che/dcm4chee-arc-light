@@ -662,8 +662,32 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public ArchiveAttributeCoercion getArchiveAttributeCoercion(RetrieveContext ctx, InstanceLocations inst) {
+        if (ctx.isUpdateSeriesMetadata()) {
+            return null;
+        }
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                Dimse.C_STORE_RQ,
+                TransferCapability.Role.SCP,
+                inst.getSopClassUID(),
+                ctx.getDestinationHostName(),
+                ctx.getLocalAETitle(),
+                ctx.getRequestorHostName(),
+                ctx.getDestinationAETitle(),
+                inst.getAttributes());
+        return rule;
+    }
+
+    @Override
+    public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
+            ArchiveAttributeCoercion rule) {
+        return uidRemap(inst, coercion(ctx, inst, rule));
+    }
+
+    @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
-        return uidRemap(inst, coercion(ctx, inst));
+        return getAttributesCoercion(ctx, inst, getArchiveAttributeCoercion(ctx, inst));
     }
 
     @Override
@@ -794,21 +818,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         return uidMap != null ? new RemapUIDsAttributesCoercion(uidMap.getUIDMap(), next) : next;
     }
 
-    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
+    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst, ArchiveAttributeCoercion rule) {
         Attributes instAttributes = inst.getAttributes();
         if (ctx.isUpdateSeriesMetadata())
             return new MergeAttributesCoercion(instAttributes, new SeriesMetadataAttributeCoercion(ctx, inst));
 
-        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
-        ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                Dimse.C_STORE_RQ,
-                TransferCapability.Role.SCP,
-                inst.getSopClassUID(),
-                ctx.getDestinationHostName(),
-                ctx.getLocalAETitle(),
-                ctx.getRequestorHostName(),
-                ctx.getDestinationAETitle(),
-                inst.getAttributes());
         if (rule == null)
             return new MergeAttributesCoercion(instAttributes, AttributesCoercion.NONE);
 
