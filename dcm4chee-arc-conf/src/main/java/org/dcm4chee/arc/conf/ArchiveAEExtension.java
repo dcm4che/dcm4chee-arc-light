@@ -1768,7 +1768,7 @@ public class ArchiveAEExtension extends AEExtension {
         }) {
             for (StoreAccessControlIDRule rule : rules)
                 if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
-                    if (rule1 == null || rule.getPriority() < rule.getPriority())
+                    if (rule1 == null || rule1.getPriority() < rule.getPriority())
                         rule1 = rule;
         }
         return rule1 != null ? rule1.getStoreAccessControlID() : storeAccessControlID;
