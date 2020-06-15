@@ -1,5 +1,8 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -28,6 +31,9 @@ public class ExportScheduler extends Scheduler {
 
     @Inject
     private ExportManager ejb;
+
+    @Inject
+    private IDeviceCache deviceCache;
 
     protected ExportScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -89,7 +95,7 @@ public class ExportScheduler extends Scheduler {
                         continue;
                     }
             }
-            ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
+            ExporterDescriptor desc = getExporterDesc(rule, exporterID, arcDev);
             if (desc == null) {
                 LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
                         session, exporterID, rule);
@@ -126,6 +132,20 @@ public class ExportScheduler extends Scheduler {
                     break;
             }
         }
+    }
+
+    private ExporterDescriptor getExporterDesc(ExportRule rule, String exporterID, ArchiveDeviceExtension arcDev) {
+        if (rule.getExporterDeviceName() == null || rule.getExporterDeviceName().equals(device.getDeviceName()))
+            return arcDev.getExporterDescriptor(exporterID);
+
+        try {
+            return deviceCache.findDevice(rule.getExporterDeviceName())
+                    .getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getExporterDescriptor(exporterID);
+        } catch (IllegalStateException | ConfigurationException e) {
+            LOG.info(e.getMessage());
+        }
+        return null;
     }
 
     private Date scheduledTime(Calendar cal, Duration exportDelay, ScheduleExpression[] schedules) {

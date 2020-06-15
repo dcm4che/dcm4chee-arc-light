@@ -567,6 +567,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmExportPreviousEntity", er.isExportPreviousEntity(), false);
             writer.writeNotNullOrDef("dcmExportReoccurredInstances", er.getExportReoccurredInstances(),
                     ExportReoccurredInstances.REPLACE);
+            writer.writeNotNullOrDef("dicomDeviceName", er.getExporterDeviceName(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2254,6 +2255,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmExportReoccurredInstances":
                         er.setExportReoccurredInstances(ExportReoccurredInstances.valueOf(reader.stringValue()));
+                        break;
+                    case "dicomDeviceName":
+                        er.setExporterDeviceName(reader.stringValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
