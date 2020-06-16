@@ -16,9 +16,9 @@
           </div>
         </ng-container>
   </div>
-      <div class="filter_line more_function_block">
+      <div class="filter_line more_function_block" >
         <div class="filter single_block">
-          <div class="filter_block">
+          <div class="filter_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl')">
             <div class="line">
               <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
               <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>

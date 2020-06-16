@@ -907,31 +907,7 @@ export class Globalvar {
     static MWL_FILTER_SCHEMA(hidden?):FilterSchema{
         if(hidden){
             return [
-                {
-                    tag:"select",
-                    type:"text",
-                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
-                    options:[
-                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
-                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
-                        new SelectDropdown("READY", $localize `:@@READY:READY`),
-                        new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
-                        new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
-                        new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
-                        new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
-                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
-                    ],
-                    showStar:true,
-                    description:$localize `:@@sps_status:SPS Status`,
-                    placeholder:$localize `:@@sps_status:SPS Status`
-                },
-                {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
-                    description:$localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
-                    placeholder:$localize `:@@sp_physicians_name:SP Physician's Name`
-                }
+
             ]
         }else{
             return [
@@ -994,6 +970,31 @@ export class Globalvar {
                     description:$localize `:@@limit:Limit`,
                     placeholder:$localize `:@@limit_of_mwl:Limit of MWL`
                 },{
+                    tag:"select",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    options:[
+                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
+                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
+                        new SelectDropdown("READY", $localize `:@@READY:READY`),
+                        new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
+                        new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
+                        new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                        new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
+                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
+                    ],
+                    showStar:true,
+                    description:$localize `:@@sps_status:SPS Status`,
+                    placeholder:$localize `:@@sps_status:SPS Status`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
+                    description:$localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
+                    placeholder:$localize `:@@sp_physicians_name:SP Physician's Name`
+                }
+                ,{
                     tag:"range-picker",
                     type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate",
