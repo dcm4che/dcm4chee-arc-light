@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
@@ -150,12 +149,23 @@ public class StgVerScheduler extends Scheduler {
             return ejb.claimForStorageVerification(
                     storageVerification.seriesPk,
                     storageVerification.storageVerificationTime,
-                    period != null ? new Date(LocalDate.now().plus(period).toEpochDay() * MILLIS_PER_DAY) : null)
+                    nextVerificationTime(storageVerification, period))
                     > 0;
         } catch (Exception e) {
             LOG.info("Failed to claim {}:\n", storageVerification, e);
             return false;
         }
+    }
+
+    private Date nextVerificationTime(Series.StorageVerification storageVerification, Period period) {
+        if (period == null) return null;
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(storageVerification.storageVerificationTime);
+        cal.add(Calendar.YEAR, period.getYears());
+        cal.add(Calendar.MONTH, period.getMonths());
+        cal.add(Calendar.DAY_OF_MONTH, period.getDays());
+        return cal.getTime();
     }
 
     private StorageVerificationTask createStgVerTask(String aet, Series.StorageVerification storageVerification) {
