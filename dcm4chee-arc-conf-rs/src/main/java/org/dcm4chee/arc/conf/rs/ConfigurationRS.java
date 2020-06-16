@@ -115,7 +115,8 @@ public class ConfigurationRS {
             "MOVE|" +
             "MOVE_MATCHING|" +
             "REJECT|" +
-            "ELASTICSEARCH")
+            "ELASTICSEARCH|" +
+            "XDS_RS")
     private String dcmWebServiceClass;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
