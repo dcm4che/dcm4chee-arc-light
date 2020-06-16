@@ -687,7 +687,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPatientVerificationAdjustIssuerOfPatientID(
                 LdapUtils.booleanValue(attrs.get("dcmPatientVerificationAdjustIssuerOfPatientID"), false));
         ext.setPatientVerificationPeriod(
-                toPeriod(attrs.get("dcmStorageVerificationPeriod")));
+                toPeriod(attrs.get("dcmPatientVerificationPeriod")));
         ext.setPatientVerificationPeriodOnNotFound(
                 toPeriod(attrs.get("dcmPatientVerificationPeriodOnNotFound")));
         ext.setPatientVerificationRetryInterval(
