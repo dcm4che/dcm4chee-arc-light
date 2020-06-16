@@ -16,7 +16,7 @@
           </div>
         </ng-container>
   </div>
-      <div class="filter_line more_function_block" >
+      <div class="filter_line more_function_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl') || (studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl'))) || (studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl')))">
         <div class="filter single_block">
           <div class="filter_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl')">
             <div class="line">
