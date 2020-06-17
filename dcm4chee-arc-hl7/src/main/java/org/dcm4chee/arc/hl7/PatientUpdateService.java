@@ -53,8 +53,11 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.*;
+import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +85,7 @@ class PatientUpdateService extends DefaultHL7Service {
             "ADT^A06",
             "ADT^A07",
             "ADT^A08",
+            "ADT^A10",
             "ADT^A11",
             "ADT^A12",
             "ADT^A13",
@@ -95,6 +99,9 @@ class PatientUpdateService extends DefaultHL7Service {
     @Inject
     private PatientService patientService;
 
+    @Inject
+    private ProcedureService procedureService;
+
     public PatientUpdateService() {
         super(MESSAGE_TYPES);
     }
@@ -104,7 +111,8 @@ class PatientUpdateService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
-        updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
+        Patient patient = updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
+        updateProcedure(s, patient, msg, hl7App);
         return archiveHL7Message;
     }
 
@@ -240,5 +248,18 @@ class PatientUpdateService extends DefaultHL7Service {
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
+    }
+
+    private void updateProcedure(Socket s, Patient pat, UnparsedHL7Message msg, HL7Application hl7App) {
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (arcHL7App.hl7PatientArrivalMessageType() == null
+                || !arcHL7App.hl7PatientArrivalMessageType().equals(msg.msh().getMessageType()))
+            return;
+
+        ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
+        ctx.setArchiveHL7AppExtension(arcHL7App);
+        ctx.setPatient(pat);
+        procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED, SPSStatus.ARRIVED);
     }
 }

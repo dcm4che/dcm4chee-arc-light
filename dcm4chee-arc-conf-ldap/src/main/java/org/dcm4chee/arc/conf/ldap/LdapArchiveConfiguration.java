@@ -453,6 +453,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isRetrieveTaskWarningOnWarnings(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCStoreSCUOfCMoveSCP", ext.getCStoreSCUOfCMoveSCPs());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteStudyChunkSize", ext.getDeleteStudyChunkSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientArrivalMessageType",
+                ext.getHL7PatientArrivalMessageType(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -734,6 +736,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), false));
         ext.setCStoreSCUOfCMoveSCPs(LdapUtils.stringArray(attrs.get("dcmCStoreSCUOfCMoveSCP")));
         ext.setDeleteStudyChunkSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyChunkSize"), 100));
+        ext.setHL7PatientArrivalMessageType(LdapUtils.stringValue(attrs.get("hl7PatientArrivalMessageType"), null));
     }
 
     @Override
@@ -1260,6 +1263,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDeleteStudyChunkSize(),
                 bb.getDeleteStudyChunkSize(),
                 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PatientArrivalMessageType",
+                aa.getHL7PatientArrivalMessageType(),
+                bb.getHL7PatientArrivalMessageType(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

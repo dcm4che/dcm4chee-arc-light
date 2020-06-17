@@ -779,7 +779,7 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {
-        if (ctx.getUnparsedHL7Message() != null)
+        if (ctx.getUnparsedHL7Message() != null && !ctx.getUnparsedHL7Message().msh().getMessageType().equals("ADT^A10"))
             return;
 
         try {

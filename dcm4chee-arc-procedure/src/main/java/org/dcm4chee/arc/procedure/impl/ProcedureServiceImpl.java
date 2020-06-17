@@ -148,6 +148,18 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
+    public void updateMWLStatus(ProcedureContext ctx, SPSStatus from, SPSStatus to) {
+        try {
+            ejb.updateMWLStatus(ctx, from, to);
+        } catch (Exception e) {
+            ctx.setException(e);
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                procedureEvent.fire(ctx);
+        }
+    }
+
+    @Override
     public int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam,
                                   int mwlFetchSize) {
         return ejb.updateMatchingSPS(spsStatus, queryKeys, queryParam, mwlFetchSize);

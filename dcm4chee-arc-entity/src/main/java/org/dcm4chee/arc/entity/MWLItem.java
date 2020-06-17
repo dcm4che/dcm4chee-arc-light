@@ -92,7 +92,12 @@ import java.util.*;
         name = MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.status = ?1 " +
-                "and mwl.updatedTime < ?2")
+                "and mwl.updatedTime < ?2"),
+        @NamedQuery(
+                name = MWLItem.FIND_BY_PATIENT_AND_STATUS,
+                query = "select mwl from MWLItem mwl " +
+                        "where mwl.patient = ?1 " +
+                        "and mwl.status = ?2")
 })
 @Entity
 @Table(name = "mwl_item",
@@ -121,6 +126,7 @@ public class MWLItem {
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
     public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
     public static final String FIND_BY_STATUS_AND_UPDATED_BEFORE = "MWLItem.findByStatusAndUpdatedBefore";
+    public static final String FIND_BY_PATIENT_AND_STATUS = "MWLItem.findByPatientAndStatus";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

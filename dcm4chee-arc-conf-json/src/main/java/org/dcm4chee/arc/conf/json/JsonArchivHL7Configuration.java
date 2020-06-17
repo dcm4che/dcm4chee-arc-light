@@ -83,6 +83,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotEmpty("hl7ORUAction", ext.getHl7ORUAction());
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), null);
+        writer.writeNotNullOrDef("hl7PatientArrivalMessageType", ext.getHL7PatientArrivalMessageType(), null);
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeHL7ExportRules(writer, ext.getHL7ExportRules());
         JsonArchiveConfiguration.writeHL7PrefetchRules(writer, ext.getHL7PrefetchRules());
@@ -166,6 +167,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7ReferredMergedPatientPolicy":
                     ext.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7PatientArrivalMessageType":
+                    ext.setHL7PatientArrivalMessageType(reader.stringValue());
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

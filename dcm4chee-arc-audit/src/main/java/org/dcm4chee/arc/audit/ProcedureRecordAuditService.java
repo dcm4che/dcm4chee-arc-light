@@ -81,6 +81,8 @@ class ProcedureRecordAuditService {
                 .mppsUID(procCtx.getMppsUID())
                 .status(procCtx.getStatus())
                 .outcome(procCtx.getOutcomeMsg() != null ? procCtx.getOutcomeMsg() : outcome(procCtx.getException()));
+        if (procCtx.getAttributes() == null && procCtx.getStudyInstanceUID() != null)
+            infoBuilder.studyIUID(procCtx.getStudyInstanceUID());
     }
 
     ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
@@ -90,7 +92,11 @@ class ProcedureRecordAuditService {
     }
 
     AuditInfoBuilder getProcUpdateAuditInfo() {
-        return procCtx.getHttpRequest() != null ? procUpdatedByWeb() : procUpdatedByMPPS();
+        return procCtx.getHttpRequest() != null
+                ? procUpdatedByWeb()
+                : procCtx.getAssociation() != null
+                    ? procUpdatedByMPPS()
+                    : procUpdatedByHL7();
     }
 
     AuditInfoBuilder getHL7IncomingOrderInfo() {
@@ -138,6 +144,14 @@ class ProcedureRecordAuditService {
         return infoBuilder
                 .callingUserID(as.getCallingAET())
                 .calledUserID(as.getCalledAET())
+                .build();
+    }
+
+    private AuditInfoBuilder procUpdatedByHL7() {
+        UnparsedHL7Message msg = procCtx.getUnparsedHL7Message();
+        return infoBuilder
+                .callingUserID(msg.msh().getSendingApplicationWithFacility())
+                .calledUserID(msg.msh().getReceivingApplicationWithFacility())
                 .build();
     }
 
