@@ -132,6 +132,7 @@ dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
 dcmTrustStoreType: JKS
 dcmAECacheStaleTimeout: PT5M
+hl7PatientArrivalMessageType: ADT^A10
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
@@ -2730,6 +2731,7 @@ hl7AcceptedMessageType: ADT^A05
 hl7AcceptedMessageType: ADT^A06
 hl7AcceptedMessageType: ADT^A07
 hl7AcceptedMessageType: ADT^A08
+hl7AcceptedMessageType: ADT^A10
 hl7AcceptedMessageType: ADT^A11
 hl7AcceptedMessageType: ADT^A12
 hl7AcceptedMessageType: ADT^A13
