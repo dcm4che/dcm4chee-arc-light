@@ -68,6 +68,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
+    private String hl7PatientArrivalMessageType;
     private HL7ORUAction[] hl7ORUAction = {};
 
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
@@ -102,6 +103,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
+        hl7PatientArrivalMessageType = arcapp.hl7PatientArrivalMessageType;
         hl7ORUAction = arcapp.hl7ORUAction;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
@@ -538,6 +540,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7VeterinaryUsePatientName != null
                 ? hl7VeterinaryUsePatientName
                 : getArchiveDeviceExtension().isHl7VeterinaryUsePatientName();
+    }
+
+    public String getHL7PatientArrivalMessageType() {
+        return hl7PatientArrivalMessageType;
+    }
+
+    public void setHL7PatientArrivalMessageType(String hl7PatientArrivalMessageType) {
+        this.hl7PatientArrivalMessageType = hl7PatientArrivalMessageType;
+    }
+
+    public String hl7PatientArrivalMessageType() {
+        return hl7PatientArrivalMessageType != null
+                ? hl7PatientArrivalMessageType
+                : getArchiveDeviceExtension().getHL7PatientArrivalMessageType();
     }
 
     public HL7ORUAction[] getHl7ORUAction() {

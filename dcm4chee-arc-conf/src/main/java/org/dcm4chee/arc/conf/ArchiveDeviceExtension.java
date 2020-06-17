@@ -268,6 +268,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             HL7ReferredMergedPatientPolicy.REJECT;
     private volatile String hl7DicomCharacterSet;
     private volatile boolean hl7VeterinaryUsePatientName;
+    private volatile String hl7PatientArrivalMessageType;
     private volatile int csvUploadChunkSize = 100;
     private volatile boolean validateUID = true;
     private volatile boolean relationalQueryNegotiationLenient;
@@ -2660,6 +2661,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7VeterinaryUsePatientName = hl7VeterinaryUsePatientName;
     }
 
+    public String getHL7PatientArrivalMessageType() {
+        return hl7PatientArrivalMessageType;
+    }
+
+    public void setHL7PatientArrivalMessageType(String hl7PatientArrivalMessageType) {
+        this.hl7PatientArrivalMessageType = hl7PatientArrivalMessageType;
+    }
+
     public int getCSVUploadChunkSize() {
         return csvUploadChunkSize;
     }
@@ -2996,6 +3005,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
+        hl7PatientArrivalMessageType = arcdev.hl7PatientArrivalMessageType;
         relationalQueryNegotiationLenient = arcdev.relationalQueryNegotiationLenient;
         relationalRetrieveNegotiationLenient = arcdev.relationalRetrieveNegotiationLenient;
         rejectConflictingPatientAttribute = arcdev.rejectConflictingPatientAttribute;

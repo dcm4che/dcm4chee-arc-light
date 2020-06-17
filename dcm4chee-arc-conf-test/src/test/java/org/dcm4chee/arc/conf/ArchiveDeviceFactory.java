@@ -1761,6 +1761,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
         ext.setAttributeFilter(Entity.UPS, new AttributeFilter(UPS_ATTRS));
 
+        ext.setHL7PatientArrivalMessageType("ADT^A10");
         ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
 
         ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-%08d"));
