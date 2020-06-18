@@ -253,14 +253,13 @@ class PatientUpdateService extends DefaultHL7Service {
     private void updateProcedure(Socket s, Patient pat, UnparsedHL7Message msg, HL7Application hl7App) {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (arcHL7App.hl7PatientArrivalMessageType() == null
-                || !arcHL7App.hl7PatientArrivalMessageType().equals(msg.msh().getMessageType()))
-            return;
-
-        ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
-        ctx.setArchiveHL7AppExtension(arcHL7App);
-        ctx.setPatient(pat);
-        ctx.setSpsStatus(SPSStatus.ARRIVED);
-        procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED);
+        String arrivalMessageType = arcHL7App.hl7PatientArrivalMessageType();
+        if (arrivalMessageType != null && arrivalMessageType.equals(msg.msh().getMessageType())) {
+            ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
+            ctx.setArchiveHL7AppExtension(arcHL7App);
+            ctx.setPatient(pat);
+            ctx.setSpsStatus(SPSStatus.ARRIVED);
+            procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED);
+        }
     }
 }
