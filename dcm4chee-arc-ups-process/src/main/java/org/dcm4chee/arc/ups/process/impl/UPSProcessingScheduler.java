@@ -54,7 +54,6 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
 import org.dcm4chee.arc.ups.process.UPSProcessorFactory;
-import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

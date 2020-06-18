@@ -422,13 +422,11 @@
       <artifactId>dcm4chee-arc-ups-scp</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-ups-stgcmtscu</artifactId>
       <version>${project.version}</version>
     </dependency>
--->
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-ups-storescu</artifactId>

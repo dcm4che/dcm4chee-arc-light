@@ -604,9 +604,7 @@
     <module>dcm4chee-arc-ups-query-attrs</module>
     <module>dcm4chee-arc-ups-rs</module>
     <module>dcm4chee-arc-ups-scp</module>
-<!--
     <module>dcm4chee-arc-ups-stgcmtscu</module>
--->
     <module>dcm4chee-arc-ups-storescu</module>
     <module>dcm4chee-arc-ups-study-size</module>
     <module>dcm4chee-arc-validation</module>

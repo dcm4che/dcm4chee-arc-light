@@ -1010,6 +1010,8 @@ class ArchiveDeviceFactory {
             new Code("CALC_QUERY_ATTRS", "99DCM4CHEE", null, "Calculate Query Attributes");
     static final Code CALC_STUDY_SIZE =
             new Code("CALC_STUDY_SIZE", "99DCM4CHEE", null, "Calculate Study Size");
+    static final Code REQUEST_STGCMT =
+            new Code("REQUEST_STGCMT", "99DCM4CHEE", null, "Request Storage Commitment");
     static final Code DCM4CHEE_ARC =
             new Code("dcm4chee-arc", "99DCM4CHEE", null, "dcm4chee-arc");
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
@@ -1737,6 +1739,8 @@ class ArchiveDeviceFactory {
                 "CALC_QUERY_ATTRS", CALC_QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "CALC_STUDY_SIZE", CALC_STUDY_SIZE, DCM4CHEE_ARC, "studySize:dummyPath"));
+        ext.addUPSProcessingRule(newUPSProcessingRule(
+                "REQUEST_STGCMT", REQUEST_STGCMT, DCM4CHEE_ARC, "stgcmtscu:DCMQRSCP"));
 
         ext.addUPSOnStore(newUPSOnStore("CALC_QUERY_ATTRS", "CALC_QUERY_ATTRS",
                 CALC_QUERY_ATTRS, "CALC_QUERY_ATTRS-{StudyInstanceUID}",
