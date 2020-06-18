@@ -260,6 +260,7 @@ class PatientUpdateService extends DefaultHL7Service {
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
         ctx.setArchiveHL7AppExtension(arcHL7App);
         ctx.setPatient(pat);
-        procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED, SPSStatus.ARRIVED);
+        ctx.setSpsStatus(SPSStatus.ARRIVED);
+        procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED);
     }
 }

@@ -148,14 +148,14 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public void updateMWLStatus(ProcedureContext ctx, SPSStatus from, SPSStatus to) {
-        try {
-            ejb.updateMWLStatus(ctx, from, to);
-        } catch (Exception e) {
-            ctx.setException(e);
-        } finally {
-            if (ctx.getEventActionCode() != null)
-                procedureEvent.fire(ctx);
+    public void updateMWLStatus(ProcedureContext ctx, SPSStatus from) {
+        List<MWLItem.IDs> spsIDs = ejb.spsOfPatientWithStatus(ctx.getPatient(), from);
+        for (MWLItem.IDs spsID : spsIDs) {
+            ctx.setSpsID(spsID.scheduledProcedureStepID);
+            ctx.setStudyInstanceUID(spsID.studyInstanceUID);
+            ctx.setEventActionCode(null);
+            ctx.setException(null);
+            updateMWLStatus(ctx);
         }
     }
 

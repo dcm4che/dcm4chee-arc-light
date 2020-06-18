@@ -413,15 +413,10 @@ public class ProcedureServiceEJB {
                 : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
     }
 
-    public void updateMWLStatus(ProcedureContext ctx, SPSStatus from, SPSStatus to) {
-        em.createNamedQuery(MWLItem.FIND_BY_PATIENT_AND_STATUS, MWLItem.class)
-                .setParameter(1, ctx.getPatient())
-                .setParameter(2, from)
-                .getResultList()
-                .forEach(mwlItem -> {
-                    updateMWLSPS(to, mwlItem);
-                    ctx.setStudyInstanceUID(mwlItem.getStudyInstanceUID());
-                    ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-                });
+    public List<MWLItem.IDs> spsOfPatientWithStatus(Patient patient, SPSStatus status) {
+        return em.createNamedQuery(MWLItem.IDS_BY_PATIENT_AND_STATUS, MWLItem.IDs.class)
+                .setParameter(1, patient)
+                .setParameter(2, status)
+                .getResultList();
     }
 }
