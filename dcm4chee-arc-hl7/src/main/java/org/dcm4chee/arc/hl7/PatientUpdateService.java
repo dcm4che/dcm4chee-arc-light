@@ -112,7 +112,7 @@ class PatientUpdateService extends DefaultHL7Service {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
         Patient patient = updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
-        updateProcedure(s, patient, msg, hl7App);
+        updateProcedure(hl7App, s, msg, patient);
         return archiveHL7Message;
     }
 
@@ -250,7 +250,7 @@ class PatientUpdateService extends DefaultHL7Service {
         }
     }
 
-    private void updateProcedure(Socket s, Patient pat, UnparsedHL7Message msg, HL7Application hl7App) {
+    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat) {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         String messageType = arcHL7App.hl7PatientArrivalMessageType();
