@@ -62,3 +62,13 @@ objectClass: dcmUPSOnStore
 dcmUPSIncludeInputInformation: APPEND_OR_CREATE
 dcmUPSLabel: CALC_QUERY_ATTRS
 dcmUPSScheduledWorkitemCode: (CALC_QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
+
+dn: dcmUPSProcessingRuleID=REQUEST_STGCMT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (REQUEST_STGCMT, 99DCM4CHEE, "Request Storage Commitment")
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: REQUEST_STGCMT
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (REQUEST_STGCMT, 99DCM4CHEE, "Request Storage Commitment")
+dcmURI: stgcmtscu:DCMQRSCP

@@ -3464,6 +3464,15 @@ dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
+dn: dcmUPSProcessingRuleID=REQUEST_STGCMT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (REQUEST_STGCMT, 99DCM4CHEE, "Request Storage Commitment")
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: REQUEST_STGCMT
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (REQUEST_STGCMT, 99DCM4CHEE, "Request Storage Commitment")
+dcmURI: stgcmtscu:DCMQRSCP
+
 dn: dcmExporterID=CalculateQueryAttributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CalculateQueryAttributes
 dicomDescription: Calculate Query Attributes
