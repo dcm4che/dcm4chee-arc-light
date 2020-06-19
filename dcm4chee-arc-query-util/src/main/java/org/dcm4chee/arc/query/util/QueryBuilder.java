@@ -647,12 +647,13 @@ public class QueryBuilder {
 
     public <T> List<Predicate> sopInstanceRefs(CriteriaQuery<T> q,
             Path<Study> study, Path<Series> series, Root<Instance> instance,
-            String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView,
-            CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
+            String studyIUID, String objectUID, QueryRetrieveView qrView,
+            CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes, String... seriesUID) {
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
         if (!isUniversalMatching(seriesUID))
-            predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
+            uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), seriesUID);
+            //predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
         if (!isUniversalMatching(objectUID))
             predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
         hideRejectedInstance(predicates, q, study, series, instance,
@@ -866,7 +867,7 @@ public class QueryBuilder {
     }
 
     public static boolean isUniversalMatching(String[] values) {
-        return values == null || values.length == 0 || values[0].equals("*");
+        return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
     }
 
     public static boolean isUniversalMatching(IDWithIssuer[] pids) {

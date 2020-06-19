@@ -100,6 +100,15 @@ public class IANSCUImpl implements IANSCU {
     }
 
     @Override
+    public DimseRSP sendIANRQ(String localAET, String remoteAET, String sopInstanceUID, Attributes ian)
+            throws Exception {
+        return sendIANRQ(device.getApplicationEntity(localAET, true),
+                aeCache.findApplicationEntity(remoteAET),
+                sopInstanceUID,
+                ian);
+    }
+
+    @Override
     public DimseRSP sendIANRQ(ApplicationEntity localAE, ApplicationEntity remoteAE, String sopInstanceUID, Attributes ian)
             throws Exception {
         AAssociateRQ aarq = mkAAssociateRQ(localAE);

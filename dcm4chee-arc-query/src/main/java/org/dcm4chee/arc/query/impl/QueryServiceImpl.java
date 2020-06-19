@@ -233,16 +233,24 @@ class QueryServiceImpl implements QueryService {
                                 String[] retrieveAETs, String retrieveLocationUID, Availability availability) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         return ejb.getSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, seriesUID, null, qrView, null,
-                retrieveAETs, retrieveLocationUID, availability);
+                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, null, qrView, null,
+                retrieveAETs, retrieveLocationUID, availability, seriesUID);
     }
 
     @Override
     public Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID, String sopUID) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         return ejb.getSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, seriesUID, sopUID, qrView, null,
-                null, null, null);
+                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, sopUID, qrView, null,
+                null, null, null, seriesUID);
+    }
+
+    @Override
+    public Attributes createIAN(ApplicationEntity ae, String studyUID, String... seriesUID) {
+        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
+        return ejb.getSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, null, qrView, null,
+                null, null, null, seriesUID);
     }
 
     @Override
@@ -265,8 +273,8 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, seriesIUID, sopIUID, qrView,
-                null, null, null, null);
+        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, sopIUID, qrView,
+                null, null, null, null, seriesIUID);
     }
 
     @Override

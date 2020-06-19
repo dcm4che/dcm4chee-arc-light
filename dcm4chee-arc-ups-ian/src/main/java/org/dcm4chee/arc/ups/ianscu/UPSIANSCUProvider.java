@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,29 +35,46 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.ian.scu;
+package org.dcm4chee.arc.ups.ianscu;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.DimseRSP;
-import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.UPSProcessingRule;
+import org.dcm4chee.arc.ian.scu.IANSCU;
+import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.process.UPSProcessor;
+import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Apr 2016
+ * @since June 2020
  */
-public interface IANSCU {
-    String QUEUE_NAME = "IANSCU";
+@ApplicationScoped
+@Named("ianscu")
+public class UPSIANSCUProvider implements UPSProcessorProvider {
 
-    Outcome sendIAN(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
+    @Inject
+    private Device device;
 
-    DimseRSP sendIANRQ(String localAET, String remoteAET, String sopInstanceUID, Attributes ian)
-            throws Exception;
+    @Inject
+    private IANSCU ianSCU;
 
-    DimseRSP sendIANRQ(ApplicationEntity localAE, ApplicationEntity remoteAE, String sopInstanceUID, Attributes ian)
-            throws Exception;
+    @Inject
+    private QueryService queryService;
+
+    @Inject
+    private UPSService upsService;
+
+    @Override
+    public UPSProcessor getUPSProcessor(UPSProcessingRule rule) {
+        return new UPSIANSCU(rule, upsService, ianSCU, queryService, device);
+    }
 }

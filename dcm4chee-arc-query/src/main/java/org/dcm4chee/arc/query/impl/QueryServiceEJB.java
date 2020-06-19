@@ -334,24 +334,24 @@ public class QueryServiceEJB {
         if (attrs == null)
             return null;
 
-        Attributes sopInstanceRefs = getSOPInstanceRefs(type, studyIUID, seriesIUID, objectUID, qrView,
-                seriesAttrs, retrieveAETs, retrieveLocationUID, null);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(type, studyIUID, objectUID, qrView,
+                seriesAttrs, retrieveAETs, retrieveLocationUID, null, seriesIUID);
         if (sopInstanceRefs != null)
             attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         return attrs;
     }
 
     public Attributes getSOPInstanceRefs(
-            SOPInstanceRefsType type, String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView,
+            SOPInstanceRefsType type, String studyIUID, String objectUID, QueryRetrieveView qrView,
             Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
-            Availability availability) {
+            Availability availability, String... seriesUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
         Join<Instance, Series> series = instance.join(Instance_.series);
         Join<Series, Study> study = series.join(Series_.study);
         List<Tuple> tuples = em.createQuery(
-                restrict(new QueryBuilder(cb), q, study, series, instance, studyIUID, seriesUID, objectUID, qrView)
+                restrict(new QueryBuilder(cb), q, study, series, instance, studyIUID, objectUID, qrView, seriesUID)
                 .multiselect(
                         study.get(Study_.pk),
                         series.get(Series_.pk),
@@ -412,11 +412,11 @@ public class QueryServiceEJB {
 
     private CriteriaQuery<Tuple> restrict(QueryBuilder builder, CriteriaQuery<Tuple> q, Join<Series, Study> study,
             Join<Instance, Series> series, Root<Instance> instance,
-            String studyIUID, String seriesUID, String objectUID, QueryRetrieveView qrView) {
+            String studyIUID, String objectUID, QueryRetrieveView qrView, String... seriesUID) {
         return q.where(
-                builder.sopInstanceRefs(q, study, series, instance, studyIUID, seriesUID, objectUID, qrView,
+                builder.sopInstanceRefs(q, study, series, instance, studyIUID, objectUID, qrView,
                     codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
-                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()))
+                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()), seriesUID)
                 .toArray(new Predicate[0]));
     }
 
