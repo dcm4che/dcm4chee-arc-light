@@ -216,7 +216,7 @@ public class UPSIANSCU extends AbstractUPSProcessor {
             unavailable.setString(Tag.InstanceAvailability, VR.CS, Availability.UNAVAILABLE.name());
             return unavailable;
         }
-        
+
         private boolean referred(Sequence refSOPSeq, Attributes refSOP) {
             String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
             for (Attributes ref : refSOPSeq)

@@ -51,8 +51,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.AbstractUPSProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -61,7 +59,6 @@ import java.util.*;
  * @since June 2020
  */
 public class UPSStgCmtSCU extends AbstractUPSProcessor {
-    private static final Logger LOG = LoggerFactory.getLogger(UPSStgCmtSCU.class);
 
     private final StgCmtSCU stgCmtSCU;
     private final String defDestinationAE;
@@ -75,27 +72,24 @@ public class UPSStgCmtSCU extends AbstractUPSProcessor {
     @Override
     protected void processA(UPSContext upsCtx, Attributes ups) throws Exception {
         String destinationAE = destinationAEOf(ups);
-        seriesStgCmtInfoFrom(ups).forEach((seriesIUID, stgCmtInfo) -> {
-            try {
-                DimseRSP dimseRSP = stgCmtSCU.sendNActionRQ(
-                        rule.getAETitle(),
-                        destinationAE,
-                        stgCmtInfo.getStudyIUID(),
-                        seriesIUID,
-                        null,
-                        null, null,
-                        ups.getString(Tag.ProcedureStepLabel),
-                        stgCmtInfo.getActionInfo());
-                Attributes cmd = dimseRSP.getCommand();
-                int status = cmd.getInt(Tag.Status, -1);
-                getPerformedProcedureStep(upsCtx)
-                        .setString(Tag.PerformedProcedureStepDescription, VR.LO,
-                                outcomeDesc(status, cmd.getString(Tag.ErrorComment), destinationAE));
-            } catch (Exception e) {
-                LOG.info("Invoking Storage Commitment from AE {} failed for series {} \n",
-                        destinationAE, seriesIUID, e);
-            }
-        });
+        for (Map.Entry<String, StgCmtInfo> entry : seriesStgCmtInfoFrom(ups).entrySet()) {
+            String seriesIUID = entry.getKey();
+            StgCmtInfo stgCmtInfo = entry.getValue();
+            DimseRSP dimseRSP = stgCmtSCU.sendNActionRQ(
+                    rule.getAETitle(),
+                    destinationAE,
+                    stgCmtInfo.getStudyIUID(),
+                    seriesIUID,
+                    null,
+                    null, null,
+                    ups.getString(Tag.ProcedureStepLabel),
+                    stgCmtInfo.getActionInfo());
+            Attributes cmd = dimseRSP.getCommand();
+            int status = cmd.getInt(Tag.Status, -1);
+            getPerformedProcedureStep(upsCtx)
+                    .setString(Tag.PerformedProcedureStepDescription, VR.LO,
+                            outcomeDesc(status, cmd.getString(Tag.ErrorComment), destinationAE));
+        }
     }
 
     private Map<String, StgCmtInfo> seriesStgCmtInfoFrom(Attributes ups) {
