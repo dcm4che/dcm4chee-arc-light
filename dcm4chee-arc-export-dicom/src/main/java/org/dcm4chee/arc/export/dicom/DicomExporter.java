@@ -46,9 +46,11 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.SeriesInfo;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,6 +91,13 @@ public class DicomExporter extends AbstractExporter {
                             : QueueMessage.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext));
 
+        if (descriptor.isExportAsSourceAE()) {
+            retrieveContext.getSeriesInfos().stream()
+                    .map(SeriesInfo::getSourceAET)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .ifPresent(retrieveContext::setCallingAET);
+        }
         String messageID = exportContext.getMessageID();
         RetrieveTask retrieveTask = storeSCU.newRetrieveTaskSTORE(retrieveContext);
         retrieveTaskMap.put(messageID, retrieveTask);

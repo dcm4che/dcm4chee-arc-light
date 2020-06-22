@@ -62,6 +62,7 @@ public class ExporterDescriptor {
     private String queueName;
     private int priority = Message.DEFAULT_PRIORITY;
     private String aeTitle;
+    private boolean exportAsSourceAE;
     private String[] ianDestinations = {};
     private String[] retrieveAETitles = {};
     private String retrieveLocationUID;
@@ -133,6 +134,14 @@ public class ExporterDescriptor {
 
     public void setAETitle(String aeTitle) {
         this.aeTitle = aeTitle;
+    }
+
+    public boolean isExportAsSourceAE() {
+        return exportAsSourceAE;
+    }
+
+    public void setExportAsSourceAE(boolean exportAsSourceAE) {
+        this.exportAsSourceAE = exportAsSourceAE;
     }
 
     public String getStgCmtSCPAETitle() {
@@ -230,6 +239,7 @@ public class ExporterDescriptor {
                 ", priority=" + priority +
                 ", queueName=" + queueName +
                 ", aeTitle=" + aeTitle +
+                ", exportAsSourceAE=" + exportAsSourceAE +
                 ", stgCmtSCPAETitle=" + stgCmtSCPAETitle +
                 ", deleteStudyFromStorageID=" + deleteStudyFromStorageID +
                 ", ianDests=" + Arrays.toString(ianDestinations) +

@@ -1830,6 +1830,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.375 NAME 'hl7PatientArrivalMessageType'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.376 NAME 'dcmExportAsSourceAE'
+  DESC 'Mask the Archive Application Entity (AE) title by the title of the Application Entity (AE) from which a Series was received on establishing the Association to the Destination Application Entity (AE); false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2272,6 +2277,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmExportPriority $
     dicomDescription $
     dicomAETitle $
+    dcmExportAsSourceAE $
     dcmDeleteStudyFromStorageID $
     dcmRejectForDataRetentionExpiry $
     dcmStgCmtSCP $

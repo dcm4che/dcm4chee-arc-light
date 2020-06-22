@@ -127,6 +127,10 @@ public interface RetrieveContext extends Closeable {
 
     String getLocalAETitle();
 
+    String getCallingAET();
+
+    void setCallingAET(String callingAET);
+
     String getRequestorAET();
 
     String getRequestorHostName();

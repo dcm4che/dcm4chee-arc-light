@@ -114,7 +114,7 @@ public class CStoreSCUImpl implements CStoreSCU {
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
-            aarq.setCallingAET(ctx.getLocalAETitle());
+            aarq.setCallingAET(ctx.getCallingAET());
         boolean noDestinationRestriction = destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
             InstanceLocations inst = iter.next();
