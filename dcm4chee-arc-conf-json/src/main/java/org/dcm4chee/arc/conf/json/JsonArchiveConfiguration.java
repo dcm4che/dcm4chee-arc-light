@@ -550,6 +550,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", ed.getProperties());
             writer.writeNotDef("dcmExportPriority", ed.getPriority(), 4);
             writer.writeNotDef("dcmRejectForDataRetentionExpiry", ed.isRejectForDataRetentionExpiry(), false);
+            writer.writeNotDef("dcmExportAsSourceAE", ed.isExportAsSourceAE(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2217,6 +2218,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRejectForDataRetentionExpiry":
                         ed.setRejectForDataRetentionExpiry(reader.booleanValue());
+                        break;
+                    case "dcmExportAsSourceAE":
+                        ed.setExportAsSourceAE(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

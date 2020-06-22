@@ -2687,6 +2687,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPriority", descriptor.getPriority(), 4);
         LdapUtils.storeNotDef(ldapObj, attrs,
                 "dcmRejectForDataRetentionExpiry", descriptor.isRejectForDataRetentionExpiry(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportAsSourceAE", descriptor.isExportAsSourceAE(), false);
         return attrs;
     }
 
@@ -2711,6 +2712,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setRejectForDataRetentionExpiry(
                         LdapUtils.booleanValue(attrs.get("dcmRejectForDataRetentionExpiry"), false));
+                desc.setExportAsSourceAE(LdapUtils.booleanValue(attrs.get("dcmExportAsSourceAE"), false));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setPriority(LdapUtils.intValue(attrs.get("dcmExportPriority"), 4));
@@ -2771,6 +2773,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportPriority", prev.getPriority(), desc.getPriority(), 4);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectForDataRetentionExpiry",
                 prev.isRejectForDataRetentionExpiry(), desc.isRejectForDataRetentionExpiry(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExportAsSourceAE",
+                prev.isExportAsSourceAE(), desc.isExportAsSourceAE(), false);
         return mods;
     }
 
