@@ -54,7 +54,7 @@
         <div>
             <div class="left_arrow arrow"  *ngIf="tasks && tasks.length && tasks.length > 0" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
             <div class="right_arrow arrow" *ngIf="tasks && tasks.length && tasks.length > 0" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-            <table-generator *ngIf="config && tasks && tasks.length && tasks.length > 0" [config]="config" [models]="tasks" [stringifyDetailAttributes]="true" (tableMouseEnter)="tableMouseEnter()" (tableMouseLeave)="tableMouseLeave()"></table-generator>
+            <table-generator *ngIf="config && tasks && tasks.length && tasks.length > 0" [stringifyDetailAttributes]="true" [config]="config" [models]="tasks" (tableMouseEnter)="tableMouseEnter()" (tableMouseLeave)="tableMouseLeave()"></table-generator>
         </div>
     </div>
 </div>
