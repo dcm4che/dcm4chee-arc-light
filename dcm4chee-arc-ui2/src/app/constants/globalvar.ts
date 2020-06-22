@@ -1691,7 +1691,7 @@ export class Globalvar {
             },
             {
                 tag:"checkbox",
-                filterKey:"diffQueue",
+                filterKey:"queue",
                 text:$localize `:@@queued:Queued`
             },
             {

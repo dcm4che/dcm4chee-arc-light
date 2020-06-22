@@ -1586,10 +1586,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(e.id === "show_diff"){
                 //
             }
-            if(e.id === "trigger_diff"){
-/*                filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
-                this.submit(filterModel);*/
-            }
+/*            if(e.id === "trigger_diff"){
+/!*                filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
+                this.submit(filterModel);*!/
+            }*/
     /*        }else{
                 this.appService.showError("Calling AET is missing!");
             }*/
@@ -1646,7 +1646,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }*/
         delete filterModel.orderby;
 
-        if(_.hasIn(filterModel,"taskPK")){
+        if(_.hasIn(filterModel,"taskPK") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
             this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
                 console.log("res",res);
                 this.cfpLoadingBar.complete();
@@ -1680,7 +1680,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     // this.moreDiffs = res.length > this.limit;
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
-                    this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
+                    if(_.hasIn(filterModel,"queue") && filterModel.queue === true){
+                        this.appService.showMsg($localize `:@@diff-pro.diff_triggered_successfully:Diff triggered successfully!`);
+                    }else{
+                        this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
+                    }
                 }
             },err=>{
                 this.cfpLoadingBar.complete();
