@@ -371,6 +371,7 @@ export class StudyService {
                 filterKey: 'webApp',
                 text: $localize `:@@web_app_service:Web App Service`,
                 title: $localize `:@@web_app_service:Web App Service`,
+                showStar:tab === "diff",
                 placeholder: $localize `:@@web_app_service:Web App Service`,
                 cssClass: 'study_order',
                 showSearchField: true
