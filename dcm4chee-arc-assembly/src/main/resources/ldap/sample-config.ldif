@@ -3351,6 +3351,15 @@ dcmUPSIncludeInputInformation: APPEND_OR_CREATE
 dcmUPSLabel: CALC_STUDY_SIZE
 dcmUPSScheduledWorkitemCode: (CALC_STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
 
+dn: dcmUPSProcessingRuleID=SEND_IAN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (SEND_IAN, 99DCM4CHEE, "Send Instance Availability Notification")
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: SEND_IAN
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (SEND_IAN, 99DCM4CHEE, "Send Instance Availability Notification")
+dcmURI: ianscu:IANSCP
+
 dn: dcmWebAppName=IOCM_EXPIRED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Data Retention Expired
 dcmWebServiceClass: WADO_URI

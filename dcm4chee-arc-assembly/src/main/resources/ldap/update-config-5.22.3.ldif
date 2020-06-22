@@ -72,3 +72,13 @@ dcmUPSProcessingRuleID: REQUEST_STGCMT
 dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
 dcmUPSScheduledWorkitemCode: (REQUEST_STGCMT, 99DCM4CHEE, "Request Storage Commitment")
 dcmURI: stgcmtscu:DCMQRSCP
+
+dn: dcmUPSProcessingRuleID=SEND_IAN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (SEND_IAN, 99DCM4CHEE, "Send Instance Availability Notification")
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: SEND_IAN
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (SEND_IAN, 99DCM4CHEE, "Send Instance Availability Notification")
+dcmURI: ianscu:IANSCP
