@@ -48,11 +48,11 @@ import java.util.Set;
  * @since June 2020
  */
 
-public class UserIdentityRolesAC extends UserIdentityAC {
+public class ArchiveUserIdentityAC extends UserIdentityAC {
     private Set<String> clientRoles = new HashSet<String>();
     private Set<String> realmRoles = new HashSet<String>();
 
-    public UserIdentityRolesAC(byte[] serverResponse) {
+    public ArchiveUserIdentityAC(byte[] serverResponse) {
         super(serverResponse);
     }
 

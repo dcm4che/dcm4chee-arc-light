@@ -42,8 +42,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.UserIdentityAC;
 import org.dcm4che3.net.pdu.UserIdentityRQ;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.UserIdentityRolesAC;
+import org.dcm4chee.arc.ArchiveUserIdentityNegotiator;
+import org.dcm4chee.arc.ArchiveUserIdentityAC;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
@@ -53,6 +53,7 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.OAuth2Constants;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotAuthorizedException;
 import java.io.IOException;
 import java.security.*;
@@ -64,90 +65,51 @@ import static org.dcm4che3.net.WebApplication.ServiceClass.DCM4CHEE_ARC_AET;
  * @since June 2020
  */
 
-public class KeycloakUserIdentityNegotiator implements UserIdentityNegotiator {
+public class KeycloakUserIdentityNegotiator extends ArchiveUserIdentityNegotiator {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(KeycloakUserIdentityNegotiator.class);
 
-    public UserIdentityAC negotiate(Association as, UserIdentityRQ userIdentity) throws AAssociateRJ {
-        // Default to rejecting to prevent leaking on inability to obtain ArchiveAEExtension
-        boolean rejectIfNoUserIdentity = true;
+    protected UserIdentityAC negotiate(@NotNull Device device,
+                                       @NotNull Association as,
+                                       @NotNull UserIdentityRQ userIdentity) throws AAssociateRJ {
 
-        String aetitle = as.getLocalAET();
-        Device device = as.getDevice();
-        if (device != null) {
-            ApplicationEntity ae = device.getApplicationEntity(as.getLocalAET());
-            if (ae != null) {
-                ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-                if (arcAE != null) {
-                    rejectIfNoUserIdentity = arcAE.rejectIfNoUserIdentity();
-                }
-            }
-        }
-        else {
-            // No device is a fatal authentication error
-            LOG.error("Unable to get device for association");
+        String username = userIdentity.getUsername();
+        String passcode = new String(userIdentity.getPasscode());
 
-            throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
-                    AAssociateRJ.SOURCE_SERVICE_USER,
-                    AAssociateRJ.REASON_NO_REASON_GIVEN);
+        for (KeycloakClient keycloakClient : this.getKeycloakClients(device, as)) {
+            UserIdentityAC userIdentityAC = getUserIdentity(
+                    keycloakClient.getKeycloakServerURL(),
+                    keycloakClient.getKeycloakRealm(),
+                    keycloakClient.getKeycloakClientID(),
+                    username,
+                    passcode,
+                    keycloakClient.isTLSAllowAnyHostname(),
+                    keycloakClient.isTLSDisableTrustManager(),
+                    device);
+
+            if (userIdentityAC != null)
+                return userIdentityAC;
         }
 
-        // Currently only supporting username and password
-        if (userIdentity != null && userIdentity.getType() == 2)
-        {
-            String username = userIdentity.getUsername();
-            String passcode = new String(userIdentity.getPasscode());
+        // Fallback attempt to get token From the UI keycloak client
+        String authServerURL = System.getProperty("auth-server-url");
+        if (authServerURL != null) {
+            LOG.debug("Fallback to UI keycloak client");
 
-            // Loop through all AET web applications
-            for (WebApplication webApplication : device.getWebApplicationsWithServiceClass(DCM4CHEE_ARC_AET)) {
-                // Only use web applications with AETitle that matches the called AETitle
-                if (aetitle != null && aetitle.equals(webApplication.getAETitle())) {
-                    KeycloakClient keycloakClient = webApplication.getKeycloakClient();
-                    if (keycloakClient != null) {
+            UserIdentityAC userIdentityAC = getUserIdentity(
+                    authServerURL,
+                    System.getProperty("realm-name", "dcm4che"),
+                    System.getProperty("ui-client-id", "dcm4chee-arc-ui"),
+                    username,
+                    passcode,
+                    false,
+                    false,
+                    device);
 
-                        UserIdentityAC userIdentityAC = getUserIdentity(
-                                keycloakClient.getKeycloakServerURL(),
-                                keycloakClient.getKeycloakRealm(),
-                                keycloakClient.getKeycloakClientID(),
-                                username,
-                                passcode,
-                                keycloakClient.isTLSAllowAnyHostname(),
-                                keycloakClient.isTLSDisableTrustManager(),
-                                device);
-
-                        if (userIdentityAC != null)
-                            return userIdentityAC;
-                    }
-                }
-            }
-
-            // Fallback attempt to get token From the UI keycloak client
-            String authServerURL = System.getProperty("auth-server-url");
-            if (authServerURL != null) {
-                LOG.debug("Fallback to UI keycloak client");
-
-                UserIdentityAC userIdentityAC = getUserIdentity(
-                        authServerURL,
-                        System.getProperty("realm-name", "dcm4che"),
-                        System.getProperty("ui-client-id", "dcm4chee-arc-ui"),
-                        username,
-                        passcode,
-                        false,
-                        false,
-                        device);
-
-                if (userIdentityAC != null)
-                    return userIdentityAC;
-            }
-
-            LOG.debug("Unable to authenticate " + username);
+            if (userIdentityAC != null)
+                return userIdentityAC;
         }
 
-        if (rejectIfNoUserIdentity) {
-            LOG.debug("Reject because no user identity for AE Title: " + aetitle);
-            throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
-                    AAssociateRJ.SOURCE_SERVICE_USER,
-                    AAssociateRJ.REASON_NO_REASON_GIVEN);
-        }
+        LOG.debug("Unable to authenticate " + username);
 
         return null;
     }
@@ -230,7 +192,7 @@ public class KeycloakUserIdentityNegotiator implements UserIdentityNegotiator {
         }
 
         // User has been authenticated as a valid user
-        UserIdentityRolesAC userIdentityAC = new UserIdentityRolesAC(new byte[0]);
+        ArchiveUserIdentityAC userIdentityAC = new ArchiveUserIdentityAC(new byte[0]);
 
         if (response == null) {
             LOG.debug("null AccessTokenResponse");
