@@ -28,14 +28,40 @@ export class J4careHttpService{
     header;
     token = {};
     get(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
+        let httpParameters;
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
-            return this.dcmWebAppRequest.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+            httpParameters = {
+                url:(doNotEncode ? url : encodeURI(url)),
+                doNotEncode:doNotEncode,
+                header:header,
+                dcmWebApp:dcmWebApp,
+                params:params
+            };
+            if(_.hasIn(header,"responseType")){
+                httpParameters["responseType"] = header["responseType"];
+                delete header.responseType;
+                if(Object.keys(header).length === 0){
+                    httpParameters["header"] = undefined;
+                }
+            }
+            return this.dcmWebAppRequest.apply(this,['get', httpParameters]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
             }
-            return this.request.apply(this,['get', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
+            httpParameters = {
+                url:(doNotEncode ? url : encodeURI(url)),
+                header:header
+            };
+            if(_.hasIn(header,"responseType")){
+                httpParameters["responseType"] = header["responseType"];
+                delete header.responseType;
+                if(Object.keys(header).length === 0){
+                    httpParameters["header"] = undefined;
+                }
+            }
+            return this.request.apply(this,['get', httpParameters]);
         }
     }
     head(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
@@ -125,10 +151,18 @@ export class J4careHttpService{
             "url",
             "data",
             "header",
-            "params"
+            "params",
+            "responseType"
         ].forEach(key=>{
             if(_.hasIn(param,key)){
-                httpParam.push(param[key]);
+                if(key === "responseType"){
+                    let headerObject = httpParam[1] || {};
+                    headerObject["responseType"] = param[key];
+                    httpParam[1] = headerObject;
+                    // httpParam.push({responseType:param[key]});
+                }else{
+                    httpParam.push(param[key]);
+                }
             }else{
                 if(key === "data" && (requestFunctionName === "post" || requestFunctionName === "put")){
                     httpParam.push({});
@@ -167,7 +201,7 @@ export class J4careHttpService{
     }
     getRealm(dcmWebApp?:DcmWebApp){
         let service = this._keycloakService.getToken();
-        if(dcmWebApp && dcmWebApp.dcmWebAppName){
+        if(dcmWebApp && dcmWebApp.dcmWebAppName && _.hasIn(dcmWebApp,"dcmKeycloakClientID") && dcmWebApp.dcmKeycloakClientID){
             service = this.request("get",{url:`../token2/${dcmWebApp.dcmWebAppName}`});
         }
         return service
