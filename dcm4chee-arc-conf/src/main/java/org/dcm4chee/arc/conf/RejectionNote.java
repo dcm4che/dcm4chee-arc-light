@@ -94,6 +94,10 @@ public class RejectionNote {
         return rejectionNoteType == Type.DATA_RETENTION_POLICY_EXPIRED;
     }
 
+    public boolean isIncorrectModalityWorklistEntry() {
+        return rejectionNoteType == Type.INCORRECT_MODALITY_WORKLIST_ENTRY;
+    }
+
     public Code getRejectionNoteCode() {
         return rejectionNoteCode;
     }

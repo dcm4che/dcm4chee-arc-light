@@ -74,6 +74,13 @@ import java.util.stream.Stream;
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2 "),
 @NamedQuery(
+    name=Series.ATTRS_BY_SERIES_IUID,
+    query="select a.encodedAttributes from Series se " +
+            "join se.study st " +
+            "join se.attributesBlob a " +
+            "where st.studyInstanceUID = ?1 " +
+            "and se.seriesInstanceUID = ?2 "),
+@NamedQuery(
         name=Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER,
         query="select se from Series se " +
                 "join fetch se.study st " +
@@ -302,6 +309,7 @@ import java.util.stream.Stream;
 public class Series {
 
     public static final String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
+    public static final String ATTRS_BY_SERIES_IUID = "Series.attrsBySeriesIUID";
     public static final String FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER = "Series.findSeriesOfStudyByStudyIUIDEager";
     public static final String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";

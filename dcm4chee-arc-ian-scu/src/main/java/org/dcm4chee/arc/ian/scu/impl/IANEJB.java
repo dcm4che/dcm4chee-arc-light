@@ -41,15 +41,21 @@
 package org.dcm4chee.arc.ian.scu.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.ian.scu.IANSCU;
+import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -69,6 +75,7 @@ import java.util.List;
  */
 @Stateless
 public class IANEJB {
+    private static final Logger LOG = LoggerFactory.getLogger(IANEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
@@ -158,6 +165,22 @@ public class IANEJB {
 
     public void removeIANTask(IanTask task) {
         em.remove(em.getReference(task.getClass(), task.getPk()));
+    }
+
+    public boolean addPPSRef(String studyUID, String seriesUID, Attributes ian) {
+        Attributes ppsRef = AttributesBlob.decodeAttributes(
+                em.createNamedQuery(Series.ATTRS_BY_SERIES_IUID, byte[].class)
+                        .setParameter(1, studyUID)
+                        .setParameter(1, seriesUID)
+                        .getSingleResult(),
+                null)
+                .getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
+        if (ppsRef == null)
+            return false;
+
+        ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1)
+                .add(new Attributes(ppsRef));
+        return true;
     }
 
 }

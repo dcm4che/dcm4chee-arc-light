@@ -40,11 +40,10 @@ package org.dcm4chee.arc.ian.scu;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.IanTask;
-import org.dcm4chee.arc.entity.MPPS;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.ian.scu.impl.IANEJB;
 import org.dcm4chee.arc.mpps.MPPSContext;
@@ -60,6 +59,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -156,7 +157,6 @@ public class IANScheduler extends Scheduler {
     void onMPPSReceive(@Observes MPPSContext ctx) {
         MPPS mpps = ctx.getMPPS();
         if (mpps.getStatus() == MPPS.Status.COMPLETED) {
-            ApplicationEntity ae = ctx.getLocalApplicationEntity();
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             String[] ianDestinations = arcAE.ianDestinations();
             if (ianDestinations.length != 0 && arcAE.ianDelay() == null) {
@@ -177,8 +177,20 @@ public class IANScheduler extends Scheduler {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         String[] ianDestinations = arcAE.ianDestinations();
-        Duration ianDelay = arcAE.ianDelay();
-        if (ianDestinations.length != 0 && ianDelay != null) {
+        if (ianDestinations.length == 0)
+            return;
+
+        RejectionNote rejectionNote = ctx.getRejectionNote();
+        if (rejectionNote != null) {
+            if (!rejectionNote.isRevokeRejection()) {
+                Attributes ian = createIANOnReject(ctx);
+                for (String ianDestination : ianDestinations) {
+                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination);
+                }
+            }
+            return;
+        }
+        if (arcAE.ianDelay() != null) {
             try {
                 IANEJB.IanTaskAction ianTaskAction =
                         ejb.createOrUpdateIANTaskForStudy(arcAE, session.getCalledAET(), ctx.getStudyInstanceUID());
@@ -194,6 +206,81 @@ public class IANScheduler extends Scheduler {
                 LOG.warn("{}: Failed to create or update IanTask", ctx, e);
             }
         }
+    }
+
+    private Attributes createIANOnReject(StoreContext ctx) {
+        StoreSession session = ctx.getStoreSession();
+        boolean addPPSRef = ctx.getRejectionNote().isIncorrectModalityWorklistEntry();
+        String studyUID = ctx.getStudyInstanceUID();
+        Attributes ian = queryService.createIAN(session.getLocalApplicationEntity(), studyUID);
+        if (ian == null) {
+            ian = new Attributes(2);
+            ian.newSequence(Tag.ReferencedSeriesSequence, 10);
+            ian.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        }
+        for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
+            if (studyUID.equals(studyRef.getString(Tag.StudyInstanceUID))) {
+                for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+                    String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
+                    Sequence sopSeq = seriesRef.getSequence(Tag.ReferencedSOPSequence);
+                    Sequence ianSeriesSOPSeq = ianSeriesSOPSeq(ian, seriesUID, sopSeq);
+                    List<Attributes> rejected = sopSeq.stream()
+                            .filter(sopRef -> !contains(ianSeriesSOPSeq, sopRef))
+                            .collect(Collectors.toList());
+                    if (!rejected.isEmpty()) {
+                        rejected.stream()
+                                .map(sopRef -> ianUnavailableSOPRef(sopRef, session.getCalledAET()))
+                                .forEach(ianSOPRef -> ianSeriesSOPSeq.add(ianSOPRef));
+                        if (addPPSRef) {
+                            try {
+                                if (ejb.addPPSRef(studyUID, seriesUID, ian)) {
+                                    addPPSRef = false;
+                                }
+                            } catch (Exception e) {
+                               LOG.info("{}: Failed to determine referenced Performed Procedure Step in rejected objects",
+                                       session, e);
+                            }
+                        }
+                    }
+                 }
+            } else {
+                LOG.info("{}: Rejection Note[uid={}] of Study[uid={}] refers objects of different Study[uid={}] - ignored in emitted IAN",
+                        session,
+                        ctx.getSopInstanceUID(),
+                        studyUID,
+                        studyRef.getString(Tag.StudyInstanceUID));
+            }
+            if (addPPSRef) {
+                String mppsUID = UIDUtils.createUID();
+                ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1).add(refMPPS(mppsUID));
+                LOG.info("{}: No referenced Performed Procedure Step in rejected objects - create random UID[{}] for IAN",
+                    session, mppsUID);
+            }
+        }
+        return ian;
+    }
+
+    private static Attributes ianUnavailableSOPRef(Attributes sopRef, String retrieveAET) {
+        Attributes refSOP = new Attributes(4);
+        refSOP.setString(Tag.RetrieveAETitle, VR.AE, retrieveAET);
+        refSOP.setString(Tag.InstanceAvailability, VR.CS, "UNAVAILABLE");
+        refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, sopRef.getString(Tag.ReferencedSOPClassUID));
+        refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, sopRef.getString(Tag.ReferencedSOPInstanceUID));
+        return refSOP;
+    }
+
+    private static Sequence ianSeriesSOPSeq(Attributes ian, String seriesUID, Sequence sopSeq) {
+        Sequence refSeriesSeq = ian.getSequence(Tag.ReferencedSeriesSequence);
+        Optional<Attributes> seriesRefOpt = refSeriesSeq.stream()
+                .filter(seriesRef -> seriesRef.getString(Tag.SeriesInstanceUID).equals(seriesUID))
+                .findFirst();
+        if (seriesRefOpt.isPresent())
+            return seriesRefOpt.get().getSequence(Tag.ReferencedSOPSequence);
+
+        Attributes seriesRef = new Attributes(2);
+        seriesRef.setString(Tag.SeriesInstanceUID, VR.UI, seriesUID);
+        refSeriesSeq.add(seriesRef);
+        return seriesRef.newSequence(Tag.ReferencedSOPSequence, sopSeq.size());
     }
 
     public void onExport(@Observes ExportContext ctx) {
@@ -260,7 +347,7 @@ public class IANScheduler extends Scheduler {
         if (refSeriesSeq.isEmpty()) {
             return null;
         }
-        ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1).add(refMPPS(mpps));
+        ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1).add(refMPPS(mpps.getSopInstanceUID()));
         return ian;
     }
 
@@ -273,10 +360,10 @@ public class IANScheduler extends Scheduler {
         }
     }
 
-    private static Attributes refMPPS(MPPS mpps) {
+    private static Attributes refMPPS(String mppsUID) {
         Attributes refMPPS = new Attributes(3);
         refMPPS.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.ModalityPerformedProcedureStepSOPClass);
-        refMPPS.setString(Tag.ReferencedSOPInstanceUID, VR.UI, mpps.getSopInstanceUID());
+        refMPPS.setString(Tag.ReferencedSOPInstanceUID, VR.UI, mppsUID);
         refMPPS.setNull(Tag.PerformedWorkitemCodeSequence, VR.SQ);
         return refMPPS;
     }
