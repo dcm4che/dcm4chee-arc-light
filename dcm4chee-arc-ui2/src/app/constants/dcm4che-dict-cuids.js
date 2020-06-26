@@ -1,8 +1,12 @@
 var DCM4CHE = DCM4CHE || {};
 DCM4CHE.SOPClass = (function (dictionary) {
   var nameOf = function (uid) {
-    return dictionary[uid] || uid;
-  }
+    if(uid === "all"){
+      return dictionary;
+    }else{
+      return dictionary[uid] || uid;
+    }
+  };
   return {
     nameOf:nameOf
   }
