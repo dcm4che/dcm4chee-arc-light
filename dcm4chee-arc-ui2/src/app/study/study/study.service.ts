@@ -1594,25 +1594,6 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-download-alt',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "study",
-                                        action: "download",
-                                        mode: "compressed",
-                                    }, e);
-                                },
-                                title: $localize `:@@study.retrieve_study_as_stored_at_the_archive:Retrieve Study as stored at the archive`,
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
                             },{
                                 icon: {
                                     tag: 'i',
@@ -2010,25 +1991,6 @@ export class StudyService {
                                     id: 'action-studies-download',
                                     param: 'visible'
                                 }
-                            }, {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-download-alt',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "series",
-                                        action: "download",
-                                        mode: "compressed",
-                                    }, e);
-                                },
-                                title: $localize `:@@study.retrieve_series_as_stored_at_the_archive:Retrieve Series as stored at the archive`,
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
                             },{
                                 icon: {
                                     tag: 'i',
@@ -2337,26 +2299,6 @@ export class StudyService {
                                     }, e);
                                 },
                                 title: $localize `:@@study.download_uncompressed_dicom_object:Download Uncompressed DICOM Object`,
-                                permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
-                                }
-                            },
-                            {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-download-alt',
-                                    text: '',
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "instance",
-                                        action: "download",
-                                        mode: "compressed",
-                                    }, e);
-                                },
-                                title: $localize `:@@study.download_dicom_object:Download DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -3769,6 +3711,23 @@ export class StudyService {
                 return $localize `:@@selection.action.merge:Merge`;
             default:
                 return $localize `:@@move:Move`;
+        }
+    }
+
+    getLevelText(level:DicomLevel){
+        switch (level){
+            case "study":
+                return $localize `:@@study:study`;
+            case "series":
+                return $localize `:@@series:series`;
+            case "instance":
+                return $localize `:@@instance:instance`;
+            case "patient":
+                return $localize `:@@patient:patient`;
+            case "diff":
+                return $localize `:@@diff:diff`;
+            case "mwl":
+                return $localize `:@@mwl:mwl`;
         }
     }
 }

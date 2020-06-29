@@ -1414,26 +1414,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     downloadZip(object, level, mode){
-        let token;
-        let param = 'accept=application/zip';
-        console.log("url",this.service.getDicomURL(mode, this.studyWebService.selectedWebService));
-        let url = this.service.studyURL(object.attrs, this.studyWebService.selectedWebService);
-        let fileName = this.service.studyFileName(object.attrs);
-        if(mode === 'compressed'){
-            param += ';transfer-syntax=*';
-        }
-        if(level === 'series'){
-            url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
-            fileName = this.service.seriesFileName(object.attrs);
-        }
-        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
-            if(!this.appService.global.notSecure){
-                token = response.token;
-            }
-            if(!this.appService.global.notSecure){
-                j4care.downloadFile(`${url}?${param}&access_token=${token}`,`${fileName}.zip`)
-            }else{
-                j4care.downloadFile(`${url}?${param}`,`${fileName}.zip`)
+
+        this.confirm({
+            content: $localize `:@@download:Download this ${this.service.getLevelText(level)}:@@levelText:`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@compress:Compress`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"compressed"
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@including_dicomdir:Include DICOMDIR`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"includingdicomdir"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@download:Download`
+        }).subscribe((ok)=>{
+            if(ok){
+                let token;
+                let param = {
+                    accept:'application/zip'
+                };
+                // dicomdir:true
+                console.log("url",this.service.getDicomURL(mode, this.studyWebService.selectedWebService));
+                let url = this.service.studyURL(object.attrs, this.studyWebService.selectedWebService);
+                let fileName = this.service.studyFileName(object.attrs);
+                if(_.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed")){
+                    param.accept += ';transfer-syntax=*';
+                }
+                if(_.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir")) {
+                    param["dicomdir"] = true;
+                }
+                if(level === 'series'){
+                    url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
+                    fileName = this.service.seriesFileName(object.attrs);
+                }
+                this.service.getTokenService(this.studyWebService).subscribe((response)=>{
+                    if(!this.appService.global.notSecure){
+                        token = response.token;
+                    }
+                    if(!this.appService.global.notSecure){
+                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}&access_token=${token}`,`${fileName}.zip`)
+                    }else{
+                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}`,`${fileName}.zip`)
+                    }
+                });
             }
         });
     };
