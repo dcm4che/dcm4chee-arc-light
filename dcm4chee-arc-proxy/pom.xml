@@ -49,25 +49,16 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arr-proxy</artifactId>
+  <artifactId>dcm4chee-arc-proxy</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf-ldap</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.dcm4che.dcm4chee-arc</groupId>
-        <artifactId>dcm4chee-arc-keycloak</artifactId>
-        <version>${project.version}</version>
-    </dependency>
+       <dependency>
+         <groupId>org.dcm4che.dcm4chee-arc</groupId>
+         <artifactId>dcm4chee-arc-conf</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+       </dependency>
   </dependencies>
 
   <build>
@@ -76,7 +67,8 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <classifier>${classifier}</classifier>
-          <warSourceDirectory>${warSourceDirectory}</warSourceDirectory>
+          <!--<warSourceDirectory>${warSourceDirectory}</warSourceDirectory>-->
+          <webXml>${webXml}</webXml>
           <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
         </configuration>
       </plugin>
@@ -92,7 +84,8 @@
         </property>
       </activation>
       <properties>
-        <warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>
+        <!--<warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>-->
+        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
         <classifier>unsecure</classifier>
       </properties>
     </profile>
@@ -104,7 +97,8 @@
         </property>
       </activation>
       <properties>
-        <warSourceDirectory>${project.basedir}/src/main/webapp-secure</warSourceDirectory>
+        <!--<warSourceDirectory>${project.basedir}/src/main/webapp-secure</warSourceDirectory>-->
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
         <classifier>secure</classifier>
       </properties>
     </profile>

@@ -1299,7 +1299,6 @@ class ArchiveDeviceFactory {
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.valueOf("PT1H");
-    static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
     static final String BULK_DATA_DESCRIPTOR_ID = "default";
     static final String BULK_DATA_LENGTH_THRESHOLD = "DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024";
 
@@ -1758,7 +1757,6 @@ class ArchiveDeviceFactory {
         ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
-        ext.setAuditRecordRepositoryURL(AUDIT_RECORD_REPOSITORY_URL);
         ext.setAudit2JsonFhirTemplateURI(AUDIT2JSONFHIR_XSL);
         ext.setAudit2XmlFhirTemplateURI(AUDIT2XMLFHIR_XSL);
 

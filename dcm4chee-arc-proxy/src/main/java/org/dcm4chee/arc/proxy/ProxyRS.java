@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,23 +38,21 @@
  * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arr.proxy;
+package org.dcm4chee.arc.proxy;
 
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.jboss.resteasy.core.Headers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.SyncInvoker;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
-import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,8 +60,10 @@ import java.io.InputStream;
  * @since Jan 2017
  */
 @RequestScoped
-@Path("/{path: .*}")
+@Path("/")
 public class ProxyRS {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyRS.class);
 
     @Inject
     private Device device;
@@ -74,59 +74,34 @@ public class ProxyRS {
     @Context
     private HttpHeaders httpHeaders;
 
-    @PathParam("path")
-    private String path;
-
     @GET
     public Response doGet() {
-        Response resp = invoker(false).get();
-        AuditService.auditLogUsed(device, httpRequest);
+        logRequest();
+        Response resp = invoker().get();
         return new ResponseDelegate(resp);
     }
 
-    @POST
-    public Response doPost(InputStream in) {
-        return new ResponseDelegate(invoker(true).post(createEntity(in)));
+    private void logRequest() {
+        LOG.info("Process {} {}?{} from {}@{}",
+                httpRequest.getMethod(),
+                httpRequest.getRequestURI(),
+                httpRequest.getQueryString(),
+                httpRequest.getRemoteUser(),
+                httpRequest.getRemoteHost());
     }
 
-    @PUT
-    public Response doPut(InputStream in) {
-        return new ResponseDelegate(invoker(true).put(createEntity(in)));
-    }
-
-    private Entity<InputStream> createEntity(InputStream in) {
-        MediaType mediaType = httpHeaders.getMediaType();
-        if (mediaType != null)
-            return Entity.entity(in, mediaType);
-
-        SafeClose.close(in);
-        return null;
-    }
-
-    @DELETE
-    public Response doDelete() {
-        return new ResponseDelegate(invoker(true).delete());
-    }
-
-    private SyncInvoker invoker(boolean removeContentLength) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String arrURL = arcDev.getAuditRecordRepositoryURL();
-        if (arrURL == null) {
+    private SyncInvoker invoker() {
+        String proxyUpstreamURL = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                                        .getProxyUpstreamURL();
+        if (proxyUpstreamURL == null)
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)
-                            .entity("Audit Record Repository URL configuration missing.")
+                            .entity("Proxy Upstream URL configuration missing.")
                             .build());
-        }
-        String targetURL = arrURL.charAt(arrURL.length()-1) != '/' ? arrURL + "/" + path : arrURL + path;
-        WebTarget target = ClientBuilder.newBuilder().build().target(targetURL);
-        MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
-        if (removeContentLength) {
-            Headers<String> newHeaders = new Headers<>();
-            headers.entrySet().stream()
-                    .filter(e -> !e.getKey().equalsIgnoreCase("Content-Length"))
-                    .forEach(e -> newHeaders.addAll(e.getKey(), e.getValue()));
-            headers = newHeaders;
-        }
-        return target.request().headers((MultivaluedMap) headers);
+
+        WebTarget target = ClientBuilder.newBuilder()
+                            .build()
+                            .target(proxyUpstreamURL + "?" + httpRequest.getQueryString());
+        return target.request().headers((MultivaluedMap) httpHeaders.getRequestHeaders());
     }
 }

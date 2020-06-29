@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2016-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,7 +38,7 @@
  * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arr.proxy;
+package org.dcm4chee.arc.proxy;
 
 import javax.ws.rs.core.*;
 import java.io.InputStream;

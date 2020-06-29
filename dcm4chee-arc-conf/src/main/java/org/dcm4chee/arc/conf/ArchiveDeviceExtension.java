@@ -215,7 +215,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String hl7PSUPlacerOrderNumber;
     private volatile HL7PSUMessageType hl7PSUMessageType = HL7PSUMessageType.OMG_O19;
     private volatile Conditions hl7PSUConditions = new Conditions();
-    private volatile String auditRecordRepositoryURL;
+    private volatile String proxyUpstreamURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
     private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
@@ -2185,12 +2185,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.returnRetrieveAETitles = returnRetrieveAETitles;
     }
 
-    public String getAuditRecordRepositoryURL() {
-        return auditRecordRepositoryURL;
+    public String getProxyUpstreamURL() {
+        return proxyUpstreamURL;
     }
 
-    public void setAuditRecordRepositoryURL(String auditRecordRepositoryURL) {
-        this.auditRecordRepositoryURL = auditRecordRepositoryURL;
+    public void setProxyUpstreamURL(String proxyUpstreamURL) {
+        this.proxyUpstreamURL = proxyUpstreamURL;
     }
 
     public String getAudit2JsonFhirTemplateURI() {
@@ -2953,7 +2953,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMessageType = arcdev.hl7PSUMessageType;
         hl7PSUConditions = arcdev.hl7PSUConditions;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
-        auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
+        proxyUpstreamURL = arcdev.proxyUpstreamURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;

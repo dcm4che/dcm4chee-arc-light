@@ -584,6 +584,7 @@
     <module>dcm4chee-arc-pdq-xroad</module>
     <module>dcm4chee-arc-prefetch</module>
     <module>dcm4chee-arc-procedure</module>
+    <module>dcm4chee-arc-proxy</module>
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>
     <module>dcm4chee-arc-qmgt-rs</module>
@@ -630,7 +631,6 @@
     <module>dcm4chee-arc-xsl-cda</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
-    <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
   </modules>
 

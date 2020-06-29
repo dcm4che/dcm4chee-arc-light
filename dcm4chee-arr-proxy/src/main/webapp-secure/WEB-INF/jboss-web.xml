@@ -1,4 +1,0 @@
-<jboss-web>
-    <virtual-host>arr-proxy</virtual-host>
-    <context-root>/</context-root>
-</jboss-web>

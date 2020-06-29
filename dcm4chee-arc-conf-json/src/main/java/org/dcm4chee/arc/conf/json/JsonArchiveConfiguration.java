@@ -245,7 +245,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("hl7PSUCondition", arcDev.getHl7PSUConditions().getMap());
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
                 arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
-        writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
+        writer.writeNotNullOrDef("dcmProxyUpstreamURL", arcDev.getProxyUpstreamURL(), null);
         writer.writeNotNullOrDef("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy",
@@ -1553,8 +1553,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
                     break;
-                case "dcmAuditRecordRepositoryURL":
-                    arcDev.setAuditRecordRepositoryURL(reader.stringValue());
+                case "dcmProxyUpstreamURL":
+                    arcDev.setProxyUpstreamURL(reader.stringValue());
                     break;
                 case "dcmAudit2JsonFhirTemplateURI":
                     arcDev.setAudit2JsonFhirTemplateURI(reader.stringValue());

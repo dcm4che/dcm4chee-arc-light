@@ -102,7 +102,7 @@ public class AuditService {
 
     private static ParticipantObjectIdentificationBuilder buildParticipantObjectIdentification(ArchiveDeviceExtension arcDev) {
         return new ParticipantObjectIdentificationBuilder.Builder(
-                arcDev.getAuditRecordRepositoryURL(),
+                arcDev.getProxyUpstreamURL(),
                 AuditMessages.ParticipantObjectIDTypeCode.URI,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 AuditMessages.ParticipantObjectTypeCodeRole.SecurityResource)
