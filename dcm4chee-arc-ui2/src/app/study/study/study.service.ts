@@ -1585,11 +1585,10 @@ export class StudyService {
                                     actions.call($this, {
                                         event: "click",
                                         level: "study",
-                                        action: "download",
-                                        mode: "uncompressed"
+                                        action: "download"
                                     }, e);
                                 },
-                                title: $localize `:@@study.retrieve_study_uncompressed:Retrieve Study uncompressed`,
+                                title: $localize `:@@study.retrieve_study:Retrieve Study`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1982,11 +1981,10 @@ export class StudyService {
                                     actions.call($this, {
                                         event: "click",
                                         level: "series",
-                                        action: "download",
-                                        mode: "uncompressed"
+                                        action: "download"
                                     }, e);
                                 },
-                                title: $localize `:@@study.retrieve_series_uncompressed:Retrieve Series uncompressed`,
+                                title: $localize `:@@study.retrieve_series:Retrieve Series`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2294,11 +2292,10 @@ export class StudyService {
                                     actions.call($this, {
                                         event: "click",
                                         level: "instance",
-                                        action: "download",
-                                        mode: "uncompressed"
+                                        action: "download"
                                     }, e);
                                 },
-                                title: $localize `:@@study.download_uncompressed_dicom_object:Download Uncompressed DICOM Object`,
+                                title: $localize `:@@study.download_dicom_object:Download DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
