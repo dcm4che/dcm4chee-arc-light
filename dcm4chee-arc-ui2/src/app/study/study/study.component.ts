@@ -1416,7 +1416,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     downloadZip(object, level, mode){
 
         this.confirm({
-            content: $localize `:@@download:Download this ${this.service.getLevelText(level)}:@@levelText:`,
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
             doNotSave:true,
             form_schema:[
                 [
