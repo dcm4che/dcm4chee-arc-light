@@ -229,8 +229,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<Long> findRetrieveTasksToSchedule(int fetchSize) {
-        return ejb.findRetrieveTasksToSchedule(fetchSize);
+    public List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, List<String> suspendedQueues) {
+        return ejb.findRetrieveTasksToSchedule(fetchSize, suspendedQueues);
     }
 
     @Override

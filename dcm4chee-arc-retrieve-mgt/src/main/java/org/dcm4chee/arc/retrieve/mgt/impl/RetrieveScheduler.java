@@ -41,13 +41,20 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.ScheduleExpression;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -80,17 +87,49 @@ public class RetrieveScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getRetrieveTaskFetchSize();
-        List<Long> retrieveTasksToSchedule;
+        List<RetrieveTask.PkAndQueueName> retrieveTasksToSchedule;
         do {
-            retrieveTasksToSchedule = mgr.findRetrieveTasksToSchedule(fetchSize);
-            for (Long pk : retrieveTasksToSchedule) {
+            retrieveTasksToSchedule = mgr.findRetrieveTasksToSchedule(fetchSize, suspendedQueues(arcDev));
+            HashSet<String> queueSizeLimitExceeded = new HashSet<>();
+            int count = 0;
+            for (RetrieveTask.PkAndQueueName pkAndQueueName : retrieveTasksToSchedule) {
+                if (queueSizeLimitExceeded.contains(pkAndQueueName.queueName)) continue;
                 try {
-                    if (!mgr.scheduleRetrieveTask(pk)) return;
+                    if (mgr.scheduleRetrieveTask(pkAndQueueName.retrieveTaskPk)) {
+                        count++;
+                    } else {
+                        queueSizeLimitExceeded.add(pkAndQueueName.queueName);
+                    }
                 } catch (Exception e) {
-                    LOG.warn("Failed to schedule RetrieveTask[pk={}}]\n:", pk, e);
+                    LOG.warn("Failed to schedule RetrieveTask[pk={}}]\n:", pkAndQueueName.retrieveTaskPk, e);
                 }
             }
+            if (count == 0) return;
         }
         while (getPollingInterval() != null && retrieveTasksToSchedule.size() == fetchSize);
+    }
+
+    private static List<String> suspendedQueues(ArchiveDeviceExtension arcDev) {
+        Calendar now = Calendar.getInstance();
+        return Stream.of(
+                "Retrieve1",
+                "Retrieve2",
+                "Retrieve3",
+                "Retrieve4",
+                "Retrieve5",
+                "Retrieve6",
+                "Retrieve7",
+                "Retrieve8",
+                "Retrieve9",
+                "Retrieve10",
+                "Retrieve11",
+                "Retrieve12",
+                "Retrieve13")
+                .filter(queueName -> !isQueueActive(arcDev.getQueueDescriptor(queueName), now))
+                .collect(Collectors.toList());
+    }
+
+    private static boolean isQueueActive(QueueDescriptor queueDescriptor, Calendar now) {
+        return queueDescriptor != null && ScheduleExpression.emptyOrAnyContains(now, queueDescriptor.getSchedules());
     }
 }

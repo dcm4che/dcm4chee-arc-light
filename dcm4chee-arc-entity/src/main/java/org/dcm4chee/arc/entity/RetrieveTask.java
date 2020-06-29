@@ -68,24 +68,32 @@ import java.util.Date;
                 @Index(columnList = "study_iuid"),
                 @Index(columnList = "batch_id") }
 )
-@NamedQueries({
-        @NamedQuery(name = RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME,
-                query = "select o.pk from RetrieveTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
-                        "and o.queueMessage is null"),
-        @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
-                query = "update RetrieveTask o set " +
-                        "o.updatedTime=current_timestamp, " +
-                        "o.remaining=?2, " +
-                        "o.completed=?3, " +
-                        "o.failed=?4, " +
-                        "o.warning=?5, " +
-                        "o.statusCode=?6, " +
-                        "o.errorComment=?7 " +
-                        "where o.queueMessage=?1")
-})
+@NamedQuery(name = RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME,
+        query = "select new org.dcm4chee.arc.entity.RetrieveTask$PkAndQueueName(o.pk, o.queueName) " +
+                "from RetrieveTask o " +
+                "where o.deviceName=?1 " +
+                "and o.scheduledTime < current_timestamp " +
+                "and o.queueMessage is null")
+@NamedQuery(name = RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME_AND_NOT_IN_QUEUE,
+        query = "select new org.dcm4chee.arc.entity.RetrieveTask$PkAndQueueName(o.pk, o.queueName) " +
+                "from RetrieveTask o " +
+                "where o.deviceName=?1 and o.queueName not in (?2)" +
+                "and o.scheduledTime < current_timestamp " +
+                "and o.queueMessage is null")
+@NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
+        query = "update RetrieveTask o set " +
+                "o.updatedTime=current_timestamp, " +
+                "o.remaining=?2, " +
+                "o.completed=?3, " +
+                "o.failed=?4, " +
+                "o.warning=?5, " +
+                "o.statusCode=?6, " +
+                "o.errorComment=?7 " +
+                "where o.queueMessage=?1")
 public class RetrieveTask {
 
-    public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "RetriveTask.FindScheduledByDeviceName";
+    public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "RetrieveTask.FindScheduledByDeviceName";
+    public static final String FIND_SCHEDULED_BY_DEVICE_NAME_AND_NOT_IN_QUEUE = "RetrieveTask.FindScheduledByDeviceNameAndNotInQueue";
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
 
     @Id
@@ -166,6 +174,16 @@ public class RetrieveTask {
     @OneToOne(cascade= CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "queue_msg_fk")
     private QueueMessage queueMessage;
+
+    public static class PkAndQueueName {
+        public final Long retrieveTaskPk;
+        public final String queueName;
+
+        public PkAndQueueName(Long retrieveTaskPk, String queueName) {
+            this.retrieveTaskPk = retrieveTaskPk;
+            this.queueName = queueName;
+        }
+    }
 
     @PrePersist
     public void onPrePersist() {

@@ -2474,6 +2474,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCanceledDelay",
                 descriptor.getPurgeQueueMessageCanceledDelay(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxQueueSize", descriptor.getMaxQueueSize(), 0);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryInProcessOnStartup",
                 descriptor.isRetryInProcessOnStartup(), false);
         return attrs;
@@ -2502,6 +2503,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setPurgeQueueMessageCanceledDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageCanceledDelay"), null));
                 desc.setMaxQueueSize(LdapUtils.intValue(attrs.get("dcmMaxQueueSize"), 0));
+                desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setRetryInProcessOnStartup(
                         LdapUtils.booleanValue(attrs.get("dcmRetryInProcessOnStartup"), false));
                 arcdev.addQueueDescriptor(desc);
@@ -2563,6 +2565,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCanceledDelay",
                 prev.getPurgeQueueMessageCanceledDelay(), desc.getPurgeQueueMessageCanceledDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxQueueSize", prev.getMaxQueueSize(), desc.getMaxQueueSize(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetryInProcessOnStartup",
                 prev.isRetryInProcessOnStartup(), desc.isRetryInProcessOnStartup(), false);
         return mods;

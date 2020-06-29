@@ -652,12 +652,21 @@ public class RetrieveManagerEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<Long> findRetrieveTasksToSchedule(int fetchSize) {
-        return em.createNamedQuery(
-                RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME, Long.class)
-                .setParameter(1, device.getDeviceName())
+    public List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, List<String> suspendedQueues) {
+        return queryRetrieveTasksToSchedule(suspendedQueues)
                 .setMaxResults(fetchSize)
                 .getResultList();
+    }
+
+    private TypedQuery<RetrieveTask.PkAndQueueName> queryRetrieveTasksToSchedule(List<String> suspendedQueues) {
+        return suspendedQueues.isEmpty()
+                ? em.createNamedQuery(RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME,
+                        RetrieveTask.PkAndQueueName.class)
+                    .setParameter(1, device.getDeviceName())
+                : em.createNamedQuery(RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME_AND_NOT_IN_QUEUE,
+                        RetrieveTask.PkAndQueueName.class)
+                    .setParameter(1, device.getDeviceName())
+                    .setParameter(2, suspendedQueues);
     }
 
     public boolean scheduleRetrieveTask(Long pk) {

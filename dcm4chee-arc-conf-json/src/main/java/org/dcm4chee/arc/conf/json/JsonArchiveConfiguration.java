@@ -497,6 +497,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmJndiName", qd.getJndiName(), null);
             writer.writeNotNullOrDef("dicomDescription", qd.getDescription(), null);
             writer.writeNotDef("dcmMaxRetries", qd.getMaxRetries(), 0);
+            writer.writeNotEmpty("dcmSchedule", qd.getSchedules());
             writer.writeNotNullOrDef("dcmRetryDelay", qd.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
             writer.writeNotNullOrDef("dcmMaxRetryDelay", qd.getMaxRetryDelay(), null);
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
@@ -2116,6 +2117,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmMaxQueueSize":
                         qd.setMaxQueueSize(reader.intValue());
+                        break;
+                    case "dcmSchedule":
+                        qd.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
                         break;
                     case "dcmRetryInProcessOnStartup":
                         qd.setRetryInProcessOnStartup(reader.booleanValue());

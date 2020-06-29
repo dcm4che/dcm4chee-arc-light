@@ -2267,6 +2267,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmPurgeQueueMessageFailedDelay $
     dcmPurgeQueueMessageWarningDelay $
     dcmPurgeQueueMessageCanceledDelay $
+    dcmSchedule $
     dcmMaxQueueSize ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'

@@ -1,5 +1,6 @@
 package org.dcm4chee.arc.conf;
 
+import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,7 @@ public class QueueDescriptor {
     private Duration purgeQueueMessageWarningDelay;
     private Duration purgeQueueMessageCanceledDelay;
     private int maxQueueSize = 0;
+    private ScheduleExpression[] schedules = {};
 
     public QueueDescriptor(String queueName) {
         setQueueName(queueName);
@@ -153,5 +155,13 @@ public class QueueDescriptor {
 
     public void setMaxQueueSize(int maxQueueSize) {
         this.maxQueueSize = maxQueueSize;
+    }
+
+    public ScheduleExpression[] getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(ScheduleExpression[] schedules) {
+        this.schedules = schedules;
     }
 }

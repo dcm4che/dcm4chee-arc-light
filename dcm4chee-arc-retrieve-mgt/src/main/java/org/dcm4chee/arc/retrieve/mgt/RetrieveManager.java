@@ -91,7 +91,7 @@ public interface RetrieveManager {
 
     Tuple findDeviceNameAndLocalAETByPk(Long pk);
 
-    List<Long> findRetrieveTasksToSchedule(int fetchSize);
+    List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, List<String> suspendedQueues);
 
     boolean scheduleRetrieveTask(Long pk);
 }
