@@ -53,11 +53,13 @@ import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2020
  */
 @ApplicationScoped
@@ -88,28 +90,25 @@ public class RetrieveScheduler extends Scheduler {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getRetrieveTaskFetchSize();
         List<RetrieveTask.PkAndQueueName> retrieveTasksToSchedule;
+        Set<String> suspendedQueues = suspendedQueues(arcDev);
         do {
-            retrieveTasksToSchedule = mgr.findRetrieveTasksToSchedule(fetchSize, suspendedQueues(arcDev));
+            retrieveTasksToSchedule = mgr.findRetrieveTasksToSchedule(fetchSize, suspendedQueues);
             HashSet<String> queueSizeLimitExceeded = new HashSet<>();
-            int count = 0;
             for (RetrieveTask.PkAndQueueName pkAndQueueName : retrieveTasksToSchedule) {
                 if (queueSizeLimitExceeded.contains(pkAndQueueName.queueName)) continue;
                 try {
-                    if (mgr.scheduleRetrieveTask(pkAndQueueName.retrieveTaskPk)) {
-                        count++;
-                    } else {
+                    if (!mgr.scheduleRetrieveTask(pkAndQueueName.retrieveTaskPk)) {
                         queueSizeLimitExceeded.add(pkAndQueueName.queueName);
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to schedule RetrieveTask[pk={}}]\n:", pkAndQueueName.retrieveTaskPk, e);
                 }
             }
-            if (count == 0) return;
         }
         while (getPollingInterval() != null && retrieveTasksToSchedule.size() == fetchSize);
     }
 
-    private static List<String> suspendedQueues(ArchiveDeviceExtension arcDev) {
+    private static Set<String> suspendedQueues(ArchiveDeviceExtension arcDev) {
         Calendar now = Calendar.getInstance();
         return Stream.of(
                 "Retrieve1",
@@ -126,7 +125,7 @@ public class RetrieveScheduler extends Scheduler {
                 "Retrieve12",
                 "Retrieve13")
                 .filter(queueName -> !isQueueActive(arcDev.getQueueDescriptor(queueName), now))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private static boolean isQueueActive(QueueDescriptor queueDescriptor, Calendar now) {

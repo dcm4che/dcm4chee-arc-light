@@ -49,6 +49,7 @@ import javax.persistence.Tuple;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -91,7 +92,7 @@ public interface RetrieveManager {
 
     Tuple findDeviceNameAndLocalAETByPk(Long pk);
 
-    List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, List<String> suspendedQueues);
+    List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues);
 
     boolean scheduleRetrieveTask(Long pk);
 }
