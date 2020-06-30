@@ -48,21 +48,20 @@
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-proxy</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-<!--    <auth-constraint>
+  <!--  <security-constraint>
+      <web-resource-collection>
+        <web-resource-name>dcm4chee-arc-proxy</web-resource-name>
+        <url-pattern>/*</url-pattern>
+      </web-resource-collection>
+      <auth-constraint>
+        <role-name>${audit-user-role:auditlog}</role-name>
+      </auth-constraint>
+    </security-constraint>
+    <login-config>
+      <auth-method>KEYCLOAK</auth-method>
+      <realm-name>${realm-name:dcm4che}</realm-name>
+    </login-config>
+    <security-role>
       <role-name>${audit-user-role:auditlog}</role-name>
-    </auth-constraint>  -->
-  </security-constraint>
-<!--  <login-config>
-    <auth-method>KEYCLOAK</auth-method>
-    <realm-name>${realm-name:dcm4che}</realm-name>
-  </login-config>
-  <security-role>
-    <role-name>${audit-user-role:auditlog}</role-name>
-  </security-role>  -->
-  <!-- -->
+    </security-role>  -->
 </web-app>
