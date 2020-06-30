@@ -4,6 +4,8 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 changetype: modify
 replace: hl7PatientArrivalMessageType
 hl7PatientArrivalMessageType: ADT^A10
+-
+delete: dcmAuditRecordRepositoryURL
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
