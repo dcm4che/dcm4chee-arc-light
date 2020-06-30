@@ -55,7 +55,7 @@
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-       <role-name>${auth-user-role:user}</role-name>
+       <role-name>${proxy-user-role:user}</role-name>
     </auth-constraint>
    </security-constraint>
    <login-config>
@@ -63,7 +63,7 @@
      <realm-name>${realm-name:dcm4che}</realm-name>
    </login-config>
    <security-role>
-     <role-name>${auth-user-role:user}</role-name>
+     <role-name>${proxy-user-role:user}</role-name>
    </security-role>
 
 </web-app>
