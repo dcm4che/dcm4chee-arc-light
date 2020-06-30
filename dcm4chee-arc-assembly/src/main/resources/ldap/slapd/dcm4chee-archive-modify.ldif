@@ -767,7 +767,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.154 NAME 'dcmAcceptConflictingPatien
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryURL'
-  DESC 'Access URL of Audit Record Repository. E.g. http://kibana:5601'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1835,6 +1835,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.376 NAME 'dcmExportAsSourceAE'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.377 NAME 'dcmProxyUpstreamURL'
+  DESC 'URL for the upstream endpoint that shall be proxied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1988,6 +1993,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowDeletePatient $
     dcmRemapRetrieveURL $
     dcmAuditRecordRepositoryURL $
+    dcmProxyUpstreamURL $
     dcmElasticSearchURL $
     dcmAudit2JsonFhirTemplateURI $
     dcmAudit2XmlFhirTemplateURI $
