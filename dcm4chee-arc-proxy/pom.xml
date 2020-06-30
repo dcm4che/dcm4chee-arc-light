@@ -67,7 +67,6 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <classifier>${classifier}</classifier>
-          <!--<warSourceDirectory>${warSourceDirectory}</warSourceDirectory>-->
           <webXml>${webXml}</webXml>
           <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
         </configuration>
@@ -80,11 +79,11 @@
       <id>unsecure</id>
       <activation>
         <property>
-          <name>!secure</name>
+          <name>secure</name>
+          <value>!all</value>
         </property>
       </activation>
       <properties>
-        <!--<warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>-->
         <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
         <classifier>unsecure</classifier>
       </properties>
@@ -94,10 +93,10 @@
       <activation>
         <property>
           <name>secure</name>
+          <value>all</value>
         </property>
       </activation>
       <properties>
-        <!--<warSourceDirectory>${project.basedir}/src/main/webapp-secure</warSourceDirectory>-->
         <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
         <classifier>secure</classifier>
       </properties>
