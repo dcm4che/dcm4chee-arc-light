@@ -1,5 +1,5 @@
 DCM4CHE.elementName.addDictionary({
-"privateCreator":"GE From Adantage Review CS",
+"privateCreator":"GE ??? From Adantage Review CS",
 "0019xx30":"CR EDR Mode",
 "0019xx40":"CR Latitude",
 "0019xx50":"CR Group Number",
