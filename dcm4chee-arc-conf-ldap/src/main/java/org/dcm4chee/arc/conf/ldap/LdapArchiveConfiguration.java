@@ -117,8 +117,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDeleteUPSCompletedDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteUPSCanceledDelay",
                 ext.getDeleteUPSCanceledDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectIfNoUserIdentity",
-                ext.getRejectIfNoUserIdentity(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRejectIfNoUserIdentity",
+                ext.isRejectIfNoUserIdentity(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiatorClass",
                 ext.getUserIdentityNegotiatorClass(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy",
@@ -819,8 +819,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteUPSCanceledDelay",
                 aa.getDeleteUPSCanceledDelay(),
                 bb.getDeleteUPSCanceledDelay(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectIfNoUserIdentity",
-                aa.getRejectIfNoUserIdentity(), bb.getRejectIfNoUserIdentity(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRejectIfNoUserIdentity",
+                aa.isRejectIfNoUserIdentity(), bb.isRejectIfNoUserIdentity(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiatorClass",
                 aa.getUserIdentityNegotiatorClass(),
                 bb.getUserIdentityNegotiatorClass(),

@@ -318,7 +318,7 @@ public class ArchiveAEExtension extends AEExtension {
     public boolean rejectIfNoUserIdentity() {
         return rejectIfNoUserIdentity != null
                 ? rejectIfNoUserIdentity
-                : getArchiveDeviceExtension().getRejectIfNoUserIdentity();
+                : getArchiveDeviceExtension().isRejectIfNoUserIdentity();
     }
 
     public OverwritePolicy getOverwritePolicy() {

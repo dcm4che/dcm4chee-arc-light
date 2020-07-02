@@ -100,7 +100,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmDeleteUPSFetchSize", arcDev.getDeleteUPSFetchSize(), 100);
         writer.writeNotNullOrDef("dcmDeleteUPSCompletedDelay", arcDev.getDeleteUPSCompletedDelay(), null);
         writer.writeNotNullOrDef("dcmDeleteUPSCanceledDelay", arcDev.getDeleteUPSCanceledDelay(), null);
-        writer.writeNotNullOrDef("dcmRejectIfNoUserIdentity", arcDev.getRejectIfNoUserIdentity(), false);
+        writer.writeNotDef("dcmRejectIfNoUserIdentity", arcDev.isRejectIfNoUserIdentity(), false);
         writer.writeNotNullOrDef("dcmUserIdentityNegotiatorClass", arcDev.getUserIdentityNegotiatorClass(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
         writer.writeNotDef("dcmRecordAttributeModification", arcDev.isRecordAttributeModification(), true);

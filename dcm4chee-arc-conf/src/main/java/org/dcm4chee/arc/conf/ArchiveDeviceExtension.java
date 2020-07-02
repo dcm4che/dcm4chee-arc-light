@@ -389,7 +389,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
-    public boolean getRejectIfNoUserIdentity() { return rejectIfNoUserIdentity; }
+    public boolean isRejectIfNoUserIdentity() { return rejectIfNoUserIdentity; }
 
     public void setRejectIfNoUserIdentity(boolean rejectIfNoUserIdentity) {
         this.rejectIfNoUserIdentity = rejectIfNoUserIdentity;
