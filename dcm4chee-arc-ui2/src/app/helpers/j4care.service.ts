@@ -1,8 +1,7 @@
 import {Injectable} from '@angular/core';
-import {Subscriber} from "rxjs/Subscriber";
-import {Observable} from "rxjs/Observable";
+import {Subscriber, Observable} from "rxjs";
 declare var DCM4CHE: any;
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
@@ -21,7 +20,6 @@ import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
-import { loadTranslations } from '@angular/localize';
 import {User} from "../models/user";
 declare const bigInt:Function;
 

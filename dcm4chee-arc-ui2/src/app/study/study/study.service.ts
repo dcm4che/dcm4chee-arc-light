@@ -14,8 +14,8 @@ import {Aet} from "../../models/aet";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import {Observable} from "rxjs/Observable";
-import * as _ from 'lodash'
+import {Observable, forkJoin, of, throwError} from "rxjs";
+import * as _ from 'lodash-es'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
@@ -30,24 +30,15 @@ import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
-import {RetrieveMonitoringService} from "../../monitoring/external-retrieve/retrieve-monitoring.service";
 import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
-import {SelectionsDicomObjects} from "./selections-dicom-objects.model";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
-import 'rxjs/add/observable/throw';
-import {forkJoin} from 'rxjs/observable/forkJoin';
 import {catchError, map, switchMap} from "rxjs/operators";
-import {of} from "rxjs/observable/of";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
-import {ErrorObservable} from "rxjs-compat/observable/ErrorObservable";
-import {Error} from "tslint/lib/error";
 import {AppService} from "../../app.service";
-import {throwError} from 'rxjs/internal/observable/throwError';
-import { loadTranslations } from '@angular/localize';
 import {MwlDicom} from "../../models/mwl-dicom";
 
 @Injectable()
@@ -3172,22 +3163,23 @@ export class StudyService {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
             return throwError({error:$localize `:@@multi_patient_merge_not_supported:Multi patient merge is not supported!`});
         }else{
-            return this.getModifyPatientUrl(deviceWebservice)
-            .switchMap((url:string)=>{
-                console.log("url",url);
-                return this.$http.put(
-                    `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
-                    selectedElements.postActionElements.getAttrs("patient"),
-                    this.jsonHeader
-                )
-            })
+            return this.getModifyPatientUrl(deviceWebservice).pipe(
+                switchMap((url:string)=>{
+                    console.log("url",url);
+                    return this.$http.put(
+                        `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
+                        selectedElements.postActionElements.getAttrs("patient"),
+                        this.jsonHeader
+                    )
+                })
+            )
         }
     };
 
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
         return this.getModifyPatientUrl(deviceWebservice)
-            .switchMap((url:string)=>{
+            .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (patientId) {
                         //Change patient;
@@ -3198,7 +3190,7 @@ export class StudyService {
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
-            })
+            }))
     }
 
     getModifyPatientUrl(deviceWebService: StudyWebService) {

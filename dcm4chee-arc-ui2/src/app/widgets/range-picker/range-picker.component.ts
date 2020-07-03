@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 
 @Component({
     selector: 'range-picker',

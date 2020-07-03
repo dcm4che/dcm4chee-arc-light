@@ -4,7 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import {Globalvar} from '../../../constants/globalvar';
 import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 
 

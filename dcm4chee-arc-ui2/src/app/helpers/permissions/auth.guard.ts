@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
-import {Globalvar} from "../../constants/globalvar";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/of";
-import {Subscription} from "rxjs/Subscription";
 import {PermissionService} from "./permission.service";
 import {AppService} from "../../app.service";
 

@@ -3,12 +3,12 @@ import { MatDialog, MatDialogRef, MatDialogConfig } from '@angular/material/dial
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/share';
+
+
 import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
 import {HostListener} from '@angular/core';
 import {WindowRefService} from "./helpers/window-ref.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";

@@ -1,31 +1,25 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {AppService} from "../../app.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
-import {Observable} from "rxjs/Observable";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
-import * as FileSaver from 'file-saver';
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from '@ngx-loading-bar/core';
-import {environment} from "../../../environments/environment";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {Validators} from "@angular/forms";
 import {AppComponent} from "../../app.component";
-import {DropdownList} from "../../helpers/form/dropdown-list";
 import {SelectDropdown} from "../../interfaces";
 import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
 
 @Component({

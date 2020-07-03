@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Input} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../window-ref.service";
 import {HttpErrorHandler} from "../http-error-handler";

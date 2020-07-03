@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Globalvar} from "../../constants/globalvar";
 import {SearchPipe} from "../../pipes/search.pipe";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 @Component({
   selector: 'language-picker',

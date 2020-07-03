@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs';
-import * as _ from "lodash";
+import * as _ from "lodash-es";
+import {share} from "rxjs/operators";
 @Injectable()
 export class UploadDicomService {
     progress$;
@@ -8,7 +9,7 @@ export class UploadDicomService {
     constructor () {
         this.progress$ = new Observable(observer => {
             this.progressObserver = observer;
-        }).share();
+        }).pipe(share());
     }
 
     makeFileRequest(url: string, params: string[], files: File[]) {

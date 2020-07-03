@@ -1,7 +1,7 @@
 import {Directive, ElementRef, OnInit, Renderer2} from '@angular/core';
 import {Input} from '@angular/core';
 import {Globalvar} from '../constants/globalvar';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 @Directive({
   selector: '[placeholderchanger]'

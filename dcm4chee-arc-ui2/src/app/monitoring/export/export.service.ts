@@ -3,7 +3,7 @@ import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
 

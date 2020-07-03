@@ -5,7 +5,7 @@
 import {Injectable} from '@angular/core';
 import {FormElement} from './form-element';
 import {FormControl, Validators, FormGroup, FormBuilder, AbstractControl} from '@angular/forms';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {CustomValidatorDirective} from '../custom-validator/custom-validator.directive';
 
 function testValidation(c: AbstractControl){

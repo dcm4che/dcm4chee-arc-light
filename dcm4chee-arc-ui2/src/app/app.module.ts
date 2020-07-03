@@ -110,10 +110,10 @@ import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/se
 import {MY_FORMATS} from "./constants/globalvar";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
 
-import localeDe from '@angular/common/locales/de';
+// import localeDe from '@angular/common/locales/de';
 import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
 
-registerLocaleData(localeDe, 'de-DE');
+// registerLocaleData(localeDe, 'de-DE');
 
 @NgModule({
     declarations: [

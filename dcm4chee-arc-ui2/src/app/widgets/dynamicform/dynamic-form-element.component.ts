@@ -9,7 +9,7 @@ import {FormGroup, FormControl, FormArray, FormBuilder} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';

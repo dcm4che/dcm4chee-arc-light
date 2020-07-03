@@ -2,7 +2,7 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormElement} from '../../helpers/form/form-element';
 import {DeviceConfiguratorService} from './device-configurator.service';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { combineLatest} from 'rxjs';
 import {AppService} from '../../app.service';
 import {ControlService} from '../control/control.service';

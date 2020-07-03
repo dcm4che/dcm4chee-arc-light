@@ -4,7 +4,7 @@ import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 declare var DCM4CHE: any;
 const sopObject = DCM4CHE.SOPClass.nameOf("all");
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 
 export const MY_FORMATS = {
     parse: {

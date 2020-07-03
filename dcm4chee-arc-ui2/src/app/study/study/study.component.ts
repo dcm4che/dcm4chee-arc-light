@@ -27,7 +27,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {PatientDicom} from "../../models/patient-dicom";
 import {StudyDicom} from "../../models/study-dicom";
-import * as _  from "lodash";
+import * as _  from "lodash-es";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {
     StudyTrash, TableParam,
@@ -58,7 +58,7 @@ import {SelectionActionElement} from "./selection-action-element.models";
 import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 import {MwlDicom} from "../../models/mwl-dicom";
 import {ChangeDetectorRef} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
@@ -330,7 +330,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     onFilterTemplateSet(object){
         console.log("object",object);
         this.filter.filterModel = {};
-        if(object && _.hasIn(object,"webApp")){
+        if(object && _.hasIn(object,"webApp") && object.webApp){
             Object.keys(object).forEach(key=>{
                 if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
                     this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)

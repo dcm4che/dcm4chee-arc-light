@@ -4,7 +4,7 @@ import { MatDialogRef } from "@angular/material/dialog";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 
 @Component({
   selector: 'csv-upload',

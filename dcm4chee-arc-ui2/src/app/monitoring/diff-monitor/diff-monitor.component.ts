@@ -2,13 +2,11 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {DiffMonitorService} from "./diff-monitor.service";
 import {AppService} from "../../app.service";
 import {ActivatedRoute} from "@angular/router";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
-import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import { MatDialogConfig, MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -16,7 +14,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
 
 @Component({

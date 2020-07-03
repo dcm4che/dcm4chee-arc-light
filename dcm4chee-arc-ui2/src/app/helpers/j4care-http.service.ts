@@ -1,18 +1,14 @@
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs/Rx';
 import {AppService} from "../app.service";
-import 'rxjs/add/operator/mergeMap';
-import * as _ from 'lodash';
-import {WindowRefService} from "./window-ref.service";
+
+import * as _ from 'lodash-es';
 import {HttpErrorHandler} from "./http-error-handler";
 import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
 import {KeycloakService} from "./keycloak-service/keycloak.service";
-import {Globalvar} from "../constants/globalvar";
-import {of} from "rxjs/internal/observable/of";
-import {throwError} from "rxjs/internal/observable/throwError";
+import {throwError, of, Observable} from "rxjs";
 import {catchError, flatMap, map} from "rxjs/operators";
 
 @Injectable()

@@ -1,5 +1,5 @@
 import {Component, OnInit, Input} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {Globalvar} from '../../constants/globalvar';
 declare var DCM4CHE: any;
 

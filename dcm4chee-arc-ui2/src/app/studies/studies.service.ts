@@ -1,19 +1,14 @@
 import { Injectable } from '@angular/core';
 import {DatePipe} from '@angular/common';
-import * as _ from 'lodash';
-import {Observable} from 'rxjs';
-import {WindowRefService} from "../helpers/window-ref.service";
+import * as _ from 'lodash-es';
 import {AppService} from "../app.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
-import {ScalarObservable} from "rxjs/observable/ScalarObservable";
-import 'rxjs/add/operator/switchMap';
-import {Globalvar} from "../constants/globalvar";
+
 import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../interfaces";
 import {StorageSystemsService} from "../monitoring/storage-systems/storage-systems.service";
-import {of} from "rxjs/internal/observable/of";
-import {throwError} from "rxjs/internal/observable/throwError";
+import {throwError, of} from "rxjs";
 declare var DCM4CHE: any;
 declare var window: any;
 

@@ -2,7 +2,7 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import {AppService} from '../../app.service';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {StorageSystemsService} from './storage-systems.service';
 import {WindowRefService} from "../../helpers/window-ref.service";

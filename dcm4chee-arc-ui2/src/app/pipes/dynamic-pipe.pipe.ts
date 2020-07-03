@@ -1,5 +1,5 @@
 import {Injector, Pipe, PipeTransform} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 @Pipe({

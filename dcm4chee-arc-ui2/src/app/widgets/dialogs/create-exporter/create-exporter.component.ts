@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import {AppService} from '../../../app.service';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {CreateExporterService} from './create-exporter.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";

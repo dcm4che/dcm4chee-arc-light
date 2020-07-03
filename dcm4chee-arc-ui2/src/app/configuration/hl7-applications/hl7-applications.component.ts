@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {Hl7ApplicationsService} from "./hl7-applications.service";
 import {AppService} from "../../app.service";
 import {HostListener} from "@angular/core";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {Router} from "@angular/router";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";

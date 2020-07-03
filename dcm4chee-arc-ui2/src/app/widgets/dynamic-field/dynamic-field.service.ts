@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs/Observable";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {AppService} from "../../app.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {Hl7ApplicationsService} from "../../configuration/hl7-applications/hl7-applications.service";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
-import {of} from "rxjs/internal/observable/of";
+import {of} from "rxjs";
 
 @Injectable()
 export class DynamicFieldService {

@@ -1,5 +1,5 @@
 import {Injectable, Input, Output} from "@angular/core";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {SelectDropdown} from "../../interfaces";
 
 

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
 import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfaces";
 import {PatientDicom} from "../../models/patient-dicom";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 import {j4care} from "../j4care.service";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 import {DicomLevel, PaginationDirection} from "../../interfaces";

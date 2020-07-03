@@ -431,7 +431,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "browserTarget": "dcm4chee-arc-ui2:build",
-            "crossOrigin": "use-credentials"
+            "crossOrigin": "use-credentials",
+            "allowedCommonJsDependencies": [
+              "lodash"
+            ]
           },
           "configurations": {
             "production": {

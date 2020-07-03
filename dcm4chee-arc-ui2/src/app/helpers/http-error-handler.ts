@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {AppService} from "../app.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {WindowRefService} from "./window-ref.service";
 
 @Injectable()

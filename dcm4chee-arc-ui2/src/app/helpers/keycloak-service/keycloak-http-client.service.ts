@@ -16,7 +16,7 @@
  */
 
 import {Injectable, InjectionToken, Injector} from '@angular/core';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs';
 import {
     HTTP_INTERCEPTORS,
     HttpBackend,

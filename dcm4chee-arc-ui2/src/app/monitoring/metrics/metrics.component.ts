@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {MetricsService} from "./metrics.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 import {AppService} from "../../app.service";
 import {FilterSchema, MetricsDescriptors, SelectDropdown} from "../../interfaces";
 import {j4care} from "../../helpers/j4care.service";

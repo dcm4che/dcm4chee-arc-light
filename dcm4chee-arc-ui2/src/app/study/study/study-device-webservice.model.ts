@@ -1,5 +1,5 @@
 import {DcmWebApp} from "../../models/dcm-web-app";
-import * as _  from "lodash";
+import * as _  from "lodash-es";
 import {DicomNetworkConnection, SelectDropdown} from "../../interfaces";
 import {Device} from "../../models/device";
 import {j4care} from "../../helpers/j4care.service";

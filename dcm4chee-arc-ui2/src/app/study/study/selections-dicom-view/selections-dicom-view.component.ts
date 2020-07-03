@@ -3,7 +3,7 @@ import {SelectionsDicomObjects} from "../selections-dicom-objects.model";
 import {DicomLevel} from "../../../interfaces";
 import {TableSchemaElement} from "../../../models/dicom-table-schema-element";
 import {SelectionsDicomViewService} from "./selections-dicom-view.service";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 import {j4care} from "../../../helpers/j4care.service";
 
 @Component({

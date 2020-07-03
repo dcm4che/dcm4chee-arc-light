@@ -9,7 +9,7 @@ import {
     Output, ViewContainerRef
 } from '@angular/core';
 import {j4care} from "../j4care.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {AppService} from "../../app.service";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {DevicesService} from "../../configuration/devices/devices.service";

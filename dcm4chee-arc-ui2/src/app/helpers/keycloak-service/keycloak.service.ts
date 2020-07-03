@@ -17,19 +17,18 @@
 
 /// <reference path="keycloak.d.ts"/>
 
-import {Observable} from "rxjs/Observable";
+import {Observable, from} from "rxjs";
 
 declare var Keycloak: any;
 
 import {EventEmitter, Injectable} from '@angular/core';
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {AppService} from "../../app.service";
-import {from} from "rxjs/observable/from";
 import {Globalvar} from "../../constants/globalvar";
 import {of, Subject} from "../../../../node_modules/rxjs";
 import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {promise} from "selenium-webdriver";
 import {flatMap} from "rxjs/operators";
 

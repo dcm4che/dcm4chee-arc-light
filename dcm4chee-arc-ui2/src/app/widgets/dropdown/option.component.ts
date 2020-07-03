@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, Inject, Input, OnInit} from "@angular/core";
 import {OptionService} from "./option.service";
 import {SelectDropdown} from "../../interfaces";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {DropdownComponent} from "./dropdown.component";
 
 @Component({

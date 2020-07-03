@@ -1,5 +1,5 @@
 import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 @Component({
   selector: 'schedule-picker',

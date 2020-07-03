@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+
+
 import * as FileSaver from 'file-saver';
 import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';

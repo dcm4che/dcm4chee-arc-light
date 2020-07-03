@@ -6,9 +6,7 @@ import {Device} from "../../models/device";
 import {Aet} from "../../models/aet";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {Observable} from "rxjs/Observable";
-import * as _ from "lodash";
-import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-web-apps-list',

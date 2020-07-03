@@ -1,5 +1,5 @@
 import {DicomLevel, UniqueSelectIdObject} from "../../interfaces";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 import {j4care} from "../../helpers/j4care.service";
 
 export class SelectionsDicomObjects {

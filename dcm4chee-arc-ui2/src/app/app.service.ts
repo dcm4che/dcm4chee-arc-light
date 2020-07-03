@@ -1,7 +1,7 @@
 import {Injectable, OnInit, OnDestroy} from '@angular/core';
 import {Observable, Subject, Subscription, of} from 'rxjs';
 import {User} from './models/user';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {WindowRefService} from "./helpers/window-ref.service";
 import {DatePipe} from "@angular/common";
 import {J4careHttpService} from "./helpers/j4care-http.service";

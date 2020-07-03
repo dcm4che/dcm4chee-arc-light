@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {j4care} from "../j4care.service";
 
 @Component({

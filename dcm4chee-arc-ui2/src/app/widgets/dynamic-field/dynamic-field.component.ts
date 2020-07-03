@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {DynamicFieldService} from "./dynamic-field.service";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 @Component({
   selector: 'dynamic-field',
   templateUrl: './dynamic-field.component.html',

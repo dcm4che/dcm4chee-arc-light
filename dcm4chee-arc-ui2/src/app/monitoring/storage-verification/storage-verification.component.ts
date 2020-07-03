@@ -1,21 +1,19 @@
 import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {AppService} from "../../app.service";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {StorageVerificationService} from "./storage-verification.service";
 import {Globalvar} from "../../constants/globalvar";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {Observable} from "rxjs/Observable";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {forkJoin} from "rxjs/internal/observable/forkJoin";
+import {forkJoin} from "rxjs";
 import {map} from 'rxjs/operators';
 
 @Component({

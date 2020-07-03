@@ -4,7 +4,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {J4careHttpService} from "../j4care-http.service";
 import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {KeycloakService} from "../keycloak-service/keycloak.service";
 import {User} from "../../models/user";
 import UserInfo = KeycloakModule.UserInfo;

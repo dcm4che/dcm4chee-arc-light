@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {FilterSchema, SelectDropdown} from "../../interfaces";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 import {AeListService} from "../ae-list/ae-list.service";
 import {DevicesService} from "../devices/devices.service";
 import {Device} from "../../models/device";

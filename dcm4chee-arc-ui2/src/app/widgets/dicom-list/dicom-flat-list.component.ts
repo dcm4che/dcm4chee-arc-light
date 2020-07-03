@@ -1,5 +1,5 @@
 import {Component, HostListener, Input, OnInit} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {j4care} from "../../helpers/j4care.service";
 

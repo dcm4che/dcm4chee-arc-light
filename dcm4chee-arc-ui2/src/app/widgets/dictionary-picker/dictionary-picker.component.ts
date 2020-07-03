@@ -2,7 +2,7 @@ import {
     Component, OnInit, EventEmitter, Input, Output
 } from '@angular/core';
 declare var DCM4CHE: any;
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {SearchPipe} from "../../pipes/search.pipe";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {Globalvar} from "../../constants/globalvar";

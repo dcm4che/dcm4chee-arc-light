@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from "@angular/material/dialog";
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {StudiesService} from "../../../studies/studies.service";

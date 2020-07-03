@@ -1,5 +1,5 @@
 import {DcmWebApp} from "../../models/dcm-web-app";
-import * as _ from "lodash";
+import * as _ from "lodash-es";
 
 export class StudyWebService {
     private _webServices:DcmWebApp[];

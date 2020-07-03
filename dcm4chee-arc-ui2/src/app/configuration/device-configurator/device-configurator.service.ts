@@ -1,5 +1,5 @@
 import {Injectable, OnInit} from '@angular/core';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import {InputText} from '../../helpers/form/input-text';
 import {RadioButtons} from '../../helpers/form/radio-buttons';
 import {Checkbox} from '../../helpers/form/checkboxes';
@@ -260,7 +260,7 @@ export class DeviceConfiguratorService{
         * */
         if (devicereff){
             if(device){
-                //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
+                //If the part is already in the device override / call setWith with the child refference otherwise use lodash-es to append the object
                 if (_.hasIn(device, devicereff)){
                     this.setWith(_.get(device, devicereff), value);
                 }else{
@@ -269,7 +269,7 @@ export class DeviceConfiguratorService{
                     _.set(device,  devicereff,  newValue);
                 }
             }else{
-                //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
+                //If the part is already in the device override / call setWith with the child refference otherwise use lodash-es to append the object
                 if (_.hasIn(this.device, devicereff)){
                     this.setWith(_.get(this.device, devicereff), value);
                 }else{

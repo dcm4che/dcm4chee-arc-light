@@ -1,6 +1,6 @@
 import {Directive} from '@angular/core';
 import {AbstractControl, NG_VALIDATORS, ValidatorFn} from '@angular/forms';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 @Directive({
     selector: '[appCustomValidator]',
