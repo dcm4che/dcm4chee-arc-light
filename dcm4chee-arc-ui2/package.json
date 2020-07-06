@@ -15,7 +15,7 @@
     "dev": "ng build",
     "e2e": "ng e2e",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points",
-    "extract-translation": "npx locl extract -s=/home/shefki/workspace/dcm4chee-arc-light/dcm4chee-arc-ui2/target/webapp/**/*.js -f=json -o=src/assets/locale/en2.json"
+    "extract-translation": "npx locl extract -s=./target/webapp/**/*.js -f=json -o=./src/assets/locale/en2.json"
   },
   "private": true,
   "dependencies": {
