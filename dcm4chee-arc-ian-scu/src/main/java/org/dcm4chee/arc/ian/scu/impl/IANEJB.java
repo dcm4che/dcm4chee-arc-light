@@ -171,7 +171,7 @@ public class IANEJB {
         Attributes ppsRef = AttributesBlob.decodeAttributes(
                 em.createNamedQuery(Series.ATTRS_BY_SERIES_IUID, byte[].class)
                         .setParameter(1, studyUID)
-                        .setParameter(1, seriesUID)
+                        .setParameter(2, seriesUID)
                         .getSingleResult(),
                 null)
                 .getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
