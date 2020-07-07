@@ -11,7 +11,7 @@
         <config-tab></config-tab>
     <!--<div class="devicelist_block">-->
         <div class="tab-content">
-            <h2>Devices</h2>
+            <h2 i18n="@@devices">Devices</h2>
             <div class="filter_line" *ngIf="advancedConfig">
                 <div class="filter_block">
                     <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="searchDevices($event)" [filterTreeHeight]="filterHeight"></filter-generator>

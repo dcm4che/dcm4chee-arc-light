@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {FilterSchema, SelectDropdown} from "../../interfaces";
+import {FilterSchema, LocalLanguageObject, SelectDropdown} from "../../interfaces";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import * as _ from "lodash-es";
 import {AeListService} from "../ae-list/ae-list.service";
@@ -27,7 +27,12 @@ export class WebAppsListService {
     }
 
     getServiceClasses = () => {
-        return this.$http.get("./assets/schema/webApplication.schema.json").pipe(map(schema=>{
+        const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+        let deviceSchemaURL = `./assets/schema/webApplication.schema.json`;
+        if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
+            deviceSchemaURL = `./assets/schema/${currentSavedLanguage.language.code}/webApplication.schema.json`;
+        }
+        return this.$http.get(deviceSchemaURL).pipe(map(schema=>{
           return (<any[]>_.get(schema,"properties.dcmWebServiceClass.items.enum")).map(serviceClass=>{
               return new SelectDropdown(serviceClass,serviceClass);
           });

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
+import {LocalLanguageObject} from "../../../interfaces";
+import * as _ from 'lodash-es';
 
 @Injectable()
 export class CreateExporterService {
@@ -15,6 +17,13 @@ export class CreateExporterService {
 
     getQueue = () => this.$http.get('../queue');
 
-    getExporterDescriptorSchema = () => this.$http.get('./assets/schema/exporter.schema.json');
+    getExporterDescriptorSchema = () => {
+        const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+        let deviceSchemaURL = `./assets/schema/exporter.schema.json`;
+        if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
+            deviceSchemaURL = `./assets/schema/${currentSavedLanguage.language.code}/exporter.schema.json`;
+        }
+        return this.$http.get(deviceSchemaURL)
+    };
 
 }

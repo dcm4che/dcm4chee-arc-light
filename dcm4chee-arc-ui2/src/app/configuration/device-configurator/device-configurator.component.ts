@@ -15,6 +15,7 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 import { loadTranslations } from '@angular/localize';
+import {LocalLanguageObject} from "../../interfaces";
 
 @Component({
   selector: 'app-device-configurator',
@@ -34,6 +35,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     isNew = false;
     searchBreadcrum = [];
     emptyExtension = false;
+    currentSavedLanguage:LocalLanguageObject;
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -283,7 +285,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         // }
     };
     ngOnInit(){
-
+        this.currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
         this.initCheck(10);
     }
     initCheck(retries){
@@ -354,8 +356,12 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     } else {
                         $this.service.pagination.push(newPaginationObject);
                     }
+                        let deviceSchemaURL = `./assets/schema/device.schema.json`;
+                        if(_.hasIn(this.currentSavedLanguage,"language.code") && this.currentSavedLanguage.language.code && this.currentSavedLanguage.language.code != "en"){
+                            deviceSchemaURL = `./assets/schema/${this.currentSavedLanguage.language.code}/device.schema.json`;
+                        }
                         if (params['device'] == '[new_device]') {
-                            $this.$http.get('./assets/schema/device.schema.json')
+                            $this.$http.get(deviceSchemaURL)
                                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                                 .subscribe((schema) => {
                                 $this.showform = false;
@@ -375,7 +381,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
                             combineLatest(
                                 $this.service.getDevice(params['device']),
-                                $this.$http.get('./assets/schema/device.schema.json')
+                                $this.$http.get(deviceSchemaURL)
                                     // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                             ).subscribe(deviceschema => {
                                 $this.service.device = deviceschema[0];

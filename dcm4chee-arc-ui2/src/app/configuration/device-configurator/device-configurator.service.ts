@@ -17,6 +17,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {DevicesService} from "../devices/devices.service";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
+import {LocalLanguageObject} from "../../interfaces";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -228,7 +229,12 @@ export class DeviceConfiguratorService{
         return this.$http.get('../devices/' + devicename)
     }
     getSchema(schema){
-        return this.$http.get('./assets/schema/' + schema)
+        const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+        let schemaURL = `./assets/schema/` + schema;
+        if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
+            schemaURL = `./assets/schema/${currentSavedLanguage.language.code}/` + schema;
+        }
+        return this.$http.get(schemaURL)
             //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
     };
     getSchemaFromPath(schema, schemaparam){
@@ -730,8 +736,8 @@ export class DeviceConfiguratorService{
                     // if (i === 'dicomInstalled' && _.hasIn(params, 'devicereff') && _.hasIn(params, 'schema')){
                     if(required){
                         options = [
-                            {key: 'True',  value: true},
-                            {key: 'False',  value: false}
+                            {key: $localize `:@@True:True`,  value: true},
+                            {key: $localize `:@@False:False`,  value: false}
                         ];
                         if (value === true || value === false){
                             //true
@@ -744,9 +750,9 @@ export class DeviceConfiguratorService{
                         }
                     }else{
                         options = [
-                            {key: 'True',  value: true},
-                            {key: 'False',  value: false},
-                            {key: 'Unchecked',  value: 'inherent'},
+                            {key: $localize `:@@True:True`,  value: true},
+                            {key: $localize `:@@False:False`,  value: false},
+                            {key: $localize `:@@Unchecked:Unchecked`,  value: 'inherent'},
                         ];
                         if (value === true || value === false){
                             //true
