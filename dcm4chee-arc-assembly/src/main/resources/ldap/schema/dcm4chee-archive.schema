@@ -2203,9 +2203,20 @@ attributetype ( 1.2.40.0.13.1.15.110.3.376 NAME 'dcmExportAsSourceAE'
 
 attributetype ( 1.2.40.0.13.1.15.110.3.377 NAME 'dcmProxyUpstreamURL'
   DESC 'URL for the upstream endpoint that shall be proxied.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.378 NAME 'dcmCharsetNameMapping'
+  DESC 'Customize mapping of value of DICOM Specific Character Set (0008,0005) to named charset in format <value>=<charset name>. E.g.: "ISO_IR 100=windows-1252".'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.379 NAME 'hl7CharsetNameMapping'
+  DESC 'Add mapping of value of HL7 MSH-18 to named charset in format <value>=<charset name>. E.g.: "Windows-1252=windows-1252". Typically you will also have to specify the HL7 DICOM Character Set of the Archive HL7 Application to use for received HL7 messages with such Character Set.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2220,6 +2231,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmReturnRetrieveAET $
     dcmMultipleStoreAssociations $
     dcmDefaultCharacterSet $
+    dcmCharsetNameMapping $
+    hl7CharsetNameMapping $
     dcmUPSWorklistLabel $
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $

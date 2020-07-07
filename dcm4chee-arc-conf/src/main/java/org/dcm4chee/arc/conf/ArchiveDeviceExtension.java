@@ -42,6 +42,7 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.SpecificCharacterSet;
 import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.net.DeviceExtension;
@@ -317,6 +318,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String,String> impaxReportProperties = new HashMap<>();
     private final Map<String, String> importReportTemplateParams = new HashMap<>();
     private final Map<String, String> cStoreSCUOfCMoveSCP = new HashMap<>();
+    private final Map<String, String> dicomCharsetNameMappings = new HashMap<>();
+    private final Map<String, String> hl7CharsetNameMappings = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -2620,6 +2623,56 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
+    public Map<String, String> getDicomCharsetNameMappings() {
+        return dicomCharsetNameMappings;
+    }
+
+    public void setDicomCharsetNameMappings(String code, String charsetName) {
+        dicomCharsetNameMappings.put(
+                SpecificCharacterSet.checkSpecificCharacterSet(code),
+                SpecificCharacterSet.checkCharsetName(charsetName));
+    }
+
+    public void setDicomCharsetNameMappings(String[] ss) {
+        HashMap<String, String> prev = new HashMap<>(dicomCharsetNameMappings);
+        dicomCharsetNameMappings.clear();
+        try {
+            for (String s : ss) {
+                int index = s.indexOf('=');
+                if (index < 0)
+                    throw new IllegalArgumentException("DicomCharsetNameMapping in incorrect format : " + s);
+                setDicomCharsetNameMappings(s.substring(0, index), s.substring(index+1));
+            }
+        } catch (IllegalArgumentException e) {
+            dicomCharsetNameMappings.clear();
+            dicomCharsetNameMappings.putAll(prev);
+        }
+    }
+
+    public Map<String, String> getHL7CharsetNameMappings() {
+        return hl7CharsetNameMappings;
+    }
+
+    public void setHL7CharsetNameMappings(String code, String charsetName) {
+        hl7CharsetNameMappings.put(code, SpecificCharacterSet.checkCharsetName(charsetName));
+    }
+
+    public void setHL7CharsetNameMappings(String[] ss) {
+        HashMap<String, String> prev = new HashMap<>(hl7CharsetNameMappings);
+        hl7CharsetNameMappings.clear();
+        try {
+            for (String s : ss) {
+                int index = s.indexOf('=');
+                if (index < 0)
+                    throw new IllegalArgumentException("HL7CharsetNameMapping in incorrect format : " + s);
+                setHL7CharsetNameMappings(s.substring(0, index), s.substring(index+1));
+            }
+        } catch (IllegalArgumentException e) {
+            hl7CharsetNameMappings.clear();
+            hl7CharsetNameMappings.putAll(prev);
+        }
+    }
+
     public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy;
     }
@@ -3084,5 +3137,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         importReportTemplateParams.putAll(arcdev.importReportTemplateParams);
         cStoreSCUOfCMoveSCP.clear();
         cStoreSCUOfCMoveSCP.putAll(arcdev.cStoreSCUOfCMoveSCP);
+        dicomCharsetNameMappings.clear();
+        dicomCharsetNameMappings.putAll(arcdev.dicomCharsetNameMappings);
+        hl7CharsetNameMappings.clear();
+        hl7CharsetNameMappings.putAll(arcdev.hl7CharsetNameMappings);
     }
 }
