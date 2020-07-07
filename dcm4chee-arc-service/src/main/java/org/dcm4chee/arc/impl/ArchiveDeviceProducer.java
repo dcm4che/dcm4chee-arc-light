@@ -194,7 +194,7 @@ public class ArchiveDeviceProducer {
         ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (ext != null) {
             SpecificCharacterSet.resetCharsetNameMappings();
-            ext.getHL7CharsetNameMappings().forEach(SpecificCharacterSet::setCharsetNameMapping);
+            ext.getDicomCharsetNameMappings().forEach(SpecificCharacterSet::setCharsetNameMapping);
         }
     }
 

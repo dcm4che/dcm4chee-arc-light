@@ -276,6 +276,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPurgeStgCmtPollingInterval(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet",
                 ext.getDefaultCharacterSet(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCharsetNameMapping", ext.getDicomCharsetNameMappings());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7CharsetNameMapping", ext.getHL7CharsetNameMappings());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
@@ -591,6 +593,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeStgCmtCompletedDelay(toDuration(attrs.get("dcmPurgeStgCmtCompletedDelay"), null));
         ext.setPurgeStgCmtPollingInterval(toDuration(attrs.get("dcmPurgeStgCmtPollingInterval"), null));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
+        ext.setDicomCharsetNameMappings(LdapUtils.stringArray(attrs.get("dcmCharsetNameMapping")));
+        ext.setHL7CharsetNameMappings(LdapUtils.stringArray(attrs.get("hl7CharsetNameMapping")));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
@@ -995,6 +999,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmCharsetNameMapping",
+                aa.getDicomCharsetNameMappings(), bb.getDicomCharsetNameMappings());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7CharsetNameMapping",
+                aa.getHL7CharsetNameMappings(), bb.getHL7CharsetNameMappings());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU", aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
