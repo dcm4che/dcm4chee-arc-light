@@ -120,7 +120,7 @@ export class AppComponent implements OnInit {
         this.mainservice.globalSet$.subscribe(global=>{
             if(_.hasIn(global,"uiConfig")){
                 if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
-                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
+                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) { //TODO comparing with stringify is not a good idea
                         localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
                         languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
                         if(languageConfig){
