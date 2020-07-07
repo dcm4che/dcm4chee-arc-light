@@ -65,7 +65,7 @@ import java.io.IOException;
  */
 @ApplicationScoped
 public class IANSCUImpl implements IANSCU {
-    private static final Logger LOG = LoggerFactory.getLogger(IANScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IANSCUImpl.class);
 
     @Inject
     private Device device;
