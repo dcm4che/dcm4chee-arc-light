@@ -653,7 +653,6 @@ public class QueryBuilder {
         predicates.add(cb.equal(study.get(Study_.studyInstanceUID), studyIUID));
         if (!isUniversalMatching(seriesUID))
             uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), seriesUID);
-            //predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
         if (!isUniversalMatching(objectUID))
             predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
         hideRejectedInstance(predicates, q, study, series, instance,
