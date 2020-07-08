@@ -1451,25 +1451,32 @@ class ArchiveDeviceFactory {
         configType.configureKeyAndTrustStore(device);
 
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, true, null,
+                dicom, dicomTLS, HIDE_REJECTED_VIEW,
+                true, true, true, true, true, null,
                 configType));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, false, null,
+                dicom, dicomTLS, REGULAR_USE_VIEW,
+                false, true, true, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
-                dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, false, null,
+                dicom, dicomTLS, IOCM_EXPIRED_VIEW,
+                false, false, false, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
-                dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, false, null,
+                dicom, dicomTLS, IOCM_QUALITY_VIEW,
+                false, false, false, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
-                dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, false, null,
+                dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW,
+                false, false, false, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
-                dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, false, null,
+                dicom, dicomTLS, IOCM_WRONG_MWL_VIEW,
+                false, false, false, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, false,
+                dicom, dicomTLS, REGULAR_USE_VIEW,
+                false, true, false, false, false,
                 new ArchiveAttributeCoercion()
                         .setCommonName("RetrieveAsReceived")
                         .setDIMSE(Dimse.C_STORE_RQ)
@@ -2142,7 +2149,7 @@ class ArchiveDeviceFactory {
 
     private static ApplicationEntity createAE(String aet, String description,
             Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-            boolean storeSCP, boolean storeSCU, boolean mwlSCP, boolean upsSCP,
+            boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean mwlSCP, boolean upsSCP,
             ArchiveAttributeCoercion coercion, ConfigType configType) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
@@ -2190,10 +2197,12 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
-            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
             if (configType == ConfigType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
             aeExt.setObjectStorageIDs(STORAGE_ID);
+        }
+        if (ianSCU) {
+            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         if (coercion != null)
