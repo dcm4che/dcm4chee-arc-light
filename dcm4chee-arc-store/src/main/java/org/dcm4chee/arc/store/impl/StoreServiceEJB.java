@@ -407,6 +407,7 @@ public class StoreServiceEJB {
             for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
                 String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
                 series = findSeries(studyUID, seriesUID);
+                restoreInstances(session, series, studyUID, purgeInstanceRecordsDelay, null);
                 List<String> sopIUIDsOfSeries = null;
                 if (!acceptRejectionBeforeStorage) {
                     if (series == null)
@@ -442,7 +443,6 @@ public class StoreServiceEJB {
                     }
                 }
                 if (series != null) {
-                    restoreInstances(session, series, studyUID, purgeInstanceRecordsDelay, null);
                     RejectionState rejectionState = hasNotRejectedInstances(series)
                             ? RejectionState.PARTIAL : RejectionState.COMPLETE;
                     series.setRejectionState(rejectionState);
