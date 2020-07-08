@@ -217,6 +217,7 @@ public class IANScheduler extends Scheduler {
             ian = new Attributes(2);
             ian.newSequence(Tag.ReferencedSeriesSequence, 10);
             ian.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+            ian.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         }
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             if (studyUID.equals(studyRef.getString(Tag.StudyInstanceUID))) {
