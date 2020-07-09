@@ -279,7 +279,7 @@ module.exports = function (config) {
             "src/app/constants/DLX_PATNT_01.js",
             "src/app/constants/DLX_SERIE_01.js",
             "src/app/constants/DL_INTERNAL_USE.js",
-            "src/app/constants/GE-???-From-Adantage-Review-CS.js",
+            "src/app/constants/GE-----From-Adantage-Review-CS.js",
             "src/app/constants/GE-Generic-Data.js",
             "src/app/constants/GE-Informatics-Data.js",
             "src/app/constants/GE-LUT-Asymmetry-Parameter.js",
