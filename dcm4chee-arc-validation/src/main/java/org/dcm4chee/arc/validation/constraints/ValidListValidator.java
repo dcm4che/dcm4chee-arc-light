@@ -55,18 +55,20 @@ import java.util.List;
  */
 public class ValidListValidator implements ConstraintValidator<ValidList, List<String>> {
    private final static Logger log = LoggerFactory.getLogger(ValidListValidator.class);
-   private String[] allowed;
+   private List<String> allowed;
 
    @Override
    public void initialize(ValidList constraint) {
-      this.allowed = constraint.allowed();
+      this.allowed = Arrays.asList(constraint.allowed());
    }
 
    @Override
    public boolean isValid(List<String> items, ConstraintValidatorContext context) {
       try {
-         if (!Arrays.asList(allowed).containsAll(items))
-            return false;
+         for (String item : items)
+            for (String s : item.split(","))
+               if (!allowed.contains(s))
+                  return false;
       } catch (Exception e) {
          log.warn("Unexpected exception: ", e);
       }
