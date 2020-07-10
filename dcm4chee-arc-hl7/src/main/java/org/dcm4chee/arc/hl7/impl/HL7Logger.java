@@ -56,12 +56,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -114,21 +111,13 @@ public class HL7Logger {
         if (dirpath == null)
             return;
 
-        String filePath = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
-        Path dir = Paths.get(filePath.substring(0,filePath.lastIndexOf("/")));
-        Path file = dir.resolve(filePath.substring(filePath.lastIndexOf("/")+1));
+        String hl7LogFile = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
         try {
-            if (!Files.exists(dir))
-                Files.createDirectories(dir);
-            if (!Files.exists(file))
-                Files.createFile(file);
-            try (BufferedOutputStream out = new BufferedOutputStream(
-                    Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                new DataOutputStream(out);
-                out.write(msg.data());
-            }
+            Files.createDirectories(Paths.get(hl7LogFile.substring(0, hl7LogFile.lastIndexOf("/"))));
+            Path file1 = Files.createFile(Paths.get(hl7LogFile));
+            Files.write(file1, msg.data());
         } catch (Exception e) {
-            LOG.warn("Failed to write log file : ", dir, file, e);
+            LOG.warn("Failed to write log file : {}\n", hl7LogFile, e);
         }
     }
 
