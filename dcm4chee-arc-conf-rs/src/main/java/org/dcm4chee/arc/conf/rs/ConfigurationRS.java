@@ -51,7 +51,7 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
-import org.dcm4chee.arc.validation.constraints.ValidList;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +69,8 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -103,23 +105,7 @@ public class ConfigurationRS {
     private String register;
 
     @QueryParam("dcmWebServiceClass")
-    @ValidList(allowed = {"WADO_URI",
-            "WADO_RS",
-            "STOW_RS",
-            "QIDO_RS",
-            "QIDO_COUNT",
-            "UPS_RS",
-            "MWL_RS",
-            "DCM4CHEE_ARC",
-            "DCM4CHEE_ARC_AET",
-            "DCM4CHEE_ARC_AET_DIFF",
-            "PAM",
-            "MOVE",
-            "MOVE_MATCHING",
-            "REJECT",
-            "ELASTICSEARCH",
-            "XDS_RS"},
-            message = "Invalid Web Service Class selected")
+    @ValidValueOf(type = WebServiceClasses.class, methodParameterType = List.class)
     private List<String> dcmWebServiceClass;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
@@ -634,7 +620,7 @@ public class ConfigurationRS {
         return aetInfo;
     }
 
-    private WebApplicationInfo toWebApplicationInfo(UriInfo info) {
+    private static WebApplicationInfo toWebApplicationInfo(UriInfo info) {
         WebApplicationInfo webappInfo = new WebApplicationInfo();
         info.getQueryParameters().forEach((key, value) -> {
             switch (key) {
@@ -650,6 +636,9 @@ public class ConfigurationRS {
                 case "dcmWebServicePath":
                     webappInfo.setServicePath(firstValueOf(value));
                     break;
+                case "dcmWebServiceClass":
+                    webappInfo.setServiceClasses(new WebServiceClasses(value).list);
+                    break;
                 case "dicomAETitle":
                     webappInfo.setAETitle(firstValueOf(value));
                     break;
@@ -661,21 +650,7 @@ public class ConfigurationRS {
                     break;
             }
         });
-        if (!dcmWebServiceClass.isEmpty())
-            webappInfo.setServiceClasses(toServiceClasses(dcmWebServiceClass));
         return webappInfo;
-    }
-
-    private static List<WebApplication.ServiceClass> toServiceClasses(List<String> dcmWebServiceClass) {
-        List<WebApplication.ServiceClass> webServiceClasses = new ArrayList<>();
-        for (String webServiceClass : dcmWebServiceClass) {
-            if (webServiceClass.contains(","))
-                for (String wsc : webServiceClass.split(","))
-                    webServiceClasses.add(WebApplication.ServiceClass.valueOf(wsc));
-            else
-                webServiceClasses.add(WebApplication.ServiceClass.valueOf(webServiceClass));
-        }
-        return webServiceClasses;
     }
 
     private static HL7ApplicationInfo toHL7ApplicationInfo(UriInfo info) {
@@ -721,5 +696,16 @@ public class ConfigurationRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    public static class WebServiceClasses {
+        final List<WebApplication.ServiceClass> list;
+
+        public WebServiceClasses(List<String> values) {
+            this.list = values.stream().
+                    flatMap(s -> Stream.of(StringUtils.split(s, ',')))
+                    .map(WebApplication.ServiceClass::valueOf)
+                    .collect(Collectors.toList());
+        }
     }
 }
