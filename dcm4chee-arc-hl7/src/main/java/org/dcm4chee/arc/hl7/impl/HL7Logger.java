@@ -114,8 +114,7 @@ public class HL7Logger {
         String hl7LogFile = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
         try {
             Files.createDirectories(Paths.get(hl7LogFile.substring(0, hl7LogFile.lastIndexOf("/"))));
-            Path file1 = Files.createFile(Paths.get(hl7LogFile));
-            Files.write(file1, msg.data());
+            Files.write(Files.createFile(Paths.get(hl7LogFile)), msg.data());
         } catch (Exception e) {
             LOG.warn("Failed to write log file : {}\n", hl7LogFile, e);
         }
@@ -148,9 +147,9 @@ public class HL7Logger {
             String prop = s1.equalsIgnoreCase("SerialNo")
                     ? String.valueOf(serialNo)
                     : s1.substring(0,4).equalsIgnoreCase("MSH-")
-                    ? msh.getField(Integer.parseInt(s1.substring(4))-1, null)
-                    : s1.substring(0,4).equalsIgnoreCase("date")
-                    ? dateFormat : null;
+                        ? msh.getField(Integer.parseInt(s1.substring(4))-1, null)
+                        : s1.substring(0,4).equalsIgnoreCase("date")
+                            ? dateFormat : null;
             String s2 = s.substring(i, j+1);
             String val = s.startsWith("env.", i+2)
                     ? System.getenv(s.substring(i+6, j))
