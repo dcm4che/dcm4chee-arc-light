@@ -109,6 +109,8 @@ public class ArchiveDeviceProducer {
             device = findDevice();
             initImageReaderFactory();
             initImageWriterFactory();
+            initDICOMCharsetNameMappings();
+            initHL7CharsetNameMappings();
             extractVendorData();
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
