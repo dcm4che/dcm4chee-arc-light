@@ -168,19 +168,23 @@ public class IANEJB {
     }
 
     public boolean addPPSRef(String studyUID, String seriesUID, Attributes ian) {
-        Attributes ppsRef = AttributesBlob.decodeAttributes(
-                em.createNamedQuery(Series.ATTRS_BY_SERIES_IUID, byte[].class)
-                        .setParameter(1, studyUID)
-                        .setParameter(2, seriesUID)
-                        .getSingleResult(),
-                null)
-                .getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
-        if (ppsRef == null)
-            return false;
+        try {
+            Attributes ppsRef = AttributesBlob.decodeAttributes(
+                    em.createNamedQuery(Series.ATTRS_BY_SERIES_IUID, byte[].class)
+                            .setParameter(1, studyUID)
+                            .setParameter(2, seriesUID)
+                            .getSingleResult(),
+                    null)
+                    .getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
+            if (ppsRef == null)
+                return false;
 
-        ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1)
-                .add(new Attributes(ppsRef));
-        return true;
+            ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1)
+                    .add(new Attributes(ppsRef));
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
 }
