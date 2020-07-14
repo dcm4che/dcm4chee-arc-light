@@ -24,6 +24,7 @@ DCM4CHE.elementName.addDictionary({
 "0021xx59":"Image Filtering 0.5/0.2T",
 "0021xx5A":"Diffusion direction",
 "0021xx5B":"Tagging Flip Angle",
+"0021xx5C":"Tagging Orientation",
 "0021xx5D":"Tag Spacing",
 "0021xx5E":"RTIA_timer",
 "0021xx5F":"Fps",
