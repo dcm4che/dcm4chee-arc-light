@@ -40,12 +40,15 @@
 
 package org.dcm4chee.arc.query.util;
 
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -79,8 +82,10 @@ public class TaskQueryParam {
         return queueName;
     }
 
-    public void setQueueName(List<String> queueName) {
-        this.queueName = queueName;
+    public void setQueueName(List<String> queueNames) {
+        this.queueName = queueNames.stream()
+                            .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
+                            .collect(Collectors.toList());
     }
 
     public String getDeviceName() {
@@ -168,7 +173,9 @@ public class TaskQueryParam {
     }
 
     public void setExporterIDs(List<String> exporterIDs) {
-        this.exporterIDs = exporterIDs;
+        this.exporterIDs = exporterIDs.stream()
+                            .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                            .collect(Collectors.toList());
     }
 
     public String getRemoteAET() {
