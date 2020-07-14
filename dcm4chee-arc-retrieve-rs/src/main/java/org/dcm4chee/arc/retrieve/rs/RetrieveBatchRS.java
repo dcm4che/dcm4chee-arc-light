@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
@@ -66,6 +67,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -247,7 +250,9 @@ public class RetrieveBatchRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setQueueName(dcmQueueName);
+        taskQueryParam.setQueueName(dcmQueueName.stream()
+                                    .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
+                                    .collect(Collectors.toList()));
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setDestinationAET(destinationAET);

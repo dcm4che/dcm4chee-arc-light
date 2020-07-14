@@ -45,6 +45,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -79,6 +80,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -591,7 +593,9 @@ public class ExportTaskRS {
     private TaskQueryParam exportTaskQueryParam(String deviceName, String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setExporterIDs(exporterIDs);
+        taskQueryParam.setExporterIDs(exporterIDs.stream()
+                                        .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                                        .collect(Collectors.toList()));
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);

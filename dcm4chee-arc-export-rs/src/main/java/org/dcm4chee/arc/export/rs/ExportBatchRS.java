@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -66,6 +67,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -225,7 +228,9 @@ public class ExportBatchRS {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setExporterIDs(exporterIDs);
+        taskQueryParam.setExporterIDs(exporterIDs.stream()
+                                        .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                                        .collect(Collectors.toList()));
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);

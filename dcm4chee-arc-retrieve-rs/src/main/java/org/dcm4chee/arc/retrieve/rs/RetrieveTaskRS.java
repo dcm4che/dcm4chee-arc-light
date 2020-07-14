@@ -47,6 +47,7 @@ import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -83,6 +84,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -667,7 +669,9 @@ public class RetrieveTaskRS {
     private TaskQueryParam retrieveTaskQueryParam(String deviceName, String updatedTime) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setQueueName(dcmQueueName);
+        taskQueryParam.setQueueName(dcmQueueName.stream()
+                                    .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
+                                    .collect(Collectors.toList()));
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setBatchID(batchID);
