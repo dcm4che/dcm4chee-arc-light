@@ -99,6 +99,7 @@ public class RetrieveScheduler extends Scheduler {
                 try {
                     if (!mgr.scheduleRetrieveTask(pkAndQueueName.retrieveTaskPk)) {
                         queueSizeLimitExceeded.add(pkAndQueueName.queueName);
+                        suspendedQueues.add(pkAndQueueName.queueName);
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to schedule RetrieveTask[pk={}}]\n:", pkAndQueueName.retrieveTaskPk, e);
