@@ -58,6 +58,8 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.AbstractUPSProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +70,8 @@ import java.util.Objects;
  * @since June 2020
  */
 public class UPSIANSCU extends AbstractUPSProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UPSIANSCU.class);
 
     private final IANSCU ianSCU;
     private final QueryService queryService;
@@ -91,9 +95,13 @@ public class UPSIANSCU extends AbstractUPSProcessor {
                 () -> String.format("No such Archive AE - %s", rule.getAETitle()));
         for (Map.Entry<String, IanInfo> entry : studyIanInfoFrom(ups).entrySet()) {
             IanInfo ianInfo = entry.getValue();
-            ianInfo.setIan(queryService.createIAN(
-                    ae, entry.getKey(), ianInfo.getSeriesRefSOPSeq().keySet().toArray(new String[0])));
-
+            Attributes ian = queryService.createIAN(
+                    ae, entry.getKey(), ianInfo.getSeriesRefSOPSeq().keySet().toArray(new String[0]));
+            if (ian == null) {
+                LOG.info("Ignore IAN of Study[uid={}] without referenced objects.", entry.getKey());
+                continue;
+            }
+            ianInfo.setIan(ian);
             String sopInstanceUID = UIDUtils.createUID();
             DimseRSP dimseRSP = ianSCU.sendIANRQ(rule.getAETitle(), destinationAE, sopInstanceUID, ianInfo.getIan());
             dimseRSP.next();
