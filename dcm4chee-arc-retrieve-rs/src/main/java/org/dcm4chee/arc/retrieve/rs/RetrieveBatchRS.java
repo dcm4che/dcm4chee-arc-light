@@ -133,8 +133,7 @@ public class RetrieveBatchRS {
             "Retrieve10",
             "Retrieve11",
             "Retrieve12",
-            "Retrieve13"},
-            message = "Invalid Retrieve Queue selected")
+            "Retrieve13"})
     private List<String> dcmQueueName;
 
     @Context
