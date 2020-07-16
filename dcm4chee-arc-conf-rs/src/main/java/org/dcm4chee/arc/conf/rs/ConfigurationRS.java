@@ -198,7 +198,7 @@ public class ConfigurationRS {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
                     for (WebApplicationInfo webappInfo : webappInfos)
-                        jsonConf.writeTo(webappInfo, gen, keycloakClient(webappInfo));
+                        jsonConf.writeTo(webappInfo, gen, keycloakClientID(webappInfo));
                     gen.writeEnd();
                     gen.flush();
                 }).build();
@@ -207,13 +207,13 @@ public class ConfigurationRS {
         }
     }
 
-    private KeycloakClient keycloakClient(WebApplicationInfo webAppInfo) {
+    private String keycloakClientID(WebApplicationInfo webAppInfo) {
         String authURL = System.getProperty("auth-server-url");
         KeycloakClient keycloakClient = webAppInfo.getKeycloakClient();
         return keycloakClient == null || authURL == null
                 || (authURL.equals(keycloakClient.getKeycloakServerURL())
                     && System.getProperty("realm-name", "dcm4che").equals(keycloakClient.getKeycloakRealm()))
-                ? null : webAppInfo.getKeycloakClient();
+                ? null : webAppInfo.getKeycloakClientID();
     }
 
     @GET
