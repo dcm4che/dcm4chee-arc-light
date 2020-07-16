@@ -2706,7 +2706,7 @@
     }
   },
   "webappList": {
-    "title": "HL7 Application List",
+    "title": "Web Application List",
     "type": "array",
     "items": {
       "required": [
