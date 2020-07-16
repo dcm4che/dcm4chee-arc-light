@@ -2734,6 +2734,16 @@
           "description": "Keycloak Client ID",
           "type": "string"
         },
+        "realm": {
+          "title": "Keycloak Realm",
+          "description": "Name of the Keycloak realm.",
+          "type": "string"
+        },
+        "auth-server-url": {
+          "title": "Keycloak Server URL",
+          "description": "The base URL of the Keycloak server",
+          "type": "string"
+        },
         "dcmWebServiceClass": {
           "title": "Web Service Class",
           "description": "Web Service Class",
