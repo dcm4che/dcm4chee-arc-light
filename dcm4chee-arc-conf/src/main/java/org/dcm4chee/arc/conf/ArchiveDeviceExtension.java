@@ -296,6 +296,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
+    private final Map<String, UPSTemplate> upsTemplateMap = new HashMap<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
     private final List<UPSProcessingRule> upsProcessingRuleList = new ArrayList<>();
@@ -1843,6 +1844,26 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exporterDescriptorMap.values();
     }
 
+    public UPSTemplate removeUPSTemplate(String upsTemplateID) {
+        return upsTemplateMap.remove(upsTemplateID);
+    }
+
+    public void addUPSTemplate(UPSTemplate upsTemplate) {
+        upsTemplateMap.put(upsTemplate.getUPSTemplateID(), upsTemplate);
+    }
+
+    public UPSTemplate getUPSTemplate(String upsTemplateID) {
+        return upsTemplateMap.get(upsTemplateID);
+    }
+
+    public Collection<UPSTemplate> getUPSTemplates() {
+        return upsTemplateMap.values();
+    }
+
+    public void clearUPSTemplates() {
+        upsTemplateMap.clear();
+    }
+
     public void removeUPSOnStore(UPSOnStore rule) {
         upsOnStoreList.remove(rule);
     }
@@ -3089,6 +3110,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         pdqServiceDescriptorMap.putAll(arcdev.pdqServiceDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
+        upsTemplateMap.clear();
+        upsTemplateMap.putAll(arcdev.upsTemplateMap);
         upsOnStoreList.clear();
         upsOnStoreList.addAll(arcdev.upsOnStoreList);
         upsOnHL7List.clear();

@@ -1849,6 +1849,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.379 NAME 'hl7CharsetNameMapping'
   DESC 'Add mapping of value of HL7 MSH-18 to named charset in format <value>=<charset name>. E.g.: "Windows-1252=windows-1252". Typically you will also have to specify the HL7 DICOM Character Set of the Archive HL7 Application to use for received HL7 messages with such Character Set.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.380 NAME 'dcmUPSTemplateID'
+  DESC 'ID of UPS Template'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2653,3 +2658,25 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
     dcmRetryDelayMultiplier $
     dcmProperty $
     dcmSchedule ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.41 NAME 'dcmUPSTemplate'
+  DESC 'UPS on Store'
+  SUP top STRUCTURAL
+  MUST (
+    dcmUPSTemplateID $
+    dcmUPSLabel )
+  MAY (
+    dcmUPSPriority $
+    dcmUPSInputReadinessState $
+    dcmUPSStartDateTimeDelay $
+    dcmUPSCompletionDateTimeDelay $
+    dcmUPSWorklistLabel $
+    dcmUPSIncludeStudyInstanceUID $
+    dcmDestinationAE $
+    dcmEntity $
+    dcmUPSScheduledWorkitemCode $
+    dcmUPSScheduledStationNameCode $
+    dcmUPSScheduledStationClassCode $
+    dcmUPSScheduledStationLocationCode $
+    dcmUPSScheduledHumanPerformerCode $
+    dcmUPSScheduledHumanPerformerName $
+    dcmUPSScheduledHumanPerformerOrganization ) )
