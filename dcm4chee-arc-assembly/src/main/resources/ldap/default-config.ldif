@@ -643,6 +643,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Acquisition Context SR Storage SCP
 
+dn: cn=Body Position Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.8.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Body Position Waveform Storage SCP
+
 dn: cn=Corneal Topography Map Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.82.1
 dicomTransferRole: SCP
@@ -697,6 +706,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Arterial Pulse Waveform Storage SCP
 
+dn: cn=Electromyogram Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electromyogram Waveform Storage SCP
+
 dn: cn=Enhanced MR Color Image Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.4.3
 dicomTransferRole: SCP
@@ -714,6 +732,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Lensometry Measurements Storage SCP
+
+dn: cn=RT Radiation Record Set Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.16
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Record Set Storage SCP
 
 dn: cn=Secondary Capture Image Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.7
@@ -778,6 +805,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Real World Value Mapping Storage SCP
 
+dn: cn=Robotic Radiation Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.20
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Robotic Radiation Record Storage SCP
+
 dn: cn=Simplified Adult Echo SR Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCP
@@ -813,6 +849,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: X-Ray Angiographic Image Storage SCP
+
+dn: cn=Electrooculogram Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electrooculogram Waveform Storage SCP
 
 dn: cn=Patient Radiation Dose SR Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
@@ -975,6 +1020,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Ophthalmic Tomography Image Storage SCP
+
+dn: cn=RT Radiation Salvage Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.17
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Salvage Record Storage SCP
 
 dn: cn=RT Treatment Summary Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.7
@@ -1156,6 +1210,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCP
 
+dn: cn=Tomotherapeutic Radiation Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.18
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Tomotherapeutic Radiation Record Storage SCP
+
 dn: cn=Color Softcopy Presentation State Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
 dicomTransferRole: SCP
@@ -1210,6 +1273,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCP
 
+dn: cn=Multi-channel Respiratory Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multi-channel Respiratory Waveform Storage SCP
+
 dn: cn=Ophthalmic Photography 8 Bit Image Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.1
 dicomTransferRole: SCP
@@ -1255,6 +1327,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Ophthalmic Photography 16 Bit Image Storage SCP
 
+dn: cn=Sleep Electroencephalogram Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Sleep Electroencephalogram Waveform Storage SCP
+
 dn: cn=Advanced Blending Presentation State Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
 dicomTransferRole: SCP
@@ -1299,6 +1380,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCP
+
+dn: cn=C-Arm Photon-Electron Radiation Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: C-Arm Photon-Electron Radiation Record Storage SCP
 
 dn: cn=Digital X-Ray Image Storage - For Presentation SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1
@@ -1380,6 +1470,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Performed Imaging Agent Administration SR Storage SCP
+
+dn: cn=Routine Scalp Electroencephalogram Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Routine Scalp Electroencephalogram Waveform Storage SCP
 
 dn: cn=X-Ray Angiographic Bi-Plane Image Storage (Retired) SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.12.3
@@ -4549,6 +4648,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Acquisition Context SR Storage SCU
 
+dn: cn=Body Position Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.8.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Body Position Waveform Storage SCP
+
+dn: cn=Body Position Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.8.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Body Position Waveform Storage SCU
+
 dn: cn=Corneal Topography Map Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.82.1
 dicomTransferRole: SCP
@@ -4723,6 +4840,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Arterial Pulse Waveform Storage SCU
 
+dn: cn=Electromyogram Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electromyogram Waveform Storage SCP
+
+dn: cn=Electromyogram Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electromyogram Waveform Storage SCU
+
 dn: cn=Enhanced MR Color Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.4.3
 dicomTransferRole: SCP
@@ -4812,6 +4947,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips Surface Storage SCU
+
+dn: cn=RT Radiation Record Set Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.16
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Record Set Storage SCP
+
+dn: cn=RT Radiation Record Set Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.16
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Record Set Storage SCU
 
 dn: cn=Secondary Capture Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.7
@@ -5115,6 +5268,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Real World Value Mapping Storage SCU
 
+dn: cn=Robotic Radiation Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.20
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Robotic Radiation Record Storage SCP
+
+dn: cn=Robotic Radiation Record Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.20
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Robotic Radiation Record Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCP
@@ -5218,6 +5389,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: X-Ray Angiographic Image Storage SCU
+
+dn: cn=Electrooculogram Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electrooculogram Waveform Storage SCP
+
+dn: cn=Electrooculogram Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electrooculogram Waveform Storage SCU
 
 dn: cn=Patient Radiation Dose SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
@@ -5778,6 +5967,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Spectrum Storage SCU
+
+dn: cn=RT Radiation Salvage Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.17
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Salvage Record Storage SCP
+
+dn: cn=RT Radiation Salvage Record Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.17
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Salvage Record Storage SCU
 
 dn: cn=RT Treatment Summary Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.7
@@ -6665,6 +6872,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
 
+dn: cn=Tomotherapeutic Radiation Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.18
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Tomotherapeutic Radiation Record Storage SCP
+
+dn: cn=Tomotherapeutic Radiation Record Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.18
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Tomotherapeutic Radiation Record Storage SCU
+
 dn: cn=Unified Procedure Step - Event SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.34.6.4
 dicomTransferRole: SCP
@@ -6888,6 +7113,24 @@ dcmCombinedDateTimeMatching: TRUE
 dcmRelationalQueries: TRUE
 cn: Modality Worklist Information Model - FIND SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Multi-channel Respiratory Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multi-channel Respiratory Waveform Storage SCP
+
+dn: cn=Multi-channel Respiratory Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multi-channel Respiratory Waveform Storage SCU
 
 dn: cn=Ophthalmic Photography 8 Bit Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.1
@@ -7265,6 +7508,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Cardio Storage (Retired) SCU
 
+dn: cn=Sleep Electroencephalogram Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Sleep Electroencephalogram Waveform Storage SCP
+
+dn: cn=Sleep Electroencephalogram Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Sleep Electroencephalogram Waveform Storage SCU
+
 dn: cn=Advanced Blending Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
 dicomTransferRole: SCP
@@ -7454,6 +7715,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1.99
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
+
+dn: cn=C-Arm Photon-Electron Radiation Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: C-Arm Photon-Electron Radiation Record Storage SCP
+
+dn: cn=C-Arm Photon-Electron Radiation Record Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: C-Arm Photon-Electron Radiation Record Storage SCU
 
 dn: cn=Digital X-Ray Image Storage - For Presentation SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1
@@ -7787,6 +8066,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Patient Root Query Retrieve Information Model - GET SCP
+
+dn: cn=Routine Scalp Electroencephalogram Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Routine Scalp Electroencephalogram Waveform Storage SCP
+
+dn: cn=Routine Scalp Electroencephalogram Waveform Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Routine Scalp Electroencephalogram Waveform Storage SCU
 
 dn: cn=X-Ray Angiographic Bi-Plane Image Storage (Retired) SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.12.3
@@ -9539,6 +9836,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Acquisition Context SR Storage SCU
 
+dn: cn=Body Position Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.8.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Body Position Waveform Storage SCU
+
 dn: cn=Corneal Topography Map Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.82.1
 dicomTransferRole: SCU
@@ -9626,6 +9932,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Arterial Pulse Waveform Storage SCU
 
+dn: cn=Electromyogram Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electromyogram Waveform Storage SCU
+
 dn: cn=Enhanced MR Color Image Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.4.3
 dicomTransferRole: SCU
@@ -9670,6 +9985,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips Surface Storage SCU
+
+dn: cn=RT Radiation Record Set Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.16
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Record Set Storage SCU
 
 dn: cn=Secondary Capture Image Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.7
@@ -9822,6 +10146,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Real World Value Mapping Storage SCU
 
+dn: cn=Robotic Radiation Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.20
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Robotic Radiation Record Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCU
@@ -9873,6 +10206,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: X-Ray Angiographic Image Storage SCU
+
+dn: cn=Electrooculogram Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electrooculogram Waveform Storage SCU
 
 dn: cn=Patient Radiation Dose SR Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
@@ -10153,6 +10495,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Spectrum Storage SCU
+
+dn: cn=RT Radiation Salvage Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.17
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Salvage Record Storage SCU
 
 dn: cn=RT Treatment Summary Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.7
@@ -10587,6 +10938,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
 
+dn: cn=Tomotherapeutic Radiation Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.18
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Tomotherapeutic Radiation Record Storage SCU
+
 dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
 dicomTransferRole: SCU
@@ -10676,6 +11036,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCU
+
+dn: cn=Multi-channel Respiratory Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multi-channel Respiratory Waveform Storage SCU
 
 dn: cn=Ophthalmic Photography 8 Bit Image Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.1
@@ -10857,6 +11226,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Cardio Storage (Retired) SCU
 
+dn: cn=Sleep Electroencephalogram Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Sleep Electroencephalogram Waveform Storage SCU
+
 dn: cn=Advanced Blending Presentation State Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
 dicomTransferRole: SCU
@@ -10947,6 +11325,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1.99
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
+
+dn: cn=C-Arm Photon-Electron Radiation Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: C-Arm Photon-Electron Radiation Record Storage SCU
 
 dn: cn=Digital X-Ray Image Storage - For Presentation SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1
@@ -11133,6 +11520,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Patient Root Query Retrieve Information Model - GET SCP
+
+dn: cn=Routine Scalp Electroencephalogram Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Routine Scalp Electroencephalogram Waveform Storage SCU
 
 dn: cn=X-Ray Angiographic Bi-Plane Image Storage (Retired) SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.12.3
@@ -12500,6 +12896,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Acquisition Context SR Storage SCU
 
+dn: cn=Body Position Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.8.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Body Position Waveform Storage SCU
+
 dn: cn=Corneal Topography Map Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.82.1
 dicomTransferRole: SCU
@@ -12587,6 +12992,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Arterial Pulse Waveform Storage SCU
 
+dn: cn=Electromyogram Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electromyogram Waveform Storage SCU
+
 dn: cn=Enhanced MR Color Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.4.3
 dicomTransferRole: SCU
@@ -12631,6 +13045,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips Surface Storage SCU
+
+dn: cn=RT Radiation Record Set Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.16
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Record Set Storage SCU
 
 dn: cn=Secondary Capture Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.7
@@ -12783,6 +13206,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Real World Value Mapping Storage SCU
 
+dn: cn=Robotic Radiation Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.20
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Robotic Radiation Record Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCU
@@ -12834,6 +13266,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: X-Ray Angiographic Image Storage SCU
+
+dn: cn=Electrooculogram Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Electrooculogram Waveform Storage SCU
 
 dn: cn=Patient Radiation Dose SR Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
@@ -13114,6 +13555,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Spectrum Storage SCU
+
+dn: cn=RT Radiation Salvage Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.17
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Salvage Record Storage SCU
 
 dn: cn=RT Treatment Summary Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.7
@@ -13548,6 +13998,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
 
+dn: cn=Tomotherapeutic Radiation Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.18
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Tomotherapeutic Radiation Record Storage SCU
+
 dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
 dicomTransferRole: SCU
@@ -13637,6 +14096,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCU
+
+dn: cn=Multi-channel Respiratory Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multi-channel Respiratory Waveform Storage SCU
 
 dn: cn=Ophthalmic Photography 8 Bit Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.1
@@ -13818,6 +14286,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Cardio Storage (Retired) SCU
 
+dn: cn=Sleep Electroencephalogram Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Sleep Electroencephalogram Waveform Storage SCU
+
 dn: cn=Advanced Blending Presentation State Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
 dicomTransferRole: SCU
@@ -13916,6 +14393,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1.99
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
+
+dn: cn=C-Arm Photon-Electron Radiation Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: C-Arm Photon-Electron Radiation Record Storage SCU
 
 dn: cn=Digital X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1
@@ -14102,6 +14588,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Patient Root Query Retrieve Information Model - GET SCP
+
+dn: cn=Routine Scalp Electroencephalogram Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.7.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Routine Scalp Electroencephalogram Waveform Storage SCU
 
 dn: cn=X-Ray Angiographic Bi-Plane Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.12.3
