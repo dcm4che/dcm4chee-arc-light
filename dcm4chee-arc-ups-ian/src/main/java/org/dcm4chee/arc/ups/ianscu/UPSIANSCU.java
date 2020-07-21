@@ -96,7 +96,8 @@ public class UPSIANSCU extends AbstractUPSProcessor {
         for (Map.Entry<String, IanInfo> entry : studyIanInfoFrom(ups).entrySet()) {
             IanInfo ianInfo = entry.getValue();
             Attributes ian = queryService.createIAN(
-                    ae, entry.getKey(), ianInfo.getSeriesRefSOPSeq().keySet().toArray(new String[0]));
+                    ae, entry.getKey(), ianInfo.getSeriesRefSOPSeq().keySet().toArray(new String[0]), null,
+                    null, null, null);
             if (ian == null) {
                 LOG.info("Ignore IAN of Study[uid={}] without referenced objects.", entry.getKey());
                 continue;

@@ -135,7 +135,8 @@ public class IANSCURS {
         Response.Status rspStatus = Response.Status.BAD_GATEWAY;
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(externalAET);
-            Attributes ian = queryService.createIAN(ae, studyUID, seriesUID, sopUID);
+            Attributes ian = queryService.createIAN(ae, studyUID, new String[]{ seriesUID }, sopUID,
+                    null, null, null);
             if (ian == null)
                 return errResponse("No matching instances", Response.Status.NOT_FOUND);
 

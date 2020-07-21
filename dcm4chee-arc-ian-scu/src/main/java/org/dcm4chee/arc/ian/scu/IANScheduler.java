@@ -40,6 +40,7 @@ package org.dcm4chee.arc.ian.scu;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
@@ -129,7 +130,7 @@ public class IANScheduler extends Scheduler {
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
                     if (ianTask.getMpps() == null) {
                         ian = queryService.createIAN(ae, ianTask.getStudyInstanceUID(), null,
-                                null,null, null);
+                                null, null,null, null);
                         if (ian != null) {
                             LOG.info("Schedule {}", ianTask);
                             ejb.scheduleIANTask(ianTask, ian);
@@ -212,7 +213,8 @@ public class IANScheduler extends Scheduler {
         StoreSession session = ctx.getStoreSession();
         boolean addPPSRef = ctx.getRejectionNote().isIncorrectModalityWorklistEntry();
         String studyUID = ctx.getStudyInstanceUID();
-        Attributes ian = queryService.createIAN(session.getLocalApplicationEntity(), studyUID);
+        Attributes ian = queryService.createIAN(session.getLocalApplicationEntity(), studyUID,
+                StringUtils.EMPTY_STRING, null, null, null, null);
         if (ian == null) {
             ian = new Attributes(2);
             ian.newSequence(Tag.ReferencedSeriesSequence, 10);
@@ -300,7 +302,7 @@ public class IANScheduler extends Scheduler {
     public void scheduleIAN(ExportContext ctx, ExporterDescriptor descriptor) throws QueueSizeLimitExceededException {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         Attributes ian = queryService.createIAN(ae, ctx.getStudyInstanceUID(), null,
-                descriptor.getRetrieveAETitles(),
+                null, descriptor.getRetrieveAETitles(),
                 descriptor.getRetrieveLocationUID(),
                 descriptor.getInstanceAvailability());
         if (ian != null)
@@ -310,7 +312,8 @@ public class IANScheduler extends Scheduler {
 
     public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID)
             throws QueueSizeLimitExceededException {
-        Attributes ian = queryService.createIAN(ae, studyUID, seriesUID, null);
+        Attributes ian = queryService.createIAN(ae, studyUID, new String[]{ seriesUID }, null,
+                null, null, null);
         if (ian != null)
             ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET);
     }
@@ -324,8 +327,8 @@ public class IANScheduler extends Scheduler {
         ian.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         for (Attributes perfSeries : perfSeriesSeq) {
             String seriesInstanceUID = perfSeries.getString(Tag.SeriesInstanceUID);
-            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID,
-                    null, null, null);
+            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, new String[]{ seriesInstanceUID },
+                    null, null, null, null);
             if (ianForSeries == null) {
                 if (allAvailable)
                     return null;

@@ -345,31 +345,44 @@ public class QueryServiceEJB {
             SOPInstanceRefsType type, String studyIUID, String objectUID, QueryRetrieveView qrView,
             Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
             Availability availability, String... seriesUID) {
+        Attributes refStudy = new Attributes(2);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        return getSOPInstanceRefs(refStudy, type, studyIUID, objectUID, qrView, seriesAttrs, retrieveAETs,
+                retrieveLocationUID, availability, seriesUID);
+    }
+
+    public Attributes getSOPInstanceRefs(Attributes refStudy,
+            SOPInstanceRefsType type, String studyIUID, String objectUID, QueryRetrieveView qrView,
+            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
+            Availability availability, String... seriesUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
         Join<Instance, Series> series = instance.join(Instance_.series);
         Join<Series, Study> study = series.join(Series_.study);
+        Path<String> cuidPath = instance.get(Instance_.sopClassUID);
+        Path<String> iuidPath = instance.get(Instance_.sopInstanceUID);
         List<Tuple> tuples = em.createQuery(
                 restrict(new QueryBuilder(cb), q, study, series, instance, studyIUID, objectUID, qrView, seriesUID)
                 .multiselect(
                         study.get(Study_.pk),
                         series.get(Series_.pk),
                         series.get(Series_.seriesInstanceUID),
-                        instance.get(Instance_.sopInstanceUID),
-                        instance.get(Instance_.sopClassUID),
+                        iuidPath,
+                        cuidPath,
                         instance.get(Instance_.retrieveAETs),
                         instance.get(Instance_.availability)))
                 .getResultList();
 
-        if (tuples.isEmpty() && type != SOPInstanceRefsType.KOS_XDSI)
+        Sequence refSeriesSeq = refStudy.getSequence(Tag.ReferencedSeriesSequence);
+
+        if (tuples.isEmpty() && refSeriesSeq.isEmpty() && type != SOPInstanceRefsType.KOS_XDSI)
             return null;
 
         if (type == SOPInstanceRefsType.STGCMT)
-            return getStgCmtRqstAttr(tuples, instance);
+            return getStgCmtRqstAttr(refSeriesSeq, tuples, cuidPath, iuidPath);
 
-        Attributes refStudy = new Attributes(2);
-        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
         refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         HashMap<Long, Sequence> seriesMap = new HashMap<>();
         for (Tuple tuple : tuples) {
@@ -399,10 +412,7 @@ public class QueryServiceEJB {
                 if (retrieveLocationUID != null)
                     refSOP.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
             }
-            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI,
-                    tuple.get(instance.get(Instance_.sopClassUID)));
-            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI,
-                    tuple.get(instance.get(Instance_.sopInstanceUID)));
+            setSOPRef(refSOP, tuple, cuidPath, iuidPath);
             refSOPSeq.add(refSOP);
         }
         if (type == SOPInstanceRefsType.IAN)
@@ -420,19 +430,30 @@ public class QueryServiceEJB {
                 .toArray(new Predicate[0]));
     }
 
-    private Attributes getStgCmtRqstAttr(List<Tuple> tuples, Path<Instance> instance) {
+    private Attributes getStgCmtRqstAttr(Sequence refSeriesSeq, List<Tuple> tuples, Path<String> cuidPath, Path<String> iuidPath) {
         Attributes refStgcmt = new Attributes(2);
         refStgcmt.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         Sequence refSOPSeq = refStgcmt.newSequence(Tag.ReferencedSOPSequence, 10);
-        for (Tuple tuple : tuples) {
-            Attributes refSOP = new Attributes(2);
-            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI,
-                    tuple.get(instance.get(Instance_.sopClassUID)));
-            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI,
-                    tuple.get(instance.get(Instance_.sopInstanceUID)));
-            refSOPSeq.add(refSOP);
-        }
+        Stream.concat(
+                    refSeriesSeq.stream()
+                        .flatMap(refSeries -> refSeries.getSequence(Tag.ReferencedSOPSequence).stream())
+                        .map(attrs -> setSOPRef(new Attributes(2),
+                                attrs.getString(Tag.ReferencedSOPClassUID),
+                                attrs.getString(Tag.ReferencedSOPInstanceUID))),
+                    tuples.stream()
+                        .map(tuple -> setSOPRef(new Attributes(2), tuple, cuidPath, iuidPath)))
+                .forEach(refSOPSeq::add);
         return refStgcmt;
+    }
+
+    private static Attributes setSOPRef(Attributes attrs, Tuple tuple, Path<String> cuidPath, Path<String> iuidPath) {
+        return setSOPRef(attrs, tuple.get(cuidPath), tuple.get(iuidPath));
+    }
+
+    private static Attributes setSOPRef(Attributes attrs, String cuid, String iuid) {
+        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
+        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
+        return attrs;
     }
 
     public Attributes getStudyAttributes(String studyInstanceUID) {

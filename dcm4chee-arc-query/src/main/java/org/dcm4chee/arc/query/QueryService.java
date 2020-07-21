@@ -108,12 +108,8 @@ public interface QueryService {
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 
-    Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID,
-                         String[] retrieveAETs, String retrieveLocationUID, Availability availability);
-
-    Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID, String sopUID);
-
-    Attributes createIAN(ApplicationEntity ae, String studyUID, String... seriesUID);
+    Attributes createIAN(ApplicationEntity ae, String studyUID, String[] seriesUID, String sopUID,
+            String[] retrieveAETs, String retrieveLocationUID, Availability availability);
 
     Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                   String[] retrieveAETs, String retrieveLocationUID,
