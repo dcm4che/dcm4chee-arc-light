@@ -179,8 +179,11 @@ public class PatientServiceEJB {
 
             newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
             attrs = newAttrs;
-        } else if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
-            return;
+        } else {
+            Attributes.unifyCharacterSets(attrs, newAttrs);
+            if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
+                return;
+        }
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
