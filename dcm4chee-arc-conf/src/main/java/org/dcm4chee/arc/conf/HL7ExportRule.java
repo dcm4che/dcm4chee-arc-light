@@ -52,6 +52,7 @@ import java.util.Arrays;
  */
 public class HL7ExportRule {
 
+    public static final HL7ExportRule[] EMPTY = {};
     private String commonName;
 
     private HL7Conditions conditions = new HL7Conditions();

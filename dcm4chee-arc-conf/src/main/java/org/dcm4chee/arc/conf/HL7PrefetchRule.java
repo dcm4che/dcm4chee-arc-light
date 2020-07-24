@@ -52,6 +52,7 @@ import java.util.Arrays;
  */
 public class HL7PrefetchRule {
 
+    public static final HL7PrefetchRule[] EMPTY = {};
     private String commonName;
 
     private String queueName;

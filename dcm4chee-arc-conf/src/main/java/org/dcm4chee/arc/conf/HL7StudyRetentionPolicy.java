@@ -57,6 +57,7 @@ import java.time.format.DateTimeFormatter;
  * @since Sep 2018
  */
 public class HL7StudyRetentionPolicy {
+    public static final HL7StudyRetentionPolicy[] EMPTY = {};
     private static final Logger LOG = LoggerFactory.getLogger(HL7StudyRetentionPolicy.class);
 
     private String commonName;

@@ -52,6 +52,7 @@ import java.util.Objects;
  * @since Jan 2020
  */
 public class UPSOnHL7 {
+    public static final UPSOnHL7[] EMPTY = {};
     private String upsOnHL7ID;
     private HL7Conditions conditions = new HL7Conditions();
     private ScheduleExpression[] schedules = {};

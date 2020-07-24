@@ -260,7 +260,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7ExportRule> hl7ExportRules() {
-        return Stream.concat(hl7ExportRules.stream(), getArchiveDeviceExtension().getHL7ExportRules().stream());
+        return concatCopyStream(hl7ExportRules,
+                getArchiveDeviceExtension().getHL7ExportRules(),
+                HL7ExportRule.EMPTY);
     }
 
     public boolean hasHL7ExportRules() {
@@ -284,7 +286,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7PrefetchRule> hl7PrefetchRules() {
-        return Stream.concat(hl7PrefetchRules.stream(), getArchiveDeviceExtension().getHL7PrefetchRules().stream());
+        return concatCopyStream(hl7PrefetchRules,
+                getArchiveDeviceExtension().getHL7PrefetchRules(),
+                HL7PrefetchRule.EMPTY);
     }
 
     public boolean hasHL7PrefetchRules() {
@@ -308,7 +312,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<UPSOnHL7> upsOnHL7Stream() {
-        return Stream.concat(upsOnHL7List.stream(), getArchiveDeviceExtension().listUPSOnHL7().stream());
+        return concatCopyStream(upsOnHL7List,
+                getArchiveDeviceExtension().listUPSOnHL7(),
+                UPSOnHL7.EMPTY);
     }
 
     public boolean hasUPSOnHL7() {
@@ -332,7 +338,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7ForwardRule> hl7ForwardRules() {
-        return Stream.concat(hl7ForwardRules.stream(), getArchiveDeviceExtension().getHL7ForwardRules().stream());
+        return concatCopyStream(hl7ForwardRules,
+                getArchiveDeviceExtension().getHL7ForwardRules(),
+                HL7ForwardRule.EMPTY);
     }
 
     public boolean hasHL7ForwardRules() {
@@ -389,8 +397,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies() {
-        return Stream.concat(hl7StudyRetentionPolicies.stream(),
-                getArchiveDeviceExtension().getHL7StudyRetentionPolicies().stream());
+        return concatCopyStream(hl7StudyRetentionPolicies,
+                getArchiveDeviceExtension().getHL7StudyRetentionPolicies(),
+                HL7StudyRetentionPolicy.EMPTY);
     }
 
     public boolean hasHL7StudyRetentionPolicies() {
@@ -568,5 +577,15 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ORUAction.length > 0
                 ? hl7ORUAction
                 : getArchiveDeviceExtension().getHl7ORUAction();
+    }
+
+    private static <T> Stream<T> concatCopyStream(Collection<T> a1, Collection<T> a2, T[] a) {
+        return a1.isEmpty()
+                ? (a2.isEmpty()
+                ? Stream.empty()
+                : Stream.of(a2.toArray(a)))
+                : (a2.isEmpty()
+                ? Stream.of(a1.toArray(a))
+                : Stream.concat(Stream.of(a1.toArray(a)), Stream.of(a2.toArray(a))));
     }
 }

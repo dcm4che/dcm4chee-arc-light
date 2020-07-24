@@ -48,6 +48,7 @@ import java.util.Arrays;
  */
 public class HL7ForwardRule {
 
+    public static final HL7ForwardRule[] EMPTY = {};
     private String commonName;
 
     private HL7Conditions conditions = new HL7Conditions();
