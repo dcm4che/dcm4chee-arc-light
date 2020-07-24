@@ -1685,38 +1685,38 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<ExportRule> exportRules() {
-        return concatCopyStream(exportRules,
+        return Utils.concatCopyStream(exportRules,
                 getArchiveDeviceExtension().getExportRules(),
                 ExportRule.EMPTY);
     }
 
     public Stream<UPSOnStore> upsOnStoreStream() {
-        return concatCopyStream(upsOnStoreList,
+        return Utils.concatCopyStream(upsOnStoreList,
                 getArchiveDeviceExtension().listUPSOnStore(),
                 UPSOnStore.EMPTY);
     }
 
     public Stream<ExportPriorsRule> prefetchRules() {
-        return concatCopyStream(exportPriorsRules,
+        return Utils.concatCopyStream(exportPriorsRules,
                 getArchiveDeviceExtension().getExportPriorsRules(),
                 ExportPriorsRule.EMPTY);
     }
 
     public Stream<RSForwardRule> rsForwardRules() {
-        return concatCopyStream(rsForwardRules,
+        return Utils.concatCopyStream(rsForwardRules,
                 getArchiveDeviceExtension().getRSForwardRules(),
                 RSForwardRule.EMPTY);
     }
 
     public Stream<ArchiveCompressionRule> compressionRules() {
-        return concatCopyStream(compressionRules,
+        return Utils.concatCopyStream(compressionRules,
                 getArchiveDeviceExtension().getCompressionRules(),
                 ArchiveCompressionRule.EMPTY)
                 .sorted(Comparator.comparingInt(ArchiveCompressionRule::getPriority).reversed());
     }
 
     public Stream<ArchiveAttributeCoercion> attributeCoercions() {
-        return concatCopyStream(attributeCoercions,
+        return Utils.concatCopyStream(attributeCoercions,
                 getArchiveDeviceExtension().getAttributeCoercions(),
                 ArchiveAttributeCoercion.EMPTY)
                 .sorted(Comparator.comparingInt(ArchiveAttributeCoercion::getPriority).reversed());
@@ -1732,7 +1732,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<StudyRetentionPolicy> studyRetentionPolicies() {
-        return concatCopyStream(studyRetentionPolicies,
+        return Utils.concatCopyStream(studyRetentionPolicies,
                 getArchiveDeviceExtension().getStudyRetentionPolicies(),
                 StudyRetentionPolicy.EMPTY)
                 .sorted(Comparator.comparingInt(StudyRetentionPolicy::getPriority).reversed());
@@ -1747,19 +1747,10 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<StoreAccessControlIDRule> storeAccessControlIDRules() {
-        return concatCopyStream(storeAccessControlIDRules,
+        return Utils.concatCopyStream(storeAccessControlIDRules,
                 getArchiveDeviceExtension().getStoreAccessControlIDRules(),
                 StoreAccessControlIDRule.EMPTY)
                 .sorted(Comparator.comparingInt(StoreAccessControlIDRule::getPriority).reversed());
     }
 
-    private static <T> Stream<T> concatCopyStream(Collection<T> a1, Collection<T> a2, T[] a) {
-        return a1.isEmpty()
-                ? (a2.isEmpty()
-                    ? Stream.empty()
-                    : Stream.of(a2.toArray(a)))
-                : (a2.isEmpty()
-                    ? Stream.of(a1.toArray(a))
-                    : Stream.concat(Stream.of(a1.toArray(a)), Stream.of(a2.toArray(a))));
-    }
 }
