@@ -113,7 +113,7 @@ public class ApplyHL7RetentionPolicy {
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         arcHL7App.hl7StudyRetentionPolicies()
                 .sorted(Comparator.comparingInt(HL7StudyRetentionPolicy::getPriority).reversed())
-                .filter(rule -> rule.match(host, hl7Fields))
+                .filter(rule -> rule.getConditions().match(host, hl7Fields))
                 .findFirst()
                 .ifPresent(policy -> apply(event, policy, hl7Fields));
     }

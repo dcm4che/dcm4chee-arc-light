@@ -126,10 +126,6 @@ public class HL7StudyRetentionPolicy {
         this.maxRetentionPeriod = maxRetentionPeriod;
     }
 
-    public boolean match(String hostName, HL7Fields hl7Fields) {
-        return conditions.match(hostName, hl7Fields);
-    }
-
     public boolean isStartRetentionPeriodOnStudyDate() {
         return startRetentionPeriodOnStudyDate;
     }

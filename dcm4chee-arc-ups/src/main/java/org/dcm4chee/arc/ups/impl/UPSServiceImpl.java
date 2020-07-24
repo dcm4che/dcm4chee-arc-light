@@ -363,7 +363,7 @@ public class UPSServiceImpl implements UPSService {
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         Calendar now = Calendar.getInstance();
         arcHL7App.upsOnHL7Stream()
-                .filter(upsOnHL7 -> upsOnHL7.match(host, hl7Fields))
+                .filter(upsOnHL7 -> upsOnHL7.getConditions().match(host, hl7Fields))
                 .forEach(upsOnHL7 -> ejb.createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
     }
 

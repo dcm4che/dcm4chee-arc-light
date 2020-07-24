@@ -101,7 +101,7 @@ public class PrefetchScheduler {
         Calendar now = Calendar.getInstance();
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         arcHL7App.hl7PrefetchRules()
-                .filter(rule -> rule.match(host, hl7Fields))
+                .filter(rule -> rule.getConditions().match(host, hl7Fields))
                 .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now));
     }
 

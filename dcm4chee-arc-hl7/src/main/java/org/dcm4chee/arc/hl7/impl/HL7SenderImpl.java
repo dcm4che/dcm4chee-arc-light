@@ -108,7 +108,7 @@ public class HL7SenderImpl implements HL7Sender {
         String host = ReverseDNS.hostNameOf(event.getSocket().getInetAddress());
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         arcHL7App.hl7ForwardRules()
-                .filter(rule -> rule.match(host, hl7Fields))
+                .filter(rule -> rule.getConditions().match(host, hl7Fields))
                 .map(HL7ForwardRule::getDestinations)
                 .flatMap(Stream::of)
                 .distinct()

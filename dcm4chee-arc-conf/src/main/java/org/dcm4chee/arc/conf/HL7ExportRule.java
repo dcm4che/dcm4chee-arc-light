@@ -137,10 +137,6 @@ public class HL7ExportRule {
         this.entitySelectors = entitySelectors;
     }
 
-    public boolean match(String hostName, HL7Fields hl7Fields) {
-        return conditions.match(hostName, hl7Fields);
-    }
-
     @Override
     public String toString() {
         return "HL7ExportRule{" +

@@ -187,10 +187,6 @@ public class HL7PrefetchRule {
         this.schedules = schedules;
     }
 
-    public boolean match(String hostName, HL7Fields hl7Fields) {
-        return conditions.match(hostName, hl7Fields);
-    }
-
     @Override
     public String toString() {
         return "HL7PrefetchRule{" +
