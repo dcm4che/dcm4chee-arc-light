@@ -1156,7 +1156,12 @@ public class StoreServiceEJB {
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
         study.setAccessControlID(arcAE.storeAccessControlIDRules()
-                .filter(rule -> match(rule, ctx, session))
+                .filter(rule -> rule.match(
+                                session.getRemoteHostName(),
+                                session.getCallingAET(),
+                                session.getLocalHostName(),
+                                session.getCalledAET(),
+                                ctx.getAttributes()))
                 .map(StoreAccessControlIDRule::getStoreAccessControlID)
                 .findFirst()
                 .orElse(arcAE.getStoreAccessControlID()));
@@ -1173,15 +1178,6 @@ public class StoreServiceEJB {
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
-    }
-
-    private boolean match(StoreAccessControlIDRule rule, StoreContext ctx, StoreSession session) {
-        return rule.getConditions().match(
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                ctx.getAttributes());
     }
 
     private String objectStorageID(StoreContext ctx) {

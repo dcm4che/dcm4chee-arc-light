@@ -80,6 +80,11 @@ public class ArchiveCompressionRule {
         this.imageWriteParams = imageWriteParams;
     }
 
+    public boolean match(String sendingHost, String sendingAET, String receivingHost, String receivingAET,
+            Attributes attrs) {
+        return conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
+    }
+
     @Override
     public String toString() {
         return "CompressionRule{" +

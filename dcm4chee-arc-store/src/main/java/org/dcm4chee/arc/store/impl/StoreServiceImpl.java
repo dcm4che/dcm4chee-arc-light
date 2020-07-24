@@ -734,7 +734,12 @@ class StoreServiceImpl implements StoreService {
 
         Optional<ArchiveCompressionRule> matchingRule = session.getArchiveAEExtension()
                 .compressionRules()
-                .filter(rule -> match(storeContext, session, rule))
+                .filter(rule -> rule.match(
+                                session.getRemoteHostName(),
+                                session.getCallingAET(),
+                                session.getLocalHostName(),
+                                session.getCalledAET(),
+                                storeContext.getAttributes()))
                 .findFirst();
         if (matchingRule.isPresent()) {
             if (!imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
@@ -743,15 +748,6 @@ class StoreServiceImpl implements StoreService {
             LOG.info("Compression of multi-frame image with embedded overlays not supported");
         }
         return null;
-    }
-
-    private boolean match(StoreContext storeContext, StoreSession session, ArchiveCompressionRule rule) {
-        return rule.getConditions().match(
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                storeContext.getAttributes());
     }
 
     @Override

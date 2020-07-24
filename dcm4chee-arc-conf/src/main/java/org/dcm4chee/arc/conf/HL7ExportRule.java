@@ -122,6 +122,10 @@ public class HL7ExportRule {
         this.assigningAuthorityOfPatientIDs = assigningAuthorityOfPatientIDs;
     }
 
+    public boolean match(String hostName, HL7Fields hl7Fields) {
+        return conditions.match(hostName, hl7Fields);
+    }
+
     public IDWithIssuer ignoreAssigningAuthorityOfPatientID(IDWithIssuer pid) {
         return ignoreAssigningAuthorityOfPatientID != null
                 && ignoreAssigningAuthorityOfPatientID.test(pid.getIssuer(), assigningAuthorityOfPatientIDs)

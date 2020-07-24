@@ -75,9 +75,14 @@ public class ExportScheduler extends Scheduler {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         arcAE.exportRules()
-                .filter(rule1 -> match(rule1, ctx, session, now))
-                .flatMap(rule1 -> Stream.of(rule1.getExporterIDs())
-                        .map(exporterID1 -> new Object[]{exporterID1, rule1}))
+                .filter(rule -> rule.match(ctx::match, now,
+                                        session.getRemoteHostName(),
+                                        session.getCallingAET(),
+                                        session.getLocalHostName(),
+                                        session.getCalledAET(),
+                                        ctx.getAttributes()))
+                .flatMap(rule -> Stream.of(rule.getExporterIDs())
+                        .map(exporterID1 -> new Object[]{exporterID1, rule}))
                 .collect(Collectors.toMap(a -> (String) a[0], a -> (ExportRule) a[1],
                         (r1, r2) -> r1.getEntity().compareTo(r2.getEntity()) < 0 ? r1 : r2))
                 .forEach((exporterID, rule) -> {
@@ -118,17 +123,6 @@ public class ExportScheduler extends Scheduler {
                     break;
             }
         });
-    }
-
-    private boolean match(ExportRule rule, StoreContext ctx, StoreSession session, Calendar now) {
-        return ctx.isExportReoccurredInstances(rule.getExportReoccurredInstances())
-                && ScheduleExpression.emptyOrAnyContains(now, rule.getSchedules())
-                && rule.getConditions().match(
-                        session.getRemoteHostName(),
-                        session.getCallingAET(),
-                        session.getLocalHostName(),
-                        session.getCalledAET(),
-                        ctx.getAttributes());
     }
 
     private String exporterDeviceName(ExportRule rule) {

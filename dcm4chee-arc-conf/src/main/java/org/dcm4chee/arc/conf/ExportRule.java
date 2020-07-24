@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.function.Predicate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -148,6 +149,14 @@ public class ExportRule {
 
     public void setExportReoccurredInstances(ExportReoccurredInstances exportReoccurredInstances) {
         this.exportReoccurredInstances = exportReoccurredInstances;
+    }
+
+    public boolean match(Predicate<ExportReoccurredInstances> predicate, Calendar now,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET,
+            Attributes attrs) {
+        return predicate.test(exportReoccurredInstances)
+                && ScheduleExpression.emptyOrAnyContains(now, schedules)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     @Override

@@ -329,18 +329,13 @@ public class UPSServiceImpl implements UPSService {
         StoreSession session = ctx.getStoreSession();
         Calendar now = Calendar.getInstance();
         session.getArchiveAEExtension().upsOnStoreStream()
-                .filter(upsOnStore -> match(upsOnStore, ctx, session, now))
+                .filter(upsOnStore -> upsOnStore.match(now,
+                                        session.getRemoteHostName(),
+                                        session.getCallingAET(),
+                                        session.getLocalHostName(),
+                                        session.getCalledAET(),
+                                        ctx.getAttributes()))
                 .forEach(upsOnStore -> ejb.createOrUpdateOnStore(ctx, now, upsOnStore));
-    }
-
-    private boolean match(UPSOnStore upsOnStore, StoreContext ctx, StoreSession session, Calendar now) {
-        return ScheduleExpression.emptyOrAnyContains(now, upsOnStore.getSchedules())
-                && upsOnStore.getConditions().match(
-                        session.getRemoteHostName(),
-                        session.getCallingAET(),
-                        session.getLocalHostName(),
-                        session.getCalledAET(),
-                        ctx.getAttributes());
     }
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {

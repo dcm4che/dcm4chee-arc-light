@@ -120,5 +120,5 @@ public interface StoreContext {
 
     void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch);
 
-    boolean isExportReoccurredInstances(ExportReoccurredInstances exportReoccurredInstances);
+    boolean match(ExportReoccurredInstances exportReoccurredInstances);
 }

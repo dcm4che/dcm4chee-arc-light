@@ -355,6 +355,13 @@ public class ArchiveAttributeCoercion {
                 && nullifyIssuerOfPatientID.test(Issuer.fromIssuerOfPatientID(attrs), issuerOfPatientIDs);
     }
 
+    public boolean match(TransferCapability.Role role, Dimse dimse, String sopClass,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET,
+            Attributes attrs) {
+        return this.role == role && dimse == dimse && matchSOPClass(sopClass)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
+    }
+
     public AttributesCoercion mergeAttributes(final AttributesCoercion next) {
         if (mergeAttributes == null)
             return next;

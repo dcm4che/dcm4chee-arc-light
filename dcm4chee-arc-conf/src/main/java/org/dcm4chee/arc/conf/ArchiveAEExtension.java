@@ -1299,11 +1299,6 @@ public class ArchiveAEExtension extends AEExtension {
                 ? hl7PSUConditions : getArchiveDeviceExtension().getHl7PSUConditions();
     }
 
-    public boolean match(String sendingHost, String sendingAET,
-                         String receivingHost, String receivingAET, Attributes attrs) {
-        return hl7PSUConditions().match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
-    }
-
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -1730,10 +1725,8 @@ public class ArchiveAEExtension extends AEExtension {
     public ArchiveAttributeCoercion findAttributeCoercion(Dimse dimse, TransferCapability.Role role, String sopClass,
             String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
         return attributeCoercions()
-                .filter(coercion -> coercion.getRole() == role
-                        && coercion.getDIMSE() == dimse
-                        && coercion.matchSOPClass(sopClass)
-                        && coercion.getConditions().match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
+                .filter(coercion -> coercion.match(role, dimse, sopClass,
+                        sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                 .findFirst()
                 .orElse(null);
     }
@@ -1748,8 +1741,7 @@ public class ArchiveAEExtension extends AEExtension {
     public StudyRetentionPolicy findStudyRetentionPolicy(String sendingHost, String sendingAET,
             String receivingHost, String receivingAET, Attributes attrs) {
         return studyRetentionPolicies()
-                .filter(policy -> policy.getConditions()
-                        .match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
+                .filter(policy -> policy.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                 .findFirst()
                 .orElse(null);
     }

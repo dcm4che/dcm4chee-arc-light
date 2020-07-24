@@ -409,6 +409,13 @@ public class UPSOnStore {
         this.noKeywords = noKeywords;
     }
 
+    public boolean match(Calendar now,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET,
+            Attributes attrs) {
+        return ScheduleExpression.emptyOrAnyContains(now, schedules)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
+    }
+
     @Override
     public String toString() {
         return "UPSOnStore{" +
