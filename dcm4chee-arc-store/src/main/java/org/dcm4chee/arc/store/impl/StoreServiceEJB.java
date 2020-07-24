@@ -1155,12 +1155,11 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
-        study.setAccessControlID(arcAE.storeAccessControlID(
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                ctx.getAttributes()));
+        study.setAccessControlID(arcAE.storeAccessControlIDRules()
+                .filter(rule -> match(rule, ctx, session))
+                .map(StoreAccessControlIDRule::getStoreAccessControlID)
+                .findFirst()
+                .orElse(arcAE.getStoreAccessControlID()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         setStudyAttributes(ctx, study);
@@ -1174,6 +1173,15 @@ public class StoreServiceEJB {
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
+    }
+
+    private boolean match(StoreAccessControlIDRule rule, StoreContext ctx, StoreSession session) {
+        return rule.getConditions().match(
+                session.getRemoteHostName(),
+                session.getCallingAET(),
+                session.getLocalHostName(),
+                session.getCalledAET(),
+                ctx.getAttributes());
     }
 
     private String objectStorageID(StoreContext ctx) {

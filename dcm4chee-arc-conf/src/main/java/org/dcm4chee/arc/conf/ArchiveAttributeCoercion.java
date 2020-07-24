@@ -48,10 +48,7 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.AttributesFormat;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,6 +56,7 @@ import java.util.stream.Stream;
  */
 public class ArchiveAttributeCoercion {
 
+    public static final ArchiveAttributeCoercion[] EMPTY = {};
     private String commonName;
     private int priority;
     private Dimse dimse;
@@ -311,19 +309,13 @@ public class ArchiveAttributeCoercion {
         this.issuerOfPatientIDFormat = issuerOfPatientIDFormat;
     }
 
-    public boolean match(Dimse dimse, TransferCapability.Role role, String sopClass,
-            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
-        return this.role == role && this.dimse == dimse && isEmptyOrContains(sopClasses, sopClass)
-                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
-    }
-
-    private static boolean isEmptyOrContains(Object[] a, Object o) {
-        if (a.length == 0)
+    public boolean matchSOPClass(String sopClass) {
+        if (sopClasses.length == 0)
             return true;
 
-        if (o != null)
-            for (Object o1 : a)
-                if (o1.equals(o))
+        if (sopClass != null)
+            for (Object o1 : sopClasses)
+                if (o1.equals(sopClass))
                     return true;
         return false;
     }

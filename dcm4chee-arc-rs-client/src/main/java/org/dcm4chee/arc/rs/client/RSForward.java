@@ -45,6 +45,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.RSForwardRule;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
@@ -86,25 +87,32 @@ public class RSForward {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
-        String requestURI = request.getRequestURI();
+        arcAE.rsForwardRules()
+                .filter(rule -> match(rule, rsOp, request))
+                .forEach(
+                rule -> apply(rule, rsOp, in, patientID, request));
+    }
 
-        arcAE.findRSForwardRules(rsOp, request).forEach(
-                rule -> {
-                    try {
-                        LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
-                        rsClient.scheduleRequest(
-                                rsOp,
-                                request.getRequestURI(),
-                                request.getQueryString(),
-                                rule.getWebAppName(),
-                                patientID,
-                                in,
-                                rule.isTlsAllowAnyHostname(),
-                                rule.isTlsDisableTrustManager());
-                    } catch (QueueSizeLimitExceededException e) {
-                        LOG.warn(e.getMessage());
-                    }
-                });
+    private boolean match(RSForwardRule rule, RSOperation rsOp, HttpServletRequest request) {
+        return rule.containsRSOperations(rsOp) && rule.matchesRequestURL(request);
+    }
+
+    private void apply(RSForwardRule rule, RSOperation rsOp, byte[] in, String patientID,
+            HttpServletRequest request) {
+        try {
+            LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
+            rsClient.scheduleRequest(
+                    rsOp,
+                    request.getRequestURI(),
+                    request.getQueryString(),
+                    rule.getWebAppName(),
+                    patientID,
+                    in,
+                    rule.isTlsAllowAnyHostname(),
+                    rule.isTlsDisableTrustManager());
+        } catch (QueueSizeLimitExceededException e) {
+            LOG.warn(e.getMessage());
+        }
     }
 
     private static byte[] toContent(Attributes attrs) {

@@ -2,7 +2,6 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -15,10 +14,9 @@ import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,30 +74,18 @@ public class ExportScheduler extends Scheduler {
         Calendar now = Calendar.getInstance();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        for (Map.Entry<String, ExportRule> entry : arcAE.findExportRules(
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                ctx.getAttributes(), now)
-                .entrySet()) {
-            String exporterID = entry.getKey();
-            ExportRule rule = entry.getValue();
-            switch(rule.getExportReoccurredInstances()) {
-                case NEVER:
-                    if (ctx.getPreviousInstance() != null) {
-                        continue;
-                    }
-                case REPLACE:
-                    if (ctx.getLocations().isEmpty()) {
-                        continue;
-                    }
-            }
+        arcAE.exportRules()
+                .filter(rule1 -> match(rule1, ctx, session, now))
+                .flatMap(rule1 -> Stream.of(rule1.getExporterIDs())
+                        .map(exporterID1 -> new Object[]{exporterID1, rule1}))
+                .collect(Collectors.toMap(a -> (String) a[0], a -> (ExportRule) a[1],
+                        (r1, r2) -> r1.getEntity().compareTo(r2.getEntity()) < 0 ? r1 : r2))
+                .forEach((exporterID, rule) -> {
             ExporterDescriptor desc = getExporterDesc(rule, exporterID, arcDev);
             if (desc == null) {
                 LOG.warn("{}: No Exporter configured with ID:{} - cannot schedule Export Task triggered by {}",
                         session, exporterID, rule);
-                continue;
+                return;
             }
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
             String exporterDeviceName = exporterDeviceName(rule);
@@ -131,7 +117,18 @@ public class ExportScheduler extends Scheduler {
                             scheduledTime);
                     break;
             }
-        }
+        });
+    }
+
+    private boolean match(ExportRule rule, StoreContext ctx, StoreSession session, Calendar now) {
+        return ctx.isExportReoccurredInstances(rule.getExportReoccurredInstances())
+                && ScheduleExpression.emptyOrAnyContains(now, rule.getSchedules())
+                && rule.getConditions().match(
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes());
     }
 
     private String exporterDeviceName(ExportRule rule) {

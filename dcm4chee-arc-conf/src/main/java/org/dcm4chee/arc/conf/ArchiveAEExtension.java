@@ -48,7 +48,6 @@ import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.time.Period;
 import java.util.*;
@@ -1690,87 +1689,85 @@ public class ArchiveAEExtension extends AEExtension {
         return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
-    public Map<String, ExportRule> findExportRules(
-            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
-        HashMap<String, ExportRule> result = new HashMap<>();
-        for (Collection<ExportRule> rules
-                : new Collection[]{exportRules, getArchiveDeviceExtension().getExportRules() })
-            for (ExportRule rule : rules)
-                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs, cal))
-                    for (String exporterID : rule.getExporterIDs()) {
-                        ExportRule rule1 = result.get(exporterID);
-                        if (rule1 == null || rule1.getEntity().compareTo(rule.getEntity()) > 0)
-                            result.put(exporterID, rule);
-                    }
-        return result;
+    public Stream<ExportRule> exportRules() {
+        return concatCopyStream(exportRules,
+                getArchiveDeviceExtension().getExportRules(),
+                ExportRule.EMPTY);
     }
 
     public Stream<UPSOnStore> upsOnStoreStream() {
-        return Stream.concat(upsOnStoreList.stream(), getArchiveDeviceExtension().listUPSOnStore().stream());
+        return concatCopyStream(upsOnStoreList,
+                getArchiveDeviceExtension().listUPSOnStore(),
+                UPSOnStore.EMPTY);
     }
 
     public Stream<ExportPriorsRule> prefetchRules() {
-        return Stream.concat(exportPriorsRules.stream(), getArchiveDeviceExtension().getExportPriorsRules().stream());
+        return concatCopyStream(exportPriorsRules,
+                getArchiveDeviceExtension().getExportPriorsRules(),
+                ExportPriorsRule.EMPTY);
     }
 
-    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation, HttpServletRequest request) {
-        ArrayList<RSForwardRule> result = new ArrayList<>();
-        for (Collection<RSForwardRule> rules
-                : new Collection[]{rsForwardRules, getArchiveDeviceExtension().getRSForwardRules()})
-            for (RSForwardRule rule : rules)
-                if (rule.match(rsOperation, request))
-                    result.add(rule);
-        return result;
+    public Stream<RSForwardRule> rsForwardRules() {
+        return concatCopyStream(rsForwardRules,
+                getArchiveDeviceExtension().getRSForwardRules(),
+                RSForwardRule.EMPTY);
     }
 
-    public ArchiveCompressionRule findCompressionRule(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs) {
-        ArchiveCompressionRule rule1 = null;
-        for (Collection<ArchiveCompressionRule> rules
-                : new Collection[]{ compressionRules, getArchiveDeviceExtension().getCompressionRules() })
-            for (ArchiveCompressionRule rule : rules)
-                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
-                    if (rule1 == null || rule1.getPriority() < rule.getPriority())
-                        rule1 = rule;
-        return rule1;
+    public Stream<ArchiveCompressionRule> compressionRules() {
+        return concatCopyStream(compressionRules,
+                getArchiveDeviceExtension().getCompressionRules(),
+                ArchiveCompressionRule.EMPTY)
+                .sorted(Comparator.comparingInt(ArchiveCompressionRule::getPriority).reversed());
+    }
+
+    public Stream<ArchiveAttributeCoercion> attributeCoercions() {
+        return concatCopyStream(attributeCoercions,
+                getArchiveDeviceExtension().getAttributeCoercions(),
+                ArchiveAttributeCoercion.EMPTY)
+                .sorted(Comparator.comparingInt(ArchiveAttributeCoercion::getPriority).reversed());
     }
 
     public ArchiveAttributeCoercion findAttributeCoercion(Dimse dimse, TransferCapability.Role role, String sopClass,
             String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
-        ArchiveAttributeCoercion coercion1 = null;
-        for (Collection<ArchiveAttributeCoercion> coercions
-                : new Collection[]{ attributeCoercions, getArchiveDeviceExtension().getAttributeCoercions() })
-            for (ArchiveAttributeCoercion coercion : coercions)
-                if (coercion.match(dimse, role, sopClass, sendingHost, sendingAET, receivingHost, receivingAET, attrs))
-                    if (coercion1 == null || coercion1.getPriority() < coercion.getPriority())
-                        coercion1 = coercion;
-        return coercion1;
+        return attributeCoercions()
+                .filter(coercion -> coercion.getRole() == role
+                        && coercion.getDIMSE() == dimse
+                        && coercion.matchSOPClass(sopClass)
+                        && coercion.getConditions().match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Stream<StudyRetentionPolicy> studyRetentionPolicies() {
+        return concatCopyStream(studyRetentionPolicies,
+                getArchiveDeviceExtension().getStudyRetentionPolicies(),
+                StudyRetentionPolicy.EMPTY)
+                .sorted(Comparator.comparingInt(StudyRetentionPolicy::getPriority).reversed());
     }
 
     public StudyRetentionPolicy findStudyRetentionPolicy(String sendingHost, String sendingAET,
             String receivingHost, String receivingAET, Attributes attrs) {
-        StudyRetentionPolicy policy1 = null;
-        for (Collection<StudyRetentionPolicy> policies
-                : new Collection[]{ studyRetentionPolicies, getArchiveDeviceExtension().getStudyRetentionPolicies() })
-            for (StudyRetentionPolicy policy : policies)
-                if (policy.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
-                    if (policy1 == null || policy1.getPriority() < policy.getPriority())
-                        policy1 = policy;
-        return policy1;
+        return studyRetentionPolicies()
+                .filter(policy -> policy.getConditions()
+                        .match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
+                .findFirst()
+                .orElse(null);
     }
 
-    public String storeAccessControlID(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs) {
-        StoreAccessControlIDRule rule1 = null;
-        for (Collection<StoreAccessControlIDRule> rules : new Collection[]{
-                storeAccessControlIDRules,
-                    getArchiveDeviceExtension().getStoreAccessControlIDRules()
-        }) {
-            for (StoreAccessControlIDRule rule : rules)
-                if (rule.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
-                    if (rule1 == null || rule1.getPriority() < rule.getPriority())
-                        rule1 = rule;
-        }
-        return rule1 != null ? rule1.getStoreAccessControlID() : storeAccessControlID;
+    public Stream<StoreAccessControlIDRule> storeAccessControlIDRules() {
+        return concatCopyStream(storeAccessControlIDRules,
+                getArchiveDeviceExtension().getStoreAccessControlIDRules(),
+                StoreAccessControlIDRule.EMPTY)
+                .sorted(Comparator.comparingInt(StoreAccessControlIDRule::getPriority).reversed());
+    }
+
+    private static <T> Stream<T> concatCopyStream(Collection<T> a1, Collection<T> a2, T[] a) {
+        return a1.isEmpty()
+                ? (a2.isEmpty()
+                    ? Stream.empty()
+                    : Stream.of(a2.toArray(a)))
+                : (a2.isEmpty()
+                    ? Stream.of(a1.toArray(a))
+                    : Stream.concat(Stream.of(a1.toArray(a)), Stream.of(a2.toArray(a))));
     }
 }

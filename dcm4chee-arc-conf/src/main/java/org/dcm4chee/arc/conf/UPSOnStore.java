@@ -55,6 +55,7 @@ import java.util.Objects;
  * @since Nov 2019
  */
 public class UPSOnStore {
+    public static final UPSOnStore[] EMPTY = {};
     public enum IncludeInputInformation {
         NO, SINGLE, APPEND, SINGLE_OR_CREATE, APPEND_OR_CREATE;
     }
@@ -406,12 +407,6 @@ public class UPSOnStore {
 
     public void setNoKeywords(boolean noKeywords) {
         this.noKeywords = noKeywords;
-    }
-
-    public boolean match(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
-        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
-                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     @Override

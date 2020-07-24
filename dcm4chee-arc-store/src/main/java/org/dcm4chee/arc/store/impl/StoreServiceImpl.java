@@ -84,7 +84,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Inet4Address;
 import java.net.Socket;
 import java.util.*;
 import java.util.function.Function;
@@ -732,17 +731,27 @@ class StoreServiceImpl implements StoreService {
             return null;
 
         StoreSession session = storeContext.getStoreSession();
-        ArchiveCompressionRule rule = session.getArchiveAEExtension().findCompressionRule(
+
+        Optional<ArchiveCompressionRule> matchingRule = session.getArchiveAEExtension()
+                .compressionRules()
+                .filter(rule -> match(storeContext, session, rule))
+                .findFirst();
+        if (matchingRule.isPresent()) {
+            if (!imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
+                return matchingRule.get();
+            }
+            LOG.info("Compression of multi-frame image with embedded overlays not supported");
+        }
+        return null;
+    }
+
+    private boolean match(StoreContext storeContext, StoreSession session, ArchiveCompressionRule rule) {
+        return rule.getConditions().match(
                 session.getRemoteHostName(),
                 session.getCallingAET(),
                 session.getLocalHostName(),
                 session.getCalledAET(),
                 storeContext.getAttributes());
-        if (rule != null && imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
-            LOG.info("Compression of multi-frame image with embedded overlays not supported");
-            return null;
-        }
-        return rule;
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.util.Arrays;
  */
 public class ArchiveCompressionRule {
 
+    public static final ArchiveCompressionRule[] EMPTY = {};
+
     private String commonName;
 
     private int priority;
@@ -76,11 +78,6 @@ public class ArchiveCompressionRule {
 
     public void setImageWriteParams(Property[] imageWriteParams) {
         this.imageWriteParams = imageWriteParams;
-    }
-
-    public boolean match(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs) {
-        return conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     @Override

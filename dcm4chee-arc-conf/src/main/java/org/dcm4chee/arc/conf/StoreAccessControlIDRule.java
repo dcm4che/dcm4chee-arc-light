@@ -49,6 +49,7 @@ import org.dcm4che3.data.Attributes;
  */
 public class StoreAccessControlIDRule {
 
+    public static final StoreAccessControlIDRule[] EMPTY = {};
     private String commonName;
 
     private int priority;
@@ -94,11 +95,6 @@ public class StoreAccessControlIDRule {
 
     public void setStoreAccessControlID(String storeAccessControlID) {
         this.storeAccessControlID = storeAccessControlID;
-    }
-
-    public boolean match(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs) {
-        return conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     @Override

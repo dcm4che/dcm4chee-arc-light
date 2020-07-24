@@ -52,6 +52,7 @@ import java.util.Calendar;
  */
 public class ExportRule {
 
+    public static final ExportRule[] EMPTY = {};
     private String commonName;
     private ScheduleExpression[] schedules = {};
     private Conditions conditions = new Conditions();
@@ -131,12 +132,6 @@ public class ExportRule {
 
     public void setExportDelay(Duration exportDelay) {
         this.exportDelay = exportDelay;
-    }
-
-    public boolean match(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
-        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
-                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     public boolean isExportPreviousEntity() {

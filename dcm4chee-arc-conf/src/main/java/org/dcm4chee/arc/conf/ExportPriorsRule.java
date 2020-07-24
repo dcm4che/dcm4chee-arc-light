@@ -51,6 +51,7 @@ import java.util.Calendar;
  * @since Aug 2018
  */
 public class ExportPriorsRule {
+    public static final ExportPriorsRule[] EMPTY = {};
 
     private String commonName;
 
@@ -119,12 +120,6 @@ public class ExportPriorsRule {
 
     public void setEntitySelectors(EntitySelector[] entitySelectors) {
         this.entitySelectors = entitySelectors;
-    }
-
-    public boolean match(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs, Calendar cal) {
-        return ScheduleExpression.emptyOrAnyContains(cal, schedules)
-                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
     public ExportReoccurredInstances getExportReoccurredInstances() {

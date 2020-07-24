@@ -52,6 +52,8 @@ import java.util.regex.Pattern;
  */
 public class RSForwardRule {
 
+    public static final RSForwardRule[] EMPTY = {};
+
     private String commonName;
 
     private String webAppName;
@@ -135,14 +137,14 @@ public class RSForwardRule {
         }
     }
 
-    public boolean match(RSOperation rsOperation, HttpServletRequest request) {
-        if (!rsOperations.contains(rsOperation))
-            return false;
+    public boolean containsRSOperations(RSOperation rsOp) {
+        return rsOperations.contains(rsOp);
+    }
 
-        if (requestURLPattern == null)
-            return true;
-
-        return ifNotRequestURLPattern != requestURLPattern.matcher(request.getRequestURL().toString()).matches();
+    public boolean matchesRequestURL(HttpServletRequest request) {
+        return requestURLPattern == null
+                || requestURLPattern.matcher(request.getRequestURL().toString()).matches()
+                    == ifNotRequestURLPattern;
     }
 
     @Override
