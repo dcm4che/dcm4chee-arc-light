@@ -585,9 +585,9 @@ public class StowRS {
             case UID.EncapsulatedOBJStorage:
                 if (!attrs.contains(Tag.MeasurementUnitsCodeSequence)) {
                     Attributes item = new Attributes(3);
-                    item.setString(Tag.CodeValue, VR.SH, "m");
+                    item.setString(Tag.CodeValue, VR.SH, "mm");
                     item.setString(Tag.CodingSchemeDesignator, VR.SH, "UCUM");
-                    item.setString(Tag.CodeMeaning, VR.LO, "m");
+                    item.setString(Tag.CodeMeaning, VR.LO, "mm");
                     logSupplementMissing(session, Tag.MeasurementUnitsCodeSequence, item);
                     attrs.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(item);
                 }
