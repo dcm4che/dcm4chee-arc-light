@@ -289,7 +289,7 @@ public class StowRS {
                     LOG.info("storeInstances: Extract Part #{}{}", partNumber, headerParams);
                     String contentLocation = getHeaderParamValue(headerParams, "content-location");
                     String contentType = getHeaderParamValue(headerParams, "content-type");
-                    MediaType mediaType = MediaType.valueOf(contentType);
+                    MediaType mediaType = normalize(MediaType.valueOf(contentType));
                     try {
                         if (!input.readBodyPart(StowRS.this, session, multipartInputStream, mediaType, contentLocation)) {
                             LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
@@ -320,6 +320,10 @@ public class StowRS {
                     .entity(output.entity(response))
                     .header("Warning", response.getString(Tag.ErrorComment))
                     .build());
+    }
+
+    private static MediaType normalize(MediaType mediaType) {
+        return MediaTypes.isSTLType(mediaType) ? MediaTypes.MODEL_STL_TYPE : mediaType;
     }
 
     private void logRequest() {
