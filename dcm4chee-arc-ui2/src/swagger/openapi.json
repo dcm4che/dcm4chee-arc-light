@@ -579,8 +579,8 @@
     "/export": {
       "$ref": "paths/config.json#/export"
     },
-    "/ups": {
-      "$ref": "paths/config.json#/ups"
+    "/upstpls": {
+      "$ref": "paths/config.json#/upstpls"
     },
     "/pdq": {
       "$ref": "paths/config.json#/pdq"
