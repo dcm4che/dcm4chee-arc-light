@@ -1244,7 +1244,7 @@
         "id"
       ],
       "properties": {
-        "name": {
+        "id": {
           "title": "Exporter ID",
           "description": "Exporter ID",
           "type": "string"
@@ -1252,6 +1252,27 @@
         "description": {
           "title": "Exporter Description",
           "description": "Unconstrained text description of the exporter",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "upstpls": {
+    "title": "UPS Templates",
+    "type": "array",
+    "items": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "title": "UPS Template ID",
+          "description": "UPS Template ID",
+          "type": "string"
+        },
+        "description": {
+          "title": "UPS Template Description",
+          "description": "Unconstrained text description of the UPS Template",
           "type": "string"
         }
       }

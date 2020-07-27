@@ -950,6 +950,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         upsTemplates.forEach(upsTemplate -> {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmUPSTemplateID", upsTemplate.getUPSTemplateID(), null);
+            writer.writeNotNullOrDef("dicomDescription", upsTemplate.getDescription(), null);
             writer.writeNotNullOrDef("dcmUPSLabel", upsTemplate.getProcedureStepLabel(), null);
             writer.writeNotNullOrDef("dcmUPSPriority", upsTemplate.getUPSPriority(), null);
             writer.writeNotNullOrDef("dcmUPSInputReadinessState",
@@ -3295,6 +3296,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 switch (reader.getString()) {
                     case "dcmUPSTemplateID":
                         upsTemplate.setUPSTemplateID(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        upsTemplate.setDescription(reader.stringValue());
                         break;
                     case "dcmUPSLabel":
                         upsTemplate.setProcedureStepLabel(reader.stringValue());

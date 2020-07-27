@@ -49,6 +49,7 @@ import org.dcm4che3.data.*;
  */
 public class UPSTemplate {
     private String upsTemplateID;
+    private String description;
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
     private Duration startDateTimeDelay;
@@ -79,6 +80,14 @@ public class UPSTemplate {
 
     public void setUPSTemplateID(String upsTemplateID) {
         this.upsTemplateID = upsTemplateID;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public UPSPriority getUPSPriority() {

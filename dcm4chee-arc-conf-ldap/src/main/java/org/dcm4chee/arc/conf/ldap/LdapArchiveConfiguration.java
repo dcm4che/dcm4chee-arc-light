@@ -3042,6 +3042,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmUPSTemplate");
         attrs.put("dcmUPSTemplateID", upsTemplate.getUPSTemplateID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSLabel", upsTemplate.getProcedureStepLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", upsTemplate.getDescription(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSPriority",
                 upsTemplate.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
@@ -3190,6 +3191,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 UPSTemplate upsTemplate = new UPSTemplate(LdapUtils.stringValue(attrs.get("dcmUPSTemplateID"), null));
+                upsTemplate.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 upsTemplate.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
                 upsTemplate.setUPSPriority(
                         LdapUtils.enumValue(UPSPriority.class, attrs.get("dcmUPSPriority"), UPSPriority.MEDIUM));
@@ -3762,6 +3764,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               UPSTemplate prev, UPSTemplate upsTemplate, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
                 prev.getProcedureStepLabel(), upsTemplate.getProcedureStepLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
+                prev.getDescription(), upsTemplate.getDescription(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
                 prev.getUPSPriority(), upsTemplate.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",
