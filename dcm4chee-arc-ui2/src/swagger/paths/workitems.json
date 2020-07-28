@@ -528,5 +528,94 @@
         }
       }
     }
+  },
+  "local.studies.csv": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitems for local Studies specified in CSV",
+      "operationId": "CreateWorkitemsLocalStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        }
+      ],
+      "requestBody": {
+        "description": "CSV File containing Study Instance UIDs",
+        "required": true,
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+        },
+        "400": {
+          "description": "CSV field for Study Instance UID is specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "external.studies.csv": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitems for external Studies specified in CSV",
+      "operationId": "RetrieveStudiesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Move SCP AE Title or UPS Template with specified ID not configured"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
   }
 }

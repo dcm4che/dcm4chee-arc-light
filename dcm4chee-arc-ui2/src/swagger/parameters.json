@@ -400,6 +400,15 @@
       "type": "string"
     }
   },
+  "upsTemplateIDPathParam": {
+    "name": "upsTemplateID",
+    "in": "path",
+    "description": "UPS Template ID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  }
   "storageIDPathParam": {
     "name": "storageID",
     "in": "path",

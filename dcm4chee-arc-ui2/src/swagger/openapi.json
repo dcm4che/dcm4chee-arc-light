@@ -986,6 +986,12 @@
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/mark4retrieve/dicom:{destination}": {
       "$ref": "paths/legacy.json#/move.instances.mark4retrieve"
+    },
+    "/aets/{aet}/rs/studies/csv:{field}/workitems/{upsTemplateID}": {
+      "$ref": "paths/workitems.json#/local.studies.csv"
+    },
+    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/workitems/{upsTemplateID}": {
+      "$ref": "paths/workitems.json#/external.studies.csv"
     }
   }
 }
