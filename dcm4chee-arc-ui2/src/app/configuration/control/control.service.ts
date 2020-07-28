@@ -93,9 +93,10 @@ export class ControlService {
                 });
             });
         }catch (e) {
-            if(this.appservices.archiveDeviceName){
-                devices[this.appservices.archiveDeviceName] = {
-                    dcmuiDeviceURLName:this.appservices.archiveDeviceName
+            if($this.appservices.archiveDeviceName || ($this.appservices.archiveDevice && _.hasIn($this.appservices,"archiveDevice.dicomDeviceName"))){
+                const deviceName = $this.appservices.archiveDeviceName || _.get($this.appservices,"archiveDevice.dicomDeviceName");
+                devices[deviceName] = {
+                    dcmuiDeviceURLName:deviceName
                 }
             }
         }
