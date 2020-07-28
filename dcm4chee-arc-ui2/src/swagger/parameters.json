@@ -408,7 +408,7 @@
     "schema": {
       "type": "string"
     }
-  }
+  },
   "storageIDPathParam": {
     "name": "storageID",
     "in": "path",
