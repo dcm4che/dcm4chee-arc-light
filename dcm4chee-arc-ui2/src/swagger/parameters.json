@@ -1325,6 +1325,22 @@
       "type": "string"
     }
   },
+  "upsScheduledTime": {
+    "name": "scheduledTime",
+    "in": "query",
+    "description": "Scheduled Procedure Step Start DateTime (0040,4005) in created UPS.",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "upsLabel": {
+    "name": "upsLabel",
+    "in": "query",
+    "description": "Value of Procedure Step Label (0074,1204) in created UPS.",
+    "schema": {
+      "type": "string"
+    }
+  },
   "updatedBefore": {
     "name": "updatedBefore",
     "in": "query",

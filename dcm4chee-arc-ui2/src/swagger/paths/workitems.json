@@ -545,6 +545,12 @@
         },
         {
           "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
         }
       ],
       "requestBody": {
@@ -597,6 +603,12 @@
         },
         {
           "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
         }
       ],
       "responses": {
