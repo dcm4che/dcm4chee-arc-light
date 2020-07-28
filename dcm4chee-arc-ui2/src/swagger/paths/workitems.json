@@ -584,7 +584,7 @@
         "UPS-RS"
       ],
       "summary": "Create Workitems for external Studies specified in CSV",
-      "operationId": "RetrieveStudiesCSV",
+      "operationId": "CreateWorkitemsExternalStudiesCSV",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
