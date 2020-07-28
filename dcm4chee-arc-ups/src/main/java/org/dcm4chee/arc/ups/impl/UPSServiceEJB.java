@@ -935,6 +935,7 @@ public class UPSServiceEJB {
             attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(arcHL7App, hl7Fields, upsOnHL7));
         if (!attrs.contains(Tag.ProcedureStepLabel))
             attrs.setString(Tag.ProcedureStepLabel, VR.LO, upsOnHL7.getProcedureStepLabel(hl7Fields));
+        attrs.newSequence(Tag.InputInformationSequence, 0);
         return attrs;
     }
 
