@@ -1325,6 +1325,14 @@
       "type": "string"
     }
   },
+  "csvPatientID": {
+    "name": "csvPatientID",
+    "in": "query",
+    "description": "CSV field which contains the Patient ID and Issuer encoded as HL7 CX",
+    "schema": {
+      "type": "integer"
+    }
+  },
   "upsScheduledTime": {
     "name": "scheduledTime",
     "in": "query",
