@@ -745,7 +745,7 @@ public class UPSServiceEJB {
             Attributes attrs = ups.getAttributes();
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getStartDateTimeDelay()));
             if (!attrs.contains(Tag.InputInformationSequence))
-                attrs.newSequence(Tag.InputInformationSequence, 0);
+                attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
             ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
             return ups;
