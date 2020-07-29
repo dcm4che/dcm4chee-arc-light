@@ -1328,7 +1328,7 @@
   "upsScheduledTime": {
     "name": "scheduledTime",
     "in": "query",
-    "description": "Scheduled Procedure Step Start DateTime (0040,4005) in created UPS.",
+    "description": "Scheduled Procedure Step Start DateTime (0040,4005) as <datetime> in created UPS.",
     "schema": {
       "type": "string"
     }

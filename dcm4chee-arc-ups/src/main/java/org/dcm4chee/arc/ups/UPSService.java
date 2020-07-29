@@ -44,15 +44,18 @@ package org.dcm4chee.arc.ups;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.Subscription;
+import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.websocket.Session;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 public interface UPSService {
@@ -82,4 +85,7 @@ public interface UPSService {
     void unregisterWebsocketChannel(Session session);
 
     List<Session> getWebsocketChannels(String subscriberAET);
+
+    int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, UPSTemplate upsTemplate,
+                         List<String> studyIUIDs, Date upsScheduledTime, Calendar now, String upsLabel);
 }

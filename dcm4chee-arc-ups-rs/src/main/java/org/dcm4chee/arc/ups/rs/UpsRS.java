@@ -52,6 +52,8 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -62,6 +64,9 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.CSVFormat;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -71,17 +76,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 @RequestScoped
@@ -112,6 +117,9 @@ public class UpsRS {
 
     @Context
     private HttpHeaders headers;
+
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
 
     @Inject
     private Device device;
@@ -262,11 +270,123 @@ public class UpsRS {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/studies/csv:{field}/workitems/{upsTemplateID}")
+    public Response createWorkitems(
+            @PathParam("field") int field,
+            @PathParam("upsTemplateID") String upsTemplateID,
+            @QueryParam("upsLabel") String upsLabel,
+            @QueryParam("upsScheduledTime") String upsScheduledTime,
+            InputStream in) {
+        return processCSV(field, upsTemplateID, upsLabel, upsScheduledTime, in);
+    }
+
+    private Response processCSV(int field, String upsTemplateID, String upsLabel, String scheduledTime, InputStream in) {
+        Response.Status status = Response.Status.BAD_REQUEST;
+        if (field < 1)
+            return errResponse(
+                    "CSV field for Study Instance UID should be greater than or equal to 1", status);
+
+        ArchiveAEExtension arcAE = getArchiveAE();
+        int count = 0;
+        String warning = null;
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
+        UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
+        List<String> studyUIDs = new ArrayList<>();
+        Calendar now = Calendar.getInstance();
+        Date upsScheduledTime = toDate(scheduledTime);
+        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+        try (
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
+        ) {
+            boolean header = true;
+            for (CSVRecord csvRecord : parser) {
+                if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
+                    continue;
+
+                String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
+                if (header && studyUID.chars().allMatch(Character::isLetter)) {
+                    header = false;
+                    continue;
+                }
+
+                if (!arcDev.isValidateUID() || validateUID(studyUID))
+                    studyUIDs.add(studyUID);
+
+                if (studyUIDs.size() == csvUploadChunkSize) {
+                    count += service.createUPSRecords(
+                                httpServletRequestInfo, arcAE, upsTemplate, studyUIDs, upsScheduledTime, now, upsLabel);
+                    studyUIDs.clear();
+                }
+            }
+            if (!studyUIDs.isEmpty())
+                count += service.createUPSRecords(
+                        httpServletRequestInfo, arcAE, upsTemplate, studyUIDs, upsScheduledTime, now, upsLabel);
+
+            if (count == 0) {
+                warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
+                status = Response.Status.NO_CONTENT;
+            }
+        } catch (Exception e) {
+            warning = e.getMessage();
+            status = Response.Status.INTERNAL_SERVER_ERROR;
+        }
+        if (warning == null && count > 0)
+            return Response.accepted(count(count)).build();
+
+        LOG.warn("Response {} caused by {}", status, warning);
+        Response.ResponseBuilder builder = Response.status(status)
+                .header("Warning", warning);
+        if (count > 0)
+            builder.entity(count(count));
+
+        return builder.build();
+    }
+
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
+    private boolean validateUID(String studyUID) {
+        boolean valid = UIDUtils.isValid(studyUID);
+        if (!valid)
+            LOG.warn("Invalid UID in CSV file: " + studyUID);
+        return valid;
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private Date toDate(String upsScheduledTime) {
+        if (upsScheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(upsScheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return null;
+    }
+
+    private static String count(int count) {
+        return "{\"count\":" + count + '}';
     }
 
     public void validate() {

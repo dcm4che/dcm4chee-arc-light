@@ -51,6 +51,7 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ReverseDNS;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.UPS;
@@ -77,6 +78,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -89,7 +91,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class UPSServiceImpl implements UPSService {
 
-    private static Logger LOG = LoggerFactory.getLogger(UPSServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UPSServiceImpl.class);
     private static final IOD CREATE_IOD = loadIOD("create-iod.xml");
     private static final IOD SET_IOD = loadIOD("set-iod.xml");
 
@@ -151,6 +153,29 @@ public class UPSServiceImpl implements UPSService {
             } catch (Exception ignore) {}
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
+    }
+
+    @Override
+    public int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
+                                UPSTemplate upsTemplate, List<String> studyIUIDs, Date upsScheduledTime,
+                                Calendar now, String upsLabel) {
+        int count = 0;
+        for (String studyIUID : studyIUIDs) {
+            try {
+                UPSContext ctx = new UPSContextImpl(httpServletRequestInfo, arcAE);
+                ctx.setUPSInstanceUID(UIDUtils.createUID());
+                ctx.setAttributes(
+                        UPSUtils.upsAttrsByTemplate(ctx, upsTemplate, studyIUID, upsScheduledTime, now, upsLabel));
+                UPS ups = ejb.createUPS(ctx);
+                fireUPSEvents(ctx);
+                LOG.info("UPSTemplate[id={}]: created {}", upsTemplate.getUPSTemplateID(), ups);
+                count++;
+            } catch (Exception e) {
+                LOG.info("UPSTemplate[id={}]: create UPS failed for Study[uid={}]\n",
+                        upsTemplate.getUPSTemplateID(), studyIUID, e);
+            }
+        }
+        return count;
     }
 
     @Override
