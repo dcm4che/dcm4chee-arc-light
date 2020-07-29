@@ -133,7 +133,7 @@ public class UPSServiceImpl implements UPSService {
             throw new DicomServiceException(Status.DuplicateSOPinstance,
                     "Cannot create UPS Global Subscription SOP Instance", false);
         }
-        if ("SCHEDULED".equals(attrs.getString(Tag.ScheduledProcedureStepStatus))) {
+        if (!"SCHEDULED".equals(attrs.getString(Tag.ProcedureStepState))) {
             throw new DicomServiceException(Status.UPSNotScheduled,
                     "The provided value of UPS State was not SCHEDULED");
         }
