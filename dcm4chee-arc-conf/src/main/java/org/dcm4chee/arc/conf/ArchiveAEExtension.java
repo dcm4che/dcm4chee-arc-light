@@ -184,7 +184,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public String upsWorklistLabel() {
-        return defaultCharacterSet != null
+        return upsWorklistLabel != null
                 ? upsWorklistLabel
                 : StringUtils.maskNull(getArchiveDeviceExtension().getUPSWorklistLabel(), ae.getAETitle());
     }
