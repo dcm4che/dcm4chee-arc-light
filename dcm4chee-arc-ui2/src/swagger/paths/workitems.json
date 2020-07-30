@@ -614,11 +614,14 @@
         "202": {
           "$ref": "../responses.json#/countResults"
         },
+        "204": {
+          "description": "No matching Study found. No Workitem was created."
+        },
         "400": {
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or no matching Study or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
         },
         "500": {
           "description": "Internal Server Error."
@@ -626,7 +629,7 @@
       }
     }
   },
-  "local.studies.series": {
+  "local.series": {
     "post": {
       "tags": [
         "UPS-RS"
@@ -714,11 +717,14 @@
         "201": {
           "description": "Workitem was created."
         },
+        "204": {
+          "description": "No matching Series found. No Workitem was created."
+        },
         "400": {
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or no matching Series or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
         },
         "500": {
           "description": "Internal Server Error."
@@ -726,7 +732,7 @@
       }
     }
   },
-  "local.studies.series.instances": {
+  "local.instances": {
     "post": {
       "tags": [
         "UPS-RS"
@@ -817,11 +823,14 @@
         "201": {
           "description": "Workitem was created."
         },
+        "204": {
+          "description": "No matching Instance found. No Workitem was created."
+        },
         "400": {
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or no matching Instance or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
         },
         "500": {
           "description": "Internal Server Error."
@@ -883,6 +892,345 @@
         },
         "500": {
           "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "external.studies": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitems for external matching Studies",
+      "operationId": "CreateWorkitemsForExternalMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "No matching Study found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-MOVE SCP."
+        }
+      }
+    }
+  },
+  "external.series": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitem for external matching Series of Study",
+      "operationId": "CreateWorkitemForExternalMatchingSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Workitem was created."
+        },
+        "204": {
+          "description": "No matching Series found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-MOVE SCP."
+        }
+      }
+    }
+  },
+  "external.instances": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitem for external matching Instances of Series",
+      "operationId": "CreateWorkitemForExternalMatchingInstancesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Workitem was created."
+        },
+        "204": {
+          "description": "No matching Instances found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-MOVE SCP."
+        }
+      }
+    }
+  },
+  "external2.studies": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitems for external matching Studies queried from C-FIND SCP",
+      "operationId": "CreateWorkitemsForExternalMatchingStudies2",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "No matching Study found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-FIND SCP."
+        }
+      }
+    }
+  },
+  "external2.series": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitem for external matching Series of Study queried from C-FIND SCP",
+      "operationId": "CreateWorkitemForExternalMatchingSeriesOfStudy2",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Workitem was created."
+        },
+        "204": {
+          "description": "No matching Series found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-FIND SCP."
+        }
+      }
+    }
+  },
+  "external2.instances": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Create Workitem for external matching Instances of Series queried from C-FIND SCP",
+      "operationId": "CreateWorkitemForExternalMatchingInstancesOfSeries2",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/moveSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/findSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/upsLabel"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Workitem was created."
+        },
+        "204": {
+          "description": "No matching Instances found. No Workitem was created."
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure on query of C-FIND SCP."
         }
       }
     }
