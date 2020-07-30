@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,8 +65,8 @@ public class UPSUtils {
     private static final String unknownSOPCUID = "1.2.40.0.13.1.15.110.3.165.3";
     private static final String unknownSOPIUID = "1.2.40.0.13.1.15.110.3.165.4";
 
-    static Attributes upsAttrsByTemplate(UPSContext ctx, UPSTemplate upsTemplate, String studyUID,
-                                         Date upsScheduledTime, Calendar now, String upsLabel) {
+    static Attributes upsAttrsByTemplate(UPSContext ctx, UPSTemplate upsTemplate, Map.Entry<String,
+            IDWithIssuer> studyPatient, Date upsScheduledTime, Calendar now, String upsLabel) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Attributes attrs = new Attributes();
         attrs.setDate(Tag.ScheduledProcedureStepStartDateTime,
@@ -82,7 +83,7 @@ public class UPSUtils {
         attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsTemplate.getUPSPriority().name());
         attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
         if (upsTemplate.isIncludeStudyInstanceUID())
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyPatient.getKey());
         if (upsTemplate.getCompletionDateTimeDelay() != null)
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsTemplate.getCompletionDateTimeDelay()));
         if (upsTemplate.getScheduledHumanPerformer() != null)
@@ -101,8 +102,9 @@ public class UPSUtils {
                     .add(outputStorage(upsTemplate.getDestinationAE()));
         updateIncludeInputInformation(
                 attrs.newSequence(Tag.InputInformationSequence, 1),
-                studyUID,
+                studyPatient.getKey(),
                 arcAE.getApplicationEntity().getAETitle());
+        studyPatient.getValue().exportPatientIDWithIssuer(attrs);
         return attrs;
     }
 

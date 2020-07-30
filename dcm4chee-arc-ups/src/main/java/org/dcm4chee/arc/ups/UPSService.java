@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.ups;
 
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -52,6 +53,7 @@ import javax.websocket.Session;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -87,5 +89,5 @@ public interface UPSService {
     List<Session> getWebsocketChannels(String subscriberAET);
 
     int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, UPSTemplate upsTemplate,
-                         List<String> studyIUIDs, Date upsScheduledTime, Calendar now, String upsLabel);
+                         Map<String, IDWithIssuer> studyPatientMap, Date upsScheduledTime, Calendar now, String upsLabel);
 }

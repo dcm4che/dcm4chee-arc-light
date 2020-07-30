@@ -76,10 +76,7 @@ import javax.inject.Inject;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -157,22 +154,22 @@ public class UPSServiceImpl implements UPSService {
 
     @Override
     public int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
-                                UPSTemplate upsTemplate, List<String> studyIUIDs, Date upsScheduledTime,
+                                UPSTemplate upsTemplate, Map<String, IDWithIssuer> studyPatientMap, Date upsScheduledTime,
                                 Calendar now, String upsLabel) {
         int count = 0;
-        for (String studyIUID : studyIUIDs) {
+        for (Map.Entry<String, IDWithIssuer> studyPatient : studyPatientMap.entrySet()) {
             try {
                 UPSContext ctx = new UPSContextImpl(httpServletRequestInfo, arcAE);
                 ctx.setUPSInstanceUID(UIDUtils.createUID());
                 ctx.setAttributes(
-                        UPSUtils.upsAttrsByTemplate(ctx, upsTemplate, studyIUID, upsScheduledTime, now, upsLabel));
+                        UPSUtils.upsAttrsByTemplate(ctx, upsTemplate, studyPatient, upsScheduledTime, now, upsLabel));
                 UPS ups = ejb.createUPS(ctx);
                 fireUPSEvents(ctx);
                 LOG.info("UPSTemplate[id={}]: created {}", upsTemplate.getUPSTemplateID(), ups);
                 count++;
             } catch (Exception e) {
-                LOG.info("UPSTemplate[id={}]: create UPS failed for Study[uid={}]\n",
-                        upsTemplate.getUPSTemplateID(), studyIUID, e);
+                LOG.info("UPSTemplate[id={}]: create UPS failed for Study[uid={}] of Patient[id={}]\n",
+                        upsTemplate.getUPSTemplateID(), studyPatient.getKey(),studyPatient.getValue(), e);
             }
         }
         return count;

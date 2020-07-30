@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
@@ -277,15 +278,21 @@ public class UpsRS {
             @PathParam("upsTemplateID") String upsTemplateID,
             @QueryParam("upsLabel") String upsLabel,
             @QueryParam("upsScheduledTime") String upsScheduledTime,
+            @QueryParam("csvPatientID") String csvPatientIDField,
             InputStream in) {
-        return processCSV(field, upsTemplateID, upsLabel, upsScheduledTime, in);
+        return processCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
     }
 
-    private Response processCSV(int field, String upsTemplateID, String upsLabel, String scheduledTime, InputStream in) {
+    private Response processCSV(int studyUIDField, String upsTemplateID, String upsLabel, String scheduledTime,
+                                String csvPatientIDField, InputStream in) {
         Response.Status status = Response.Status.BAD_REQUEST;
-        if (field < 1)
+        if (studyUIDField < 1)
             return errResponse(
                     "CSV field for Study Instance UID should be greater than or equal to 1", status);
+
+        int patientIDField = 0;
+        if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
+            return errResponse("CSV field for Patient ID should be greater than or equal to 1", status);
 
         ArchiveAEExtension arcAE = getArchiveAE();
         int count = 0;
@@ -293,7 +300,7 @@ public class UpsRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
         UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
-        List<String> studyUIDs = new ArrayList<>();
+        Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
         Calendar now = Calendar.getInstance();
         Date upsScheduledTime = toDate(scheduledTime);
         HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
@@ -306,24 +313,26 @@ public class UpsRS {
                 if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                     continue;
 
-                String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
+                String studyUID = csvRecord.get(studyUIDField - 1).replaceAll("\"", "");
                 if (header && studyUID.chars().allMatch(Character::isLetter)) {
                     header = false;
                     continue;
                 }
 
-                if (!arcDev.isValidateUID() || validateUID(studyUID))
-                    studyUIDs.add(studyUID);
+                if (!arcDev.isValidateUID() || validateUID(studyUID)) {
+                    IDWithIssuer pid = new IDWithIssuer(csvRecord.get(patientIDField - 1).replaceAll("\"", ""));
+                    studyPatientMap.put(studyUID, pid);
+                }
 
-                if (studyUIDs.size() == csvUploadChunkSize) {
+                if (studyPatientMap.size() == csvUploadChunkSize) {
                     count += service.createUPSRecords(
-                                httpServletRequestInfo, arcAE, upsTemplate, studyUIDs, upsScheduledTime, now, upsLabel);
-                    studyUIDs.clear();
+                                httpServletRequestInfo, arcAE, upsTemplate, studyPatientMap, upsScheduledTime, now, upsLabel);
+                    studyPatientMap.clear();
                 }
             }
-            if (!studyUIDs.isEmpty())
+            if (!studyPatientMap.isEmpty())
                 count += service.createUPSRecords(
-                        httpServletRequestInfo, arcAE, upsTemplate, studyUIDs, upsScheduledTime, now, upsLabel);
+                        httpServletRequestInfo, arcAE, upsTemplate, studyPatientMap, upsScheduledTime, now, upsLabel);
 
             if (count == 0) {
                 warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -350,6 +359,15 @@ public class UpsRS {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
+    private int patientIDField(String csvPatientIDField) {
+        try {
+            return Integer.parseInt(csvPatientIDField);
+        } catch (NumberFormatException e) {
+            LOG.info("CSV Patient ID Field {} cannot be parsed", csvPatientIDField);
+        }
+        return 0;
     }
 
     private char csvDelimiter() {
