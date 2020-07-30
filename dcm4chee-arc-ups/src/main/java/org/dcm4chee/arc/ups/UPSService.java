@@ -88,6 +88,12 @@ public interface UPSService {
 
     List<Session> getWebsocketChannels(String subscriberAET);
 
-    int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, UPSTemplate upsTemplate,
-                         Map<String, IDWithIssuer> studyPatientMap, Date upsScheduledTime, Calendar now, String upsLabel);
+    int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo,
+                         ArchiveAEExtension arcAE,
+                         UPSTemplate upsTemplate,
+                         Map<String, IDWithIssuer> studyPatientMap,
+                         Date upsScheduledTime,
+                         Calendar now,
+                         String upsLabel,
+                         String movescp);
 }

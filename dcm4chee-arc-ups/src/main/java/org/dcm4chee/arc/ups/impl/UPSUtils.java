@@ -46,8 +46,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.ups.UPSContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -60,13 +58,17 @@ import java.util.Map;
  */
 
 public class UPSUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(UPSUtils.class);
     private static final String unknownSeriesIUID = "1.2.40.0.13.1.15.110.3.165.2";
     private static final String unknownSOPCUID = "1.2.40.0.13.1.15.110.3.165.3";
     private static final String unknownSOPIUID = "1.2.40.0.13.1.15.110.3.165.4";
 
-    static Attributes upsAttrsByTemplate(UPSContext ctx, UPSTemplate upsTemplate, Map.Entry<String,
-            IDWithIssuer> studyPatient, Date upsScheduledTime, Calendar now, String upsLabel) {
+    static Attributes upsAttrsByTemplate(UPSContext ctx,
+                                         UPSTemplate upsTemplate,
+                                         Map.Entry<String, IDWithIssuer> studyPatient,
+                                         Date upsScheduledTime,
+                                         Calendar now,
+                                         String upsLabel,
+                                         String movescp) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Attributes attrs = new Attributes();
         attrs.setDate(Tag.ScheduledProcedureStepStartDateTime,
@@ -103,7 +105,7 @@ public class UPSUtils {
         updateIncludeInputInformation(
                 attrs.newSequence(Tag.InputInformationSequence, 1),
                 studyPatient.getKey(),
-                arcAE.getApplicationEntity().getAETitle());
+                movescp != null ? movescp : arcAE.getApplicationEntity().getAETitle());
         studyPatient.getValue().exportPatientIDWithIssuer(attrs);
         return attrs;
     }

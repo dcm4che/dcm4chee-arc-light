@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
@@ -53,8 +52,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -65,9 +62,6 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.CSVFormat;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -80,7 +74,6 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -280,11 +273,11 @@ public class UpsRS {
             @QueryParam("upsScheduledTime") String upsScheduledTime,
             @QueryParam("csvPatientID") String csvPatientIDField,
             InputStream in) {
-        return processCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
+        return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
     }
 
-    private Response processCSV(int studyUIDField, String upsTemplateID, String upsLabel, String scheduledTime,
-                                String csvPatientIDField, InputStream in) {
+    private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel,
+                                            String scheduledTime, String csvPatientIDField, InputStream in) {
         Response.Status status = Response.Status.BAD_REQUEST;
         if (studyUIDField < 1)
             return errResponse(
@@ -294,64 +287,14 @@ public class UpsRS {
         if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
             return errResponse("CSV field for Patient ID should be greater than or equal to 1", status);
 
-        ArchiveAEExtension arcAE = getArchiveAE();
-        int count = 0;
-        String warning = null;
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
-        UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
-        Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
-        Calendar now = Calendar.getInstance();
-        Date upsScheduledTime = toDate(scheduledTime);
-        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
-        try (
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
-        ) {
-            boolean header = true;
-            for (CSVRecord csvRecord : parser) {
-                if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
-                    continue;
-
-                String studyUID = csvRecord.get(studyUIDField - 1).replaceAll("\"", "");
-                if (header && studyUID.chars().allMatch(Character::isLetter)) {
-                    header = false;
-                    continue;
-                }
-
-                if (!arcDev.isValidateUID() || validateUID(studyUID)) {
-                    IDWithIssuer pid = new IDWithIssuer(csvRecord.get(patientIDField - 1).replaceAll("\"", ""));
-                    studyPatientMap.put(studyUID, pid);
-                }
-
-                if (studyPatientMap.size() == csvUploadChunkSize) {
-                    count += service.createUPSRecords(
-                                httpServletRequestInfo, arcAE, upsTemplate, studyPatientMap, upsScheduledTime, now, upsLabel);
-                    studyPatientMap.clear();
-                }
-            }
-            if (!studyPatientMap.isEmpty())
-                count += service.createUPSRecords(
-                        httpServletRequestInfo, arcAE, upsTemplate, studyPatientMap, upsScheduledTime, now, upsLabel);
-
-            if (count == 0) {
-                warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
-                status = Response.Status.NO_CONTENT;
-            }
-        } catch (Exception e) {
-            warning = e.getMessage();
-            status = Response.Status.INTERNAL_SERVER_ERROR;
-        }
-        if (warning == null && count > 0)
-            return Response.accepted(count(count)).build();
-
-        LOG.warn("Response {} caused by {}", status, warning);
-        Response.ResponseBuilder builder = Response.status(status)
-                .header("Warning", warning);
-        if (count > 0)
-            builder.entity(count(count));
-
-        return builder.build();
+        UpsCSV upsCSV = new UpsCSV(device,
+                                service,
+                                HttpServletRequestInfo.valueOf(request),
+                                getArchiveAE(),
+                                studyUIDField,
+                                upsTemplateID,
+                                csvDelimiter());
+        return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, null, in);
     }
 
     @Override
@@ -361,6 +304,10 @@ public class UpsRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
     private int patientIDField(String csvPatientIDField) {
         try {
             return Integer.parseInt(csvPatientIDField);
@@ -368,17 +315,6 @@ public class UpsRS {
             LOG.info("CSV Patient ID Field {} cannot be parsed", csvPatientIDField);
         }
         return 0;
-    }
-
-    private char csvDelimiter() {
-        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
-    }
-
-    private boolean validateUID(String studyUID) {
-        boolean valid = UIDUtils.isValid(studyUID);
-        if (!valid)
-            LOG.warn("Invalid UID in CSV file: " + studyUID);
-        return valid;
     }
 
     private Response errResponse(String msg, Response.Status status) {
@@ -393,24 +329,10 @@ public class UpsRS {
                 .build();
     }
 
-    private Date toDate(String upsScheduledTime) {
-        if (upsScheduledTime != null)
-            try {
-                return new SimpleDateFormat("yyyyMMddhhmmss").parse(upsScheduledTime);
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-            }
-        return null;
-    }
-
-    private static String count(int count) {
-        return "{\"count\":" + count + '}';
-    }
-
     public void validate() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
-        if (uriInfo.getPath().indexOf(UID.UPSFilteredGlobalSubscriptionSOPInstance) >= 0
+        if (uriInfo.getPath().contains(UID.UPSFilteredGlobalSubscriptionSOPInstance)
                 && "POST".equals(request.getMethod())
                 && !uriInfo.getPath().endsWith("/suspend")) {
             matchKeys = new QueryAttributes(uriInfo, null).getQueryKeys();

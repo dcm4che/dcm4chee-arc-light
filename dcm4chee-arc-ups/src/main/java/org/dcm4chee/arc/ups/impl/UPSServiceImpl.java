@@ -153,16 +153,22 @@ public class UPSServiceImpl implements UPSService {
     }
 
     @Override
-    public int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
-                                UPSTemplate upsTemplate, Map<String, IDWithIssuer> studyPatientMap, Date upsScheduledTime,
-                                Calendar now, String upsLabel) {
+    public int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo,
+                                ArchiveAEExtension arcAE,
+                                UPSTemplate upsTemplate,
+                                Map<String, IDWithIssuer> studyPatientMap,
+                                Date upsScheduledTime,
+                                Calendar now,
+                                String upsLabel,
+                                String movescp) {
         int count = 0;
         for (Map.Entry<String, IDWithIssuer> studyPatient : studyPatientMap.entrySet()) {
             try {
                 UPSContext ctx = new UPSContextImpl(httpServletRequestInfo, arcAE);
                 ctx.setUPSInstanceUID(UIDUtils.createUID());
                 ctx.setAttributes(
-                        UPSUtils.upsAttrsByTemplate(ctx, upsTemplate, studyPatient, upsScheduledTime, now, upsLabel));
+                        UPSUtils.upsAttrsByTemplate(
+                                ctx, upsTemplate, studyPatient, upsScheduledTime, now, upsLabel, movescp));
                 UPS ups = ejb.createUPS(ctx);
                 fireUPSEvents(ctx);
                 LOG.info("UPSTemplate[id={}]: created {}", upsTemplate.getUPSTemplateID(), ups);
