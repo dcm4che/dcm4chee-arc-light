@@ -43,38 +43,56 @@ package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.EnumSet;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since July 2020
  */
 @RequestScoped
-@Path("aets/{AETitle}/dimse/{movescp}")
+@Path("aets/{AETitle}/dimse/{moveSCP}")
+@InvokeValidate(type = UpsDimseRS.class)
 public class UpsDimseRS {
     private static final Logger LOG = LoggerFactory.getLogger(UpsDimseRS.class);
 
     @Context
     private HttpServletRequest request;
+
+    @Context
+    private UriInfo uriInfo;
 
     @Inject
     private Device device;
@@ -85,11 +103,14 @@ public class UpsDimseRS {
     @Inject
     private IApplicationEntityCache aeCache;
 
+    @Inject
+    private CFindSCU findSCU;
+
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("movescp")
-    private String movescp;
+    @PathParam("moveSCP")
+    private String moveSCP;
 
     @QueryParam("upsLabel")
     private String upsLabel;
@@ -99,6 +120,74 @@ public class UpsDimseRS {
 
     @HeaderParam("Content-Type")
     private MediaType contentType;
+
+    @QueryParam("fuzzymatching")
+    @Pattern(regexp = "true|false")
+    private String fuzzymatching;
+
+    @QueryParam("priority")
+    @Pattern(regexp = "0|1|2")
+    private String priority;
+
+    @QueryParam("SplitStudyDateRange")
+    @ValidValueOf(type = Duration.class)
+    private String splitStudyDateRange;
+
+    @POST
+    @Path("/studies/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsMatchingStudies(@PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.STUDY, upsTemplateID, null, null);
+    }
+
+    @POST
+    @Path("/studies/{studyInstanceUID}/series/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsMatchingSeries(
+            @PathParam("studyInstanceUID") String studyInstanceUID,
+            @PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.SERIES, upsTemplateID, studyInstanceUID, null);
+    }
+
+    @POST
+    @Path("/studies/{studyInstanceUID}/series/{seriesInstanceUID}/instances/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsMatchingInstances(
+            @PathParam("studyInstanceUID") String studyInstanceUID,
+            @PathParam("seriesInstanceUID") String seriesInstanceUID,
+            @PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.IMAGE, upsTemplateID, studyInstanceUID, seriesInstanceUID);
+    }
+
+    @POST
+    @Path("/query:{findSCP}/studies/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsQueryFindSCPMatchingStudies(
+            @PathParam("findSCP") String findSCP,
+            @PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.STUDY, findSCP, upsTemplateID, null, null);
+    }
+
+    @POST
+    @Path("/query:{findSCP}/studies/{studyInstanceUID}/series/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsQueryFindSCPMatchingSeries(
+            @PathParam("findSCP") String findSCP,
+            @PathParam("studyInstanceUID") String studyInstanceUID,
+            @PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.SERIES, findSCP, upsTemplateID, studyInstanceUID, null);
+    }
+
+    @POST
+    @Path("/query:{findSCP}/studies/{studyInstanceUID}/series/{seriesInstanceUID}/instances/workitems/{upsTemplateID}")
+    @Produces("application/json")
+    public Response upsQueryFindSCPMatchingInstances(
+            @PathParam("findSCP") String findSCP,
+            @PathParam("studyInstanceUID") String studyInstanceUID,
+            @PathParam("seriesInstanceUID") String seriesInstanceUID,
+            @PathParam("upsTemplateID") String upsTemplateID) {
+        return upsMatching(QueryRetrieveLevel2.IMAGE, findSCP, upsTemplateID, studyInstanceUID, seriesInstanceUID);
+    }
 
     @POST
     @Path("/studies/csv:{field}/workitems/{upsTemplateID}")
@@ -110,9 +199,84 @@ public class UpsDimseRS {
         return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
     }
 
+    private Response upsMatching(QueryRetrieveLevel2 level, String upsTemplateID,
+                                 String studyInstanceUID, String seriesInstanceUID) {
+        return upsMatching(level, upsTemplateID, moveSCP, studyInstanceUID, seriesInstanceUID);
+    }
+
+    private Response upsMatching(QueryRetrieveLevel2 level, String queryAET, String upsTemplateID,
+                                 String studyInstanceUID, String seriesInstanceUID) {
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        try {
+            aeCache.findApplicationEntity(moveSCP);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
+            if (upsTemplate == null)
+                return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
+
+            if (queryAET != null && !queryAET.equals(moveSCP))
+                aeCache.findApplicationEntity(queryAET);
+
+            Attributes keys = queryKeys(level, studyInstanceUID, seriesInstanceUID);
+            EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
+            if (Boolean.parseBoolean(fuzzymatching))
+                queryOptions.add(QueryOption.FUZZY);
+            Association as = null;
+            String warning;
+            int count = 0;
+            Response.Status rspStatus = Response.Status.BAD_GATEWAY;
+            try {
+                as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+                DimseRSP dimseRSP = findSCU.query(as, parseInt(priority, 0), keys, 0, 1, splitStudyDateRange());
+                dimseRSP.next();
+                int status;
+                do {
+                    status = dimseRSP.getCommand().getInt(Tag.Status, -1);
+                    if (Status.isPending(status)) {
+                        //TODO
+                        count++;
+                    }
+
+                } while (dimseRSP.next());
+                warning = warning(status);
+            } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
+                rspStatus = Response.Status.NOT_FOUND;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+            } finally {
+                if (as != null)
+                    try {
+                        as.release();
+                    } catch (IOException e) {
+                        LOG.info("{}: Failed to release association:\\n", as, e);
+                    }
+            }
+            if (warning == null && count > 0)
+                return Response.accepted(count(count)).build();
+
+            if (count == 0) {
+                warning = "No matching Instances found. No Workitem was created.";
+                rspStatus = Response.Status.NO_CONTENT;
+            }
+
+            Response.ResponseBuilder builder = Response.status(rspStatus)
+                                                       .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+            return builder.build();
+        } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
+            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel, String scheduledTime,
                                             String csvPatientIDField, InputStream in) {
-        logRequest();
         if (studyUIDField < 1)
             return errResponse(Response.Status.BAD_REQUEST,
                     "CSV field for Study Instance UID should be greater than or equal to 1");
@@ -123,7 +287,7 @@ public class UpsDimseRS {
                     "CSV field for Patient ID should be greater than or equal to 1");
 
         try {
-            aeCache.findApplicationEntity(movescp);
+            aeCache.findApplicationEntity(moveSCP);
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
             if (upsTemplate == null)
@@ -140,7 +304,7 @@ public class UpsDimseRS {
                                         studyUIDField,
                                         upsTemplate,
                                         csvDelimiter());
-            return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, movescp, in);
+            return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, moveSCP, in);
         } catch (IllegalStateException | ConfigurationException e) {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
@@ -148,8 +312,53 @@ public class UpsDimseRS {
         }
     }
 
+    private Attributes queryKeys(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID) {
+        QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
+        queryAttributes.addReturnTags(level.uniqueKey());
+        Attributes keys = queryAttributes.getQueryKeys();
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
+        if (studyInstanceUID != null)
+            keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+        if (seriesInstanceUID != null)
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+        return keys;
+    }
+
+    public void validate() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
+        new QueryAttributes(uriInfo, null);
+    }
+
+    private Duration splitStudyDateRange() {
+        return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
+    }
+
+    private static int parseInt(String s, int defval) {
+        return s != null ? Integer.parseInt(s) : defval;
+    }
+
     private char csvDelimiter() {
         return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
+    private String count(int count) {
+        return "{\"count\":" + count + '}';
+    }
+
+    private String warning(int status) {
+        switch (status) {
+            case Status.Success:
+                return null;
+            case Status.OutOfResources:
+                return "A700: Refused: Out of Resources";
+            case Status.IdentifierDoesNotMatchSOPClass:
+                return "A900: Identifier does not match SOP Class";
+        }
+        return TagUtils.shortToHexString(status)
+                + ((status & Status.UnableToProcess) == Status.UnableToProcess
+                ? ": Unable to Process"
+                : ": Unexpected status code");
     }
 
     private int patientIDField(String csvPatientIDField) {
@@ -161,13 +370,11 @@ public class UpsDimseRS {
         return 0;
     }
 
-    private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
-                request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     private Response errResponse(Response.Status status, String msg) {

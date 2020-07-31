@@ -924,6 +924,12 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
@@ -979,11 +985,17 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
-        "201": {
-          "description": "Workitem was created."
+        "202": {
+          "$ref": "../responses.json#/countResults"
         },
         "204": {
           "description": "No matching Series found. No Workitem was created."
@@ -1037,11 +1049,17 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
-        "201": {
-          "description": "Workitem was created."
+        "202": {
+          "$ref": "../responses.json#/countResults"
         },
         "204": {
           "description": "No matching Instances found. No Workitem was created."
@@ -1092,6 +1110,12 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
@@ -1150,11 +1174,17 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
-        "201": {
-          "description": "Workitem was created."
+        "202": {
+          "$ref": "../responses.json#/countResults"
         },
         "204": {
           "description": "No matching Series found. No Workitem was created."
@@ -1211,11 +1241,17 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/priority"
+        },
+        {
+          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "responses": {
-        "201": {
-          "description": "Workitem was created."
+        "202": {
+          "$ref": "../responses.json#/countResults"
         },
         "204": {
           "description": "No matching Instances found. No Workitem was created."
