@@ -128,8 +128,6 @@ public class QueryAttributes {
                 case "incomplete":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":
-                case "only-stgcmt":
-                case "only-ian":
                 case "batchID":
                 case "scheduledTime":
                 case "dicomDeviceName":
