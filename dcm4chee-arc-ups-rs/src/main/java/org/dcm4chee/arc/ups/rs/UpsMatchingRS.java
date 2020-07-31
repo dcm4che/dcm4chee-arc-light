@@ -284,10 +284,14 @@ public class UpsMatchingRS {
             if (upsTemplate == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
 
+            ApplicationEntity ae = device.getApplicationEntity(aet, true);
+            if (ae == null || !ae.isInstalled())
+                return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
             UpsCSV upsCSV = new UpsCSV(device,
                                         upsService,
                                         HttpServletRequestInfo.valueOf(request),
-                                        getArchiveAE(),
+                                        ae.getAEExtensionNotNull(ArchiveAEExtension.class),
                                         studyUIDField,
                                         upsTemplate,
                                         csvDelimiter());
@@ -297,14 +301,6 @@ public class UpsMatchingRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private ArchiveAEExtension getArchiveAE() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     private char csvDelimiter() {
