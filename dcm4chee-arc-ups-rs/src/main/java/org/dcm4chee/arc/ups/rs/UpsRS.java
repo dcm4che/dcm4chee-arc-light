@@ -80,7 +80,6 @@ import java.util.function.IntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 @RequestScoped
@@ -111,9 +110,6 @@ public class UpsRS {
 
     @Context
     private HttpHeaders headers;
-
-    @HeaderParam("Content-Type")
-    private MediaType contentType;
 
     @Inject
     private Device device;
@@ -264,69 +260,11 @@ public class UpsRS {
         return Response.ok().build();
     }
 
-    @POST
-    @Path("/studies/csv:{field}/workitems/{upsTemplateID}")
-    public Response createWorkitems(
-            @PathParam("field") int field,
-            @PathParam("upsTemplateID") String upsTemplateID,
-            @QueryParam("upsLabel") String upsLabel,
-            @QueryParam("upsScheduledTime") String upsScheduledTime,
-            @QueryParam("csvPatientID") String csvPatientIDField,
-            InputStream in) {
-        return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
-    }
-
-    private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel,
-                                            String scheduledTime, String csvPatientIDField, InputStream in) {
-        Response.Status status = Response.Status.BAD_REQUEST;
-        if (studyUIDField < 1)
-            return errResponse(
-                    "CSV field for Study Instance UID should be greater than or equal to 1", status);
-
-        int patientIDField = 0;
-        if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
-            return errResponse("CSV field for Patient ID should be greater than or equal to 1", status);
-
-        UpsCSV upsCSV = new UpsCSV(device,
-                                service,
-                                HttpServletRequestInfo.valueOf(request),
-                                getArchiveAE(),
-                                studyUIDField,
-                                upsTemplateID,
-                                csvDelimiter());
-        return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, null, in);
-    }
-
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         return queryString == null ? requestURI : requestURI + '?' + queryString;
-    }
-
-    private char csvDelimiter() {
-        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
-    }
-
-    private int patientIDField(String csvPatientIDField) {
-        try {
-            return Integer.parseInt(csvPatientIDField);
-        } catch (NumberFormatException e) {
-            LOG.info("CSV Patient ID Field {} cannot be parsed", csvPatientIDField);
-        }
-        return 0;
-    }
-
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
-    }
-
-    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
-        LOG.warn("Response {} caused by {}", status, errorMsg);
-        return Response.status(status)
-                .entity(errorMsg)
-                .type("text/plain")
-                .build();
     }
 
     public void validate() {

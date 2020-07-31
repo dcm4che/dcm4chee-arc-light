@@ -48,6 +48,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.entity.ExpirationState;
@@ -68,8 +69,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -94,6 +97,9 @@ public class UpsMatchingRS {
 
     @Context
     private UriInfo uriInfo;
+
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
 
     @Inject
     private Device device;
@@ -207,6 +213,16 @@ public class UpsMatchingRS {
                 studyInstanceUID,
                 seriesInstanceUID);
     }
+
+    @POST
+    @Path("/studies/csv:{field}/workitems/{upsTemplateID}")
+    public Response createWorkitems(
+            @PathParam("field") int field,
+            @PathParam("upsTemplateID") String upsTemplateID,
+            @QueryParam("csvPatientID") String csvPatientIDField,
+            InputStream in) {
+        return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
+    }
     
     private Response upsMatching(String upsTemplateID, String method, QueryRetrieveLevel2 qrlevel,
                                  String studyIUID, String seriesIUID) {
@@ -250,6 +266,58 @@ public class UpsMatchingRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel,
+                                            String scheduledTime, String csvPatientIDField, InputStream in) {
+        Response.Status status = Response.Status.BAD_REQUEST;
+        if (studyUIDField < 1)
+            return errResponse(status, "CSV field for Study Instance UID should be greater than or equal to 1");
+
+        int patientIDField = 0;
+        if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
+            return errResponse(status, "CSV field for Patient ID should be greater than or equal to 1");
+
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
+            if (upsTemplate == null)
+                return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
+
+            UpsCSV upsCSV = new UpsCSV(device,
+                                        upsService,
+                                        HttpServletRequestInfo.valueOf(request),
+                                        getArchiveAE(),
+                                        studyUIDField,
+                                        upsTemplate,
+                                        csvDelimiter());
+            return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, null, in);
+        } catch (IllegalStateException e) {
+            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
+    private int patientIDField(String csvPatientIDField) {
+        try {
+            return Integer.parseInt(csvPatientIDField);
+        } catch (NumberFormatException e) {
+            LOG.info("CSV Patient ID Field {} cannot be parsed", csvPatientIDField);
+        }
+        return 0;
     }
 
     private QueryContext queryContext(

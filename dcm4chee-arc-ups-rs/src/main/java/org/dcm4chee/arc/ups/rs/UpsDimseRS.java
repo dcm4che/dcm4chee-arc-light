@@ -46,6 +46,8 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
@@ -59,6 +61,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -109,30 +113,35 @@ public class UpsDimseRS {
     private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel, String scheduledTime,
                                             String csvPatientIDField, InputStream in) {
         logRequest();
-        try {
-            aeCache.findApplicationEntity(movescp);
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        }
-
         if (studyUIDField < 1)
-            return errResponse("CSV field for Study Instance UID should be greater than or equal to 1",
-                    Response.Status.BAD_REQUEST);
+            return errResponse(Response.Status.BAD_REQUEST,
+                    "CSV field for Study Instance UID should be greater than or equal to 1");
 
         int patientIDField = 0;
         if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
-            return errResponse("CSV field for Patient ID should be greater than or equal to 1",
-                    Response.Status.BAD_REQUEST);
+            return errResponse(Response.Status.BAD_REQUEST,
+                    "CSV field for Patient ID should be greater than or equal to 1");
 
-        UpsCSV upsCSV = new UpsCSV(
-                                device,
-                                upsService,
-                                HttpServletRequestInfo.valueOf(request),
-                                getArchiveAE(),
-                                studyUIDField,
-                                upsTemplateID,
-                                csvDelimiter());
-        return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, movescp, in);
+        try {
+            aeCache.findApplicationEntity(movescp);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
+            if (upsTemplate == null)
+                return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
+
+            UpsCSV upsCSV = new UpsCSV(device,
+                                        upsService,
+                                        HttpServletRequestInfo.valueOf(request),
+                                        getArchiveAE(),
+                                        studyUIDField,
+                                        upsTemplate,
+                                        csvDelimiter());
+            return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, movescp, in);
+        } catch (IllegalStateException | ConfigurationException e) {
+            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private ArchiveAEExtension getArchiveAE() {
@@ -165,7 +174,7 @@ public class UpsDimseRS {
                 request.getRemoteHost());
     }
 
-    private Response errResponse(String msg, Response.Status status) {
+    private Response errResponse(Response.Status status, String msg) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
@@ -175,5 +184,11 @@ public class UpsDimseRS {
                 .entity(errorMsg)
                 .type("text/plain")
                 .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }

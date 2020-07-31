@@ -77,17 +77,17 @@ class UpsCSV {
     private final HttpServletRequestInfo httpServletRequestInfo;
     private final ArchiveAEExtension arcAE;
     private final int studyUIDField;
-    private final String upsTemplateID;
+    private final UPSTemplate upsTemplate;
     private final char csvDelimiter;
 
     public UpsCSV(Device device, UPSService upsService, HttpServletRequestInfo httpServletRequestInfo,
-                  ArchiveAEExtension arcAE, int studyUIDField, String upsTemplateID, char csvDelimiter) {
+                  ArchiveAEExtension arcAE, int studyUIDField, UPSTemplate upsTemplate, char csvDelimiter) {
         this.device = device;
         this.upsService = upsService;
         this.httpServletRequestInfo = httpServletRequestInfo;
         this.arcAE = arcAE;
         this.studyUIDField = studyUIDField;
-        this.upsTemplateID = upsTemplateID;
+        this.upsTemplate = upsTemplate;
         this.csvDelimiter = csvDelimiter;
     }
 
@@ -97,7 +97,6 @@ class UpsCSV {
         String warning = null;
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
-        UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
         Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
         Calendar now = Calendar.getInstance();
         Date upsScheduledTime = toDate(scheduledTime);
