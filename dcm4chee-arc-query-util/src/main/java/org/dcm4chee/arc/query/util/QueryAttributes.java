@@ -143,6 +143,9 @@ public class QueryAttributes {
                 case "allOfModalitiesInStudy":
                 case "StudySizeInKB":
                 case "ExpirationState":
+                case "upsLabel":
+                case "upsScheduledTime":
+                case "csvPatientID":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,

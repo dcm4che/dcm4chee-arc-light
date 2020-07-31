@@ -58,10 +58,6 @@ import java.util.Map;
  */
 
 public class UPSUtils {
-    private static final String unknownSeriesIUID = "1.2.40.0.13.1.15.110.3.165.2";
-    private static final String unknownSOPCUID = "1.2.40.0.13.1.15.110.3.165.3";
-    private static final String unknownSOPIUID = "1.2.40.0.13.1.15.110.3.165.4";
-
     static Attributes upsAttrsByTemplate(UPSContext ctx,
                                          UPSTemplate upsTemplate,
                                          Map.Entry<String, IDWithIssuer> studyPatient,
@@ -119,27 +115,14 @@ public class UPSUtils {
     }
 
     private static void updateIncludeInputInformation(Sequence sq, String studyUID, String retrieveAET) {
-        refSOPSequence(sq, studyUID, retrieveAET).add(sopRef());
-    }
-
-    private static Attributes sopRef() {
-        Attributes item = new Attributes(2);
-        item.setString(Tag.ReferencedSOPClassUID, VR.UI, unknownSOPCUID);
-        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, unknownSOPIUID);
-        return item;
-    }
-
-    private static Sequence refSOPSequence(Sequence sq, String studyUID, String retrieveAET) {
         Attributes item = new Attributes(5);
         sq.add(item);
-        Sequence refSOPSequence = item.newSequence(Tag.ReferencedSOPSequence, 10);
         item.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        item.setString(Tag.SeriesInstanceUID, VR.UI, unknownSeriesIUID);
+        item.setNull(Tag.SeriesInstanceUID, VR.UI);
         item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
         item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
-        return refSOPSequence;
+        item.setNull(Tag.ReferencedSOPSequence, VR.SQ);
     }
-
 
     private static Attributes retrieveAETItem(String... retrieveAET) {
         Attributes item = new Attributes(1);

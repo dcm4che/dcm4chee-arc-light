@@ -71,6 +71,7 @@ import java.util.Map;
  */
 class UpsCSV {
     private static final Logger LOG = LoggerFactory.getLogger(UpsCSV.class);
+    private static final IDWithIssuer dummyPatientID = new IDWithIssuer("DummyPID^^^DummyIssuer");
 
     private final Device device;
     private final UPSService upsService;
@@ -105,6 +106,7 @@ class UpsCSV {
                 CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter))
         ) {
             boolean header = true;
+            IDWithIssuer pid = dummyPatientID;
             for (CSVRecord csvRecord : parser) {
                 if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                     continue;
@@ -116,7 +118,8 @@ class UpsCSV {
                 }
 
                 if (!arcDev.isValidateUID() || validateUID(studyUID)) {
-                    IDWithIssuer pid = new IDWithIssuer(csvRecord.get(patientIDField - 1).replaceAll("\"", ""));
+                    if (patientIDField > 0)
+                        pid = new IDWithIssuer(csvRecord.get(patientIDField - 1).replaceAll("\"", ""));
                     studyPatientMap.put(studyUID, pid);
                 }
 
