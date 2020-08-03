@@ -58,7 +58,7 @@
     <wildfly-jakartaee8.version>20.0.0.Final</wildfly-jakartaee8.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
-    <keycloak.version>10.0.2</keycloak.version>
+    <keycloak.version>11.0.0</keycloak.version>
     <jbossws-cxf-client.version>5.4.1.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>2.3.3-b02</jaxb-xjc.version>
     <apache-cxf.version>3.3.6</apache-cxf.version>
