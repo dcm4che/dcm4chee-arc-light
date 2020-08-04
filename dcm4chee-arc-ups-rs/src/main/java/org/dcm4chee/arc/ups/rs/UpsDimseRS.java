@@ -48,16 +48,17 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.UPSTemplate;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.impl.UPSUtils;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
@@ -76,7 +77,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -201,7 +206,7 @@ public class UpsDimseRS {
 
     private Response upsMatching(QueryRetrieveLevel2 level, String upsTemplateID,
                                  String studyInstanceUID, String seriesInstanceUID) {
-        return upsMatching(level, upsTemplateID, moveSCP, studyInstanceUID, seriesInstanceUID);
+        return upsMatching(level, moveSCP, upsTemplateID, studyInstanceUID, seriesInstanceUID);
     }
 
     private Response upsMatching(QueryRetrieveLevel2 level, String queryAET, String upsTemplateID,
@@ -213,6 +218,7 @@ public class UpsDimseRS {
         try {
             aeCache.findApplicationEntity(moveSCP);
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            ArchiveAEExtension arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
             UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
             if (upsTemplate == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
@@ -220,27 +226,47 @@ public class UpsDimseRS {
             if (queryAET != null && !queryAET.equals(moveSCP))
                 aeCache.findApplicationEntity(queryAET);
 
-            Attributes keys = queryKeys(level, studyInstanceUID, seriesInstanceUID);
+            Attributes keys = queryKeys(level, studyInstanceUID, seriesInstanceUID, arcDev);
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
             Association as = null;
             String warning;
-            int count = 0;
+            AtomicInteger count = new AtomicInteger();
             Response.Status rspStatus = Response.Status.BAD_GATEWAY;
+
+            Calendar now = Calendar.getInstance();
+            Date scheduledTime = scheduledTime();
+            Attributes upsAttrsFromTemplate = UPSUtils.upsAttrsByTemplate(
+                                                        arcAE,
+                                                        upsTemplate,
+                                                        scheduledTime,
+                                                        now,
+                                                        upsLabel);
+            int matches = 0;
             try {
                 as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
                 DimseRSP dimseRSP = findSCU.query(as, parseInt(priority, 0), keys, 0, 1, splitStudyDateRange());
                 dimseRSP.next();
                 int status;
+                Attributes ups = new Attributes(upsAttrsFromTemplate);
                 do {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                     if (Status.isPending(status)) {
-                        //TODO
-                        count++;
+                        ups = studyInstanceUID == null ? new Attributes(upsAttrsFromTemplate) : ups;
+                        UPSUtils.updateUPSAttributes(upsTemplate,
+                                                        ups,
+                                                        dimseRSP.getDataset(),
+                                                        studyInstanceUID,
+                                                        seriesInstanceUID,
+                                                        moveSCP);
+                        matches++;
+                        if (studyInstanceUID == null)
+                            createUPS(arcAE, ups, count);
                     }
-
                 } while (dimseRSP.next());
+                if (matches > 0 && studyInstanceUID != null)
+                    createUPS(arcAE, ups, count);
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
                 rspStatus = Response.Status.NOT_FOUND;
@@ -255,23 +281,36 @@ public class UpsDimseRS {
                         LOG.info("{}: Failed to release association:\\n", as, e);
                     }
             }
-            if (warning == null && count > 0)
-                return Response.accepted(count(count)).build();
+            if (warning == null && count.get() > 0)
+                return Response.accepted(count(count.get())).build();
 
-            if (count == 0) {
+            if (count.get() == 0) {
                 warning = "No matching Instances found. No Workitem was created.";
                 rspStatus = Response.Status.NO_CONTENT;
             }
 
             Response.ResponseBuilder builder = Response.status(rspStatus)
                                                        .header("Warning", warning);
-            if (count > 0)
-                builder.entity(count(count));
+            if (count.get() > 0)
+                builder.entity(count(count.get()));
             return builder.build();
         } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void createUPS(ArchiveAEExtension arcAE, Attributes ups, AtomicInteger count) {
+        UPSContext ctx = upsService.newUPSContext(HttpServletRequestInfo.valueOf(request), arcAE);
+        ctx.setUPSInstanceUID(UIDUtils.createUID());
+        ctx.setAttributes(ups);
+        try {
+            upsService.createUPS(ctx);
+            count.getAndIncrement();
+        } catch (DicomServiceException e) {
+            LOG.info("Failed to create UPS record for Study[uid={}]\n",
+                    ups.getSequence(Tag.InputInformationSequence).get(0).getString(Tag.StudyInstanceUID), e);
         }
     }
 
@@ -312,9 +351,13 @@ public class UpsDimseRS {
         }
     }
 
-    private Attributes queryKeys(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID) {
+    private Attributes queryKeys(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
+                                 ArchiveDeviceExtension arcDev) {
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
         queryAttributes.addReturnTags(level.uniqueKey());
+        queryAttributes.addReturnTags(arcDev.getAttributeFilter(Entity.Patient).getSelection());
+        if (level == QueryRetrieveLevel2.IMAGE)
+            queryAttributes.addReturnTags(arcDev.getAttributeFilter(Entity.Instance).getSelection());
         Attributes keys = queryAttributes.getQueryKeys();
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
         if (studyInstanceUID != null)
@@ -332,6 +375,16 @@ public class UpsDimseRS {
 
     private Duration splitStudyDateRange() {
         return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
+    }
+
+    private Date scheduledTime() {
+        if (upsScheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(upsScheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return null;
     }
 
     private static int parseInt(String s, int defval) {

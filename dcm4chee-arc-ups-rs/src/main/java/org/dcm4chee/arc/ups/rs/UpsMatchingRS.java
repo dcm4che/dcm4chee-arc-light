@@ -41,13 +41,12 @@
 
 package org.dcm4chee.arc.ups.rs;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.UPSTemplate;
@@ -58,7 +57,9 @@ import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.impl.UPSUtils;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -180,7 +183,7 @@ public class UpsMatchingRS {
     @Path("/studies/workitems/{upsTemplateID}")
     @Produces("application/json")
     public Response upsMatchingStudies(@PathParam("upsTemplateID") String upsTemplateID) {
-        return upsMatching(upsTemplateID,
+        return createWorkitemsMatching(upsTemplateID,
                 "upsMatchingStudies",
                 QueryRetrieveLevel2.STUDY,
                 null,
@@ -193,7 +196,7 @@ public class UpsMatchingRS {
     public Response upsMatchingStudies(
             @PathParam("upsTemplateID") String upsTemplateID,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return upsMatching(upsTemplateID,
+        return createWorkitemsMatching(upsTemplateID,
                 "upsMatchingSeriesOfStudy",
                 QueryRetrieveLevel2.SERIES,
                 studyInstanceUID,
@@ -207,7 +210,7 @@ public class UpsMatchingRS {
             @PathParam("upsTemplateID") String upsTemplateID,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return upsMatching(upsTemplateID,
+        return createWorkitemsMatching(upsTemplateID,
                 "upsMatchingInstancesOfSeries",
                 QueryRetrieveLevel2.IMAGE,
                 studyInstanceUID,
@@ -224,7 +227,7 @@ public class UpsMatchingRS {
         return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
     }
     
-    private Response upsMatching(String upsTemplateID, String method, QueryRetrieveLevel2 qrlevel,
+    private Response createWorkitemsMatching(String upsTemplateID, String method, QueryRetrieveLevel2 qrlevel,
                                  String studyIUID, String seriesIUID) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
@@ -232,14 +235,25 @@ public class UpsMatchingRS {
 
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
             UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
             if (upsTemplate == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
 
+            Calendar now = Calendar.getInstance();
+            Date scheduledTime = scheduledTime();
+            Attributes upsAttrsFromTemplate = UPSUtils.upsAttrsByTemplate(
+                                                        ae.getAEExtensionNotNull(ArchiveAEExtension.class),
+                                                        upsTemplate,
+                                                        scheduledTime,
+                                                        now,
+                                                        upsLabel);
             QueryContext ctx = queryContext(method, qrlevel, studyIUID, seriesIUID, ae);
             String warning = null;
-            int count = 0;
+            AtomicInteger count = new AtomicInteger();
             Response.Status status = Response.Status.ACCEPTED;
+            Attributes ups = new Attributes(upsAttrsFromTemplate);
+            int matches = 0;
             try (Query query = queryService.createQuery(ctx)) {
                 try {
                     query.executeQuery(arcDev.getQueryFetchSize());
@@ -248,13 +262,30 @@ public class UpsMatchingRS {
                         if (match == null)
                             continue;
 
-                        //TODO
+                        ups = studyIUID == null ? new Attributes(upsAttrsFromTemplate) : ups;
+                        UPSUtils.updateUPSAttributes(upsTemplate,
+                                                        ups,
+                                                        match,
+                                                        studyIUID,
+                                                        seriesIUID,
+                                                        aet);
+                        matches++;
+                        if (studyIUID == null)
+                            createUPS(arcAE, ups, count);
                     }
+                    if (matches > 0 && studyIUID != null)
+                        createUPS(arcAE, ups, count);
                 } catch (Exception e) {
                     warning = e.getMessage();
                     status = Response.Status.INTERNAL_SERVER_ERROR;
                 }
             }
+
+            if (count.get() == 0) {
+                warning = "No matching Instances found. No Workitem was created.";
+                status = Response.Status.NO_CONTENT;
+            }
+
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {
                 LOG.warn("Response {} caused by {}", status, warning);
@@ -265,6 +296,19 @@ public class UpsMatchingRS {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void createUPS(ArchiveAEExtension arcAE, Attributes ups, AtomicInteger count) {
+        UPSContext ctx = upsService.newUPSContext(HttpServletRequestInfo.valueOf(request), arcAE);
+        ctx.setUPSInstanceUID(UIDUtils.createUID());
+        ctx.setAttributes(ups);
+        try {
+            upsService.createUPS(ctx);
+            count.getAndIncrement();
+        } catch (DicomServiceException e) {
+            LOG.info("Failed to create UPS record for Study[uid={}]\n",
+                    ups.getSequence(Tag.InputInformationSequence).get(0).getString(Tag.StudyInstanceUID), e);
         }
     }
 

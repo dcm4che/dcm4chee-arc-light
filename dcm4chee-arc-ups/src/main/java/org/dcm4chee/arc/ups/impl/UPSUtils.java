@@ -66,6 +66,22 @@ public class UPSUtils {
                                          String upsLabel,
                                          String movescp) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        Attributes attrs = upsAttrsByTemplate(arcAE, upsTemplate, upsScheduledTime, now, upsLabel);
+        if (upsTemplate.isIncludeStudyInstanceUID())
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyPatient.getKey());
+        updateIncludeInputInformation(
+                attrs.getSequence(Tag.InputInformationSequence),
+                studyPatient.getKey(),
+                movescp != null ? movescp : arcAE.getApplicationEntity().getAETitle());
+        studyPatient.getValue().exportPatientIDWithIssuer(attrs);
+        return attrs;
+    }
+
+    public static Attributes upsAttrsByTemplate(ArchiveAEExtension arcAE,
+                                         UPSTemplate upsTemplate,
+                                         Date upsScheduledTime,
+                                         Calendar now,
+                                         String upsLabel) {
         Attributes attrs = new Attributes();
         attrs.setDate(Tag.ScheduledProcedureStepStartDateTime,
                 VR.DT,
@@ -80,8 +96,6 @@ public class UPSUtils {
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsTemplate.getUPSPriority().name());
         attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
-        if (upsTemplate.isIncludeStudyInstanceUID())
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyPatient.getKey());
         if (upsTemplate.getCompletionDateTimeDelay() != null)
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsTemplate.getCompletionDateTimeDelay()));
         if (upsTemplate.getScheduledHumanPerformer() != null)
@@ -98,11 +112,7 @@ public class UPSUtils {
         if (upsTemplate.getDestinationAE() != null)
             attrs.newSequence(Tag.OutputDestinationSequence, 1)
                     .add(outputStorage(upsTemplate.getDestinationAE()));
-        updateIncludeInputInformation(
-                attrs.newSequence(Tag.InputInformationSequence, 1),
-                studyPatient.getKey(),
-                movescp != null ? movescp : arcAE.getApplicationEntity().getAETitle());
-        studyPatient.getValue().exportPatientIDWithIssuer(attrs);
+        attrs.newSequence(Tag.InputInformationSequence, 1);
         return attrs;
     }
 
@@ -114,6 +124,36 @@ public class UPSUtils {
         return outputDestination;
     }
 
+    public static void updateUPSAttributes(
+            UPSTemplate upsTemplate, Attributes ups, Attributes match, String studyUID, String seriesUID,
+            String retrieveAET) {
+        addSOPRef(
+                refSOPSequence(upsTemplate, ups, match, studyUID, retrieveAET),
+                match,
+                studyUID != null && seriesUID != null);
+        setPatientAttrs(ups, match);
+    }
+
+    private static Sequence refSOPSequence(UPSTemplate upsTemplate, Attributes ups, Attributes match, String studyUID,
+                                           String retrieveAET) {
+        for (Attributes item : ups.getSequence(Tag.InputInformationSequence))
+            if (match.getString(Tag.StudyInstanceUID).equals(item.getString(Tag.StudyInstanceUID))
+                    && match.getString(Tag.SeriesInstanceUID).equals(item.getString(Tag.SeriesInstanceUID)))
+                return item.getSequence(Tag.ReferencedSOPSequence);
+
+        if (upsTemplate.isIncludeStudyInstanceUID())
+            ups.setString(Tag.StudyInstanceUID, VR.UI, match.getString(Tag.StudyInstanceUID));
+        Attributes item = new Attributes(5);
+        ups.getSequence(Tag.InputInformationSequence).add(item);
+        Sequence refSOPSequence = item.newSequence(Tag.ReferencedSOPSequence, 10);
+        item.setString(Tag.StudyInstanceUID, VR.UI, match.getString(Tag.StudyInstanceUID));
+        item.setString(Tag.SeriesInstanceUID, VR.UI,
+                studyUID == null ? null : match.getString(Tag.SeriesInstanceUID));
+        item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
+        item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
+        return refSOPSequence;
+    }
+
     private static void updateIncludeInputInformation(Sequence sq, String studyUID, String retrieveAET) {
         Attributes item = new Attributes(5);
         sq.add(item);
@@ -122,6 +162,31 @@ public class UPSUtils {
         item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
         item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
         item.setNull(Tag.ReferencedSOPSequence, VR.SQ);
+    }
+
+    private static void setPatientAttrs(Attributes ups, Attributes match) {
+        setPatientID(ups, match);
+        ups.setString(Tag.PatientName, VR.PN, match.getString(Tag.PatientName));
+        ups.setString(Tag.PatientBirthDate, VR.DA, match.getString(Tag.PatientBirthDate));
+        ups.setString(Tag.PatientSex, VR.CS, match.getString(Tag.PatientSex));
+    }
+
+    private static void setPatientID(Attributes ups, Attributes match) {
+        IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(match);
+        if (pidWithIssuer == null || ups.getString(Tag.PatientID) != null)
+            return;
+
+        pidWithIssuer.exportPatientIDWithIssuer(ups);
+    }
+
+    private static void addSOPRef(Sequence refSOPSeq, Attributes match, boolean upsMatchingInstances) {
+        if (!upsMatchingInstances)
+            return;
+
+        Attributes item = new Attributes(2);
+        refSOPSeq.add(item);
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, match.getString(Tag.SOPClassUID));
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, match.getString(Tag.SOPInstanceUID));
     }
 
     private static Attributes retrieveAETItem(String... retrieveAET) {
