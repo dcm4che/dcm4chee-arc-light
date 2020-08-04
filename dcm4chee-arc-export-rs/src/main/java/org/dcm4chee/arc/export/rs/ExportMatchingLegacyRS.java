@@ -120,6 +120,7 @@ public class ExportMatchingLegacyRS extends ExportMatching {
                 null);
     }
 
+    @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response exportMatchingInstancesOfSeries(

@@ -115,6 +115,7 @@ public class ExportMatchingRS extends ExportMatching {
                 null);
     }
 
+    @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/export/{ExporterID}")
     @Produces("application/json")
     public Response exportMatchingInstancesOfSeries(
