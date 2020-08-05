@@ -11,6 +11,7 @@ export class SelectionsDicomObjects {
     private _currentIndexes;
     size:number;
 
+
     constructor(object:{
         patient?:any,
         study?:any,
@@ -88,7 +89,13 @@ export class SelectionsDicomObjects {
         }
     }
 
-
+    getSpecificObjectSize(dicomLevel:DicomLevel){
+        try{
+            return Object.keys(this[dicomLevel]).length;
+        }catch (e) {
+            return 0;
+        }
+    }
     getAttrs(dicomLevel:DicomLevel):any[]{
         try{
             return Object.keys(this[dicomLevel]).map(key=>this[dicomLevel][key].object.attrs);
