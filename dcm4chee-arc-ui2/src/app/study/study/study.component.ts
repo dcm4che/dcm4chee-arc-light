@@ -2345,10 +2345,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(option.value === "reject_object"){
                 return !trashActive && studyConfig && studyConfig.tab === "study";
             }
-            if(option.value === "export_object"){
-                return studyConfig && studyConfig.tab === "study";
-            }
-            if(option.value === "update_access_control_id_to_selections"){
+            if(option.value === "update_access_control_id_to_selections" || option.value === "send_ian_request_for_selections" || option.value === "send_storage_commitment_request_for_selections" || option.value === "export_object"){
                 return studyConfig && studyConfig.tab === "study";
             }
             if(option.value === "change_sps_status_on_selections"){

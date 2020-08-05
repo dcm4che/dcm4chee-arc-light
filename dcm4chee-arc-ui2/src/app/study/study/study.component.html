@@ -48,7 +48,7 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl'))"
+                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'patient'))"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down
