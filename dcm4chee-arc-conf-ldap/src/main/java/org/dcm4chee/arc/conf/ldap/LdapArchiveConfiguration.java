@@ -457,6 +457,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteStudyChunkSize", ext.getDeleteStudyChunkSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientArrivalMessageType",
                 ext.getHL7PatientArrivalMessageType(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiation",
+                ext.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -741,6 +743,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setCStoreSCUOfCMoveSCPs(LdapUtils.stringArray(attrs.get("dcmCStoreSCUOfCMoveSCP")));
         ext.setDeleteStudyChunkSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyChunkSize"), 100));
         ext.setHL7PatientArrivalMessageType(LdapUtils.stringValue(attrs.get("hl7PatientArrivalMessageType"), null));
+        ext.setUserIdentityNegotiation(LdapUtils.enumValue(
+                UserIdentityNegotiation.class, attrs.get("dcmUserIdentityNegotiation"), UserIdentityNegotiation.SUPPORTS));
     }
 
     @Override
@@ -1275,6 +1279,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7PatientArrivalMessageType(),
                 bb.getHL7PatientArrivalMessageType(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiation",
+                aa.getUserIdentityNegotiation(),
+                bb.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1565,6 +1572,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getRetrieveTaskWarningOnNoMatch(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
                 ext.getRetrieveTaskWarningOnWarnings(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiation",
+                ext.getUserIdentityNegotiation(), null);
     }
 
     @Override
@@ -1701,6 +1710,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), null));
         ext.setRetrieveTaskWarningOnWarnings(
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), null));
+        ext.setUserIdentityNegotiation(LdapUtils.enumValue(
+                UserIdentityNegotiation.class, attrs.get("dcmUserIdentityNegotiation"), null));
     }
 
     @Override
@@ -1920,6 +1931,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskWarningOnWarnings",
                 aa.getRetrieveTaskWarningOnWarnings(),
                 bb.getRetrieveTaskWarningOnWarnings(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiation",
+                aa.getUserIdentityNegotiation(),
+                bb.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

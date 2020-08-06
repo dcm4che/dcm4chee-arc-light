@@ -366,6 +366,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmCStoreSCUOfCMoveSCP", arcDev.getCStoreSCUOfCMoveSCPs());
         writer.writeNotDef("dcmDeleteStudyChunkSize", arcDev.getDeleteStudyChunkSize(), 100);
         writer.writeNotNullOrDef("hl7PatientArrivalMessageType", arcDev.getHL7PatientArrivalMessageType(), null);
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiation",
+                arcDev.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1158,6 +1160,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
         writer.writeNotNull("dcmRetrieveTaskWarningOnNoMatch", arcAE.getRetrieveTaskWarningOnNoMatch());
         writer.writeNotNull("dcmRetrieveTaskWarningOnWarnings", arcAE.getRetrieveTaskWarningOnWarnings());
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiation", arcAE.getUserIdentityNegotiation(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1826,6 +1829,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PatientArrivalMessageType":
                     arcDev.setHL7PatientArrivalMessageType(reader.stringValue());
+                    break;
+                case "dcmUserIdentityNegotiation":
+                    arcDev.setUserIdentityNegotiation(UserIdentityNegotiation.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3685,6 +3691,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveTaskWarningOnWarnings":
                     arcAE.setRetrieveTaskWarningOnWarnings(reader.booleanValue());
+                    break;
+                case "dcmUserIdentityNegotiation":
+                    arcAE.setUserIdentityNegotiation(UserIdentityNegotiation.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
