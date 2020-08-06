@@ -2036,6 +2036,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     getPatients(filterModel){
         this.cfpLoadingBar.start();
+        if(this.studyConfig.tab === "patient" && !_.hasIn(filterModel,"includefield")){
+            filterModel["includefield"] = "all";
+        }
         this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
             this.patients = [];
             this._filter.filterModel.offset = filterModel.offset;
