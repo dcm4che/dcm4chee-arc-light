@@ -84,7 +84,7 @@ public class KeycloakRS {
     public Response getAccessToken() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         try {
-            AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken(keycloakID);
+            AccessTokenRequestor.AccessTokenWithExpiration accessToken = accessTokenRequestor.getAccessToken(keycloakID);
             StreamingOutput out = output -> {
                 JsonGenerator gen = Json.createGenerator(output);
                 JsonWriter writer = new JsonWriter(gen);

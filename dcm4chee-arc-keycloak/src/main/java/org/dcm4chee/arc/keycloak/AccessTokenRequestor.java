@@ -47,14 +47,28 @@ import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.token.TokenManager;
+import org.keycloak.common.util.KeycloakUriBuilder;
+import org.keycloak.constants.ServiceUrlConstants;
+import org.keycloak.jose.jwk.JSONWebKeySet;
+import org.keycloak.jose.jwk.JWK;
+import org.keycloak.representations.AccessToken;
+import org.keycloak.util.JWKSUtils;
+import org.keycloak.util.JsonSerialization;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import java.io.InputStream;
+import java.security.PublicKey;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,27 +81,27 @@ public class AccessTokenRequestor {
     @Inject
     private Device device;
 
-    private CachedKeycloak cachedKeycloak;
-
-    private CachedKeycloak cachedKeycloakClient;
+    private volatile CachedKeycloak cachedKeycloak;
+    private volatile CachedKeycloak cachedKeycloakClient;
+    private volatile CachedPublicKey cachedPublicKey;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
             cachedKeycloak = null;
     }
     
-    public AccessToken getAccessToken(String keycloakServerID) throws Exception {
+    public AccessTokenWithExpiration getAccessToken(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = toCachedKeycloak(keycloakServerID);
         TokenManager tokenManager = tmp.keycloak.tokenManager();
-        return new AccessToken(
+        return new AccessTokenWithExpiration(
                 tokenManager.getAccessTokenString(),
                 tokenManager.getAccessToken().getExpiresIn());
     }
 
-    public AccessToken getAccessToken2(WebApplication webApp) throws Exception {
+    public AccessTokenWithExpiration getAccessToken2(WebApplication webApp) throws Exception {
         CachedKeycloak tmp = toCachedKeycloakClient(webApp);
         TokenManager tokenManager = tmp.keycloak.tokenManager();
-        return new AccessToken(
+        return new AccessTokenWithExpiration(
                 tokenManager.getAccessTokenString(),
                 tokenManager.getAccessToken().getExpiresIn());
     }
@@ -161,6 +175,56 @@ public class AccessTokenRequestor {
         return builder;
     }
 
+    public boolean isUserInRole(String username, char[] passcode, String role,
+            String serverURL, String realm, String clientId,
+            boolean allowAnyHostname, boolean disableTrustManager)
+            throws Exception {
+        //TODO
+        return false;
+    }
+
+    public boolean isUserInRole(String tokenString, String role,
+            String serverURL, String realm, boolean allowAnyHostname, boolean disableTrustManager)
+            throws Exception {
+        TokenVerifier<AccessToken> tokenVerifier = TokenVerifier.create(tokenString, AccessToken.class);
+        String kid = tokenVerifier.getHeader().getKeyId();
+        PublicKey publicKey = getPublicKey(kid, serverURL, realm, allowAnyHostname, disableTrustManager);
+        tokenVerifier.publicKey(publicKey);
+        AccessToken token = tokenVerifier.verify().getToken();
+        return token.getRealmAccess().isUserInRole(role);
+    }
+
+    private PublicKey getPublicKey(String kid, String serverURL, String realmName,
+            boolean allowAnyHostname, boolean disableTrustManager)
+            throws Exception {
+        CachedPublicKey tmp = cachedPublicKey;
+        if (tmp != null
+                && tmp.kid.equals(kid)
+                && tmp.serverURL.equals(serverURL)
+                && tmp.realmName.equals(realmName)) {
+            return tmp.key;
+        }
+        ResteasyClient client = resteasyClientBuilder(serverURL, allowAnyHostname, disableTrustManager).build();
+        try {
+            KeycloakUriBuilder authUrlBuilder = KeycloakUriBuilder.fromUri(serverURL);
+            String jwksUrl = authUrlBuilder.clone().path(ServiceUrlConstants.JWKS_URL)
+                    .build(realmName).toString();
+            WebTarget target = client.target(jwksUrl);
+            Invocation.Builder request = target.request();
+            try (InputStream is = request.get(InputStream.class)) {
+                JSONWebKeySet jwks = JsonSerialization.readValue(is, JSONWebKeySet.class);
+                Map<String, PublicKey> publicKeys = JWKSUtils.getKeysForUse(jwks, JWK.Use.SIG);
+                PublicKey publicKey = publicKeys.get(kid);
+                if (publicKey != null) {
+                    cachedPublicKey = new CachedPublicKey(serverURL, realmName, kid, publicKey);
+                }
+                return publicKey;
+            }
+        } finally {
+            client.close();
+        }
+    }
+
     private static class CachedKeycloak {
         final String keycloakID;
         final Keycloak keycloak;
@@ -171,11 +235,11 @@ public class AccessTokenRequestor {
         }
     }
     
-    public static class AccessToken {
+    public static class AccessTokenWithExpiration {
         final String token;
         final long expiration;
         
-        AccessToken(String tokenStr, long expiresIn) {
+        AccessTokenWithExpiration(String tokenStr, long expiresIn) {
             token = tokenStr;
             expiration = expiresIn;
         }
@@ -188,4 +252,19 @@ public class AccessTokenRequestor {
             return expiration;
         }
     }
+
+    private static class CachedPublicKey {
+        final String serverURL;
+        final String realmName;
+        final String kid;
+        final PublicKey key;
+
+        private CachedPublicKey(String serverURL, String realmName, String kid, PublicKey key) {
+            this.serverURL = serverURL;
+            this.realmName = realmName;
+            this.kid = kid;
+            this.key = key;
+        }
+    }
+
 }

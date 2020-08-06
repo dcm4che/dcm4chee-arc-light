@@ -97,7 +97,7 @@ public class KeycloakRS2 {
             if (webApplication.getKeycloakClientID() == null)
                 return Response.noContent().build();
 
-            AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken2(webApplication);
+            AccessTokenRequestor.AccessTokenWithExpiration accessToken = accessTokenRequestor.getAccessToken2(webApplication);
             return Response.status(Response.Status.OK)
                     .entity((StreamingOutput) out -> {
                         JsonGenerator gen = Json.createGenerator(out);

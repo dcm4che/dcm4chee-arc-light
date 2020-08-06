@@ -43,12 +43,11 @@ package org.dcm4chee.arc.impl;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.*;
-import org.dcm4che3.net.pdu.AAssociateAC;
-import org.dcm4che3.net.pdu.AAssociateRJ;
-import org.dcm4che3.net.pdu.AAssociateRQ;
-import org.dcm4che3.net.pdu.UserIdentityAC;
+import org.dcm4che3.net.pdu.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.UserIdentityNegotiation;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,15 +69,66 @@ public class ArchiveAssociationHandler extends AssociationHandler {
     @Inject
     private IApplicationEntityCache aeCache;
 
+    @Inject
+    private AccessTokenRequestor accessTokenRequestor;
+
     @Override
     protected AAssociateAC makeAAssociateAC(Association as, AAssociateRQ rq, UserIdentityAC userIdentity)
             throws IOException {
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
-        if (arcAE != null && arcAE.validateCallingAEHostname() && !validateCallingAEHostname(as))
-            throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
-                AAssociateRJ.SOURCE_SERVICE_USER,
-                AAssociateRJ.REASON_CALLING_AET_NOT_RECOGNIZED);
+        if (arcAE != null) {
+            if (!validateUserIdentity(as, arcAE.userIdentityNegotiation(), rq.getUserIdentityRQ()))
+                throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
+                        AAssociateRJ.SOURCE_SERVICE_PROVIDER_ACSE,
+                        AAssociateRJ.REASON_NO_REASON_GIVEN);
+            if (arcAE.validateCallingAEHostname() && !validateCallingAEHostname(as))
+                throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
+                    AAssociateRJ.SOURCE_SERVICE_USER,
+                    AAssociateRJ.REASON_CALLING_AET_NOT_RECOGNIZED);
+        }
         return super.makeAAssociateAC(as, rq, userIdentity);
+    }
+
+    private boolean validateUserIdentity(Association as,
+            UserIdentityNegotiation userIdentityNegotiation, UserIdentityRQ userIdentityRQ) {
+        switch (userIdentityNegotiation) {
+            case SUPPORTS:
+                return validateUserIdentity(as, userIdentityRQ, true);
+            case REQUIRED:
+                return validateUserIdentity(as, userIdentityRQ, false);
+        }
+        return true;
+    }
+
+    private boolean validateUserIdentity(Association as, UserIdentityRQ userIdentityRQ, boolean optional) {
+        if (System.getProperty("auth-server-url") != null && userIdentityRQ != null)
+            try {
+                switch (userIdentityRQ.getType()) {
+                    case UserIdentityRQ.USERNAME_PASSCODE:
+                        return accessTokenRequestor.isUserInRole(
+                                userIdentityRQ.getUsername(),
+                                userIdentityRQ.getPasscode(),
+                                System.getProperty("auth-user-role", "user"),
+                                System.getProperty("auth-server-url"),
+                                System.getProperty("realm-name", "dcm4che"),
+                                System.getProperty("ui-client-id", "dcm4chee-arc-ui"),
+                                Boolean.parseBoolean(System.getProperty("disable-trust-manager", "false")),
+                                Boolean.parseBoolean(System.getProperty("allow-any-hostname", "true"))
+                        );
+                    case UserIdentityRQ.JWT:
+                        return accessTokenRequestor.isUserInRole(
+                                userIdentityRQ.getUsername(),
+                                System.getProperty("auth-user-role", "user"),
+                                System.getProperty("auth-server-url"),
+                                System.getProperty("realm-name", "dcm4che"),
+                                Boolean.parseBoolean(System.getProperty("disable-trust-manager", "false")),
+                                Boolean.parseBoolean(System.getProperty("allow-any-hostname", "true")));
+                }
+            } catch (Exception e) {
+                LOG.info("{}: validation of {} failed:\n{}", as, userIdentityRQ, e);
+                return false;
+            }
+        return optional;
     }
 
     private boolean validateCallingAEHostname(Association as) {

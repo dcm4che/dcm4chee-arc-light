@@ -71,6 +71,11 @@
             <!-- jclouds modules -->
             <module name="org.apache.jclouds.core" export="TRUE"/>
             <module name="org.apache.jclouds.blobstore" export="TRUE" services="export"/>
+            <!-- keycloak modules -->
+            <module name="org.keycloak.keycloak-common" export="TRUE"/>
+            <module name="org.keycloak.keycloak-core" export="TRUE"/>
+            <module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
+            <module name="org.keycloak.admin-client" export="TRUE"/>
             <!-- emc-ecs modules -->
             <module name="com.emc.ecs" export="TRUE"/>
             <!-- apache commons csv -->

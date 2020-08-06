@@ -196,6 +196,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
     private volatile AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private volatile AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
+    private volatile UserIdentityNegotiation userIdentityNegotiation = UserIdentityNegotiation.SUPPORTS;
     private volatile String[] retrieveAETitles = {};
     private volatile String[] returnRetrieveAETitles = {};
     private volatile String remapRetrieveURL;
@@ -2193,6 +2194,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.acceptConflictingPatientID = acceptConflictingPatientID;
     }
 
+    public UserIdentityNegotiation getUserIdentityNegotiation() {
+        return userIdentityNegotiation;
+    }
+
+    public void setUserIdentityNegotiation(UserIdentityNegotiation userIdentityNegotiation) {
+        this.userIdentityNegotiation = userIdentityNegotiation;
+    }
+
     public String[] getRetrieveAETitles() {
         return retrieveAETitles;
     }
@@ -3027,6 +3036,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMessageType = arcdev.hl7PSUMessageType;
         hl7PSUConditions = arcdev.hl7PSUConditions;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
+        userIdentityNegotiation = arcdev.userIdentityNegotiation;
         proxyUpstreamURL = arcdev.proxyUpstreamURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;

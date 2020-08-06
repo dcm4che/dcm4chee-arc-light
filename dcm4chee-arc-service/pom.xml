@@ -71,8 +71,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-keycloak</artifactId>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

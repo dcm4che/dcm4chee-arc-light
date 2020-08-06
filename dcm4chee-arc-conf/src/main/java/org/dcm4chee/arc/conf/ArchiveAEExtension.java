@@ -117,6 +117,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowDeletePatient allowDeletePatient;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private AcceptConflictingPatientID acceptConflictingPatientID;
+    private UserIdentityNegotiation userIdentityNegotiation;
     private String[] retrieveAETitles = {};
     private String[] returnRetrieveAETitles = {};
     private String hl7PSUSendingApplication;
@@ -1313,6 +1314,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getAcceptConflictingPatientID();
     }
 
+    public UserIdentityNegotiation getUserIdentityNegotiation() {
+        return userIdentityNegotiation;
+    }
+
+    public void setUserIdentityNegotiation(UserIdentityNegotiation userIdentityNegotiation) {
+        this.userIdentityNegotiation = userIdentityNegotiation;
+    }
+
+    public UserIdentityNegotiation userIdentityNegotiation() {
+        return userIdentityNegotiation != null
+                ? userIdentityNegotiation
+                : getArchiveDeviceExtension().getUserIdentityNegotiation();
+    }
+
     public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy;
     }
@@ -1626,6 +1641,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         allowDeletePatient = aeExt.allowDeletePatient;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
+        userIdentityNegotiation = aeExt.userIdentityNegotiation;
         copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = aeExt.linkMWLEntryUpdatePolicy;
         retrieveAETitles = aeExt.retrieveAETitles;
