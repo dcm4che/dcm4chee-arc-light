@@ -548,7 +548,6 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
         <classifier>${db}</classifier>
-        <earSourceDirectory>${basedir}/src/main/application</earSourceDirectory>
         <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-ui-classifier>unsecure</dcm4chee-arc-ui-classifier>
         <dcm4chee-arc-proxy-classifier>unsecure</dcm4chee-arc-proxy-classifier>
@@ -565,7 +564,6 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure</classifier>
-        <earSourceDirectory>${basedir}/src/main/application-secure</earSourceDirectory>
         <dcm4chee-arc-war-classifier>secure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
         <dcm4chee-arc-proxy-classifier>secure</dcm4chee-arc-proxy-classifier>
@@ -582,7 +580,6 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure-ui</classifier>
-        <earSourceDirectory>${basedir}/src/main/application-secure</earSourceDirectory>
         <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-proxy-classifier>unsecure</dcm4chee-arc-proxy-classifier>
         <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
