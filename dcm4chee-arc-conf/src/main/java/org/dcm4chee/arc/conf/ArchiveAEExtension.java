@@ -118,6 +118,8 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private UserIdentityNegotiation userIdentityNegotiation;
+    private String userIdentityNegotiationRole;
+    private String userIdentityNegotiationKeycloakClientID;
     private String[] retrieveAETitles = {};
     private String[] returnRetrieveAETitles = {};
     private String hl7PSUSendingApplication;
@@ -1328,6 +1330,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getUserIdentityNegotiation();
     }
 
+    public String getUserIdentityNegotiationRole() {
+        return userIdentityNegotiationRole;
+    }
+
+    public void setUserIdentityNegotiationRole(String userIdentityNegotiationRole) {
+        this.userIdentityNegotiationRole = userIdentityNegotiationRole;
+    }
+
+    public String userIdentityNegotiationRole() {
+        return userIdentityNegotiationRole != null
+                ? userIdentityNegotiationRole
+                : getArchiveDeviceExtension().getUserIdentityNegotiationRole();
+    }
+
+    public String getUserIdentityNegotiationKeycloakClientID() {
+        return userIdentityNegotiationKeycloakClientID;
+    }
+
+    public void setUserIdentityNegotiationKeycloakClientID(String userIdentityNegotiationKeycloakClientID) {
+        this.userIdentityNegotiationKeycloakClientID = userIdentityNegotiationKeycloakClientID;
+    }
+
+    public String userIdentityNegotiationKeycloakClientID() {
+        return userIdentityNegotiationKeycloakClientID != null
+                ? userIdentityNegotiationKeycloakClientID
+                : getArchiveDeviceExtension().getUserIdentityNegotiationKeycloakClientID();
+    }
+
     public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy;
     }
@@ -1642,6 +1672,8 @@ public class ArchiveAEExtension extends AEExtension {
         allowDeletePatient = aeExt.allowDeletePatient;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
         userIdentityNegotiation = aeExt.userIdentityNegotiation;
+        userIdentityNegotiationRole = aeExt.userIdentityNegotiationRole;
+        userIdentityNegotiationKeycloakClientID = aeExt.userIdentityNegotiationKeycloakClientID;
         copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = aeExt.linkMWLEntryUpdatePolicy;
         retrieveAETitles = aeExt.retrieveAETitles;

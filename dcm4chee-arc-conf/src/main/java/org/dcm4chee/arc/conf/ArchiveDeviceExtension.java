@@ -197,6 +197,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private volatile AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
     private volatile UserIdentityNegotiation userIdentityNegotiation = UserIdentityNegotiation.SUPPORTS;
+    private volatile String userIdentityNegotiationRole;
+    private volatile String userIdentityNegotiationKeycloakClientID;
     private volatile String[] retrieveAETitles = {};
     private volatile String[] returnRetrieveAETitles = {};
     private volatile String remapRetrieveURL;
@@ -2202,6 +2204,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.userIdentityNegotiation = userIdentityNegotiation;
     }
 
+    public String getUserIdentityNegotiationRole() {
+        return userIdentityNegotiationRole;
+    }
+
+    public void setUserIdentityNegotiationRole(String userIdentityNegotiationRole) {
+        this.userIdentityNegotiationRole = userIdentityNegotiationRole;
+    }
+
+    public String getUserIdentityNegotiationKeycloakClientID() {
+        return userIdentityNegotiationKeycloakClientID;
+    }
+
+    public void setUserIdentityNegotiationKeycloakClientID(String userIdentityNegotiationKeycloakClientID) {
+        this.userIdentityNegotiationKeycloakClientID = userIdentityNegotiationKeycloakClientID;
+    }
+
     public String[] getRetrieveAETitles() {
         return retrieveAETitles;
     }
@@ -3037,6 +3055,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUConditions = arcdev.hl7PSUConditions;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         userIdentityNegotiation = arcdev.userIdentityNegotiation;
+        userIdentityNegotiationRole = arcdev.userIdentityNegotiationRole;
+        userIdentityNegotiationKeycloakClientID = arcdev.userIdentityNegotiationKeycloakClientID;
         proxyUpstreamURL = arcdev.proxyUpstreamURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;

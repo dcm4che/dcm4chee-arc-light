@@ -175,40 +175,43 @@ public class AccessTokenRequestor {
         return builder;
     }
 
-    public boolean isUserInRole(String username, char[] passcode, String role,
-            String serverURL, String realm, String clientId,
-            boolean allowAnyHostname, boolean disableTrustManager)
-            throws Exception {
+    public boolean verifyUsernamePasscode(KeycloakClient kc, String role) {
         //TODO
         return false;
     }
 
-    public boolean isUserInRole(String tokenString, String role,
-            String serverURL, String realm, boolean allowAnyHostname, boolean disableTrustManager)
-            throws Exception {
+
+    public boolean verifyJWT(String tokenString, KeycloakClient kc, String role) throws Exception {
+        String serverURL = kc.getKeycloakServerURL();
+        String realmName = kc.getKeycloakRealm();
+        KeycloakUriBuilder authUrlBuilder = KeycloakUriBuilder.fromUri(serverURL);
+        String jwksUrl = authUrlBuilder.clone()
+                .path(ServiceUrlConstants.JWKS_URL).build(realmName).toString();
+        String realmUrl = authUrlBuilder.clone()
+                .path(ServiceUrlConstants.REALM_INFO_PATH).build(realmName).toString();
         TokenVerifier<AccessToken> tokenVerifier = TokenVerifier.create(tokenString, AccessToken.class);
+        tokenVerifier.withDefaultChecks().realmUrl(realmUrl);
         String kid = tokenVerifier.getHeader().getKeyId();
-        PublicKey publicKey = getPublicKey(kid, serverURL, realm, allowAnyHostname, disableTrustManager);
+        PublicKey publicKey = getPublicKey(kid, jwksUrl, kc);
         tokenVerifier.publicKey(publicKey);
-        AccessToken token = tokenVerifier.verify().getToken();
-        return token.getRealmAccess().isUserInRole(role);
+        tokenVerifier.verify();
+        return role == null || tokenVerifier.getToken().getRealmAccess().isUserInRole(role);
     }
 
-    private PublicKey getPublicKey(String kid, String serverURL, String realmName,
-            boolean allowAnyHostname, boolean disableTrustManager)
+    private PublicKey getPublicKey(String kid, String jwksUrl, KeycloakClient kc)
             throws Exception {
         CachedPublicKey tmp = cachedPublicKey;
         if (tmp != null
-                && tmp.kid.equals(kid)
-                && tmp.serverURL.equals(serverURL)
-                && tmp.realmName.equals(realmName)) {
+                && tmp.jwksUrl.equals(jwksUrl)
+                && tmp.kid.equals(kid)) {
             return tmp.key;
         }
-        ResteasyClient client = resteasyClientBuilder(serverURL, allowAnyHostname, disableTrustManager).build();
+        ResteasyClient client = resteasyClientBuilder(
+                    kc.getKeycloakServerURL(),
+                    kc.isTLSAllowAnyHostname(),
+                    kc.isTLSDisableTrustManager())
+                .build();
         try {
-            KeycloakUriBuilder authUrlBuilder = KeycloakUriBuilder.fromUri(serverURL);
-            String jwksUrl = authUrlBuilder.clone().path(ServiceUrlConstants.JWKS_URL)
-                    .build(realmName).toString();
             WebTarget target = client.target(jwksUrl);
             Invocation.Builder request = target.request();
             try (InputStream is = request.get(InputStream.class)) {
@@ -216,7 +219,7 @@ public class AccessTokenRequestor {
                 Map<String, PublicKey> publicKeys = JWKSUtils.getKeysForUse(jwks, JWK.Use.SIG);
                 PublicKey publicKey = publicKeys.get(kid);
                 if (publicKey != null) {
-                    cachedPublicKey = new CachedPublicKey(serverURL, realmName, kid, publicKey);
+                    cachedPublicKey = new CachedPublicKey(jwksUrl, kid, publicKey);
                 }
                 return publicKey;
             }
@@ -254,14 +257,12 @@ public class AccessTokenRequestor {
     }
 
     private static class CachedPublicKey {
-        final String serverURL;
-        final String realmName;
+        final String jwksUrl;
         final String kid;
         final PublicKey key;
 
-        private CachedPublicKey(String serverURL, String realmName, String kid, PublicKey key) {
-            this.serverURL = serverURL;
-            this.realmName = realmName;
+        private CachedPublicKey(String jwksUrl, String kid, PublicKey key) {
+            this.jwksUrl = jwksUrl;
             this.kid = kid;
             this.key = key;
         }

@@ -46,7 +46,6 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.UserIdentityNegotiation;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +76,7 @@ public class ArchiveAssociationHandler extends AssociationHandler {
             throws IOException {
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
         if (arcAE != null) {
-            if (!validateUserIdentity(as, arcAE.userIdentityNegotiation(), rq.getUserIdentityRQ()))
+            if (!validateUserIdentity(as, arcAE, rq.getUserIdentityRQ()))
                 throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
                         AAssociateRJ.SOURCE_SERVICE_PROVIDER_ACSE,
                         AAssociateRJ.REASON_NO_REASON_GIVEN);
@@ -89,46 +88,59 @@ public class ArchiveAssociationHandler extends AssociationHandler {
         return super.makeAAssociateAC(as, rq, userIdentity);
     }
 
-    private boolean validateUserIdentity(Association as,
-            UserIdentityNegotiation userIdentityNegotiation, UserIdentityRQ userIdentityRQ) {
-        switch (userIdentityNegotiation) {
+    private boolean validateUserIdentity(Association as, ArchiveAEExtension arcAE, UserIdentityRQ userIdentityRQ) {
+        switch (arcAE.userIdentityNegotiation()) {
             case SUPPORTS:
-                return validateUserIdentity(as, userIdentityRQ, true);
+                return validateUserIdentity(as, arcAE, userIdentityRQ, true);
             case REQUIRED:
-                return validateUserIdentity(as, userIdentityRQ, false);
+                return validateUserIdentity(as, arcAE, userIdentityRQ, false);
         }
         return true;
     }
 
-    private boolean validateUserIdentity(Association as, UserIdentityRQ userIdentityRQ, boolean optional) {
-        if (System.getProperty("auth-server-url") != null && userIdentityRQ != null)
+    private boolean validateUserIdentity(Association as, ArchiveAEExtension arcAE, UserIdentityRQ userIdentityRQ,
+            boolean optional) {
+        KeycloakClient kc;
+        if (userIdentityRQ != null
+                && (userIdentityRQ.getType() == UserIdentityRQ.USERNAME_PASSCODE
+                    || userIdentityRQ.getType() == UserIdentityRQ.JWT)
+                && (kc = keycloakClient(arcAE)) != null)
             try {
                 switch (userIdentityRQ.getType()) {
                     case UserIdentityRQ.USERNAME_PASSCODE:
-                        return accessTokenRequestor.isUserInRole(
-                                userIdentityRQ.getUsername(),
-                                userIdentityRQ.getPasscode(),
-                                System.getProperty("auth-user-role", "user"),
-                                System.getProperty("auth-server-url"),
-                                System.getProperty("realm-name", "dcm4che"),
-                                System.getProperty("ui-client-id", "dcm4chee-arc-ui"),
-                                Boolean.parseBoolean(System.getProperty("disable-trust-manager", "false")),
-                                Boolean.parseBoolean(System.getProperty("allow-any-hostname", "true"))
-                        );
+                        kc.setKeycloakGrantType(KeycloakClient.GrantType.password);
+                        kc.setUserID(userIdentityRQ.getUsername());
+                        kc.setPassword(new String(userIdentityRQ.getPasscode()));
+                        return accessTokenRequestor.verifyUsernamePasscode(kc, arcAE.userIdentityNegotiationRole());
                     case UserIdentityRQ.JWT:
-                        return accessTokenRequestor.isUserInRole(
-                                userIdentityRQ.getUsername(),
-                                System.getProperty("auth-user-role", "user"),
-                                System.getProperty("auth-server-url"),
-                                System.getProperty("realm-name", "dcm4che"),
-                                Boolean.parseBoolean(System.getProperty("disable-trust-manager", "false")),
-                                Boolean.parseBoolean(System.getProperty("allow-any-hostname", "true")));
+                        return accessTokenRequestor.verifyJWT(
+                                userIdentityRQ.getUsername(), kc, arcAE.userIdentityNegotiationRole());
                 }
             } catch (Exception e) {
                 LOG.info("{}: validation of {} failed:\n{}", as, userIdentityRQ, e);
                 return false;
             }
         return optional;
+    }
+
+    private KeycloakClient keycloakClient(ArchiveAEExtension arcAE) {
+        String keycloakClientID = arcAE.userIdentityNegotiationKeycloakClientID();
+        if (keycloakClientID != null) {
+            KeycloakClient kc = arcAE.getApplicationEntity().getDevice().getKeycloakClient(keycloakClientID);
+            return kc != null ? kc.clone() : null;
+        }
+        if (System.getProperty("auth-server-url") != null) {
+            KeycloakClient kc = new KeycloakClient();
+            kc.setKeycloakServerURL(System.getProperty("auth-server-url"));
+            kc.setKeycloakRealm(System.getProperty("realm-name", "dcm4che"));
+            kc.setKeycloakClientID(System.getProperty("ui-client-id", "dcm4chee-arc-ui"));
+            kc.setTLSDisableTrustManager(
+                    Boolean.parseBoolean(System.getProperty("disable-trust-manager", "false")));
+            kc.setTLSAllowAnyHostname(
+                    Boolean.parseBoolean(System.getProperty("allow-any-hostname", "true")));
+            return kc;
+        }
+        return null;
     }
 
     private boolean validateCallingAEHostname(Association as) {
