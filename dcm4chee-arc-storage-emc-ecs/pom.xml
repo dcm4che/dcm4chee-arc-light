@@ -70,6 +70,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.emc.ecs</groupId>
+            <artifactId>object-client</artifactId>
+            <version>${ecs-object-client.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
