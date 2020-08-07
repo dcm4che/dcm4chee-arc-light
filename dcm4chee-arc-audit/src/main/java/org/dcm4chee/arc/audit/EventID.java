@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventIdentificationBuilder;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.entity.Patient;
 import org.slf4j.Logger;
@@ -121,7 +122,7 @@ class EventID {
             String status = auditInfo.getField(AuditInfo.STATUS);
 
             this.eventTypeCode = patMismatchCode != null
-                    ? patMismatchEventTypeCode(auditInfo) : eventType.eventTypeCode;
+                    ? patMismatchEventTypeCode(patMismatchCode) : eventType.eventTypeCode;
 
             this.outcomeIndicator = outcome != null || patMismatchCode != null
                     || patVerificationStatus == Patient.VerificationStatus.NOT_FOUND
@@ -145,10 +146,17 @@ class EventID {
                                 : auditInfo.getField(AuditInfo.WARNING);
         }
 
-        private AuditMessages.EventTypeCode patMismatchEventTypeCode(AuditInfo auditInfo) {
-            String patMismatchCode = auditInfo.getField(AuditInfo.PAT_MISMATCH_CODE);
-            String[] code = patMismatchCode.substring(1, patMismatchCode.length() - 1).split(",");
-            return new AuditMessages.EventTypeCode(code[0], code[1], code[2]);
+        private AuditMessages.EventTypeCode patMismatchEventTypeCode(String patMismatchCode) {
+            try {
+                Code code = new Code(patMismatchCode);
+                return new AuditMessages.EventTypeCode(
+                        code.getCodeValue(),
+                        code.getCodingSchemeDesignator(),
+                        code.getCodeMeaning());
+            } catch (Exception e) {
+                LOG.info("Invalid patient mismatch code: {}", patMismatchCode);
+            }
+            return null;
         }
     }
 }
