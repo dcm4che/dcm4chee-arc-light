@@ -368,6 +368,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PatientArrivalMessageType", arcDev.getHL7PatientArrivalMessageType(), null);
         writer.writeNotNullOrDef("dcmUserIdentityNegotiation",
                 arcDev.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiationRole",
+                arcDev.getUserIdentityNegotiationRole(), null);
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
+                arcDev.getUserIdentityNegotiationKeycloakClientID(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1161,6 +1165,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmRetrieveTaskWarningOnNoMatch", arcAE.getRetrieveTaskWarningOnNoMatch());
         writer.writeNotNull("dcmRetrieveTaskWarningOnWarnings", arcAE.getRetrieveTaskWarningOnWarnings());
         writer.writeNotNullOrDef("dcmUserIdentityNegotiation", arcAE.getUserIdentityNegotiation(), null);
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiationRole",
+                arcAE.getUserIdentityNegotiationRole(), null);
+        writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
+                arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1832,6 +1840,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUserIdentityNegotiation":
                     arcDev.setUserIdentityNegotiation(UserIdentityNegotiation.valueOf(reader.stringValue()));
+                    break;
+                case "dcmUserIdentityNegotiationRole":
+                    arcDev.setUserIdentityNegotiationRole(reader.stringValue());
+                    break;
+                case "dcmUserIdentityNegotiationKeycloakClientID":
+                    arcDev.setUserIdentityNegotiationKeycloakClientID(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3694,6 +3708,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUserIdentityNegotiation":
                     arcAE.setUserIdentityNegotiation(UserIdentityNegotiation.valueOf(reader.stringValue()));
+                    break;
+                case "dcmUserIdentityNegotiationRole":
+                    arcAE.setUserIdentityNegotiationRole(reader.stringValue());
+                    break;
+                case "dcmUserIdentityNegotiationKeycloakClientID":
+                    arcAE.setUserIdentityNegotiationKeycloakClientID(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

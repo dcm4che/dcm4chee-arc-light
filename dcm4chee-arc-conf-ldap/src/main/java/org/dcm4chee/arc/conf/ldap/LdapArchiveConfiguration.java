@@ -459,6 +459,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7PatientArrivalMessageType(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiation",
                 ext.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiationRole",
+                ext.getUserIdentityNegotiationRole(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiationKeycloakClientID",
+                ext.getUserIdentityNegotiationKeycloakClientID(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
     }
@@ -745,6 +749,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PatientArrivalMessageType(LdapUtils.stringValue(attrs.get("hl7PatientArrivalMessageType"), null));
         ext.setUserIdentityNegotiation(LdapUtils.enumValue(
                 UserIdentityNegotiation.class, attrs.get("dcmUserIdentityNegotiation"), UserIdentityNegotiation.SUPPORTS));
+        ext.setUserIdentityNegotiationRole(LdapUtils.stringValue(attrs.get("dcmUserIdentityNegotiationRole"), null));
+        ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
+                attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
     }
 
     @Override
@@ -1282,6 +1289,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiation",
                 aa.getUserIdentityNegotiation(),
                 bb.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationRole",
+                aa.getUserIdentityNegotiationRole(),
+                bb.getUserIdentityNegotiationRole(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationKeycloakClientID",
+                aa.getUserIdentityNegotiationKeycloakClientID(),
+                bb.getUserIdentityNegotiationKeycloakClientID(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1574,6 +1587,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getRetrieveTaskWarningOnWarnings(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiation",
                 ext.getUserIdentityNegotiation(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiationRole",
+                ext.getUserIdentityNegotiationRole(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiationKeycloakClientID",
+                ext.getUserIdentityNegotiationKeycloakClientID(), null);
     }
 
     @Override
@@ -1712,6 +1729,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnWarnings"), null));
         ext.setUserIdentityNegotiation(LdapUtils.enumValue(
                 UserIdentityNegotiation.class, attrs.get("dcmUserIdentityNegotiation"), null));
+        ext.setUserIdentityNegotiationRole(LdapUtils.stringValue(attrs.get("dcmUserIdentityNegotiationRole"), null));
+        ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
+                attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
     }
 
     @Override
@@ -1934,6 +1954,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiation",
                 aa.getUserIdentityNegotiation(),
                 bb.getUserIdentityNegotiation(), UserIdentityNegotiation.SUPPORTS);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationRole",
+                aa.getUserIdentityNegotiationRole(),
+                bb.getUserIdentityNegotiationRole(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationKeycloakClientID",
+                aa.getUserIdentityNegotiationKeycloakClientID(),
+                bb.getUserIdentityNegotiationKeycloakClientID(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

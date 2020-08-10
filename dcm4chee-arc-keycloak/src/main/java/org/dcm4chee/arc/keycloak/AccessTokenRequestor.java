@@ -57,7 +57,9 @@ import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
 import org.keycloak.jose.jwk.JSONWebKeySet;
 import org.keycloak.jose.jwk.JWK;
+import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
@@ -132,17 +134,17 @@ public class AccessTokenRequestor {
             if (keycloakClient == null)
                 throw new IllegalArgumentException("No Keycloak Client configured with ID:" + webApp.getKeycloakClientID());
 
-            cachedKeycloakClient = tmp = cachedKeycloak(webApp.getKeycloakClientID(),
-                    keycloakClient.getKeycloakServerURL(),
-                    keycloakClient.getKeycloakRealm(),
-                    keycloakClient.getKeycloakClientID(),
-                    keycloakClient.getKeycloakClientSecret(),
-                    keycloakClient.getUserID(),
-                    keycloakClient.getPassword(),
-                    keycloakClient.getKeycloakGrantType().name(),
-                    keycloakClient.isTLSAllowAnyHostname(),
-                    keycloakClient.isTLSDisableTrustManager());
+            cachedKeycloakClient = tmp = new CachedKeycloak(
+                                                keycloakClient.getKeycloakClientID(), toKeycloak(keycloakClient));
         }
+        return tmp;
+    }
+
+    private CachedKeycloak toCachedKeycloakClient(KeycloakClient kc) throws Exception {
+        CachedKeycloak tmp = cachedKeycloakClient;
+        if (tmp == null || !tmp.keycloakID.equals(kc.getKeycloakClientID()))
+            cachedKeycloakClient = tmp = new CachedKeycloak(kc.getKeycloakClientID(), toKeycloak(kc));
+
         return tmp;
     }
 
@@ -175,9 +177,26 @@ public class AccessTokenRequestor {
         return builder;
     }
 
-    public boolean verifyUsernamePasscode(KeycloakClient kc, String role) {
-        //TODO
-        return false;
+    public boolean verifyUsernamePasscode(KeycloakClient kc, String role) throws Exception {
+        CachedKeycloak tmp = toCachedKeycloakClient(kc);
+        TokenManager tokenManager = tmp.keycloak.tokenManager();
+        JWSInput jws = new JWSInput(tokenManager.getAccessToken().getToken());
+        AccessToken token = jws.readJsonContent(AccessToken.class);
+        return token.getRealmAccess().isUserInRole(role);
+    }
+
+    private Keycloak toKeycloak(KeycloakClient kc) throws Exception {
+        return KeycloakBuilder.builder()
+                .serverUrl(kc.getKeycloakServerURL())
+                .realm(kc.getKeycloakRealm())
+                .clientId(kc.getKeycloakClientID())
+                .clientSecret(kc.getKeycloakClientSecret())
+                .username(kc.getUserID())
+                .password(kc.getPassword())
+                .grantType(kc.getKeycloakGrantType().name())
+                .resteasyClient(resteasyClientBuilder(
+                        kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager()).build())
+                .build();
     }
 
 
