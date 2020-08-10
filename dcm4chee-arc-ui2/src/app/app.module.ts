@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule, MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule} from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -279,6 +279,7 @@ import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
             useClass: MomentDateAdapter,
             deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
         },
+        // { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: MY_FORMATS },
         {provide: MAT_DATE_FORMATS, useValue: MY_FORMATS},
     ],
     bootstrap: [AppComponent],
