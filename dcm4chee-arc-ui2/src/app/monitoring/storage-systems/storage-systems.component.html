@@ -44,7 +44,7 @@
                         <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
                         <td [innerHtml]="match.properties.dicomAETitle" ></td>
                         <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
-                        <td class="used_space_bar">
+                        <td width="5%" class="used_space_bar">
                             <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
                             <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
                             <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
@@ -83,7 +83,7 @@
                         </td>
                     </tr>
                     <tr *ngIf="match.showProperties">
-                        <td colspan="11">
+                        <td colspan="15">
                             <table class="table table-bordered table-condensed attribute_list">
                                 <ng-container *ngFor="let key of Object.keys(match.properties)">
                                     <tr *ngIf="key != 'warning'">
