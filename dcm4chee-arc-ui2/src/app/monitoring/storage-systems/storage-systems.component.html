@@ -23,6 +23,9 @@
                     <th i18n="@@storage_duration">Storage Duration</th>
                     <th i18n="@@export_storage_id_external_retrieve_aet">Export Storage ID / External Retrieve AET</th>
                     <th i18n="@@deleter_storage_threshold">Deleter / Storage Threshold</th>
+                    <th i18n="@@delete_studies_older_than">Delete Studies Older Than</th>
+                    <th i18n="@@delete_studies_received_before">Delete Studies Received Before</th>
+                    <th i18n="@@delete_studies_not_used_since">Delete Studies Not Used Since</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,6 +64,21 @@
                                 <span *ngIf="!match.properties.deleterThresholdProcent">-</span>
                                 /
                                 <span>{{match.properties.storageThreshold || '-'}}</span>
+                            </ng-container>
+                        </td>
+                        <td>
+                            <ng-container *ngIf="match.properties.dcmDeleteStudiesOlderThan">
+                                <span>{{match.properties.dcmDeleteStudiesOlderThan || '-'}}</span>
+                            </ng-container>
+                        </td>
+                        <td>
+                            <ng-container *ngIf="match.properties.dcmDeleteStudiesReceivedBefore">
+                                <span>{{match.properties.dcmDeleteStudiesReceivedBefore || '-'}}</span>
+                            </ng-container>
+                        </td>
+                        <td>
+                            <ng-container *ngIf="match.properties.dcmDeleteStudiesNotUsedSince">
+                                <span>{{match.properties.dcmDeleteStudiesNotUsedSince || '-'}}</span>
                             </ng-container>
                         </td>
                     </tr>
