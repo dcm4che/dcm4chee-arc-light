@@ -15,6 +15,7 @@
                     <th i18n="@@storage_id">Storage ID</th>
                     <th i18n="@@storage_uri">Storage URI</th>
                     <th i18n="@@read_only">Read Only</th>
+                    <th i18n="@@no_deletion_constraint">No Deletion Constraint</th>
                     <th i18n="@@storage_cluster_id">Storage Cluster ID</th>
                     <th i18n="@@ae_title">AE Title</th>
                     <th i18n="@@space_usable_total">Space ( Usable / Total )</th>
@@ -36,6 +37,7 @@
                         <td [innerHtml]="match.properties.dcmStorageID"></td>
                         <td [innerHtml]="match.properties.dcmURI" ></td>
                         <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
+                        <td [innerHtml]="match.properties.dcmNoDeletionConstraint || 'false'" ></td>
                         <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
                         <td [innerHtml]="match.properties.dicomAETitle" ></td>
                         <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
