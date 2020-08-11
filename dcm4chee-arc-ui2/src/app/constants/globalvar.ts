@@ -1340,13 +1340,21 @@ export class Globalvar {
                     filterKey:"storageVerificationFailed",
                     text:$localize `:@@verification_failed:Verification Failed`,
                     description:$localize `:@@storage_verification_failed:Storage Verification Failed`
-                },{
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"metadataUpdateFailed",
+                    text:$localize `:@@metadata_update_failed:Metadata Update Failed`,
+                    description:$localize `:@@series_metadata_update_failed:Series Metadata Update Failed`
+                },
+                {
                     tag:"input",
                     type:"text",
                     filterKey:"ResponsiblePerson",
                     description:$localize `:@@responsible_person:Responsible Person`,
                     placeholder:$localize `:@@responsible_person:Responsible Person`
-                },{
+                },
+                {
                     tag:"p-calendar",
                     type:"text",
                     filterKey:"PatientBirthDate",
