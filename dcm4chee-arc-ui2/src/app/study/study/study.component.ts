@@ -3301,18 +3301,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }*/
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-                this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
-                    this.studyWebService,
-                    "DCM4CHEE_ARC_AET",
-                    "MOVE_MATCHING"
-                ).subscribe(webApp=>{
-                    if(webApp){
-                        let batchID = "";
-                        let params = {};
-                        if(result.batchID)
-                            batchID = `batchID=${result.batchID}&`;
-                        $this.cfpLoadingBar.start();
-                        if(mode === "multiple-retrieve"){
+                let batchID = "";
+                let params = {};
+                if(result.batchID)
+                    batchID = `batchID=${result.batchID}&`;
+                $this.cfpLoadingBar.start();
+                if(mode === "multiple-retrieve"){
+                    this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                        this.studyWebService,
+                        "DCM4CHEE_ARC_AET",
+                        "MOVE_MATCHING"
+                    ).subscribe(webApp=>{
+                        if(webApp){
                              urlRest = `${
                                     j4care.getUrlFromDcmWebApplication(webApp)
                                 }/studies/export/dicom:${
@@ -3323,24 +3323,44 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     this.appService.param({...this.createStudyFilterParams(true,true),...{batchID:result.batchID}})
                                 }`;
                         }else{
-                            if(mode === 'multipleExport'){
+                            this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
+                        }
+                    });
+                }else{
+                    if(mode === 'multipleExport'){
+                        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                            this.studyWebService,
+                            "DCM4CHEE_ARC_AET",
+                            "MOVE_MATCHING"
+                        ).subscribe(webApp=>{
+                            if(webApp){
                                 let checkbox = "";
                                 if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
                                     checkbox = '&' + checkbox;
-                                urlRest = `${
-                                    this.service.getDicomURL("export",this.studyWebService.selectedWebService)
-                                }/${
-                                    result.selectedExporter
-                                }?${
-                                    batchID
-                                }${
-                                    this.appService.param(this.createStudyFilterParams(true,true))
-                                }${
-                                    checkbox
-                                }`;
+                                    urlRest = `${
+                                        this.service.getDicomURL("export",webApp)
+                                    }/${
+                                        result.selectedExporter
+                                    }?${
+                                        batchID
+                                    }${
+                                        this.appService.param(this.createStudyFilterParams(true,true))
+                                    }${
+                                        checkbox
+                                    }`;
                             }else{
-                                //SINGLE
-                                if(!this.internal){
+                                this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
+                            }
+                        });
+                    }else{
+                        //SINGLE
+                        if(!this.internal){
+                            this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                                this.studyWebService,
+                                "DCM4CHEE_ARC_AET",
+                                "MOVE"
+                            ).subscribe(webApp=>{
+                                if(webApp){
                                     if(result.dcmQueueName){
                                         params['dcmQueueName'] = result.dcmQueueName
                                     }
@@ -3348,54 +3368,54 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     delete params['offset'];
                                     delete params['includefield'];
                                     delete params['orderby'];
-                                    singleUrlSuffix = `/export/dicom:${result.selectedAet}${j4care.param(params)}`;
+                                    urlRest = `${this.service.getDicomURL("export",webApp)}/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     //TODO url schould be her overwritten with the 'MOVE' webapp url for external
                                 }else{
-                                    if (result.exportType === 'dicom'){
-                                        id = 'dicom:' + result.selectedAet;
-                                    }else{
-                                        id = result.selectedExporter;
-                                    }
-                                    // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
-                                    singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                                    this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE,DCM4CHEE_ARC_AET' not found!`)
                                 }
-                            }
-                        }
-                        if(multipleObjects && multipleObjects.size > 0){
-                            this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
-                                console.log("res",res);
-                                $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
-                                $this.cfpLoadingBar.complete();
-                            }, err=>{
-                                console.log("err",err);
-                                $this.cfpLoadingBar.complete();
                             });
                         }else{
-                            if(singleUrlSuffix){
-                                urlRest = url + singleUrlSuffix;
+                            if (result.exportType === 'dicom'){
+                                id = 'dicom:' + result.selectedAet;
+                            }else{
+                                id = result.selectedExporter;
                             }
-                            this.service.export(urlRest)
-                                .subscribe(
-                                (result) => {
-                                    $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.command_executed:Command executed successfully!`));
-                                    $this.cfpLoadingBar.complete();
-                                },
-                                (err) => {
-                                    console.log("err",err);
-                                    $this.appService.setMessage({
-                                        'title': $localize `:@@error_status:Error ${err.status}:@@status:`,
-                                        'text': $this.service.getMsgFromResponse(err),
-                                        'status': 'error'
-                                    });
-                                    $this.cfpLoadingBar.complete();
-                                }
-                            );
+                            // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                         }
-                    }else{
-                        this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                     }
-                });
+                }
+                if(multipleObjects && multipleObjects.size > 0){
+                    this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                        console.log("res",res);
+                        $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                        $this.cfpLoadingBar.complete();
+                    }, err=>{
+                        console.log("err",err);
+                        $this.cfpLoadingBar.complete();
+                    });
+                }else{
+                    if(singleUrlSuffix){
+                        urlRest = url + singleUrlSuffix;
+                    }
+                    this.service.export(urlRest)
+                        .subscribe(
+                        (result) => {
+                            $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.command_executed:Command executed successfully!`));
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            console.log("err",err);
+                            $this.appService.setMessage({
+                                'title': $localize `:@@error_status:Error ${err.status}:@@status:`,
+                                'text': $this.service.getMsgFromResponse(err),
+                                'status': 'error'
+                            });
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
             }
         });
     }
