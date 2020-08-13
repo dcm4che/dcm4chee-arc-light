@@ -251,7 +251,8 @@ public class ExportManagerEJB implements ExportManager {
     public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                                 String batchID, Date scheduledTime, String... studyUIDs) {
         for (String studyUID : studyUIDs)
-            createOrUpdateStudyExportTask(exporter.getExporterID(), studyUID, batchID, scheduledTime);
+            createOrUpdateStudyExportTask(
+                    device.getDeviceName(), exporter.getExporterID(), studyUID, batchID, scheduledTime);
 
         return studyUIDs.length;
     }
