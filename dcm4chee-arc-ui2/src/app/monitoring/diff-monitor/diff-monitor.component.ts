@@ -16,6 +16,8 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
+import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
+import {Validators} from "@angular/forms";
 
 @Component({
     selector: 'diff-monitor',
@@ -456,6 +458,116 @@ export class DiffMonitorComponent implements OnInit {
                 }
             });
         })
+    }
+    uploadCsv(){
+        this.dialogRef = this.dialog.open(CsvUploadComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.aes = this.aes;
+        this.dialogRef.componentInstance.params = {
+            LocalAET:this.filterObject['LocalAET']||'',
+            PrimaryAET:this.filterObject['PrimaryAET']||'',
+            SecondaryAET:this.filterObject['SecondaryAET']||'',
+            batchID:this.filterObject['batchID']||'',
+            formSchema:[
+                {
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"semicolon",
+                    description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
+                },{
+                    tag:"select",
+                    options:this.aets,
+                    showStar:true,
+                    filterKey:"LocalAET",
+                    description:$localize `:@@local_aet:Local AET`,
+                    placeholder:$localize `:@@local_aet:Local AET`,
+                    validation:Validators.required
+                },{
+                    tag:"select",
+                    options:this.aes,
+                    showStar:true,
+                    filterKey:"PrimaryAET",
+                    description:$localize `:@@primary_aet:Primary AET`,
+                    placeholder:$localize `:@@primary_aet:Primary AET`,
+                    validation:Validators.required
+                },{
+                    tag:"select",
+                    options:this.aes,
+                    showStar:true,
+                    filterKey:"SecondaryAET",
+                    description:$localize `:@@secondary_aet:Secondary AET`,
+                    placeholder:$localize `:@@secondary_aet:Secondary AET`,
+                    validation:Validators.required
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"field",
+                    description:$localize `:@@field:Field`,
+                    placeholder:$localize `:@@field:Field`,
+                    validation:Validators.minLength(1),
+                    defaultValue:1
+                },{
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"missing",
+                    description:$localize `:@@check_missing:Check Missing`
+                },{
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"different",
+                    description:$localize `:@@check_different:Check Different`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"comparefield",
+                    description:$localize `:@@compare_field:Compare field`,
+                    placeholder:$localize `:@@compare_field:Compare field`
+                },{
+                    tag:"input",
+                    type:"checkbox",
+                    filterKey:"ForceQueryByStudyUID",
+                    description:$localize `:@@force_query_by_study_uid:Force query by Study UID`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SplitStudyDateRange",
+                    description:$localize `:@@split_study_date_range:Split Study Date Range`,
+                    placeholder:$localize `:@@split_study_date_range_duration_format:Split Study Date Range as per duration format`
+                },{
+                    tag:"input",
+                    type:"number",
+                    filterKey:"priority",
+                    description:$localize `:@@priority:Priority`,
+                    placeholder:$localize `:@@priority:Priority`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"batchID",
+                    description:$localize `:@@batch_id:Batch ID`,
+                    placeholder:$localize `:@@batch_id:Batch ID`
+                }
+            ],
+            prepareUrl:(filter)=>{
+                let clonedFilters = {};
+                if(filter['missing']) clonedFilters['missing'] = filter['missing'];
+                if(filter['different']) clonedFilters['different'] = filter['different'];
+                if(filter['compareField']) clonedFilters['compareField'] = filter['compareField'];
+                if(filter['ForceQueryByStudyUID']) clonedFilters['ForceQueryByStudyUID'] = filter['ForceQueryByStudyUID'];
+                if(filter['SplitStudyDateRange']) clonedFilters['SplitStudyDateRange'] = filter['SplitStudyDateRange'];
+                if(filter['priority']) clonedFilters['priority'] = filter['priority'];
+                if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+
+                return `../aets/${filter.LocalAET}/dimse/${filter.PrimaryAET}/diff/${filter.SecondaryAET}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+            }
+        };
+        this.dialogRef.afterClosed().subscribe((ok)=>{
+            if(ok){
+                console.log("ok",ok);
+                //TODO
+            }
+        });
     }
     toggleAutoRefresh(){
         this.timer.started = !this.timer.started;
