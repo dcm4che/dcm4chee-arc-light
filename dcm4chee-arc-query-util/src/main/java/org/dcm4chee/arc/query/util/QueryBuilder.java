@@ -495,6 +495,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         dateRange(predicates, study.get(Study_.createdTime),
                 keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT));
+        dateRange(predicates, study.get(Study_.accessTime),
+                keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyAccessDateTime, VR.DT));
         if (queryParam.getExternalRetrieveAET() != null)
             predicates.add(cb.equal(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)
