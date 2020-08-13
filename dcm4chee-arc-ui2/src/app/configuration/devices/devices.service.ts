@@ -125,13 +125,13 @@ export class DevicesService {
                 saveButton: 'SUBMIT'
             };
             if(addScheduleTime){
-                schema.form_schema[0][0].push([
+                schema.form_schema[0].push([
                     {
                         tag:"label",
                         text:$localize `:@@scheduled_time:Scheduled Time`
                     }
                     ,{
-                        tag:"range-picker-time",
+                        tag:"single-date-time-picker",
                         type:"text",
                         filterKey:"scheduledTime",
                         description:$localize `:@@scheduled_time:Scheduled Time`
