@@ -775,6 +775,12 @@ export class Globalvar {
                 labelKey:'{dcmKeycloakClientID}',
                 msg:$localize `:@@dynamic_formatter.keycloak_client:Create first a Keycloak Client!`,
                 pathInDevice:'dcmDevice.dcmKeycloakClient'
+            },
+            dcmWebApp:{
+                key:'dcmWebAppName',
+                labelKey:'{dcmWebAppName}',
+                msg:$localize `:@@dynamic_formatter.web_app:Create first a Web Application!`,
+                pathInDevice:'dcmDevice.dcmWebApp'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
