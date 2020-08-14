@@ -144,8 +144,7 @@ public class PersonName {
         phoneticMiddleName = pn.get(Group.Phonetic, Component.MiddleName);
         phoneticNamePrefix = pn.get(Group.Phonetic, Component.NamePrefix);
         phoneticNameSuffix = pn.get(Group.Phonetic, Component.NameSuffix);
-        createOrUpdateSoundexCodes(familyName, givenName, ideographicMiddleName,
-                    fuzzyStr);
+        createOrUpdateSoundexCodes(familyName, givenName, middleName, fuzzyStr);
     }
 
     private void createOrUpdateSoundexCodes(String familyName,
