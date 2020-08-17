@@ -385,7 +385,7 @@ export class StudyService {
                     description: $localize `:@@study.trigger_diffs:Trigger DIFFs`
                 });*/
             }
-            if(tab != "diff" && tab != "uwl"){
+            if(tab != "diff"){
                 if(showCount){
                     schema.push({
                         tag: "button",

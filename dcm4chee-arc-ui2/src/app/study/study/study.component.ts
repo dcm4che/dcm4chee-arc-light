@@ -1922,6 +1922,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     getService(filterModel, quantity){
         switch (this.studyConfig.tab) {
+            case "uwl":
+                return this.service.getUWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "mwl":
                 return this.service.getMWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "patient":
