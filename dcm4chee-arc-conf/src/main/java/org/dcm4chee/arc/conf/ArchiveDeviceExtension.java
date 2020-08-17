@@ -302,6 +302,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, UPSTemplate> upsTemplateMap = new HashMap<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
+    private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
     private final List<UPSProcessingRule> upsProcessingRuleList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
@@ -1883,6 +1884,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return upsOnStoreList;
     }
 
+    public void removeUPSOnUPSCompleted(UPSOnUPSCompleted rule) {
+        upsOnUPSCompletedList.remove(rule);
+    }
+
+    public void clearUPSOnUPSCompleted() {
+        upsOnUPSCompletedList.clear();
+    }
+
+    public void addUPSOnUPSCompleted(UPSOnUPSCompleted upsOnUPSCompleted) {
+        upsOnUPSCompletedList.add(upsOnUPSCompleted);
+    }
+
+    public Collection<UPSOnUPSCompleted> listUPSOnUPSCompleted() {
+        return upsOnUPSCompletedList;
+    }
+
     public void removeUPSOnHL7(UPSOnHL7 rule) {
         upsOnHL7List.remove(rule);
     }
@@ -3144,6 +3161,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         upsTemplateMap.putAll(arcdev.upsTemplateMap);
         upsOnStoreList.clear();
         upsOnStoreList.addAll(arcdev.upsOnStoreList);
+        upsOnUPSCompletedList.clear();
+        upsOnUPSCompletedList.addAll(arcdev.upsOnUPSCompletedList);
         upsOnHL7List.clear();
         upsOnHL7List.addAll(arcdev.upsOnHL7List);
         upsProcessingRuleList.clear();

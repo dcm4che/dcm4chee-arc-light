@@ -156,6 +156,7 @@ public class ArchiveAEExtension extends AEExtension {
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
+    private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
     private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
@@ -930,6 +931,22 @@ public class ArchiveAEExtension extends AEExtension {
 
     public Collection<UPSOnStore> listUPSOnStore() {
         return upsOnStoreList;
+    }
+
+    public void removeUPSOnUPSCompleted(UPSOnUPSCompleted rule) {
+        upsOnUPSCompletedList.remove(rule);
+    }
+
+    public void clearUPSOnUPSCompleted() {
+        upsOnUPSCompletedList.clear();
+    }
+
+    public void addUPSOnUPSCompleted(UPSOnUPSCompleted upsOnUPSCompleted) {
+        upsOnUPSCompletedList.add(upsOnUPSCompleted);
+    }
+
+    public Collection<UPSOnUPSCompleted> listUPSOnUPSCompleted() {
+        return upsOnUPSCompletedList;
     }
 
     public void removeExportRule(ExportRule rule) {
@@ -1712,6 +1729,8 @@ public class ArchiveAEExtension extends AEExtension {
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         upsOnStoreList.clear();
         upsOnStoreList.addAll(aeExt.upsOnStoreList);
+        upsOnUPSCompletedList.clear();
+        upsOnUPSCompletedList.addAll(aeExt.upsOnUPSCompletedList);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         exportPriorsRules.clear();
@@ -1742,6 +1761,12 @@ public class ArchiveAEExtension extends AEExtension {
         return Utils.concatCopyStream(upsOnStoreList,
                 getArchiveDeviceExtension().listUPSOnStore(),
                 UPSOnStore.EMPTY);
+    }
+
+    public Stream<UPSOnUPSCompleted> upsOnUPSCompletedStream() {
+        return Utils.concatCopyStream(upsOnUPSCompletedList,
+                getArchiveDeviceExtension().listUPSOnUPSCompleted(),
+                UPSOnUPSCompleted.EMPTY);
     }
 
     public Stream<ExportPriorsRule> prefetchRules() {
