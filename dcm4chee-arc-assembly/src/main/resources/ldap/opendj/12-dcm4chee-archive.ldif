@@ -1869,6 +1869,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.0.3.383 NAME 'dcmUserIdentityNegotiationKeycl
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.384 NAME 'dcmUPSonUPSCompletedID'
+  DESC 'ID of UPS on UPS Completed Rule'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2678,7 +2683,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
     dcmProperty $
     dcmSchedule ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.41 NAME 'dcmUPSTemplate'
-  DESC 'UPS on Store'
+  DESC 'UPS Template'
   SUP top STRUCTURAL
   MUST (
     dcmUPSTemplateID $
@@ -2700,3 +2705,37 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.41 NAME 'dcmUPSTemplate'
     dcmUPSScheduledHumanPerformerCode $
     dcmUPSScheduledHumanPerformerName $
     dcmUPSScheduledHumanPerformerOrganization ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
+  DESC 'UPS on UPS Completed Rule'
+  SUP top STRUCTURAL
+  MUST (
+    dcmUPSOnUPSCompletedID $
+    dcmUPSPerformedWorkitemCode $
+    dcmUPSLabel )
+  MAY (
+    dcmUPSPriority $
+    dcmUPSInputReadinessState $
+    dcmUPSStartDateTimeDelay $
+    dcmUPSCompletionDateTimeDelay $
+    dcmUPSWorklistLabel $
+    dcmUPSIncludeStudyInstanceUID $
+    dcmUPSIncludeReferencedRequest $
+    dcmDestinationAE $
+    dcmEntity $
+    dcmUPSScheduledWorkitemCode $
+    dcmUPSScheduledStationNameCode $
+    dcmUPSScheduledStationClassCode $
+    dcmUPSScheduledStationLocationCode $
+    dcmUPSScheduledHumanPerformerCode $
+    dcmUPSScheduledHumanPerformerName $
+    dcmUPSScheduledHumanPerformerOrganization $
+    dcmAdmissionID $
+    dicomIssuerOfAdmissionID $
+    dcmAccessionNumber $
+    dicomIssuerOfAccessionNumber $
+    dcmRequestedProcedureID $
+    dcmRequestedProcedureDescription $
+    dcmRequestingPhysician $
+    dcmRequestingService $
+    dcmURI $
+    dcmNoKeywords ) )
