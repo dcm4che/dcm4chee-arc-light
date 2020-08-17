@@ -53,9 +53,15 @@ import java.util.Objects;
  * @since Nov 2019
  */
 public class UPSOnUPSCompleted {
+    public static final Code DEFAULT_PERFORMED_WORKITEM_CODE = new Code(
+            "NO_WORKITEM_CODE",
+            "99DCM4CHEE",
+            null,
+            "No Workitem Code specified");
+
     public static final UPSOnUPSCompleted[] EMPTY = {};
     private String upsOnUPSCompletedID;
-    private Code performedWorkitemCode;
+    private Code performedWorkitemCode = DEFAULT_PERFORMED_WORKITEM_CODE;
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
     private Duration startDateTimeDelay;

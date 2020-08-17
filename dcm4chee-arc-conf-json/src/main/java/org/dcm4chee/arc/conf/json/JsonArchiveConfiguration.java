@@ -400,6 +400,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
         writeUPSProcessingRules(writer, arcDev.listUPSProcessingRules());
         writeUPSTemplates(writer, arcDev.getUPSTemplates());
+        writeUPSOnUPSCompletedList(writer, arcDev.listUPSOnUPSCompleted());
         writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
@@ -1028,6 +1029,60 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
+    private static void writeUPSOnUPSCompletedList(JsonWriter writer, Collection<UPSOnUPSCompleted> upsOnUPSCompletedList) {
+        writer.writeStartArray("dcmUPSOnUPSCompleted");
+        upsOnUPSCompletedList.forEach(upsOnUPSCompleted -> {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef(
+                    "dcmUPSOnUPSCompletedID", upsOnUPSCompleted.getUPSonUPSCompletedID(), null);
+            writer.writeNotNullOrDef("dcmUPSLabel", upsOnUPSCompleted.getProcedureStepLabel(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSPerformedWorkitemCode", upsOnUPSCompleted.getPerformedWorkitemCode(), null);
+            writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnUPSCompleted.getWorklistLabel(), null);
+            writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInputReadinessState", upsOnUPSCompleted.getInputReadinessState(), InputReadinessState.READY);
+            writer.writeNotNullOrDef("dcmUPSStartDateTimeDelay", upsOnUPSCompleted.getStartDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmUPSCompletionDateTimeDelay",
+                    upsOnUPSCompleted.getCompletionDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmDestinationAE", upsOnUPSCompleted.getDestinationAE(), null);
+            writer.writeNotNullOrDef("dcmEntity", upsOnUPSCompleted.getScopeOfAccumulation(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledWorkitemCode", upsOnUPSCompleted.getScheduledWorkitemCode(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationNameCode", upsOnUPSCompleted.getScheduledStationName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationClassCode", upsOnUPSCompleted.getScheduledStationClass(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledStationLocationCode", upsOnUPSCompleted.getScheduledStationLocation(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnUPSCompleted.getScheduledHumanPerformer(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledHumanPerformerName", upsOnUPSCompleted.getScheduledHumanPerformerName(), null);
+            writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
+                    upsOnUPSCompleted.getScheduledHumanPerformerOrganization(), null);
+            writer.writeNotNullOrDef("dcmAdmissionID", upsOnUPSCompleted.getAdmissionID(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAdmissionID", upsOnUPSCompleted.getIssuerOfAdmissionID(), null);
+            writer.writeNotDef(
+                    "dcmUPSIncludeStudyInstanceUID", upsOnUPSCompleted.isIncludeStudyInstanceUID(), false);
+            writer.writeNotDef(
+                    "dcmUPSIncludeReferencedRequest", upsOnUPSCompleted.isIncludeReferencedRequest(), false);
+            writer.writeNotNullOrDef("dcmAccessionNumber", upsOnUPSCompleted.getAccessionNumber(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAccessionNumber",
+                    upsOnUPSCompleted.getIssuerOfAccessionNumber(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureID",
+                    upsOnUPSCompleted.getRequestedProcedureID(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureDescription",
+                    upsOnUPSCompleted.getRequestedProcedureDescription(), null);
+            writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnUPSCompleted.getRequestingPhysician(), null);
+            writer.writeNotNullOrDef("dcmRequestingService", upsOnUPSCompleted.getRequestingService(), null);
+            writer.writeNotNullOrDef("dcmURI", upsOnUPSCompleted.getXSLTStylesheetURI(), null);
+            writer.writeNotDef("dcmNoKeywords", upsOnUPSCompleted.isNoKeywords(), false);
+            writer.writeEnd();
+        });
+        writer.writeEnd();
+    }
+
     private void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
@@ -1177,6 +1232,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeStudyRetentionPolicies(writer, arcAE.getStudyRetentionPolicies());
         writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writeUPSOnStoreList(writer, arcAE.listUPSOnStore());
+        writeUPSOnUPSCompletedList(writer, arcAE.listUPSOnUPSCompleted());
         writer.writeEnd();
     }
 
@@ -1933,6 +1989,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSTemplate":
                     loadUPSTemplates(arcDev, reader);
+                    break;
+                case "dcmUPSOnUPSCompleted":
+                    loadUPSOnUPSCompletedList(arcDev.listUPSOnUPSCompleted(), reader);
                     break;
                 case "dcmMWLIdleTimeout":
                     loadMWLIdleTimeout(arcDev.getMWLIdleTimeouts(), reader);
@@ -3378,6 +3437,111 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private void loadUPSOnUPSCompletedList(Collection<UPSOnUPSCompleted> upsOnUPSCompletedList, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UPSOnUPSCompleted upsOnUPSCompleted = new UPSOnUPSCompleted();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmUPSOnUPSCompletedID":
+                        upsOnUPSCompleted.setUPSonUPSCompletedID(reader.stringValue());
+                        break;
+                    case "dcmUPSPerformedWorkitemCode":
+                        upsOnUPSCompleted.setPerformedWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSLabel":
+                        upsOnUPSCompleted.setProcedureStepLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSWorklistLabel":
+                        upsOnUPSCompleted.setWorklistLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSPriority":
+                        upsOnUPSCompleted.setUPSPriority(UPSPriority.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSInputReadinessState":
+                        upsOnUPSCompleted.setInputReadinessState(InputReadinessState.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSStartDateTimeDelay":
+                        upsOnUPSCompleted.setStartDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSCompletionDateTimeDelay":
+                        upsOnUPSCompleted.setCompletionDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmDestinationAE":
+                        upsOnUPSCompleted.setDestinationAE(reader.stringValue());
+                        break;
+                    case "dcmEntity":
+                        upsOnUPSCompleted.setScopeOfAccumulation(Entity.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledWorkitemCode":
+                        upsOnUPSCompleted.setScheduledWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationNameCode":
+                        upsOnUPSCompleted.setScheduledStationName(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationClassCode":
+                        upsOnUPSCompleted.setScheduledStationClass(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationLocationCode":
+                        upsOnUPSCompleted.setScheduledStationLocation(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledHumanPerformerCode":
+                        upsOnUPSCompleted.setScheduledHumanPerformer(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledHumanPerformerName":
+                        upsOnUPSCompleted.setScheduledHumanPerformerName(reader.stringValue());
+                        break;
+                    case "dcmUPSScheduledHumanPerformerOrganization":
+                        upsOnUPSCompleted.setScheduledHumanPerformerOrganization(reader.stringValue());
+                        break;
+                    case "dcmAdmissionID":
+                        upsOnUPSCompleted.setAdmissionID(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAdmissionID":
+                        upsOnUPSCompleted.setIssuerOfAdmissionID(reader.issuerValue());
+                        break;
+                    case "dcmUPSIncludeStudyInstanceUID":
+                        upsOnUPSCompleted.setIncludeStudyInstanceUID(reader.booleanValue());
+                        break;
+                    case "dcmUPSIncludeReferencedRequest":
+                        upsOnUPSCompleted.setIncludeReferencedRequest(reader.booleanValue());
+                        break;
+                    case "dcmAccessionNumber":
+                        upsOnUPSCompleted.setAccessionNumber(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAccessionNumber":
+                        upsOnUPSCompleted.setIssuerOfAccessionNumber(reader.issuerValue());
+                        break;
+                    case "dcmRequestedProcedureID":
+                        upsOnUPSCompleted.setRequestedProcedureID(reader.stringValue());
+                        break;
+                    case "dcmRequestedProcedureDescription":
+                        upsOnUPSCompleted.setRequestedProcedureDescription(reader.stringValue());
+                        break;
+                    case "dcmRequestingPhysician":
+                        upsOnUPSCompleted.setRequestingPhysician(reader.stringValue());
+                        break;
+                    case "dcmRequestingService":
+                        upsOnUPSCompleted.setRequestingService(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        upsOnUPSCompleted.setXSLTStylesheetURI(reader.stringValue());
+                        break;
+                    case "dcmNoKeywords":
+                        upsOnUPSCompleted.setNoKeywords(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            upsOnUPSCompletedList.add(upsOnUPSCompleted);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
     private void loadMWLIdleTimeout(Collection<MWLIdleTimeout> mwlIdleTimeouts, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -3738,6 +3902,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSOnStore":
                     loadUPSOnStoreList(arcAE.listUPSOnStore(), reader);
+                    break;
+                case "dcmUPSOnUPSCompleted":
+                    loadUPSOnUPSCompletedList(arcAE.listUPSOnUPSCompleted(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
