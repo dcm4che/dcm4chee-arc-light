@@ -42,7 +42,7 @@
 package org.dcm4chee.arc.ups.movescu;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.dcmr.ScopeOfAccumlation;
+import org.dcm4che3.dcmr.ScopeOfAccumulation;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.Status;
@@ -159,15 +159,15 @@ public class UPSMoveSCU extends AbstractUPSProcessor  {
 
         KeysBuilder(Attributes ups) {
             Consumer<Attributes> retrieve = retrieveOf(
-                    UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumlation.CODE));
+                    UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumulation.CODE));
             ups.getSequence(Tag.InputInformationSequence).stream().forEach(retrieve);
         }
 
         private Consumer<Attributes> retrieveOf(Optional<Code> scopeOfAccumlation) {
             return scopeOfAccumlation.isPresent() ?
-                    (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Study)
+                    (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumulation.Study)
                             ? this::retrieveStudies
-                            : (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Series)
+                            : (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumulation.Series)
                                     ? this::retrieveSeries
                                     : this::retrieveInstances))
                     : this::retrieveInstances;

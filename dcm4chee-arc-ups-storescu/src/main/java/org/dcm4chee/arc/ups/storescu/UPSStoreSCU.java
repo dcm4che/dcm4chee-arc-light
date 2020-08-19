@@ -44,7 +44,7 @@ package org.dcm4chee.arc.ups.storescu;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.*;
-import org.dcm4che3.dcmr.ScopeOfAccumlation;
+import org.dcm4che3.dcmr.ScopeOfAccumulation;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
@@ -112,7 +112,7 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
             throws DicomServiceException {
         RetrieveContext retrieveContext = null;
         RetrieveLevel retrieveLevel = RetrieveLevel.of(
-                UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumlation.CODE));
+                UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumulation.CODE));
         Set<String> suids = new HashSet<>();
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             RetrieveContext tmp = newRetrieveContext(retrieveLevel, inputInformation, destAET, suids);
@@ -179,8 +179,8 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
 
         public static RetrieveLevel of(Optional<Code> scopeOfAccumlation) {
             return scopeOfAccumlation.isPresent() ?
-                    (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Study) ? STUDY :
-                            (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumlation.Series) ? SERIES : IMAGE))
+                    (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumulation.Study) ? STUDY :
+                            (scopeOfAccumlation.get().equalsIgnoreMeaning(ScopeOfAccumulation.Series) ? SERIES : IMAGE))
                     : IMAGE;
         }
 

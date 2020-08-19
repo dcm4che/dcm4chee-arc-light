@@ -196,6 +196,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     public RetrieveContext newRetrieveContextSTORE(
             String localAET, String studyUID, String seriesUID, Sequence refSopSeq, String destAET)
             throws ConfigurationException {
+        if (refSopSeq == null || refSopSeq.isEmpty()) {
+            return newRetrieveContextSTORE(localAET, studyUID, seriesUID, (String) null, destAET);
+        }
         RetrieveContext ctx = newRetrieveContext(localAET, refSopSeq);
         ctx.setStudyInstanceUIDs(studyUID);
         ctx.setSeriesInstanceUIDs(seriesUID);

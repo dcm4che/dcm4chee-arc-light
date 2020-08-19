@@ -43,7 +43,7 @@ package org.dcm4chee.arc.ups.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
-import org.dcm4che3.dcmr.ScopeOfAccumlation;
+import org.dcm4che3.dcmr.ScopeOfAccumulation;
 import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
@@ -821,7 +821,7 @@ public class UPSServiceEJB {
                 && !attrs.contains(Tag.InputInformationSequence)) {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
-        addScheduledProcessingParameter(attrs, ScopeOfAccumlation.CODE,
+        addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE,
                 toScopeOfAccumlation(rule.getScopeOfAccumulation()));
         return attrs;
     }
@@ -844,11 +844,11 @@ public class UPSServiceEJB {
         if (scopeOfAccumulation != null)
             switch (scopeOfAccumulation) {
                 case Study:
-                    return ScopeOfAccumlation.Study;
+                    return ScopeOfAccumulation.Study;
                 case Series:
-                    return ScopeOfAccumlation.Series;
+                    return ScopeOfAccumulation.Series;
                 case MPPS:
-                    return ScopeOfAccumlation.PerformedProcedureStep;
+                    return ScopeOfAccumulation.PerformedProcedureStep;
             }
         return null;
     }
