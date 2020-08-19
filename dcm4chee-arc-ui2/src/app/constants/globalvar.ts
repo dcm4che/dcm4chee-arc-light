@@ -319,18 +319,6 @@ export class Globalvar {
 
     public static get LANGUAGES(){
         const languages = {
-            sq: {
-                code: 'sq',
-                name: 'Albanian',
-                nativeName: 'Shqip',
-                flag:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAMAAAAmuJTXAAAAk1BMVEXkHiAAAADyICLpHiHtHyHwHyLjHiAHAQH1ICIMAQERAgIXAwPbHR87CAgdBAR5EBFyDxBDCQkjBAVrDg+5GBqRExSAERLHGhxZDAxRCwvfHR8zBwfTHB6pFhguBgaLEhPMGx2uFxjXHB4oBQW+GRtlDQ5KCgqFERKfFRa0GBmaFBbQGx1gDA2WFBWkFhfDGhv7ISOYvxptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEDohkVwNywAAAGFJREFUGNNjYCACiAKxGKYwI4M4IyMDIyMTkIUmI8vIzQgCehgyCIAuIw4V58eQgenCtAdiIC8DFhlWDqAMswqGDAsDF8ggRmkGZqymSQIpdiyBwM4ojyt8GHGGHCcDUQAAgI8BvQ5YgHoAAAAASUVORK5CYII='
-            },
-            el: {
-                code: 'el',
-                name: 'Greek',
-                nativeName: 'Ελληνικά',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAMAAAAfZPc8AAAATlBMVEUNXq////8AVaoKXK4GWa2VuNz5+/4DV6zG2ewbZ7To8PcvdbpwoNAVY7HS4fBGhMLd6PQ1ebx3pdJAgMDB1epTjMYATaemxOJdlMrd6fTIjGVKAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCAYi0S+wIwAAADhJREFUGNNjYAACRiEGHICADCMawCODqgbFJJwyRNjDjwbwuJobCBhZuTEBhvH4XUQI4DaNqvYAAMxlAwaS/oOXAAAAAElFTkSuQmCC'
-            },
             en: {
                 code: 'en',
                 name: 'English',
@@ -349,65 +337,11 @@ export class Globalvar {
                 nativeName: 'Deutsch',
                 flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVDRIfoSLpjAAAADVJREFUOMtjZGBg+M9AY8DEQAcwasngs4Rlx2hwDbo4YWKkgyX//tPeEsb/FyRGy65RS2gDAGpJBsZkRqwRAAAAAElFTkSuQmCC'
             },
-            fr: {
-                code: 'fr',
-                name: 'French',
-                nativeName: 'Français',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAkklEQVRYR2NkGGDAOMD2M4w6YDQEGA0dpoYQkxDdHFV+1hRZsROj9nVm2a9fh06zEaOW0chh6n9iFAb6qB8vzLCwJEbtc4/oE38fPbUgQu3/UQeMhsBoCIyGwGgIjIbAaAiMhsAgCAHHKWFEtFwYXG0Vf9aU2hHVJHuTWfnr56GTxDXJiLGclmpGm+WjITDgIQAAGofb8ADVqusAAAAASUVORK5CYII='
-            },
             hi: {
                 code: 'hi',
                 name: 'Hindi',
                 nativeName: 'हिन्दी',
                 flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAUBAMAAACKWYuOAAAAMFBMVEX///8AZjP/mTMAPGi7y9dmiqWAnrQwYYTv8/YVTHSftsbP2uNAbY7f5+yPqr1QeZcEz6ptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEQYIod+GbwAAADFJREFUGNNjUEICCgy04EGAAwMSYElH4jCzHGBG4jGfZEZWmo/MYXC4AKEFkYAALXgA9uIV01T/BOMAAAAASUVORK5CYII='
-            },
-            fi: {
-                code: 'fi',
-                name: 'Finnish',
-                nativeName: 'suomi',
-                flag: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2ODApLCBxdWFsaXR5ID0gODAK/9sAQwABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/9sAQwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB/8IAEQgADwAZAwERAAIRAQMRAf/EABcAAQEBAQAAAAAAAAAAAAAAAAgABAn/xAAYAQADAQEAAAAAAAAAAAAAAAAABQYCB//aAAwDAQACEAMQAAABUvS4o5P1Dbj6ODZjRYpUnQOFqoP/xAAaEAACAgMAAAAAAAAAAAAAAAAGBwAFCBcY/9oACAEBAAEFAjXIZc3ogh3AGr4U6cVs6cVsP1Kt6wIxxXwYWBmllZNLKyf/xAAoEQABAwMCBAcBAAAAAAAAAAADAQIEAAUREiEGFRZSIkFVk6LS4oH/2gAIAQMBAT8BuPFNpkwJkcbzKQ0YwmZFhNT2K1Mrq2TK1wzfYFrgmBKcRCPlvKmgepNChCxN8pvljq6ws3ef2f1XWFm7z+z+qulktQbdOKOEFhBxTvY5NWWuaNyoqeLyWuErZAm285ZUYZiNmPGjn5yjEBHcjdlTbLnL/a5BZvTwfP7VyCzeng+f2r//xAApEQABAwMDAQgDAAAAAAAAAAACAQMEAAUGERIh0hMWF1FTVZKUIjFx/9oACAECAQE/AbRgl/hXW3S3wiozGmR33VGShFsbdEy0HbyuicJWa4rdr7c48qALCtNQQjl2ryNl2gyJDi6IqLxtcHnz18q8O8k9OH9oemvDvJPTh/aHpqx5Pf5F5tbD90lOMvT4rbrZEO0wN4RIV/H9Ki6LWf3y7Wy7RWYE9+K0dubdIGlRBVxZMoFNdRXlRAU/gpXe3JPeJfyHprvbknvEv5D01//EACgQAAEEAQIEBgMAAAAAAAAAAAMBAgQFBgASERMh0zE0NkGTlRQiUf/aAAgBAQAGPwLJqaBIuFm2lHZQIiFqiDGsiVFIESPIpFRjd7k3O9k66s6jIi2LJkrIJFiJIkB8of4xK6sjNVXte3g/mxS8WfzavvrzN39OXu68zd/Tl7ustsYGIVMWbCx62lRJIxl5gJAYZSCKziVU3Me1HJ01bWGR49X20wGTSoYpEpj3EZGZV1BmhTa9v6IU5X+Hi9deiab4y93Xomm+Mvd1/8QAGhABAQADAQEAAAAAAAAAAAAAAREAECExQf/aAAgBAQABPyFYjpONQNaJaGYnd/wP2JOFDX50MGCyMEV3AcqinRxJLSprTxIU+/oGt+//2gAMAwEAAgADAAAAEF7Xdv/EABoRAQEBAQEBAQAAAAAAAAAAAAERIQAx8RD/2gAIAQMBAT8QEFI3N9GBWMNnHG09JRxaxPAbv666FsN9lMigJRKecfvNpAEUbgtXfI5+Rz//xAAaEQEBAAMBAQAAAAAAAAAAAAABEQAhMRBB/9oACAECAQE/ECCxijiQbcErDXcQT2igZU3y9oT68ixUyoQjLhVaCMdOBeJbJgi1tnB2+a9f/8QAGBABAAMBAAAAAAAAAAAAAAAAAQAQESH/2gAIAQEAAT8QLcLMfEm2mZwKwcp8p9VhrjCWECBeXab4hoqPFpAYNGATiLwrWWB8/wD/2Q=='
-            },
-            ar: {
-                code: 'ar',
-                name: 'Arabic',
-                nativeName: 'اللغة العربية',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAQCAYAAADj5tSrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCAsV3DxrYQAAAgZJREFUOMvtk99LU3EYxj/f/Ti6NnQ/ajY1cxiLFVRERYwwKNpF3UR3QVAUlEVFdB9YFEEXQTeCUXTTfxARjDJXFP2E1NApSRfWZLNotnnOzs7O99tN3qTJsPKq5/J54X143+d5xM6ePYp/DAdLgCURcc1HNtY34Ha60SsGpm3i9/gpW2VaGpsRgG4ZzFR0LNvCsHQiDRFyxTxSSaqyOmefs31fR/evZFugldOJLg5s2M/A5Hu2rtrM4S2HqHNpSBTdyQsMTg5xfPtRHo+nuXvwDusjcbx1PkbyGQRi4UuUUpxKdBENruZL6Su6OcNwLoMtbarSJt4U52rfNYLL/HwvF0nGdtP74hZrwzFW+ppq9ETAw7E++j88QaG4svcSPs1LvbuesG8FydgubCWJBqJoLjefCllC3hDrwnGWe0OgahARCEbyGVr9LRTNIhdTlznfeRapFDOWzmB2iKAnwKuJNxTLJTa1bMTpcPL04zMMy6jNeIFgTaiDb3qBB5kUQW+Q1NgjXk+8JTud5d3nAfKlKY5tO0LP8152RBP0j6c5mTjBzZe3EULMfc7/Mv5xGWdxrvMMPreXil1BKomtJFJJlFIoJdFcGgVjmnxpinvD9xcncj19A4/b87Nagtl8zpqoOTWaGyO0B9oWf4lDODCr5m/nZtVkNF8kkxudN1V/1ZOFBAB+AF1NxkfPmjTZAAAAAElFTkSuQmCC'
-            },
-            es: {
-                code: 'es',
-                name: 'Spanish',
-                nativeName: 'Español',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAYAAAB24g05AAABgElEQVQoU4WSvUtcQRTFf/etrgbUSrQyomxnp+A/Ym/QYosQSCFEdCurFFbaWNiI+heIYGNjoYEUgh+lbEISEfxg12VX1zcz78qMb3WziA4c7r0M98yde44oKE0naS4AX78FCQSFQmjTJAEP51DrwFnUWrAWNSbkzbG6tUVKMI/+Ow+NodmY5xgaPGIfYzSOQy0DA1R2dhB1qMoc8Bdw3JUT7suW7r46mQ6LqkE1TpHmiUHkI7eVXcQ/KPIN+EO15tDFiPgKotlxsr3bZNtfIVBPMEilstcgmEH1N/WDSeqb6+iXBbKXZ8S5Zbr6q/+/HqYxSDTEbXn/iQC+BgJX+87FaoGuH/BhZQlzl6ej/6LpG41pDFE0TKn0E/H7EfmM6i/2Tz4xYjZ4KCrHvROMjq3R03nTMoEBLCLDXF8fIg+gmXyepFiE542/bLux9SclYtQasA7J5bg5OkLuQdumpsNFkM96D6R5q/beB6nUXu6r01Ok5v3T4jZvqvcc2DDsI1q3WFQmn/TUAAAAAElFTkSuQmCC'
-            },
-            et: {
-                code: 'et',
-                name: 'Estonian',
-                nativeName: 'eesti',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAQBAMAAAARyMmYAAAAD1BMVEUAcs4ATIoAAACqqqr///8uA1BFAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCA809Dm+OwAAABdJREFUCNdjYKAKUEICClTiuSABB3J5AN6KG4HII55eAAAAAElFTkSuQmCC'
-            },
-            bs: {
-                code: 'bs',
-                name: 'Bosnian',
-                nativeName: 'bosanski jezik',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAACuFBMVEUAI5Wwu97///+vut53ck/+ywAMLZr29/v3+PwNLppWbblVbLiptduotNsIKpjy9Prz9foJK5lQaLZPZ7ajsNmir9gFJ5fu8Pjv8fgGKJdKY7RJYrOdqtacqtYDJpbq7fbs7/cEJpdDXbFCXLCWpNOVpNMCJZbm6fXn6vU9WK48V66Qn9GPntABJJXh5fPj5/M2Uqs1UauJmc6ImM7b4PDd4vE/Wa8+WK8wTKkvTKmSodKRoNGDlMuCk8vi5vPk6PTW3O7V2+45VK04U6wnRaUpRqaMnM+Lm898jsl7jcjf4/LO1ev19vtme78yTqoxTakhP6MuS6goRqbP1usjQaSFlsyElcx2icYKLJn+/v91iMbX3O7Z3u/J0OlOZrXI0OgsSacrSKccO6G/yOQbOqAXN5+4wuEePaF/kcp+kMlwhMT7/P2Akcpvg8P6+/3S2OzR1+zDy+bc4fDCyuYlQ6T8/P6tuN0RMpwOL5ulsdr9/f4ZOZ94i8d3isZpfsFedLz09vpofcDL0unK0em8xePU2u0tSqi7xOMgP6ITM52Zp9UHKZgUNJ1yhcRxhMRjeL7r7vdNZbVGX7JieL7FzefEzOa2wOG+x+S3weG1v+AYOJ8aOaAPMJv5+v1rf8FqfsFccrvg5PI7Vq5bcru9xuSst9yksNmuud0WNp4LLJpler9keb8QMZxMZbVFX7Jdc7yxvN+hrtj4+fw0UKtYb7pXbrmrt9xIYbOqttybqdXN1OomRKXHz+hSardRabdBW7BLZLREXrGUo9Pw8vnl6fSeq9c6Va3a3/COntCYptSXpdTM0+rGzueHl83o6/UVNZ60vuCBkss3UqwzT6qKms56jMje4/HY3e8qR6Z9j8nQ1uskQqQdPKEfPqLp7PZUa7izvd/T2e1Ta7fx8/myvd+6w+Jacbp/d0qdQNArAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCBEe+8NIMgAAADpJREFUGNN1jkEKACAMw8LA/39Z5zwUbHMNDYVhCQhVBHMc2RCMBn+DNxLEkcxbucncIJBMB8Ok3182b0sBpfJQQqwAAAAASUVORK5CYII='
-            },
-            tr: {
-                code: 'tr',
-                name: 'Turkish',
-                nativeName: 'Türkçe',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARBAMAAADalBo9AAAAIVBMVEXLICf//////PzJFBvNJizVSlDda2/kjI/54+Tyxcfsq67aSJWlAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCBMQLk0HtwAAADhJREFUCNdjYCAJOApKITiMgqJIUo2CyAoFJYGEAJwHZAmKQDksIB6joAA2OTR9qGai2ofqFuIAAK8WA5IgO9OVAAAAAElFTkSuQmCC'
-            },
-            ug: {
-                code: 'ug',
-                name: 'Uyghur',
-                nativeName: 'ئۇيغۇرچە‎',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAYAAAAougcOAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCBUEYs10TAAAAW1JREFUOMvtlD0vQ2EUx3/PvbftpRqlNFokIlGJSCQSg4GkLCQGi9UXkEiYxWIxSGxG4jMwSCzEQI0lsTRpS7ykFOm76n0eA4s0RL3F4Kzn5Pxyzvmfv5hYPVX8cGj8QvwKxHgvWZIKpUDXBJr4ZoglFV1NJmPdLvy1BseXD2wcpbjOWAjxDRBLKqYGPAwFnESuiyxu3xBNFhkOODH0R65Spa9D+tuqGQo4CV8UmNtMYNoENQ6NUDyPAlDgMjXSDxIUH5rs1eEfLcVIlwuAtYM7TNvrDuKlZjbYQKfXQU+zWbm6pAKvSwfg7L58LVLB/KiXbp+DmaCHw3i+cogmIJF+bt7iLteEJmBhK0H4vMB66J5gh7NyiE0XbJ1kAJjsc2NJVbYuQxMs7yQ5iOXYj+U+94z70Ry7kSy9rVUsjfuw688/4q81aG+0IwRki7IidYm3vKu1zs70YD1+t0Eolmdl75aS/JzNiX+D/HOQJ5oseRe/oPsNAAAAAElFTkSuQmCC'
-            },
-            ur: {
-                code: 'ur',
-                name: 'Urdu',
-                nativeName: 'اردو',
-                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAIAAACn2JBZAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVCBYtC1K/4wAAAb1JREFUOMtj/P//PwMS+Pn7l1914q7TBxkZGRlIBEwM1APEmvX//7//DP+pYNb/P3+E+YU42TgoNev/379p/nG+lm7fv35mYGBgZGBkY2FlJMOs/79+ZgYklIRnLFg7h5GVjYGBgY2VNdYteGJuMz83Lwlm/f/3T0xUsierdtrGRQwsrBBBTnYOKx0TCy1DDjZ2tPBjweeqv39cTe252Dlfvn/NwAS19f3nj82LJkoIiX769oWRBLP+/xcXEGFgYNBRVGP49xcixsjI+PDFkwcvHpMYXoyMrz68+fn7V4xrCDMXz////6BWMPyHk0Sbxcyy99yRz9++yIhK9GXVs7Gy/f/9+/+/v////v3/84ekkBha3mBuaGhACaJ/f5fv23j32UNGRkZGRsbP799+/fPbx8LZRF1PR1Hj99+/f//9ExcWi/UME+EXvnzvOrJxLPjTBCMH54xNi37/+T2ruDPI1tPL3OnHr5/MTEyzty6bv2MVA6q7WIjIPf9nb1m65fjuePcwLQXVF+9erdy36eyNi4zMzKTEIyIOGJ+/edmxoJfh318GRiYGVjZGZmZMZSxE5m1GJiYGdg76lTkAwZOktr73K2oAAAAASUVORK5CYII='
             }
         };
         return {
