@@ -3422,104 +3422,109 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
     storageVerification(){
-        this.confirm({
-            content: $localize `:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
-            doNotSave:true,
-            form_schema:[
-                [
+        this.service.getStorageSystems().subscribe(storages=> {
+            this.confirm({
+                content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
+                doNotSave: true,
+                form_schema: [
                     [
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@verification_policy:Verification Policy`
+                            },
                         {
-                            tag:"label",
-                            text:$localize `:@@failed_storage_verification:Failed storage verification`
+                            tag: "select",
+                            options: [
+                                {
+                                    value: "DB_RECORD_EXISTS",
+                                    text: $localize`:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
+                                    title: $localize`:@@check_for_existence_of_db_records:Check for existence of DB records`
+                                },
+                                {
+                                    value: "OBJECT_EXISTS",
+                                    text: $localize`:@@OBJECT_EXISTS:OBJECT_EXISTS`,
+                                    title: $localize`:@@study.check_storage_system:Check if object exists on Storage System`
+                                },
+                                {
+                                    value: "OBJECT_SIZE",
+                                    text: "OBJECT_SIZE",
+                                    title: $localize`:@@study.check_size_in_storage_system:Check size of object on Storage System`
+                                },
+                                {
+                                    value: "OBJECT_FETCH",
+                                    text: $localize`:@@OBJECT_FETCH:OBJECT_FETCH`,
+                                    title: $localize`:@@fetch_from_storage_system:Fetch object from Storage System`
+                                },
+                                {
+                                    value: "OBJECT_CHECKSUM",
+                                    text: $localize`:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
+                                    title: $localize`:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
+                                },
+                                {
+                                    value: "S3_MD5SUM",
+                                    text: $localize`:@@S3_MD5SUM:S3_MD5SUM`,
+                                    title: $localize`:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
+                                }
+                            ],
+                            showStar: true,
+                            filterKey: "storageVerificationPolicy",
+                            description: $localize`:@@verification_policy:Verification Policy`,
+                            placeholder: $localize`:@@verification_policy:Verification Policy`
+                        }
+                    ], [
+                        {
+                            tag: "label",
+                            text: $localize`:@@update_location_db:Update Location DB`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"storageVerificationFailed"
+                            tag: "checkbox",
+                            filterKey: "storageVerificationUpdateLocationStatus"
                         }
-                    ],[
-                    {
-                        tag:"label",
-                        text:$localize `:@@verification_policy:Verification Policy`
-                    },
-                    {
-                        tag:"select",
-                        options:[
-                            {
-                                value:"DB_RECORD_EXISTS",
-                                text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
-                                title:$localize `:@@check_for_existence_of_db_records:Check for existence of DB records`
-                            },
-                            {
-                                value:"OBJECT_EXISTS",
-                                text:$localize `:@@OBJECT_EXISTS:OBJECT_EXISTS`,
-                                title:$localize `:@@study.check_storage_system:Check if object exists on Storage System`
-                            },
-                            {
-                                value:"OBJECT_SIZE",
-                                text:"OBJECT_SIZE",
-                                title:$localize `:@@study.check_size_in_storage_system:Check size of object on Storage System`
-                            },
-                            {
-                                value:"OBJECT_FETCH",
-                                text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
-                                title:$localize `:@@fetch_from_storage_system:Fetch object from Storage System`
-                            },
-                            {
-                                value:"OBJECT_CHECKSUM",
-                                text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
-                                title:$localize `:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
-                            },
-                            {
-                                value:"S3_MD5SUM",
-                                text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
-                                title:$localize `:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
-                            }
-                        ],
-                        showStar:true,
-                        filterKey:"storageVerificationPolicy",
-                        description:$localize `:@@verification_policy:Verification Policy`,
-                        placeholder:$localize `:@@verification_policy:Verification Policy`
-                    }
-                ],[
-                    {
-                        tag:"label",
-                        text:$localize `:@@update_location_db:Update Location DB`
-                    },
-                    {
-                        tag:"checkbox",
-                        filterKey:"storageVerificationUpdateLocationStatus"
-                    }
-                ],[
-                    {
-                        tag:"label",
-                        text:$localize `:@@batch_ID:Batch ID`
-                    },
-                    {
-                        tag:"input",
-                        type:"text",
-                        filterKey:"batchID",
-                        description:$localize `:@@batch_ID:Batch ID`,
-                        placeholder:$localize `:@@batch_ID:Batch ID`
-                    }
-                ]
-                ]
-            ],
-            result: {
-                schema_model: {}
-            },
-            saveButton: $localize `:@@SAVE:SAVE`
-        }).subscribe((ok)=>{
-            if(ok){
-                this.cfpLoadingBar.start();
-                this.service.scheduleStorageVerification(_.merge(ok.schema_model , this.createStudyFilterParams(true)), this.studyWebService).subscribe(res=>{
-                    console.log("res",res);
-                    this.cfpLoadingBar.complete();
-                    this.appService.showMsg('Storage Verification scheduled successfully!');
-                },err=>{
-                    this.cfpLoadingBar.complete();
-                    this.httpErrorHandler.handleError(err);
-                });
-            }
+                    ], [
+                        {
+                            tag: "label",
+                            text: $localize`:@@storage_id:Storage ID`
+                        }, {
+                            tag: "select",
+                            options: storages.map(storage => new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
+                            showStar: true,
+                            filterKey: "storageVerificationStorageID",
+                            description: $localize`:@@storage_IDs:Storage IDs`,
+                            placeholder: $localize`:@@storage_IDs:Storage IDs`
+                        }
+                    ], [
+                        {
+                            tag: "label",
+                            text: $localize`:@@batch_ID:Batch ID`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "batchID",
+                            description: $localize`:@@batch_ID:Batch ID`,
+                            placeholder: $localize`:@@batch_ID:Batch ID`
+                        }
+                    ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize`:@@SAVE:SAVE`
+            }).subscribe((ok) => {
+                if (ok) {
+                    this.cfpLoadingBar.start();
+                    this.service.scheduleStorageVerification(_.merge(ok.schema_model, this.createStudyFilterParams(true)), this.studyWebService).subscribe(res => {
+                        console.log("res", res);
+                        this.cfpLoadingBar.complete();
+                        this.appService.showMsg('Storage Verification scheduled successfully!');
+                    }, err => {
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }
+            });
         });
     }
 
