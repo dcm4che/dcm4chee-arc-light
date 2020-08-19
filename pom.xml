@@ -587,6 +587,7 @@
     <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-ian</module>
+    <module>dcm4chee-arc-ups-movescu</module>
     <module>dcm4chee-arc-ups-mppsscu</module>
     <module>dcm4chee-arc-ups-process</module>
     <module>dcm4chee-arc-ups-query-attrs</module>

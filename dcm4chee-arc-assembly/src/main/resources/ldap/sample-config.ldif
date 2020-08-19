@@ -3102,6 +3102,7 @@ dcmWebServiceClass: UPS_RS
 dcmWebServiceClass: MWL_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
+dcmWebServiceClass: UPS_MATCHING
 objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
@@ -3570,6 +3571,15 @@ dcmRejectionNoteType: REJECTED_FOR_PATIENT_SAFETY_REASONS
 dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmUPSProcessingRuleID=DICOM_RETRIEVE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUPSProcessingRule
+dcmUPSPerformedWorkitemCode: (DICOM_RETRIEVE, 99DCM4CHEE, "Retrieve by DICOM Study Root Query/Retrieve Information Model - MOVE")
+dicomAETitle: DCM4CHEE
+dcmUPSProcessingRuleID: DICOM_RETRIEVE
+dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
+dcmUPSScheduledWorkitemCode: (DICOM_RETRIEVE, 99DCM4CHEE, "Retrieve by DICOM Study Root Query/Retrieve Information Model - MOVE")
+dcmURI: movescu:DCM4CHEE
 
 dn: dcmUPSProcessingRuleID=REQUEST_STGCMT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUPSProcessingRule

@@ -335,7 +335,7 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private static Attributes toKeys(RetrieveTask task) {
+    private Attributes toKeys(RetrieveTask task) {
         int n = task.getSOPInstanceUID() != null ? 3 : task.getSeriesInstanceUID() != null ? 2 : 1;
         Attributes keys = new Attributes(n + 1);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());

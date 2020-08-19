@@ -54,6 +54,7 @@ import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.dcm4chee.arc.ups.process.AbstractUPSProcessor;
 import org.dcm4chee.arc.ups.process.UPSProcessorException;
 
@@ -110,7 +111,8 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
     private RetrieveContext calculateMatches(Attributes ups, String destAET)
             throws DicomServiceException {
         RetrieveContext retrieveContext = null;
-        RetrieveLevel retrieveLevel = RetrieveLevel.of(getScheduledProcessingParameter(ups, ScopeOfAccumlation.CODE));
+        RetrieveLevel retrieveLevel = RetrieveLevel.of(
+                UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumlation.CODE));
         Set<String> suids = new HashSet<>();
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             RetrieveContext tmp = newRetrieveContext(retrieveLevel, inputInformation, destAET, suids);
@@ -137,18 +139,6 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
         } catch (ConfigurationException e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
-    }
-
-    private Optional<Code> getScheduledProcessingParameter(Attributes ups, Code conceptName) {
-        Sequence seq = ups.getSequence(Tag.ScheduledProcessingParametersSequence);
-        if (seq == null)
-            return Optional.empty();
-
-        return seq.stream()
-                .filter(item -> conceptName.equalsIgnoreMeaning(
-                        new Code(item.getNestedDataset(Tag.ConceptNameCodeSequence))))
-                .map(item -> new Code(item.getNestedDataset(Tag.ConceptCodeSequence)))
-                .findFirst();
     }
 
     private enum RetrieveLevel {

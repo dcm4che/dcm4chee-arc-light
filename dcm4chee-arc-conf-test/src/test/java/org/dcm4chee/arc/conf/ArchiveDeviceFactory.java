@@ -1017,6 +1017,8 @@ class ArchiveDeviceFactory {
 
     static final Code DICOM_EXPORT =
             new Code("DICOM_EXPORT", "99DCM4CHEE", null, "Export by DICOM Storage");
+    static final Code DICOM_RETRIEVE =
+            new Code("DICOM_RETRIEVE", "99DCM4CHEE", null, "Retrieve by DICOM Study Root Query/Retrieve Information Model - MOVE");
     static final Code CALC_QUERY_ATTRS =
             new Code("CALC_QUERY_ATTRS", "99DCM4CHEE", null, "Calculate Query Attributes");
     static final Code CALC_STUDY_SIZE =
@@ -1502,6 +1504,7 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
                 WebApplication.ServiceClass.UPS_RS,
+                WebApplication.ServiceClass.UPS_MATCHING,
                 WebApplication.ServiceClass.MWL_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
         device.addWebApplication(webapp);
@@ -1754,6 +1757,8 @@ class ArchiveDeviceFactory {
 
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "DICOM_EXPORT", DICOM_EXPORT, DCM4CHEE_ARC, "storescu:STORESCP"));
+        ext.addUPSProcessingRule(newUPSProcessingRule(
+                "DICOM_RETRIEVE", DICOM_RETRIEVE, DCM4CHEE_ARC, "movescu:DCM4CHEE"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "CALC_QUERY_ATTRS", CALC_QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
