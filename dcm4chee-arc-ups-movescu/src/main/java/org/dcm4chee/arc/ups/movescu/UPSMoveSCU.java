@@ -72,13 +72,11 @@ public class UPSMoveSCU extends AbstractUPSProcessor  {
     private static final Logger LOG = LoggerFactory.getLogger(UPSMoveSCU.class);
     private final CMoveSCU moveSCU;
     private final String defDestinationAE;
-    private final boolean cancelOnNoMatch;
 
     public UPSMoveSCU(UPSProcessingRule rule, UPSService upsService, CMoveSCU moveSCU) {
         super(rule, upsService, true);
         this.moveSCU = moveSCU;
         this.defDestinationAE = rule.getUPSProcessorURI().getSchemeSpecificPart();
-        this.cancelOnNoMatch = Boolean.parseBoolean(rule.getProperty("cancel-on-no-match", "false"));
     }
 
     @Override
@@ -99,12 +97,11 @@ public class UPSMoveSCU extends AbstractUPSProcessor  {
             if (sum.getStatus() != Status.Success) {
                 throw new DicomServiceException(sum.getStatus(), sum.getErrorComment());
             }
-            if (cancelOnNoMatch
-                    && sum.getNumberOfCompletedSuboperations() == 0
+            if (sum.getNumberOfCompletedSuboperations() == 0
                     && sum.getNumberOfWarningSuboperations() == 0) {
                 throw new UPSProcessorException(NOOP_UPS,
                         "No DICOM instances transferred from " + retrieveAET + " to " + moveDest);
-            };
+            }
         } finally {
             try {
                 as.release();
