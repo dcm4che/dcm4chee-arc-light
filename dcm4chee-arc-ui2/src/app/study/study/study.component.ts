@@ -200,6 +200,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
+            new SelectDropdown("storage_verification_for_selections", $localize `:@@storage_verification_selections:Storage Verification for selections`, $localize `:@@storage_verification_selected_objects:Storage Verification for selected objects`),
             new SelectDropdown("send_storage_commitment_request_for_selections", $localize `:@@send_storage_commitment_request_for_selections:Send Storage Commitment Request for selections`, $localize `:@@send_storage_commitment_request_for_selected_objects:Send Storage Commitment Request for selected objects`),
             new SelectDropdown("send_ian_request_for_selections", $localize `:@@send_ian_request_for_selections:Send IAN for selections`, $localize `:@@send_instance_availability_notification_request_for_selected_objects:Send Instance Availability Notification Request for selected objects`),
             new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
@@ -455,6 +456,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         if(e === "change_sps_status_on_selections"){
             this.changeSPSStatus(e,"selected");
+        }
+        if(e === "storage_verification_for_selections"){
+            this.storageCommitmen(undefined, undefined);
         }
         if(e === "send_storage_commitment_request_for_selections"){
             this.sendStorageCommitmentRequest();
@@ -2350,7 +2354,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(option.value === "reject_object"){
                 return !trashActive && studyConfig && studyConfig.tab === "study";
             }
-            if(option.value === "update_access_control_id_to_selections" || option.value === "send_ian_request_for_selections" || option.value === "send_storage_commitment_request_for_selections" || option.value === "export_object"){
+            if(option.value === "update_access_control_id_to_selections" || option.value === "send_ian_request_for_selections"
+                || option.value === "send_storage_commitment_request_for_selections" || option.value === "export_object"
+                || option.value === "storage_verification_for_selections"){
                 return studyConfig && studyConfig.tab === "study";
             }
             if(option.value === "change_sps_status_on_selections"){
@@ -2609,6 +2615,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
+
     sendStorageCommitmentRequest(dicomLevel?:DicomLevel, model?:any, matching?:boolean){
         let dialogText;
         if(matching){
@@ -3514,25 +3521,44 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 saveButton: $localize`:@@SAVE:SAVE`
             }).subscribe((ok) => {
                 if (ok) {
+                    let msg;
                     this.cfpLoadingBar.start();
+                    msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
                     this.service.scheduleStorageVerification(_.merge(ok.schema_model, this.createStudyFilterParams(true)), this.studyWebService).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
-                        this.appService.showMsg('Storage Verification scheduled successfully!');
+                        msg = j4care.prepareCountMessage(msg, res);
+                        this.appService.showMsg(msg);
                     }, err => {
                         this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);
                     });
                 }
             });
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
         });
     }
 
     storageCommitmen(mode, object){
         console.log('object', object);
+        let dialogText = $localize `:@@verify_storage_of_selected:Verify Storage of selected entities`;
+        if (mode) {
+            switch (mode) {
+                case "study":
+                    dialogText = $localize `:@@verify_storage_of_study:Verify Storage of Study`
+                    break;
+                case "series":
+                    dialogText = $localize `:@@verify_storage_of_series:Verify Storage of Series`
+                    break;
+                case "instance":
+                    dialogText = $localize `:@@verify_storage_of_instance:Verify Storage of Instance`
+                    break;
+            }
+        }
         this.service.getStorageSystems().subscribe(storages=>{
             this.confirm({
-                content: $localize `:@@study.schedule_storage_verification:Schedule Storage Verification`,
+                content: dialogText,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -3610,53 +3636,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 saveButton: $localize `:@@QUERY:QUERY`
             }).subscribe(ok=> {
                 if (ok) {
-                    this.cfpLoadingBar.start();
-                    this.service.verifyStorage(object.attrs, this.studyWebService, mode, ok.schema_model)
-                        .subscribe(
-                            (response) => {
-                                // console.log("response",response);
-                                let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
-                                let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
-                                let msgStatus = $localize `:@@info:Info`;
-                                if (failed > 0 && success > 0) {
-                                    msgStatus = $localize `:@@warning:Warning`;
-                                    this.appService.setMessage({
-                                        'title': msgStatus,
-                                        'text': $localize `:@@failed_of:${failed} of ${success + failed} failed!`,
-                                        'status': msgStatus.toLowerCase()
-                                    });
-                                    console.log(failed + ' of ' + (success + failed) + ' failed!');
+                    if(mode){
+                        this.cfpLoadingBar.start();
+                        this.service.verifyStorage(object.attrs, this.studyWebService, mode, ok.schema_model)
+                            .subscribe(
+                                (response) => {
+                                    // console.log("response",response);
+                                    let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
+                                    let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
+                                    let msgStatus = $localize `:@@info:Info`;
+                                    if (failed > 0 && success > 0) {
+                                        msgStatus = $localize `:@@warning:Warning`;
+                                        this.appService.setMessage({
+                                            'title': msgStatus,
+                                            'text': $localize `:@@failed_of:${failed} of ${success + failed} failed!`,
+                                            'status': msgStatus.toLowerCase()
+                                        });
+                                        console.log(failed + ' of ' + (success + failed) + ' failed!');
+                                    }
+                                    if (failed > 0 && success === 0) {
+                                        msgStatus = 'Error';
+                                        this.appService.setMessage({
+                                            'title': msgStatus,
+                                            'text': $localize `:@@study.all_failed:all (${failed}) failed!`,
+                                            'status': msgStatus.toLowerCase()
+                                        });
+                                        console.log('all ' + failed + 'failed!');
+                                    }
+                                    if (failed === 0) {
+                                        console.log(success + ' verified successfully 0 failed!');
+                                        this.appService.setMessage({
+                                            'title': msgStatus,
+                                            'text': $localize `:@@study.verified_successfully_0_failed:${success} verified successfully\n 0 failed!`,
+                                            'status': msgStatus.toLowerCase()
+                                        });
+                                    }
+                                    this.cfpLoadingBar.complete();
+                                },
+                                (response) => {
+                                    this.httpErrorHandler.handleError(response);
+                                    this.cfpLoadingBar.complete();
                                 }
-                                if (failed > 0 && success === 0) {
-                                    msgStatus = 'Error';
-                                    this.appService.setMessage({
-                                        'title': msgStatus,
-                                        'text': $localize `:@@study.all_failed:all (${failed}) failed!`,
-                                        'status': msgStatus.toLowerCase()
-                                    });
-                                    console.log('all ' + failed + 'failed!');
-                                }
-                                if (failed === 0) {
-                                    console.log(success + ' verified successfully 0 failed!');
-                                    this.appService.setMessage({
-                                        'title': msgStatus,
-                                        'text': $localize `:@@study.verified_successfully_0_failed:${success} verified successfully\n 0 failed!`,
-                                        'status': msgStatus.toLowerCase()
-                                    });
-                                }
+                            );
+                    } else {
+                        //Selected
+                        this.cfpLoadingBar.start();
+                        this.service.storageVerificationForSelected(this.selectedElements, this.studyWebService, ok.schema_model)
+                            .subscribe(res => {
+                                console.log("res", res);
                                 this.cfpLoadingBar.complete();
-                            },
-                            (response) => {
-                                this.httpErrorHandler.handleError(response);
+                                this.appService.showMsg($localize `:@@storage_verification_selected:Storage Verification of selected objects executed successfully!`);
+                            }, err => {
                                 this.cfpLoadingBar.complete();
-                            }
-                        );
+                                this.httpErrorHandler.handleError(err);
+                            });
+                    }
                 }
             });
         },(err)=>{
             this.httpErrorHandler.handleError(err);
         });
     };
+
     initRjNotes(retries) {
         this.service.getRejectNotes()
             .subscribe(res => {
