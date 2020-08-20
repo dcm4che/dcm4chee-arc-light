@@ -946,8 +946,8 @@ export class StudyService {
         return this.storageSystems.search({}, 0);
     }
 
-    verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, params: any) => {
-        let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgver`;
+    verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, param) => {
+        let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgver${j4care.param(param)}`;
 
         return this.$http.post(url, {}, this.dicomHeader);
     };
