@@ -130,9 +130,12 @@ public class ScheduleExpression {
             try {
                 if (range.length == 1)
                     result |= 1 << parseInt(s1, m);
-                else
-                    for (int i = parseInt(range[0], m), n = parseInt(range[1], m); i != n; i = (i + 1) % m)
-                        result |= 1 << i;
+                else {
+                    int from = parseInt(range[0], m);
+                    int to = parseInt(range[1], m);
+                    if (to < from) to += m;
+                    for (int i = from; i <= to; i++) result |= 1 << (i % m);
+                }
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(s);
             }
