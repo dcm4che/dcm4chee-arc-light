@@ -184,22 +184,27 @@ export class AppService implements OnInit, OnDestroy{
         this.subscription.unsubscribe();
     }
     param(filter){
-        let filterMaped = Object.keys(filter).map((key) => {
-            if(_.isArray(filter[key])){
-                    let multiParameter = [];
-                    filter[key].forEach(p=>{
-                        multiParameter.push(`${key}=${p}`);
-                    });
-                    return multiParameter.join("&");
-                    // return key + "[]=" + filter[key].join(",");
-            }else{
-                if (filter[key] || filter[key] === false || filter[key] === 0){
-                    return key + '=' + filter[key];
+        try{
+            let filterMaped = Object.keys(filter).map((key) => {
+                if(_.isArray(filter[key])){
+                        let multiParameter = [];
+                        filter[key].forEach(p=>{
+                            multiParameter.push(`${key}=${p}`);
+                        });
+                        return multiParameter.join("&");
+                        // return key + "[]=" + filter[key].join(",");
+                }else{
+                    if (filter[key] || filter[key] === false || filter[key] === 0){
+                        return key + '=' + filter[key];
+                    }
                 }
-            }
-        });
-        let filterCleared = _.compact(filterMaped);
-        return filterCleared.join('&');
+            });
+            let filterCleared = _.compact(filterMaped);
+            return filterCleared.join('&');
+        }catch (e) {
+            return "";
+            j4care.log("Something went wrong on getting param",e);
+        }
     }
 
     getUniqueID(){
