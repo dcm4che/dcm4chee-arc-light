@@ -101,8 +101,8 @@ class ArchiveDeviceFactory {
             device.setTrustStoreURL("${jboss.server.config.url}/keystores/cacerts.jks");
             device.setTrustStoreType("JKS");
             device.setTrustStorePin("secret");
-            device.setKeyStoreURL("${jboss.server.config.url}/keystores/key.jks");
-            device.setKeyStoreType("JKS");
+            device.setKeyStoreURL("${jboss.server.config.url}/keystores/key.p12");
+            device.setKeyStoreType("PKCS12");
             device.setKeyStorePin("secret");
         }
     }
