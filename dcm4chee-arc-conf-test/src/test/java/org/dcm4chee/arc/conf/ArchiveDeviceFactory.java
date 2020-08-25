@@ -88,7 +88,7 @@ class ArchiveDeviceFactory {
             @Override
             void configureKeyAndTrustStore(Device device) {
                 device.setTrustStoreURL("file://${env.TRUSTSTORE}");
-                device.setTrustStoreType("JKS");
+                device.setTrustStoreType("${env.TRUSTSTORE_TYPE}");
                 device.setTrustStorePin("${env.TRUSTSTORE_PASSWORD}");
                 device.setKeyStoreURL("file://${env.KEYSTORE}");
                 device.setKeyStoreType("${env.KEYSTORE_TYPE}");
@@ -98,8 +98,8 @@ class ArchiveDeviceFactory {
         };
 
         void configureKeyAndTrustStore(Device device) {
-            device.setTrustStoreURL("${jboss.server.config.url}/keystores/cacerts.jks");
-            device.setTrustStoreType("JKS");
+            device.setTrustStoreURL("${jboss.server.config.url}/keystores/cacerts.p12");
+            device.setTrustStoreType("PKCS12");
             device.setTrustStorePin("secret");
             device.setKeyStoreURL("${jboss.server.config.url}/keystores/key.p12");
             device.setKeyStoreType("PKCS12");

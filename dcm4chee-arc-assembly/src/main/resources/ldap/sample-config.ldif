@@ -84,15 +84,15 @@ dicomInstitutionName: Site B
 dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomDeviceName: keycloak
-dcmTrustStoreType: JKS
+dcmTrustStoreType: PKCS12
 dcmKeyStorePin: secret
-dcmKeyStoreType: JKS
-dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
+dcmKeyStoreType: PKCS12
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.p12
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: AUTH
 dcmTrustStorePin: secret
-dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.p12
 
 dn: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -130,17 +130,17 @@ dcmSendPendingCMoveInterval: PT5S
 dcmDeleteUPSCanceledDelay: P7D
 dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
-dcmTrustStoreType: JKS
+dcmTrustStoreType: PKCS12
 dcmAECacheStaleTimeout: PT5M
 hl7PatientArrivalMessageType: ADT^A10
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
 dcmExportTaskPollingInterval: PT1M
-dcmKeyStoreType: JKS
-dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.jks
+dcmKeyStoreType: PKCS12
+dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.p12
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
-dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.jks
+dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.p12
 dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
