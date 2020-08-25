@@ -883,6 +883,9 @@
         },
         {
           "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/newQueueName"
         }
       ],
       "responses": {
