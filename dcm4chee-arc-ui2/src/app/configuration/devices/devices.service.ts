@@ -94,10 +94,10 @@ export class DevicesService {
         }
     }
 
-    selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean){
+    selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean, queueNames?:SelectDropdown<string>[]){
         let setParams = function(tempDevices){
             let schema:any = {
-                content: $localize `:@@devices.select_device_to_reschedule:Select device if you want to reschedule to an other device`,
+                content: $localize `:@@title.reschedule:Reschedule`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -139,20 +139,21 @@ export class DevicesService {
                 ]);
             }
             if(addQueueName){
+                const options:SelectDropdown<string>[] = queueNames || <SelectDropdown<string>[]> Array.from(Array(13).keys()).map(i=>{
+                    const val = `Retrieve${i+1}`;
+                    return new SelectDropdown(val,val);
+                });
                 schema.form_schema[0].push([
                     {
                         tag:"label",
-                        text:$localize `:@@new_queue_name:New Queue Name`
+                        text:$localize `:@@queue_name:Queue Name`
                     }
                     ,{
                         tag:"select",
-                        options:Array.from(Array(13).keys()).map(i=>{
-                            const val = `Retrieve${i+1}`;
-                            return new SelectDropdown(val,val);
-                        }),
+                        options:options,
                         filterKey:"newQueueName",
-                        description:$localize `:@@new_queue_name:New Queue Name`,
-                        placeholder:$localize `:@@new_queue_name:New Queue Name`
+                        description:$localize `:@@queue_name:Queue Name`,
+                        placeholder:$localize `:@@queue_name:Queue Name`
 
                     }
                 ]);

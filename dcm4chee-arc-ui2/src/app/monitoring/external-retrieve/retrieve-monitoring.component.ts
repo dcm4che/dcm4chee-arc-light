@@ -69,7 +69,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     Object = Object;
     batchGrouped = false;
     urlParam;
-    queueNames;
+    queueNames:SelectDropdown<string>[];
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
@@ -404,13 +404,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         let filter = Object.assign({}, this.filterObject);
         delete filter.limit;
         delete filter.offset;
-        this.confirm({
-            content: text
-        }).subscribe((ok)=>{
-            if(ok){
                 this.cfpLoadingBar.start();
                 switch (this.allAction){
                 case "cancel":
+                    this.confirm({
+                        content: text
+                    }).subscribe((ok)=>{
+                        if(ok){
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
                                 this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count} ' tasks canceled successfully!`);
                                 this.cfpLoadingBar.complete();
@@ -418,7 +418,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 this.cfpLoadingBar.complete();
                                 this.httpErrorHandler.handleError(err);
                             });
-
+                        }
+                    });
                     break;
                 case "reschedule":
                     this.deviceService.selectParameters((res)=>{
@@ -448,25 +449,31 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         },
                         this.devices,
                         true,
-                        true
+                        true,
+                        this.queueNames
                         );
 
                     break;
                 case "delete":
-                        this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`)
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
+                        this.confirm({
+                            content: text
+                        }).subscribe((ok)=>{
+                            if(ok){
+                                this.service.deleteAll(this.filterObject).subscribe((res)=>{
+                                    this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`)
+                                    this.cfpLoadingBar.complete();
+                                }, (err) => {
+                                    this.cfpLoadingBar.complete();
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                            }
                         });
                     break;
                 }
                 this.cfpLoadingBar.complete();
-            }
+
             this.allAction = "";
             this.allAction = undefined;
-        });
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
@@ -556,44 +563,38 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }
     reschedule(match) {
         let $this = this;
-        let parameters: any = {
-            content: $localize `:@@want_to_reschedule_this_task:Are you sure you want to reschedule this task?`
-        };
-        this.confirm(parameters).subscribe(result => {
-            if (result){
-                this.deviceService.selectParameters((res)=>{
-                        if(res){
-                            let filter = {};
-                            if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                filter["newDeviceName"] = res.schema_model.newDeviceName;
-                            }
-                            if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                                filter["scheduledTime"] = res.schema_model.scheduledTime;
-                            }
+        this.deviceService.selectParameters((res)=>{
+                if(res){
+                    let filter = {};
+                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                    }
 
-                            if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
-                                filter["newQueueName"] = res.schema_model.newQueueName;
-                            }
-                            $this.cfpLoadingBar.start();
-                            this.service.reschedule(match.properties.pk, filter)
-                                .subscribe(
-                                    (res) => {
-                                        $this.getTasks(match.offset||0);
-                                        $this.cfpLoadingBar.complete();
-                                        this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
-                                    },
-                                    (err) => {
-                                        $this.cfpLoadingBar.complete();
-                                        $this.httpErrorHandler.handleError(err);
-                                    });
-                        }
-                    },
-                    this.devices,
-                    true,
-                    true
-                );
-            }
-        });
+                    if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
+                        filter["newQueueName"] = res.schema_model.newQueueName;
+                    }
+                    $this.cfpLoadingBar.start();
+                    this.service.reschedule(match.properties.pk, filter)
+                        .subscribe(
+                            (res) => {
+                                $this.getTasks(match.offset||0);
+                                $this.cfpLoadingBar.complete();
+                                this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
+                            },
+                            (err) => {
+                                $this.cfpLoadingBar.complete();
+                                $this.httpErrorHandler.handleError(err);
+                            });
+                }
+            },
+            this.devices,
+            true,
+            true,
+            this.queueNames
+        );
     };
     checkAll(event){
         this.externalRetrieveEntries.forEach((match)=>{
@@ -761,8 +762,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     initExporters(retries) {
         let $this = this;
         this.service.getExporters().subscribe(
-                (res) => {
-                    $this.exporters = res;
+                (res) => {$this.exporters = res;
                     if (res && res[0] && res[0].id){
                         $this.exporterID = res[0].id;
                     }
@@ -785,7 +785,16 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }*/
     getQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
-            this.queueNames = names.filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1).map(name=> new SelectDropdown(name.name, name.description));
+            this.queueNames = names
+                .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
+                .sort((a,b)=>{
+                    try{
+                        return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
+                    }catch (e) {
+                        return 1;
+                    }
+                })
+                .map(name=> new SelectDropdown(name.name, name.description));
         },err=>{
             this.httpErrorHandler.handleError(err);
         })
