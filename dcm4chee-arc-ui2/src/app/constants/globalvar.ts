@@ -342,6 +342,12 @@ export class Globalvar {
                 name: 'Hindi',
                 nativeName: 'हिन्दी',
                 flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAUBAMAAACKWYuOAAAAMFBMVEX///8AZjP/mTMAPGi7y9dmiqWAnrQwYYTv8/YVTHSftsbP2uNAbY7f5+yPqr1QeZcEz6ptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEQYIod+GbwAAADFJREFUGNNjUEICCgy04EGAAwMSYElH4jCzHGBG4jGfZEZWmo/MYXC4AKEFkYAALXgA9uIV01T/BOMAAAAASUVORK5CYII='
+            },
+            it: {
+                "code": "it",
+                "name": "Italian",
+                "nativeName": "Italiano",
+                "flag": "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAG7SURBVHjaYnx9XpTh3zsGBhYGBoZ/DH8Y/vz994/hHxMjl8o9BiaBf6jgz79/AAHEwvDvk6ByP1A1w/+/DP//g0iGP/8Z2Bj5RRkYOP6jghcvXgAEEMhgEPjzEqj0P0jPn///f/1n5GD6++c/4z+wsr9gkhEIgJYABBALyCEgdTDVDEAGkASqZvr+/c+XT9fu39/w8xerhpoTH58UUANAADEBHcYANgZs9t////78//cbhP6zvHr95fDJRax/GfkZ7l27mv/928U/f/4ABBATw7//YKVg1f9/g9EfEPn3u4w0r69n49cnT+6e4Te13MnF7wa0ASCAWP4BfcvwF6YHYjzQD8z/Gdm/ftj08eUuJT4baUbJ08eOCEnJsjGzAgQQC9BFIA8A1QHd/e8P1BIGFqAIK5eliLzFu7s32Jnfmpi7//739+WLlwABxAIMdbC6P1DHQDzACNTwi5lZ6D/Tf24TDUYmRiYWFg5GVqAfAAKI5Q/Iz38YmEWBrmIEMpj+MPz9ycDIwcjIxMDICAxwTiEhYPSAHA4GAAHEeHc/w78fwKBlALoNiP6ASSCXx+DwPwYR5GiGaAAIMABTlkYuN8jKzQAAAABJRU5ErkJggg=="
             }
         };
         return {
