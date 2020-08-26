@@ -180,7 +180,7 @@ export class DiffMonitorComponent implements OnInit {
                         break;
                     case "reschedule":
                         this.cfpLoadingBar.complete();
-                        this.deviceService.selectDevice((res)=>{
+                        this.deviceService.selectParameters((res)=>{
                                 if(res){
                                     this.cfpLoadingBar.start();
                                     let filter = Object.assign({},this.filterObject);
@@ -315,7 +315,7 @@ export class DiffMonitorComponent implements OnInit {
                 if (ok){
                     switch (mode) {
                         case 'reschedule':
-                            this.deviceService.selectDevice((res)=>{
+                            this.deviceService.selectParameters((res)=>{
                                     if(res){
                                         this.cfpLoadingBar.start();
                                         let filter = {};

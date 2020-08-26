@@ -159,7 +159,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     content: text
                 }).subscribe((ok)=>{
                     if(ok){
-                        this.deviceService.selectDevice((res)=>{
+                        this.deviceService.selectParameters((res)=>{
                             if(res){
                                 this.cfpLoadingBar.start();
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -206,7 +206,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         }
     }
     test(){
-        this.deviceService.selectDevice((res)=>{
+        this.deviceService.selectParameters((res)=>{
             console.log("j4carehelper select deviceres",res);
             if(res){
 
@@ -352,7 +352,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     };
     reschedule(match) {
         let $this = this;
-        this.deviceService.selectDevice((res)=>{
+        this.deviceService.selectParameters((res)=>{
                 if(res){
                     $this.cfpLoadingBar.start();
                     let filter = {};

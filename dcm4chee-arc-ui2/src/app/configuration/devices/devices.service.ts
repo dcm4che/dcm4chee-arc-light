@@ -94,7 +94,7 @@ export class DevicesService {
         }
     }
 
-    selectDevice(callBack, devices? ,addScheduleTime?:boolean){
+    selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean){
         let setParams = function(tempDevices){
             let schema:any = {
                 content: $localize `:@@devices.select_device_to_reschedule:Select device if you want to reschedule to an other device`,
@@ -135,6 +135,25 @@ export class DevicesService {
                         type:"text",
                         filterKey:"scheduledTime",
                         description:$localize `:@@scheduled_time:Scheduled Time`
+                    }
+                ]);
+            }
+            if(addQueueName){
+                schema.form_schema[0].push([
+                    {
+                        tag:"label",
+                        text:$localize `:@@new_queue_name:New Queue Name`
+                    }
+                    ,{
+                        tag:"select",
+                        options:Array.from(Array(13).keys()).map(i=>{
+                            const val = `Retrieve${i+1}`;
+                            return new SelectDropdown(val,val);
+                        }),
+                        filterKey:"newQueueName",
+                        description:$localize `:@@new_queue_name:New Queue Name`,
+                        placeholder:$localize `:@@new_queue_name:New Queue Name`
+
                     }
                 ]);
             }

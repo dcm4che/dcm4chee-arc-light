@@ -3318,7 +3318,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(mode === "multiple-retrieve"){
                     this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                         this.studyWebService,
-                        "DCM4CHEE_ARC_AET",
+                        "MOVE_MATCHING",
                         "MOVE_MATCHING"
                     ).subscribe(webApp=>{
                         if(webApp){
@@ -3334,6 +3334,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }else{
                             this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                         }
+                        fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                     });
                 }else{
                     if(mode === 'multipleExport'){
@@ -3360,6 +3361,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             }else{
                                 this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                             }
+                            fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         });
                     }else{
                         //SINGLE
@@ -3383,6 +3385,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 }else{
                                     this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE,DCM4CHEE_ARC_AET' not found!`)
                                 }
+                                fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                             });
                         }else{
                             if (result.exportType === 'dicom'){
@@ -3392,24 +3395,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             }
                             // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
                             singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         }
                     }
                 }
-                if(multipleObjects && multipleObjects.size > 0){
-                    this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
-                        console.log("res",res);
-                        $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
-                        $this.cfpLoadingBar.complete();
-                    }, err=>{
-                        console.log("err",err);
-                        $this.cfpLoadingBar.complete();
-                    });
-                }else{
-                    if(singleUrlSuffix){
-                        urlRest = url + singleUrlSuffix;
-                    }
-                    this.service.export(urlRest)
-                        .subscribe(
+
+
+            }
+        });
+        let  fireService = (result, multipleObjects,singleUrlSuffix, urlRest, url)=>{
+            if(multipleObjects && multipleObjects.size > 0){
+                this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
+                    console.log("res",res);
+                    $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
+                    $this.cfpLoadingBar.complete();
+                }, err=>{
+                    console.log("err",err);
+                    $this.cfpLoadingBar.complete();
+                });
+            }else{
+                if(singleUrlSuffix){
+                    urlRest = url + singleUrlSuffix;
+                }
+                this.service.export(urlRest)
+                    .subscribe(
                         (result) => {
                             $this.appService.showMsg($this.service.getMsgFromResponse(result,$localize `:@@study.command_executed:Command executed successfully!`));
                             $this.cfpLoadingBar.complete();
@@ -3424,9 +3433,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             $this.cfpLoadingBar.complete();
                         }
                     );
-                }
             }
-        });
+        }
     }
     storageVerification(){
         this.service.getStorageSystems().subscribe(storages=> {

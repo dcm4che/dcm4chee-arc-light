@@ -421,7 +421,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
 
                     break;
                 case "reschedule":
-                    this.deviceService.selectDevice((res)=>{
+                    this.deviceService.selectParameters((res)=>{
                             if(res){
                                 let filter = Object.assign({},this.filterObject);
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -429,6 +429,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 }
                                 if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
                                     filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                }
+                                if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
+                                    filter["newQueueName"] = res.schema_model.newQueueName;
                                 }
                                 this.service.rescheduleAll(filter).subscribe((res)=>{
                                     this.cfpLoadingBar.complete();
@@ -444,6 +447,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             }
                         },
                         this.devices,
+                        true,
                         true
                         );
 
@@ -557,7 +561,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         };
         this.confirm(parameters).subscribe(result => {
             if (result){
-                this.deviceService.selectDevice((res)=>{
+                this.deviceService.selectParameters((res)=>{
                         if(res){
                             let filter = {};
                             if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -565,6 +569,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             }
                             if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
                                 filter["scheduledTime"] = res.schema_model.scheduledTime;
+                            }
+
+                            if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
+                                filter["newQueueName"] = res.schema_model.newQueueName;
                             }
                             $this.cfpLoadingBar.start();
                             this.service.reschedule(match.properties.pk, filter)
@@ -581,7 +589,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         }
                     },
                     this.devices,
-                    true);
+                    true,
+                    true
+                );
             }
         });
     };
