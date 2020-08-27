@@ -94,10 +94,10 @@ export class DevicesService {
         }
     }
 
-    selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean, queueNames?:SelectDropdown<string>[]){
+    selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean, queueNames?:SelectDropdown<string>[], title?:string){
         let setParams = function(tempDevices){
             let schema:any = {
-                content: $localize `:@@title.reschedule:Reschedule`,
+                content: title || $localize `:@@title.reschedule:Reschedule`,
                 doNotSave:true,
                 form_schema:[
                     [

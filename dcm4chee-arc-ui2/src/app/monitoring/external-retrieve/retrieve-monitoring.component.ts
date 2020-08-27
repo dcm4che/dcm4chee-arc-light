@@ -450,7 +450,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         this.devices,
                         true,
                         true,
-                        this.queueNames
+                        this.queueNames,
+                        $localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
                         );
 
                     break;
