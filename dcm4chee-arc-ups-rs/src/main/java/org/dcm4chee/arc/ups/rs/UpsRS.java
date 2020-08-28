@@ -42,7 +42,9 @@
 package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
@@ -52,6 +54,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -74,6 +77,7 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -88,6 +92,14 @@ import java.util.function.IntFunction;
 public class UpsRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpsRS.class);
+
+    private static final int[] EXCLUDE_FROM_REPLACEMENT = {
+            Tag.SOPClassUID,
+            Tag.SOPInstanceUID,
+            Tag.ScheduledProcedureStepModificationDateTime,
+            Tag.ProcedureStepProgressInformationSequence,
+            Tag.UnifiedProcedureStepPerformedProcedureSequence
+    };
 
     @PathParam("AETitle")
     private String aet;
@@ -258,6 +270,49 @@ public class UpsRS {
             return errResponse(UpsRS::internalServerError, e);
         }
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/reschedule")
+    public Response rescheduleWorkitem(
+            @PathParam("workitem") String iuid,
+            @QueryParam("newWorkitem") String newIUID,
+            @QueryParam("upsScheduledTime") String upsScheduledTime) {
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUPSInstanceUID(iuid);
+        try {
+            service.findUPS(ctx);
+            return createUPS(newIUID, replacement(ctx.getAttributes(), upsScheduledTime));
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::retrieveFailed, e);
+        }
+    }
+
+    private Attributes replacement(Attributes upsAttrs, String upsScheduledTime) {
+        Attributes replacement = new Attributes(upsAttrs.size());
+        replacement.addNotSelected(upsAttrs, EXCLUDE_FROM_REPLACEMENT);
+        replacement.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime(upsScheduledTime));
+        replacement.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+        replacement.ensureSequence(Tag.ReplacedProcedureStepSequence, 1)
+                .add(refSOP(upsAttrs.getString(Tag.SOPClassUID), upsAttrs.getString(Tag.SOPInstanceUID)));
+        return replacement;
+    }
+
+    private Date scheduledTime(String upsScheduledTime) {
+        if (upsScheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(upsScheduledTime);
+            } catch (Exception e) {
+                LOG.info("Can not parse upsScheduledTime[={}]: {}", upsScheduledTime, e.getMessage());
+            }
+        return new Date();
+    }
+
+    private static Attributes refSOP(String cuid, String iuid) {
+        Attributes item = new Attributes(2);
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
+        return item;
     }
 
     @Override

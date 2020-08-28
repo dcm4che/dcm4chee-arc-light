@@ -142,12 +142,18 @@ public class UPSServiceImpl implements UPSService {
             fireUPSEvents(ctx);
             return ups;
         } catch (Exception e) {
-            try {
-                if (ejb.exists(ctx)) {
-                    throw new DicomServiceException(Status.DuplicateSOPinstance,
-                            "The UPS already exists.", false);
-                }
-            } catch (Exception ignore) {}
+            if (upsExists(ctx))
+                throw new DicomServiceException(Status.DuplicateSOPinstance,
+                        "The UPS already exists.", false);
+
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+    }
+
+    private boolean upsExists(UPSContext ctx) throws DicomServiceException {
+        try {
+            return ejb.exists(ctx);
+        } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
     }
