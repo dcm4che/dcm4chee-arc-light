@@ -1476,6 +1476,11 @@ export class StudyService {
                                 },
                                 click: (e) => {
                                     e.selected = !e.selected;
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "select"
+                                    }, e);
                                 },
                                 title: $localize `:@@select:Select`,
                                 showIf: (e, config) => {
@@ -1490,6 +1495,11 @@ export class StudyService {
                                 click: (e) => {
                                     console.log("e", e);
                                     e.selected = !e.selected;
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "select"
+                                    }, e);
                                 },
                                 title: $localize `:@@unselect:Unselect`,
                                 showIf: (e, config) => {

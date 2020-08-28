@@ -2998,14 +2998,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let msg = "";
         let select: any = [];
         let rejectionRestoreService = (rejectionCode)=>{
-            this.cfpLoadingBar.start();
-            this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
-                this.appService.showMsg(msg);
-            this.cfpLoadingBar.complete();
-            },err=>{
+            if(this.selectedElements.size > 0){
+                this.cfpLoadingBar.start();
+                this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
+                    this.appService.showMsg(msg);
                 this.cfpLoadingBar.complete();
-                this.httpErrorHandler.handleError(err);
-            })
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                })
+            }
         };
 
         if (this.trash.active) {
