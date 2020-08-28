@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.22.3"
+    "version": "5.22.5"
   },
   "servers": [
     {
@@ -404,6 +404,9 @@
     },
     "/aets/{aet}/rs/workitems/{workitem}/cancelrequest/{requester}": {
       "$ref": "paths/workitems.json#/cancelrequest"
+    },
+    "/aets/{aet}/rs/workitems/{workitem}/reschedule": {
+      "$ref": "paths/workitems.json#/reschedule"
     },
     "/aets/{aet}/rs/workitems/{workitem}/subscribers/{subscriber}": {
       "$ref": "paths/workitems.json#/subscriber"

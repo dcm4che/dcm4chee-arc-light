@@ -724,6 +724,14 @@
       "type": "string"
     }
   },
+  "newWorkitem": {
+    "name": "workitem",
+    "in": "query",
+    "description": "UID of new created Workitem.",
+    "schema": {
+      "type": "string"
+    }
+  },
   "deletionlock": {
     "name": "deletionlock",
     "in": "query",
