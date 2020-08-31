@@ -161,8 +161,9 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
                     replacement.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT,
                             new Date(System.currentTimeMillis() + delay * 1000));
                     replacement.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
-                    replacement.ensureSequence(Tag.ReplacedProcedureStepSequence, 1)
+                    replacement.newSequence(Tag.ReplacedProcedureStepSequence, 1)
                             .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
+                    countFailed(replacement);
                  }
             }
         }
@@ -185,14 +186,55 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         }
     }
 
+    private void countFailed(Attributes replacement) {
+        Attributes spp = replacement.getNestedDataset(Tag.ScheduledProcessingParametersSequence);
+        if (spp == null)
+            replacement.newSequence(Tag.ScheduledProcessingParametersSequence, 1).add(scheduledProcessingParameters());
+        else
+            spp.setString(Tag.NumericValue, VR.DS, String.valueOf(numericValue(spp) + 1));
+    }
+
+    private Attributes scheduledProcessingParameters() {
+        Attributes item = new Attributes();
+        item.setString(Tag.ValueType, VR.CS, "NUMERIC");
+        item.newSequence(Tag.ConceptNameCodeSequence, 1)
+                .add(codeItem("NUM_UPS_FAILED",
+                        "99DCM4CHEE",
+                        "Number of failed attempts to process this Procedure Step"));
+        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1)
+                .add(codeItem("1",
+                        "UCUM",
+                        "no units"));
+        item.setString(Tag.NumericValue, VR.DS, "1");
+        return item;
+    }
+
+    private Attributes codeItem(String value, String scheme, String meaning) {
+        Attributes code = new Attributes();
+        code.setString(Tag.CodeValue, VR.SH, value);
+        code.setString(Tag.CodingSchemeDesignator, VR.SH, scheme);
+        code.setString(Tag.CodeMeaning, VR.LO, meaning);
+        return code;
+    }
+
     protected void verify(Attributes ups) throws UPSProcessorException {
         if (inputInformationRequired && !ups.containsValue(Tag.InputInformationSequence))
             throw new UPSProcessorException(BAD_UPS, "Missing Input Information");
     }
 
     private long retryDelay(Attributes ups) {
-        Sequence seq = ups.getSequence(Tag.ReplacedProcedureStepSequence);
-        return rule.getRetryDelayInSeconds((seq != null ? seq.size() : 0) + 1);
+        Attributes spp = ups.getNestedDataset(Tag.ScheduledProcessingParametersSequence);
+        return rule.getRetryDelayInSeconds((spp != null ? numericValue(spp) : 0) + 1);
+    }
+
+    private int numericValue(Attributes spp) {
+        String numericVal = spp.getString(Tag.NumericValue);
+        try {
+            return Integer.parseInt(numericVal);
+        } catch (NumberFormatException e) {
+            LOG.info("Invalid numeric value: {}", numericVal);
+        }
+        return 0;
     }
 
     private static Attributes refSOP(String cuid, String iuid) {
