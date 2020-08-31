@@ -80,8 +80,8 @@
       "multipart/related;type=image/jpeg",
       "multipart/related;type=image/jp2",
       "multipart/related;type=image/jpx",
-      "multipart/related;type=image/x-dicom+rle",
-      "multipart/related;type=image/x-jls",
+      "multipart/related;type=image/dicom-rle",
+      "multipart/related;type=image/jls",
       "multipart/related;type=text/xml",
       "multipart/related;type=model/stl",
       "multipart/related;type=model/obj",
@@ -98,8 +98,8 @@
       "multipart/related;type=image/jpeg",
       "multipart/related;type=image/jp2",
       "multipart/related;type=image/jpx",
-      "multipart/related;type=image/x-dicom+rle",
-      "multipart/related;type=image/x-jls"
+      "multipart/related;type=image/dicom-rle",
+      "multipart/related;type=image/jls"
     ]
   },
   "wadoRetrieveBulkdataAccept": {

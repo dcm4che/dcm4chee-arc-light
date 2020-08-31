@@ -284,13 +284,13 @@
           "format": "binary"
         }
       },
-      "multipart/related;type=image/x-dicom+rle": {
+      "multipart/related;type=image/dicom-rle": {
         "schema": {
           "type": "string",
           "format": "binary"
         }
       },
-      "multipart/related;type=image/x-jls": {
+      "multipart/related;type=image/jls": {
         "schema": {
           "type": "string",
           "format": "binary"
@@ -349,13 +349,13 @@
           "format": "binary"
         }
       },
-      "multipart/related;type=image/x-dicom+rle": {
+      "multipart/related;type=image/dicom-rle": {
         "schema": {
           "type": "string",
           "format": "binary"
         }
       },
-      "multipart/related;type=image/x-jls": {
+      "multipart/related;type=image/jls": {
         "schema": {
           "type": "string",
           "format": "binary"
