@@ -1110,7 +1110,7 @@ public class WadoRS {
         frameList = adjustFrameList(frameList, numFrames);
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         StringBuffer bulkdataURL = request.getRequestURL();
-        mkInstanceURL(bulkdataURL, inst);
+        bulkdataURL.setLength(bulkdataURL.lastIndexOf("/frames/") + 8);
         StreamingOutput entity;
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, 0);
         switch (objectType) {
@@ -1135,7 +1135,7 @@ public class WadoRS {
                 throw new AssertionError("Unexcepted object type: " + objectType);
         }
         OutputPart outputPart = output.addPart(entity, mediaType);
-        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.append('1').toString());
     }
 
     private int[] adjustFrameList(int[] frameList, int numFrames) {
@@ -1156,7 +1156,6 @@ public class WadoRS {
 
     private void writeUncompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
                                          int[] frameList, StringBuffer bulkdataURL) throws IOException {
-        bulkdataURL.append("/frames/");
         int length = bulkdataURL.length();
         uncompressedFramesOutput = new UncompressedFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
         for (int frame : frameList) {
@@ -1170,7 +1169,6 @@ public class WadoRS {
     private void writeCompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
                                        int[] frameList, MediaType mediaType, StringBuffer bulkdataURL)
             throws IOException {
-        bulkdataURL.append("/frames/");
         int length = bulkdataURL.length();
         compressedFramesOutput = new CompressedFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
         for (int frame : frameList) {
@@ -1183,7 +1181,6 @@ public class WadoRS {
 
     private void writeDecompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
                                          int[] frameList, StringBuffer bulkdataURL) throws IOException {
-        bulkdataURL.append("/frames/");
         int length = bulkdataURL.length();
         decompressFramesOutput = new DecompressFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
         for (int frame : frameList) {
