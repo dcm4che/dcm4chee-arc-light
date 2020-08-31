@@ -1487,31 +1487,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let token;
         let url:string = "";
         let fileName = "dcm4che.dcm";
-        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
-            if(!this.appService.global.notSecure){
-                token = response.token;
+        this.confirm({
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText("instance")}:@@levelText:`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@compress:Compress`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"compressed"
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@including_dicomdir:Include DICOMDIR`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"includingdicomdir"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@download:Download`
+        }).subscribe((ok)=>{
+            if(ok) {
+                this.service.getTokenService(this.studyWebService).subscribe((response) => {
+                    if (!this.appService.global.notSecure) {
+                        token = response.token;
+                    }
+                    let exQueryParams = {contentType: 'application/dicom'};
+                    if(_.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed")){
+                        exQueryParams["transferSyntax"] = transferSyntax;
+                    }
+                    if(_.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir")) {
+                        exQueryParams["dicomdir"] = true;
+                    }
+                    console.log("keys", Object.keys(inst.wadoQueryParams));
+                    console.log("keys", Object.getOwnPropertyNames(inst.wadoQueryParams));
+                    console.log("keys", inst.wadoQueryParams);
+                    this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp: string) => {
+                        if (!this.appService.global.notSecure) {
+                            // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                            url = urlWebApp + `&access_token=${token}`;
+                        } else {
+                            // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
+                            url = urlWebApp;
+                        }
+                        if (j4care.hasSet(inst, "attrs[00080018].Value[0]")) {
+                            fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
+                        }
+                        j4care.downloadFile(url, fileName);
+                    })
+                });
             }
-            let exQueryParams = { contentType: 'application/dicom'};
-            if (transferSyntax){
-                exQueryParams["transferSyntax"] = {};
-                exQueryParams["transferSyntax"] = transferSyntax;
-            }
-            console.log("keys",Object.keys(inst.wadoQueryParams));
-            console.log("keys",Object.getOwnPropertyNames(inst.wadoQueryParams));
-            console.log("keys",inst.wadoQueryParams);
-            this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp:string)=>{
-                if(!this.appService.global.notSecure){
-                    // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
-                    url = urlWebApp + `&access_token=${token}`;
-                }else{
-                    // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
-                    url = urlWebApp;
-                }
-                if(j4care.hasSet(inst, "attrs[00080018].Value[0]")){
-                    fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
-                }
-                j4care.downloadFile(url,fileName);
-            })
         });
     };
 

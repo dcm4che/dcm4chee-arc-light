@@ -3197,14 +3197,14 @@ export class StudyService {
         }
     };
 
-    modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService) {
+    modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
         return this.getModifyPatientUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (patientId) {
                         //Change patient;
-                        return this.$http.put(`${url}/${patientId}`, patientObject);
+                        return this.$http.put(`${url}/${patientId}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject);
                     } else {
                         //Create new patient
                         return this.$http.post(url, patientObject);
