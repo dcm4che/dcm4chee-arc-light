@@ -161,7 +161,10 @@ export class StorageSystemsComponent implements OnInit {
                         if (_.hasIn(properties, 'totalSpace')){
                             properties.totalSpace = $this.convertBtoGBorMB(properties.totalSpace);
                         }
-                        _.forEach(properties, (l, k) => {
+                        if (_.hasIn(properties, 'storageThreshold')){
+                            properties.storageThreshold = $this.convertBtoGBorMB(properties.storageThreshold);
+                        }
+                        _.forEach(properties, (l, k) => {https://github.com/dcm4che/dcm4chee-arc-light/issues/2751
                             if (_.isArray(l)){
                                 properties[k] = l.join(' | ');
                             }
