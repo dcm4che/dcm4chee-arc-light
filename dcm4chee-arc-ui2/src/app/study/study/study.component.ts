@@ -185,6 +185,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
             new SelectDropdown("storage_verification",$localize `:@@storage_verification:Storage Verification`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
+            new SelectDropdown("ups_matching",$localize `:@@study.ups_matching_studies:UPS records for matching studies`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("schedule_storage_commit_for_matching",$localize `:@@schedule_storage_commit_for_matching:Schedule Storage Commitment for matching`),
@@ -416,6 +417,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "download_studies":
                 this.downloadCSV();
                break;
+            case "ups_matching":
+                this.upsMatching();
+                break;
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
                break;
@@ -3475,6 +3479,82 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         }
     }
+
+    upsMatching() {
+        this.service.getUPSTemplates().subscribe(upsTemplates => {
+            this.confirm({
+                content: $localize`:@@scheduled_ups_of_matching_studies:Schedule UPS of matching Studies`,
+                doNotSave: true,
+                form_schema: [
+                    [
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@ups_template_id:UPS Template ID`
+                            }, {
+                                tag: "select",
+                                options: upsTemplates.map(upsTemplate => new SelectDropdown(upsTemplate.id, upsTemplate.id)),
+                                filterKey: "upsTemplateID",
+                                description: $localize`:@@ups_template_ids:UPS Template IDs`,
+                                placeholder: $localize`:@@ups_template_ids:UPS Template IDs`
+                            }
+                        ], [
+                            {
+                                tag: "label",
+                                text: $localize`:@@procedure_step_label:Procedure Step Label`
+                            },
+                            {
+                                tag: "input",
+                                type: "text",
+                                filterKey: "upsLabel",
+                                description: $localize`:@@procedure_step_label:Procedure Step Label`,
+                                placeholder: $localize`:@@procedure_step_label:Procedure Step Label`
+                            }
+                        ], [
+                            {
+                                tag: "label",
+                                text: $localize`:@@scheduled_time:Scheduled time`
+                            },
+                            {
+                                tag:"single-date-time-picker",
+                                type: "text",
+                                filterKey: "upsScheduledTime",
+                                description: $localize`:@@scheduled_time:Scheduled time`,
+                                placeholder: $localize`:@@scheduled_time:Scheduled time`
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize`:@@SUBMIT:SUBMIT`
+            }).subscribe((ok) => {
+                if (ok) {
+                    let msg;
+                    this.cfpLoadingBar.start();
+                    msg = $localize `:@@ups_records_created_successfully:UPS records created successfully!`;
+                    this.service.scheduleUPS(this.studyWebService,
+                                            ok.schema_model.upsTemplateID,
+                                            ok.schema_model.upsLabel,
+                                            ok.schema_model.upsScheduledTime,
+                                            this.createStudyFilterParams(true))
+                        .subscribe(res => {
+                            console.log("res", res);
+                            this.cfpLoadingBar.complete();
+                            msg = j4care.prepareCountMessage(msg, res);
+                            this.appService.showMsg(msg);
+                        }, err => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                }
+            });
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+
     storageVerification(){
         this.service.getStorageSystems().subscribe(storages=> {
             this.confirm({

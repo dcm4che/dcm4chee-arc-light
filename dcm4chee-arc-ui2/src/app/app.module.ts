@@ -59,6 +59,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ControlService} from './configuration/control/control.service';
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
+import {UPSService} from './monitoring/ups/ups.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
 import {WindowRefService} from "./helpers/window-ref.service";
 import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
@@ -247,6 +248,7 @@ import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
         DatePipe,
         StorageCommitmentService,
         StorageSystemsService,
+        UPSService,
         CreateExporterService,
         DeviceConfiguratorService,
         UploadDicomService,
