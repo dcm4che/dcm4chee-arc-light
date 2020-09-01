@@ -51,10 +51,12 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -84,6 +86,14 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
             "99DCM4CHEE",
             null,
             "Failure on processing Unified Procedure Step");
+    private static final Code NUM_UPS_FAILED = new Code("NUM_UPS_FAILED",
+            "99DCM4CHEE",
+            null,
+            "Number of failed attempts to process this Procedure Step");
+    private static final Code MEASUREMENT_UNITS = new Code("1",
+            "UCUM",
+            null,
+            "no units");
     protected final UPSProcessingRule rule;
     protected final UPSService upsService;
     protected final boolean inputInformationRequired;
@@ -187,34 +197,22 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
     }
 
     private void countFailed(Attributes replacement) {
-        Attributes spp = replacement.getNestedDataset(Tag.ScheduledProcessingParametersSequence);
-        if (spp == null)
-            replacement.newSequence(Tag.ScheduledProcessingParametersSequence, 1).add(scheduledProcessingParameters());
-        else
-            spp.setString(Tag.NumericValue, VR.DS, String.valueOf(numericValue(spp) + 1));
+        Optional<Attributes> numUPSFailedAttrs = UPSUtils.getScheduledProcessingParameter(replacement, NUM_UPS_FAILED);
+        if (numUPSFailedAttrs.isPresent()) {
+            numUPSFailedAttrs.get().setString(
+                    Tag.NumericValue, VR.DS, String.valueOf(numericValue(numUPSFailedAttrs.get()) + 1));
+        } else
+            replacement.ensureSequence(Tag.ScheduledProcessingParametersSequence, 1)
+                    .add(scheduledProcessingParameters());
     }
 
     private Attributes scheduledProcessingParameters() {
         Attributes item = new Attributes();
         item.setString(Tag.ValueType, VR.CS, "NUMERIC");
-        item.newSequence(Tag.ConceptNameCodeSequence, 1)
-                .add(codeItem("NUM_UPS_FAILED",
-                        "99DCM4CHEE",
-                        "Number of failed attempts to process this Procedure Step"));
-        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1)
-                .add(codeItem("1",
-                        "UCUM",
-                        "no units"));
+        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(NUM_UPS_FAILED.toItem());
+        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(MEASUREMENT_UNITS.toItem());
         item.setString(Tag.NumericValue, VR.DS, "1");
         return item;
-    }
-
-    private Attributes codeItem(String value, String scheme, String meaning) {
-        Attributes code = new Attributes();
-        code.setString(Tag.CodeValue, VR.SH, value);
-        code.setString(Tag.CodingSchemeDesignator, VR.SH, scheme);
-        code.setString(Tag.CodeMeaning, VR.LO, meaning);
-        return code;
     }
 
     protected void verify(Attributes ups) throws UPSProcessorException {
@@ -223,12 +221,12 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
     }
 
     private long retryDelay(Attributes ups) {
-        Attributes spp = ups.getNestedDataset(Tag.ScheduledProcessingParametersSequence);
-        return rule.getRetryDelayInSeconds((spp != null ? numericValue(spp) : 0) + 1);
+        Optional<Attributes> numUPSFailed = UPSUtils.getScheduledProcessingParameter(ups, NUM_UPS_FAILED);
+        return rule.getRetryDelayInSeconds((numUPSFailed.map(this::numericValue).orElse(0)) + 1);
     }
 
-    private int numericValue(Attributes spp) {
-        String numericVal = spp.getString(Tag.NumericValue);
+    private int numericValue(Attributes numUPSFailed) {
+        String numericVal = numUPSFailed.getString(Tag.NumericValue);
         try {
             return Integer.parseInt(numericVal);
         } catch (NumberFormatException e) {

@@ -59,7 +59,7 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
-import org.dcm4chee.arc.ups.impl.UPSUtils;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

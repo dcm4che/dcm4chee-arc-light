@@ -66,6 +66,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
