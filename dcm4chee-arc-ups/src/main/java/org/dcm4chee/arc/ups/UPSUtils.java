@@ -56,7 +56,7 @@ public class UPSUtils {
 
     private UPSUtils() {}
 
-    public static Optional<Code> getScheduledProcessingParameter(Attributes ups, Code conceptName) {
+    public static Optional<Attributes> getScheduledProcessingParameter(Attributes ups, Code conceptName) {
         Sequence seq = ups.getSequence(Tag.ScheduledProcessingParametersSequence);
         if (seq == null)
             return Optional.empty();
@@ -64,7 +64,13 @@ public class UPSUtils {
         return seq.stream()
                 .filter(item -> conceptName.equalsIgnoreMeaning(
                         new Code(item.getNestedDataset(Tag.ConceptNameCodeSequence))))
-                .map(item -> new Code(item.getNestedDataset(Tag.ConceptCodeSequence)))
                 .findFirst();
+    }
+
+    public static Optional<Code> getScheduledProcessingCodeParameter(Attributes ups, Code conceptName) {
+        Optional<Attributes> item = getScheduledProcessingParameter(ups, conceptName);
+        return item.isPresent()
+                ? Optional.of(new Code(item.get().getNestedDataset(Tag.ConceptCodeSequence)))
+                : Optional.empty();
     }
 }

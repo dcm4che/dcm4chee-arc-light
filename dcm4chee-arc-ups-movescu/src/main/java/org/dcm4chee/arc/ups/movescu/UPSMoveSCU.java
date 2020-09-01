@@ -156,7 +156,7 @@ public class UPSMoveSCU extends AbstractUPSProcessor  {
 
         KeysBuilder(Attributes ups) {
             Consumer<Attributes> retrieve = retrieveOf(
-                    UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumulation.CODE));
+                    UPSUtils.getScheduledProcessingCodeParameter(ups, ScopeOfAccumulation.CODE));
             ups.getSequence(Tag.InputInformationSequence).stream().forEach(retrieve);
         }
 

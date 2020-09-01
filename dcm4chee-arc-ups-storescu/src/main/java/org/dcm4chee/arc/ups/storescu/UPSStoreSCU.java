@@ -112,7 +112,7 @@ public class UPSStoreSCU extends AbstractUPSProcessor {
             throws DicomServiceException {
         RetrieveContext retrieveContext = null;
         RetrieveLevel retrieveLevel = RetrieveLevel.of(
-                UPSUtils.getScheduledProcessingParameter(ups, ScopeOfAccumulation.CODE));
+                UPSUtils.getScheduledProcessingCodeParameter(ups, ScopeOfAccumulation.CODE));
         Set<String> suids = new HashSet<>();
         for (Attributes inputInformation : ups.getSequence(Tag.InputInformationSequence)) {
             RetrieveContext tmp = newRetrieveContext(retrieveLevel, inputInformation, destAET, suids);
