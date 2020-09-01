@@ -204,10 +204,10 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
     }
 
     private Attributes initNumUPSFailedAttrs() {
-        Attributes item = new Attributes();
+        Attributes item = new Attributes(4);
+        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(UnitsOfMeasurement.NO_UNITS.toItem());
         item.setString(Tag.ValueType, VR.CS, "NUMERIC");
         item.newSequence(Tag.ConceptNameCodeSequence, 1).add(NUM_UPS_FAILED.toItem());
-        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(UnitsOfMeasurement.NO_UNITS.toItem());
         item.setString(Tag.NumericValue, VR.DS, "1");
         return item;
     }
