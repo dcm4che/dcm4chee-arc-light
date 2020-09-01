@@ -43,6 +43,7 @@ package org.dcm4chee.arc.ups.process;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
+import org.dcm4che3.dcmr.UnitsOfMeasurement;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.TagUtils;
@@ -90,10 +91,6 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
             "99DCM4CHEE",
             null,
             "Number of failed attempts to process this Procedure Step");
-    private static final Code MEASUREMENT_UNITS = new Code("1",
-            "UCUM",
-            null,
-            "no units");
     protected final UPSProcessingRule rule;
     protected final UPSService upsService;
     protected final boolean inputInformationRequired;
@@ -173,7 +170,7 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
                     replacement.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
                     replacement.newSequence(Tag.ReplacedProcedureStepSequence, 1)
                             .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
-                    countFailed(replacement);
+                    incrNumUPSFailed(replacement);
                  }
             }
         }
@@ -196,21 +193,21 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         }
     }
 
-    private void countFailed(Attributes replacement) {
+    private void incrNumUPSFailed(Attributes replacement) {
         Optional<Attributes> numUPSFailedAttrs = UPSUtils.getScheduledProcessingParameter(replacement, NUM_UPS_FAILED);
         if (numUPSFailedAttrs.isPresent()) {
-            numUPSFailedAttrs.get().setString(
-                    Tag.NumericValue, VR.DS, String.valueOf(numericValue(numUPSFailedAttrs.get()) + 1));
+            Attributes attrs = numUPSFailedAttrs.get();
+            attrs.setFloat(Tag.NumericValue, VR.DS, attrs.getFloat(Tag.NumericValue, 0) + 1);
         } else
             replacement.ensureSequence(Tag.ScheduledProcessingParametersSequence, 1)
-                    .add(scheduledProcessingParameters());
+                    .add(initNumUPSFailedAttrs());
     }
 
-    private Attributes scheduledProcessingParameters() {
+    private Attributes initNumUPSFailedAttrs() {
         Attributes item = new Attributes();
         item.setString(Tag.ValueType, VR.CS, "NUMERIC");
         item.newSequence(Tag.ConceptNameCodeSequence, 1).add(NUM_UPS_FAILED.toItem());
-        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(MEASUREMENT_UNITS.toItem());
+        item.newSequence(Tag.MeasurementUnitsCodeSequence, 1).add(UnitsOfMeasurement.NO_UNITS.toItem());
         item.setString(Tag.NumericValue, VR.DS, "1");
         return item;
     }
@@ -222,17 +219,8 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
 
     private long retryDelay(Attributes ups) {
         Optional<Attributes> numUPSFailed = UPSUtils.getScheduledProcessingParameter(ups, NUM_UPS_FAILED);
-        return rule.getRetryDelayInSeconds((numUPSFailed.map(this::numericValue).orElse(0)) + 1);
-    }
-
-    private int numericValue(Attributes numUPSFailed) {
-        String numericVal = numUPSFailed.getString(Tag.NumericValue);
-        try {
-            return Integer.parseInt(numericVal);
-        } catch (NumberFormatException e) {
-            LOG.info("Invalid numeric value: {}", numericVal);
-        }
-        return 0;
+        return rule.getRetryDelayInSeconds(
+                numUPSFailed.map(a -> (int) a.getFloat(Tag.NumericValue, 0)).orElse(0) + 1);
     }
 
     private static Attributes refSOP(String cuid, String iuid) {

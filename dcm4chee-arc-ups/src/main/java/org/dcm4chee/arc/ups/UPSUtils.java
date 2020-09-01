@@ -46,10 +46,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.UPSTemplate;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -72,10 +69,8 @@ public class UPSUtils {
     }
 
     public static Optional<Code> getScheduledProcessingCodeParameter(Attributes ups, Code conceptName) {
-        Optional<Attributes> item = getScheduledProcessingParameter(ups, conceptName);
-        return item.isPresent()
-                ? Optional.of(new Code(item.get().getNestedDataset(Tag.ConceptCodeSequence)))
-                : Optional.empty();
+        return getScheduledProcessingParameter(ups, conceptName)
+                .map(item -> new Code(item.getNestedDataset(Tag.ConceptCodeSequence)));
     }
 
     public static Attributes upsAttrsByTemplate(UPSContext ctx,
