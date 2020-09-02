@@ -48,19 +48,20 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.UPSProcessingRule;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2020
  */
 public abstract class AbstractUPSProcessor implements UPSProcessor {
@@ -94,7 +95,6 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
     protected final UPSProcessingRule rule;
     protected final UPSService upsService;
     protected final boolean inputInformationRequired;
-
 
     public AbstractUPSProcessor(UPSProcessingRule rule, UPSService upsService, boolean inputInformationRequired) {
         this.rule = rule;
@@ -159,6 +159,7 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
                         || (delay = retryDelay(ups)) < 0) {
                     LOG.warn("Failed to process UPS[uid={}]:\n", ups.getString(Tag.SOPInstanceUID), e);
                     setReasonForCancellation(upsCtx, e.getMessage(), e.reasonCode);
+                    newUPSOnCancel(arcAE, ups);
                 } else {
                     LOG.info("Failed to process UPS[uid={}] - retry:\n", ups.getString(Tag.SOPInstanceUID), e);
                     setReasonForCancellation(upsCtx, e.getMessage(),
@@ -182,15 +183,43 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
                     transaction.getString(Tag.ProcedureStepState),
                     e);
         }
-        if (replacement != null) {
+        if (replacement != null)
             try {
-                upsCtx.setUPSInstanceUID(UIDUtils.createUID());
-                upsCtx.setAttributes(replacement);
-                upsService.createUPS(upsCtx);
+                createUPS(upsCtx, replacement);
             } catch (DicomServiceException e) {
                 LOG.warn("Failed to schedule replacement of UPS[uid={}]\n", ups.getString(Tag.SOPInstanceUID), e);
             }
+    }
+
+    private void newUPSOnCancel(ArchiveAEExtension arcAE, Attributes ups) {
+        if (rule.getUpsTemplateID() == null)
+            return;
+
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        UPSTemplate upsTemplate = arcDev.getUPSTemplate(rule.getUpsTemplateID());
+        try {
+            UPSContext upsCtx = upsService.newUPSContext(null, arcAE);
+            upsCtx.setRequesterAET(arcAE.getApplicationEntity().getAETitle());
+            Attributes upsOnCancel = UPSUtils.upsAttrsByTemplate(
+                                            arcAE,
+                                            upsTemplate,
+                                            null,
+                                            Calendar.getInstance(),
+                                            null);
+            upsOnCancel.newSequence(Tag.ReplacedProcedureStepSequence, 1)
+                    .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
+            upsOnCancel.addSelected(ups, arcDev.getAttributeFilter(Entity.Patient).getSelection());
+            createUPS(upsCtx, upsOnCancel);
+        } catch (DicomServiceException e) {
+            LOG.warn("Failed to create new UPS record for failed UPS[uid={}] processing, using UPSTemplate[id={}]\n",
+                    ups.getString(Tag.SOPInstanceUID), upsTemplate.getUPSTemplateID(), e);
         }
+    }
+
+    private void createUPS(UPSContext upsCtx, Attributes upsAttrs) throws DicomServiceException {
+        upsCtx.setUPSInstanceUID(UIDUtils.createUID());
+        upsCtx.setAttributes(upsAttrs);
+        upsService.createUPS(upsCtx);
     }
 
     private void incrNumUPSFailed(Attributes replacement) {

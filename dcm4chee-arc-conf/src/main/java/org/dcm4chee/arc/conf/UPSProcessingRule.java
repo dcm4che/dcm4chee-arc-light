@@ -88,6 +88,7 @@ public class UPSProcessingRule {
     private int retryDelayMultiplier = 100;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
+    private String upsTemplateID;
 
     public UPSProcessingRule() {}
 
@@ -307,6 +308,14 @@ public class UPSProcessingRule {
                 throw new IllegalArgumentException("Property in incorrect format : " + s);
             setProperty(s.substring(0, index), s.substring(index+1));
         }
+    }
+
+    public String getUpsTemplateID() {
+        return upsTemplateID;
+    }
+
+    public void setUpsTemplateID(String upsTemplateID) {
+        this.upsTemplateID = upsTemplateID;
     }
 
     @Override
