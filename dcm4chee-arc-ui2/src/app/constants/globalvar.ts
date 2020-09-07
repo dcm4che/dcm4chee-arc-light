@@ -727,6 +727,12 @@ export class Globalvar {
                 labelKey:'{dcmUPSTemplateID}',
                 msg:$localize `:@@dynamic_formatter.web_app:Create first a UPS Template!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmUPSTemplate'
+            },
+            dcmBulkDataDescriptorID:{
+                key:'dcmBulkDataDescriptorID',
+                labelKey:'{dcmBulkDataDescriptorID}',
+                msg:$localize `:@@dynamic_formatter.web_app:Create first a Bulkdata Descriptor!`,
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptor'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
