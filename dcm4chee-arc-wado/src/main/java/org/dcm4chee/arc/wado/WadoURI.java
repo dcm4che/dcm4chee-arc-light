@@ -45,6 +45,7 @@ import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.*;
@@ -193,6 +194,10 @@ public class WadoURI {
 
     @QueryParam("transferSyntax")
     private String transferSyntax;
+
+    @QueryParam("iccprofile")
+    @Pattern(regexp = "no|yes|srgb|adobergb|rommrgb")
+    private String iccprofile;
 
     @Override
     public String toString() {
@@ -390,6 +395,17 @@ public class WadoURI {
                     attrs.getInt(Tag.Columns, 1)));
         if (presentationUID != null)
             readParam.setPresentationState(retrievePresentationState());
+
+        if (iccprofile != null) {
+            ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
+            if (iccProfile != ICCProfile.Option.no
+                    && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        "Cannot embed ICC profile into " + mimeType,
+                        Response.Status.BAD_REQUEST));
+            }
+            readParam.setICCProfile(iccProfile);
+        }
 
         return new RenderedImageOutput(ctx, inst, readParam, parseInt(rows), parseInt(columns), mimeType, imageQuality,
                 frame);

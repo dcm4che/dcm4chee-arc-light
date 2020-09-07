@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
@@ -1574,6 +1575,17 @@ public class WadoRS {
                     attrs.getInt(Tag.Rows, 1),
                     attrs.getInt(Tag.Columns, 1)));
         }
+        if (iccprofile != null) {
+            ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
+            if (iccProfile != ICCProfile.Option.no
+                    && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
+                throw new WebApplicationException(errResponseAsTextPlain(
+                        "Cannot embed ICC profile into " + mimeType,
+                        Response.Status.BAD_REQUEST));
+            }
+            readParam.setICCProfile(iccProfile);
+        }
+
         return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality, frame);
     }
 }

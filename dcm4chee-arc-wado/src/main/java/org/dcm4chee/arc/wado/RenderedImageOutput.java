@@ -42,7 +42,6 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
@@ -64,7 +63,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -165,8 +163,6 @@ public class RenderedImageOutput implements StreamingOutput {
     }
 
     private BufferedImage adjust(BufferedImage bi) throws IOException {
-        if (bi.getColorModel().getNumComponents() == 3)
-            bi = BufferedImageUtils.convertToIntRGB(bi);
         return rescale(bi, rows, columns, getPixelAspectRatio());
     }
 
@@ -212,15 +208,16 @@ public class RenderedImageOutput implements StreamingOutput {
     }
 
     static ImageWriter getImageWriter(MediaType mimeType) {
-        String formatName = formatNameOf(mimeType);
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByMIMEType(mimeType.toString());
         if (!writers.hasNext())
-            throw new RuntimeException(formatName + " Image Writer not registered");
+            throw new RuntimeException("No Image Writer for MIME Type: " + mimeType);
 
-        return writers.next();
-    }
-
-    static String formatNameOf(MediaType mimeType) {
-        return mimeType.getSubtype().toUpperCase();
+        ImageWriter writer = writers.next();
+        // prefer JDK Image Writer plugins
+        while (writers.hasNext()
+                && !writer.getClass().getName().startsWith("com.sun.imageio.plugins")) {
+            writer = writers.next();
+        }
+        return writer;
     }
 }

@@ -704,7 +704,7 @@
   "iccprofile": {
     "name": "iccprofile",
     "in": "query",
-    "description": "ICC Profile (not implemented)",
+    "description": "ICC Profile",
     "schema": {
       "type": "string",
       "enum": [

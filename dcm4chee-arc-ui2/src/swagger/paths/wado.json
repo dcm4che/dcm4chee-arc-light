@@ -836,8 +836,10 @@
         },
         {
           "$ref": "../parameters.json#/presentationSeriesUID"
-        }
-      ],
+        },
+        {
+          "$ref": "../parameters.json#/iccprofile"
+        }      ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/retrievedInstance"
