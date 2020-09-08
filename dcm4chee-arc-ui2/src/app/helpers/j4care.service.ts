@@ -1345,7 +1345,6 @@ export class j4care {
 
     static getDefaultLanguageFromProfile(languageConfig:LanguageConfig,user:User){
         try{
-            console.log("---in j4careService---" + languageConfig.dcmuiLanguageConfigName + "---" + user.user)
             let validProfiles:LanguageProfile[] = languageConfig.dcmuiLanguageProfileObjects.filter((profile:LanguageProfile)=>{
                 if(_.hasIn(profile, "dcmuiLanguageProfileUsername") && profile.dcmuiLanguageProfileUsername === user.user){
                     return true;
