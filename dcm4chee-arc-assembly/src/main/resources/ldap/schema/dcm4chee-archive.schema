@@ -1198,8 +1198,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.201 NAME 'dcmKeycloakServerID'
 attributetype ( 1.2.40.0.13.1.15.110.3.208 NAME 'dcmExportStorageID'
   DESC 'Constrains deletion of Studies from the Storage System to Studies which objects are also accessible from the specified other storage.'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.209 NAME 'dcmNoDeletionConstraint'
   DESC 'Delete all Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured; false if absent.'
