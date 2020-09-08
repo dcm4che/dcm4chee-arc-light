@@ -377,6 +377,7 @@ public final class StorageDescriptor {
         String[] storageIDWithExportStorages = new String[exportStorageID.length + 1];
         storageIDWithExportStorages[0] = storageID;
         System.arraycopy(exportStorageID, 0, storageIDWithExportStorages, 1, exportStorageID.length);
+        Arrays.sort(storageIDWithExportStorages);
         return storageIDWithExportStorages;
     }
 
@@ -385,7 +386,6 @@ public final class StorageDescriptor {
             if (excludeEmptySet)
                 return Collections.emptyList();
 
-            Arrays.sort(common);
             return Collections.singletonList(StringUtils.concat(common, '\\'));
         }
         return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
