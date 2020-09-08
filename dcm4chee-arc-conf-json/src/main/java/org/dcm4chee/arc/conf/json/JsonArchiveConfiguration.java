@@ -470,7 +470,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
             writer.writeNotEmpty("dcmProperty", st.getProperties());
             writer.writeNotEmpty("dcmExternalRetrieveAET", st.getExternalRetrieveAETitles());
-            writer.writeNotNullOrDef("dcmExportStorageID", st.getExportStorageID(), null);
+            writer.writeNotEmpty("dcmExportStorageID", st.getExportStorageID());
             writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
             writer.writeNotDef("dcmRetrieveCacheMaxParallel", st.getRetrieveCacheMaxParallel(), 10);
             writer.writeNotEmpty("dcmDeleteStudiesOlderThan",
@@ -2136,7 +2136,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         st.setExternalRetrieveAETitles(reader.stringArray());
                         break;
                     case "dcmExportStorageID":
-                        st.setExportStorageID(reader.stringValue());
+                        st.setExportStorageID(reader.stringArray());
                         break;
                     case "dcmRetrieveCacheStorageID":
                         st.setRetrieveCacheStorageID(reader.stringValue());

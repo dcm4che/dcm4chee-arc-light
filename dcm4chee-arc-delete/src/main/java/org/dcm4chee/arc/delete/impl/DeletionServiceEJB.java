@@ -43,6 +43,7 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RetentionPeriod;
@@ -184,15 +185,15 @@ public class DeletionServiceEJB {
 
     public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
         List<String> storageIDsOfCluster = getStorageIDsOfCluster(desc);
-        LOG.debug("Query for Instances of Study[pk={}] on Storages{} not stored on Storage[{}]",
-                studyPk, storageIDsOfCluster, desc.getExportStorageID());
+        LOG.debug("Query for Instances of Study[pk={}] on Storages{} not stored on Storages[{}]",
+                studyPk, storageIDsOfCluster, StringUtils.concat(desc.getExportStorageID(), '\\'));
         Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDsOfCluster)
                 .getResultList());
         onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS_AND_STATUS, Long.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, Collections.singletonList(desc.getExportStorageID()))
+                .setParameter(2, Arrays.asList(desc.getExportStorageID()))
                 .setParameter(3, Location.Status.OK)
                 .getResultList());
         return onStorage.size();
@@ -634,7 +635,7 @@ public class DeletionServiceEJB {
         return desc.getStorageClusterID() != null
             ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getStorageIDsOfCluster(desc.getStorageClusterID())
-                .filter(storageID -> !storageID.equals(desc.getExportStorageID()))
+                .filter(storageID -> !Arrays.asList(desc.getExportStorageID()).contains(storageID))
                 .collect(Collectors.toList())
             : Collections.singletonList(desc.getStorageID());
     }

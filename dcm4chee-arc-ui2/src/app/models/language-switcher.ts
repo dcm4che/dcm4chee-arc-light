@@ -16,6 +16,7 @@ export class LanguageSwitcher {
             const defaultConfigLanguage = j4care.extractLanguageDataFromString(j4care.getDefaultLanguageFromProfile(languageConfig,user));
             const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
             //TODO check if currentSavedLanguage and defaultConfigLanguage the same is
+            console.log("---in languageSwitcher---" + currentSavedLanguage.username + "---" + currentSavedLanguage.language + "---" + defaultConfigLanguage.name)
             if(currentSavedLanguage && currentSavedLanguage.username === user.user){
                 this._currentSelectedLanguage = currentSavedLanguage.language;
             }else{
@@ -31,6 +32,7 @@ export class LanguageSwitcher {
             }
         }catch (e) {
             j4care.log("Error on language-switcher construct",e);
+            console.log("---in languageSwitcher---" + user.user + "---" + languageConfig.dcmuiLanguageConfigName)
         }
     }
 

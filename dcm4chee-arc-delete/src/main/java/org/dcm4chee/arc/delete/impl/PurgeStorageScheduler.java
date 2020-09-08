@@ -229,12 +229,12 @@ public class PurgeStorageScheduler extends Scheduler {
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(desc, retentionPeriods, deleteStudyBatchSize);
         String storageID = desc.getStorageID();
-        String exportStorageID = desc.getExportStorageID();
+        String[] exportStorageID = desc.getExportStorageID();
         StoreSession storeSession = storeService.newStoreSession(device.getApplicationEntities().iterator().next());
         Duration purgeInstanceRecordsDelay = arcDev.getPurgeInstanceRecordsDelay();
         for (Iterator<Study.PKUID> iter = studyPks.iterator(); iter.hasNext();) {
             Study.PKUID studyPkUID = iter.next();
-            if (exportStorageID == null) {
+            if (exportStorageID.length == 0) {
                 try {
                     storeService.restoreInstances(
                             storeSession, studyPkUID.uid, null, purgeInstanceRecordsDelay);
@@ -297,7 +297,7 @@ public class PurgeStorageScheduler extends Scheduler {
         return storage;
     }
 
-    private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String exportStorageID) {
+    private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String[] exportStorageID) {
         int count = 0;
         LOG.debug("Read Metadata {} from {}", ctx.getStoragePath(), ctx.getStorage().getStorageDescriptor());
         try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
@@ -306,8 +306,8 @@ public class PurgeStorageScheduler extends Scheduler {
                 JSONReader jsonReader = new JSONReader(Json.createParser(
                         new InputStreamReader(zip, "UTF-8")));
                 Attributes metadata = jsonReader.readDataset(null);
-                if (containsStorageID(metadata, storageID, PurgeStorageScheduler::matchStorageID)
-                        && !containsStorageID(metadata, exportStorageID, PurgeStorageScheduler::matchStorageIDAndCheckStatus))
+                if (containsStorageID(metadata, PurgeStorageScheduler::matchStorageID, storageID)
+                        && !containsStorageID(metadata, PurgeStorageScheduler::matchStorageIDAndCheckStatus, exportStorageID))
                     count++;
                 zip.closeEntry();
             }
@@ -319,8 +319,8 @@ public class PurgeStorageScheduler extends Scheduler {
         return count;
     }
 
-    private static boolean containsStorageID(Attributes attrs, String storageID,
-            BiPredicate<Attributes,String> predicate) {
+    private static boolean containsStorageID(Attributes attrs, BiPredicate<Attributes, String[]> predicate,
+                                             String... storageID) {
         if (predicate.test(attrs, storageID))
             return true;
 
@@ -333,11 +333,11 @@ public class PurgeStorageScheduler extends Scheduler {
         return false;
     }
 
-    private static boolean matchStorageID(Attributes attrs, String storageID) {
-        return storageID.equals(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID));
+    private static boolean matchStorageID(Attributes attrs, String... storageID) {
+        return Arrays.asList(storageID).contains(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID));
     }
 
-    private static boolean matchStorageIDAndCheckStatus(Attributes attrs, String storageID) {
+    private static boolean matchStorageIDAndCheckStatus(Attributes attrs, String... storageID) {
         if (!matchStorageID(attrs, storageID))
             return false;
 

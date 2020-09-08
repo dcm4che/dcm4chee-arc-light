@@ -133,7 +133,7 @@ public class StorageRS {
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
                     writer.writeNotEmpty("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitles());
-                    writer.writeNotNullOrDef("dcmExportStorageID", desc.getExportStorageID(), null);
+                    writer.writeNotEmpty("dcmExportStorageID", desc.getExportStorageID());
                     if (desc.getRetrieveCacheStorageID() != null) {
                         gen.write("dcmRetrieveCacheStorageID", desc.getRetrieveCacheStorageID());
                         gen.write("dcmRetrieveCacheMaxParallel", desc.getRetrieveCacheMaxParallel());

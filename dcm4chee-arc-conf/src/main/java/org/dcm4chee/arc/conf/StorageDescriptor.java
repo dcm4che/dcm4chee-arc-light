@@ -64,7 +64,7 @@ public final class StorageDescriptor {
     private Duration retryDelay;
     private Availability instanceAvailability = Availability.ONLINE;
     private String storageClusterID;
-    private String exportStorageID;
+    private String[] exportStorageID = {};
     private String retrieveCacheStorageID;
     private int retrieveCacheStorageMaxParallel = 10;
     private int deleterThreads = 1;
@@ -161,12 +161,12 @@ public final class StorageDescriptor {
         Arrays.sort(this.externalRetrieveAETitles = externalRetrieveAETitles);
     }
 
-    public String getExportStorageID() {
+    public String[] getExportStorageID() {
         return exportStorageID;
     }
 
-    public void setExportStorageID(String exportStorageID) {
-        this.exportStorageID = exportStorageID;
+    public void setExportStorageID(String... exportStorageID) {
+        Arrays.sort(this.exportStorageID = exportStorageID);
     }
 
     public String getRetrieveCacheStorageID() {
@@ -346,31 +346,38 @@ public final class StorageDescriptor {
     }
 
     public List<String> getStudyStorageIDs(List<String> otherStorageIDs) {
-        return exportStorageID != null
-                ? addPowerSet(false, otherStorageIDs, exportStorageID, storageID)
+        return exportStorageID.length > 0
+                ? addPowerSet(false, otherStorageIDs, storageIDWithExportStorages())
                 : addPowerSet(false, otherStorageIDs, storageID);
     }
 
     public List<String> getStudyStorageIDs(List<String> otherStorageIDs,
                                            Boolean storageClustered, Boolean storageExported) {
         if (storageClusterID == null || storageClustered != null && !storageClustered) {
-            return exportStorageID == null || storageExported != null && !storageExported
+            return exportStorageID.length == 0 || storageExported != null && !storageExported
                     ? Collections.singletonList(storageID)
                     : storageExported == null
-                    ? addPowerSet(false, Collections.singletonList(exportStorageID), storageID)
-                    : addPowerSet(false, Collections.emptyList(), exportStorageID, storageID);
+                        ? addPowerSet(false, Arrays.asList(exportStorageID), storageID)
+                        : addPowerSet(false, Collections.emptyList(), storageIDWithExportStorages());
         }
 
-        if (exportStorageID == null || storageExported != null && !storageExported) {
+        if (exportStorageID.length == 0 || storageExported != null && !storageExported) {
             return addPowerSet(storageClustered != null, otherStorageIDs, storageID);
         }
 
         List<String> studyStorageIDs = addPowerSet(
-                storageClustered != null, otherStorageIDs, exportStorageID, storageID);
-        if (storageExported == null) {
+                storageClustered != null, otherStorageIDs, storageIDWithExportStorages());
+        if (storageExported == null)
             studyStorageIDs.addAll(addPowerSet(storageClustered != null, otherStorageIDs, storageID));
-        }
+
         return studyStorageIDs;
+    }
+
+    private String[] storageIDWithExportStorages() {
+        String[] storageIDWithExportStorages = new String[exportStorageID.length + 1];
+        storageIDWithExportStorages[0] = storageID;
+        System.arraycopy(exportStorageID, 0, storageIDWithExportStorages, 1, exportStorageID.length);
+        return storageIDWithExportStorages;
     }
 
     private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
