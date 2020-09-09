@@ -755,7 +755,7 @@ public class UPSServiceEJB {
     }
 
     private UPS createOnStore(String iuid, StoreContext storeCtx, Calendar now, UPSOnStore rule) {
-        UPSContext ctx = new UPSContextImpl(storeCtx);
+        UPSContext ctx = new UPSContextImpl(storeCtx, rule);
         ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(createOnStore(storeCtx, now, rule));
         UPS ups = createUPS(ctx);

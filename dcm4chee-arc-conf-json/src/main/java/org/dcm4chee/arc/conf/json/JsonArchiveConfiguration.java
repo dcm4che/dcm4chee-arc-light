@@ -865,6 +865,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeInputInformation",
                     upsOnStore.getIncludeInputInformation(),
                     UPSOnStore.IncludeInputInformation.APPEND);
+            writer.writeNotNullOrDef("dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
             writer.writeNotDef(
                     "dcmUPSIncludeStudyInstanceUID", upsOnStore.isIncludeStudyInstanceUID(), false);
             writer.writeNotDef(
@@ -3123,6 +3124,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmUPSIncludeInputInformation":
                         upsOnStore.setIncludeInputInformation(
                                 UPSOnStore.IncludeInputInformation.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSIncludePatient":
+                        upsOnStore.setIncludePatient(reader.booleanValue());
                         break;
                     case "dcmUPSIncludeStudyInstanceUID":
                         upsOnStore.setIncludeStudyInstanceUID(reader.booleanValue());

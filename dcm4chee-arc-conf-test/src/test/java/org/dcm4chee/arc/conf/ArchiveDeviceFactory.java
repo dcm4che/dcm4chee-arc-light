@@ -2112,6 +2112,7 @@ class ArchiveDeviceFactory {
         rule.setProcedureStepLabel(procedureStepLabel);
         rule.setScheduledWorkitemCode(workItemCode);
         rule.setIncludeInputInformation(UPSOnStore.IncludeInputInformation.APPEND_OR_CREATE);
+        rule.setIncludePatient(true);
         rule.setInstanceUIDBasedOnName(instanceUIDBasedOnName);
         rule.setStartDateTimeDelay(startDelay);
         return rule;

@@ -2950,6 +2950,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnStore.getInstanceUIDBasedOnName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
                 upsOnStore.getIncludeInputInformation(), UPSOnStore.IncludeInputInformation.APPEND);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeStudyInstanceUID",
                 upsOnStore.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
@@ -3275,6 +3276,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(UPSOnStore.IncludeInputInformation.class,
                                 attrs.get("dcmUPSIncludeInputInformation"),
                                 UPSOnStore.IncludeInputInformation.APPEND));
+                upsOnStore.setIncludePatient(LdapUtils.booleanValue(attrs.get("dcmUPSIncludePatient"), true));
                 upsOnStore.setIncludeStudyInstanceUID(
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
                 upsOnStore.setIncludeReferencedRequest(
@@ -3926,6 +3928,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
                 prev.getIncludeInputInformation(), upsOnStore.getIncludeInputInformation(),
                 UPSOnStore.IncludeInputInformation.APPEND);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludePatient",
+                prev.isIncludePatient(), upsOnStore.isIncludePatient(), true);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeStudyInstanceUID",
                 prev.isIncludeStudyInstanceUID(), upsOnStore.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeReferencedRequest",

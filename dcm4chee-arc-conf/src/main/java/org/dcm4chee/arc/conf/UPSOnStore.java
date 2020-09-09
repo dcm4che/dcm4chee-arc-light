@@ -52,6 +52,7 @@ import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2019
  */
 public class UPSOnStore {
@@ -91,6 +92,7 @@ public class UPSOnStore {
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
     private boolean includeReferencedRequest;
+    private boolean includePatient = true;
 
     public UPSOnStore() {}
 
@@ -144,6 +146,14 @@ public class UPSOnStore {
 
     public void setIncludeInputInformation(IncludeInputInformation includeInputInformation) {
         this.includeInputInformation = includeInputInformation;
+    }
+
+    public boolean isIncludePatient() {
+        return includePatient;
+    }
+
+    public void setIncludePatient(boolean includePatient) {
+        this.includePatient = includePatient;
     }
 
     public boolean isIncludeStudyInstanceUID() {

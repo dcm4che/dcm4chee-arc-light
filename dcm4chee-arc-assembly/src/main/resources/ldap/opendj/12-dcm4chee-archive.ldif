@@ -1873,6 +1873,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.384 NAME 'dcmUPSonUPSCompletedID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.385 NAME 'dcmUPSIncludePatient'
+  DESC 'Indicates if patient (associated with created UPS) is created using patient attributes in received object; true if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2596,6 +2601,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
     dcmUPSWorklistLabel $
     dcmUPSInstanceUIDBasedOnName $
     dcmUPSIncludeInputInformation $
+    dcmUPSIncludePatient $
     dcmUPSIncludeStudyInstanceUID $
     dcmUPSIncludeReferencedRequest $
     dcmDestinationAE $

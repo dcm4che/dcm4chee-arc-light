@@ -3447,6 +3447,7 @@ dcmUPSOnStoreID: CALC_STUDY_SIZE
 dcmUPSInstanceUIDBasedOnName: CALC_STUDY_SIZE-{StudyInstanceUID}
 objectClass: dcmUPSOnStore
 dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSIncludePatient: TRUE
 dcmUPSLabel: CALC_STUDY_SIZE
 dcmUPSScheduledWorkitemCode: (CALC_STUDY_SIZE, 99DCM4CHEE, "Calculate Study Size")
 
@@ -3491,6 +3492,7 @@ dcmUPSOnStoreID: CALC_QUERY_ATTRS
 dcmUPSInstanceUIDBasedOnName: CALC_QUERY_ATTRS-{StudyInstanceUID}
 objectClass: dcmUPSOnStore
 dcmUPSIncludeInputInformation: APPEND_OR_CREATE
+dcmUPSIncludePatient: TRUE
 dcmUPSLabel: CALC_QUERY_ATTRS
 dcmUPSScheduledWorkitemCode: (CALC_QUERY_ATTRS, 99DCM4CHEE, "Calculate Query Attributes")
 

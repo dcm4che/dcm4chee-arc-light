@@ -45,9 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
@@ -60,6 +58,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 public class UPSContextImpl implements UPSContext {
@@ -97,11 +96,13 @@ public class UPSContextImpl implements UPSContext {
         this.archiveHL7AppExtension = null;
     }
 
-    public UPSContextImpl(StoreContext storeContext) {
+    public UPSContextImpl(StoreContext storeContext, UPSOnStore rule) {
         this.as = storeContext.getStoreSession().getAssociation();
         this.httpRequestInfo = storeContext.getStoreSession().getHttpRequest();
         this.archiveAEExtension = storeContext.getStoreSession().getArchiveAEExtension();
-        this.patient = storeContext.getStoredInstance().getSeries().getStudy().getPatient();
+        this.patient = rule.isIncludePatient()
+                        ? storeContext.getStoredInstance().getSeries().getStudy().getPatient()
+                        : null;
         this.socket = storeContext.getStoreSession().getSocket();
         this.archiveHL7AppExtension = null;
     }
