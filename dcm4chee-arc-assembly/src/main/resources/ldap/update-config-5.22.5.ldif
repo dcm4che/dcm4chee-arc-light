@@ -39,13 +39,3 @@ dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 replace: dcmTrustStoreType
 dcmTrustStoreType: PKCS12
-
-dn: dcmUPSOnStoreID=CALC_QUERY_ATTRS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: modify
-add: dcmUPSIncludePatient
-dcmUPSIncludePatient: TRUE
-
-dn: dcmUPSOnStoreID=CALC_STUDY_SIZE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: modify
-add: dcmUPSIncludePatient
-dcmUPSIncludePatient: TRUE

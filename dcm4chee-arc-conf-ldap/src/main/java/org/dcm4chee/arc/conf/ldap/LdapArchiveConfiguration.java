@@ -2950,7 +2950,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnStore.getInstanceUIDBasedOnName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
                 upsOnStore.getIncludeInputInformation(), UPSOnStore.IncludeInputInformation.APPEND);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeStudyInstanceUID",
                 upsOnStore.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
@@ -3928,7 +3928,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
                 prev.getIncludeInputInformation(), upsOnStore.getIncludeInputInformation(),
                 UPSOnStore.IncludeInputInformation.APPEND);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludePatient",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludePatient",
                 prev.isIncludePatient(), upsOnStore.isIncludePatient(), true);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeStudyInstanceUID",
                 prev.isIncludeStudyInstanceUID(), upsOnStore.isIncludeStudyInstanceUID(), false);

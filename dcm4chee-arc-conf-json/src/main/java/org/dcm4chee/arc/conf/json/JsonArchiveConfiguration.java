@@ -865,7 +865,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeInputInformation",
                     upsOnStore.getIncludeInputInformation(),
                     UPSOnStore.IncludeInputInformation.APPEND);
-            writer.writeNotNullOrDef("dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
+            writer.writeNotDef("dcmUPSIncludePatient", upsOnStore.isIncludePatient(), true);
             writer.writeNotDef(
                     "dcmUPSIncludeStudyInstanceUID", upsOnStore.isIncludeStudyInstanceUID(), false);
             writer.writeNotDef(
