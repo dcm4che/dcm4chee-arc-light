@@ -1024,6 +1024,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSScheduledHumanPerformerName", upsOnHL7.getScheduledHumanPerformerName(), null);
             writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
                     upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+            writer.writeNotDef(
+                    "dcmUPSIncludeStudyInstanceUID", upsOnHL7.isIncludeStudyInstanceUID(), false);
+            writer.writeNotDef(
+                    "dcmUPSIncludeReferencedRequest", upsOnHL7.isIncludeReferencedRequest(), false);
+            writer.writeNotNullOrDef("dcmStudyInstanceUID", upsOnHL7.getStudyInstanceUID(), null);
+            writer.writeNotNullOrDef("dcmAdmissionID", upsOnHL7.getAdmissionID(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAdmissionID", upsOnHL7.getIssuerOfAdmissionID(), null);
+            writer.writeNotNullOrDef("dcmAccessionNumber", upsOnHL7.getAccessionNumber(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAccessionNumber",
+                    upsOnHL7.getIssuerOfAccessionNumber(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureID",
+                    upsOnHL7.getRequestedProcedureID(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureDescription",
+                    upsOnHL7.getRequestedProcedureDescription(), null);
+            writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnHL7.getRequestingPhysician(), null);
             writer.writeNotNullOrDef("dcmRequestingService", upsOnHL7.getRequestingService(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnHL7.getXSLTStylesheetURI(), null);
             writer.writeEnd();
@@ -3350,6 +3365,36 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSScheduledHumanPerformerOrganization":
                         upsOnHL7.setScheduledHumanPerformerOrganization(reader.stringValue());
+                        break;
+                    case "dcmUPSIncludeStudyInstanceUID":
+                        upsOnHL7.setIncludeStudyInstanceUID(reader.booleanValue());
+                        break;
+                    case "dcmUPSIncludeReferencedRequest":
+                        upsOnHL7.setIncludeReferencedRequest(reader.booleanValue());
+                        break;
+                    case "dcmStudyInstanceUID":
+                        upsOnHL7.setStudyInstanceUID(reader.stringValue());
+                        break;
+                    case "dcmAdmissionID":
+                        upsOnHL7.setAdmissionID(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAdmissionID":
+                        upsOnHL7.setIssuerOfAdmissionID(reader.issuerValue());
+                        break;
+                    case "dcmAccessionNumber":
+                        upsOnHL7.setAccessionNumber(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAccessionNumber":
+                        upsOnHL7.setIssuerOfAccessionNumber(reader.issuerValue());
+                        break;
+                    case "dcmRequestedProcedureID":
+                        upsOnHL7.setRequestedProcedureID(reader.stringValue());
+                        break;
+                    case "dcmRequestedProcedureDescription":
+                        upsOnHL7.setRequestedProcedureDescription(reader.stringValue());
+                        break;
+                    case "dcmRequestingPhysician":
+                        upsOnHL7.setRequestingPhysician(reader.stringValue());
                         break;
                     case "dcmRequestingService":
                         upsOnHL7.setRequestingService(reader.stringValue());

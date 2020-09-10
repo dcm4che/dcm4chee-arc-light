@@ -71,8 +71,18 @@ public class UPSOnHL7 {
     private Code scheduledHumanPerformer;
     private String scheduledHumanPerformerName;
     private String scheduledHumanPerformerOrganization;
+    private String studyInstanceUID;
+    private String admissionID;
+    private String accessionNumber;
+    private String requestedProcedureID;
+    private String requestedProcedureDescription;
+    private String requestingPhysician;
     private String requestingService;
+    private Issuer issuerOfAdmissionID;
+    private Issuer issuerOfAccessionNumber;
     private String xsltStylesheetURI;
+    private boolean includeStudyInstanceUID;
+    private boolean includeReferencedRequest;
 
     public UPSOnHL7() {}
 
@@ -267,6 +277,110 @@ public class UPSOnHL7 {
 
     public String getRequestingService(HL7Fields hl7Fields) {
         return requestingService != null ? hl7Fields.get(requestingService, null) : null;
+    }
+
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    public void setStudyInstanceUID(String studyInstanceUID) {
+        this.studyInstanceUID = studyInstanceUID;
+    }
+
+    public String getStudyInstanceUID(HL7Fields hl7Fields) {
+        return studyInstanceUID != null ? hl7Fields.get(studyInstanceUID, null) : null;
+    }
+
+    public String getAdmissionID() {
+        return admissionID;
+    }
+
+    public void setAdmissionID(String admissionID) {
+        this.admissionID = admissionID;
+    }
+
+    public String getAdmissionID(HL7Fields hl7Fields) {
+        return admissionID != null ? hl7Fields.get(admissionID, null) : null;
+    }
+
+    public String getAccessionNumber() {
+        return accessionNumber;
+    }
+
+    public void setAccessionNumber(String accessionNumber) {
+        this.accessionNumber = accessionNumber;
+    }
+
+    public String getAccessionNumber(HL7Fields hl7Fields) {
+        return accessionNumber != null ? hl7Fields.get(accessionNumber, null) : null;
+    }
+
+    public String getRequestedProcedureID() {
+        return requestedProcedureID;
+    }
+
+    public void setRequestedProcedureID(String requestedProcedureID) {
+        this.requestedProcedureID = requestedProcedureID;
+    }
+
+    public String getRequestedProcedureID(HL7Fields hl7Fields) {
+        return requestedProcedureID != null ? hl7Fields.get(requestedProcedureID, null) : null;
+    }
+
+    public String getRequestedProcedureDescription() {
+        return requestedProcedureDescription;
+    }
+
+    public void setRequestedProcedureDescription(String requestedProcedureDescription) {
+        this.requestedProcedureDescription = requestedProcedureDescription;
+    }
+
+    public String getRequestedProcedureDescription(HL7Fields hl7Fields) {
+        return requestedProcedureDescription != null ? hl7Fields.get(requestedProcedureDescription, null) : null;
+    }
+
+    public String getRequestingPhysician() {
+        return requestingPhysician;
+    }
+
+    public void setRequestingPhysician(String requestingPhysician) {
+        this.requestingPhysician = requestingPhysician;
+    }
+
+    public String getRequestingPhysician(HL7Fields hl7Fields) {
+        return requestingPhysician != null ? hl7Fields.get(requestingPhysician, null) : null;
+    }
+
+    public Issuer getIssuerOfAdmissionID() {
+        return issuerOfAdmissionID;
+    }
+
+    public void setIssuerOfAdmissionID(Issuer issuerOfAdmissionID) {
+        this.issuerOfAdmissionID = issuerOfAdmissionID;
+    }
+
+    public Issuer getIssuerOfAccessionNumber() {
+        return issuerOfAccessionNumber;
+    }
+
+    public void setIssuerOfAccessionNumber(Issuer issuerOfAccessionNumber) {
+        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
+    }
+
+    public boolean isIncludeStudyInstanceUID() {
+        return includeStudyInstanceUID;
+    }
+
+    public void setIncludeStudyInstanceUID(boolean includeStudyInstanceUID) {
+        this.includeStudyInstanceUID = includeStudyInstanceUID;
+    }
+
+    public boolean isIncludeReferencedRequest() {
+        return includeReferencedRequest;
+    }
+
+    public void setIncludeReferencedRequest(boolean includeReferencedRequest) {
+        this.includeReferencedRequest = includeReferencedRequest;
     }
 
     public String getXSLTStylesheetURI() {

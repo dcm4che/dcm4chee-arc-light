@@ -875,6 +875,20 @@ public class UPSServiceEJB {
         return item;
     }
 
+    private static Attributes referencedRequest(HL7Fields hl7Fields, UPSOnHL7 rule) {
+        Attributes item = new Attributes(8);
+        item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(hl7Fields));
+        setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        item.setString(Tag.StudyInstanceUID, VR.UI, rule.getStudyInstanceUID(hl7Fields));
+        setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(hl7Fields));
+        setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(hl7Fields));
+        item.setString(Tag.RequestedProcedureDescription, VR.LO,
+                rule.getRequestedProcedureDescription(hl7Fields));
+        item.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
+        item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(hl7Fields));
+        return item;
+    }
+
     public void createOnHL7(
             Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
@@ -929,10 +943,12 @@ public class UPSServiceEJB {
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
             attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsOnHL7.getUPSPriority().name());
-        if (!attrs.containsValue(Tag.StudyInstanceUID)) {
-            attrs.setNull(Tag.StudyInstanceUID, VR.UI);
+        if (upsOnHL7.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, upsOnHL7.getStudyInstanceUID(hl7Fields));
+        if (upsOnHL7.isIncludeReferencedRequest() && attrs.containsValue(Tag.StudyInstanceUID))
+            attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(referencedRequest(hl7Fields, upsOnHL7));
+        else
             attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
-        }
         if (!attrs.contains(Tag.WorklistLabel))
             attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(arcHL7App, hl7Fields, upsOnHL7));
         if (!attrs.contains(Tag.ProcedureStepLabel))

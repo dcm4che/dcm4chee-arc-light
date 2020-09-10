@@ -3157,6 +3157,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnHL7.getScheduledHumanPerformerName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSScheduledHumanPerformerOrganization",
                 upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeStudyInstanceUID",
+                upsOnHL7.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
+                upsOnHL7.isIncludeReferencedRequest(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStudyInstanceUID",
+                upsOnHL7.getStudyInstanceUID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAdmissionID",
+                upsOnHL7.getAdmissionID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomIssuerOfAdmissionID",
+                upsOnHL7.getIssuerOfAdmissionID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAccessionNumber",
+                upsOnHL7.getAccessionNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomIssuerOfAccessionNumber",
+                upsOnHL7.getIssuerOfAccessionNumber(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureID",
+                upsOnHL7.getRequestedProcedureID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureDescription",
+                upsOnHL7.getRequestedProcedureDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingPhysician",
+                upsOnHL7.getRequestingPhysician(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingService",
                 upsOnHL7.getRequestingService(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnHL7.getXSLTStylesheetURI(), null);
@@ -3485,6 +3505,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
                 upsOnHL7.setScheduledHumanPerformerOrganization(
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerOrganization"), null));
+                upsOnHL7.setIncludeStudyInstanceUID(
+                        LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
+                upsOnHL7.setIncludeReferencedRequest(
+                        LdapUtils.booleanValue(attrs.get("dcmUPSIncludeReferencedRequest"), false));
+                upsOnHL7.setStudyInstanceUID(LdapUtils.stringValue(attrs.get("dcmStudyInstanceUID"), null));
+                upsOnHL7.setAdmissionID(LdapUtils.stringValue(attrs.get("dcmAdmissionID"), null));
+                upsOnHL7.setIssuerOfAdmissionID(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAdmissionID")));
+                upsOnHL7.setAccessionNumber(LdapUtils.stringValue(attrs.get("dcmAccessionNumber"), null));
+                upsOnHL7.setIssuerOfAccessionNumber(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAccessionNumber")));
+                upsOnHL7.setRequestedProcedureID(LdapUtils.stringValue(attrs.get("dcmRequestedProcedureID"), null));
+                upsOnHL7.setRequestedProcedureDescription(
+                        LdapUtils.stringValue(attrs.get("dcmRequestedProcedureDescription"), null));
+                upsOnHL7.setRequestingPhysician(LdapUtils.stringValue(attrs.get("dcmRequestingPhysician"), null));
                 upsOnHL7.setRequestingService(LdapUtils.stringValue(attrs.get("dcmRequestingService"), null));
                 upsOnHL7.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 upsOnHL7.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
@@ -4164,6 +4197,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
                 prev.getScheduledHumanPerformerOrganization(),
                 upsOnHL7.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeStudyInstanceUID",
+                prev.isIncludeStudyInstanceUID(), upsOnHL7.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeReferencedRequest",
+                prev.isIncludeReferencedRequest(), upsOnHL7.isIncludeReferencedRequest(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStudyInstanceUID",
+                prev.getStudyInstanceUID(), upsOnHL7.getStudyInstanceUID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAdmissionID",
+                prev.getAdmissionID(), upsOnHL7.getAdmissionID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomIssuerOfAdmissionID",
+                prev.getIssuerOfAdmissionID(), upsOnHL7.getIssuerOfAdmissionID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAccessionNumber",
+                prev.getAccessionNumber(), upsOnHL7.getAccessionNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomIssuerOfAccessionNumber",
+                prev.getIssuerOfAccessionNumber(), upsOnHL7.getIssuerOfAccessionNumber(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureID",
+                prev.getRequestedProcedureID(), upsOnHL7.getRequestedProcedureID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureDescription",
+                prev.getRequestedProcedureDescription(), upsOnHL7.getRequestedProcedureDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingPhysician",
+                prev.getRequestingPhysician(), upsOnHL7.getRequestingPhysician(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingService",
                 prev.getRequestingService(), upsOnHL7.getRequestingService(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
