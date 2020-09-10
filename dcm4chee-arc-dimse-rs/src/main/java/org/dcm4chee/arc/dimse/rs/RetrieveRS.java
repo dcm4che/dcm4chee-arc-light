@@ -241,8 +241,8 @@ public class RetrieveRS {
     private Response createRetrieveTask(String destAET, String... uids) {
         logRequest();
         if (uids[0].startsWith("csv"))
-            return errResponse("Missing Content-type Header in 'Mark for Retrieve Studies specified in CSV from external archive' service " +
-                            "causes invocation of 'Mark for Retrieve Study from external archive' service.",
+            return errResponse("Missing Content-type Header in 'Mark Studies for Retrieve specified in CSV from external archive' service " +
+                            "causes invocation of 'Mark Study for Retrieve from external archive' service.",
                     Response.Status.BAD_REQUEST);
 
         if (queueName == null)
