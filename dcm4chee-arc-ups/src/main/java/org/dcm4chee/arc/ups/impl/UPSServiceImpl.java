@@ -70,6 +70,7 @@ import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -363,14 +364,41 @@ public class UPSServiceImpl implements UPSService {
 
         StoreSession session = ctx.getStoreSession();
         Calendar now = Calendar.getInstance();
-        session.getArchiveAEExtension().upsOnStoreStream()
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        arcAE.upsOnStoreStream()
                 .filter(upsOnStore -> upsOnStore.match(now,
                                         session.getRemoteHostName(),
                                         session.getCallingAET(),
                                         session.getLocalHostName(),
                                         session.getCalledAET(),
                                         ctx.getAttributes()))
-                .forEach(upsOnStore -> ejb.createOrUpdateOnStore(ctx, now, upsOnStore));
+                .forEach(upsOnStore -> createOrUpdateOnStore(arcDev, ctx, now, upsOnStore));
+    }
+
+    private void createOrUpdateOnStore(ArchiveDeviceExtension arcDev, StoreContext ctx, Calendar now, UPSOnStore upsOnStore) {
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                ejb.createOrUpdateOnStore(ctx, now, upsOnStore);
+                return;
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("{}: Failed to create or update UPS triggered by {} - retry:\n",
+                            ctx.getStoreSession(), upsOnStore, e);
+                } else {
+                    LOG.warn("{}: Failed to create or update UPS triggered by {}:\n",
+                            ctx.getStoreSession(), upsOnStore, e);
+                    return;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("{}: Failed to delay retry to create or update UPS triggered by {}:\n",
+                        ctx.getStoreSession(), upsOnStore, e);
+            }
+        }
     }
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
