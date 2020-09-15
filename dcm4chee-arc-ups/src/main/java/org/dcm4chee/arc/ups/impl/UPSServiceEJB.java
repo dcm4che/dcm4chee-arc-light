@@ -758,9 +758,7 @@ public class UPSServiceEJB {
         UPSContext ctx = new UPSContextImpl(storeCtx, rule);
         ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(createOnStore(storeCtx, now, rule));
-        UPS ups = createUPS(ctx);
-        LOG.info("{}: create {}", storeCtx.getStoreSession(), ups);
-        return ups;
+        return createUPS(ctx);
     }
 
     private static Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
@@ -912,8 +910,7 @@ public class UPSServiceEJB {
         UPSContext ctx = new UPSContextImpl(socket, arcHL7App);
         ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(createOnHL7(arcHL7App, attrs, hl7Fields, now, upsOnHL7));
-        UPS ups = createUPS(ctx);
-        LOG.info("{}: Create {}", socket, ups);
+        createUPS(ctx);
     }
 
     private static Attributes createOnHL7(
