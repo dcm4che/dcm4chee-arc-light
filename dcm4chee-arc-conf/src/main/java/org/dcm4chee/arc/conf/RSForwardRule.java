@@ -142,9 +142,9 @@ public class RSForwardRule {
     }
 
     public boolean matchesRequestURL(HttpServletRequest request) {
-        return ifNotRequestURLPattern
-                ? !requestURLPattern.matcher(request.getRequestURL().toString()).matches()
-                : requestURLPattern == null || requestURLPattern.matcher(request.getRequestURL().toString()).matches();
+        return requestURLPattern == null
+                || requestURLPattern.matcher(request.getRequestURL().toString()).matches()
+                    != ifNotRequestURLPattern;
     }
 
     @Override
