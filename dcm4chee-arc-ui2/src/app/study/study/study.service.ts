@@ -888,7 +888,7 @@ export class StudyService {
             idObject.idParts.push(attrs['0020000D'].Value[0]);
         }
         if (dicomLevel === "series" || dicomLevel === "instance") {
-            idObject.id += `_${attrs['0020000D'].Value[0]}`;
+            idObject.id += `_${attrs['0020000E'].Value[0]}`;
             idObject.idParts.push(attrs['0020000E'].Value[0]);
         }
         if (dicomLevel === "instance") {
