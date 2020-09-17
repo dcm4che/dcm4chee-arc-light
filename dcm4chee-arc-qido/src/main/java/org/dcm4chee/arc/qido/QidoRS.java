@@ -491,7 +491,7 @@ public class QidoRS {
             return Output.JSON;
 
         if (acceptableMediaTypes.stream()
-                .map(m -> MediaTypes.getMultiPartRelatedType(m))
+                .map(MediaTypes::getMultiPartRelatedType)
                 .anyMatch(MediaTypes.APPLICATION_DICOM_XML_TYPE::isCompatible))
             return Output.DICOM_XML;
 
