@@ -177,7 +177,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
-            new SelectDropdown("upload_dicom",$localize`:@@study.create_patient:Upload DICOM Object`),
+            new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
             new SelectDropdown("reject_multiple",$localize `:@@study.reject_multiple:Reject matching studies`),
@@ -578,9 +578,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     break;
                                 case 'link':
                                     this.service.linkStudyToMwl(this.selectedElements, this.studyWebService.selectedWebService, result.reject).subscribe(res=>{
-                                        this.appService.showMsg($localize `:@@study.study_and_mwl_linked_successfully:Study and MWL linked successfully!`);
-                                        this.clearClipboard();
+                                        console.log("res",res);
                                         this.cfpLoadingBar.complete();
+                                        const errorCount = res.filter(result=>result.isError).length;
+                                        const msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
+                                        if(errorCount === res.length){
+                                            this.appService.showError(msg);
+                                        }else{
+                                            if(errorCount > 0){
+                                                this.appService.showWarning(msg);
+                                            }else{
+                                                this.appService.showMsg(msg);
+                                            }
+                                        }
+                                        this.clearClipboard();
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);

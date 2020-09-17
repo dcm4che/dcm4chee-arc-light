@@ -3193,13 +3193,21 @@ export class StudyService {
         }
     };
 
-    linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode){
+    linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode):Observable<any>{
         try{
+            let observables = [];
             const target:SelectedDetailObject = selectedElements.postActionElements.getAllAsArray()[0];
-            return this.$http.post(
-                `${this.getDicomURL("mwl", dcmWebApp)}/${target.object.attrs['0020000D'].Value[0]}/${_.get(target.object.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${rejectionCode}`,
-                selectedElements.preActionElements.getAllAsArray()[0].requestReady,
-                this.jsonHeader)
+            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
+                const url = `${this.getDicomURL("mwl", dcmWebApp)}/${target.object.attrs['0020000D'].Value[0]}/${_.get(target.object.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${rejectionCode}`;
+                observables.push(this.$http.post(
+                    url,
+                    object.requestReady,
+                    this.jsonHeader
+                ).pipe(
+                    catchError(err => of({isError: true, error: err})),
+                ));
+            });
+            return forkJoin(observables);
         }catch (e) {
             return throwError(e);
         }
