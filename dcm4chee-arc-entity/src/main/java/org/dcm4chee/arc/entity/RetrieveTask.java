@@ -73,13 +73,15 @@ import java.util.Date;
                 "from RetrieveTask o " +
                 "where o.deviceName=?1 " +
                 "and o.scheduledTime < current_timestamp " +
-                "and o.queueMessage is null")
+                "and o.queueMessage is null " +
+                "order by o.scheduledTime")
 @NamedQuery(name = RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME_AND_NOT_IN_QUEUE,
         query = "select new org.dcm4chee.arc.entity.RetrieveTask$PkAndQueueName(o.pk, o.queueName) " +
                 "from RetrieveTask o " +
                 "where o.deviceName=?1 and o.queueName not in (?2)" +
                 "and o.scheduledTime < current_timestamp " +
-                "and o.queueMessage is null")
+                "and o.queueMessage is null " +
+                "order by o.scheduledTime")
 @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
         query = "update RetrieveTask o set " +
                 "o.updatedTime=current_timestamp, " +
