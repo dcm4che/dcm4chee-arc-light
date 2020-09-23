@@ -722,12 +722,6 @@ export class Globalvar {
                 msg:$localize `:@@dynamic_formatter.web_app:Create first a Web Application!`,
                 pathInDevice:'dcmDevice.dcmWebApp'
             },
-            dcmUPSTemplateID:{
-                key:'dcmUPSTemplateID',
-                labelKey:'{dcmUPSTemplateID}',
-                msg:$localize `:@@dynamic_formatter.web_app:Create first a UPS Template!`,
-                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmUPSTemplate'
-            },
             dcmBulkDataDescriptorID:{
                 key:'dcmBulkDataDescriptorID',
                 labelKey:'{dcmBulkDataDescriptorID}',
