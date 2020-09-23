@@ -30,6 +30,9 @@
         },
         {
           "$ref": "../parameters.json#/orderBy"
+        },
+        {
+          "$ref": "../parameters.json#/template"
         }
       ],
       "responses": {
@@ -62,6 +65,9 @@
         },
         {
           "$ref": "../parameters.json#/workitem"
+        },
+        {
+          "$ref": "../parameters.json#/template"
         }
       ],
       "requestBody": {
@@ -72,7 +78,7 @@
           "description": "The Target Workitem was successfully added to the Worklist."
         },
         "400": {
-          "description": "The request payload did not satisfy the requirements for a Workitem."
+          "description": "The request payload did not satisfy the requirements for a Workitem or UPS Template workitem creation triggered with SPS Start DateTime in request payload."
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
@@ -141,7 +147,7 @@
           "description": "The Target Workitem was updated."
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "There was a problem with the request or UPS Template workitem update triggered with SPS Start DateTime in request payload."
         },
         "404": {
           "description": "The Target Workitem was not found."

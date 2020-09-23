@@ -54,7 +54,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -84,6 +83,7 @@ import java.util.function.IntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 @RequestScoped
@@ -133,30 +133,25 @@ public class UpsRS {
 
     @POST
     @Path("/workitems")
-    @Consumes("application/dicom+json")
-    public Response createUPSJSON(@QueryParam("workitem") String iuid, InputStream in) {
-        return createUPS(iuid, parseJSON(in));
-    }
+    public Response createUPSJSON(
+            @QueryParam("workitem") String iuid,
+            @QueryParam("template") @Pattern(regexp = "true|false") String template,
+            InputStream in) {
+        Input input = Input.valueOf(headers.getMediaType());
+        if (input == null)
+            return notAcceptable();
 
-    @POST
-    @Path("/workitems")
-    @Consumes("application/dicom+xml")
-    public Response createUPSXML(@QueryParam("workitem") String iuid, InputStream in) {
-        return createUPS(iuid, parseXML(in));
+        return createUPS(iuid, Boolean.parseBoolean(template), input.toAttrs(in));
     }
 
     @POST
     @Path("/workitems/{workitem}")
-    @Consumes("application/dicom+json")
     public Response updateUPSJSON(@PathParam("workitem") String iuid, InputStream in) {
-        return updateUPS(iuid, parseJSON(in));
-    }
+        Input input = Input.valueOf(headers.getMediaType());
+        if (input == null)
+            return notAcceptable();
 
-    @POST
-    @Path("/workitems/{workitem}")
-    @Consumes("application/dicom+xml")
-    public Response updateUPSXML(@PathParam("workitem") String iuid, InputStream in) {
-        return updateUPS(iuid, parseXML(in));
+        return updateUPS(iuid, input.toAttrs(in));
     }
 
     @PUT
@@ -282,7 +277,7 @@ public class UpsRS {
         ctx.setUPSInstanceUID(iuid);
         try {
             service.findUPS(ctx);
-            return createUPS(newIUID, replacement(ctx.getAttributes(), upsScheduledTime));
+            return createUPS(newIUID, false, replacement(ctx.getAttributes(), upsScheduledTime));
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::retrieveFailed, e);
         }
@@ -332,10 +327,17 @@ public class UpsRS {
         }
     }
 
-    private Response createUPS(String iuid, Attributes attrs) {
+    private Response createUPS(String iuid, boolean template, Attributes attrs) {
+        if (template && attrs.containsValue(Tag.ScheduledProcedureStepStartDateTime))
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .header("Warning",
+                            toWarning("UPS Template workitem creation shall not contain Scheduled Procedure Step Start DateTime"))
+                    .build();
+
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
         ctx.setAttributes(attrs);
+        ctx.setTemplate(template);
         try {
             service.createUPS(ctx);
         } catch (DicomServiceException e) {
@@ -398,6 +400,15 @@ public class UpsRS {
                 break;
         }
         return accepted.build();
+    }
+
+    private Response notAcceptable() {
+        LOG.info("Response Status : Not Acceptable. Content Type in request : \n{}", headers.getMediaType());
+        return Response.notAcceptable(
+                Variant.mediaTypes(
+                        MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE)
+                        .build())
+                .build();
     }
 
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
@@ -585,5 +596,36 @@ public class UpsRS {
         Object entity(Attributes attrs) {
             return toEntity.apply(attrs);
         }
+    }
+
+    private enum Input {
+        DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE) {
+            @Override
+            Attributes toAttrs(final InputStream in) {
+                return parseJSON(in);
+            }
+
+        },
+        DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE) {
+            @Override
+            Attributes toAttrs(final InputStream in) {
+                return parseXML(in);
+            }
+        };
+
+        final MediaType type;
+
+        Input(MediaType type) {
+            this.type = type;
+        }
+
+        static Input valueOf(MediaType type) {
+            return MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(type)
+                    ? DICOM_JSON
+                    : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(type)
+                        ? DICOM_XML : null;
+        }
+
+        abstract Attributes toAttrs(final InputStream in);
     }
 }

@@ -287,7 +287,7 @@ public class UPS {
         upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority, "MEDIUM"));
         upsLabel = attrs.getString(Tag.ProcedureStepLabel);
         worklistLabel = attrs.getString(Tag.WorklistLabel);
-        scheduledStartDateAndTime = attrs.getString(Tag.ScheduledProcedureStepStartDateTime);
+        scheduledStartDateAndTime = attrs.getString(Tag.ScheduledProcedureStepStartDateTime, "*");
         scheduledProcedureStepExpirationDateTime = attrs.getString(Tag.ScheduledProcedureStepExpirationDateTime, "*");
         expectedCompletionDateAndTime = attrs.getString(Tag.ExpectedCompletionDateTime, "*");
         inputReadinessState = InputReadinessState.valueOf(attrs.getString(Tag.InputReadinessState, "READY"));

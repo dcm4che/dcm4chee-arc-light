@@ -775,8 +775,13 @@ public class QueryBuilder {
         if (scheduledHumanPerformersSequence != null)
             performerCode(predicates, q, ups,
                 scheduledHumanPerformersSequence.getSequence(Tag.HumanPerformerCodeSequence).get(0));
-        dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
-                keys.getDateRange(Tag.ScheduledProcedureStepStartDateTime), FormatDate.DT);
+        if (queryParam.isTemplate())
+            predicates.add(cb.equal(ups.get(UPS_.scheduledStartDateAndTime), "*"));
+        else {
+            dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
+                    keys.getDateRange(Tag.ScheduledProcedureStepStartDateTime), FormatDate.DT);
+            predicates.add(cb.notEqual(ups.get(UPS_.scheduledStartDateAndTime), "*"));
+        }
         dateRange(predicates, ups.get(UPS_.expectedCompletionDateAndTime),
                 keys.getDateRange(Tag.ExpectedCompletionDateTime), FormatDate.DT);
         dateRange(predicates, ups.get(UPS_.scheduledProcedureStepExpirationDateTime),

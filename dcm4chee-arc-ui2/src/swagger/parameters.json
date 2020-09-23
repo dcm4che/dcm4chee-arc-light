@@ -741,6 +741,15 @@
       "default": false
     }
   },
+  "template": {
+    "name": "template",
+    "in": "query",
+    "description": "If present with a value of true UPS template workitem shall be created with SPS Start DateTime in DB.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "filter": {
     "name": "filter",
     "in": "query",

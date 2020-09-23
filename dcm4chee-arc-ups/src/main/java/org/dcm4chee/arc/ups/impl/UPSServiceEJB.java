@@ -162,6 +162,7 @@ public class UPSServiceEJB {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         UPS ups = findUPS(ctx);
+        ctx.setTemplate(isTemplateUpdate(ctx, ups));
         String transactionUID = ctx.getAttributes().getString(Tag.TransactionUID);
         switch (ups.getProcedureStepState()) {
             case SCHEDULED:
@@ -259,6 +260,20 @@ public class UPSServiceEJB {
             ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subcribers);
         }
         return ups;
+    }
+
+    private boolean isTemplateUpdate(UPSContext ctx, UPS ups) throws DicomServiceException {
+        if (!ups.getAttributes()
+                .getString(Tag.ScheduledProcedureStepStartDateTime, "*")
+                .equals("*"))
+            return false;
+
+        if (!ctx.getAttributes().containsValue(Tag.ScheduledProcedureStepStartDateTime))
+            return true;
+
+        throw new DicomServiceException(
+                Status.InvalidAttributeValue,
+                "UPS Template workitem update shall not contain Scheduled Procedure Step Start DateTime");
     }
 
     public UPS findUPS(UPSContext ctx) throws DicomServiceException {

@@ -99,6 +99,10 @@ public interface UPSContext {
 
     void setMergeAttributes(Attributes mergeAttributes);
 
+    boolean isTemplate();
+
+    void setTemplate(boolean template);
+
     List<UPSEvent> getUPSEvents();
 
     void addUPSEvent(UPSEvent.Type cancelRequested, String upsInstanceUID, Attributes eventInformation,

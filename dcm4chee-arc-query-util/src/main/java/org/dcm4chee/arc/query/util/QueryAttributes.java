@@ -64,7 +64,7 @@ import java.util.Map;
  * @since May 2017
  */
 public class QueryAttributes {
-    private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
+    private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     private final Attributes keys = new Attributes();
     private final AttributesBuilder builder = new AttributesBuilder(keys);
@@ -109,6 +109,7 @@ public class QueryAttributes {
                 case "comparefield":
                 case "count":
                 case "deletionlock":
+                case "template":
                 case "workitem":
                 case "different":
                 case "missing":

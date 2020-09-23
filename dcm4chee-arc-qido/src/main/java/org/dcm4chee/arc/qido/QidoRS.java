@@ -192,6 +192,10 @@ public class QidoRS {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
+    @QueryParam("template")
+    @Pattern(regexp = "true|false")
+    private String template;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -525,6 +529,7 @@ public class QidoRS {
         queryParam.setStorageVerificationFailed(Boolean.parseBoolean(storageVerificationFailed));
         queryParam.setMetadataUpdateFailed(Boolean.parseBoolean(metadataUpdateFailed));
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
+        queryParam.setTemplate(Boolean.parseBoolean(template));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);

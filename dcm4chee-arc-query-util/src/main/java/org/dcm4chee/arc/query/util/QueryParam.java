@@ -68,6 +68,7 @@ public class QueryParam {
     private boolean storageVerificationFailed;
     private boolean metadataUpdateFailed;
     private boolean compressionfailed;
+    private boolean template;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private String subscriberAET;
@@ -284,5 +285,13 @@ public class QueryParam {
 
     public void setExpirationState(ExpirationState... expirationState) {
         this.expirationState = expirationState;
+    }
+
+    public boolean isTemplate() {
+        return template;
+    }
+
+    public void setTemplate(boolean template) {
+        this.template = template;
     }
 }

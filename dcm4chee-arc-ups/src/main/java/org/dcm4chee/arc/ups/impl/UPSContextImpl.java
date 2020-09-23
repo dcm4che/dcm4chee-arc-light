@@ -74,6 +74,7 @@ public class UPSContextImpl implements UPSContext {
     private String requesterAET;
     private String subscriberAET;
     private boolean deletionLock;
+    private boolean template;
     private int status;
     private List<UPSEvent> upsEvents;
 
@@ -222,6 +223,16 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public void setMergeAttributes(Attributes mergeAttributes) {
         this.mergeAttributes = mergeAttributes;
+    }
+
+    @Override
+    public boolean isTemplate() {
+        return template;
+    }
+
+    @Override
+    public void setTemplate(boolean template) {
+        this.template = template;
     }
 
     @Override

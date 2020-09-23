@@ -92,6 +92,7 @@ public class UPSServiceImpl implements UPSService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPSServiceImpl.class);
     private static final IOD CREATE_IOD = loadIOD("create-iod.xml");
+    private static final IOD CREATE_TEMPLATE_IOD = loadIOD("create-template-iod.xml");
     private static final IOD SET_IOD = loadIOD("set-iod.xml");
 
     private final ConcurrentHashMap<String, WSChannel> websocketChannels = new ConcurrentHashMap<>();
@@ -124,7 +125,7 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public UPS createUPS(UPSContext ctx) throws DicomServiceException {
         Attributes attrs = ctx.getAttributes();
-        ValidationResult validate = attrs.validate(CREATE_IOD);
+        ValidationResult validate = attrs.validate(ctx.isTemplate() ? CREATE_TEMPLATE_IOD : CREATE_IOD);
         if (!validate.isValid()) {
             throw DicomServiceException.valueOf(validate, attrs);
         }
@@ -430,6 +431,9 @@ public class UPSServiceImpl implements UPSService {
     }
 
     private void fireUPSEvents(UPSContext ctx) {
+        if (ctx.isTemplate())
+            return;
+
         try {
             ctx.getUPSEvents().forEach(upsEvent::fire);
         } catch (Exception e) {
