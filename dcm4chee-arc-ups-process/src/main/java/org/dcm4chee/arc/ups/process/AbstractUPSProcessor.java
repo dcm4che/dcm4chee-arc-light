@@ -55,7 +55,6 @@ import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
@@ -195,25 +194,26 @@ public abstract class AbstractUPSProcessor implements UPSProcessor {
         if (rule.getUpsTemplateID() == null)
             return;
 
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        UPSTemplate upsTemplate = arcDev.getUPSTemplate(rule.getUpsTemplateID());
         try {
             UPSContext upsCtx = upsService.newUPSContext(null, arcAE);
             upsCtx.setRequesterAET(arcAE.getApplicationEntity().getAETitle());
-            Attributes upsOnCancel = UPSUtils.upsAttrsByTemplate(
-                                            arcAE,
-                                            upsTemplate,
-                                            null,
-                                            Calendar.getInstance(),
-                                            null);
+            Attributes upsOnCancel = upsTemplateAttrs(arcAE);
+            upsOnCancel.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, new Date());
             upsOnCancel.newSequence(Tag.ReplacedProcedureStepSequence, 1)
                     .add(refSOP(ups.getString(Tag.SOPClassUID), ups.getString(Tag.SOPInstanceUID)));
-            upsOnCancel.addSelected(ups, arcDev.getAttributeFilter(Entity.Patient).getSelection());
+            upsOnCancel.addSelected(
+                    ups, arcAE.getArchiveDeviceExtension().getAttributeFilter(Entity.Patient).getSelection());
             createUPS(upsCtx, upsOnCancel);
         } catch (DicomServiceException e) {
-            LOG.warn("Failed to create new UPS record for failed UPS[uid={}] processing, using UPSTemplate[id={}]\n",
-                    ups.getString(Tag.SOPInstanceUID), upsTemplate.getUPSTemplateID(), e);
+            LOG.warn("Failed to create new UPS record for failed UPS[uid={}] processing, using UPS Template Workitem[IUID={}]\n",
+                    ups.getString(Tag.SOPInstanceUID), rule.getUpsTemplateID(), e);
         }
+    }
+
+    private Attributes upsTemplateAttrs(ArchiveAEExtension arcAE) throws DicomServiceException {
+        UPSContext ctx = upsService.newUPSContext(null, arcAE);
+        ctx.setUPSInstanceUID(rule.getUpsTemplateID());
+        return upsService.findUPS(ctx).getAttributes();
     }
 
     private void createUPS(UPSContext upsCtx, Attributes upsAttrs) throws DicomServiceException {
