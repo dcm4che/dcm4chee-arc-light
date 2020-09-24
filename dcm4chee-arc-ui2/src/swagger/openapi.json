@@ -990,34 +990,34 @@
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/mark4retrieve/dicom:{destination}": {
       "$ref": "paths/legacy.json#/move.instances.mark4retrieve"
     },
-    "/aets/{aet}/rs/studies/workitems/{upsTemplateID}": {
+    "/aets/{aet}/rs/studies/workitems": {
       "$ref": "paths/workitems.json#/local.studies"
     },
-    "/aets/{aet}/rs/studies/{study}/series/workitems/{upsTemplateID}": {
+    "/aets/{aet}/rs/studies/{study}/series/workitems": {
       "$ref": "paths/workitems.json#/local.series"
     },
-    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/workitems/{upsTemplateID}": {
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/workitems": {
       "$ref": "paths/workitems.json#/local.instances"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/workitems/{upsTemplateUID}": {
+    "/aets/{aet}/rs/studies/csv:{field}/workitems": {
       "$ref": "paths/workitems.json#/local.studies.csv"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/studies/workitems": {
       "$ref": "paths/workitems.json#/external.studies"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/workitems": {
       "$ref": "paths/workitems.json#/external.series"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/workitems": {
       "$ref": "paths/workitems.json#/external.instances"
     },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/workitems": {
       "$ref": "paths/workitems.json#/external2.studies"
     },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/workitems": {
       "$ref": "paths/workitems.json#/external2.series"
     },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/workitems/{upsTemplateID}": {
+    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/workitems": {
       "$ref": "paths/workitems.json#/external2.instances"
     },
     "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/workitems/{upsTemplateUID}": {

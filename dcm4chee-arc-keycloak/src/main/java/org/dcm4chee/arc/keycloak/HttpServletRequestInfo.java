@@ -45,6 +45,8 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 
 /**
@@ -58,6 +60,7 @@ public class HttpServletRequestInfo {
     public final String requestURI;
     public final String queryString;
     public final String localHost;
+    public MediaType contentType;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
         requesterUserID = KeycloakContext.valueOf(request).getUserName();
@@ -118,5 +121,14 @@ public class HttpServletRequestInfo {
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
+    }
+
+    public MediaType getContentType() {
+        return contentType;
+    }
+
+    public HttpServletRequestInfo setContentType(HttpHeaders headers) {
+        this.contentType = headers.getMediaType();
+        return this;
     }
 }

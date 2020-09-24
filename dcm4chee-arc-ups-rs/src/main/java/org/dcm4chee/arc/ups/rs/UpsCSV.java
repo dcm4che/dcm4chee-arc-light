@@ -44,14 +44,15 @@ package org.dcm4chee.arc.ups.rs;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.data.*;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,35 +71,30 @@ class UpsCSV {
     private static final Logger LOG = LoggerFactory.getLogger(UpsCSV.class);
     private static final IDWithIssuer dummyPatientID = new IDWithIssuer("DummyPID^^^DummyIssuer");
 
-    private final Device device;
     private final UPSService upsService;
     private final HttpServletRequestInfo httpServletRequestInfo;
     private final ArchiveAEExtension arcAE;
-    private final int studyUIDField;
     private final Attributes upsTemplateAttrs;
-    private final char csvDelimiter;
 
-    public UpsCSV(Device device, UPSService upsService, HttpServletRequestInfo httpServletRequestInfo,
-                  ArchiveAEExtension arcAE, int studyUIDField, Attributes upsTemplateAttrs, char csvDelimiter) {
-        this.device = device;
+    public UpsCSV(UPSService upsService, HttpServletRequestInfo httpServletRequestInfo,
+                  ArchiveAEExtension arcAE, Attributes upsTemplateAttrs) {
         this.upsService = upsService;
         this.httpServletRequestInfo = httpServletRequestInfo;
         this.arcAE = arcAE;
-        this.studyUIDField = studyUIDField;
         this.upsTemplateAttrs = upsTemplateAttrs;
-        this.csvDelimiter = csvDelimiter;
     }
 
-    Response createWorkitems(int patientIDField, String movescp, InputStream in) {
+    Response createWorkitems(int studyUIDField, int patientIDField, String movescp, InputStream in) {
         Response.Status status = Response.Status.NO_CONTENT;
         int count = 0;
         String warning = null;
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcAE.getApplicationEntity().getDevice()
+                                             .getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
         Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter))
+                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
         ) {
             boolean header = true;
             IDWithIssuer pid = dummyPatientID;
@@ -119,23 +115,13 @@ class UpsCSV {
                 }
 
                 if (studyPatientMap.size() == csvUploadChunkSize) {
-                    count += upsService.createUPSRecords(
-                            httpServletRequestInfo,
-                            arcAE,
-                            upsTemplateAttrs,
-                            studyPatientMap,
-                            movescp);
+                    count += createUPSRecords(studyPatientMap, movescp);
                     studyPatientMap.clear();
                 }
             }
 
             if (!studyPatientMap.isEmpty())
-                count += upsService.createUPSRecords(
-                        httpServletRequestInfo,
-                        arcAE,
-                        upsTemplateAttrs,
-                        studyPatientMap,
-                        movescp);
+                count += createUPSRecords(studyPatientMap, movescp);
 
             if (count == 0)
                 warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -153,6 +139,33 @@ class UpsCSV {
             builder.entity(count(count));
 
         return builder.build();
+    }
+
+    private int createUPSRecords(Map<String, IDWithIssuer> studyPatientMap, String movescp) {
+        int count = 0;
+        for (Map.Entry<String, IDWithIssuer> studyPatient : studyPatientMap.entrySet()) {
+            try {
+                UPSContext ctx = upsService.newUPSContext(httpServletRequestInfo, arcAE);
+                ctx.setUPSInstanceUID(UIDUtils.createUID());
+                UPSUtils.updateUPSTemplateAttrs(arcAE, upsTemplateAttrs, studyPatient, movescp);
+                ctx.setAttributes(upsTemplateAttrs);
+                UPS ups = upsService.createUPS(ctx);
+                LOG.info("UPSTemplateWorkitem[uid={}]: created {}", upsTemplateAttrs.getString(Tag.SOPInstanceUID), ups);
+                count++;
+            } catch (Exception e) {
+                LOG.info("UPSTemplateWorkitem[uid={}]: create UPS failed for Study[uid={}] of Patient[id={}]\n",
+                        upsTemplateAttrs.getString(Tag.SOPInstanceUID),
+                        studyPatient.getKey(),
+                        studyPatient.getValue(),
+                        e);
+            }
+        }
+        return count;
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(httpServletRequestInfo.getContentType().getParameters().get("delimiter")))
+                ? ';' : ',';
     }
 
     private boolean validateUID(String uid) {

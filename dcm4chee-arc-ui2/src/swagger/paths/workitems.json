@@ -584,9 +584,6 @@
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -653,6 +650,9 @@
           "$ref": "../parameters.json#/storageExported"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -664,7 +664,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title"
         },
         "500": {
           "description": "Internal Server Error."
@@ -687,9 +687,6 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -756,6 +753,9 @@
           "$ref": "../parameters.json#/storageExported"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "201": {
           "description": "Workitem was created."
@@ -767,7 +767,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title"
         },
         "500": {
           "description": "Internal Server Error."
@@ -793,9 +793,6 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -862,6 +859,9 @@
           "$ref": "../parameters.json#/storageExported"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "201": {
           "description": "Workitem was created."
@@ -873,7 +873,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title"
         },
         "500": {
           "description": "Internal Server Error."
@@ -954,9 +954,6 @@
           "$ref": "../parameters.json#/moveSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -975,6 +972,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -986,7 +986,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."
@@ -1015,9 +1015,6 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -1036,6 +1033,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -1047,7 +1047,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."
@@ -1079,9 +1079,6 @@
           "$ref": "../parameters.json#/seriesPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -1100,6 +1097,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -1111,7 +1111,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."
@@ -1140,9 +1140,6 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -1161,6 +1158,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -1172,7 +1172,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title, C-FIND SCP AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."
@@ -1204,9 +1204,6 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -1225,6 +1222,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -1236,7 +1236,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title, C-FIND SCP AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."
@@ -1271,9 +1271,6 @@
           "$ref": "../parameters.json#/findSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
-        },
-        {
           "$ref": "../parameters.json#/upsLabel"
         },
         {
@@ -1292,6 +1289,9 @@
           "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitem"
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
@@ -1303,7 +1303,7 @@
           "description": "Validation for one of the query parameters failed"
         },
         "404": {
-          "description": "No such Archive AE Title, C-FIND SCP AE Title, C-MOVE SCP AE Title or UPS Template with specified ID."
+          "description": "No such Archive AE Title, C-FIND SCP AE Title or C-MOVE SCP AE Title."
         },
         "500": {
           "description": "Internal Server Error."

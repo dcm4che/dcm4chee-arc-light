@@ -409,15 +409,6 @@
       "type": "string"
     }
   },
-  "upsTemplateIDPathParam": {
-    "name": "upsTemplateID",
-    "in": "path",
-    "description": "UPS Template ID",
-    "required": true,
-    "schema": {
-      "type": "string"
-    }
-  },
   "storageIDPathParam": {
     "name": "storageID",
     "in": "path",
@@ -753,7 +744,7 @@
   "template": {
     "name": "template",
     "in": "query",
-    "description": "If present with a value of true UPS template workitem shall be created with SPS Start DateTime in DB.",
+    "description": "If true, create / search UPS template workitem without SPS Start DateTime in DB.",
     "schema": {
       "type": "boolean",
       "default": false

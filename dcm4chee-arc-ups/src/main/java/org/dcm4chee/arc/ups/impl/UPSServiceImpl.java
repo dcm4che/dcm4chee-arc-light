@@ -51,7 +51,6 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ReverseDNS;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.UPS;
@@ -158,39 +157,6 @@ public class UPSServiceImpl implements UPSService {
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
-    }
-
-    @Override
-    public int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo,
-                                ArchiveAEExtension arcAE,
-                                Attributes upsTemplateAttrs,
-                                Map<String, IDWithIssuer> studyPatientMap,
-                                String movescp) {
-        int count = 0;
-        for (Map.Entry<String, IDWithIssuer> studyPatient : studyPatientMap.entrySet()) {
-            try {
-                UPSContext ctx = new UPSContextImpl(httpServletRequestInfo, arcAE);
-                ctx.setUPSInstanceUID(UIDUtils.createUID());
-                upsTemplateAttrs.setString(Tag.StudyInstanceUID, VR.UI, studyPatient.getKey());
-                studyPatient.getValue().exportPatientIDWithIssuer(upsTemplateAttrs);
-                updateIncludeInputInformation(
-                        upsTemplateAttrs.ensureSequence(Tag.InputInformationSequence, 1),
-                        studyPatient.getKey(),
-                        movescp != null ? movescp : arcAE.getApplicationEntity().getAETitle());
-                ctx.setAttributes(upsTemplateAttrs);
-                UPS ups = ejb.createUPS(ctx);
-                fireUPSEvents(ctx);
-                LOG.info("UPSTemplateWorkitem[uid={}]: created {}", upsTemplateAttrs.getString(Tag.SOPInstanceUID), ups);
-                count++;
-            } catch (Exception e) {
-                LOG.info("UPSTemplateWorkitem[uid={}]: create UPS failed for Study[uid={}] of Patient[id={}]\n",
-                        upsTemplateAttrs.getString(Tag.SOPInstanceUID),
-                        studyPatient.getKey(),
-                        studyPatient.getValue(),
-                        e);
-            }
-        }
-        return count;
     }
 
     @Override
@@ -500,22 +466,6 @@ public class UPSServiceImpl implements UPSService {
             }
         }
         return list;
-    }
-
-    private static void updateIncludeInputInformation(Sequence sq, String studyUID, String retrieveAET) {
-        Attributes item = new Attributes(5);
-        sq.add(item);
-        item.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        item.setNull(Tag.SeriesInstanceUID, VR.UI);
-        item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
-        item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
-        item.setNull(Tag.ReferencedSOPSequence, VR.SQ);
-    }
-
-    private static Attributes retrieveAETItem(String... retrieveAET) {
-        Attributes item = new Attributes(1);
-        item.setString(Tag.RetrieveAETitle, VR.AE, retrieveAET);
-        return item;
     }
 
     private static class WSChannel {

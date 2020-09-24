@@ -48,9 +48,9 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -61,7 +61,6 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.UPSUtils;
-import org.dcm4chee.arc.ups.impl.UPSContextImpl;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,15 +70,11 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
@@ -104,8 +99,8 @@ public class UpsMatchingRS {
     @Context
     private UriInfo uriInfo;
 
-    @HeaderParam("Content-Type")
-    private MediaType contentType;
+    @Context
+    private HttpHeaders headers;
 
     @Inject
     private Device device;
@@ -183,41 +178,32 @@ public class UpsMatchingRS {
     private String storageExported;
 
     @POST
-    @Path("/studies/workitems/{upsTemplateID}")
+    @Path("/studies/workitems")
     @Produces("application/json")
-    public Response upsMatchingStudies(@PathParam("upsTemplateID") String upsTemplateID) {
-        return createWorkitemsMatching(upsTemplateID,
-                "upsMatchingStudies",
-                QueryRetrieveLevel2.STUDY,
-                null,
-                null);
+    public Response upsMatchingStudies(InputStream in) {
+        return createWorkitemsMatching(
+                "upsMatchingStudies", QueryRetrieveLevel2.STUDY, null, null, in);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/workitems/{upsTemplateID}")
+    @Path("/studies/{StudyInstanceUID}/series/workitems")
     @Produces("application/json")
     public Response upsMatchingStudies(
-            @PathParam("upsTemplateID") String upsTemplateID,
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return createWorkitemsMatching(upsTemplateID,
-                "upsMatchingSeriesOfStudy",
-                QueryRetrieveLevel2.SERIES,
-                studyInstanceUID,
-                null);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/workitems/{upsTemplateID}")
-    @Produces("application/json")
-    public Response upsMatchingStudies(
-            @PathParam("upsTemplateID") String upsTemplateID,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return createWorkitemsMatching(upsTemplateID,
-                "upsMatchingInstancesOfSeries",
-                QueryRetrieveLevel2.IMAGE,
-                studyInstanceUID,
-                seriesInstanceUID);
+            InputStream in) {
+        return createWorkitemsMatching(
+                "upsMatchingSeriesOfStudy", QueryRetrieveLevel2.SERIES, studyInstanceUID, null, in);
+    }
+
+    @POST
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/workitems")
+    @Produces("application/json")
+    public Response upsMatchingStudies(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
+            InputStream in) {
+        return createWorkitemsMatching(
+                "upsMatchingInstancesOfSeries", QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, in);
     }
 
     @POST
@@ -230,32 +216,25 @@ public class UpsMatchingRS {
         return createWorkitemsFromCSV(field, upsTemplateUID, csvPatientIDField, in);
     }
     
-    private Response createWorkitemsMatching(String upsTemplateID, String method, QueryRetrieveLevel2 qrlevel,
-                                 String studyIUID, String seriesIUID) {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+    private Response createWorkitemsMatching(
+            String method, QueryRetrieveLevel2 qrlevel, String studyIUID, String seriesIUID, InputStream in) {
+        InputType inputType = InputType.valueOf(headers.getMediaType());
+        if (inputType == null)
+            return notAcceptable();
 
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
-            UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
-            if (upsTemplate == null)
-                return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
+            ArchiveAEExtension arcAE = getArchiveAE();
+            Attributes upsTemplateAttrs = inputType.parse(in);
+            upsTemplateAttrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime());
+            if (upsLabel != null)
+                upsTemplateAttrs.setString(Tag.ProcedureStepLabel, VR.LO, upsLabel);
 
-            Calendar now = Calendar.getInstance();
-            Date scheduledTime = scheduledTime();
-            Attributes upsAttrsFromTemplate = UPSUtils.upsAttrsByTemplate(
-                                                        ae.getAEExtensionNotNull(ArchiveAEExtension.class),
-                                                        upsTemplate,
-                                                        scheduledTime,
-                                                        now,
-                                                        upsLabel);
-            QueryContext ctx = queryContext(method, qrlevel, studyIUID, seriesIUID, ae);
+            QueryContext ctx = queryContext(method, qrlevel, studyIUID, seriesIUID, arcAE.getApplicationEntity());
             String warning = null;
             AtomicInteger count = new AtomicInteger();
             Response.Status status = Response.Status.ACCEPTED;
-            Attributes ups = new Attributes(upsAttrsFromTemplate);
+            Attributes ups = new Attributes(upsTemplateAttrs);
             int matches = 0;
             try (Query query = queryService.createQuery(ctx)) {
                 try {
@@ -265,13 +244,8 @@ public class UpsMatchingRS {
                         if (match == null)
                             continue;
 
-                        ups = studyIUID == null ? new Attributes(upsAttrsFromTemplate) : ups;
-                        UPSUtils.updateUPSAttributes(upsTemplate,
-                                                        ups,
-                                                        match,
-                                                        studyIUID,
-                                                        seriesIUID,
-                                                        aet);
+                        ups = studyIUID == null ? new Attributes(upsTemplateAttrs) : ups;
+                        UPSUtils.updateUPSAttributes(ups, match, studyIUID, seriesIUID, aet);
                         matches++;
                         if (studyIUID == null)
                             createUPS(arcAE, ups, count);
@@ -335,24 +309,13 @@ public class UpsMatchingRS {
         if (csvPatientIDField != null && (patientIDField = patientIDField(csvPatientIDField)) < 1)
             return errResponse(status, "CSV field for Patient ID should be greater than or equal to 1");
 
-
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
-            if (arcAE == null)
-                return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
-
-            ApplicationEntity ae = device.getApplicationEntity(aet, true);
-            if (ae == null || !ae.isInstalled())
-                return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
-
-            UpsCSV upsCSV = new UpsCSV(device,
-                                        upsService,
-                                        HttpServletRequestInfo.valueOf(request),
-                                        ae.getAEExtensionNotNull(ArchiveAEExtension.class),
-                                        studyUIDField,
-                                        upsTemplateAttrs(upsTemplateUID, arcAE),
-                                        csvDelimiter());
-            return upsCSV.createWorkitems(patientIDField, null, in);
+            UpsCSV upsCSV = new UpsCSV(upsService,
+                                        HttpServletRequestInfo.valueOf(request).setContentType(headers),
+                                        arcAE,
+                                        upsTemplateAttrs(upsTemplateUID, arcAE));
+            return upsCSV.createWorkitems(studyUIDField, patientIDField, null, in);
         } catch (DicomServiceException e) {
             return errResponse(UpsMatchingRS::createFailed, e);
         } catch (IllegalStateException e) {
@@ -364,12 +327,10 @@ public class UpsMatchingRS {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        return ae != null && ae.isInstalled()
-                ? ae.getAEExtensionNotNull(ArchiveAEExtension.class) : null;
-    }
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException("No such Archive Application Entity: " + aet, Response.Status.NOT_FOUND);
 
-    private char csvDelimiter() {
-        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     private int patientIDField(String csvPatientIDField) {
@@ -459,6 +420,15 @@ public class UpsMatchingRS {
                 return Response.Status.BAD_REQUEST;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private Response notAcceptable() {
+        LOG.info("Response Status : Not Acceptable. Content Type in request : \n{}", headers.getMediaType());
+        return Response.notAcceptable(
+                Variant.mediaTypes(
+                        MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE)
+                        .build())
+                .build();
     }
 
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {

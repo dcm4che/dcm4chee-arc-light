@@ -45,8 +45,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.io.SAXReader;
-import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
@@ -63,19 +61,15 @@ import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
@@ -509,29 +503,6 @@ public class UpsRS {
         return URI.create("ws" + sb.append("/ws/subscribers/").append(ctx.getSubscriberAET()).substring(4));
     }
 
-    private static Attributes parseJSON(InputStream in) {
-        try {
-            return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
-                    .readDataset(null);
-        } catch (JsonException e) {
-            throw new WebApplicationException(e,
-                    Response.status(Response.Status.BAD_REQUEST).entity("Invalid JSON payload").build());
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
-        }
-    }
-
-    private static Attributes parseXML(InputStream in) {
-        try {
-            return SAXReader.parse(in);
-        } catch (SAXException e) {
-            throw new WebApplicationException(e,
-                    Response.status(Response.Status.BAD_REQUEST).entity("Invalid XML payload").build());
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
-        }
-    }
-
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled()) {
@@ -582,36 +553,5 @@ public class UpsRS {
         Object entity(Attributes attrs) {
             return toEntity.apply(attrs);
         }
-    }
-
-    private enum InputType {
-        DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE) {
-            @Override
-            Attributes parse(final InputStream in) {
-                return parseJSON(in);
-            }
-
-        },
-        DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE) {
-            @Override
-            Attributes parse(final InputStream in) {
-                return parseXML(in);
-            }
-        };
-
-        final MediaType type;
-
-        InputType(MediaType type) {
-            this.type = type;
-        }
-
-        static InputType valueOf(MediaType type) {
-            return MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(type)
-                    ? DICOM_JSON
-                    : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(type)
-                        ? DICOM_XML : null;
-        }
-
-        abstract Attributes parse(final InputStream in);
     }
 }
