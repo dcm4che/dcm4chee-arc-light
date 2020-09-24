@@ -137,41 +137,34 @@ public class UpsRS {
             @QueryParam("workitem") String iuid,
             @QueryParam("template") @Pattern(regexp = "true|false") String template,
             InputStream in) {
-        Input input = Input.valueOf(headers.getMediaType());
-        if (input == null)
+        InputType inputType = InputType.valueOf(headers.getMediaType());
+        if (inputType == null)
             return notAcceptable();
 
-        return createUPS(iuid, Boolean.parseBoolean(template), input.toAttrs(in));
+        return createUPS(iuid, Boolean.parseBoolean(template), inputType.parse(in));
     }
 
     @POST
     @Path("/workitems/{workitem}")
     public Response updateUPSJSON(@PathParam("workitem") String iuid, InputStream in) {
-        Input input = Input.valueOf(headers.getMediaType());
-        if (input == null)
+        InputType inputType = InputType.valueOf(headers.getMediaType());
+        if (inputType == null)
             return notAcceptable();
 
-        return updateUPS(iuid, input.toAttrs(in));
+        return updateUPS(iuid, inputType.parse(in));
     }
 
     @PUT
     @Path("/workitems/{workitem}/state/{requester}")
-    @Consumes("application/dicom+json")
     public Response changeUPSStateJSON(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
-        return changeUPSState(iuid, requester, parseJSON(in));
-    }
+        InputType inputType = InputType.valueOf(headers.getMediaType());
+        if (inputType == null)
+            return notAcceptable();
 
-    @PUT
-    @Path("/workitems/{workitem}/state/{requester}")
-    @Consumes("application/dicom+xml")
-    public Response changeUPSStateXML(
-            @PathParam("workitem") String iuid,
-            @PathParam("requester") String requester,
-            InputStream in) {
-        return changeUPSState(iuid, requester, parseXML(in));
+        return changeUPSState(iuid, requester, inputType.parse(in));
     }
 
     @GET
@@ -199,22 +192,15 @@ public class UpsRS {
 
     @POST
     @Path("/workitems/{workitem}/cancelrequest/{requester}")
-    @Consumes("application/dicom+json")
     public Response requestUPSCancelJSON(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
-        return requestUPSCancel(iuid, requester, parseJSON(in));
-    }
+        InputType inputType = InputType.valueOf(headers.getMediaType());
+        if (inputType == null)
+            return notAcceptable();
 
-    @POST
-    @Path("/workitems/{workitem}/cancelrequest/{requester}")
-    @Consumes("application/dicom+xml")
-    public Response requestUPSCancelXML(
-            @PathParam("workitem") String iuid,
-            @PathParam("requester") String requester,
-            InputStream in) {
-        return requestUPSCancel(iuid, requester, parseXML(in));
+        return requestUPSCancel(iuid, requester, inputType.parse(in));
     }
 
     @POST
@@ -598,34 +584,34 @@ public class UpsRS {
         }
     }
 
-    private enum Input {
+    private enum InputType {
         DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE) {
             @Override
-            Attributes toAttrs(final InputStream in) {
+            Attributes parse(final InputStream in) {
                 return parseJSON(in);
             }
 
         },
         DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE) {
             @Override
-            Attributes toAttrs(final InputStream in) {
+            Attributes parse(final InputStream in) {
                 return parseXML(in);
             }
         };
 
         final MediaType type;
 
-        Input(MediaType type) {
+        InputType(MediaType type) {
             this.type = type;
         }
 
-        static Input valueOf(MediaType type) {
+        static InputType valueOf(MediaType type) {
             return MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(type)
                     ? DICOM_JSON
                     : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(type)
                         ? DICOM_XML : null;
         }
 
-        abstract Attributes toAttrs(final InputStream in);
+        abstract Attributes parse(final InputStream in);
     }
 }
