@@ -82,7 +82,7 @@ public class UPSEvent {
 
     public Attributes withCommandAttributes(Attributes src, int messageID) {
         Attributes dest = new Attributes(src);
-        dest.setString(Tag.AffectedSOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
+        dest.setString(Tag.AffectedSOPClassUID, VR.UI, UID.UnifiedProcedureStepPush);
         dest.setInt(Tag.MessageID, VR.US, messageID);
         dest.setString(Tag.AffectedSOPInstanceUID, VR.UI, upsIUID);
         dest.setInt(Tag.EventTypeID, VR.US, type.eventTypeID());

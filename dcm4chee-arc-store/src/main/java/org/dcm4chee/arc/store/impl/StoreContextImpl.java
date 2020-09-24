@@ -212,7 +212,7 @@ class StoreContextImpl implements StoreContext {
         this.sopClassUID = attrs.getString(Tag.SOPClassUID);
         Attributes ppsRef = attrs.getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
         this.mppsInstanceUID = ppsRef != null
-                && UID.ModalityPerformedProcedureStepSOPClass.equals(ppsRef.getString(Tag.ReferencedSOPClassUID))
+                && UID.ModalityPerformedProcedureStep.equals(ppsRef.getString(Tag.ReferencedSOPClassUID))
                 ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
                 : null;
         this.attributes = attrs;

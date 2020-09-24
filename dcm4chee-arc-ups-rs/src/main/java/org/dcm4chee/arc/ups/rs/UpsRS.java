@@ -300,7 +300,7 @@ public class UpsRS {
     public void validate() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), toString(), request.getRemoteUser(), request.getRemoteHost());
-        if (uriInfo.getPath().contains(UID.UPSFilteredGlobalSubscriptionSOPInstance)
+        if (uriInfo.getPath().contains(UID.UPSFilteredGlobalSubscriptionInstance)
                 && "POST".equals(request.getMethod())
                 && !uriInfo.getPath().endsWith("/suspend")) {
             matchKeys = new QueryAttributes(uriInfo, null).getQueryKeys();

@@ -366,7 +366,7 @@ public class IANScheduler extends Scheduler {
 
     private static Attributes refMPPS(String mppsUID) {
         Attributes refMPPS = new Attributes(3);
-        refMPPS.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.ModalityPerformedProcedureStepSOPClass);
+        refMPPS.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.ModalityPerformedProcedureStep);
         refMPPS.setString(Tag.ReferencedSOPInstanceUID, VR.UI, mppsUID);
         refMPPS.setNull(Tag.PerformedWorkitemCodeSequence, VR.SQ);
         return refMPPS;

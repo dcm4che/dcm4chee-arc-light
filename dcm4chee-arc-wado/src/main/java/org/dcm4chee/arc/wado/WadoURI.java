@@ -512,7 +512,7 @@ public class WadoURI {
         switch (tsuid) {
             case UID.ImplicitVRLittleEndian:
             case UID.ExplicitVRLittleEndian:
-            case UID.ExplicitVRBigEndianRetired:
+            case UID.ExplicitVRBigEndian:
             case UID.DeflatedExplicitVRLittleEndian:
                 return true;
         }

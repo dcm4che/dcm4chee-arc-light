@@ -738,11 +738,11 @@ public class StowRS {
     }
 
     private static String adjustJPEGTransferSyntax(String tsuid, boolean allowRetired, Attributes attrs) {
-        return allowRetired || !tsuid.equals(UID.JPEGFullProgressionNonHierarchical1012Retired)
+        return allowRetired || !tsuid.equals(UID.JPEGFullProgressionNonHierarchical1012)
                 ? tsuid
                 : attrs.getInt(Tag.BitsAllocated, 8) == 8
-                ? UID.JPEGBaseline1
-                : UID.JPEGExtended24;
+                ? UID.JPEGBaseline8Bit
+                : UID.JPEGExtended12Bit;
     }
 
     private static void adjustBulkdata(Attributes attrs, MP4Parser parser, ArchiveAEExtension arcAE) throws IOException {

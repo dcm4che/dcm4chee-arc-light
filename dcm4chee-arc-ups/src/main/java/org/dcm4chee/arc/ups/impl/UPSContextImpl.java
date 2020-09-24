@@ -156,8 +156,8 @@ public class UPSContextImpl implements UPSContext {
 
     @Override
     public boolean isGlobalSubscription() {
-        return upsInstanceUID.equals(UID.UPSGlobalSubscriptionSOPInstance)
-                || upsInstanceUID.equals(UID.UPSFilteredGlobalSubscriptionSOPInstance);
+        return upsInstanceUID.equals(UID.UPSGlobalSubscriptionInstance)
+                || upsInstanceUID.equals(UID.UPSFilteredGlobalSubscriptionInstance);
     }
 
     @Override

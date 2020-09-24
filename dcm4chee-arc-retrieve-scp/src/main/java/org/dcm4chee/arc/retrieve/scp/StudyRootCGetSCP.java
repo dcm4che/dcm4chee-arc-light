@@ -57,7 +57,7 @@ import java.util.EnumSet;
 public class StudyRootCGetSCP extends CommonCGetSCP {
 
     public StudyRootCGetSCP() {
-        super(UID.StudyRootQueryRetrieveInformationModelGET, EnumSet.of(
+        super(UID.StudyRootQueryRetrieveInformationModelGet, EnumSet.of(
                 QueryRetrieveLevel2.STUDY,
                 QueryRetrieveLevel2.SERIES,
                 QueryRetrieveLevel2.IMAGE));

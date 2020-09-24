@@ -576,7 +576,7 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT, UID.PatientRootQueryRetrieveInformationModelFIND){
+        PATIENT(QueryRetrieveLevel2.PATIENT, UID.PatientRootQueryRetrieveInformationModelFind){
             @Override
             public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
                 return null;
@@ -586,28 +586,28 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        STUDY(QueryRetrieveLevel2.STUDY, UID.StudyRootQueryRetrieveInformationModelFind) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
                         .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
             }
         },
-        SERIES(QueryRetrieveLevel2.SERIES, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        SERIES(QueryRetrieveLevel2.SERIES, UID.StudyRootQueryRetrieveInformationModelFind) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return STUDY.retrieveURL(qidoRS, match)
                         .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
             }
         },
-        INSTANCE(QueryRetrieveLevel2.IMAGE, UID.StudyRootQueryRetrieveInformationModelFIND) {
+        INSTANCE(QueryRetrieveLevel2.IMAGE, UID.StudyRootQueryRetrieveInformationModelFind) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return SERIES.retrieveURL(qidoRS, match)
                         .append("/instances/").append(match.getString(Tag.SOPInstanceUID));
             }
         },
-        MWL(null, UID.ModalityWorklistInformationModelFIND) {
+        MWL(null, UID.ModalityWorklistInformationModelFind) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -622,7 +622,7 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        UPS(null, UID.UnifiedProcedureStepPullSOPClass) {
+        UPS(null, UID.UnifiedProcedureStepPull) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createUPSQuery(ctx);

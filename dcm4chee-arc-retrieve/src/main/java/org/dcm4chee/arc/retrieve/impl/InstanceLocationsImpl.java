@@ -178,15 +178,15 @@ public class InstanceLocationsImpl implements InstanceLocations {
     @Override
     public boolean isVideo() {
         switch (locations.get(0).getTransferSyntaxUID()) {
-            case UID.MPEG2:
-            case UID.MPEG2MainProfileHighLevel:
-            case UID.MPEG4AVCH264HighProfileLevel41:
-            case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
-            case UID.MPEG4AVCH264HighProfileLevel42For2DVideo:
-            case UID.MPEG4AVCH264HighProfileLevel42For3DVideo:
-            case UID.MPEG4AVCH264StereoHighProfileLevel42:
-            case UID.HEVCH265MainProfileLevel51:
-            case UID.HEVCH265Main10ProfileLevel51:
+            case UID.MPEG2MPML:
+            case UID.MPEG2MPHL:
+            case UID.MPEG4HP41:
+            case UID.MPEG4HP41BD:
+            case UID.MPEG4HP422D:
+            case UID.MPEG4HP423D:
+            case UID.MPEG4HP42STEREO:
+            case UID.HEVCMP51:
+            case UID.HEVCM10P51:
                 return true;
         }
         return false;

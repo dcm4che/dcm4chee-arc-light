@@ -76,7 +76,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> findPatient(ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid,
                                         int... returnKeys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.PatientRootQueryRetrieveInformationModelFIND,
+        Association as = openAssociation(localAE, calledAET, UID.PatientRootQueryRetrieveInformationModelFind,
                 queryOptions(false));
         try {
             return findPatient(as, priority, pid, returnKeys);
@@ -107,7 +107,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind,
                 queryOptions);
         try {
             return find(as, priority, keys);
@@ -120,7 +120,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> findStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
                                       int... returnKeys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind,
                 queryOptions(false));
         try {
             return findStudy(as, priority, studyIUID, returnKeys);
@@ -142,7 +142,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> findSeries(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
                                        String seriesIUID, int... returnKeys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind,
                 queryOptions(studyIUID == null));
         try {
             return findSeries(as, priority, studyIUID, seriesIUID, returnKeys);
@@ -165,7 +165,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> findInstance(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
                                          String seriesIUID, String sopIUID, int... returnKeys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind,
                 queryOptions(studyIUID == null || seriesIUID == null));
         try {
             return findInstance(as, priority, studyIUID, seriesIUID, sopIUID, returnKeys);

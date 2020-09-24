@@ -76,9 +76,9 @@ public class UPSCFindSCP extends BasicCFindSCP {
     private RunInTransaction runInTx;
 
     public UPSCFindSCP() {
-        super(UID.UnifiedProcedureStepPullSOPClass,
-              UID.UnifiedProcedureStepWatchSOPClass,
-              UID.UnifiedProcedureStepQuerySOPClass);
+        super(UID.UnifiedProcedureStepPull,
+              UID.UnifiedProcedureStepWatch,
+              UID.UnifiedProcedureStepQuery);
     }
 
     @Override

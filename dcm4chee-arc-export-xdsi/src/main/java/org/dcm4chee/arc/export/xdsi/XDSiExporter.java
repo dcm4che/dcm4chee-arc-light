@@ -114,7 +114,7 @@ public class XDSiExporter extends AbstractExporter {
             "Radiology");
     private static final Code MANIFEST_FORMAT_CODE = new Code(
             UID.KeyObjectSelectionDocumentStorage,
-            UID.DICOMUIDRegistry, null,
+            UID.DCMUID, null,
             UID.KeyObjectSelectionDocumentStorage);
 
     private final DocumentRepositoryService service;

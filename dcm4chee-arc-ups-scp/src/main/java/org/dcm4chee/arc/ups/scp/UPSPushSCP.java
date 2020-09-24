@@ -73,14 +73,14 @@ public class UPSPushSCP extends AbstractDicomService {
     private UPSService service;
 
     public UPSPushSCP() {
-        super(UID.UnifiedProcedureStepPushSOPClass);
+        super(UID.UnifiedProcedureStepPush);
     }
 
     @Override
     public void onDimseRQ(Association as, PresentationContext pc, Dimse dimse, Attributes rq, Attributes rqAttrs)
             throws IOException {
         switch (as.getAbstractSyntax(pc.getPCID())) {
-            case UID.UnifiedProcedureStepPushSOPClass:
+            case UID.UnifiedProcedureStepPush:
                 switch (dimse) {
                     case N_CREATE_RQ:
                         onNCreateRQ(as, pc, rq, rqAttrs);
@@ -92,7 +92,7 @@ public class UPSPushSCP extends AbstractDicomService {
                         onNActionRQ(as, pc, rq, rqAttrs, 2);
                         return;
                 }
-            case UID.UnifiedProcedureStepPullSOPClass:
+            case UID.UnifiedProcedureStepPull:
                 switch (dimse) {
                     case N_SET_RQ:
                         onNSetRQ(as, pc, rq, rqAttrs);
@@ -104,7 +104,7 @@ public class UPSPushSCP extends AbstractDicomService {
                         onNActionRQ(as, pc, rq, rqAttrs, 1);
                         return;
                 }
-            case UID.UnifiedProcedureStepWatchSOPClass:
+            case UID.UnifiedProcedureStepWatch:
                 switch (dimse) {
                     case N_GET_RQ:
                         onNGetRQ(as, pc, rq, rqAttrs);
@@ -196,7 +196,7 @@ public class UPSPushSCP extends AbstractDicomService {
             case 3:
                 ctx.setSubscriberAET(requireNonNull(rqAttrs, Tag.ReceivingAE));
                 ctx.setDeletionLock(validateDeletionLock(rqAttrs));
-                if (ctx.getUPSInstanceUID().equals(UID.UPSFilteredGlobalSubscriptionSOPInstance)) {
+                if (ctx.getUPSInstanceUID().equals(UID.UPSFilteredGlobalSubscriptionInstance)) {
                     rqAttrs.removeSelected(Tag.DeletionLock, Tag.ReceivingAE);
                     ctx.setAttributes(rqAttrs);
                 }

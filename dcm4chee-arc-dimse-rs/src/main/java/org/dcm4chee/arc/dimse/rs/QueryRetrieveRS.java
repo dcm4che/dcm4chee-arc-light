@@ -536,7 +536,7 @@ public class QueryRetrieveRS {
             int count = 0;
             Response.Status errorStatus = Response.Status.BAD_GATEWAY;
             try {
-                as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+                as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
                 priorityAsInt = parseInt(priority, 0);
                 DimseRSP dimseRSP = findSCU.query(as, priorityAsInt, keys, 0, 1, splitStudyDateRange());
                 dimseRSP.next();

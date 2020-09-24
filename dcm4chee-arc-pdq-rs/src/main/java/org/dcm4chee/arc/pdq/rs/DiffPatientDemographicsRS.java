@@ -239,7 +239,7 @@ public class DiffPatientDemographicsRS {
         QueryContext ctx = queryService.newQueryContextQIDO(
                 HttpServletRequestInfo.valueOf(request), "GET", ae, queryParam);
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
-        ctx.setSOPClassUID(UID.PatientRootQueryRetrieveInformationModelFIND);
+        ctx.setSOPClassUID(UID.PatientRootQueryRetrieveInformationModelFind);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

@@ -131,8 +131,8 @@ class MPPSSCUImpl implements MPPSSCU {
                                     procAttrs);
         try {
             DimseRSP rsp = dimse == Dimse.N_CREATE_RQ
-                    ? as.ncreate(UID.ModalityPerformedProcedureStepSOPClass, sopInstanceUID, attrs, null)
-                    : as.nset(UID.ModalityPerformedProcedureStepSOPClass, sopInstanceUID, attrs, null);
+                    ? as.ncreate(UID.ModalityPerformedProcedureStep, sopInstanceUID, attrs, null)
+                    : as.nset(UID.ModalityPerformedProcedureStep, sopInstanceUID, attrs, null);
             rsp.next();
             return outcome(rsp.getCommand().getInt(Tag.Status, -1),
                             dimse,
@@ -175,9 +175,9 @@ class MPPSSCUImpl implements MPPSSCU {
 
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
         AAssociateRQ aarq = new AAssociateRQ();
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.ModalityPerformedProcedureStepSOPClass,
+        TransferCapability tc = localAE.getTransferCapabilityFor(UID.ModalityPerformedProcedureStep,
                 TransferCapability.Role.SCU);
-        aarq.addPresentationContext(new PresentationContext(1, UID.ModalityPerformedProcedureStepSOPClass,
+        aarq.addPresentationContext(new PresentationContext(1, UID.ModalityPerformedProcedureStep,
                 tc.getTransferSyntaxes()));
         return aarq;
     }

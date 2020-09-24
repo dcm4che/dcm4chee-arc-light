@@ -134,7 +134,7 @@ public class EchoRS {
 
     private AAssociateRQ createAARQ() {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.addPresentationContextFor(UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        aarq.addPresentationContextFor(UID.Verification, UID.ImplicitVRLittleEndian);
         return aarq;
     }
 

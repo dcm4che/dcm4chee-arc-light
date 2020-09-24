@@ -90,9 +90,9 @@ public class DiffSCUImpl implements DiffSCU {
         if (ctx.isFuzzymatching())
             queryOptions.add(QueryOption.FUZZY);
         as1 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getPrimaryAE().getAETitle(),
-                UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+                UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
         as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
-                UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+                UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
         if (!ctx.isForceQueryByStudyUID() && ctx.supportSorting()) {
             dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0, 1, ctx.getSplitStudyDateRange());
             dimseRSP2.next();

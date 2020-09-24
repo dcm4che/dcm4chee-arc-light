@@ -102,7 +102,7 @@ public class MPPSServiceImpl implements MPPSService {
         ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
                 dimse,
                 TransferCapability.Role.SCU,
-                UID.ModalityPerformedProcedureStepSOPClass,
+                UID.ModalityPerformedProcedureStep,
                 ctx.getRemoteHostName(),
                 ctx.getCallingAET(),
                 ctx.getLocalHostName(),

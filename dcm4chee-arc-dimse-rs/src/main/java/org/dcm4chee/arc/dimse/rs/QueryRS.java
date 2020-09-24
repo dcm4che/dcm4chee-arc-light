@@ -352,10 +352,10 @@ public class QueryRS {
     }
 
     private enum Level {
-        PATIENT(UID.PatientRootQueryRetrieveInformationModelFIND),
-        STUDY(UID.StudyRootQueryRetrieveInformationModelFIND),
-        SERIES(UID.StudyRootQueryRetrieveInformationModelFIND),
-        IMAGE(UID.StudyRootQueryRetrieveInformationModelFIND);
+        PATIENT(UID.PatientRootQueryRetrieveInformationModelFind),
+        STUDY(UID.StudyRootQueryRetrieveInformationModelFind),
+        SERIES(UID.StudyRootQueryRetrieveInformationModelFind),
+        IMAGE(UID.StudyRootQueryRetrieveInformationModelFind);
         final String cuid;
 
         Level(String cuid) {

@@ -540,9 +540,9 @@ public class UPSServiceEJB {
                         arcAE, UPSEvent.Type.StatusChange, entry.getKey(), eventInformation, entry.getValue()))
                 .collect(Collectors.toList());
         addStatusChangeEvents(list, arcAE, eventInformation,
-                UID.UPSGlobalSubscriptionSOPInstance, GlobalSubscription.GLOBAL_AETS);
+                UID.UPSGlobalSubscriptionInstance, GlobalSubscription.GLOBAL_AETS);
         addStatusChangeEvents(list, arcAE, eventInformation,
-                UID.UPSFilteredGlobalSubscriptionSOPInstance, GlobalSubscription.FILTERED_AETS);
+                UID.UPSFilteredGlobalSubscriptionInstance, GlobalSubscription.FILTERED_AETS);
         return list;
     }
 

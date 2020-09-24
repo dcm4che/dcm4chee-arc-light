@@ -121,8 +121,8 @@ public class UPSEventSCP {
 
     private void sendNEventReport(Association as, UPSEvent event, Attributes attrs) throws Exception {
         DimseRSP dimseRSP = as.neventReport(
-                UID.UnifiedProcedureStepEventSOPClass,
-                UID.UnifiedProcedureStepPushSOPClass,
+                UID.UnifiedProcedureStepEvent,
+                UID.UnifiedProcedureStepPush,
                 event.upsIUID,
                 event.type.eventTypeID(),
                 attrs,
@@ -137,11 +137,11 @@ public class UPSEventSCP {
     private static AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String subscriberAET) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.setCalledAET(subscriberAET);
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.UnifiedProcedureStepEventSOPClass,
+        TransferCapability tc = localAE.getTransferCapabilityFor(UID.UnifiedProcedureStepEvent,
                 TransferCapability.Role.SCP);
-        aarq.addPresentationContext(new PresentationContext(1, UID.UnifiedProcedureStepEventSOPClass,
+        aarq.addPresentationContext(new PresentationContext(1, UID.UnifiedProcedureStepEvent,
                 tc != null ? tc.getTransferSyntaxes() : new String[] { UID.ImplicitVRLittleEndian }));
-        aarq.addRoleSelection(new RoleSelection(UID.UnifiedProcedureStepEventSOPClass, false, true));
+        aarq.addRoleSelection(new RoleSelection(UID.UnifiedProcedureStepEvent, false, true));
         return aarq;
     }
 

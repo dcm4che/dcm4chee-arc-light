@@ -749,7 +749,7 @@ class ArchiveDeviceFactory {
             UID.EnhancedXAImageStorage,
             UID.XRayRadiofluoroscopicImageStorage,
             UID.EnhancedXRFImageStorage,
-            UID.XRayAngiographicBiPlaneImageStorageRetired,
+            UID.XRayAngiographicBiPlaneImageStorage,
             UID.XRay3DAngiographicImageStorage,
             UID.XRay3DCraniofacialImageStorage,
             UID.BreastTomosynthesisImageStorage,
@@ -758,8 +758,8 @@ class ArchiveDeviceFactory {
             UID.IntravascularOpticalCoherenceTomographyImageStorageForPresentation,
             UID.IntravascularOpticalCoherenceTomographyImageStorageForProcessing,
             UID.NuclearMedicineImageStorage,
-            UID.VLImageStorageTrialRetired,
-            UID.VLMultiFrameImageStorageTrialRetired,
+            UID.VLImageStorageTrial,
+            UID.VLMultiframeImageStorageTrial,
             UID.VLEndoscopicImageStorage,
             UID.VLMicroscopicImageStorage,
             UID.VLSlideCoordinatesMicroscopicImageStorage,
@@ -770,7 +770,7 @@ class ArchiveDeviceFactory {
             UID.WideFieldOphthalmicPhotographyStereographicProjectionImageStorage,
             UID.WideFieldOphthalmicPhotography3DCoordinatesImageStorage,
             UID.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage,
-            UID.OphthalmicOpticalCoherenceTomographyBScanVolumeAnalysisStorage,
+            UID.OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage,
             UID.VLWholeSlideMicroscopyImageStorage,
             UID.OphthalmicThicknessMapStorage,
             UID.CornealTopographyMapStorage,
@@ -800,13 +800,13 @@ class ArchiveDeviceFactory {
     static final String[] IMAGE_TSUIDS = {
             UID.ImplicitVRLittleEndian,
             UID.ExplicitVRLittleEndian,
-            UID.JPEGBaseline1,
-            UID.JPEGExtended24,
+            UID.JPEGBaseline8Bit,
+            UID.JPEGExtended12Bit,
+            UID.JPEGLosslessSV1,
             UID.JPEGLossless,
-            UID.JPEGLosslessNonHierarchical14,
             UID.JPEGLSLossless,
-            UID.JPEGLSLossyNearLossless,
-            UID.JPEG2000LosslessOnly,
+            UID.JPEGLSNearLossless,
+            UID.JPEG2000Lossless,
             UID.JPEG2000,
             UID.RLELossless
     };
@@ -817,19 +817,19 @@ class ArchiveDeviceFactory {
     };
 
     static final String[] VIDEO_TSUIDS = {
-            UID.JPEGBaseline1,
-            UID.MPEG2,
-            UID.MPEG2MainProfileHighLevel,
-            UID.MPEG4AVCH264BDCompatibleHighProfileLevel41,
-            UID.MPEG4AVCH264HighProfileLevel41,
-            UID.MPEG4AVCH264HighProfileLevel42For2DVideo,
-            UID.MPEG4AVCH264HighProfileLevel42For3DVideo,
-            UID.MPEG4AVCH264StereoHighProfileLevel42
+            UID.JPEGBaseline8Bit,
+            UID.MPEG2MPML,
+            UID.MPEG2MPHL,
+            UID.MPEG4HP41BD,
+            UID.MPEG4HP41,
+            UID.MPEG4HP422D,
+            UID.MPEG4HP423D,
+            UID.MPEG4HP42STEREO
     };
 
     private static final String[] SR_CUIDS = {
             UID.SpectaclePrescriptionReportStorage,
-            UID.MacularGridThicknessAndVolumeReportStorage,
+            UID.MacularGridThicknessandVolumeReportStorage,
             UID.BasicTextSRStorage,
             UID.EnhancedSRStorage,
             UID.ComprehensiveSRStorage,
@@ -857,13 +857,13 @@ class ArchiveDeviceFactory {
     };
 
     static final String[] OTHER_CUIDS = {
-            UID.StoredPrintStorageSOPClassRetired,
-            UID.HardcopyGrayscaleImageStorageSOPClassRetired,
-            UID.HardcopyColorImageStorageSOPClassRetired,
+            UID.StoredPrintStorage,
+            UID.HardcopyGrayscaleImageStorage,
+            UID.HardcopyColorImageStorage,
             UID.MRSpectroscopyStorage,
             UID.MultiFrameSingleBitSecondaryCaptureImageStorage,
-            UID.StandaloneOverlayStorageRetired,
-            UID.StandaloneCurveStorageRetired,
+            UID.StandaloneOverlayStorage,
+            UID.StandaloneCurveStorage,
             UID.TwelveLeadECGWaveformStorage,
             UID.GeneralECGWaveformStorage,
             UID.AmbulatoryECGWaveformStorage,
@@ -873,14 +873,14 @@ class ArchiveDeviceFactory {
             UID.GeneralAudioWaveformStorage,
             UID.ArterialPulseWaveformStorage,
             UID.RespiratoryWaveformStorage,
-            UID.MultiChannelRespiratoryWaveformStorage,
+            UID.MultichannelRespiratoryWaveformStorage,
             UID.RoutineScalpElectroencephalogramWaveformStorage,
             UID.ElectromyogramWaveformStorage,
             UID.ElectrooculogramWaveformStorage,
             UID.SleepElectroencephalogramWaveformStorage,
             UID.BodyPositionWaveformStorage,
-            UID.StandaloneModalityLUTStorageRetired,
-            UID.StandaloneVOILUTStorageRetired,
+            UID.StandaloneModalityLUTStorage,
+            UID.StandaloneVOILUTStorage,
             UID.GrayscaleSoftcopyPresentationStateStorage,
             UID.ColorSoftcopyPresentationStateStorage,
             UID.PseudoColorSoftcopyPresentationStateStorage,
@@ -918,11 +918,11 @@ class ArchiveDeviceFactory {
             UID.EncapsulatedSTLStorage,
             UID.EncapsulatedOBJStorage,
             UID.EncapsulatedMTLStorage,
-            UID.StandalonePETCurveStorageRetired,
-            UID.TextSRStorageTrialRetired,
-            UID.AudioSRStorageTrialRetired,
-            UID.DetailSRStorageTrialRetired,
-            UID.ComprehensiveSRStorageTrialRetired,
+            UID.StandalonePETCurveStorage,
+            UID.TextSRStorageTrial,
+            UID.AudioSRStorageTrial,
+            UID.DetailSRStorageTrial,
+            UID.ComprehensiveSRStorageTrial,
             UID.ContentAssessmentResultsStorage,
             UID.CTPerformedProcedureProtocolStorage,
             UID.RTDoseStorage,
@@ -999,17 +999,17 @@ class ArchiveDeviceFactory {
     };
 
     static final String[] QUERY_CUIDS = {
-            UID.PatientRootQueryRetrieveInformationModelFIND,
-            UID.StudyRootQueryRetrieveInformationModelFIND,
-            UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired
+            UID.PatientRootQueryRetrieveInformationModelFind,
+            UID.StudyRootQueryRetrieveInformationModelFind,
+            UID.PatientStudyOnlyQueryRetrieveInformationModelFind
     };
     static final String[] RETRIEVE_CUIDS = {
-            UID.PatientRootQueryRetrieveInformationModelGET,
-            UID.PatientRootQueryRetrieveInformationModelMOVE,
-            UID.StudyRootQueryRetrieveInformationModelGET,
-            UID.StudyRootQueryRetrieveInformationModelMOVE,
-            UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired,
-            UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
+            UID.PatientRootQueryRetrieveInformationModelGet,
+            UID.PatientRootQueryRetrieveInformationModelMove,
+            UID.StudyRootQueryRetrieveInformationModelGet,
+            UID.StudyRootQueryRetrieveInformationModelMove,
+            UID.PatientStudyOnlyQueryRetrieveInformationModelGet,
+            UID.PatientStudyOnlyQueryRetrieveInformationModelMove
     };
     static final SPSStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
             SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
@@ -1089,7 +1089,7 @@ class ArchiveDeviceFactory {
                     "BitsStored=8",
                     "PixelRepresentation=0"
             ),
-            UID.JPEGBaseline1,
+            UID.JPEGBaseline8Bit,
             "compressionQuality=0.8",
             "maxPixelValueError=10",
             "avgPixelValueBlockSize=8"
@@ -1102,7 +1102,7 @@ class ArchiveDeviceFactory {
                     "BitsStored=9|10|11|12",
                     "PixelRepresentation=0"
             ),
-            UID.JPEGExtended24,
+            UID.JPEGExtended12Bit,
             "compressionQuality=0.8",
             "maxPixelValueError=20",
             "avgPixelValueBlockSize=8"
@@ -1128,7 +1128,7 @@ class ArchiveDeviceFactory {
             new Conditions(
                     "SendingApplicationEntityTitle=JPEG_LS_LOSSY"
             ),
-            UID.JPEGLSLossyNearLossless,
+            UID.JPEGLSNearLossless,
             "maxPixelValueError=2"
     );
     static final ArchiveCompressionRule JPEG_2000 = createCompressionRule(
@@ -1136,7 +1136,7 @@ class ArchiveDeviceFactory {
             new Conditions(
                     "SendingApplicationEntityTitle=JPEG_2000"
             ),
-            UID.JPEG2000LosslessOnly,
+            UID.JPEG2000Lossless,
             "maxPixelValueError=0"
     );
 
@@ -1392,7 +1392,7 @@ class ArchiveDeviceFactory {
     public static Device createStoreSCPDevice() {
         Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
         ApplicationEntity ae = device.getApplicationEntity("STORESCP");
-        addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
         String[][] CUIDS = { IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS };
         for (int i = 0; i < CUIDS.length; i++) {
             addTCs(ae, null, SCP, CUIDS[i], OTHER_TSUIDS);
@@ -2084,7 +2084,7 @@ class ArchiveDeviceFactory {
                     .setDIMSE(Dimse.N_CREATE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MPPSSCU")
-                    .setSOPClasses(UID.ModalityPerformedProcedureStepSOPClass)
+                    .setSOPClasses(UID.ModalityPerformedProcedureStep)
                     .setSupplementFromDevice(mppsscu));
 
             StoreAccessControlIDRule storeAccessControlIDRule =
@@ -2177,25 +2177,25 @@ class ArchiveDeviceFactory {
         ae.addAEExtension(aeExt);
         ae.setAssociationAcceptor(true);
         ae.setAssociationInitiator(true);
-        addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
+        addTC(ae, null, SCU, UID.Verification, UID.ImplicitVRLittleEndian);
         EnumSet<QueryOption> allQueryOpts = EnumSet.allOf(QueryOption.class);
         addTCs(ae, allQueryOpts, SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
         if (mwlSCP) {
             addTC(ae, allQueryOpts, SCP,
-                    UID.ModalityWorklistInformationModelFIND,
+                    UID.ModalityWorklistInformationModelFind,
                     UID.ImplicitVRLittleEndian);
         }
         if (upsSCP) {
             addTCs(ae, allQueryOpts, SCP, new String[] {
-                            UID.UnifiedProcedureStepPullSOPClass,
-                            UID.UnifiedProcedureStepWatchSOPClass,
-                            UID.UnifiedProcedureStepQuerySOPClass
+                            UID.UnifiedProcedureStepPull,
+                            UID.UnifiedProcedureStepWatch,
+                            UID.UnifiedProcedureStepQuery
                     },
                     UID.ImplicitVRLittleEndian);
             addTCs(ae, null, SCP, new String[]{
-                            UID.UnifiedProcedureStepPushSOPClass,
-                            UID.UnifiedProcedureStepEventSOPClass
+                            UID.UnifiedProcedureStepPush,
+                            UID.UnifiedProcedureStepEvent
                     },
                     UID.ImplicitVRLittleEndian);
         }
@@ -2205,20 +2205,20 @@ class ArchiveDeviceFactory {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
             for (int i = 0; i < CUIDS.length; i++)
                 addTCs(ae, null, SCU, CUIDS[i], TSUIDS[i]);
-            addTC(ae, null, SCU, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCU, UID.StorageCommitmentPushModel, UID.ImplicitVRLittleEndian);
         }
         if (storeSCP) {
             for (int i = 0; i < CUIDS.length; i++)
                 addTCs(ae, null, SCP, CUIDS[i], TSUIDS[i]);
-            addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
-            addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
-            addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCP, UID.StorageCommitmentPushModel, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCP, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCU, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
             if (configType == ConfigType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
             aeExt.setObjectStorageIDs(STORAGE_ID);
         }
         if (ianSCU) {
-            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCU, UID.InstanceAvailabilityNotification, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         if (coercion != null)

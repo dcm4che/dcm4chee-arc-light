@@ -57,7 +57,7 @@ import java.util.EnumSet;
 public class PatientRootCMoveSCP extends CommonCMoveSCP {
 
     public PatientRootCMoveSCP() {
-        super(UID.PatientRootQueryRetrieveInformationModelMOVE, EnumSet.of(
+        super(UID.PatientRootQueryRetrieveInformationModelMove, EnumSet.of(
                 QueryRetrieveLevel2.PATIENT,
                 QueryRetrieveLevel2.STUDY,
                 QueryRetrieveLevel2.SERIES,

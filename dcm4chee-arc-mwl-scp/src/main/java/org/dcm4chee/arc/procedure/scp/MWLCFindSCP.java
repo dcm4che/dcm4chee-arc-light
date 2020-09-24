@@ -85,7 +85,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
     private RunInTransaction runInTx;
 
     public MWLCFindSCP() {
-        super(UID.ModalityWorklistInformationModelFIND);
+        super(UID.ModalityWorklistInformationModelFind);
     }
 
     @Override

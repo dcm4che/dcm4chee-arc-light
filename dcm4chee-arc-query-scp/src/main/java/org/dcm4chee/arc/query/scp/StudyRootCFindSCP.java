@@ -57,7 +57,7 @@ import java.util.EnumSet;
 public class StudyRootCFindSCP extends CommonCFindSCP {
 
     public StudyRootCFindSCP() {
-        super(UID.StudyRootQueryRetrieveInformationModelFIND, EnumSet.of(
+        super(UID.StudyRootQueryRetrieveInformationModelFind, EnumSet.of(
                 QueryRetrieveLevel2.STUDY,
                 QueryRetrieveLevel2.SERIES,
                 QueryRetrieveLevel2.IMAGE));

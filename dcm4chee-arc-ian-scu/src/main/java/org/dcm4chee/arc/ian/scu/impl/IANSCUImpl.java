@@ -81,7 +81,7 @@ public class IANSCUImpl implements IANSCU {
         AAssociateRQ aarq = mkAAssociateRQ(localAE);
         Association as = localAE.connect(remoteAE, aarq);
         try {
-            DimseRSP rsp = as.ncreate(UID.InstanceAvailabilityNotificationSOPClass, sopInstanceUID, attrs, null);
+            DimseRSP rsp = as.ncreate(UID.InstanceAvailabilityNotification, sopInstanceUID, attrs, null);
             rsp.next();
             int status = rsp.getCommand().getInt(Tag.Status, -1);
             return status == Status.Success
@@ -114,7 +114,7 @@ public class IANSCUImpl implements IANSCU {
         AAssociateRQ aarq = mkAAssociateRQ(localAE);
         Association as = localAE.connect(remoteAE, aarq);
         try {
-            return as.ncreate(UID.InstanceAvailabilityNotificationSOPClass, sopInstanceUID, ian, null);
+            return as.ncreate(UID.InstanceAvailabilityNotification, sopInstanceUID, ian, null);
         } finally {
             try {
                 as.release();
@@ -126,12 +126,12 @@ public class IANSCUImpl implements IANSCU {
 
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
         AAssociateRQ aarq = new AAssociateRQ();
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.InstanceAvailabilityNotificationSOPClass,
+        TransferCapability tc = localAE.getTransferCapabilityFor(UID.InstanceAvailabilityNotification,
                 TransferCapability.Role.SCU);
         if (tc == null)
             LOG.warn("No Transfer ServiceClass for Instance Availability Notification SOP Class as SCU configured for {}",
                     localAE.getAETitle());
-        aarq.addPresentationContext(new PresentationContext(1, UID.InstanceAvailabilityNotificationSOPClass,
+        aarq.addPresentationContext(new PresentationContext(1, UID.InstanceAvailabilityNotification,
                 tc != null ? tc.getTransferSyntaxes() : new String[] { UID.ImplicitVRLittleEndian }));
         return aarq;
     }

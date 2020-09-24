@@ -238,7 +238,7 @@ public class UpsDimseRS {
                 as = findSCU.openAssociation(
                                 arcAE.getApplicationEntity(),
                                 queryAET,
-                                UID.StudyRootQueryRetrieveInformationModelFIND,
+                                UID.StudyRootQueryRetrieveInformationModelFind,
                                 queryOptions);
                 DimseRSP dimseRSP = findSCU.query(
                         as, parseInt(priority, 0), keys, 0, 1, splitStudyDateRange());

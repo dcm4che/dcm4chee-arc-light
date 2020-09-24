@@ -95,7 +95,7 @@ public class UPSQuery extends AbstractQuery {
         Attributes attrs = new Attributes(patAttrs.size() + upsAttrs.size() + 3);
         attrs.addAll(patAttrs);
         attrs.addAll(upsAttrs);
-        attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
+        attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPush);
         attrs.setString(Tag.SOPInstanceUID, VR.UI, results.get(ups.get(UPS_.upsInstanceUID)));
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT,
                 results.get(ups.get(UPS_.updatedTime)));

@@ -137,14 +137,14 @@ public class CMoveSCUImpl implements CMoveSCU {
     private AAssociateRQ createAARQ() {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.addPresentationContext(new PresentationContext(
-                1, UID.StudyRootQueryRetrieveInformationModelMOVE, UID.ImplicitVRLittleEndian));
+                1, UID.StudyRootQueryRetrieveInformationModelMove, UID.ImplicitVRLittleEndian));
         return aarq;
     }
 
     @Override
     public DimseRSP cmove(Association as, int priority, String destAET, Attributes keys) throws Exception {
         return as.cmove(
-                UID.StudyRootQueryRetrieveInformationModelMOVE,
+                UID.StudyRootQueryRetrieveInformationModelMove,
                 priority,
                 keys,
                 UID.ImplicitVRLittleEndian,

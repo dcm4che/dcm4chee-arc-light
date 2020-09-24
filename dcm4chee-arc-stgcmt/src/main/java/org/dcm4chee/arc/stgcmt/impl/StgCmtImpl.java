@@ -106,7 +106,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private StgCmtManager ejb;
 
     public StgCmtImpl() {
-        super(UID.StorageCommitmentPushModelSOPClass);
+        super(UID.StorageCommitmentPushModel);
     }
 
     @Override
@@ -279,8 +279,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             result.setDeviceName(device.getDeviceName());
             ejb.persistStgCmtResult(result);
             DimseRSP dimseRSP = as.naction(
-                    UID.StorageCommitmentPushModelSOPClass,
-                    UID.StorageCommitmentPushModelSOPInstance,
+                    UID.StorageCommitmentPushModel,
+                    UID.StorageCommitmentPushModelInstance,
                     1, actionInfo, null);
             dimseRSP.next();
             if (dimseRSP.getCommand().getInt(Tag.Status, -1) != Status.Success)
@@ -309,8 +309,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
                 int successful = sequenceSizeOf(eventInfo, Tag.ReferencedSOPSequence);
                 int failed = sequenceSizeOf(eventInfo, Tag.FailedSOPSequence);
                 DimseRSP neventReport = as.neventReport(
-                        UID.StorageCommitmentPushModelSOPClass,
-                        UID.StorageCommitmentPushModelSOPInstance,
+                        UID.StorageCommitmentPushModel,
+                        UID.StorageCommitmentPushModelInstance,
                         failed > 0 ? 2 : 1, eventInfo, null);
                 neventReport.next();
                 return new Outcome(failed > 0 ? QueueMessage.Status.WARNING : QueueMessage.Status.COMPLETED,
@@ -333,11 +333,11 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String localAET, TransferCapability.Role role) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.setCallingAET(localAET);
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.StorageCommitmentPushModelSOPClass, role);
-        aarq.addPresentationContext(new PresentationContext(1, UID.StorageCommitmentPushModelSOPClass,
+        TransferCapability tc = localAE.getTransferCapabilityFor(UID.StorageCommitmentPushModel, role);
+        aarq.addPresentationContext(new PresentationContext(1, UID.StorageCommitmentPushModel,
                 tc.getTransferSyntaxes()));
         if (role == TransferCapability.Role.SCP)
-            aarq.addRoleSelection(new RoleSelection(UID.StorageCommitmentPushModelSOPClass, false, true));
+            aarq.addRoleSelection(new RoleSelection(UID.StorageCommitmentPushModel, false, true));
         return aarq;
     }
 }

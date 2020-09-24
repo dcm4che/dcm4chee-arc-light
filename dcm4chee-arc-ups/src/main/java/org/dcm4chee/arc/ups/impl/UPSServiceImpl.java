@@ -231,7 +231,7 @@ public class UPSServiceImpl implements UPSService {
         Attributes attrs = new Attributes(patAttrs.size() + upsAttrs.size() + 3);
         attrs.addAll(patAttrs);
         attrs.addAll(upsAttrs);
-        attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPushSOPClass);
+        attrs.setString(Tag.SOPClassUID, VR.UI, UID.UnifiedProcedureStepPush);
         attrs.setString(Tag.SOPInstanceUID, VR.UI, ups.getUPSInstanceUID());
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT, ups.getUpdatedTime());
         ctx.setAttributes(attrs);
@@ -244,12 +244,12 @@ public class UPSServiceImpl implements UPSService {
         try {
             validateSubscriberAET(ctx);
             switch (ctx.getUPSInstanceUID()) {
-                case UID.UPSFilteredGlobalSubscriptionSOPInstance:
+                case UID.UPSFilteredGlobalSubscriptionInstance:
                     if (ctx.getAttributes().isEmpty()) {
                         throw new DicomServiceException(Status.InvalidArgumentValue,
                                 "Matching Keys are missing.", false);
                     }
-                case UID.UPSGlobalSubscriptionSOPInstance:
+                case UID.UPSGlobalSubscriptionInstance:
                     ejb.createOrUpdateGlobalSubscription(ctx, searchNotSubscribedUPS(ctx));
                     break;
                 default:
@@ -430,7 +430,7 @@ public class UPSServiceImpl implements UPSService {
 
     private static boolean isUPSEventSCP(ApplicationEntity ae) {
         return ae.getTransferCapabilityFor(
-                UID.UnifiedProcedureStepWatchSOPClass, TransferCapability.Role.SCP) != null;
+                UID.UnifiedProcedureStepWatch, TransferCapability.Role.SCP) != null;
     }
 
     private void validateSubscriberAET(UPSContext ctx) throws DicomServiceException, ConfigurationException {

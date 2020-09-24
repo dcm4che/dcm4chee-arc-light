@@ -57,7 +57,7 @@ import java.util.EnumSet;
 public class PatientStudyOnlyCGetSCP extends CommonCGetSCP {
 
     public PatientStudyOnlyCGetSCP() {
-        super(UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired, EnumSet.of(
+        super(UID.PatientStudyOnlyQueryRetrieveInformationModelGet, EnumSet.of(
                 QueryRetrieveLevel2.PATIENT,
                 QueryRetrieveLevel2.STUDY));
     }
