@@ -400,6 +400,15 @@
       "type": "string"
     }
   },
+  "upsTemplateUIDPathParam": {
+    "name": "upsTemplateUID",
+    "in": "path",
+    "description": "UPS Template Workitem IUID",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "upsTemplateIDPathParam": {
     "name": "upsTemplateID",
     "in": "path",

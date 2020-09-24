@@ -893,7 +893,7 @@
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+          "$ref": "../parameters.json#/upsTemplateUIDPathParam"
         },
         {
           "$ref": "../parameters.json#/csvFieldPathParam"
@@ -931,7 +931,7 @@
           "description": "CSV field for Study Instance UID is specified as less than 1"
         },
         "404": {
-          "description": "No such Archive AE Title or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title or UPS Template Workitem with specified UID not found in DB"
         },
         "500": {
           "description": "Internal Server Error"
@@ -1335,7 +1335,7 @@
           "$ref": "../parameters.json#/csvPatientID"
         },
         {
-          "$ref": "../parameters.json#/upsTemplateIDPathParam"
+          "$ref": "../parameters.json#/upsTemplateUIDPathParam"
         },
         {
           "$ref": "../parameters.json#/upsLabel"
@@ -1355,7 +1355,7 @@
           "description": "Validation for one of the query parameters failed or CSV field for Study Instance UID specified as less than 1"
         },
         "404": {
-          "description": "No such Archive AE Title or Move SCP AE Title or UPS Template with specified ID not configured"
+          "description": "No such Archive AE Title or Move SCP AE Title or UPS Template Workitem with specified UID not found in DB"
         },
         "500": {
           "description": "Internal Server Error"

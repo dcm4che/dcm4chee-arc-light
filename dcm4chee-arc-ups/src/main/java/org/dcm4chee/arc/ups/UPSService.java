@@ -41,17 +41,15 @@
 
 package org.dcm4chee.arc.ups;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.websocket.Session;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -90,10 +88,7 @@ public interface UPSService {
 
     int createUPSRecords(HttpServletRequestInfo httpServletRequestInfo,
                          ArchiveAEExtension arcAE,
-                         UPSTemplate upsTemplate,
+                         Attributes upsTemplateAttrs,
                          Map<String, IDWithIssuer> studyPatientMap,
-                         Date upsScheduledTime,
-                         Calendar now,
-                         String upsLabel,
                          String movescp);
 }

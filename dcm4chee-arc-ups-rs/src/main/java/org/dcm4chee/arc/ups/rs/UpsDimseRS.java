@@ -59,6 +59,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.UPSUtils;
+import org.dcm4chee.arc.ups.impl.UPSContextImpl;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -195,13 +197,13 @@ public class UpsDimseRS {
     }
 
     @POST
-    @Path("/studies/csv:{field}/workitems/{upsTemplateID}")
+    @Path("/studies/csv:{field}/workitems/{upsTemplateUID}")
     public Response createWorkitems(
             @PathParam("field") int field,
-            @PathParam("upsTemplateID") String upsTemplateID,
+            @PathParam("upsTemplateUID") String upsTemplateUID,
             @QueryParam("csvPatientID") String csvPatientIDField,
             InputStream in) {
-        return createWorkitemsFromCSV(field, upsTemplateID, upsLabel, upsScheduledTime, csvPatientIDField, in);
+        return createWorkitemsFromCSV(field, upsTemplateUID, csvPatientIDField, in);
     }
 
     private Response upsMatching(QueryRetrieveLevel2 level, String upsTemplateID,
@@ -314,8 +316,8 @@ public class UpsDimseRS {
         }
     }
 
-    private Response createWorkitemsFromCSV(int studyUIDField, String upsTemplateID, String upsLabel, String scheduledTime,
-                                            String csvPatientIDField, InputStream in) {
+    private Response createWorkitemsFromCSV(
+            int studyUIDField, String upsTemplateUID, String csvPatientIDField, InputStream in) {
         if (studyUIDField < 1)
             return errResponse(Response.Status.BAD_REQUEST,
                     "CSV field for Study Instance UID should be greater than or equal to 1");
@@ -327,23 +329,20 @@ public class UpsDimseRS {
 
         try {
             aeCache.findApplicationEntity(moveSCP);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            UPSTemplate upsTemplate = arcDev.getUPSTemplate(upsTemplateID);
-            if (upsTemplate == null)
-                return errResponse(Response.Status.NOT_FOUND, "No such UPS Template: " + upsTemplateID);
-
-            ApplicationEntity ae = device.getApplicationEntity(aet, true);
-            if (ae == null || !ae.isInstalled())
+            ArchiveAEExtension arcAE = getArchiveAE();
+            if (arcAE == null)
                 return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
             UpsCSV upsCSV = new UpsCSV(device,
                                         upsService,
                                         HttpServletRequestInfo.valueOf(request),
-                                        ae.getAEExtensionNotNull(ArchiveAEExtension.class),
+                                        arcAE,
                                         studyUIDField,
-                                        upsTemplate,
+                                        upsTemplateAttrs(upsTemplateUID, arcAE),
                                         csvDelimiter());
-            return upsCSV.createWorkitems(upsLabel, scheduledTime, patientIDField, moveSCP, in);
+            return upsCSV.createWorkitems(patientIDField, moveSCP, in);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsDimseRS::createFailed, e);
         } catch (IllegalStateException | ConfigurationException e) {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
@@ -373,6 +372,22 @@ public class UpsDimseRS {
         new QueryAttributes(uriInfo, null);
     }
 
+    private Attributes upsTemplateAttrs(String upsTemplateUID, ArchiveAEExtension arcAE) throws DicomServiceException {
+        UPSContext ctx = upsService.newUPSContext(HttpServletRequestInfo.valueOf(request), arcAE);
+        ctx.setUPSInstanceUID(upsTemplateUID);
+        Attributes upsAttrs = upsService.findUPS(ctx).getAttributes();
+        upsAttrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime());
+        if (upsLabel != null)
+            upsAttrs.setString(Tag.ProcedureStepLabel, VR.LO, upsLabel);
+        return upsAttrs;
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae != null && ae.isInstalled()
+                ? ae.getAEExtensionNotNull(ArchiveAEExtension.class) : null;
+    }
+
     private Duration splitStudyDateRange() {
         return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
     }
@@ -384,7 +399,7 @@ public class UpsDimseRS {
             } catch (Exception e) {
                 LOG.info(e.getMessage());
             }
-        return null;
+        return new Date();
     }
 
     private static int parseInt(String s, int defval) {
@@ -428,6 +443,26 @@ public class UpsDimseRS {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
+    private static Response.Status createFailed(int status) {
+        switch (status) {
+            case Status.UPSDoesNotExist:
+                return Response.Status.NOT_FOUND;
+            case Status.DuplicateSOPinstance:
+                return Response.Status.CONFLICT;
+            case Status.UPSNotScheduled:
+            case Status.NoSuchAttribute:
+            case Status.MissingAttribute:
+            case Status.MissingAttributeValue:
+            case Status.InvalidAttributeValue:
+                return Response.Status.BAD_REQUEST;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
+        return errResponse(httpStatusOf.apply(e.getStatus()), e.getMessage());
     }
 
     private Response errResponse(Response.Status status, String msg) {

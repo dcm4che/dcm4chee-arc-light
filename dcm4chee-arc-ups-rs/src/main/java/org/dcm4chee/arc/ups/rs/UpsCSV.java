@@ -44,12 +44,12 @@ package org.dcm4chee.arc.ups.rs;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.UPSTemplate;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
@@ -59,9 +59,6 @@ import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,29 +75,27 @@ class UpsCSV {
     private final HttpServletRequestInfo httpServletRequestInfo;
     private final ArchiveAEExtension arcAE;
     private final int studyUIDField;
-    private final UPSTemplate upsTemplate;
+    private final Attributes upsTemplateAttrs;
     private final char csvDelimiter;
 
     public UpsCSV(Device device, UPSService upsService, HttpServletRequestInfo httpServletRequestInfo,
-                  ArchiveAEExtension arcAE, int studyUIDField, UPSTemplate upsTemplate, char csvDelimiter) {
+                  ArchiveAEExtension arcAE, int studyUIDField, Attributes upsTemplateAttrs, char csvDelimiter) {
         this.device = device;
         this.upsService = upsService;
         this.httpServletRequestInfo = httpServletRequestInfo;
         this.arcAE = arcAE;
         this.studyUIDField = studyUIDField;
-        this.upsTemplate = upsTemplate;
+        this.upsTemplateAttrs = upsTemplateAttrs;
         this.csvDelimiter = csvDelimiter;
     }
 
-    Response createWorkitems(String upsLabel, String scheduledTime, int patientIDField, String movescp, InputStream in) {
+    Response createWorkitems(int patientIDField, String movescp, InputStream in) {
         Response.Status status = Response.Status.NO_CONTENT;
         int count = 0;
         String warning = null;
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
         Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
-        Calendar now = Calendar.getInstance();
-        Date upsScheduledTime = toDate(scheduledTime);
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter))
@@ -125,27 +120,22 @@ class UpsCSV {
 
                 if (studyPatientMap.size() == csvUploadChunkSize) {
                     count += upsService.createUPSRecords(
-                                            httpServletRequestInfo,
-                                            arcAE,
-                                            upsTemplate,
-                                            studyPatientMap,
-                                            upsScheduledTime,
-                                            now,
-                                            upsLabel,
-                                            movescp);
+                            httpServletRequestInfo,
+                            arcAE,
+                            upsTemplateAttrs,
+                            studyPatientMap,
+                            movescp);
                     studyPatientMap.clear();
                 }
             }
+
             if (!studyPatientMap.isEmpty())
                 count += upsService.createUPSRecords(
-                                        httpServletRequestInfo,
-                                        arcAE,
-                                        upsTemplate,
-                                        studyPatientMap,
-                                        upsScheduledTime,
-                                        now,
-                                        upsLabel,
-                                        movescp);
+                        httpServletRequestInfo,
+                        arcAE,
+                        upsTemplateAttrs,
+                        studyPatientMap,
+                        movescp);
 
             if (count == 0)
                 warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -158,7 +148,7 @@ class UpsCSV {
 
         LOG.warn("Response {} caused by {}", status, warning);
         Response.ResponseBuilder builder = Response.status(status)
-                                                   .header("Warning", warning);
+                .header("Warning", warning);
         if (count > 0)
             builder.entity(count(count));
 
@@ -170,16 +160,6 @@ class UpsCSV {
         if (!valid)
             LOG.warn("Invalid UID in CSV file: " + uid);
         return valid;
-    }
-
-    private Date toDate(String upsScheduledTime) {
-        if (upsScheduledTime != null)
-            try {
-                return new SimpleDateFormat("yyyyMMddhhmmss").parse(upsScheduledTime);
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-            }
-        return null;
     }
 
     private static String count(int count) {

@@ -73,25 +73,6 @@ public class UPSUtils {
                 .map(item -> new Code(item.getNestedDataset(Tag.ConceptCodeSequence)));
     }
 
-    public static Attributes upsAttrsByTemplate(UPSContext ctx,
-                                         UPSTemplate upsTemplate,
-                                         Map.Entry<String, IDWithIssuer> studyPatient,
-                                         Date upsScheduledTime,
-                                         Calendar now,
-                                         String upsLabel,
-                                         String movescp) {
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        Attributes attrs = upsAttrsByTemplate(arcAE, upsTemplate, upsScheduledTime, now, upsLabel);
-        if (upsTemplate.isIncludeStudyInstanceUID())
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, studyPatient.getKey());
-        updateIncludeInputInformation(
-                attrs.getSequence(Tag.InputInformationSequence),
-                studyPatient.getKey(),
-                movescp != null ? movescp : arcAE.getApplicationEntity().getAETitle());
-        studyPatient.getValue().exportPatientIDWithIssuer(attrs);
-        return attrs;
-    }
-
     public static Attributes upsAttrsByTemplate(ArchiveAEExtension arcAE,
                                                 UPSTemplate upsTemplate,
                                                 Date upsScheduledTime,
@@ -167,16 +148,6 @@ public class UPSUtils {
         item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
         item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
         return refSOPSequence;
-    }
-
-    private static void updateIncludeInputInformation(Sequence sq, String studyUID, String retrieveAET) {
-        Attributes item = new Attributes(5);
-        sq.add(item);
-        item.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        item.setNull(Tag.SeriesInstanceUID, VR.UI);
-        item.setString(Tag.TypeOfInstances, VR.CS, "DICOM");
-        item.newSequence(Tag.DICOMRetrievalSequence, 1).add(retrieveAETItem(retrieveAET));
-        item.setNull(Tag.ReferencedSOPSequence, VR.SQ);
     }
 
     private static void setPatientAttrs(Attributes ups, Attributes match) {
