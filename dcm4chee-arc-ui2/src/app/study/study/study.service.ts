@@ -18,7 +18,6 @@ import {Observable, forkJoin, of, throwError} from "rxjs";
 import * as _ from 'lodash-es'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
-import {UPSService} from "../../monitoring/ups/ups.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
@@ -56,7 +55,6 @@ export class StudyService {
         private aeListService: AeListService,
         private $http: J4careHttpService,
         private storageSystems: StorageSystemsService,
-        private upsTemplates: UPSService,
         private devicesService: DevicesService,
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService,
@@ -948,34 +946,11 @@ export class StudyService {
         return this.storageSystems.search({}, 0);
     }
 
-    getUPSTemplates() {
-        return this.upsTemplates.search();
-    }
-
     verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, param) => {
         let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgver${j4care.param(param)}`;
 
         return this.$http.post(url, {}, this.dicomHeader);
     };
-
-    scheduleUPS(studyWebService: StudyWebService, upsTemplateID, upsLabel, upsScheduledTime, params?: any) {
-        const url = this.getDicomURL("study", studyWebService.selectedWebService);
-        let localParams = upsLabel
-                            ? upsScheduledTime
-                                ? `?upsLabel=${upsLabel}&upsScheduledTime=${upsScheduledTime}&`
-                                : `?upsLabel=${upsLabel}&`
-                            : upsScheduledTime
-                                ? `?upsScheduledTime=${upsScheduledTime}&`
-                                : "";
-        if (params && Object.keys(params).length > 0) {
-            if (localParams) {
-                localParams += j4care.objToUrlParams(params);
-            } else {
-                localParams = `?${j4care.objToUrlParams(params)}`
-            }
-        }
-        return this.$http.post(`${url}/workitems/${upsTemplateID}${localParams}`, {})
-    }
 
     scheduleStorageVerification = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
 
