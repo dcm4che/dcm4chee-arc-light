@@ -3205,6 +3205,26 @@ export class StudyService {
         }
     };
 
+    modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService) {
+        // const url = this.getModifyPatientUrl(deviceWebservice);
+        return this.getModifyPatientUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    if (workitemUID) {
+                        //Change ups;
+                        return this.$http.put(`${url}/${workitemUID}`, object);
+                    } else {
+                        //Create new patient
+                        return this.$http.post(url, object);
+                    }
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+            }))
+    }
+
+    getModifyUPSUrl(deviceWebService: StudyWebService) {
+        return this.getDicomURLFromWebService(deviceWebService, "uwl");
+    }
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
         return this.getModifyPatientUrl(deviceWebservice)
@@ -3230,7 +3250,7 @@ export class StudyService {
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService, "DCM4CHEE_ARC_AET", "PAM");
     }
 
-    getDicomURLFromWebService(deviceWebService: StudyWebService, mode: ("patient" | "study")) {
+    getDicomURLFromWebService(deviceWebService: StudyWebService, mode:DicomMode) {
         return this.getModifyPatientWebApp(deviceWebService).pipe(map((webApp:DcmWebApp)=>{
             return this.getDicomURL(mode, webApp);
         }));
@@ -3357,6 +3377,12 @@ export class StudyService {
         }));
     }
 
+    getUPSIod(mode:("create"|"edit")) {
+        if(mode && mode === "create"){
+            return this.getIod("upsCreate");
+        }
+        return this.getIod("upsUpdate");
+    };
     getPatientIod() {
         return this.getIod("patient");
     };

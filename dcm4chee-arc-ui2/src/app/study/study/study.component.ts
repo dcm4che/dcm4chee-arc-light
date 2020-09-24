@@ -177,6 +177,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
+            // new SelectDropdown("create_ups",$localize `:@@study.create_ups:Add new Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
@@ -394,6 +395,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         switch (e){
             case "create_patient":
                 this.createPatient();
+                break;
+            case "create_ups":
+                this.createUPS();
                 break;
             case "permanent_delete":
                 this.deleteRejectedInstances();
@@ -2545,6 +2549,71 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         };
         this.modifyPatient(newPatient, 'create', config);
     };
+
+    createUPS(){
+        this.modifyUPS(undefined, "create",{
+            saveLabel: $localize `:@@CREATE:CREATE`,
+            titleLabel: $localize `:@@create_new_ups:Create new Workitem`
+        })
+    }
+
+    modifyUPS(workitem, mode:("edit"|"create"),config?:{saveLabel:string,titleLabel:string}){
+        let originalWorkitemObject;
+        if(mode === "edit"){
+            originalWorkitemObject = _.cloneDeep(workitem);
+        }
+        this.service.getUPSIod(mode).subscribe(ups=>{
+            console.log("ups",ups);
+            if(mode === "create" && !workitem){
+                workitem = {
+                    "attrs":{}
+                };
+                Object.keys(ups).forEach(dicomAttr=>{
+                    if((ups[dicomAttr].required && ups[dicomAttr].required === 1) || dicomAttr === "00741202"){
+                        workitem["attrs"][dicomAttr] = ups[dicomAttr];
+                    }
+                });
+            }else{
+                let config = {
+                    saveLabel: $localize `:@@SAVE:SAVE`,
+
+                }
+            }
+            this.service.initEmptyValue(workitem.attrs);
+            this.dialogRef = this.dialog.open(EditPatientComponent, {
+                height: 'auto',
+                width: '90%'
+            });
+
+            this.dialogRef.componentInstance.mode = "create";
+            this.dialogRef.componentInstance.object = workitem;
+            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(ups);
+            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(ups, 'items', 'Value');
+            this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+            this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+            this.dialogRef.afterClosed().subscribe(ok => {
+                if (ok){
+                    if(mode === "create"){
+/*                        this.service.createUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
+                            this.appService.showMsg($localize `:@@study.patient_created_successfully:Workitem created successfully`);
+                        },err=>{
+                            this.httpErrorHandler.handleError(err);
+                        });*/
+                    }else{
+/*                        this.service.modifyUPS(this.service.getPatientId(originalWorkitemObject.attrs),workitem.attrs,this.studyWebService).subscribe(res=>{
+                            this.appService.showMsg($localize `:@@study.workitem_updated_successfully:Workitem updated successfully`);
+                        },err=>{
+                            _.assign(workitem, originalWorkitemObject);
+                            this.httpErrorHandler.handleError(err);
+                        });*/
+                    }
+                }else{
+                    _.assign(workitem, originalWorkitemObject);
+                }
+                this.dialogRef = null;
+            });
+        })
+    }
 
     editPatient(patient){
         let config:{saveLabel:string,titleLabel:string} = {
