@@ -396,19 +396,22 @@ public class WadoURI {
         if (presentationUID != null)
             readParam.setPresentationState(retrievePresentationState());
 
-        if (iccprofile != null) {
-            ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
-            if (iccProfile != ICCProfile.Option.no
-                    && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        "Cannot embed ICC profile into " + mimeType,
-                        Response.Status.BAD_REQUEST));
-            }
-            readParam.setICCProfile(iccProfile);
-        }
-
         return new RenderedImageOutput(ctx, inst, readParam, parseInt(rows), parseInt(columns), mimeType, imageQuality,
-                frame);
+                iccProfile(mimeType), frame);
+    }
+
+    private ICCProfile.Option iccProfile(MediaType mimeType) {
+        if (iccprofile == null)
+            return ICCProfile.Option.none;
+
+        ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
+        if (iccProfile != ICCProfile.Option.no
+                && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    "Cannot embed ICC profile into " + mimeType,
+                    Response.Status.BAD_REQUEST));
+        }
+        return iccProfile;
     }
 
     private int frame(Attributes attrs) {

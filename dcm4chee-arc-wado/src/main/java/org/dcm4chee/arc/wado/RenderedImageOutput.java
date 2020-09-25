@@ -42,6 +42,7 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
@@ -82,9 +83,11 @@ public class RenderedImageOutput implements StreamingOutput {
     private final int imageIndex;
     private final ImageWriter writer;
     private final ImageWriteParam writeParam;
+    private final ICCProfile.Option iccProfile;
 
     public RenderedImageOutput(RetrieveContext ctx, InstanceLocations inst, DicomImageReadParam readParam,
-            int rows, int columns, MediaType mimeType, String imageQuality, int frame) {
+            int rows, int columns, MediaType mimeType, String imageQuality, ICCProfile.Option iccProfile,
+            int frame) {
         this.ctx = ctx;
         this.inst = inst;
         this.reader = getDicomImageReader();
@@ -98,6 +101,7 @@ public class RenderedImageOutput implements StreamingOutput {
             writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             writeParam.setCompressionQuality(Integer.parseInt(imageQuality) / 100.f);
         }
+        this.iccProfile = iccProfile;
     }
 
     @Override
@@ -163,7 +167,7 @@ public class RenderedImageOutput implements StreamingOutput {
     }
 
     private BufferedImage adjust(BufferedImage bi) throws IOException {
-        return rescale(bi, rows, columns, getPixelAspectRatio());
+        return iccProfile.adjust(rescale(bi, rows, columns, getPixelAspectRatio()));
     }
 
     static BufferedImage rescale(BufferedImage bi, int r, int c, float sy) throws IOException {

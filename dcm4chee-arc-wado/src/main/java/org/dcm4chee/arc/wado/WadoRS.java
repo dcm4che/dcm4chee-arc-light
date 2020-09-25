@@ -1575,17 +1575,21 @@ public class WadoRS {
                     attrs.getInt(Tag.Rows, 1),
                     attrs.getInt(Tag.Columns, 1)));
         }
-        if (iccprofile != null) {
-            ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
-            if (iccProfile != ICCProfile.Option.no
-                    && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
-                throw new WebApplicationException(errResponseAsTextPlain(
-                        "Cannot embed ICC profile into " + mimeType,
-                        Response.Status.BAD_REQUEST));
-            }
-            readParam.setICCProfile(iccProfile);
-        }
+        return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality,
+                iccProfile(mimeType), frame);
+    }
 
-        return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality, frame);
+    private ICCProfile.Option iccProfile(MediaType mimeType) {
+        if (iccprofile == null) {
+            return ICCProfile.Option.none;
+        }
+        ICCProfile.Option iccProfile = ICCProfile.Option.valueOf(iccprofile);
+        if (iccProfile != ICCProfile.Option.no
+                && !MediaTypes.equalsIgnoreParameters(mimeType, MediaTypes.IMAGE_JPEG_TYPE)) {
+            throw new WebApplicationException(errResponseAsTextPlain(
+                    "Cannot embed ICC profile into " + mimeType,
+                    Response.Status.BAD_REQUEST));
+        }
+        return iccProfile;
     }
 }
