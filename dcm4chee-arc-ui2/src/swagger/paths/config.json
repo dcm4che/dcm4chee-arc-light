@@ -821,31 +821,6 @@
       }
     }
   },
-  "upstpls": {
-    "get": {
-      "tags": [
-        "CONFIG-RS"
-      ],
-      "summary": "List UPS Templates",
-      "operationId": "listUPSTemplates",
-      "parameters": [],
-      "responses": {
-        "200": {
-          "description": "UPS Template",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "../schemas.json#/upstpls"
-              }
-            }
-          }
-        },
-        "500": {
-          "description": "Internal Server Error."
-        }
-      }
-    }
-  },
   "reject": {
     "get": {
       "tags": [

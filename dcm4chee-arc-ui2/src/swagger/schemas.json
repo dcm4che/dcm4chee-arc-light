@@ -1257,27 +1257,6 @@
       }
     }
   },
-  "upstpls": {
-    "title": "UPS Templates",
-    "type": "array",
-    "items": {
-      "required": [
-        "id"
-      ],
-      "properties": {
-        "id": {
-          "title": "UPS Template ID",
-          "description": "UPS Template ID",
-          "type": "string"
-        },
-        "description": {
-          "title": "UPS Template Description",
-          "description": "Unconstrained text description of the UPS Template",
-          "type": "string"
-        }
-      }
-    }
-  },
   "exportTaskList": {
     "title": "ExportTaskList",
     "type": "array",

@@ -582,9 +582,6 @@
     "/export": {
       "$ref": "paths/config.json#/export"
     },
-    "/upstpls": {
-      "$ref": "paths/config.json#/upstpls"
-    },
     "/pdq": {
       "$ref": "paths/config.json#/pdq"
     },
