@@ -2707,7 +2707,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.40 NAME 'dcmUPSProcessingRule'
     dcmProperty $
     dcmSchedule ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.41 NAME 'dcmUPSTemplate'
-  DESC 'UPS Template'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   SUP top STRUCTURAL
   MUST (
     dcmUPSTemplateID $
