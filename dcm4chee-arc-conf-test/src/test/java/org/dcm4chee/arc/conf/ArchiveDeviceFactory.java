@@ -759,7 +759,7 @@ class ArchiveDeviceFactory {
             UID.IntravascularOpticalCoherenceTomographyImageStorageForProcessing,
             UID.NuclearMedicineImageStorage,
             UID.VLImageStorageTrial,
-            UID.VLMultiframeImageStorageTrial,
+            UID.VLMultiFrameImageStorageTrial,
             UID.VLEndoscopicImageStorage,
             UID.VLMicroscopicImageStorage,
             UID.VLSlideCoordinatesMicroscopicImageStorage,
@@ -794,7 +794,7 @@ class ArchiveDeviceFactory {
             UID.PrivatePixelMedLegacyConvertedEnhancedCTImageStorage,
             UID.PrivatePixelMedLegacyConvertedEnhancedMRImageStorage,
             UID.PrivatePixelMedLegacyConvertedEnhancedPETImageStorage,
-            UID.PrivatePMODMultiframeImageStorage,
+            UID.PrivatePMODMultiFrameImageStorage,
             UID.PrivateToshibaUSImageStorage
     };
     static final String[] IMAGE_TSUIDS = {
@@ -829,7 +829,7 @@ class ArchiveDeviceFactory {
 
     private static final String[] SR_CUIDS = {
             UID.SpectaclePrescriptionReportStorage,
-            UID.MacularGridThicknessandVolumeReportStorage,
+            UID.MacularGridThicknessAndVolumeReportStorage,
             UID.BasicTextSRStorage,
             UID.EnhancedSRStorage,
             UID.ComprehensiveSRStorage,
