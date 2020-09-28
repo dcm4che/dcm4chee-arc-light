@@ -131,7 +131,7 @@ class EventID {
                             ? AuditMessages.EventOutcomeIndicator.SeriousFailure
                             : AuditMessages.EventOutcomeIndicator.Success;
 
-            this.outcomeDescription = patMismatchCode != null
+            this.outcomeDescription = eventTypeCode != null
                     ? eventTypeCode.getOriginalText()
                     : outcome != null
                         ? patVerificationStatus != null
