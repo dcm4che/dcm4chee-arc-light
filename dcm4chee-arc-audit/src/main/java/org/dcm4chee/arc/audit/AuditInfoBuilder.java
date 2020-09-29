@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.HL7Separator;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -363,7 +364,7 @@ class AuditInfoBuilder {
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {
         return arcDev.showPatientInfoInAuditLog() == ShowPatientInfo.HASH_NAME_AND_ID
                 ? String.valueOf(pidWithIssuer.hashCode())
-                : pidWithIssuer.toString();
+                : HL7Separator.unescapeAll(pidWithIssuer.toString());
     }
 
     private static String toPatName(String pName, ArchiveDeviceExtension arcDev) {
