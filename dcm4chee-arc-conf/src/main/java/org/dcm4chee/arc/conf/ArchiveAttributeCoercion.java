@@ -358,7 +358,7 @@ public class ArchiveAttributeCoercion {
     public boolean match(TransferCapability.Role role, Dimse dimse, String sopClass,
             String sendingHost, String sendingAET, String receivingHost, String receivingAET,
             Attributes attrs) {
-        return this.role == role && dimse == dimse && matchSOPClass(sopClass)
+        return this.role == role && this.dimse == dimse && matchSOPClass(sopClass)
                 && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
