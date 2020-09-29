@@ -3207,7 +3207,7 @@ export class StudyService {
 
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
-        return this.getModifyPatientUrl(deviceWebservice)
+        return this.getModifyUPSUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (workitemUID) {
@@ -3215,7 +3215,7 @@ export class StudyService {
                         return this.$http.put(`${url}/${workitemUID}`, object);
                     } else {
                         //Create new patient
-                        return this.$http.post(url, object);
+                        return this.$http.post(url, object,  new HttpHeaders({'Content-Type': 'application/dicom+json','Accept': 'application/dicom+json'}));
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});

@@ -38,12 +38,32 @@ export class j4care {
             savedKeys += `[${savedKeys}]`;
         }
         for(let key in object){
-            if(object.hasOwnProperty(key)) {
+            if(object.hasOwnProperty(key) && key) {
                 if(typeof object[key] === "object"){
                     this.traverse(object[key],func, key);
                 }else{
                     object[key] = func.apply(object,[object[key],key,object, savedKeys]);
                 }
+            }
+        }
+        return object;
+    }
+
+    static removeKeyFromObject(object, toRemoveKey){
+        if(_.isArray(toRemoveKey)){
+            toRemoveKey.forEach(k=>{
+                if(_.hasIn(object, k)){
+                    delete object[k];
+                }
+            })
+        }else{
+            if(_.hasIn(object, toRemoveKey)){
+                delete object[toRemoveKey];
+            }
+        }
+        for(let key in object){
+            if(typeof object[key] === "object"){
+                this.removeKeyFromObject(object[key], toRemoveKey);
             }
         }
         return object;

@@ -5,7 +5,7 @@
     <div class="form_input" *ngIf="object[o].vr != 'SQ'">
         <div  *ngFor="let v of object[o].Value; let i=index; trackBy:trackByFn">
             <div *ngIf="object[o].vr != 'PN'" class="ariod">
-                <input class="{{o}}" [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:false,iod:iod,externalInternalAetMode:externalInternalAetMode}" *ngIf="object[o].vr != 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"  [(ngModel)]="object[o].Value[i]">
+                <input *ngIf="!(object[o].enum && object[o].enum.length > 0) && object[o].vr != 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"  class="{{o}}" [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:false,iod:iod,externalInternalAetMode:externalInternalAetMode}"  [(ngModel)]="object[o].Value[i]">
 <!--                <p-calendar
                         class="{{o}}"
                         *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
@@ -19,7 +19,7 @@
 
                 <range-picker
                         class="{{o}}"
-                        *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
+                        *ngIf="(object[o].vr === 'DA' || object[o].vr === 'DA') && o != '00100040' && o != '00080005' && o != '00102203'"
                         [model]="object[o].Value[i]"
                         (modelChange)="object[o].Value[i] = $event"
                         [datePickerMode]="true"
@@ -36,6 +36,11 @@
                     <option value="ALTERED">Altered</option>
                     <option value="UNALTERED">Unaltered</option>
                 </select>
+                <select *ngIf="object[o].enum && object[o].enum.length > 0" [(ngModel)]="object[o].Value[0]">
+                    <option *ngIf="!(object[o].required && object[o].required === 1)" value="">*</option>
+                    <option *ngFor="let n of object[o].enum" value="{{n}}">{{n}}</option>
+                </select>
+
                 <specific-char-picker [(model)]="object[o].Value[i]" (modelChange)="charChange($event)" *ngIf="o === '00080005'"></specific-char-picker>
                 <div [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:true,iod:iod}" (click)="removeAttr(o)" *ngIf="o != '00104000' && !prefix" class="iod_remove glyphicon glyphicon-remove {{o}}"></div>
             </div>

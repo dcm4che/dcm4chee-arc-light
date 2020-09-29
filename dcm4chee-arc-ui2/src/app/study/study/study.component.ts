@@ -177,7 +177,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
-            // new SelectDropdown("create_ups",$localize `:@@study.create_ups:Add new Workitem`),
+            new SelectDropdown("create_ups",$localize `:@@study.create_ups:Add new Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
@@ -2586,26 +2586,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
 
             this.dialogRef.componentInstance.mode = "create";
-            this.dialogRef.componentInstance.object = workitem;
+            this.dialogRef.componentInstance.patient = workitem;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(ups);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(ups, 'items', 'Value');
             this.dialogRef.componentInstance.saveLabel = config.saveLabel;
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(ok => {
                 if (ok){
+                    j4care.removeKeyFromObject(workitem.attrs, ["required","enum", "multi"]);
                     if(mode === "create"){
-/*                        this.service.createUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_created_successfully:Workitem created successfully`);
                         },err=>{
+                            workitem = undefined;
                             this.httpErrorHandler.handleError(err);
-                        });*/
+                        });
                     }else{
-/*                        this.service.modifyUPS(this.service.getPatientId(originalWorkitemObject.attrs),workitem.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyUPS(this.service.getPatientId(originalWorkitemObject.attrs),workitem.attrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.workitem_updated_successfully:Workitem updated successfully`);
                         },err=>{
                             _.assign(workitem, originalWorkitemObject);
                             this.httpErrorHandler.handleError(err);
-                        });*/
+                        });
                     }
                 }else{
                     _.assign(workitem, originalWorkitemObject);

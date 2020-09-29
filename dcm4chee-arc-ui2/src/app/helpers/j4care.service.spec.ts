@@ -1,6 +1,7 @@
 import {j4care} from "./j4care.service";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
+import * as _  from "lodash-es";
 
 const AETS1 = [{
         "dicomAETitle": "DCM4CHEE",
@@ -523,7 +524,68 @@ describe('j4care', () => {
             console.log("t",t);
             console.log("s",s);
         },""))
-    })
+    });
+
+    it("",()=>{
+        let obj = {
+            "00741204": {
+                "vr": "LO",
+                "required": 1,
+                "Value": [
+                    "bsdf"
+                ]
+            },
+            "00741202": {
+                "vr": "LO",
+                "required": 2,
+                "Value": [
+                    "test"
+                ]
+            },
+            "00404025": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00080100": {
+                            "vr": "SH",
+                            "required": 1,
+                            "Value": [
+                                "test2"
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+        const result = {
+            "00741204": {
+                "vr": "LO",
+                "Value": [
+                    "bsdf"
+                ]
+            },
+            "00741202": {
+                "vr": "LO",
+                "Value": [
+                    "test"
+                ]
+            },
+            "00404025": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00080100": {
+                            "vr": "SH",
+                            "Value": [
+                                "test2"
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+        expect(j4care.removeKeyFromObject(obj,"required")).toEqual(result);
+    });
 
     it("Should extract language object from the language ldap string",()=>{
         expect(

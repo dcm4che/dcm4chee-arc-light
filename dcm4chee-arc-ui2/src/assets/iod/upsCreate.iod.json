@@ -2,9 +2,17 @@
   "00080005": { "vr": "CS", "multi": true },
   "00081195": { "vr": "UI", "required": 2 },
   "0020000D": { "vr": "UI", "required": 2 },
-  "00741200": { "vr": "CS", "required": 1 },
+  "00741200": { "vr": "CS", "required": 1, "enum": [
+    "LOW",
+    "MEDIUM",
+    "HIGH"
+  ]},
   "00741204": { "vr": "LO", "required": 1 },
-  "00404041": { "vr": "LT", "required": 1 },
+  "00404041": { "vr": "LT", "required": 1,"enum": [
+    "INCOMPLETE",
+    "UNAVAILABLE",
+    "READY"
+  ]},
   "00404005": { "vr": "DT", "required": 2 },
   "00741000": { "vr": "CS", "required": 1 },
   "00741202": { "vr": "LO", "required": 2 },
