@@ -46,6 +46,8 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
@@ -96,6 +98,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.function.IntFunction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -615,6 +618,8 @@ public class IocmRS {
             return toResponse(result);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (DicomServiceException e) {
+            return errResponse(IocmRS::rejectFailed, e);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -713,6 +718,8 @@ public class IocmRS {
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (DicomServiceException e) {
+            return errResponse(IocmRS::rejectFailed, e);
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -760,6 +767,8 @@ public class IocmRS {
             return toResponse(result);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (DicomServiceException e) {
+            return errResponse(IocmRS::rejectFailed, e);
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -1098,7 +1107,7 @@ public class IocmRS {
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
-        LOG.warn("Response {} caused by {}", status, errorMsg);
+        LOG.info("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
                 .entity(errorMsg)
                 .type("text/plain")
@@ -1109,5 +1118,28 @@ public class IocmRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
+        return errResponse(e.getMessage(), httpStatusOf.apply(e.getStatus()));
+    }
+
+    private static Response.Status rejectFailed(int status) {
+        switch (status) {
+            case StoreService.CONFLICTING_PID_NOT_ACCEPTED:
+            case StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED:
+                return Response.Status.CONFLICT;
+            case StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT:
+            case StoreService.DUPLICATE_REJECTION_NOTE:
+            case StoreService.REJECTION_FAILED_ALREADY_REJECTED:
+            case StoreService.PATIENT_ID_MISSING_IN_OBJECT:
+                return Response.Status.BAD_REQUEST;
+            case StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE:
+                return Response.Status.NOT_FOUND;
+            case StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED:
+            case StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED:
+                return Response.Status.FORBIDDEN;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
     }
 }

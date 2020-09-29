@@ -118,8 +118,17 @@
         "202": {
           "description": "Rejection of Study queued"
         },
+        "400": {
+          "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
+        },
+        "403": {
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
+        },
         "404": {
-          "description": "No such Archive AE Title, Study or Rejection Note"
+          "description": "No such Archive AE Title, Study or Rejection Note or No such instance(s) found for rejection"
+        },
+        "409": {
+          "description": "Conflicting patient ID or attributes are not allowed"
         },
         "500": {
           "description": "Internal Server Error"
@@ -167,8 +176,17 @@
         "202": {
           "description": "Rejection of Series queued"
         },
+        "400": {
+          "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
+        },
+        "403": {
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
+        },
         "404": {
-          "description": "No such Archive AE Title, Study, Series or Rejection Note"
+          "description": "No such Archive AE Title, Study or Rejection Note or No such instance(s) found for rejection"
+        },
+        "409": {
+          "description": "Conflicting patient ID or attributes are not allowed"
         },
         "500": {
           "description": "Internal Server Error"
@@ -219,8 +237,17 @@
         "202": {
           "description": "Rejection of Instance queued"
         },
+        "400": {
+          "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
+        },
+        "403": {
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
+        },
         "404": {
-          "description": "No such Archive AE Title, Study, Series, Instance or Rejection Note"
+          "description": "No such Archive AE Title, Study or Rejection Note or No such instance(s) found for rejection"
+        },
+        "409": {
+          "description": "Conflicting patient ID or attributes are not allowed"
         },
         "500": {
           "description": "Internal Server Error"
@@ -938,13 +965,16 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body or Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
+        },
+        "403": {
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
         },
         "404": {
-          "description": "No such Application Entity, Study or Rejection Note."
+          "description": "No such Application Entity, Study or Rejection Note or No such instance(s) found for rejection."
         },
         "409": {
-          "description": "Move Instances to target study failed for all.",
+          "description": "Move Instances to target study failed for all or Conflicting patient ID or attributes are not allowed.",
           "content": {
             "application/json": {
               "schema": {

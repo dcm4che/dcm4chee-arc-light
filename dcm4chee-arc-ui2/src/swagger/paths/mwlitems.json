@@ -271,13 +271,16 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Study Instance UID in request body"
+          "description": "JSON request body not well formed or Missing Study Instance UID in request body or Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
+        },
+        "403": {
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
         },
         "404": {
-          "description": "No such Application Entity, Study, MWL Item or Rejection Note."
+          "description": "No such Application Entity, Study, MWL Item or Rejection Note or No such instance(s) found for rejection."
         },
         "409": {
-          "description": "Link Instances with MWLItem failed for all.",
+          "description": "Link Instances with MWLItem failed for all or Conflicting patient ID or attributes are not allowed.",
           "content": {
             "application/json": {
               "schema": {
