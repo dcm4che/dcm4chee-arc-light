@@ -129,9 +129,6 @@ class ParticipantObjectID {
                 || eventType.eventClass == AuditUtils.EventClass.IMPAX))
             studyPOIBuilder.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation);
 
-        if (eventType.eventClass == AuditUtils.EventClass.STORE_WADOR && auditInfo.getField(AuditInfo.Q_STRING) != null)
-            studyPOIBuilder.query(auditInfo.getField(AuditInfo.Q_STRING).getBytes());
-
         studyPatParticipants[0] = studyPOIBuilder.build();
         studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
         return studyPatParticipants;

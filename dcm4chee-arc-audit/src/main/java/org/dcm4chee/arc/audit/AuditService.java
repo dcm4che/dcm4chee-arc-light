@@ -533,8 +533,7 @@ public class AuditService {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
             String suffix = '-' + req.requesterHost
                     + '-' + ctx.getLocalAETitle()
-                    + '-' + ctx.getStudyInstanceUIDs()[0]
-                    + '-' + ctx.getSopInstanceUIDs()[0];
+                    + '-' + ctx.getStudyInstanceUIDs()[0];
             AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                     .callingHost(req.requesterHost)
                     .callingUserID(req.requesterUserID)
@@ -542,7 +541,6 @@ public class AuditService {
                     .studyUIDAccNumDate(attrs, getArchiveDevice())
                     .pIDAndName(attrs, getArchiveDevice())
                     .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
-                    .queryString(req.queryString)
                     .build();
             AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
                     .sopCUID(attrs.getString(Tag.SOPClassUID))
