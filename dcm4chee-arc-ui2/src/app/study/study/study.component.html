@@ -36,7 +36,7 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl')))"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff')))"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down

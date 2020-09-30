@@ -2369,22 +2369,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     return option.value === "change_sps_status_on_matching";
                 }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
-                        switch (option.value) {
-                            case "retrieve_multiple":
-                                return !internal && !(studyConfig && studyConfig.tab === "diff");
+                        if(studyConfig && studyConfig.tab === "uwl"){
+                            return option.value === "create_ups";
+                        }else{
+                            switch (option.value) {
+                                case "retrieve_multiple":
+                                    return !internal && !(studyConfig && studyConfig.tab === "diff");
 
-                            case "export_multiple":
-                                return internal && !(studyConfig && studyConfig.tab === "diff");
-                            case "upload_dicom":
-                                return !(studyConfig && studyConfig.tab === "diff");
-                            case "permanent_delete":
-                                return internal && !(studyConfig && studyConfig.tab === "diff");
-                            case "trigger_diff":
-                                return studyConfig && studyConfig.tab === "diff";
-                            case "reject_multiple":
-                                return studyConfig && studyConfig.tab === "study";
-                            case "change_sps_status_on_matching":
-                                return false;
+                                case "export_multiple":
+                                    return internal && !(studyConfig && studyConfig.tab === "diff");
+                                case "upload_dicom":
+                                    return !(studyConfig && studyConfig.tab === "diff");
+                                case "permanent_delete":
+                                    return internal && !(studyConfig && studyConfig.tab === "diff");
+                                case "trigger_diff":
+                                    return studyConfig && studyConfig.tab === "diff";
+                                case "reject_multiple":
+                                    return studyConfig && studyConfig.tab === "study";
+                                case "change_sps_status_on_matching":
+                                    return false;
+                            }
                         }
                         return true;
                     }else{
@@ -2562,14 +2566,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     modifyUPS(workitem, mode:("edit"|"create"),config?:{saveLabel:string,titleLabel:string}){
         let originalWorkitemObject;
-        if(mode === "edit"){
-            originalWorkitemObject = _.cloneDeep(workitem);
-            config = config || {
-                saveLabel: $localize `:@@SAVE:SAVE`,
-                titleLabel: $localize `:@@edit_ups:Edit UPS Workitem`
-            };
-        }
         this.service.getUPSIod(mode).subscribe(iod=>{
+            if(mode === "edit"){
+                originalWorkitemObject = _.cloneDeep(workitem);
+                config = config || {
+                    saveLabel: $localize `:@@SAVE:SAVE`,
+                    titleLabel: $localize `:@@edit_ups:Edit UPS Workitem`
+                };
+                workitem.attrs = j4care.intersection(workitem.attrs,iod);
+            }
             console.log("iod",iod);
             if(mode === "create" && !workitem){
                 workitem = {
@@ -2609,7 +2614,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs),j4care.intersection(workitem.attrs,iod),this.studyWebService).subscribe(res=>{
+                        this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.workitem_updated_successfully:Workitem updated successfully`);
                         },err=>{
                             _.assign(workitem, originalWorkitemObject);

@@ -4237,33 +4237,35 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   }
 }
 
-.study_action_buttons.mat-menu-panel, .mwl_action_buttons.mat-menu-panel{
-  min-width: 30px !important;
-  max-width: 96px !important;
-  overflow: visible;
-  background:transparent;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  .mat-menu-content{
-    padding: 0 !important;
-    .dicom_table_buttons{
-      width: 30px;
-      display: block;
-      float: left;
-      height: 25px;
-      text-align: center;
-      line-height: 25px;
-      margin: 1px;
-      background: rgba(204, 204, 204, 1);
-      //background: rgba(28, 36, 43, 0.92);
-      //color: rgba(255, 255, 255, 0.9);
-      -webkit-box-shadow: 3px 3px 12px 0px black;
-      -moz-box-shadow: 3px 3px 12px 0px black;
-      box-shadow: 3px 3px 12px 0px black;
-      &:hover{
-        background: #161d23;
-        color: white;
+.study_action_buttons, .uwl_action_buttons, .mwl_action_buttons, .diff_action_buttons{
+  &.mat-menu-panel{
+    min-width: 30px !important;
+    max-width: 96px !important;
+    overflow: visible;
+    background:transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    .mat-menu-content{
+      padding: 0 !important;
+      .dicom_table_buttons{
+        width: 30px;
+        display: block;
+        float: left;
+        height: 25px;
+        text-align: center;
+        line-height: 25px;
+        margin: 1px;
+        background: rgba(204, 204, 204, 1);
+        //background: rgba(28, 36, 43, 0.92);
+        //color: rgba(255, 255, 255, 0.9);
+        -webkit-box-shadow: 3px 3px 12px 0px black;
+        -moz-box-shadow: 3px 3px 12px 0px black;
+        box-shadow: 3px 3px 12px 0px black;
+        &:hover{
+          background: #161d23;
+          color: white;
+        }
       }
     }
   }

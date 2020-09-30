@@ -2709,6 +2709,44 @@ export class StudyService {
                             {
                                 icon: {
                                     tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-unchecked',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    e.selected = !e.selected;
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "select"
+                                    }, e);
+                                },
+                                title: $localize `:@@select:Select`,
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && !e.selected;
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-check',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    console.log("e", e);
+                                    e.selected = !e.selected;
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "select"
+                                    }, e);
+                                },
+                                title: $localize `:@@unselect:Unselect`,
+                                showIf: (e, config) => {
+                                    return !config.showCheckboxes && e.selected;
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
                                     cssClass: 'glyphicon glyphicon-pencil',
                                     text: ''
                                 },
