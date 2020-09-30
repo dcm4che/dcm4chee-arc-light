@@ -126,6 +126,16 @@ export class StudyService {
             return undefined;
         }
     }
+    getUpsWorkitemUID(attr){
+        return _.get(attr, "00080018.Value[0]")
+    }
+
+    removeUpsWorkitemUID(attr){
+        //SOP Instance UID === WorkitemUID
+        _.hasIn(attr, "00080018")
+            delete attr["00080018"];
+        return attr;
+    }
 
     clearPatientObject(object) {
         let $this = this;
@@ -2687,7 +2697,7 @@ export class StudyService {
                     pathToValue: '',
                     pxWidth: 40
                 }),
-/*                new TableSchemaElement({
+                new TableSchemaElement({
                     type: "actions-menu",
                     header: "",
                     menu: {
@@ -2706,7 +2716,7 @@ export class StudyService {
                                     actions.call($this, {
                                         event: "click",
                                         level: "uwl",
-                                        action: "uwl_mwl"
+                                        action: "edit_uwl"
                                     }, e);
                                 },
                                 title: $localize `:@@study.edit_uwl:Edit UWL`,
@@ -2714,49 +2724,49 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
-                            },
-                            {
-                                icon: {
-                                    tag: 'span',
-                                    cssClass: 'glyphicon glyphicon-remove',
-                                    text: ''
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "uwl",
-                                        action: "delete_uwl"
-                                    }, e);
-                                },
-                                title: $localize `:@@study.delete_uwl:Delete UWL`,
-                                permission: {
-                                    id: 'action-studies-uwl',
-                                    param: 'delete'
-                                }
-                            },{
-                                icon: {
-                                    tag: 'i',
-                                    cssClass: 'material-icons',
-                                    text: 'file_upload'
-                                },
-                                click: (e) => {
-                                    actions.call($this, {
-                                        event: "click",
-                                        level: "uwl",
-                                        action: "upload_file"
-                                    }, e);
-                                },
-                                title: $localize `:@@upload_file:Upload file`,
-                                permission: {
-                                    id: 'action-studies-mwl',
-                                    param: 'upload'
-                                }
                             }
+                            /*                            ,
+                                                        {
+                                                            icon: {
+                                                                tag: 'span',
+                                                                cssClass: 'glyphicon glyphicon-remove',
+                                                                text: ''
+                                                            },
+                                                            click: (e) => {
+                                                                actions.call($this, {
+                                                                    event: "click",
+                                                                    level: "uwl",
+                                                                    action: "delete_uwl"
+                                                                }, e);
+                                                            },
+                                                            title: $localize `:@@study.delete_uwl:Delete UWL`,
+                                                            permission: {
+                                                                id: 'action-studies-uwl',
+                                                                param: 'delete'
+                                                            }
+                                                        },{
+                                                            icon: {
+                                                                tag: 'i',
+                                                                cssClass: 'material-icons',
+                                                                text: 'file_upload'
+                                                            },
+                                                            click: (e) => {
+                                                                actions.call($this, {
+                                                                    event: "click",
+                                                                    level: "uwl",
+                                                                    action: "upload_file"
+                                                                }, e);
+                                                            },
+                                                            title: $localize `:@@upload_file:Upload file`,
+                                                            permission: {
+                                                                id: 'action-studies-mwl',
+                                                                param: 'upload'
+                                                            }
+                                                        }*/
                         ]
                     },
-                    headerDescription: $localize `:@@actions:Actions`,
-                    pxWidth: 35
-                }), */
+                    headerDescription: $localize `:@@actions:Actions`
+                }),
                 new TableSchemaElement({
                     type: "actions",
                     header: "",
@@ -3207,15 +3217,16 @@ export class StudyService {
 
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
+        let header = new HttpHeaders({'Content-Type': 'application/dicom+json','Accept': 'application/dicom+json'});
         return this.getModifyUPSUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (workitemUID) {
                         //Change ups;
-                        return this.$http.put(`${url}/${workitemUID}`, object);
+                        return this.$http.post(`${url}/${workitemUID}`, object, header);
                     } else {
                         //Create new patient
-                        return this.$http.post(url, object,  new HttpHeaders({'Content-Type': 'application/dicom+json','Accept': 'application/dicom+json'}));
+                        return this.$http.post(url, object,  header);
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});

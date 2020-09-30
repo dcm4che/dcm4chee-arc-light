@@ -745,6 +745,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "edit_patient"){
                 this.editPatient(model);
             }
+            if(id.action === "edit_uwl"){
+                this.modifyUPS(model,"edit");
+            }
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
             }
@@ -2553,7 +2556,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     createUPS(){
         this.modifyUPS(undefined, "create",{
             saveLabel: $localize `:@@CREATE:CREATE`,
-            titleLabel: $localize `:@@create_new_ups:Create new Workitem`
+            titleLabel: $localize `:@@create_new_ups:Create new UPS Workitem`
         })
     }
 
@@ -2561,16 +2564,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let originalWorkitemObject;
         if(mode === "edit"){
             originalWorkitemObject = _.cloneDeep(workitem);
+            config = config || {
+                saveLabel: $localize `:@@SAVE:SAVE`,
+                titleLabel: $localize `:@@edit_ups:Edit UPS Workitem`
+            };
         }
-        this.service.getUPSIod(mode).subscribe(ups=>{
-            console.log("ups",ups);
+        this.service.getUPSIod(mode).subscribe(iod=>{
+            console.log("iod",iod);
             if(mode === "create" && !workitem){
                 workitem = {
                     "attrs":{}
                 };
-                Object.keys(ups).forEach(dicomAttr=>{
-                    if((ups[dicomAttr].required && ups[dicomAttr].required === 1) || dicomAttr === "00741202"){
-                        workitem["attrs"][dicomAttr] = ups[dicomAttr];
+                Object.keys(iod).forEach(dicomAttr=>{
+                    if((iod[dicomAttr].required && iod[dicomAttr].required === 1) || dicomAttr === "00741202"){
+                        workitem["attrs"][dicomAttr] = iod[dicomAttr];
                     }
                 });
             }else{
@@ -2587,8 +2594,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
             this.dialogRef.componentInstance.mode = "create";
             this.dialogRef.componentInstance.patient = workitem;
-            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(ups);
-            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(ups, 'items', 'Value');
+            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
+            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
             this.dialogRef.componentInstance.saveLabel = config.saveLabel;
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(ok => {
@@ -2602,7 +2609,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyUPS(this.service.getPatientId(originalWorkitemObject.attrs),workitem.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs),j4care.intersection(workitem.attrs,iod),this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.workitem_updated_successfully:Workitem updated successfully`);
                         },err=>{
                             _.assign(workitem, originalWorkitemObject);

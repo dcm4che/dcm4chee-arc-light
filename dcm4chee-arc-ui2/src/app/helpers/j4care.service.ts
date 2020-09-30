@@ -1300,6 +1300,18 @@ export class j4care {
         }
     }
 
+    static intersection(firstObject, secondObject){
+        if(_.isObject(firstObject) && _.isObject(secondObject)){
+            let result = {};
+            Object.keys(firstObject).forEach(k=>{
+                if(_.hasIn(secondObject,k)){
+                    result[k] = firstObject[k];
+                }
+            });
+            return result;
+        }
+    }
+
     static generateOIDFromUUID(){
         let guid = uuid();                            //Generate UUID
         let guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
