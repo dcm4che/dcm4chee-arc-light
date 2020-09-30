@@ -54,7 +54,9 @@ import org.dcm4che3.conf.ldap.imageio.LdapImageWriterConfiguration;
 import org.dcm4chee.arc.conf.ui.ldap.LdapArchiveUIConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -63,6 +65,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,19 +79,32 @@ public class LdapArchiveConfigurationFactory {
     private static final String APP_NAME_PROPERTY = "org.dcm4chee.arc.AppName";
     private static final String DEF_APP_NAME = "dcm4chee-arc";
 
-    private static final LdapDicomConfigurationExtension[] configExts() {
-        return new LdapDicomConfigurationExtension[]{
-                new LdapAuditLoggerConfiguration(),
-                new LdapAuditRecordRepositoryConfiguration(),
-                new LdapImageReaderConfiguration(),
-                new LdapImageWriterConfiguration(),
-                new LdapArchiveConfiguration(),
-                new LdapArchiveUIConfiguration(),
-                newLdapHL7Configuration()
-        };
-    };
+    @Inject
+    private Instance<LdapDicomConfigurationExtension> configExts;
 
-    private static LdapDicomConfigurationExtension newLdapHL7Configuration() {
+    @Produces
+    @ApplicationScoped
+    private static LdapAuditLoggerConfiguration ldapAuditLoggerConfiguration =
+            new LdapAuditLoggerConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static LdapAuditRecordRepositoryConfiguration ldapAuditRecordRepositoryConfiguration =
+            new LdapAuditRecordRepositoryConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static LdapImageReaderConfiguration ldapImageReaderConfiguration =
+            new LdapImageReaderConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static LdapImageWriterConfiguration ldapImageWriterConfiguration =
+            new LdapImageWriterConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static LdapHL7Configuration newLdapHL7Configuration() {
         LdapHL7Configuration hl7Config = new LdapHL7Configuration();
         hl7Config.addHL7ConfigurationExtension(new LdapArchiveHL7Configuration());
         return hl7Config;
@@ -96,26 +112,38 @@ public class LdapArchiveConfigurationFactory {
 
     public static DicomConfiguration newLdapDicomConfiguration(URL envURL)
             throws ConfigurationException {
+        return newLdapDicomConfiguration(envURL, Stream.of(
+                new LdapAuditLoggerConfiguration(),
+                new LdapAuditRecordRepositoryConfiguration(),
+                new LdapImageReaderConfiguration(),
+                new LdapImageWriterConfiguration(),
+                new LdapArchiveConfiguration(),
+                new LdapArchiveUIConfiguration(),
+                newLdapHL7Configuration()));
+    }
+
+    private static DicomConfiguration newLdapDicomConfiguration(URL envURL,
+            Stream<LdapDicomConfigurationExtension> configExts)
+            throws ConfigurationException {
         try {
-            return newLdapDicomConfiguration(loadProperties(envURL));
+            return newLdapDicomConfiguration(loadProperties(envURL), configExts);
         } catch (IOException e) {
             throw new ConfigurationException("Failed to load LDAP properties from " + envURL, e);
         }
     }
 
-    public static LdapDicomConfiguration newLdapDicomConfiguration(Hashtable<?, ?> env)
+    private static LdapDicomConfiguration newLdapDicomConfiguration(Hashtable<?, ?> env,
+            Stream<LdapDicomConfigurationExtension> configExts)
             throws ConfigurationException {
         LdapDicomConfiguration config = new LdapDicomConfiguration(env);
-        for (LdapDicomConfigurationExtension ext : configExts()) {
-            config.addDicomConfigurationExtension(ext);
-        }
+        configExts.forEach(config::addDicomConfigurationExtension);
         return config;
     }
 
     @Produces
     @ApplicationScoped
     public DicomConfiguration newLdapDicomConfiguration() throws ConfigurationException {
-        return newLdapDicomConfiguration(envURL());
+        return newLdapDicomConfiguration(envURL(), configExts.stream());
     }
 
     @Produces
@@ -150,7 +178,7 @@ public class LdapArchiveConfigurationFactory {
         return p;
     }
 
-    private URL envURL() {
+    private static URL envURL() {
         String appName = System.getProperty(APP_NAME_PROPERTY, DEF_APP_NAME);
         String configDir = System.getProperty(JBOSS_SERVER_CONFIG_DIR);
         Path path = Paths.get(configDir, appName, LDAP_PROPERTIES);

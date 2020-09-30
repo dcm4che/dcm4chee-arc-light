@@ -59,6 +59,7 @@ import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
@@ -73,7 +74,8 @@ import java.util.regex.Pattern;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
-class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
+@ApplicationScoped
+public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static final Logger LOG = LoggerFactory.getLogger(LdapArchiveConfiguration.class);
 

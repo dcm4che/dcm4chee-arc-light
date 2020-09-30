@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ui.*;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
@@ -60,6 +61,7 @@ import java.util.List;
  * @author Shefki Esadi <shralsheki@gmail.com>
  * @since Nov 2017
  */
+@ApplicationScoped
 public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension {
 
     @Override
