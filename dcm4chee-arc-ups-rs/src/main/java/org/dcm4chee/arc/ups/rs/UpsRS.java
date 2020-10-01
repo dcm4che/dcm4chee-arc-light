@@ -127,7 +127,7 @@ public class UpsRS {
 
     @POST
     @Path("/workitems")
-    public Response createUPSJSON(
+    public Response createUPS(
             @QueryParam("workitem") String iuid,
             @QueryParam("template") @Pattern(regexp = "true|false") String template,
             InputStream in) {
@@ -140,7 +140,7 @@ public class UpsRS {
 
     @POST
     @Path("/workitems/{workitem}")
-    public Response updateUPSJSON(@PathParam("workitem") String iuid, InputStream in) {
+    public Response updateUPS(@PathParam("workitem") String iuid, InputStream in) {
         InputType inputType = InputType.valueOf(headers.getMediaType());
         if (inputType == null)
             return notAcceptable();
@@ -150,7 +150,7 @@ public class UpsRS {
 
     @PUT
     @Path("/workitems/{workitem}/state/{requester}")
-    public Response changeUPSStateJSON(
+    public Response changeUPSState(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
@@ -186,7 +186,7 @@ public class UpsRS {
 
     @POST
     @Path("/workitems/{workitem}/cancelrequest/{requester}")
-    public Response requestUPSCancelJSON(
+    public Response requestUPSCancel(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
