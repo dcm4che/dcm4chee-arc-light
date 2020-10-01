@@ -186,6 +186,7 @@ public class UpsRS {
 
     @POST
     @Path("/workitems/{workitem}/cancelrequest/{requester}")
+    @Consumes({"application/dicom+json", "application/dicom+xml"})
     public Response requestUPSCancel(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
