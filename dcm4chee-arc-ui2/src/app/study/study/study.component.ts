@@ -177,7 +177,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
-            new SelectDropdown("create_ups",$localize `:@@study.create_ups:Add new Workitem`),
+            new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
@@ -539,7 +539,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     paste(){
         console.log("past,this.selectedEleents",this.selectedElements);
-
         if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
             if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
                 this.appService.showError($localize `:@@study.more_than_one_target_selected:More than one target selected!`);
@@ -2571,7 +2570,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 originalWorkitemObject = _.cloneDeep(workitem);
                 config = config || {
                     saveLabel: $localize `:@@SAVE:SAVE`,
-                    titleLabel: $localize `:@@edit_ups:Edit UPS Workitem`
+                    titleLabel: $localize `:@@edit_ups_workitem:Edit UPS Workitem`
                 };
                 workitem.attrs = j4care.intersection(workitem.attrs,iod);
             }
@@ -2608,14 +2607,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     j4care.removeKeyFromObject(workitem.attrs, ["required","enum", "multi"]);
                     if(mode === "create"){
                         this.service.modifyUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg($localize `:@@study.patient_created_successfully:Workitem created successfully`);
+                            this.appService.showMsg($localize `:@@ups_workitem_created_successfully:UPS Workitem created successfully`);
                         },err=>{
                             workitem = undefined;
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
                         this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg($localize `:@@study.workitem_updated_successfully:Workitem updated successfully`);
+                            this.appService.showMsg($localize `:@@ups_workitem_updated_successfully:UPS Workitem updated successfully`);
                         },err=>{
                             _.assign(workitem, originalWorkitemObject);
                             this.httpErrorHandler.handleError(err);
