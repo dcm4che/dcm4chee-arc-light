@@ -750,6 +750,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "clone_uwl"){
                 this.cloneUPS(model);
             }
+            if(id.action === "reschedule_uwl"){
+                this.rescheduleUPS(model);
+            }
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
             }
@@ -2650,6 +2653,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         })
     }
 
+    rescheduleUPS(workitem){
+        this.confirm({
+            content: $localize `:@@title.reschedule:Reschedule`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"workitem",
+                            description:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`,
+                            placeholder:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
+                        },
+                        {
+                            tag:"p-calendar",
+                            filterKey:"upsScheduledTime",
+                            description:$localize `:@@scheduled_procedure_step_start_date_time_00404005_as_in_created_ups:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS`,
+                            placeholder:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@RESCHEDULE:RESCHEDULE`
+        }).subscribe((ok)=> {
+            if(ok){
+                this.service.rescheduleUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model).subscribe(res => {
+                    this.appService.showMsg($localize `:@@ups_workitem_rescheduled_successfully:UPS Workitem rescheduled successfully!`);
+                }, err => {
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
     editPatient(patient){
         let config:ModifyConfig = {
             saveLabel:$localize `:@@SAVE:SAVE`,

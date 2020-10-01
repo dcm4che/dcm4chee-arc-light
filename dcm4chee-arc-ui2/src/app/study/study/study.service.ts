@@ -2781,6 +2781,25 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-repeat',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "reschedule_uwl"
+                                    }, e);
+                                },
+                                title: $localize `:@@reschedule_uwl:Reschedule UWL`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
                             }
                             /*                            ,
                                                         {
@@ -3271,7 +3290,17 @@ export class StudyService {
             )
         }
     };
-
+    rescheduleUPS(workitemUID,deviceWebservice: StudyWebService, model){
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    if (workitemUID) {
+                        return this.$http.post(`${url}/${workitemUID}/reschedule${j4care.objToUrlParams(model,true)}`,{});
+                    }
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+            }))
+    }
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
         let header = new HttpHeaders({'Content-Type': 'application/dicom+json','Accept': 'application/dicom+json'});
