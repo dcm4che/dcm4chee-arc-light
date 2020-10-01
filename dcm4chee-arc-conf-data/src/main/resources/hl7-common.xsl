@@ -214,11 +214,10 @@
   <xsl:template name="cnn2pnAttr">
     <xsl:param name="tag"/>
     <xsl:param name="cn"/>
-    <xsl:param name="cn26" select="$cn/component"/>
-    <xsl:if test="$cn26 or $cn = '&quot;&quot;'">
+    <xsl:if test="$cn or $cn != '&quot;&quot;'">
       <xsl:call-template name="pnAttr">
         <xsl:with-param name="tag" select="$tag"/>
-        <xsl:with-param name="val" select="string($cn/text())"/>
+        <xsl:with-param name="val" select="string($cn)"/>
         <xsl:with-param name="fn" select="string($cn/subcomponent[1]/text())"/>
         <xsl:with-param name="gn" select="string($cn/subcomponent[2]/text())"/>
         <xsl:with-param name="mn" select="string($cn/subcomponent[3]/text())"/>

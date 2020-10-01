@@ -298,7 +298,7 @@
         </xsl:call-template>
         <!-- Verifying Observer Name -->
         <xsl:choose>
-          <xsl:when test="field[32]/component">
+          <xsl:when test="field[32]/text()">
             <xsl:call-template name="cnn2pnAttr">
               <xsl:with-param name="tag" select="'0040A075'"/>
               <xsl:with-param name="cn" select="field[32]"/>
