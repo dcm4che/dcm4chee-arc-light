@@ -325,3 +325,10 @@ export interface LocalLanguageObject{
     language:LanguageObject,
     username:string
 }
+
+export type UPSModifyMode = "create"|"edit"|"clone";
+
+export interface ModifyConfig {
+    saveLabel:string;
+    titleLabel:string;
+}

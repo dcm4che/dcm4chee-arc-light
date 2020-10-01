@@ -7,7 +7,7 @@ import {
     DicomResponseType, DiffAttributeSet,
     FilterSchema, FilterSchemaElement,
     SelectDropdown, SelectedDetailObject, SelectionAction, StudyFilterConfig,
-    UniqueSelectIdObject
+    UniqueSelectIdObject, UPSModifyMode
 } from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
@@ -2762,6 +2762,25 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-duplicate',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "clone_uwl"
+                                    }, e);
+                                },
+                                title: $localize `:@@clone_uwl:Clone UWL`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
                             }
                             /*                            ,
                                                         {
@@ -3426,8 +3445,8 @@ export class StudyService {
         }));
     }
 
-    getUPSIod(mode:("create"|"edit")) {
-        if(mode && mode === "create"){
+    getUPSIod(mode:UPSModifyMode) {
+        if(mode && (mode === "create" || mode === "clone")){
             return this.getIod("upsCreate");
         }
         return this.getIod("upsUpdate");

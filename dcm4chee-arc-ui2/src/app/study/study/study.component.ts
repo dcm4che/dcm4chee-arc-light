@@ -15,7 +15,7 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet, AccessControlIDMode,
+    DicomResponseType, DiffAttributeSet, AccessControlIDMode, UPSModifyMode, ModifyConfig,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -745,7 +745,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.editPatient(model);
             }
             if(id.action === "edit_uwl"){
-                this.modifyUPS(model,"edit");
+                this.editUPS(model);
+            }
+            if(id.action === "clone_uwl"){
+                this.cloneUPS(model);
             }
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
@@ -2538,7 +2541,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }*/
 
     createPatient(){
-        let config:{saveLabel:string,titleLabel:string} = {
+        let config:ModifyConfig = {
             saveLabel:$localize `:@@CREATE:CREATE`,
             titleLabel:$localize `:@@study.create_new_patient:Create new patient`
         };
@@ -2557,21 +2560,44 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     createUPS(){
-        this.modifyUPS(undefined, "create",{
-            saveLabel: $localize `:@@CREATE:CREATE`,
-            titleLabel: $localize `:@@create_new_ups:Create new UPS Workitem`
-        })
+        this.modifyUPS(
+            undefined,
+            "create",
+            {
+                saveLabel: $localize `:@@CREATE:CREATE`,
+                titleLabel: $localize `:@@create_new_ups:Create new UPS Workitem`
+            },
+            $localize `:@@ups_workitem_created_successfully:UPS Workitem created successfully`
+        )
+    }
+    cloneUPS(workitem){
+        this.modifyUPS(
+            workitem,
+            "clone",
+            {
+                saveLabel: $localize `:@@CLONE:CLONE`,
+                titleLabel: $localize `:@@clone_ups_workitem:Clone UPS Workitem`
+            },
+            $localize `:@@ups_workitem_cloned_successfully:UPS Workitem cloned successfully`
+        )
+    }
+    editUPS(workitem){
+        this.modifyUPS(
+            workitem,
+            "edit",
+            {
+                saveLabel: $localize `:@@SAVE:SAVE`,
+                titleLabel: $localize `:@@edit_ups_workitem:Edit UPS Workitem`
+            },
+            $localize `:@@ups_workitem_updated_successfully:UPS Workitem updated successfully`
+        )
     }
 
-    modifyUPS(workitem, mode:("edit"|"create"),config?:{saveLabel:string,titleLabel:string}){
+    modifyUPS(workitem, mode:UPSModifyMode,config:ModifyConfig, successfullMessage:string){
         let originalWorkitemObject;
         this.service.getUPSIod(mode).subscribe(iod=>{
-            if(mode === "edit"){
+            if(mode === "edit" || mode === "clone"){
                 originalWorkitemObject = _.cloneDeep(workitem);
-                config = config || {
-                    saveLabel: $localize `:@@SAVE:SAVE`,
-                    titleLabel: $localize `:@@edit_ups_workitem:Edit UPS Workitem`
-                };
                 workitem.attrs = j4care.intersection(workitem.attrs,iod);
             }
             console.log("iod",iod);
@@ -2580,15 +2606,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "attrs":{}
                 };
                 Object.keys(iod).forEach(dicomAttr=>{
-                    if((iod[dicomAttr].required && iod[dicomAttr].required === 1) || dicomAttr === "00741202"){
-                        workitem["attrs"][dicomAttr] = iod[dicomAttr];
+                    if((iod[dicomAttr].required && iod[dicomAttr].required === 1) || dicomAttr === "00741202" || dicomAttr === "00404005"){
+                        workitem["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
                     }
                 });
-            }else{
-                let config = {
-                    saveLabel: $localize `:@@SAVE:SAVE`,
-
-                }
+                _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
             }
             this.service.initEmptyValue(workitem.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
@@ -2605,16 +2627,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.afterClosed().subscribe(ok => {
                 if (ok){
                     j4care.removeKeyFromObject(workitem.attrs, ["required","enum", "multi"]);
-                    if(mode === "create"){
+                    if(mode === "create" || mode === "clone"){
                         this.service.modifyUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg($localize `:@@ups_workitem_created_successfully:UPS Workitem created successfully`);
+                            this.appService.showMsg(successfullMessage);
                         },err=>{
                             workitem = undefined;
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
                         this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg($localize `:@@ups_workitem_updated_successfully:UPS Workitem updated successfully`);
+                            this.appService.showMsg(successfullMessage);
                         },err=>{
                             _.assign(workitem, originalWorkitemObject);
                             this.httpErrorHandler.handleError(err);
@@ -2629,7 +2651,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     editPatient(patient){
-        let config:{saveLabel:string,titleLabel:string} = {
+        let config:ModifyConfig = {
             saveLabel:$localize `:@@SAVE:SAVE`,
             titleLabel:$localize `:@@study.edit_patient:Edit patient`
         };
