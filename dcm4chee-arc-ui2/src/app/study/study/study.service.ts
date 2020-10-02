@@ -2841,7 +2841,8 @@ export class StudyService {
                                                         }*/
                         ]
                     },
-                    headerDescription: $localize `:@@actions:Actions`
+                    headerDescription: $localize `:@@actions:Actions`,
+                    pxWidth: 40
                 }),
                 new TableSchemaElement({
                     type: "actions",
