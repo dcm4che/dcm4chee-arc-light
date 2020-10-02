@@ -46,7 +46,6 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -659,22 +658,18 @@ public class IocmRS {
     }
 
     public void validate() {
-        logRequest();
-        String[] uriPath = StringUtils.split(uriInfo.getPath(), '/');
-        if ("copy".equals(uriPath[uriPath.length -1])
-            || ("move".equals(uriPath[uriPath.length -2])
-                && "studies".equals(uriPath[uriPath.length -4]))) {
-            coerceAttrs = new QueryAttributes(uriInfo, null).getQueryKeys();
-        }
-    }
-
-    private void logRequest() {
         LOG.info("Process {} {}?{} from {}@{}",
                 request.getMethod(),
                 request.getRequestURI(),
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+        String[] uriPath = StringUtils.split(uriInfo.getPath(), '/');
+        if ("copy".equals(uriPath[uriPath.length -1])
+            || ("move".equals(uriPath[uriPath.length -2])
+                && "studies".equals(uriPath[uriPath.length -4]))) {
+            coerceAttrs = new QueryAttributes(uriInfo, null).getQueryKeys();
+        }
     }
 
     private Attributes toAttributes(InputStream in) {
@@ -700,7 +695,6 @@ public class IocmRS {
 
     private Response reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
 
         try {
@@ -739,7 +733,6 @@ public class IocmRS {
     }
 
     private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             RejectionNote rjNote = toRejectionNote(codeValue, designator);

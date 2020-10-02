@@ -122,7 +122,12 @@ public class ApplyRetentionPolicy {
     }
 
     public void validate() {
-        logRequest();
+        LOG.info("Process {} {}?{} from {}@{}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getQueryString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
         new QueryAttributes(uriInfo, null);
     }
 
@@ -130,7 +135,6 @@ public class ApplyRetentionPolicy {
     @Path("/series")
     @Produces("application/json")
     public Response applyRetentionPolicy() {
-        logRequest();
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -197,15 +201,6 @@ public class ApplyRetentionPolicy {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
-                request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
     }
 
     private Response errResponse(String msg, Response.Status status) {

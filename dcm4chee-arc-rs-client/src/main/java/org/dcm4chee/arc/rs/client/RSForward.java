@@ -81,12 +81,6 @@ public class RSForward {
 
     public void forward(
             RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, String patientID, HttpServletRequest request) {
-        LOG.info("Restful Service Forward invoked for {} {}?{} from {}@{}",
-                request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
         arcAE.rsForwardRules()
                 .filter(rule -> match(rule, rsOp, request))
                 .forEach(
