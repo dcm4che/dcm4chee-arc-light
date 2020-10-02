@@ -528,40 +528,12 @@
             </xsl:with-param>
           </xsl:call-template>
           <!--Concept Name Code Sequence-->
-          <xsl:choose>
-            <xsl:when test="$observationID/text() = '18783-1'">
-              <xsl:call-template name="codeItem">
-                <xsl:with-param name="sqtag" select="'0040A043'"/>
-                <xsl:with-param name="code" select="'121075'"/>
-                <xsl:with-param name="scheme" select="'Recommendation'"/>
-                <xsl:with-param name="meaning" select="'DCM'"/>
-              </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$observationID/text() = '11487-6'">
-              <xsl:call-template name="codeItem">
-                <xsl:with-param name="sqtag" select="'0040A043'"/>
-                <xsl:with-param name="code" select="$observationID/text()"/>
-                <xsl:with-param name="scheme" select="'Consultation Request'"/>
-                <xsl:with-param name="meaning" select="$observationID/component[2]"/>
-              </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$observationID/text() = '74466-4'">
-              <xsl:call-template name="codeItem">
-                <xsl:with-param name="sqtag" select="'0040A043'"/>
-                <xsl:with-param name="code" select="$observationID/text()"/>
-                <xsl:with-param name="scheme" select="'Feedback'"/>
-                <xsl:with-param name="meaning" select="$observationID/component[2]"/>
-              </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:call-template name="codeItem">
-                <xsl:with-param name="sqtag" select="'0040A043'"/>
-                <xsl:with-param name="code" select="'121071'"/>
-                <xsl:with-param name="scheme" select="'Finding'"/>
-                <xsl:with-param name="meaning" select="'DCM'"/>
-              </xsl:call-template>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:call-template name="codeItem">
+            <xsl:with-param name="sqtag" select="'0040A043'"/>
+            <xsl:with-param name="code" select="$observationID/text()"/>
+            <xsl:with-param name="scheme" select="$observationID/component[2]"/>
+            <xsl:with-param name="meaning" select="$observationID/component[1]"/>
+          </xsl:call-template>
           <xsl:choose>
             <xsl:when test="$valueType = 'TX'">
               <!--Text Value-->
