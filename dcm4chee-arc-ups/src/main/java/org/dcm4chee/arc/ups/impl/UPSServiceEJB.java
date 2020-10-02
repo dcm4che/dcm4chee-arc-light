@@ -738,7 +738,7 @@ public class UPSServiceEJB {
     }
 
     public UPS createOrUpdateOnStore(StoreContext ctx, Calendar now, UPSOnStore rule) {
-        LOG.info("{}: Apply {}", ctx.getStoreSession(), rule);
+        LOG.debug("{}: Apply {}", ctx.getStoreSession(), rule);
         String iuid = rule.getInstanceUID(ctx.getAttributes());
         try {
             UPS ups = findUPS(iuid);
@@ -748,7 +748,7 @@ public class UPSServiceEJB {
                     if (ups.getProcedureStepState() == UPSState.SCHEDULED) break;
                 case SINGLE:
                 case NO:
-                    LOG.info("{}: {} already exists", ctx.getStoreSession(), ups);
+                    LOG.debug("{}: {} already exists", ctx.getStoreSession(), ups);
                     return null;
                 default:
                     while (includeInputInformation == UPSOnStore.IncludeInputInformation.SINGLE_OR_CREATE
