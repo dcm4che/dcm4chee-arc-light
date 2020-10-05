@@ -3326,7 +3326,7 @@ export class StudyService {
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (requester) {
-                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}​`,{});
+                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{});
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
