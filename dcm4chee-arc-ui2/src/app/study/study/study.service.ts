@@ -2800,6 +2800,25 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-ban-circle',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "cancel_uwl"
+                                    }, e);
+                                },
+                                title: $localize `:@@title.cancel:Cancel`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
                             }
                             /*                            ,
                                                         {
@@ -3297,6 +3316,17 @@ export class StudyService {
                 if (url) {
                     if (workitemUID) {
                         return this.$http.post(`${url}/${workitemUID}/reschedule${j4care.objToUrlParams(model,true)}`,{});
+                    }
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+            }))
+    }
+    cancelUPS(workitemUID, deviceWebservice: StudyWebService, requester){
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    if (requester) {
+                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}​`,{});
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});

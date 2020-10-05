@@ -753,6 +753,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "reschedule_uwl"){
                 this.rescheduleUPS(model);
             }
+            if(id.action === "cancel_uwl"){
+                this.cancelUPS(model);
+            }
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
             }
@@ -2693,6 +2696,45 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(ok){
                 this.service.rescheduleUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model).subscribe(res => {
                     this.appService.showMsg($localize `:@@ups_workitem_rescheduled_successfully:UPS Workitem rescheduled successfully!`);
+                }, err => {
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
+
+    cancelUPS(workitem){
+        this.confirm({
+            content: $localize `:@@request_cancellation_of_workitem:Request Cancellation of Workitem`,
+            doNotSave:true,
+            form_schema:[
+                    [
+                        [
+
+                        {
+                            tag:"label",
+                            text:$localize `:@@aet_of_a_requester:AET of a Requester`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes,
+                            filterKey:"requester",
+                            description:$localize `:@@aet_of_a_requester:AET of a Requester`,
+                            placeholder:$localize `:@@aet_of_a_requester:AET of a Requester`
+                        }
+                    ]
+                        /*this.applicationEntities.aets*/
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@CANCEL:CANCEL`
+        }).subscribe((ok)=> {
+            if(ok){
+                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(res => {
+                    this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
                 }, err => {
                     this.httpErrorHandler.handleError(err);
                 });
