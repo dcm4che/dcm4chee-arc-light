@@ -448,13 +448,13 @@ export class UploadFilesComponent implements OnInit {
                                     ]
                                 };
                                 if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
-                                    studyObject["00200011"] = { // "00200011":$localize `:@@upload-files.series_number:Series Number`
+                                    studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
                                         "vr": "IS",
                                         "Value": [
                                             _.get(studyObject, "00201209.Value[0]")*1 + 1
                                         ]
                                     };
-                                    studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
+                                    studyObject["00200013"] = studyObject["00200013"] || { //"00200013":$localize `:@@instance_number:Instance Number`
                                         "vr": "IS",
                                         "Value": [
                                             _.get(studyObject, "00201209.Value[0]")*1 + i*1 + 1
@@ -475,7 +475,7 @@ export class UploadFilesComponent implements OnInit {
                                     };
                                 }
                                 if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
-                                    studyObject["0020000E"] = { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
+                                    studyObject["0020000E"] = studyObject["0020000E"] || { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
                                         "vr": "UI",
                                         "Value": [
                                             seriesInstanceUID
@@ -483,7 +483,7 @@ export class UploadFilesComponent implements OnInit {
                                     };
                                 }else{
                                     if(!_.hasIn(studyObject, "0020000E.Value[0]")){
-                                        studyObject["0020000D"] = {
+                                        studyObject["0020000D"] = studyObject["0020000D"] || {
                                             "vr": "UI",
                                             "Value": [
                                                 seriesInstanceUID
@@ -491,120 +491,8 @@ export class UploadFilesComponent implements OnInit {
                                         };
                                     }
                                 }
-/*                                if (!_.hasIn(studyObject, "00080020.Value[0]")) { // Study Date
-                                    studyObject["00080020"] = {
-                                        "vr": "DA",
-                                        "Value": [
-                                        ]
-                                    };
-                                }
-                                if (!_.hasIn(studyObject, "00080030.Value[0]")) { // Study Time
-                                    studyObject["00080030"] = {
-                                        "vr": "TM",
-                                        "Value": [
-                                        ]
-                                    };
-                                }
-                                if (!_.hasIn(studyObject, "00080090.Value[0]")) { // Referring Physician's Name
-                                    studyObject["00080090"] = {
-                                        "vr": "PN",
-                                        "Value": [
-                                        ]
-                                    };
-                                }
-                                if (!_.hasIn(studyObject, "00200010.Value[0]")) { // Study ID
-                                    studyObject["00200010"] = {
-                                        "vr": "SH",
-                                        "Value": [
-                                        ]
-                                    };
-                                }
-                                if (!_.hasIn(studyObject, "00080050.Value[0]")) { // Accession Number
-                                    studyObject["00080050"] = {
-                                        "vr": "SH",
-                                        "Value": [
-                                        ]
-                                    };
-                                }*/
-/*                                studyObject["00080018"] = {
-                                    "vr": "UI",
-                                    "Value": [
-                                        j4care.generateOIDFromUUID()
-                                    ]
-                                };*/
 
-/*                                if (file.type === "application/pdf") {
-                                    studyObject["00420011"] = {
-                                        "vr": "OB",
-                                        "BulkDataURI": "file/" + file.name
-                                    };
-                                    studyObject["00080016"] = {
-                                        "vr": "UI",
-                                        "Value": [
-                                            "1.2.840.10008.5.1.4.1.1.104.1"
-                                        ]
-                                    }
-                                    studyObject["00280301"] = {
-                                        "vr": "CS",
-                                        "Value": [
-                                            "YES"
-                                        ]
-                                    };
-                                    studyObject["00420012"] = {
-                                        "vr": "LO",
-                                        "Value": [
-                                            "application/pdf"
-                                        ]
-                                    };
-                                    studyObject["00420010"] = {
-                                        "vr": "ST",
-                                        "Value": [
-                                            $this.description
-                                        ]
-                                    };
-                                } else {
-                                    if (file.type.indexOf("video") > -1) {
-                                        studyObject["00080016"] = {
-                                            "vr": "UI",
-                                            "Value": [
-                                                "1.2.840.10008.5.1.4.1.1.77.1.4.1"
-                                            ]
-                                        }
-                                    } else {
-                                        studyObject["00080016"] = {
-                                            "vr": "UI",
-                                            "Value": [
-                                                $this.selectedSopClass.value
-                                            ]
-                                        }
-                                    }
-                                    studyObject["7FE00010"] = {
-                                        "vr": "OB",
-                                        "BulkDataURI": "file/" + file.name
-                                    }
-                                    // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
-                                }
-                                if (file.type === "image/jpeg") {
-                                    studyObject["00080008"] = {
-                                        "vr": "CS",
-                                        "Value": [
-                                            "ORIGINAL",
-                                            "PRIMARY"
-                                        ]
-                                    };
-                                    if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
-                                        studyObject["00080064"] = {
-                                            "vr": "CS",
-                                            "Value": [
-                                                "WSD"
-                                            ]
-                                        };
-                                        studyObject["00200020"] = {
-                                            "vr": "CS"
-                                        };
-                                    }
-                                }*/
-                                studyObject["00080060"] = {
+                                studyObject["00080060"] = studyObject["00080060"] || {
                                     "vr": "CS",
                                     "Value": [
                                         $this.modality
