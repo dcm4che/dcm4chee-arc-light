@@ -512,7 +512,7 @@ export class UploadFilesComponent implements OnInit {
                                     ].indexOf(key) === -1))
                                         object[0][key] = studyObject[key];
                                 });
-                                const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(object) + crlf;
+                                const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])) + crlf;
 
                                 const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                                 const postDataEnd = crlf + dashes + boundary + dashes;
