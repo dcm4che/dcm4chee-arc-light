@@ -34,6 +34,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
     @Output() onTemplateSet  = new EventEmitter();
+    @Output() onFilterClear  = new EventEmitter();
     @Input() ignoreOnClear; //string[], pas here all filter keys that should be ignored on clear
     @Input() defaultSubmitId:string;
     dialogRef: MatDialogRef<any>;
@@ -143,6 +144,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         Object.keys(this.model).forEach(filter=>{
            this.model[filter] = '';
         });
+        this.onFilterClear.emit(this.model);
     }
     trackByFn(index, item) {
         return index; // or item.id

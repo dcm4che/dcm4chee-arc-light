@@ -6,7 +6,7 @@
         <ng-container *ngIf="studyConfig && studyConfig.tab">
           <div class="filter_line">
             <div class="filter_block" >
-              <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
+              <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)" (onFilterClear)="onFilterClear($event)"></filter-generator>
             </div>
           </div>
           <div class="filter_line" [hidden]="!filter.expand">

@@ -62,8 +62,6 @@ import {Observable} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
-// import {$localize} from "@angular/localize/src/localize";
-import { loadTranslations } from '@angular/localize';
 
 
 @Component({
@@ -94,7 +92,6 @@ import { loadTranslations } from '@angular/localize';
 })
 export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
-    test = Globalvar.ORDERBY;
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
     isOpen = true;
     testToggle(){
@@ -103,7 +100,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     Object = Object;
     studyConfig:StudyPageConfig = {
         tab:"study",
-        title:"Study"
+        title:$localize `:@@studies:Studies`
     };
 
     patientAttributes;
@@ -692,6 +689,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     clearClipboard(){
         this.resetSetSelectionObject(undefined,undefined,undefined,true);
+    }
+    onFilterClear(e){
+        console.log("e",e);
+        if(_.hasIn(e,"webApp") && e.webApp === ""){
+            this.studyWebService.selectedWebService = undefined;
+        }
     }
     onRemoveFromSelection(e){
         console.log("e",e);
@@ -2199,7 +2202,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         );
                         patient.studies.push(study);
                     });
-                    if (this.more = (res.length > this._filter.filterModel.limit)) {
+                    if (this.more = (this._filter.filterModel.limit && res.length > this._filter.filterModel.limit)) {
                         patient.studies.pop();
                         if (patient.studies.length === 0) {
                             this.patients.pop();
