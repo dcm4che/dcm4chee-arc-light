@@ -461,7 +461,7 @@ export class UploadFilesComponent implements OnInit {
                                         ]
                                     };
                                 }else{
-                                    studyObject["00200011"] = { // "00200011":$localize `:@@upload-files.series_number:Series Number`
+                                    studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
                                         "vr": "IS",
                                         "Value": [
                                             this.seriesNumber || 0
