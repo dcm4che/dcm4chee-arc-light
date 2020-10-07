@@ -10,6 +10,9 @@
       "responses": {
         "204": {
           "description": "archive started"
+        },
+        "500": {
+          "description": "Internal Server Error"
         }
       }
     }
@@ -40,6 +43,12 @@
       "responses": {
         "204": {
           "description": "configuration reloaded"
+        },
+        "409": {
+          "description": "invalid configuration"
+        },
+        "500": {
+          "description": "Internal Server Error"
         }
       }
     }
