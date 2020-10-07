@@ -105,6 +105,8 @@ public class QueryRejectionNotes {
                 gen.writeEnd();
                 gen.flush();
             }).build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -120,11 +122,15 @@ public class QueryRejectionNotes {
     }
 
     private RejectionNote[] sortedRejectionNotes() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getRejectionNotes().stream()
                 .sorted(Comparator.comparing(RejectionNote::getRejectionNoteLabel))
                 .filter(rjNote -> rjNote.isRevokeRejection() == Boolean.parseBoolean(revokeRejection))
                 .toArray(RejectionNote[]::new);
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

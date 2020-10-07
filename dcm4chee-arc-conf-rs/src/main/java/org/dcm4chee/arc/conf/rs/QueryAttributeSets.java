@@ -80,8 +80,8 @@ public class QueryAttributeSets {
     @Produces("application/json")
     public Response listAttributeSets(@PathParam("type") String type) {
         logRequest();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             final AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
@@ -99,6 +99,8 @@ public class QueryAttributeSets {
                 gen.writeEnd();
                 gen.flush();
             }).build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return errResponse("Attribute Set of type : " + type + " not found.", Response.Status.NOT_FOUND);
         } catch (Exception e) {

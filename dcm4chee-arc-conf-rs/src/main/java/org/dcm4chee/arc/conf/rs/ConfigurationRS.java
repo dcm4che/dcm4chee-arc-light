@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.conf.api.*;
-import org.dcm4che3.conf.api.hl7.HL7ApplicationAlreadyExistsException;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
@@ -136,6 +135,8 @@ public class ConfigurationRS {
                 }).build();
         } catch (ConfigurationNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -158,6 +159,8 @@ public class ConfigurationRS {
                     gen.writeEnd();
                     gen.flush();
                 }).build();
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -180,6 +183,8 @@ public class ConfigurationRS {
                     gen.writeEnd();
                     gen.flush();
                 }).build();
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -202,6 +207,8 @@ public class ConfigurationRS {
                     gen.writeEnd();
                     gen.flush();
                 }).build();
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -234,6 +241,8 @@ public class ConfigurationRS {
                     gen.writeEnd();
                     gen.flush();
                 }).build();
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -247,6 +256,8 @@ public class ConfigurationRS {
         logRequest();
         try {
             return writeJsonArray(conf.listRegisteredAETitles());
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -260,8 +271,9 @@ public class ConfigurationRS {
         logRequest();
         try {
             return writeJsonArray(
-                    conf.getDicomConfigurationExtension(HL7Configuration.class)
-                            .listRegisteredHL7ApplicationNames());
+                    conf.getDicomConfigurationExtension(HL7Configuration.class).listRegisteredHL7ApplicationNames());
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -275,6 +287,8 @@ public class ConfigurationRS {
         logRequest();
         try {
             return writeJsonArray(conf.listRegisteredWebAppNames());
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -297,7 +311,8 @@ public class ConfigurationRS {
                 DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
                 DicomConfiguration.Option.PRESERVE_CERTIFICATE,
                 arcDev.isAuditSoftwareConfigurationVerbose()
-                    ? DicomConfiguration.Option.CONFIGURATION_CHANGES_VERBOSE : DicomConfiguration.Option.CONFIGURATION_CHANGES);
+                    ? DicomConfiguration.Option.CONFIGURATION_CHANGES_VERBOSE
+                    : DicomConfiguration.Option.CONFIGURATION_CHANGES);
         if (register == null || Boolean.parseBoolean(register))
             options.add(DicomConfiguration.Option.REGISTER);
         return options;
@@ -312,11 +327,12 @@ public class ConfigurationRS {
         try {
             ConfigurationChanges diffs = conf.persist(device, options());
             softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | ConfigurationNotFoundException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -333,11 +349,12 @@ public class ConfigurationRS {
             ConfigurationChanges diffs = conf.merge(device, options());
             if (!diffs.isEmpty())
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | ConfigurationNotFoundException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException | WebAppAlreadyExistsException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -354,6 +371,8 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         errResponse("Application Entity Title " + aet + " already registered.",
                                 Response.Status.CONFLICT));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -371,6 +390,8 @@ public class ConfigurationRS {
                         errResponse("Application Entity Title " + aet + " not registered.",
                                 Response.Status.NOT_FOUND));
             conf.unregisterAETitle(aet);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -388,6 +409,8 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         errResponse("HL7 Application " + appName + " already registered.",
                         Response.Status.CONFLICT));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -406,6 +429,8 @@ public class ConfigurationRS {
                         errResponse("HL7 Application " + appName + " not registered.",
                         Response.Status.NOT_FOUND));
                 hl7Conf.unregisterHL7Application(appName);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -422,6 +447,8 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         errResponse("Web Application " + webAppName + " already registered.",
                         Response.Status.CONFLICT));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -439,6 +466,8 @@ public class ConfigurationRS {
                         errResponse("Web Application " + webAppName + " not registered.",
                         Response.Status.NOT_FOUND));
             conf.unregisterWebAppName(webAppName);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -455,6 +484,8 @@ public class ConfigurationRS {
         } catch (IllegalStateException | ConfigurationNotFoundException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -477,6 +508,8 @@ public class ConfigurationRS {
             }
         } catch (ConfigurationNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -498,6 +531,8 @@ public class ConfigurationRS {
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -514,6 +549,8 @@ public class ConfigurationRS {
                 softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -528,8 +565,11 @@ public class ConfigurationRS {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

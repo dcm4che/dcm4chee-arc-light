@@ -101,6 +101,8 @@ public class QueryExporters {
                 gen.writeEnd();
                 gen.flush();
             }).build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -113,6 +115,10 @@ public class QueryExporters {
                 request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
