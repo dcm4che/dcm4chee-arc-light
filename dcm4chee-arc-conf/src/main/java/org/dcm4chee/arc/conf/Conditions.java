@@ -67,7 +67,11 @@ public class Conditions {
             int index = s.indexOf('=');
             if (index == -1)
                 throw new IllegalArgumentException("Condition in incorrect format : " + s);
-            setCondition(s.substring(0, index), s.substring(index+1));
+             String tagPath = s.substring(0, index);
+             if ((tagPath.endsWith("]") || tagPath.endsWith("]!"))
+                     && Integer.parseInt(tagPath.substring(tagPath.indexOf("[") + 1, tagPath.indexOf("]"))) <= 0)
+                 throw new IllegalArgumentException("Condition attribute value position not allowed : " + s);
+             setCondition(tagPath, s.substring(index+1));
         }
     }
 
@@ -120,7 +124,7 @@ public class Conditions {
             boolean ne = tagPath.endsWith("!");
             if (ne)
                 tagPath = tagPath.substring(0, tagPath.length()-1);
-            int valPos = -1;
+            int valPos = 0;
             if (tagPath.endsWith("]")) {
                 String[] tagPathWithValPos = tagPath.split("\\[");
                 tagPath = tagPathWithValPos[0];
@@ -164,8 +168,8 @@ public class Conditions {
                         return !ne;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);
-            if (ss != null) {
-                if (valPos > -1) {
+            if (ss != null && ss.length >= 1) {
+                if (valPos > 0) {
                     if (valPos > ss.length || (ss[valPos - 1] != null && pattern.matcher(ss[valPos - 1]).matches()))
                         return !ne;
                 } else
