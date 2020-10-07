@@ -70,7 +70,7 @@ public class Conditions {
              String tagPath = s.substring(0, index);
              if ((tagPath.endsWith("]") || tagPath.endsWith("]!"))
                      && Integer.parseInt(tagPath.substring(tagPath.indexOf("[") + 1, tagPath.indexOf("]"))) <= 0)
-                 throw new IllegalArgumentException("Condition attribute value position not allowed : " + s);
+                 throw new IllegalArgumentException("Incorrect attribute value position in Conditions : " + s);
              setCondition(tagPath, s.substring(index+1));
         }
     }
