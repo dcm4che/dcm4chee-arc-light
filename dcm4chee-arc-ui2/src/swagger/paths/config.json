@@ -11,6 +11,9 @@
         "200": {
           "$ref": "../responses.json#/DeviceName"
         },
+        "404": {
+          "description": "Archive device extension unavailable"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -78,6 +81,9 @@
         "200": {
           "$ref": "../responses.json#/deviceList"
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -109,6 +115,9 @@
         },
         "404": {
           "description": "Device configuration not found"
+        },
+        "409": {
+          "description": "Any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -145,13 +154,13 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed or invalid configuration content"
         },
         "404": {
           "description": "Referenced devices/configuration not found"
         },
         "409": {
-          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists or any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -188,13 +197,13 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed"
+          "description": "Device Name in request body didn't match with Device Name in URL or JSON request body was not well formed or invalid configuration content"
         },
         "404": {
           "description": "Device not found or referenced device/configuration not found"
         },
         "409": {
-          "description": "Device, Application Entity, HL7 Application or Web Application already exists"
+          "description": "Device, Application Entity, HL7 Application or Web Application already exists or any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -221,6 +230,9 @@
         },
         "404": {
           "description": "Device not found"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -257,6 +269,9 @@
         "404": {
           "description": "Device not found"
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -291,6 +306,9 @@
         "404": {
           "description": "Device not found"
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -313,6 +331,9 @@
         },
         "404": {
           "description": "Device not found"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -341,6 +362,9 @@
             }
           }
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -364,7 +388,7 @@
           "description": "successful operation"
         },
         "409": {
-          "description": "AE Title already registered"
+          "description": "AE Title already registered or any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -388,6 +412,9 @@
         },
         "404": {
           "description": "AE Title not found"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -416,6 +443,9 @@
             }
           }
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -439,7 +469,7 @@
           "description": "successful operation"
         },
         "409": {
-          "description": "Web Application already registered"
+          "description": "Web Application already registered or any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -463,6 +493,9 @@
         },
         "404": {
           "description": "Web Application not found"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -491,6 +524,9 @@
             }
           }
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -514,7 +550,7 @@
           "description": "successful operation"
         },
         "409": {
-          "description": "HL7 Application already registered"
+          "description": "HL7 Application already registered or any other configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -538,6 +574,9 @@
         },
         "404": {
           "description": "HL7 Application not found"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -575,6 +614,9 @@
       "responses": {
         "200": {
           "$ref": "../responses.json#/aeList"
+        },
+        "409": {
+          "description": "Any configuration exception"
         },
         "500": {
           "description": "Internal Server Error."
@@ -644,6 +686,9 @@
         "200": {
           "$ref": "../responses.json#/webAppList"
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -672,6 +717,9 @@
         "200": {
           "$ref": "../responses.json#/hl7AppList"
         },
+        "409": {
+          "description": "Any configuration exception"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -696,6 +744,9 @@
               }
             }
           }
+        },
+        "404": {
+          "description": "Archive device extension unavailable"
         },
         "500": {
           "description": "Internal Server Error."
@@ -727,7 +778,7 @@
           }
         },
         "404": {
-          "description": "entity not found"
+          "description": "Invalid entity or no attribute filter configured for entity"
         },
         "500": {
           "description": "Internal Server Error."
@@ -759,7 +810,7 @@
           }
         },
         "404": {
-          "description": "Attribute Set type not found"
+          "description": "Attribute Set type not found or archive device extension unavailable"
         },
         "500": {
           "description": "Internal Server Error."
@@ -815,6 +866,9 @@
             }
           }
         },
+        "404": {
+          "description": "Archive device extension unavailable"
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -843,6 +897,9 @@
               }
             }
           }
+        },
+        "404": {
+          "description": "Archive device extension unavailable"
         },
         "500": {
           "description": "Internal Server Error."

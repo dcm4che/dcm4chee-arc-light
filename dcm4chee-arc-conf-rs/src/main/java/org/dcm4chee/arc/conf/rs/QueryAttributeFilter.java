@@ -98,10 +98,8 @@ public class QueryAttributeFilter {
                         .writeAttributeFilter(writer, entity, filter);
                 gen.flush();
             }).build();
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
