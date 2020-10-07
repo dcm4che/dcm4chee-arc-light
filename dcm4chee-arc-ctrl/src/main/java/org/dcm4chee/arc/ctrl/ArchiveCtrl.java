@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.ctrl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4chee.arc.ArchiveService;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -48,11 +49,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,9 +74,14 @@ public class ArchiveCtrl {
 
     @POST
     @Path("start")
-    public void start() throws Exception {
+    public void start() {
         logRequest();
-        service.start(request);
+        try {
+            service.start(request);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @POST
@@ -87,9 +93,17 @@ public class ArchiveCtrl {
 
     @POST
     @Path("reload")
-    public void reload() throws Exception {
+    public void reload() {
         logRequest();
-        service.reload(request);
+        try {
+            service.reload(request);
+        } catch (Exception e) {
+            if (e.getCause() instanceof IllegalArgumentException || e.getCause() instanceof ConfigurationException)
+                throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @GET
@@ -104,5 +118,23 @@ public class ArchiveCtrl {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }
