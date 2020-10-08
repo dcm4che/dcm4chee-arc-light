@@ -62,10 +62,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveEnd;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
@@ -189,6 +186,7 @@ public class WadoRS {
     private Response.Status responseStatus;
     private java.nio.file.Path spoolDirectory;
     private java.nio.file.Path dicomdirPath;
+    private String dicomRootPartTransferSyntax;
 
     @Override
     public String toString() {
@@ -599,7 +597,8 @@ public class WadoRS {
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
-        ar.resume(output.response(this, lastModified, entity).build());
+        Response response = output.response(this, lastModified, entity).build();
+        ar.resume(response);
     }
 
     private static boolean matchPresentionState(RetrieveContext ctx) {
@@ -646,8 +645,7 @@ public class WadoRS {
     }
 
     private enum Output {
-        DICOM {
-            @Override
+        DICOM {@Override
             public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
@@ -656,6 +654,37 @@ public class WadoRS {
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                     InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeDICOM(output, ctx, inst);
+            }
+            @Override
+            public Object entity(WadoRS wadoRS, Target target, RetrieveContext ctx, int[] frameList, int[] attributePath)
+                    throws IOException {
+                MultipartRelatedOutput output = new MultipartRelatedOutput();
+                for (InstanceLocations inst : ctx.getMatches()) {
+                    if (!ctx.copyToRetrieveCache(inst))
+                        addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                }
+                ctx.copyToRetrieveCache(null);
+                InstanceLocations inst;
+                while ((inst = ctx.copiedToRetrieveCache()) != null) {
+                    addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                }
+                wadoRS.dicomRootPartTransferSyntax = output.getRootPart().getMediaType().getParameters().get("transfer-syntax");
+                return output;
+            }
+            @Override
+            public Response.ResponseBuilder response(WadoRS wadoRS, Date lastModified, Object entity) {
+                Map<String, String> parameters = new HashMap<>();
+                parameters.put("type", MediaTypes.APPLICATION_DICOM);
+                parameters.put("transfer-syntax", wadoRS.dicomRootPartTransferSyntax);
+                MediaType responseContentType = new MediaType(
+                        MediaTypes.MULTIPART_RELATED_TYPE.getType(),
+                        MediaTypes.MULTIPART_RELATED_TYPE.getSubtype(),
+                        parameters);
+                return Response.status(wadoRS.responseStatus)
+                        .lastModified(lastModified)
+                        .tag(String.valueOf(lastModified.hashCode()))
+                        .type(responseContentType)
+                        .entity(entity);
             }
         },
         ZIP {
@@ -1215,7 +1244,22 @@ public class WadoRS {
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
         DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes);
-        output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
+        output.addPart(entity,
+                new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
+                              MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
+                              parameters(inst)));
+    }
+
+    private Map<String, String> parameters(InstanceLocations inst) {
+        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("transfer-syntax",
+                acceptableTransferSyntaxes.isEmpty() || acceptableTransferSyntaxes.contains(tsuid)
+                        ? tsuid
+                        : acceptableTransferSyntaxes.contains(UID.ExplicitVRLittleEndian)
+                            ? UID.ExplicitVRLittleEndian
+                            : UID.ImplicitVRLittleEndian);
+        return parameters;
     }
 
     private Object writeZIP(RetrieveContext ctx) {
