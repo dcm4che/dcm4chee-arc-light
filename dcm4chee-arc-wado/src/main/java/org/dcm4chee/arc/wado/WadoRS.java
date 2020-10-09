@@ -597,8 +597,7 @@ public class WadoRS {
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
-        Response response = output.response(this, lastModified, entity).build();
-        ar.resume(response);
+        ar.resume(output.response(this, lastModified, entity).build());
     }
 
     private static boolean matchPresentionState(RetrieveContext ctx) {
@@ -645,7 +644,8 @@ public class WadoRS {
     }
 
     private enum Output {
-        DICOM {@Override
+        DICOM {
+            @Override
             public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;

@@ -199,6 +199,8 @@ public class WadoURI {
     @Pattern(regexp = "no|yes|srgb|adobergb|rommrgb")
     private String iccprofile;
 
+    private Collection<String> acceptableTransferSyntaxes;
+
     @Override
     public String toString() {
         return request != null ? request.getRequestURI() + '?' + request.getQueryString() : null;
@@ -305,7 +307,10 @@ public class WadoURI {
             ctx.setException(throwable);
             retrieveWado.fire(ctx);
         });
-        ar.resume(Response.ok(entity, mimeType)
+
+        ar.resume(Response.ok(entity, mimeType == MediaTypes.APPLICATION_DICOM_TYPE
+                                        ? new MediaType(mimeType.getType(), mimeType.getSubtype(), parameters(inst))
+                                        : mimeType)
                 .lastModified(lastModified)
                 .tag(String.valueOf(lastModified.hashCode()))
                 .build());
@@ -352,11 +357,19 @@ public class WadoURI {
                     Response.Status.NOT_FOUND));
     }
 
+    private Map<String, String> parameters(InstanceLocations inst) {
+        Map<String, String> parameters = new HashMap<>();
+        String tsuid = acceptableTransferSyntaxes.iterator().next();
+        parameters.put("transfer-syntax", tsuid.equals("*") ? inst.getLocations().get(0).getTransferSyntaxUID() : tsuid);
+        return parameters;
+    }
+
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
                             MediaType mimeType, int frame)
             throws IOException {
         if (mimeType == MediaTypes.APPLICATION_DICOM_TYPE)
-                return new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes(objectType, inst));
+                return new DicomObjectOutput(
+                        ctx, inst, (acceptableTransferSyntaxes = acceptableTransferSyntaxes(objectType, inst)));
 
         switch (objectType) {
             case UncompressedSingleFrameImage:
@@ -487,7 +500,7 @@ public class WadoURI {
             return Optional.of(objectType.getDefaultMimeType());
 
         return Stream.of(new ContentTypes(contentType).values)
-                .map(mediaType -> objectType.getCompatibleMimeType(mediaType))
+                .map(objectType::getCompatibleMimeType)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();
