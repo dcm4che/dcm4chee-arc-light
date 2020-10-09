@@ -1112,7 +1112,7 @@ class ArchiveDeviceFactory {
             new Conditions(
                     "SendingApplicationEntityTitle=JPEG_LOSSLESS"
             ),
-            UID.JPEGLosslessSV1,
+            UID.JPEGLossless,
             "maxPixelValueError=0"
     );
     static final ArchiveCompressionRule JPEG_LS = createCompressionRule(
@@ -2111,8 +2111,7 @@ class ArchiveDeviceFactory {
         UPSOnStore rule = new UPSOnStore(upsOnStoreID);
         rule.setProcedureStepLabel(procedureStepLabel);
         rule.setScheduledWorkitemCode(workItemCode);
-        rule.setIncludeInputInformation(UPSOnStore.IncludeInputInformation.SINGLE);
-        rule.setScopeOfAccumulation(Entity.Study);
+        rule.setIncludeInputInformation(UPSOnStore.IncludeInputInformation.APPEND_OR_CREATE);
         rule.setInstanceUIDBasedOnName(instanceUIDBasedOnName);
         rule.setStartDateTimeDelay(startDelay);
         return rule;
