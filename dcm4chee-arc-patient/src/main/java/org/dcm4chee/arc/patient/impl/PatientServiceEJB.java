@@ -120,7 +120,7 @@ public class PatientServiceEJB {
         patient.setVerificationStatus(ctx.getPatientVerificationStatus());
         if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED)
             patient.setVerificationTime(new Date());
-        patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        patient.setAttributes(attributes, ctx.getAttributeFilter(), false, ctx.getFuzzyStr());
         patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
         LOG.info("{}: Create {}", ctx, patient);
@@ -194,7 +194,7 @@ public class PatientServiceEJB {
                         device.getDeviceName(),
                         modified)
                 : attrs,
-                filter, ctx.getFuzzyStr());
+                filter, true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -285,7 +285,7 @@ public class PatientServiceEJB {
                         device.getDeviceName(),
                         modified)
                 : patientID.exportPatientIDWithIssuer(patientAttrs),
-                ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -356,7 +356,7 @@ public class PatientServiceEJB {
                                             device.getDeviceName(),
                                             modified)
                                     : study.getAttributes(),
-                            ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
+                            ctx.getStudyAttributeFilter(), true, ctx.getFuzzyStr());
                     to.incrementNumberOfStudies();
                     from.decrementNumberOfStudies();
                 });

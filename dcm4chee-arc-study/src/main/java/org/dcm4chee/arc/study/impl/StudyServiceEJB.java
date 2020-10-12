@@ -43,7 +43,6 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
@@ -110,7 +109,7 @@ public class StudyServiceEJB {
                     device.getDeviceName(),
                     modified)
                 : attrs,
-                filter, ctx.getFuzzyStr());
+                filter, true, ctx.getFuzzyStr());
         study.setIssuerOfAccessionNumber(
                 findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
         study.setIssuerOfAdmissionID(

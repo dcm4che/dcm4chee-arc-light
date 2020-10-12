@@ -355,7 +355,7 @@ public class ProcedureServiceEJB {
                         device.getDeviceName(),
                         modified)
                     : studyAttr,
-                    studyFilter, arcDev.getFuzzyStr());
+                    studyFilter, true, arcDev.getFuzzyStr());
         }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
@@ -387,7 +387,7 @@ public class ProcedureServiceEJB {
             SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, issuerOfAccessionNumber, fuzzyStr);
             requestAttributes.add(request);
         }
-        series.setAttributes(seriesAttr, filter, fuzzyStr);
+        series.setAttributes(seriesAttr, filter, true, fuzzyStr);
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {

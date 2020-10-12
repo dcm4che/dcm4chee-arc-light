@@ -907,7 +907,7 @@ public class StoreServiceEJB {
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
-                filter, arcDev.getFuzzyStr());
+                filter, true, arcDev.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -932,7 +932,7 @@ public class StoreServiceEJB {
         study.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
-                filter, arcDev.getFuzzyStr());
+                filter, true, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
@@ -962,7 +962,7 @@ public class StoreServiceEJB {
         series.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
-                filter, fuzzyStr);
+                filter, true, fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
@@ -1326,7 +1326,7 @@ public class StoreServiceEJB {
     private void setStudyAttributes(StoreContext ctx, Study study) {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
-        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), false, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
@@ -1443,7 +1443,7 @@ public class StoreServiceEJB {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Attributes attrs = ctx.getAttributes();
-        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
+        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), false, fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
@@ -1455,7 +1455,7 @@ public class StoreServiceEJB {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Instance instance = new Instance();
-        instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), fuzzyStr);
+        instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), true, fuzzyStr);
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(session, instance, attrs);
