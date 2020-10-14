@@ -129,6 +129,7 @@ class SeriesQuery extends AbstractQuery {
                 series.get(Series_.failuresOfLastStorageVerification),
                 series.get(Series_.compressionTime),
                 series.get(Series_.compressionFailures),
+                series.get(Series_.transferSyntaxUID),
                 metadata.get(Metadata_.createdTime),
                 metadata.get(Metadata_.storageID),
                 metadata.get(Metadata_.storagePath),
@@ -220,6 +221,7 @@ class SeriesQuery extends AbstractQuery {
     static void addSeriesQRAttrs(Root<Series> series, Join<Series, Metadata> metadata, QueryContext context,
             Tuple results, int numberOfSeriesRelatedInstances, Attributes attrs) {
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        attrs.setString(Tag.AvailableTransferSyntaxUID, VR.UI, results.get(series.get(Series_.transferSyntaxUID)));
         if (!context.isReturnPrivate())
             return;
 

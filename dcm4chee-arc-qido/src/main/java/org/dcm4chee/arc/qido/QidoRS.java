@@ -827,7 +827,8 @@ public class QidoRS {
                                     new int[] { Tag.NumberOfPatientRelatedStudies,
                                                 Tag.NumberOfStudyRelatedSeries,
                                                 Tag.NumberOfStudyRelatedInstances,
-                                                Tag.NumberOfSeriesRelatedInstances });
+                                                Tag.NumberOfSeriesRelatedInstances,
+                                                Tag.AvailableTransferSyntaxUID });
             case INSTANCE:
                 return allNonSeqTags(match,
                                     tags,
@@ -837,7 +838,8 @@ public class QidoRS {
                                     new int[] { Tag.NumberOfPatientRelatedStudies,
                                                 Tag.NumberOfStudyRelatedSeries,
                                                 Tag.NumberOfStudyRelatedInstances,
-                                                Tag.NumberOfSeriesRelatedInstances });
+                                                Tag.NumberOfSeriesRelatedInstances,
+                                                Tag.AvailableTransferSyntaxUID });
             case MWL:
                 return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.MWL).getSelection());

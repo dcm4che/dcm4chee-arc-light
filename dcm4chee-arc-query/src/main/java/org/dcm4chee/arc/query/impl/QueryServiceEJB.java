@@ -139,6 +139,7 @@ public class QueryServiceEJB {
                     series.get(Series_.failuresOfLastStorageVerification),
                     series.get(Series_.compressionTime),
                     series.get(Series_.compressionFailures),
+                    series.get(Series_.transferSyntaxUID),
                     metadata.get(Metadata_.createdTime),
                     metadata.get(Metadata_.storageID),
                     metadata.get(Metadata_.storagePath),
