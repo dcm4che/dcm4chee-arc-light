@@ -1883,6 +1883,26 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.386 NAME 'dcmStudyInstanceUID'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.387 NAME 'dcmCalculateStudySizeDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMnS for eager calculation of Study Size and Query Attributes. If absent, no (minimal) delay for eager calculation of the Study Size and Query Attributes is applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.388 NAME 'dcmCalculateStudySizePollingInterval'
+  DESC 'Polling Interval for Studies with unknown size in ISO-8601 duration format PnDTnHnMnS. If absent, there is no eager calculation of the Study Size and Query Attributes.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.389 NAME 'dcmCalculateStudySizeFetchSize'
+  DESC 'Limit result set of DB query for Studies with unknown size; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.390 NAME 'dcmCalculateQueryAttributesViewID'
+  DESC 'Indicates to eager calculate Query Attributes for specified Query/Retrieve Views according configured Calculate Study Size Delay and Calculate Study Size Polling Interval.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1891,6 +1911,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MAY (
     dcmRecordAttributeModification $
     dcmBulkDataDescriptorID $
+    dcmCalculateStudySizeDelay $
+    dcmCalculateStudySizePollingInterval $
+    dcmCalculateStudySizeFetchSize $
+    dcmCalculateQueryAttributesViewID $
     dcmQueryRetrieveViewID $
     dcmRetrieveAET $
     dcmReturnRetrieveAET $
