@@ -813,16 +813,27 @@ public class QidoRS {
         int[] tags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
         switch (model) {
             case STUDY:
-                return allNonSeqTags(match, tags, arcDev.getAttributeFilter(Entity.Study).getSelection());
+                return allNonSeqTags(match,
+                                    tags,
+                                    arcDev.getAttributeFilter(Entity.Study).getSelection(),
+                                    new int[] { Tag.NumberOfStudyRelatedSeries, Tag.NumberOfStudyRelatedInstances });
             case SERIES:
-                return allNonSeqTags(match, tags,
-                        arcDev.getAttributeFilter(Entity.Study).getSelection(),
-                        arcDev.getAttributeFilter(Entity.Series).getSelection());
+                return allNonSeqTags(match,
+                                    tags,
+                                    arcDev.getAttributeFilter(Entity.Study).getSelection(),
+                                    arcDev.getAttributeFilter(Entity.Series).getSelection(),
+                                    new int[] { Tag.NumberOfStudyRelatedSeries,
+                                                Tag.NumberOfStudyRelatedInstances,
+                                                Tag.NumberOfSeriesRelatedInstances });
             case INSTANCE:
-                return allNonSeqTags(match, tags,
-                        arcDev.getAttributeFilter(Entity.Study).getSelection(),
-                        arcDev.getAttributeFilter(Entity.Series).getSelection(),
-                        arcDev.getAttributeFilter(Entity.Instance).getSelection());
+                return allNonSeqTags(match,
+                                    tags,
+                                    arcDev.getAttributeFilter(Entity.Study).getSelection(),
+                                    arcDev.getAttributeFilter(Entity.Series).getSelection(),
+                                    arcDev.getAttributeFilter(Entity.Instance).getSelection(),
+                                    new int[] { Tag.NumberOfStudyRelatedSeries,
+                                            Tag.NumberOfStudyRelatedInstances,
+                                            Tag.NumberOfSeriesRelatedInstances });
             case MWL:
                 return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.MWL).getSelection());
@@ -835,7 +846,7 @@ public class QidoRS {
 
     private int[] allNonSeqTags(Attributes match, int[]... tags) {
         Set<Integer> allNonSeqTags = new HashSet<>();
-        for (int entityTags[] : tags)
+        for (int[] entityTags : tags)
             for (int tag : entityTags)
                 if (ElementDictionary.vrOf(tag, match.getPrivateCreator(tag)) != VR.SQ)
                     allNonSeqTags.add(tag);
