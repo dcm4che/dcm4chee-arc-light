@@ -816,13 +816,16 @@ public class QidoRS {
                 return allNonSeqTags(match,
                                     tags,
                                     arcDev.getAttributeFilter(Entity.Study).getSelection(),
-                                    new int[] { Tag.NumberOfStudyRelatedSeries, Tag.NumberOfStudyRelatedInstances });
+                                    new int[] { Tag.NumberOfPatientRelatedStudies,
+                                                Tag.NumberOfStudyRelatedSeries,
+                                                Tag.NumberOfStudyRelatedInstances });
             case SERIES:
                 return allNonSeqTags(match,
                                     tags,
                                     arcDev.getAttributeFilter(Entity.Study).getSelection(),
                                     arcDev.getAttributeFilter(Entity.Series).getSelection(),
-                                    new int[] { Tag.NumberOfStudyRelatedSeries,
+                                    new int[] { Tag.NumberOfPatientRelatedStudies,
+                                                Tag.NumberOfStudyRelatedSeries,
                                                 Tag.NumberOfStudyRelatedInstances,
                                                 Tag.NumberOfSeriesRelatedInstances });
             case INSTANCE:
@@ -831,9 +834,10 @@ public class QidoRS {
                                     arcDev.getAttributeFilter(Entity.Study).getSelection(),
                                     arcDev.getAttributeFilter(Entity.Series).getSelection(),
                                     arcDev.getAttributeFilter(Entity.Instance).getSelection(),
-                                    new int[] { Tag.NumberOfStudyRelatedSeries,
-                                            Tag.NumberOfStudyRelatedInstances,
-                                            Tag.NumberOfSeriesRelatedInstances });
+                                    new int[] { Tag.NumberOfPatientRelatedStudies,
+                                                Tag.NumberOfStudyRelatedSeries,
+                                                Tag.NumberOfStudyRelatedInstances,
+                                                Tag.NumberOfSeriesRelatedInstances });
             case MWL:
                 return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.MWL).getSelection());
