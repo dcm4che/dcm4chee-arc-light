@@ -372,6 +372,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getUserIdentityNegotiationRole(), null);
         writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
                 arcDev.getUserIdentityNegotiationKeycloakClientID(), null);
+        writer.writeNotNullOrDef("dcmCalculateStudySizeDelay", arcDev.getStudySizeDelay(), null);
+        writer.writeNotNullOrDef("dcmCalculateStudySizePollingInterval",
+                arcDev.getStudySizePollingInterval(), null);
+        writer.writeNotDef("dcmCalculateStudySizeFetchSize", arcDev.getStudySizeFetchSize(), 100);
+        writer.writeNotEmpty("dcmCalculateQueryAttributesViewID", arcDev.getQueryAttrsViewIDs());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1881,6 +1886,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUserIdentityNegotiationKeycloakClientID":
                     arcDev.setUserIdentityNegotiationKeycloakClientID(reader.stringValue());
+                    break;
+                case "dcmCalculateStudySizeDelay":
+                    arcDev.setStudySizeDelay(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmCalculateStudySizePollingInterval":
+                    arcDev.setStudySizePollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmCalculateStudySizeFetchSize":
+                    arcDev.setStudySizeFetchSize(reader.intValue());
+                    break;
+                case "dcmCalculateQueryAttributesViewID":
+                    arcDev.setQueryAttrsViewIDs(reader.stringArray());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

@@ -56,9 +56,9 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -141,4 +141,6 @@ public interface QueryService {
     CFindSCU cfindSCU();
 
     List<String> getDistinctModalities();
+
+    List<Long> unknownSizeStudyPks(Date dt, int fetchSize);
 }

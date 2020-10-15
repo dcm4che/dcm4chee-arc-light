@@ -284,6 +284,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean restrictRetrieveSilently;
     private volatile boolean stowQuicktime2MP4;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
+    private volatile Duration studySizeDelay;
+    private volatile Duration studySizePollingInterval;
+    private volatile int studySizeFetchSize = 100;
+    private volatile String[] queryAttrsViewIDs = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
@@ -2902,6 +2906,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.deleteMWLDelay = deleteMWLDelay;
     }
 
+    public Duration getStudySizeDelay() {
+        return studySizeDelay;
+    }
+
+    public void setStudySizeDelay(Duration studySizeDelay) {
+        this.studySizeDelay = studySizeDelay;
+    }
+
+    public Duration getStudySizePollingInterval() {
+        return studySizePollingInterval;
+    }
+
+    public void setStudySizePollingInterval(Duration studySizePollingInterval) {
+        this.studySizePollingInterval = studySizePollingInterval;
+    }
+
+    public int getStudySizeFetchSize() {
+        return studySizeFetchSize;
+    }
+
+    public void setStudySizeFetchSize(int studySizeFetchSize) {
+        this.studySizeFetchSize = studySizeFetchSize;
+    }
+
+    public String[] getQueryAttrsViewIDs() {
+        return queryAttrsViewIDs;
+    }
+
+    public void setQueryAttrsViewIDs(String[] queryAttrsViewIDs) {
+        this.queryAttrsViewIDs = queryAttrsViewIDs;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -3118,6 +3154,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mwlPollingInterval = arcdev.mwlPollingInterval;
         mwlFetchSize = arcdev.mwlFetchSize;
         deleteMWLDelay = arcdev.deleteMWLDelay;
+        studySizeDelay = arcdev.studySizeDelay;
+        studySizePollingInterval = arcdev.studySizePollingInterval;
+        studySizeFetchSize = arcdev.studySizeFetchSize;
+        queryAttrsViewIDs = arcdev.queryAttrsViewIDs;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

@@ -203,7 +203,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export1", "Dicom Export Tasks"),
         newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
-        newQueueDescriptor("Export4", "Calculate Query Attributes and Study size Export Tasks"),
+        newQueueDescriptor("Export4", "Export4"),
         newQueueDescriptor("Export5", "Nearline Storage Export Tasks"),
         newQueueDescriptor("Export6", "Export6"),
         newQueueDescriptor("Export7", "Export7"),
@@ -1019,10 +1019,6 @@ class ArchiveDeviceFactory {
             new Code("DICOM_EXPORT", "99DCM4CHEE", null, "Export by DICOM Storage");
     static final Code DICOM_RETRIEVE =
             new Code("DICOM_RETRIEVE", "99DCM4CHEE", null, "Retrieve by DICOM Study Root Query/Retrieve Information Model - MOVE");
-    static final Code CALC_QUERY_ATTRS =
-            new Code("CALC_QUERY_ATTRS", "99DCM4CHEE", null, "Calculate Query Attributes");
-    static final Code CALC_STUDY_SIZE =
-            new Code("CALC_STUDY_SIZE", "99DCM4CHEE", null, "Calculate Study Size");
     static final Code REQUEST_STGCMT =
             new Code("REQUEST_STGCMT", "99DCM4CHEE", null, "Request Storage Commitment");
     static final Code SEND_IAN =
@@ -1230,14 +1226,9 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.valueOf("PT1H");
-
-    static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
-    static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
-    static final URI CALC_STUDY_SIZE_EXPORTER_URI = URI.create("study-size:dummyPath");
-
-    static final String CALC_QUERY_ATTRS_EXPORTER_ID = "CalculateQueryAttributes";
-    static final String CALC_QUERY_ATTRS_EXPORTER_DESC = "Calculate Query Attributes";
-    static final URI CALC_QUERY_ATTRS_EXPORTER_URI = URI.create("query-attrs:hideRejected");
+    static final Duration CALCULATE_STUDY_SIZE_DELAY = Duration.valueOf("PT5M");
+    static final Duration CALCULATE_STUDY_SIZE_POLLING_INTERVAL = Duration.valueOf("PT5M");
+    static final String[] CALCULATE_QUERY_ATTRS_VIEW_ID = new String[] { HIDE_REJECTED_VIEW.getViewID() };
 
     static final String NEARLINE_STORAGE_EXPORTER_ID = "CopyToNearlineStorage";
     static final String NEARLINE_STORAGE_EXPORTER_DESC = "Copy to NEARLINE Storage";
@@ -1749,6 +1740,9 @@ class ArchiveDeviceFactory {
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
         ext.setStorageVerificationAETitle(AE_TITLE);
         ext.setCompressionAETitle(AE_TITLE);
+        ext.setStudySizeDelay(CALCULATE_STUDY_SIZE_DELAY);
+        ext.setStudySizePollingInterval(CALCULATE_STUDY_SIZE_POLLING_INTERVAL);
+        ext.setQueryAttrsViewIDs(CALCULATE_QUERY_ATTRS_VIEW_ID);
 
         ext.setUPSProcessingPollingInterval(UPS_PROCESSING_POLLING_INTERVAL);
         ext.setDeleteUPSPollingInterval(DELETE_UPS_POLLING_INTERVAL);
@@ -1760,20 +1754,9 @@ class ArchiveDeviceFactory {
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "DICOM_RETRIEVE", DICOM_RETRIEVE, DCM4CHEE_ARC, "movescu:DCM4CHEE"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
-                "CALC_QUERY_ATTRS", CALC_QUERY_ATTRS, DCM4CHEE_ARC, "queryAttrs:dummyPath"));
-        ext.addUPSProcessingRule(newUPSProcessingRule(
-                "CALC_STUDY_SIZE", CALC_STUDY_SIZE, DCM4CHEE_ARC, "studySize:dummyPath"));
-        ext.addUPSProcessingRule(newUPSProcessingRule(
                 "REQUEST_STGCMT", REQUEST_STGCMT, DCM4CHEE_ARC, "stgcmtscu:DCMQRSCP"));
         ext.addUPSProcessingRule(newUPSProcessingRule(
                 "SEND_IAN", SEND_IAN, DCM4CHEE_ARC, "ianscu:IANSCP"));
-
-        ext.addUPSOnStore(newUPSOnStore("CALC_QUERY_ATTRS", "CALC_QUERY_ATTRS",
-                CALC_QUERY_ATTRS, "CALC_QUERY_ATTRS-{StudyInstanceUID}",
-                UPS_CALC_QUERY_ATTRS_DELAY));
-        ext.addUPSOnStore(newUPSOnStore("CALC_STUDY_SIZE", "CALC_STUDY_SIZE",
-                CALC_STUDY_SIZE, "CALC_STUDY_SIZE-{StudyInstanceUID}",
-                UPS_CALC_STUDY_SIZE_DELAY));
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesAETitle(AE_TITLE);
@@ -1886,20 +1869,6 @@ class ArchiveDeviceFactory {
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
         ext.setRejectionNoteStorageAET(AE_TITLE);
-
-        ExporterDescriptor studySizeExporter = new ExporterDescriptor(CALC_STUDY_SIZE_EXPORTER_ID);
-        studySizeExporter.setDescription(CALC_STUDY_SIZE_EXPORTER_DESC);
-        studySizeExporter.setExportURI(CALC_STUDY_SIZE_EXPORTER_URI);
-        studySizeExporter.setQueueName("Export4");
-        studySizeExporter.setAETitle(AE_TITLE);
-        ext.addExporterDescriptor(studySizeExporter);
-
-        ExporterDescriptor studySeriesQueryAttrExporter = new ExporterDescriptor(CALC_QUERY_ATTRS_EXPORTER_ID);
-        studySeriesQueryAttrExporter.setDescription(CALC_QUERY_ATTRS_EXPORTER_DESC);
-        studySeriesQueryAttrExporter.setExportURI(CALC_QUERY_ATTRS_EXPORTER_URI);
-        studySeriesQueryAttrExporter.setQueueName("Export4");
-        studySeriesQueryAttrExporter.setAETitle(AE_TITLE);
-        ext.addExporterDescriptor(studySeriesQueryAttrExporter);
 
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);

@@ -46,6 +46,8 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -53,10 +55,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -67,6 +66,8 @@ import java.util.stream.Stream;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class QueryAttributesEJB {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QueryAttributesEJB.class);
 
     @Inject
     private CodeCache codeCache;
@@ -141,25 +142,18 @@ public class QueryAttributesEJB {
         return queryAttrs;
     }
 
-    public boolean calculateStudyQueryAttributes(String studyUID) {
-        Long studyPk;
-        try {
-            studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
-                    .setParameter(1, studyUID)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return false;
-        }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
+    public void calculateStudyQueryAttrs(Long studyPk, Collection<String> viewIDs) {
         viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
-                .setParameter(1, studyPk)
-                .getResultList());
-
-        for (String viewID : viewIDs) {
-            calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
-        }
-        return true;
+                                .setParameter(1, studyPk)
+                                .getResultList());
+        viewIDs.forEach(viewID -> {
+            try {
+                calculateStudyQueryAttributes(studyPk, device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                                             .getQueryRetrieveViewNotNull(viewID));
+            } catch (IllegalStateException e) {
+                LOG.info(e.getMessage());
+            }
+        });
     }
 
     private static class SeriesQueryAttributesBuilder {

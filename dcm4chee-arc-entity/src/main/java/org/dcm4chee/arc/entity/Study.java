@@ -123,7 +123,15 @@ import java.util.*;
         @NamedQuery(
                 name = Study.UPDATE_ACCESS_CONTROL_ID,
                 query = "update Study st set st.accessControlID = ?2 " +
-                        "where st.studyInstanceUID = ?1")
+                        "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name = Study.FIND_PK_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
+                query = "select st.pk from Study st " +
+                        "where st.size = -1 and st.updatedTime < ?1"),
+        @NamedQuery(
+                name=Study.CLAIM_UNKNOWN_SIZE_STUDY,
+                query="update Study st set st.size = -2 " +
+                        "where st.size = -1 and st.pk = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -166,6 +174,8 @@ public class Study {
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
     public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
+    public static final String FIND_PK_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findPkByUpdateTimeAndUnknownSize";
+    public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
 
     public static class PKUID {
         public final Long pk;

@@ -467,6 +467,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUserIdentityNegotiationKeycloakClientID(), null);
         storeNotEmptyTags(ldapObj, attrs, "dcmRejectConflictingPatientAttribute",
                 ext.getRejectConflictingPatientAttribute());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCalculateStudySizeDelay",
+                ext.getStudySizeDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCalculateStudySizePollingInterval",
+                ext.getStudySizePollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateStudySizeFetchSize",
+                ext.getStudySizeFetchSize(), 100);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCalculateQueryAttributesViewID", ext.getQueryAttrsViewIDs());
     }
 
     @Override
@@ -754,6 +761,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUserIdentityNegotiationRole(LdapUtils.stringValue(attrs.get("dcmUserIdentityNegotiationRole"), null));
         ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
+        ext.setStudySizeDelay(toDuration(attrs.get("dcmCalculateStudySizeDelay"), null));
+        ext.setStudySizePollingInterval(toDuration(attrs.get("dcmCalculateStudySizePollingInterval"), null));
+        ext.setStudySizeFetchSize(LdapUtils.intValue(attrs.get("dcmCalculateStudySizeFetchSize"), 100));
+        ext.setQueryAttrsViewIDs(LdapUtils.stringArray(attrs.get("dcmCalculateQueryAttributesViewID")));
     }
 
     @Override
@@ -780,7 +791,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
                 bb.getSeriesMetadataStorageIDs());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay", aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",
+                aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataPollingInterval",
                 aa.getSeriesMetadataPollingInterval(),
                 bb.getSeriesMetadataPollingInterval(), null);
@@ -1297,6 +1309,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationKeycloakClientID",
                 aa.getUserIdentityNegotiationKeycloakClientID(),
                 bb.getUserIdentityNegotiationKeycloakClientID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCalculateStudySizeDelay",
+                aa.getStudySizeDelay(), bb.getStudySizeDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCalculateStudySizePollingInterval",
+                aa.getStudySizePollingInterval(), bb.getStudySizePollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateStudySizeFetchSize",
+                aa.getStudySizeFetchSize(), bb.getStudySizeFetchSize(), 100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateQueryAttributesViewID",
+                aa.getQueryAttrsViewIDs(), bb.getQueryAttrsViewIDs());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

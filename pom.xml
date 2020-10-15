@@ -520,10 +520,8 @@
     <module>dcm4chee-arc-export-impax-report</module>
     <module>dcm4chee-arc-export-mgt</module>
     <module>dcm4chee-arc-export-pr2ko</module>
-    <module>dcm4chee-arc-export-query-attrs</module>
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-storage</module>
-    <module>dcm4chee-arc-export-study-size</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
     <module>dcm4chee-arc-hl7</module>
@@ -583,6 +581,7 @@
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scu</module>
     <module>dcm4chee-arc-store-scp</module>
+    <module>dcm4chee-arc-study-size</module>
     <module>dcm4chee-arc-stow</module>
     <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-ups</module>
@@ -590,12 +589,10 @@
     <module>dcm4chee-arc-ups-movescu</module>
     <module>dcm4chee-arc-ups-mppsscu</module>
     <module>dcm4chee-arc-ups-process</module>
-    <module>dcm4chee-arc-ups-query-attrs</module>
     <module>dcm4chee-arc-ups-rs</module>
     <module>dcm4chee-arc-ups-scp</module>
     <module>dcm4chee-arc-ups-stgcmtscu</module>
     <module>dcm4chee-arc-ups-storescu</module>
-    <module>dcm4chee-arc-ups-study-size</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>

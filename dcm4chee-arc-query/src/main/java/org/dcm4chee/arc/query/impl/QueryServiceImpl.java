@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
@@ -605,5 +604,10 @@ class QueryServiceImpl implements QueryService {
     public List<String> getDistinctModalities() {
         return em.createNamedQuery(Series.FIND_DISTINCT_MODALITIES, String.class)
                 .getResultList();
+    }
+
+    @Override
+    public List<Long> unknownSizeStudyPks(Date dt, int fetchSize) {
+        return ejb.unknownSizeStudyPks(dt, fetchSize);
     }
 }

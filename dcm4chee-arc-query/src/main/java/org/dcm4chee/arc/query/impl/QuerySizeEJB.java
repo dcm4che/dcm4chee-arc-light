@@ -42,12 +42,13 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 /**
@@ -59,7 +60,8 @@ import javax.persistence.PersistenceContext;
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class QuerySizeEJB {
 
-    private static final Long ZERO = Long.valueOf(0L);
+    private static final Long ZERO = 0L;
+    private static final Logger LOG = LoggerFactory.getLogger(QuerySizeEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
@@ -95,15 +97,15 @@ public class QuerySizeEJB {
         return size;
     }
 
-    public long calculateStudySize(String studyUID) {
-        Long studyPk;
+    public long postClaimCalculateStudySize(Long studyPk) {
         try {
-            studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
-                    .setParameter(1, studyUID)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return -1L;
+            if (em.createNamedQuery(Study.CLAIM_UNKNOWN_SIZE_STUDY)
+                    .setParameter(1, studyPk)
+                    .executeUpdate() > 0)
+                return calculateStudySize(studyPk);
+        } catch (Exception e) {
+            LOG.info(e.getMessage());
         }
-        return calculateStudySize(studyPk);
+        return ZERO;
     }
 }
