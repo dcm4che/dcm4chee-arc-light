@@ -847,7 +847,7 @@ public class QidoRS {
                 return allNonSeqTags(match, tags,
                         arcDev.getAttributeFilter(Entity.UPS).getSelection());
         }
-        return allNonSeqTags(match, tags);
+        return allNonSeqTags(match, tags, new int[] { Tag.NumberOfPatientRelatedStudies });
     }
 
     private int[] allNonSeqTags(Attributes match, int[]... tags) {
