@@ -52,10 +52,7 @@ import org.dcm4che3.media.RecordType;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4che3.util.AttributesFormat;
-import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.UIDUtils;
+import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -571,6 +568,15 @@ public class WadoRS {
         if (ctx.getNumberOfMatches() == 0)
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
+        responseStatus = Response.Status.OK;
+        if (frameList != null) {
+            Attributes attrs = ctx.getMatches().get(0).getAttributes();
+            if (!attrs.containsValue(Tag.Rows))
+                throw new WebApplicationException(errResponse("Not an image.", Response.Status.NOT_FOUND));
+            frameList = adjustFrameList(frameList, attrs.getInt(Tag.NumberOfFrames, 1));
+            if (frameList.length == 0)
+                throw new WebApplicationException(errResponse("No such frame.", Response.Status.NOT_FOUND));
+        }
         output = output.adjust(this, frameList, ctx);
         Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(
                 this, ctx, frameList, attributePath);
@@ -580,6 +586,8 @@ public class WadoRS {
                     : errResponse("Not accepted instances present.", Response.Status.NOT_ACCEPTABLE);
             throw new WebApplicationException(errResp);
         }
+        if (!notAccepted.isEmpty())
+            responseStatus = Response.Status.PARTIAL_CONTENT;
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
@@ -595,7 +603,6 @@ public class WadoRS {
             ctx.setException(throwable);
                 retrieveEnd.fire(ctx);
         });
-        responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
         ar.resume(output.response(this, lastModified, entity).build());
     }
@@ -1074,7 +1081,6 @@ public class WadoRS {
             bulkdataURL.setLength(bulkdataURL.lastIndexOf("/series/"));
             mkInstanceURL(bulkdataURL, inst);
         } else { // render Frames
-            frameList = adjustFrameList(frameList, numFrames);
             bulkdataURL.setLength(bulkdataURL.lastIndexOf("/frames/"));
         }
         int length = bulkdataURL.append("/frames/").length();
@@ -1137,7 +1143,6 @@ public class WadoRS {
     private void writeFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
                              int[] frameList) throws IOException {
         int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
-        frameList = adjustFrameList(frameList, numFrames);
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         StringBuffer bulkdataURL = request.getRequestURL();
         bulkdataURL.setLength(bulkdataURL.lastIndexOf("/frames/") + 8);
@@ -1178,7 +1183,7 @@ public class WadoRS {
             return frameList;
 
         if (len == 0)
-            throw new WebApplicationException(errResponse("Frame length is zero.", Response.Status.NOT_FOUND));
+            return ByteUtils.EMPTY_INTS;
 
         responseStatus = Response.Status.PARTIAL_CONTENT;
         return Arrays.copyOf(frameList, len);
