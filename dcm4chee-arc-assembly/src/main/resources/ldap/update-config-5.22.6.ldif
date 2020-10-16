@@ -12,7 +12,7 @@ replace: dcmCalculateStudySizeDelay
 dcmCalculateStudySizeDelay: PT5M
 -
 replace: dcmCalculateQueryAttributes
-dcmCalculateQueryAttributes: true
+dcmCalculateQueryAttributes: TRUE
 
 dn: dcmQueueName=Export4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
