@@ -470,10 +470,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCalculateStudySizeDelay",
                 ext.getStudySizeDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCalculateStudySizePollingInterval",
-                ext.getStudySizePollingInterval(), null);
+                ext.getCalculateStudySizePollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateStudySizeFetchSize",
-                ext.getStudySizeFetchSize(), 100);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCalculateQueryAttributesViewID", ext.getQueryAttrsViewIDs());
+                ext.getCalculateStudySizeFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateQueryAttributes", ext.isCalculateQueryAttributes(), false);
     }
 
     @Override
@@ -762,9 +762,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
         ext.setStudySizeDelay(toDuration(attrs.get("dcmCalculateStudySizeDelay"), null));
-        ext.setStudySizePollingInterval(toDuration(attrs.get("dcmCalculateStudySizePollingInterval"), null));
-        ext.setStudySizeFetchSize(LdapUtils.intValue(attrs.get("dcmCalculateStudySizeFetchSize"), 100));
-        ext.setQueryAttrsViewIDs(LdapUtils.stringArray(attrs.get("dcmCalculateQueryAttributesViewID")));
+        ext.setCalculateStudySizePollingInterval(toDuration(attrs.get("dcmCalculateStudySizePollingInterval"), null));
+        ext.setCalculateStudySizeFetchSize(LdapUtils.intValue(attrs.get("dcmCalculateStudySizeFetchSize"), 100));
+        ext.setCalculateQueryAttributes(LdapUtils.booleanValue(attrs.get("dcmCalculateQueryAttributes"), false));
     }
 
     @Override
@@ -1312,11 +1312,11 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCalculateStudySizeDelay",
                 aa.getStudySizeDelay(), bb.getStudySizeDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCalculateStudySizePollingInterval",
-                aa.getStudySizePollingInterval(), bb.getStudySizePollingInterval(), null);
+                aa.getCalculateStudySizePollingInterval(), bb.getCalculateStudySizePollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateStudySizeFetchSize",
-                aa.getStudySizeFetchSize(), bb.getStudySizeFetchSize(), 100);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateQueryAttributesViewID",
-                aa.getQueryAttrsViewIDs(), bb.getQueryAttrsViewIDs());
+                aa.getCalculateStudySizeFetchSize(), bb.getCalculateStudySizeFetchSize(), 100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateQueryAttributes",
+                aa.isCalculateQueryAttributes(), bb.isCalculateQueryAttributes(), false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

@@ -1899,11 +1899,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.389 NAME 'dcmCalculateStudySizeFetch
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.390 NAME 'dcmCalculateQueryAttributesViewID'
-  DESC 'Indicates to eager calculate Query Attributes for specified Query/Retrieve Views according configured Calculate Study Size Delay and Calculate Study Size Polling Interval.'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.390 NAME 'dcmCalculateQueryAttributes'
+  DESC 'Indicates to eager calculate Query Attributes according configured Calculate Study Size Delay and Calculate Study Size Polling Interval.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1917,7 +1917,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCalculateStudySizeDelay $
     dcmCalculateStudySizePollingInterval $
     dcmCalculateStudySizeFetchSize $
-    dcmCalculateQueryAttributesViewID $
+    dcmCalculateQueryAttributes $
     dcmQueryRetrieveViewID $
     dcmRetrieveAET $
     dcmReturnRetrieveAET $

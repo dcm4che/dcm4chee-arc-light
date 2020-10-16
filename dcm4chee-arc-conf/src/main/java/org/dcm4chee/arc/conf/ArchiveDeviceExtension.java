@@ -285,9 +285,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowQuicktime2MP4;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
     private volatile Duration studySizeDelay;
-    private volatile Duration studySizePollingInterval;
-    private volatile int studySizeFetchSize = 100;
-    private volatile String[] queryAttrsViewIDs = {};
+    private volatile Duration calculateStudySizePollingInterval;
+    private volatile int calculateStudySizeFetchSize = 100;
+    private volatile boolean calculateQueryAttributes;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
@@ -2914,28 +2914,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.studySizeDelay = studySizeDelay;
     }
 
-    public Duration getStudySizePollingInterval() {
-        return studySizePollingInterval;
+    public Duration getCalculateStudySizePollingInterval() {
+        return calculateStudySizePollingInterval;
     }
 
-    public void setStudySizePollingInterval(Duration studySizePollingInterval) {
-        this.studySizePollingInterval = studySizePollingInterval;
+    public void setCalculateStudySizePollingInterval(Duration calculateStudySizePollingInterval) {
+        this.calculateStudySizePollingInterval = calculateStudySizePollingInterval;
     }
 
-    public int getStudySizeFetchSize() {
-        return studySizeFetchSize;
+    public int getCalculateStudySizeFetchSize() {
+        return calculateStudySizeFetchSize;
     }
 
-    public void setStudySizeFetchSize(int studySizeFetchSize) {
-        this.studySizeFetchSize = studySizeFetchSize;
+    public void setCalculateStudySizeFetchSize(int calculateStudySizeFetchSize) {
+        this.calculateStudySizeFetchSize = calculateStudySizeFetchSize;
     }
 
-    public String[] getQueryAttrsViewIDs() {
-        return queryAttrsViewIDs;
+    public boolean isCalculateQueryAttributes() {
+        return calculateQueryAttributes;
     }
 
-    public void setQueryAttrsViewIDs(String[] queryAttrsViewIDs) {
-        this.queryAttrsViewIDs = queryAttrsViewIDs;
+    public void setCalculateQueryAttributes(boolean calculateQueryAttributes) {
+        this.calculateQueryAttributes = calculateQueryAttributes;
     }
 
     @Override
@@ -3155,9 +3155,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mwlFetchSize = arcdev.mwlFetchSize;
         deleteMWLDelay = arcdev.deleteMWLDelay;
         studySizeDelay = arcdev.studySizeDelay;
-        studySizePollingInterval = arcdev.studySizePollingInterval;
-        studySizeFetchSize = arcdev.studySizeFetchSize;
-        queryAttrsViewIDs = arcdev.queryAttrsViewIDs;
+        calculateStudySizePollingInterval = arcdev.calculateStudySizePollingInterval;
+        calculateStudySizeFetchSize = arcdev.calculateStudySizeFetchSize;
+        calculateQueryAttributes = arcdev.calculateQueryAttributes;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

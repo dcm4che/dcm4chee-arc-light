@@ -142,18 +142,17 @@ public class QueryAttributesEJB {
         return queryAttrs;
     }
 
-    public void calculateStudyQueryAttrs(Long studyPk, Collection<String> viewIDs) {
+    public boolean calculateStudyQueryAttributes(Long studyPk) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
         viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
-                                .setParameter(1, studyPk)
-                                .getResultList());
-        viewIDs.forEach(viewID -> {
-            try {
-                calculateStudyQueryAttributes(studyPk, device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                                                             .getQueryRetrieveViewNotNull(viewID));
-            } catch (IllegalStateException e) {
-                LOG.info(e.getMessage());
-            }
-        });
+                .setParameter(1, studyPk)
+                .getResultList());
+
+        for (String viewID : viewIDs) {
+            calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
+        }
+        return true;
     }
 
     private static class SeriesQueryAttributesBuilder {

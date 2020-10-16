@@ -1228,7 +1228,6 @@ class ArchiveDeviceFactory {
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final Duration CALCULATE_STUDY_SIZE_DELAY = Duration.valueOf("PT5M");
     static final Duration CALCULATE_STUDY_SIZE_POLLING_INTERVAL = Duration.valueOf("PT5M");
-    static final String[] CALCULATE_QUERY_ATTRS_VIEW_ID = new String[] { HIDE_REJECTED_VIEW.getViewID() };
 
     static final String NEARLINE_STORAGE_EXPORTER_ID = "CopyToNearlineStorage";
     static final String NEARLINE_STORAGE_EXPORTER_DESC = "Copy to NEARLINE Storage";
@@ -1741,8 +1740,8 @@ class ArchiveDeviceFactory {
         ext.setStorageVerificationAETitle(AE_TITLE);
         ext.setCompressionAETitle(AE_TITLE);
         ext.setStudySizeDelay(CALCULATE_STUDY_SIZE_DELAY);
-        ext.setStudySizePollingInterval(CALCULATE_STUDY_SIZE_POLLING_INTERVAL);
-        ext.setQueryAttrsViewIDs(CALCULATE_QUERY_ATTRS_VIEW_ID);
+        ext.setCalculateStudySizePollingInterval(CALCULATE_STUDY_SIZE_POLLING_INTERVAL);
+        ext.setCalculateQueryAttributes(true);
 
         ext.setUPSProcessingPollingInterval(UPS_PROCESSING_POLLING_INTERVAL);
         ext.setDeleteUPSPollingInterval(DELETE_UPS_POLLING_INTERVAL);

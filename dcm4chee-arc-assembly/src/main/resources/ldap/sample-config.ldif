@@ -140,7 +140,6 @@ dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: PKCS12
 dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.p12
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
-dcmCalculateQueryAttributesViewID: hideRejected
 dcmCalculateStudySizePollingInterval: PT5M
 dcmCalculateStudySizeDelay: PT5M
 dcmKeyStoreURL: ${jboss.server.config.url}/keystores/key.p12
@@ -185,6 +184,7 @@ dcmPurgeStgCmtPollingInterval: PT1H
 dcmRejectExpiredStudiesFetchSize: 10
 dicomPrimaryDeviceType: ARCHIVE
 hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
+dcmCalculateQueryAttributes: TRUE
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 dcmExternalRetrieveAEDestination: DCM4CHEE

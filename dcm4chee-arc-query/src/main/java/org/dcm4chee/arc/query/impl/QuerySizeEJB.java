@@ -97,7 +97,7 @@ public class QuerySizeEJB {
         return size;
     }
 
-    public long postClaimCalculateStudySize(Long studyPk) {
+    public long claimAndCalculateStudySize(Long studyPk) {
         try {
             if (em.createNamedQuery(Study.CLAIM_UNKNOWN_SIZE_STUDY)
                     .setParameter(1, studyPk)

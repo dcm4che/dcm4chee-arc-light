@@ -374,9 +374,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getUserIdentityNegotiationKeycloakClientID(), null);
         writer.writeNotNullOrDef("dcmCalculateStudySizeDelay", arcDev.getStudySizeDelay(), null);
         writer.writeNotNullOrDef("dcmCalculateStudySizePollingInterval",
-                arcDev.getStudySizePollingInterval(), null);
-        writer.writeNotDef("dcmCalculateStudySizeFetchSize", arcDev.getStudySizeFetchSize(), 100);
-        writer.writeNotEmpty("dcmCalculateQueryAttributesViewID", arcDev.getQueryAttrsViewIDs());
+                arcDev.getCalculateStudySizePollingInterval(), null);
+        writer.writeNotDef("dcmCalculateStudySizeFetchSize", arcDev.getCalculateStudySizeFetchSize(), 100);
+        writer.writeNotDef("dcmCalculateQueryAttributes", arcDev.isCalculateQueryAttributes(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1891,13 +1891,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setStudySizeDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmCalculateStudySizePollingInterval":
-                    arcDev.setStudySizePollingInterval(Duration.valueOf(reader.stringValue()));
+                    arcDev.setCalculateStudySizePollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmCalculateStudySizeFetchSize":
-                    arcDev.setStudySizeFetchSize(reader.intValue());
+                    arcDev.setCalculateStudySizeFetchSize(reader.intValue());
                     break;
-                case "dcmCalculateQueryAttributesViewID":
-                    arcDev.setQueryAttrsViewIDs(reader.stringArray());
+                case "dcmCalculateQueryAttributes":
+                    arcDev.setCalculateQueryAttributes(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

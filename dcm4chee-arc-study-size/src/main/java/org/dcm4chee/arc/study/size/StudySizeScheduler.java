@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -83,33 +82,30 @@ public class StudySizeScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getStudySizePollingInterval();
+        return arcDev.getCalculateStudySizePollingInterval();
     }
 
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int studySizeFetchSize = arcDev.getStudySizeFetchSize();
-        Date updatedTime = updatedTime(arcDev.getStudySizeDelay());
-        List<String> viewIDs = Arrays.asList(arcDev.getQueryAttrsViewIDs());
         int calculated = 0;
-        int count = 0;
+        List<Long> studyPks;
+        int studySizeFetchSize;
         do {
-            if (getPollingInterval() == null)
-                return;
-
-            for (Long studyPk : queryService.unknownSizeStudyPks(updatedTime, studySizeFetchSize)) {
-                if (querySizeEJB.postClaimCalculateStudySize(studyPk) > 0L) {
-                    queryAttrsEJB.calculateStudyQueryAttrs(studyPk, viewIDs);
-                    count++;
+            studyPks = queryService.unknownSizeStudyPks(
+                    updatedTime(arcDev.getStudySizeDelay()),
+                    studySizeFetchSize = arcDev.getCalculateStudySizeFetchSize());
+            for (Long studyPk : studyPks) {
+                if (querySizeEJB.claimAndCalculateStudySize(studyPk) > 0L) {
+                    if (arcDev.isCalculateQueryAttributes()) {
+                        queryAttrsEJB.calculateStudyQueryAttributes(studyPk);
+                    }
+                    calculated++;
                 }
             }
-
-            calculated += count;
-        } while (count == studySizeFetchSize);
-
+        } while (studyPks.size() == studySizeFetchSize && getPollingInterval() != null);
         if (calculated > 0)
-            LOG.info("Calculated size and query attributes of {} studies", calculated);
+            LOG.info("Calculated size of {} studies", calculated);
     }
 
     private Date updatedTime(Duration delay) {
