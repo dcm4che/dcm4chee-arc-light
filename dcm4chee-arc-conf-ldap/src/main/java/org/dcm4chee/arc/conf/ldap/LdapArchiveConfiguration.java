@@ -3022,6 +3022,11 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 "dcmUPSLabel", upsOnUPSCompleted.getProcedureStepLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,
                 "dcmUPSWorklistLabel", upsOnUPSCompleted.getWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnUPSCompleted.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
+                upsOnUPSCompleted.getIncludeInputInformation(), UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnUPSCompleted.isIncludePatient(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,
                 "dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
@@ -3323,6 +3328,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.setCompletionDateTimeDelay(
                         toDuration(attrs.get("dcmUPSCompletionDateTimeDelay"), null));
                 upsOnUPSCompleted.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+                upsOnUPSCompleted.setInstanceUIDBasedOnName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
+                upsOnUPSCompleted.setIncludeInputInformation(
+                        LdapUtils.enumValue(UPSOnUPSCompleted.IncludeInputInformation.class,
+                                attrs.get("dcmUPSIncludeInputInformation"),
+                                UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT));
+                upsOnUPSCompleted.setIncludePatient(LdapUtils.booleanValue(attrs.get("dcmUPSIncludePatient"), true));
                 upsOnUPSCompleted.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnUPSCompleted.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 upsOnUPSCompleted.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
@@ -3921,6 +3933,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getProcedureStepLabel(), upsOnUPSCompleted.getProcedureStepLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 prev.getWorklistLabel(), upsOnUPSCompleted.getWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInstanceUIDBasedOnName",
+                prev.getInstanceUIDBasedOnName(), upsOnUPSCompleted.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
+                prev.getIncludeInputInformation(), upsOnUPSCompleted.getIncludeInputInformation(),
+                UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludePatient",
+                prev.isIncludePatient(), upsOnUPSCompleted.isIncludePatient(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
                 prev.getUPSPriority(), upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",

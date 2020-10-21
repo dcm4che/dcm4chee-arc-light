@@ -44,8 +44,9 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.*;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 
-import java.util.Calendar;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -54,15 +55,20 @@ import java.util.Objects;
  */
 public class UPSOnUPSCompleted {
     public static final UPSOnUPSCompleted[] EMPTY = {};
+    public enum IncludeInputInformation {
+        NO, COPY_INPUT, COPY_OUTPUT, MERGE_INPUT_OUTPUT;
+    }
     private String upsOnUPSCompletedID;
     private Conditions conditions = new Conditions();
     private String[] requiresOtherUPSCompleted = {};
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
+    private IncludeInputInformation includeInputInformation = IncludeInputInformation.COPY_OUTPUT;
     private Duration startDateTimeDelay;
     private Duration completionDateTimeDelay;
     private AttributesFormat procedureStepLabel;
     private AttributesFormat worklistLabel;
+    private AttributesFormat instanceUIDBasedOnName;
     private AttributesFormat scheduledHumanPerformerName;
     private AttributesFormat scheduledHumanPerformerOrganization;
     private AttributesFormat admissionID;
@@ -84,6 +90,7 @@ public class UPSOnUPSCompleted {
     private boolean noKeywords;
     private boolean includeStudyInstanceUID;
     private boolean includeReferencedRequest;
+    private boolean includePatient = true;
 
     public UPSOnUPSCompleted() {}
 
@@ -129,6 +136,22 @@ public class UPSOnUPSCompleted {
 
     public void setInputReadinessState(InputReadinessState inputReadinessState) {
         this.inputReadinessState = inputReadinessState;
+    }
+
+    public IncludeInputInformation getIncludeInputInformation() {
+        return includeInputInformation;
+    }
+
+    public void setIncludeInputInformation(IncludeInputInformation includeInputInformation) {
+        this.includeInputInformation = includeInputInformation;
+    }
+
+    public boolean isIncludePatient() {
+        return includePatient;
+    }
+
+    public void setIncludePatient(boolean includePatient) {
+        this.includePatient = includePatient;
     }
 
     public boolean isIncludeStudyInstanceUID() {
@@ -185,6 +208,20 @@ public class UPSOnUPSCompleted {
 
     public String getWorklistLabel(Attributes attrs) {
         return format(worklistLabel, attrs);
+    }
+
+    public String getInstanceUIDBasedOnName() {
+        return Objects.toString(instanceUIDBasedOnName, null);
+    }
+
+    public void setInstanceUIDBasedOnName(String instanceUIDBasedOnName) {
+        this.instanceUIDBasedOnName = AttributesFormat.valueOf(instanceUIDBasedOnName);
+    }
+
+    public String getInstanceUID(Attributes attrs) {
+        return instanceUIDBasedOnName != null
+                ? UIDUtils.createNameBasedUID(instanceUIDBasedOnName.format(attrs).getBytes(StandardCharsets.UTF_8))
+                : UIDUtils.createUID();
     }
 
     public String getScheduledHumanPerformerName() {

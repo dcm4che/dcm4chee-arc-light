@@ -1023,6 +1023,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", upsOnUPSCompleted.getConditions().getMap());
             writer.writeNotEmpty("dcmRequiresOtherUPSCompleted", upsOnUPSCompleted.getRequiresOtherUPSCompleted());
             writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnUPSCompleted.getWorklistLabel(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInstanceUIDBasedOnName", upsOnUPSCompleted.getInstanceUIDBasedOnName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSIncludeInputInformation",
+                    upsOnUPSCompleted.getIncludeInputInformation(),
+                    UPSOnUPSCompleted.IncludeInputInformation.COPY_INPUT);
+            writer.writeNotDef("dcmUPSIncludePatient", upsOnUPSCompleted.isIncludePatient(), true);
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(
                     "dcmUPSInputReadinessState", upsOnUPSCompleted.getInputReadinessState(), InputReadinessState.READY);
@@ -3416,6 +3423,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSWorklistLabel":
                         upsOnUPSCompleted.setWorklistLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSInstanceUIDBasedOnName":
+                        upsOnUPSCompleted.setInstanceUIDBasedOnName(reader.stringValue());
+                        break;
+                    case "dcmUPSIncludeInputInformation":
+                        upsOnUPSCompleted.setIncludeInputInformation(
+                                UPSOnUPSCompleted.IncludeInputInformation.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSIncludePatient":
+                        upsOnUPSCompleted.setIncludePatient(reader.booleanValue());
                         break;
                     case "dcmUPSPriority":
                         upsOnUPSCompleted.setUPSPriority(UPSPriority.valueOf(reader.stringValue()));

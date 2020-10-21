@@ -2769,6 +2769,9 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
     dcmUPSStartDateTimeDelay $
     dcmUPSCompletionDateTimeDelay $
     dcmUPSWorklistLabel $
+    dcmUPSInstanceUIDBasedOnName $
+    dcmUPSIncludeInputInformation $
+    dcmUPSIncludePatient $
     dcmUPSIncludeStudyInstanceUID $
     dcmUPSIncludeReferencedRequest $
     dcmDestinationAE $
