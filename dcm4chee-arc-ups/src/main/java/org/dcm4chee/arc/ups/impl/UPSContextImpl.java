@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -142,6 +143,19 @@ public class UPSContextImpl implements UPSContext {
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return archiveAEExtension != null
                 ? archiveAEExtension.getArchiveDeviceExtension() : archiveHL7AppExtension.getArchiveDeviceExtension();
+    }
+
+    @Override
+    public String getRemoteHostName() {
+        return httpRequestInfo != null ? httpRequestInfo.requesterHost
+                : socket != null ? ReverseDNS.hostNameOf(socket.getInetAddress())
+                : null;
+    }
+    @Override
+    public String getLocalHostName() {
+        return httpRequestInfo != null ? httpRequestInfo.localHost
+                : socket != null ? ReverseDNS.hostNameOf(socket.getLocalAddress())
+                : null;
     }
 
     @Override

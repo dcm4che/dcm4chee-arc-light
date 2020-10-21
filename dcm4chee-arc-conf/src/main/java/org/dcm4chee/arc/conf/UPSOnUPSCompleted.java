@@ -53,15 +53,10 @@ import java.util.Objects;
  * @since Nov 2019
  */
 public class UPSOnUPSCompleted {
-    public static final Code DEFAULT_PERFORMED_WORKITEM_CODE = new Code(
-            "NO_WORKITEM_CODE",
-            "99DCM4CHEE",
-            null,
-            "No Workitem Code specified");
-
     public static final UPSOnUPSCompleted[] EMPTY = {};
     private String upsOnUPSCompletedID;
-    private Code performedWorkitemCode = DEFAULT_PERFORMED_WORKITEM_CODE;
+    private Conditions conditions = new Conditions();
+    private String[] requiresOtherUPSCompleted = {};
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
     private Duration startDateTimeDelay;
@@ -104,12 +99,20 @@ public class UPSOnUPSCompleted {
         this.upsOnUPSCompletedID = UPSonUPSCompletedID;
     }
 
-    public Code getPerformedWorkitemCode() {
-        return performedWorkitemCode;
+    public Conditions getConditions() {
+        return conditions;
     }
 
-    public void setPerformedWorkitemCode(Code performedWorkitemCode) {
-        this.performedWorkitemCode = Objects.requireNonNull(performedWorkitemCode);
+    public void setConditions(Conditions conditions) {
+        this.conditions = conditions;
+    }
+
+    public String[] getRequiresOtherUPSCompleted() {
+        return requiresOtherUPSCompleted;
+    }
+
+    public void setRequiresOtherUPSCompleted(String[] requiresOtherUPSCompleted) {
+        this.requiresOtherUPSCompleted = requiresOtherUPSCompleted;
     }
 
     public UPSPriority getUPSPriority() {

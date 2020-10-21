@@ -260,9 +260,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7ExportRule> hl7ExportRules() {
-        return Utils.concatCopyStream(hl7ExportRules,
-                getArchiveDeviceExtension().getHL7ExportRules(),
-                HL7ExportRule.EMPTY);
+        return Stream.concat(hl7ExportRules.stream(), getArchiveDeviceExtension().getHL7ExportRules().stream());
     }
 
     public boolean hasHL7ExportRules() {
@@ -286,9 +284,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7PrefetchRule> hl7PrefetchRules() {
-        return Utils.concatCopyStream(hl7PrefetchRules,
-                getArchiveDeviceExtension().getHL7PrefetchRules(),
-                HL7PrefetchRule.EMPTY);
+        return Stream.concat(hl7PrefetchRules.stream(), getArchiveDeviceExtension().getHL7PrefetchRules().stream());
     }
 
     public boolean hasHL7PrefetchRules() {
@@ -312,9 +308,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<UPSOnHL7> upsOnHL7Stream() {
-        return Utils.concatCopyStream(upsOnHL7List,
-                getArchiveDeviceExtension().listUPSOnHL7(),
-                UPSOnHL7.EMPTY);
+        return Stream.concat(upsOnHL7List.stream(), getArchiveDeviceExtension().listUPSOnHL7().stream());
     }
 
     public boolean hasUPSOnHL7() {
@@ -338,9 +332,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7ForwardRule> hl7ForwardRules() {
-        return Utils.concatCopyStream(hl7ForwardRules,
-                getArchiveDeviceExtension().getHL7ForwardRules(),
-                HL7ForwardRule.EMPTY);
+        return Stream.concat(hl7ForwardRules.stream(), getArchiveDeviceExtension().getHL7ForwardRules().stream());
     }
 
     public boolean hasHL7ForwardRules() {
@@ -397,9 +389,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public Stream<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies() {
-        return Utils.concatCopyStream(hl7StudyRetentionPolicies,
-                getArchiveDeviceExtension().getHL7StudyRetentionPolicies(),
-                HL7StudyRetentionPolicy.EMPTY);
+        return Stream.concat(hl7StudyRetentionPolicies.stream(), getArchiveDeviceExtension().getHL7StudyRetentionPolicies().stream());
     }
 
     public boolean hasHL7StudyRetentionPolicies() {

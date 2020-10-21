@@ -75,6 +75,29 @@ public class QueryAttributes {
     public QueryAttributes(UriInfo info, Map<String, AttributeSet> attributeSetMap) {
         this(splitAndDecode(info.getQueryParameters(false)), attributeSetMap);
     }
+    public static MultivaluedMap<String, String> parseQueryString(String queryString) {
+        MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
+        String[] params = queryString.split("&");
+        for (String param : params) {
+            if (param.indexOf('=') >= 0) {
+                String[] nv = param.split("=", 2);
+                try {
+                    String name = URLDecoder.decode(nv[0], "UTF-8");
+                    queryParameters.add(name, nv.length > 1 ? URLDecoder.decode(nv[1], "UTF-8") : "");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    String name = URLDecoder.decode(param, "UTF-8");
+                    queryParameters.add(name, "");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return queryParameters;
+    }
 
     private static MultivaluedMap<String, String> splitAndDecode(MultivaluedMap<String, String> queryParameters) {
         MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();

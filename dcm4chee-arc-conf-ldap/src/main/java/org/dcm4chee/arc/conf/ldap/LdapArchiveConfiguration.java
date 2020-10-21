@@ -3015,8 +3015,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ConfigurationChanges.ModifiedObject ldapObj, UPSOnUPSCompleted upsOnUPSCompleted, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmUPSOnUPSCompleted");
         attrs.put("dcmUPSOnUPSCompletedID", upsOnUPSCompleted.getUPSonUPSCompletedID());
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSPerformedWorkitemCode", upsOnUPSCompleted.getPerformedWorkitemCode(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnUPSCompleted.getConditions().getMap());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRequiresOtherUPSCompleted",
+                upsOnUPSCompleted.getRequiresOtherUPSCompleted());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,
                 "dcmUPSLabel", upsOnUPSCompleted.getProcedureStepLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,
@@ -3306,9 +3307,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 UPSOnUPSCompleted upsOnUPSCompleted = new UPSOnUPSCompleted(
                         LdapUtils.stringValue(attrs.get("dcmUPSOnUPSCompletedID"), null));
-                upsOnUPSCompleted.setPerformedWorkitemCode(StringUtils.maskNull(
-                        LdapUtils.codeValue(attrs.get("dcmUPSPerformedWorkitemCode")),
-                        UPSOnUPSCompleted.DEFAULT_PERFORMED_WORKITEM_CODE));
+                upsOnUPSCompleted.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                upsOnUPSCompleted.setRequiresOtherUPSCompleted(
+                        LdapUtils.stringArray(attrs.get("dcmRequiresOtherUPSCompleted")));
                 upsOnUPSCompleted.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
                 upsOnUPSCompleted.setUPSPriority(
                         LdapUtils.enumValue(UPSPriority.class,
@@ -3912,8 +3913,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, UPSOnUPSCompleted prev, UPSOnUPSCompleted upsOnUPSCompleted,
             ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPerformedWorkitemCode",
-                prev.getPerformedWorkitemCode(), upsOnUPSCompleted.getPerformedWorkitemCode(), null);
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), upsOnUPSCompleted.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRequiresOtherUPSCompleted",
+                prev.getRequiresOtherUPSCompleted(), upsOnUPSCompleted.getRequiresOtherUPSCompleted());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
                 prev.getProcedureStepLabel(), upsOnUPSCompleted.getProcedureStepLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",

@@ -41,7 +41,9 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
 import java.util.Map;
@@ -60,7 +62,7 @@ public class Conditions {
     public static final String SENDING_APPLICATION_ENTITY_TITLE = "SendingApplicationEntityTitle";
     public static final String SENDING_HOSTNAME = "SendingHostname";
 
-    private final Map<String, Pattern> map = new TreeMap<>();
+    private final Map<String, Object> map = new TreeMap<>();
 
     public Conditions(String... props) {
          for (String s : props) {
@@ -108,19 +110,18 @@ public class Conditions {
     }
 
     public void setCondition(String tagPath, String value) {
-        Pattern pattern = Pattern.compile(value);
-        map.put(tagPath, pattern);
+        map.put(tagPath, toCodeMatcherOrPattern(value));
     }
 
-    public Map<String,Pattern> getMap() {
+    public Map<String,Object> getMap() {
         return map;
     }
 
     public boolean match(String sendingHost, String sendingAET,
             String receivingHost, String receivingAET, Attributes attrs) {
-        for (Map.Entry<String, Pattern> entry : map.entrySet()) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
             String tagPath = entry.getKey();
-            Pattern pattern = entry.getValue();
+            Object codeMatcherOrPattern = entry.getValue();
             boolean ne = tagPath.endsWith("!");
             if (ne)
                 tagPath = tagPath.substring(0, tagPath.length()-1);
@@ -132,53 +133,65 @@ public class Conditions {
             }
             switch (tagPath) {
                 case RECEIVING_APPLICATION_ENTITY_TITLE:
-                    if (ne ? (receivingAET != null && pattern.matcher(receivingAET).matches())
-                           : (receivingAET == null || !pattern.matcher(receivingAET).matches()))
+                    if (ne ? (receivingAET != null && ((Pattern) codeMatcherOrPattern).matcher(receivingAET).matches())
+                           : (receivingAET == null || !((Pattern) codeMatcherOrPattern).matcher(receivingAET).matches()))
                         return false;
                     break;
                 case RECEIVING_HOSTNAME:
-                    if (ne ? (receivingHost != null && pattern.matcher(receivingHost).matches())
-                            : (receivingHost == null || !pattern.matcher(receivingHost).matches()))
+                    if (ne ? (receivingHost != null && ((Pattern) codeMatcherOrPattern).matcher(receivingHost).matches())
+                            : (receivingHost == null || !((Pattern) codeMatcherOrPattern).matcher(receivingHost).matches()))
                         return false;
                     break;
                 case SENDING_APPLICATION_ENTITY_TITLE:
-                    if (ne ? (sendingAET != null && pattern.matcher(sendingAET).matches())
-                           : (sendingAET == null || !pattern.matcher(sendingAET).matches()))
+                    if (ne ? (sendingAET != null && ((Pattern) codeMatcherOrPattern).matcher(sendingAET).matches())
+                           : (sendingAET == null || !((Pattern) codeMatcherOrPattern).matcher(sendingAET).matches()))
                         return false;
                     break;
                 case SENDING_HOSTNAME:
-                    if (ne ? (sendingHost != null && pattern.matcher(sendingHost).matches())
-                           : (sendingHost == null || !pattern.matcher(sendingHost).matches()))
+                    if (ne ? (sendingHost != null && ((Pattern) codeMatcherOrPattern).matcher(sendingHost).matches())
+                           : (sendingHost == null || !((Pattern) codeMatcherOrPattern).matcher(sendingHost).matches()))
                         return false;
                     break;
                 default:
-                    if (!match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne, valPos))
+                    if (!match(attrs, TagUtils.parseTagPath(tagPath), valPos, 0, codeMatcherOrPattern, ne))
                         return false;
             }
         }
         return true;
     }
 
-    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne, int valPos) {
+    private boolean match(Attributes attrs, int[] tagPath, int valPos, int level,
+            Object codeMatcherOrPattern, boolean ne) {
         if (level < tagPath.length-1) {
             Sequence seq = attrs.getSequence(tagPath[level]);
             if (seq != null)
                 for (Attributes item : seq)
-                    if (match(item, tagPath, pattern, level+1, false, valPos))
+                    if (match(item, tagPath, valPos, level+1, codeMatcherOrPattern, false))
                         return !ne;
+        } else if (codeMatcherOrPattern instanceof CodeMatcher) {
+            if (((CodeMatcher) codeMatcherOrPattern).match(attrs.getNestedDataset(tagPath[level])))
+                return !ne;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);
             if (ss != null && ss.length >= 1) {
                 if (valPos > 0) {
-                    if (valPos > ss.length || (ss[valPos - 1] != null && pattern.matcher(ss[valPos - 1]).matches()))
+                    if (valPos > ss.length || (ss[valPos - 1] != null && ((Pattern)(codeMatcherOrPattern)).matcher(ss[valPos - 1]).matches()))
                         return !ne;
                 } else
                     for (String s : ss)
-                        if (s != null && pattern.matcher(s).matches())
+                        if (s != null &&  ((Pattern)(codeMatcherOrPattern)).matcher(s).matches())
                             return !ne;
             }
         }
         return ne;
+    }
+
+    private static Object toCodeMatcherOrPattern(String value) {
+        try {
+            return new CodeMatcher(value);
+        } catch (IllegalArgumentException e) {
+            return Pattern.compile(value);
+        }
     }
 
     @Override
@@ -192,5 +205,40 @@ public class Conditions {
             return false;
 
         return toString().equals(obj.toString());
+    }
+
+    public static class CodeMatcher {
+        private final String value;
+        private final Code[] codes;
+
+        public CodeMatcher(String value) {
+            String[] ss = StringUtils.split(value, '|');
+            this.codes = new Code[ss.length];
+            for (int i = 0; i < ss.length; i++) {
+                codes[i] = new Code(ss[i]);
+            }
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public boolean match(Attributes item) {
+            try {
+                return item != null && match(new Code(item));
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+
+        public boolean match(Code test) {
+            for (Code code : codes) {
+                if (code.equalsIgnoreMeaning(test))
+                    return true;
+            }
+            return false;
+        }
     }
 }

@@ -1904,6 +1904,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.390 NAME 'dcmCalculateQueryAttribute
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.391 NAME 'dcmRequiresOtherUPSCompleted'
+  DESC 'Specifies Query Parameters for other UPS referring the same request (= Study Instance UID), which must be already be completed for creating this UPS. Format: {attributeID}={value}[&...].'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2758,9 +2763,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
   SUP top STRUCTURAL
   MUST (
     dcmUPSOnUPSCompletedID $
-    dcmUPSPerformedWorkitemCode $
     dcmUPSLabel )
   MAY (
+    dcmRequiresOtherUPSCompleted $
     dcmUPSPriority $
     dcmUPSInputReadinessState $
     dcmUPSStartDateTimeDelay $
@@ -2786,4 +2791,5 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
     dcmRequestingPhysician $
     dcmRequestingService $
     dcmURI $
-    dcmNoKeywords ) )
+    dcmNoKeywords $
+    dcmProperty ) )

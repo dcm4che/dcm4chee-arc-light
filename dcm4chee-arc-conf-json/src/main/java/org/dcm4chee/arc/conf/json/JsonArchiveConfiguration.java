@@ -1020,8 +1020,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmUPSOnUPSCompletedID", upsOnUPSCompleted.getUPSonUPSCompletedID(), null);
             writer.writeNotNullOrDef("dcmUPSLabel", upsOnUPSCompleted.getProcedureStepLabel(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSPerformedWorkitemCode", upsOnUPSCompleted.getPerformedWorkitemCode(), null);
+            writer.writeNotEmpty("dcmProperty", upsOnUPSCompleted.getConditions().getMap());
+            writer.writeNotEmpty("dcmRequiresOtherUPSCompleted", upsOnUPSCompleted.getRequiresOtherUPSCompleted());
             writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnUPSCompleted.getWorklistLabel(), null);
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(
@@ -3405,8 +3405,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmUPSOnUPSCompletedID":
                         upsOnUPSCompleted.setUPSonUPSCompletedID(reader.stringValue());
                         break;
-                    case "dcmUPSPerformedWorkitemCode":
-                        upsOnUPSCompleted.setPerformedWorkitemCode(new Code(reader.stringValue()));
+                    case "dcmProperty":
+                        upsOnUPSCompleted.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmRequiresOtherUPSCompleted":
+                        upsOnUPSCompleted.setRequiresOtherUPSCompleted(reader.stringArray());
                         break;
                     case "dcmUPSLabel":
                         upsOnUPSCompleted.setProcedureStepLabel(reader.stringValue());

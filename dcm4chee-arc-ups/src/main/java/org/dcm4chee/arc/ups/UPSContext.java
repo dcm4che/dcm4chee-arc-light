@@ -67,6 +67,10 @@ public interface UPSContext {
 
     ArchiveDeviceExtension getArchiveDeviceExtension();
 
+    String getRemoteHostName();
+
+    String getLocalHostName();
+
     String getUPSInstanceUID();
 
     void setUPSInstanceUID(String upsInstanceUID);

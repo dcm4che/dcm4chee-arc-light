@@ -59,6 +59,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -76,7 +77,9 @@ import javax.inject.Inject;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -201,12 +204,70 @@ public class UPSServiceImpl implements UPSService {
         try {
             UPS ups = ejb.changeUPSState(ctx, upsState, transactionUID);
             fireUPSEvents(ctx);
+            if (upsState == UPSState.COMPLETED) onUPSCompleted(ctx, ups);
             return ups;
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
-             throw new DicomServiceException(Status.ProcessingFailure, e);
+            throw new DicomServiceException(Status.ProcessingFailure, e);
         }
+    }
+
+    private void onUPSCompleted(UPSContext ctx, UPS ups) {
+        ctx.getArchiveAEExtension().upsOnUPSCompletedStream()
+                .filter(rule -> rule.getConditions()
+                        .match(ctx.getRemoteHostName(),
+                                ctx.getRequesterAET(),
+                                ctx.getLocalHostName(),
+                                ctx.getApplicationEntity().getAETitle(),
+                                ups.getAttributes()))
+                .peek(rule -> LOG.info("Apply {} on completion of {}", rule, ups))
+                .filter(rule -> isRequiredOtherUPSCompleted(ctx, ups, rule))
+                .forEach(rule -> createUPSonUPSCompleted(ctx, ups, rule));
+    }
+
+    private boolean isRequiredOtherUPSCompleted(UPSContext ctx, UPS ups, UPSOnUPSCompleted rule) {
+        String[] requiresOtherUPSCompleted;
+        Attributes item;
+        String refStudyIUID;
+        if ((requiresOtherUPSCompleted = rule.getRequiresOtherUPSCompleted()).length > 0
+                && (item = ups.getAttributes().getNestedDataset(Tag.ReferencedRequestSequence)) != null
+                && (refStudyIUID = item.getString(Tag.StudyInstanceUID)) != null) {
+            for (String queryString : requiresOtherUPSCompleted) {
+                try (Query query = queryService.createUPSQuery(
+                        queryContextUPSNotCompleted(ctx, refStudyIUID, queryString))) {
+                    long notCompleted = query.fetchCount();
+                    if (notCompleted > 0) {
+                        LOG.info("Suspend {} on completion of {} caused by {} not completed required other UPS",
+                                rule, ups, notCompleted);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private QueryContext queryContextUPSNotCompleted(UPSContext ctx, String refStudyIUID, String queryString) {
+        QueryParam queryParam = new QueryParam(ctx.getApplicationEntity());
+        queryParam.setCombinedDatetimeMatching(true);
+        QueryContext queryContext = queryService.newQueryContext(ctx.getApplicationEntity(), queryParam);
+        queryContext.setQueryKeys(queryKeysUPSNotCompleted(refStudyIUID, queryString));
+        return queryContext;
+    }
+
+    private static Attributes queryKeysUPSNotCompleted(String refStudyIUID, String queryString) {
+        Attributes keys = new QueryAttributes(QueryAttributes.parseQueryString(queryString), null)
+                .getQueryKeys();
+        Attributes item = new Attributes(1);
+        item.setString(Tag.StudyInstanceUID, VR.UI, refStudyIUID);
+        keys.newSequence(Tag.ReferencedRequestSequence, 1).add(item);
+        keys.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED", "IN PROGRESS", "CANCELED");
+        return keys;
+    }
+
+    private void createUPSonUPSCompleted(UPSContext ctx, UPS ups, UPSOnUPSCompleted rule) {
+        //TODO
     }
 
     @Override
