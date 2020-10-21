@@ -72,13 +72,7 @@ public class UPSOnUPSCompleted {
     private AttributesFormat scheduledHumanPerformerName;
     private AttributesFormat scheduledHumanPerformerOrganization;
     private AttributesFormat admissionID;
-    private AttributesFormat accessionNumber;
-    private AttributesFormat requestedProcedureID;
-    private AttributesFormat requestedProcedureDescription;
-    private AttributesFormat requestingPhysician;
-    private AttributesFormat requestingService;
     private Issuer issuerOfAdmissionID;
-    private Issuer issuerOfAccessionNumber;
     private Code scheduledWorkitemCode;
     private Code scheduledStationName;
     private Code scheduledStationClass;
@@ -260,80 +254,12 @@ public class UPSOnUPSCompleted {
         return format(admissionID, attrs);
     }
 
-    public String getAccessionNumber() {
-        return Objects.toString(accessionNumber, null);
-    }
-
-    public void setAccessionNumber(String accessionNumber) {
-        this.accessionNumber = AttributesFormat.valueOf(accessionNumber);
-    }
-
-    public String getAccessionNumber(Attributes attrs) {
-        return format(accessionNumber, attrs);
-    }
-
-    public String getRequestedProcedureID() {
-        return Objects.toString(requestedProcedureID, null);
-    }
-
-    public void setRequestedProcedureID(String requestedProcedureID) {
-        this.requestedProcedureID = AttributesFormat.valueOf(requestedProcedureID);
-    }
-
-    public String getRequestedProcedureID(Attributes attrs) {
-        return format(requestedProcedureID, attrs);
-    }
-
-    public String getRequestedProcedureDescription() {
-        return Objects.toString(requestedProcedureDescription, null);
-    }
-
-    public void setRequestedProcedureDescription(String requestedProcedureDescription) {
-        this.requestedProcedureDescription = AttributesFormat.valueOf(requestedProcedureDescription);
-    }
-
-    public String getRequestedProcedureDescription(Attributes attrs) {
-        return format(requestedProcedureDescription, attrs);
-    }
-
-    public String getRequestingPhysician() {
-        return Objects.toString(requestingPhysician, null);
-    }
-
-    public void setRequestingPhysician(String requestingPhysician) {
-        this.requestingPhysician = AttributesFormat.valueOf(requestingPhysician);
-    }
-
-    public String getRequestingPhysician(Attributes attrs) {
-        return format(requestingPhysician, attrs);
-    }
-
-    public String getRequestingService() {
-        return Objects.toString(requestingService, null);
-    }
-
-    public void setRequestingService(String requestingService) {
-        this.requestingService = AttributesFormat.valueOf(requestingService);
-    }
-
-    public String getRequestingService(Attributes attrs) {
-        return format(requestingService, attrs);
-    }
-
     public Issuer getIssuerOfAdmissionID() {
         return issuerOfAdmissionID;
     }
 
     public void setIssuerOfAdmissionID(Issuer issuerOfAdmissionID) {
         this.issuerOfAdmissionID = issuerOfAdmissionID;
-    }
-
-    public Issuer getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
-    }
-
-    public void setIssuerOfAccessionNumber(Issuer issuerOfAccessionNumber) {
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
     }
 
     public Code getScheduledWorkitemCode() {

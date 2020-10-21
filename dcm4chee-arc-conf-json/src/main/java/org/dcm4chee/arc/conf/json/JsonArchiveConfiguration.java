@@ -1058,15 +1058,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeStudyInstanceUID", upsOnUPSCompleted.isIncludeStudyInstanceUID(), false);
             writer.writeNotDef(
                     "dcmUPSIncludeReferencedRequest", upsOnUPSCompleted.isIncludeReferencedRequest(), false);
-            writer.writeNotNullOrDef("dcmAccessionNumber", upsOnUPSCompleted.getAccessionNumber(), null);
-            writer.writeNotNullOrDef("dicomIssuerOfAccessionNumber",
-                    upsOnUPSCompleted.getIssuerOfAccessionNumber(), null);
-            writer.writeNotNullOrDef("dcmRequestedProcedureID",
-                    upsOnUPSCompleted.getRequestedProcedureID(), null);
-            writer.writeNotNullOrDef("dcmRequestedProcedureDescription",
-                    upsOnUPSCompleted.getRequestedProcedureDescription(), null);
-            writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnUPSCompleted.getRequestingPhysician(), null);
-            writer.writeNotNullOrDef("dcmRequestingService", upsOnUPSCompleted.getRequestingService(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnUPSCompleted.getXSLTStylesheetURI(), null);
             writer.writeNotDef("dcmNoKeywords", upsOnUPSCompleted.isNoKeywords(), false);
             writer.writeEnd();
@@ -3484,24 +3475,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSIncludeReferencedRequest":
                         upsOnUPSCompleted.setIncludeReferencedRequest(reader.booleanValue());
-                        break;
-                    case "dcmAccessionNumber":
-                        upsOnUPSCompleted.setAccessionNumber(reader.stringValue());
-                        break;
-                    case "dicomIssuerOfAccessionNumber":
-                        upsOnUPSCompleted.setIssuerOfAccessionNumber(reader.issuerValue());
-                        break;
-                    case "dcmRequestedProcedureID":
-                        upsOnUPSCompleted.setRequestedProcedureID(reader.stringValue());
-                        break;
-                    case "dcmRequestedProcedureDescription":
-                        upsOnUPSCompleted.setRequestedProcedureDescription(reader.stringValue());
-                        break;
-                    case "dcmRequestingPhysician":
-                        upsOnUPSCompleted.setRequestingPhysician(reader.stringValue());
-                        break;
-                    case "dcmRequestingService":
-                        upsOnUPSCompleted.setRequestingService(reader.stringValue());
                         break;
                     case "dcmURI":
                         upsOnUPSCompleted.setXSLTStylesheetURI(reader.stringValue());

@@ -3067,18 +3067,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
                 upsOnUPSCompleted.isIncludeReferencedRequest(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAccessionNumber",
-                upsOnUPSCompleted.getAccessionNumber(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomIssuerOfAccessionNumber",
-                upsOnUPSCompleted.getIssuerOfAccessionNumber(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureID",
-                upsOnUPSCompleted.getRequestedProcedureID(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureDescription",
-                upsOnUPSCompleted.getRequestedProcedureDescription(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingPhysician",
-                upsOnUPSCompleted.getRequestingPhysician(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingService",
-                upsOnUPSCompleted.getRequestingService(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnUPSCompleted.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnUPSCompleted.isNoKeywords(), false);
         return attrs;
@@ -3352,13 +3340,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
                 upsOnUPSCompleted.setIncludeReferencedRequest(
                         LdapUtils.booleanValue(attrs.get("dcmUPSIncludeReferencedRequest"), false));
-                upsOnUPSCompleted.setAccessionNumber(LdapUtils.stringValue(attrs.get("dcmAccessionNumber"), null));
-                upsOnUPSCompleted.setIssuerOfAccessionNumber(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAccessionNumber")));
-                upsOnUPSCompleted.setRequestedProcedureID(LdapUtils.stringValue(attrs.get("dcmRequestedProcedureID"), null));
-                upsOnUPSCompleted.setRequestedProcedureDescription(
-                        LdapUtils.stringValue(attrs.get("dcmRequestedProcedureDescription"), null));
-                upsOnUPSCompleted.setRequestingPhysician(LdapUtils.stringValue(attrs.get("dcmRequestingPhysician"), null));
-                upsOnUPSCompleted.setRequestingService(LdapUtils.stringValue(attrs.get("dcmRequestingService"), null));
                 upsOnUPSCompleted.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 upsOnUPSCompleted.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 upsOnUPSCompletedList.add(upsOnUPSCompleted);
@@ -3975,18 +3956,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isIncludeStudyInstanceUID(), upsOnUPSCompleted.isIncludeStudyInstanceUID(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeReferencedRequest",
                 prev.isIncludeReferencedRequest(), upsOnUPSCompleted.isIncludeReferencedRequest(), false);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAccessionNumber",
-                prev.getAccessionNumber(), upsOnUPSCompleted.getAccessionNumber(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dicomIssuerOfAccessionNumber",
-                prev.getIssuerOfAccessionNumber(), upsOnUPSCompleted.getIssuerOfAccessionNumber(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureID",
-                prev.getRequestedProcedureID(), upsOnUPSCompleted.getRequestedProcedureID(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureDescription",
-                prev.getRequestedProcedureDescription(), upsOnUPSCompleted.getRequestedProcedureDescription(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingPhysician",
-                prev.getRequestingPhysician(), upsOnUPSCompleted.getRequestingPhysician(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingService",
-                prev.getRequestingService(), upsOnUPSCompleted.getRequestingService(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
                 prev.getXSLTStylesheetURI(), upsOnUPSCompleted.getXSLTStylesheetURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords",

@@ -3199,12 +3199,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
     dcmUPSScheduledHumanPerformerOrganization $
     dcmAdmissionID $
     dicomIssuerOfAdmissionID $
-    dcmAccessionNumber $
-    dicomIssuerOfAccessionNumber $
-    dcmRequestedProcedureID $
-    dcmRequestedProcedureDescription $
-    dcmRequestingPhysician $
-    dcmRequestingService $
     dcmURI $
     dcmNoKeywords $
     dcmProperty ) )
