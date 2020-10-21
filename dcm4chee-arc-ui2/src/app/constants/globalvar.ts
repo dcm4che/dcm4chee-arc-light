@@ -344,10 +344,10 @@ export class Globalvar {
                 flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAUBAMAAACKWYuOAAAAMFBMVEX///8AZjP/mTMAPGi7y9dmiqWAnrQwYYTv8/YVTHSftsbP2uNAbY7f5+yPqr1QeZcEz6ptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEQYIod+GbwAAADFJREFUGNNjUEICCgy04EGAAwMSYElH4jCzHGBG4jGfZEZWmo/MYXC4AKEFkYAALXgA9uIV01T/BOMAAAAASUVORK5CYII='
             },
             it: {
-                "code": "it",
-                "name": "Italian",
-                "nativeName": "Italiano",
-                "flag":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAYAAAAougcOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAPwAAAD8BR5eJ4AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAA3SURBVDiNY2SY5PafAQ9Y7VnDEKJii1P+w869DPeLq/EZwcCEV5ZKYNSSUUtGLRm1ZNSSYW8JAPHjCFF7xQeaAAAAAElFTkSuQmCC"
+                code: 'it',
+                name: 'Italian',
+                nativeName: 'Italiano',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAYAAAAougcOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAPwAAAD8BR5eJ4AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAA3SURBVDiNY2SY5PafAQ9Y7VnDEKJii1P+w869DPeLq/EZwcCEV5ZKYNSSUUtGLRm1ZNSSYW8JAPHjCFF7xQeaAAAAAElFTkSuQmCC'
             }
         };
         return {
