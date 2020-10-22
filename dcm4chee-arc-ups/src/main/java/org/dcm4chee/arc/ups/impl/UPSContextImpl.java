@@ -119,6 +119,16 @@ public class UPSContextImpl implements UPSContext {
         this.archiveHL7AppExtension = archiveHL7AppExtension;
     }
 
+    public UPSContextImpl(UPSContext other) {
+        this.as = other.getAssociation();
+        this.httpRequestInfo = other.getHttpRequestInfo();
+        this.socket = other.getSocket();
+        this.archiveAEExtension = other.getArchiveAEExtension();
+        this.archiveHL7AppExtension = other.getArchiveHL7AppExtension();
+        this.patient = other.getPatient();
+        this.requesterAET = other.getRequesterAET();
+    }
+
     @Override
     public HttpServletRequestInfo getHttpRequestInfo() {
         return httpRequestInfo;
@@ -247,6 +257,16 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public void setTemplate(boolean template) {
         this.template = template;
+    }
+
+    @Override
+    public ArchiveHL7ApplicationExtension getArchiveHL7AppExtension() {
+        return archiveHL7AppExtension;
+    }
+
+    @Override
+    public Socket getSocket() {
+        return socket;
     }
 
     @Override

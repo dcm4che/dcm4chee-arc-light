@@ -318,6 +318,9 @@ public class AuditService {
     }
 
     void spoolQuery(QueryContext ctx) {
+        if (ctx.getAssociation() == null && ctx.getHttpRequest() == null)
+            return;
+
         try {
             AuditUtils.EventType eventType = AuditUtils.EventType.QUERY__EVT;
             AuditInfo auditInfo = new AuditInfo(QueryAuditService.auditInfo(ctx));

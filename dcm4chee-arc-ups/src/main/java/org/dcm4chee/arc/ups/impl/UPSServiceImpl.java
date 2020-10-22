@@ -45,12 +45,16 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ScopeOfAccumulation;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ReverseDNS;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.UPS;
@@ -66,8 +70,10 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
@@ -75,6 +81,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.websocket.Session;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -121,6 +128,11 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE) {
         return new UPSContextImpl(httpRequestInfo, arcAE);
+    }
+
+    @Override
+    public UPSContext newUPSContext(UPSContext other) {
+        return new UPSContextImpl(other);
     }
 
     @Override
@@ -214,6 +226,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     private void onUPSCompleted(UPSContext ctx, UPS ups) {
+        Calendar now = Calendar.getInstance();
         ctx.getArchiveAEExtension().upsOnUPSCompletedStream()
                 .filter(rule -> rule.getConditions()
                         .match(ctx.getRemoteHostName(),
@@ -223,7 +236,7 @@ public class UPSServiceImpl implements UPSService {
                                 ups.getAttributes()))
                 .peek(rule -> LOG.info("Apply {} on completion of {}", rule, ups))
                 .filter(rule -> isRequiredOtherUPSCompleted(ctx, ups, rule))
-                .forEach(rule -> createUPSonUPSCompleted(ctx, ups, rule));
+                .forEach(rule -> createUPSOnUPSCompleted(ctx, ups, rule, now));
     }
 
     private boolean isRequiredOtherUPSCompleted(UPSContext ctx, UPS ups, UPSOnUPSCompleted rule) {
@@ -266,8 +279,15 @@ public class UPSServiceImpl implements UPSService {
         return keys;
     }
 
-    private void createUPSonUPSCompleted(UPSContext ctx, UPS ups, UPSOnUPSCompleted rule) {
-        //TODO
+    private void createUPSOnUPSCompleted(UPSContext ctx, UPS prevUPS, UPSOnUPSCompleted rule, Calendar now) {
+        UPSContext upsCtx = newUPSContext(ctx);
+        upsCtx.setUPSInstanceUID(rule.getInstanceUID(prevUPS.getAttributes()));
+        upsCtx.setAttributes(upsOnCompleted(upsCtx, prevUPS, now, rule));
+        try {
+            createUPS(upsCtx);
+        } catch (DicomServiceException e) {
+            LOG.info("Failed to apply {} create on completion of {}", rule, prevUPS, e);
+        }
     }
 
     @Override
@@ -539,5 +559,101 @@ public class UPSServiceImpl implements UPSService {
             this.aet = aet;
             this.subscriberAET = subscriberAET;
         }
+    }
+
+    private Attributes upsOnCompleted(UPSContext upsCtx, UPS prevUPS, Calendar now, UPSOnUPSCompleted rule) {
+        Attributes prevUPSAttrs = prevUPS.getAttributes();
+        Attributes attrs = applyXSLT(rule, prevUPS);
+        if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, prevUPSAttrs.getString(Tag.StudyInstanceUID));
+        if (!attrs.contains(Tag.AdmissionID)) {
+            attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(prevUPSAttrs));
+            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
+        }
+        if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
+        if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime))
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, rule.getCompletionDateTimeDelay()));
+        if (rule.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
+                    .add(rule.getScheduledHumanPerformerItem(prevUPSAttrs));
+        if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
+            UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
+        if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
+            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+        if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
+            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+        if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
+            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+        if (!attrs.contains(Tag.InputReadinessState))
+            attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
+        if (!attrs.contains(Tag.ReferencedRequestSequence)) {
+            if (rule.isIncludeReferencedRequest())
+                attrs.newSequence(Tag.ReferencedRequestSequence, 1)
+                        .add(prevUPSAttrs.getNestedDataset(Tag.ReferencedRequestSequence));
+            else
+                attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
+        }
+        if (rule.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence))
+            attrs.newSequence(Tag.OutputDestinationSequence, 1)
+                    .add(UPSUtils.outputStorage(rule.getDestinationAE()));
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+        if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
+            attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
+        if (!attrs.contains(Tag.WorklistLabel))
+            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(rule, prevUPSAttrs, upsCtx));
+        if (!attrs.contains(Tag.ProcedureStepLabel))
+            attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(prevUPSAttrs));
+        if (!attrs.contains(Tag.InputInformationSequence))
+            updateIncludeInputInformation(attrs, prevUPSAttrs, rule);
+        UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
+        if (rule.isIncludePatient())
+            attrs.addAll(prevUPS.getPatient().getAttributes());
+        return attrs;
+    }
+
+    private Attributes applyXSLT(UPSOnUPSCompleted upsOnUPSCompleted, UPS ups) {
+        String uri = upsOnUPSCompleted.getXSLTStylesheetURI();
+        if (uri != null) {
+            try {
+                return SAXTransformer.transform(
+                        ups.getAttributes(),
+                        TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri)),
+                        false,
+                        !upsOnUPSCompleted.isNoKeywords(),
+                        null);
+            } catch (SAXException e) {
+                LOG.warn("{}: Failed to apply XSL: {}", ups, uri, e);
+            } catch (TransformerConfigurationException e) {
+                LOG.warn("{}: Failed to compile XSL: {}", ups, uri, e);
+            }
+        }
+        return new Attributes();
+    }
+
+    private String worklistLabel(UPSOnUPSCompleted rule, Attributes prevUPSAttrs, UPSContext ctx) {
+        String worklistLabel = rule.getWorklistLabel(prevUPSAttrs);
+        return worklistLabel != null ? worklistLabel : ctx.getArchiveAEExtension().upsWorklistLabel();
+    }
+
+    private void updateIncludeInputInformation(Attributes attrs, Attributes prevUPSAttrs, UPSOnUPSCompleted rule) {
+        if (rule.getIncludeInputInformation() == UPSOnUPSCompleted.IncludeInputInformation.NO)
+            return;
+
+        if (rule.getIncludeInputInformation() == UPSOnUPSCompleted.IncludeInputInformation.COPY_INPUT) {
+            Sequence prevUPSInputInfoSeq = prevUPSAttrs.getSequence(Tag.InputInformationSequence);
+            attrs.newSequence(Tag.InputInformationSequence, prevUPSInputInfoSeq.size())
+                    .addAll(prevUPSInputInfoSeq.stream()
+                            .map(Attributes::new)
+                            .collect(Collectors.toList()));
+            return;
+        }
+
+        Sequence prevUPSOutputInfoSeq = prevUPSAttrs.getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence)
+                                                    .getSequence(Tag.OutputInformationSequence);
+        attrs.newSequence(Tag.InputInformationSequence, prevUPSOutputInfoSeq.size())
+                .addAll(prevUPSOutputInfoSeq.stream()
+                        .map(Attributes::new)
+                        .collect(Collectors.toList()));
     }
 }

@@ -42,7 +42,10 @@
 package org.dcm4chee.arc.ups;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ScopeOfAccumulation;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.Entity;
 
 import java.util.*;
 
@@ -150,5 +153,61 @@ public class UPSUtils {
         Attributes item = new Attributes(1);
         item.setString(Tag.RetrieveAETitle, VR.AE, retrieveAET);
         return item;
+    }
+
+    public static void setIssuer(Attributes attrs, int sqtag, Issuer issuer) {
+        if (issuer != null) {
+            attrs.newSequence(sqtag, 1).add(issuer.toItem());
+        } else {
+            attrs.setNull(sqtag, VR.SQ);
+        }
+    }
+
+    public static void setCode(Attributes attrs, int sqtag, Code code) {
+        if (code != null) {
+            attrs.newSequence(sqtag, 1).add(code.toItem());
+        } else {
+            attrs.setNull(sqtag, VR.SQ);
+        }
+    }
+
+    public static Date add(Calendar now, Duration delay) {
+        return delay != null ? new Date(now.getTimeInMillis() + delay.getSeconds() * 1000) : now.getTime();
+    }
+
+    public static Attributes outputStorage(String destinationAE) {
+        Attributes dicomStorage = new Attributes(1);
+        dicomStorage.setString(Tag.DestinationAE, VR.AE, destinationAE);
+        Attributes outputDestination = new Attributes(1);
+        outputDestination.newSequence(Tag.DICOMStorageSequence, 1).add(dicomStorage);
+        return outputDestination;
+    }
+
+    public static void addScheduledProcessingParameter(Attributes attrs, Code conceptName, Entity scopeOfAccumulation) {
+        Code code = toScopeOfAccumlation(scopeOfAccumulation);
+        if (code != null)
+            attrs.ensureSequence(Tag.ScheduledProcessingParametersSequence, 2)
+                    .add(toContentItem(conceptName, code));
+    }
+
+    private static Attributes toContentItem(Code conceptName, Code code) {
+        Attributes item = new Attributes(3);
+        item.setString(Tag.ValueType, VR.CS, "CODE");
+        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(conceptName.toItem());
+        item.newSequence(Tag.ConceptCodeSequence, 1).add(code.toItem());
+        return item;
+    }
+
+    private static Code toScopeOfAccumlation(Entity scopeOfAccumulation) {
+        if (scopeOfAccumulation != null)
+            switch (scopeOfAccumulation) {
+                case Study:
+                    return ScopeOfAccumulation.Study;
+                case Series:
+                    return ScopeOfAccumulation.Series;
+                case MPPS:
+                    return ScopeOfAccumulation.PerformedProcedureStep;
+            }
+        return null;
     }
 }

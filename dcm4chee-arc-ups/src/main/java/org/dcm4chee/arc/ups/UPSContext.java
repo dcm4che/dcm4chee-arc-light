@@ -46,9 +46,11 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import java.net.Socket;
 import java.util.List;
 
 /**
@@ -111,4 +113,8 @@ public interface UPSContext {
 
     void addUPSEvent(UPSEvent.Type cancelRequested, String upsInstanceUID, Attributes eventInformation,
             List<String> subcribers);
+
+    Socket getSocket();
+
+    ArchiveHL7ApplicationExtension getArchiveHL7AppExtension();
 }

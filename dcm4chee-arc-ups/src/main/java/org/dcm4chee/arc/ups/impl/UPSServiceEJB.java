@@ -65,6 +65,7 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSEvent;
+import org.dcm4chee.arc.ups.UPSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -758,7 +759,7 @@ public class UPSServiceEJB {
             }
             LOG.info("{}: update existing {}", ctx.getStoreSession(), ups);
             Attributes attrs = ups.getAttributes();
-            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getStartDateTimeDelay()));
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
             if (!attrs.contains(Tag.InputInformationSequence))
                 attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
@@ -776,36 +777,36 @@ public class UPSServiceEJB {
         return createUPS(ctx);
     }
 
-    private static Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
+    private Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
         Attributes attrs = applyXSLT(rule, storeCtx);
         if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID)) {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         }
         if (!attrs.contains(Tag.AdmissionID)) {
             attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(storeCtx.getAttributes()));
-            setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
+            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
         }
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime)) {
-            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, add(now, rule.getStartDateTimeDelay()));
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
         }
         if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime)) {
-            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, rule.getCompletionDateTimeDelay()));
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, rule.getCompletionDateTimeDelay()));
         }
         if (rule.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence)) {
             attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
                     .add(rule.getScheduledHumanPerformerItem(storeCtx.getAttributes()));
         }
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence)) {
-            setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
+            UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
         }
         if (!attrs.contains(Tag.ScheduledStationNameCodeSequence)) {
-            setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
         }
         if (!attrs.contains(Tag.ScheduledStationClassCodeSequence)) {
-            setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
         }
         if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence)) {
-            setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
         }
         if (!attrs.contains(Tag.InputReadinessState)) {
             attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
@@ -818,7 +819,8 @@ public class UPSServiceEJB {
             }
         }
         if (rule.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
-            attrs.newSequence(Tag.OutputDestinationSequence, 1).add(outputStorage(rule.getDestinationAE()));
+            attrs.newSequence(Tag.OutputDestinationSequence, 1)
+                    .add(UPSUtils.outputStorage(rule.getDestinationAE()));
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority)) {
@@ -834,50 +836,14 @@ public class UPSServiceEJB {
                 && !attrs.contains(Tag.InputInformationSequence)) {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
-        addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE,
-                toScopeOfAccumlation(rule.getScopeOfAccumulation()));
+        UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
         return attrs;
     }
 
-    private static void addScheduledProcessingParameter(Attributes attrs, Code conceptName, Code code) {
-        if (code != null)
-            attrs.ensureSequence(Tag.ScheduledProcessingParametersSequence, 2)
-                    .add(toContentItem(conceptName, code));
-    }
-
-    private static Attributes toContentItem(Code conceptName, Code code) {
-        Attributes item = new Attributes(3);
-        item.setString(Tag.ValueType, VR.CS, "CODE");
-        item.newSequence(Tag.ConceptNameCodeSequence, 1).add(conceptName.toItem());
-        item.newSequence(Tag.ConceptCodeSequence, 1).add(code.toItem());
-        return item;
-    }
-
-    private static Code toScopeOfAccumlation(Entity scopeOfAccumulation) {
-        if (scopeOfAccumulation != null)
-            switch (scopeOfAccumulation) {
-                case Study:
-                    return ScopeOfAccumulation.Study;
-                case Series:
-                    return ScopeOfAccumulation.Series;
-                case MPPS:
-                    return ScopeOfAccumulation.PerformedProcedureStep;
-            }
-        return null;
-    }
-
-    private static Attributes outputStorage(String destinationAE) {
-        Attributes dicomStorage = new Attributes(1);
-        dicomStorage.setString(Tag.DestinationAE, VR.AE, destinationAE);
-        Attributes outputDestination = new Attributes(1);
-        outputDestination.newSequence(Tag.DICOMStorageSequence, 1).add(dicomStorage);
-        return outputDestination;
-    }
-
-    private static Attributes referencedRequest(StoreContext storeCtx, UPSOnStore rule) {
+    private Attributes referencedRequest(StoreContext storeCtx, UPSOnStore rule) {
         Attributes item = new Attributes(8);
         item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(storeCtx.getAttributes()));
-        setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        UPSUtils.setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
         item.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(storeCtx.getAttributes()));
         setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(storeCtx.getAttributes()));
@@ -888,10 +854,10 @@ public class UPSServiceEJB {
         return item;
     }
 
-    private static Attributes referencedRequest(HL7Fields hl7Fields, UPSOnHL7 rule) {
+    private Attributes referencedRequest(HL7Fields hl7Fields, UPSOnHL7 rule) {
         Attributes item = new Attributes(8);
         item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(hl7Fields));
-        setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        UPSUtils.setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
         item.setString(Tag.StudyInstanceUID, VR.UI, rule.getStudyInstanceUID(hl7Fields));
         setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(hl7Fields));
         setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(hl7Fields));
@@ -928,29 +894,28 @@ public class UPSServiceEJB {
         createUPS(ctx);
     }
 
-    private static Attributes createOnHL7(
-            ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, HL7Fields hl7Fields,
+    private Attributes createOnHL7(ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
         if (upsOnHL7.getCompletionDateTimeDelay() != null)
-            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsOnHL7.getCompletionDateTimeDelay()));
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, upsOnHL7.getCompletionDateTimeDelay()));
         if (upsOnHL7.getScheduledHumanPerformer() != null)
             attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
                     .add(upsOnHL7.getScheduledHumanPerformerItem(hl7Fields));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
-            setCode(attrs, Tag.ScheduledWorkitemCodeSequence, upsOnHL7.getScheduledWorkitemCode());
+            UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, upsOnHL7.getScheduledWorkitemCode());
         if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
-            setCode(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationName());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationName());
         if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
-            setCode(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClass());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClass());
         if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-            setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
+            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
         if (!attrs.contains(Tag.InputReadinessState))
             attrs.setString(Tag.InputReadinessState, VR.CS, upsOnHL7.getInputReadinessState().name());
         if (upsOnHL7.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
             attrs.newSequence(Tag.OutputDestinationSequence, 1)
-                    .add(outputStorage(upsOnHL7.getDestinationAE()));
+                    .add(UPSUtils.outputStorage(upsOnHL7.getDestinationAE()));
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
@@ -975,14 +940,6 @@ public class UPSServiceEJB {
         }
     }
 
-    private static void setIssuer(Attributes attrs, int sqtag, Issuer issuer) {
-        if (issuer != null) {
-            attrs.newSequence(sqtag, 1).add(issuer.toItem());
-        } else {
-            attrs.setNull(sqtag, VR.SQ);
-        }
-    }
-
     private static void setSequence(Attributes item, int sqTag, Attributes attrs) {
         Attributes sqItem = attrs.getNestedDataset(sqTag);
         if (sqItem != null) {
@@ -1003,24 +960,12 @@ public class UPSServiceEJB {
         return worklistLabel != null ? worklistLabel : arcHL7App.getHL7Application().getApplicationName();
     }
 
-    private static Date spsStartDateTime(Calendar now, UPSOnHL7 upsOnHL7, Attributes attrs) {
+    private Date spsStartDateTime(Calendar now, UPSOnHL7 upsOnHL7, Attributes attrs) {
         Date spsStartDateTime = attrs.getDate(Tag.ScheduledProcedureStepStartDateTime);
-        return spsStartDateTime != null ? spsStartDateTime : add(now, upsOnHL7.getStartDateTimeDelay());
+        return spsStartDateTime != null ? spsStartDateTime : UPSUtils.add(now, upsOnHL7.getStartDateTimeDelay());
     }
 
-    private static Date add(Calendar now, Duration delay) {
-        return delay != null ? new Date(now.getTimeInMillis() + delay.getSeconds() * 1000) : now.getTime();
-    }
-
-    private static void setCode(Attributes attrs, int sqtag, Code code) {
-        if (code != null) {
-            attrs.newSequence(sqtag, 1).add(code.toItem());
-        } else {
-            attrs.setNull(sqtag, VR.SQ);
-        }
-    }
-
-    private static Attributes applyXSLT(UPSOnStore upsOnStore, StoreContext ctx) {
+    private Attributes applyXSLT(UPSOnStore upsOnStore, StoreContext ctx) {
         String uri = upsOnStore.getXSLTStylesheetURI();
         if (uri != null) {
             try {
@@ -1039,7 +984,7 @@ public class UPSServiceEJB {
         return new Attributes();
     }
 
-    private static Attributes applyXSLT(
+    private Attributes applyXSLT(
             ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, UPSOnHL7 upsOnHL7) {
         try {
             String hl7Charset = msg.msh().getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
@@ -1077,11 +1022,11 @@ public class UPSServiceEJB {
                 .collect(Collectors.toList());
     }
 
-    private static boolean matches(Attributes attrs, Attributes keys) {
+    private boolean matches(Attributes attrs, Attributes keys) {
         return keys == null || attrs.matches(keys, false, false);
     }
 
-    private static void updateIncludeInputInformation(Sequence sq, StoreContext ctx) {
+    private void updateIncludeInputInformation(Sequence sq, StoreContext ctx) {
         refSOPSequence(sq, ctx).add(toSOPRef(ctx));
     }
 
@@ -1092,7 +1037,7 @@ public class UPSServiceEJB {
         return item;
     }
 
-    private static Sequence refSOPSequence(Sequence sq, StoreContext ctx) {
+    private Sequence refSOPSequence(Sequence sq, StoreContext ctx) {
         for (Attributes item : sq) {
             if (ctx.getStudyInstanceUID().equals(item.getString(Tag.StudyInstanceUID))
                 && ctx.getSeriesInstanceUID().equals(item.getString(Tag.SeriesInstanceUID))) {
@@ -1109,7 +1054,7 @@ public class UPSServiceEJB {
         return refSOPSequence;
     }
 
-    private static Attributes retrieveAETItem(StoreContext ctx) {
+    private Attributes retrieveAETItem(StoreContext ctx) {
         Attributes item = new Attributes(1);
         item.setString(Tag.RetrieveAETitle, VR.AE, ctx.getRetrieveAETs());
         return item;

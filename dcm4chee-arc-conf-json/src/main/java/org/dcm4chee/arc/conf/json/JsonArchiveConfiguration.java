@@ -1028,7 +1028,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmUPSIncludeInputInformation",
                     upsOnUPSCompleted.getIncludeInputInformation(),
-                    UPSOnUPSCompleted.IncludeInputInformation.COPY_INPUT);
+                    UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
             writer.writeNotDef("dcmUPSIncludePatient", upsOnUPSCompleted.isIncludePatient(), true);
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(

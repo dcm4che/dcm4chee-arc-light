@@ -82,4 +82,6 @@ public interface UPSService {
     void unregisterWebsocketChannel(Session session);
 
     List<Session> getWebsocketChannels(String subscriberAET);
+
+    UPSContext newUPSContext(UPSContext other);
 }

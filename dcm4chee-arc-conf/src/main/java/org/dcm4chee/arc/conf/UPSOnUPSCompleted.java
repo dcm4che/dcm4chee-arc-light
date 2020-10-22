@@ -56,7 +56,7 @@ import java.util.Objects;
 public class UPSOnUPSCompleted {
     public static final UPSOnUPSCompleted[] EMPTY = {};
     public enum IncludeInputInformation {
-        NO, COPY_INPUT, COPY_OUTPUT, MERGE_INPUT_OUTPUT;
+        NO, COPY_INPUT, COPY_OUTPUT;
     }
     private String upsOnUPSCompletedID;
     private Conditions conditions = new Conditions();
