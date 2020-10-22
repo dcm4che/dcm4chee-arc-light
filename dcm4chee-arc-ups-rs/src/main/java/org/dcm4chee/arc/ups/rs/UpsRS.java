@@ -384,7 +384,7 @@ public class UpsRS {
     }
 
     private Response notAcceptable() {
-        LOG.info("Response Status : Not Acceptable. Content Type in request : \n{}", headers.getMediaType());
+        LOG.info("Response Status : Not Acceptable. Content Type in request : {}", headers.getMediaType());
         return Response.notAcceptable(
                 Variant.mediaTypes(
                         MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE)
