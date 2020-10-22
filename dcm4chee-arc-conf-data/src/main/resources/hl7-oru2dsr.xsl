@@ -84,6 +84,18 @@
 
   <xsl:template name="rad128">
     <xsl:param name="ed"/>
+    <!--SOP Instance UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080018'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
+    </xsl:call-template>
+    <!--Series Instance UID-->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'0020000E'"/>
+      <xsl:with-param name="vr" select="'UI'"/>
+      <xsl:with-param name="val" select="normalize-space(OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
+    </xsl:call-template>
     <!-- Study Instance UID -->
     <xsl:variable name="studyUID" select="normalize-space(OBX[field[3]/component='DICOM Study']/field[5])"/>
     <xsl:call-template name="attr">
