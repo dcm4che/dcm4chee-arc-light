@@ -187,7 +187,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int storePermissionCacheSize = 10;
     private volatile Duration mergeMWLCacheStaleTimeout;
     private volatile int mergeMWLCacheSize = 10;
-    private volatile int storeUpdateDBMaxRetries = 1;
+    private volatile int storeUpdateDBMaxRetries = 3;
     private volatile int storeUpdateDBMaxRetryDelay = 1000;
     private volatile int storeUpdateDBMinRetryDelay = 500;
     private volatile AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =

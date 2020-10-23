@@ -253,7 +253,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getMergeMWLCacheStaleTimeout(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMergeMWLCacheSize", ext.getMergeMWLCacheSize(), 10);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetries",
-                ext.getStoreUpdateDBMaxRetries(), 1);
+                ext.getStoreUpdateDBMaxRetries(), 3);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMinRetryDelay",
                 ext.getStoreUpdateDBMinRetryDelay(), 500);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetryDelay",
@@ -586,7 +586,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionCacheSize(LdapUtils.intValue(attrs.get("dcmStorePermissionCacheSize"), 10));
         ext.setMergeMWLCacheStaleTimeout(toDuration(attrs.get("dcmMergeMWLCacheStaleTimeout"), null));
         ext.setMergeMWLCacheSize(LdapUtils.intValue(attrs.get("dcmMergeMWLCacheSize"), 10));
-        ext.setStoreUpdateDBMaxRetries(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetries"), 1));
+        ext.setStoreUpdateDBMaxRetries(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetries"), 3));
         ext.setStoreUpdateDBMinRetryDelay(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMinRetryDelay"), 500));
         ext.setStoreUpdateDBMaxRetryDelay(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetryDelay"), 1000));
         ext.setAllowRejectionForDataRetentionPolicyExpired(
@@ -996,7 +996,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmMergeMWLCacheSize",
                 aa.getMergeMWLCacheSize(), bb.getMergeMWLCacheSize(), 10);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStoreUpdateDBMaxRetries",
-                aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
+                aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 3);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStoreUpdateDBMinRetryDelay",
                 aa.getStoreUpdateDBMinRetryDelay(), bb.getStoreUpdateDBMinRetryDelay(), 500);
         LdapUtils.storeDiff(ldapObj, mods, "dcmStoreUpdateDBMaxRetryDelay",

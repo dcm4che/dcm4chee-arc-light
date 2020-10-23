@@ -190,7 +190,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getMergeMWLCacheStaleTimeout(), null);
         writer.writeNotDef("dcmMergeMWLCacheSize",
                 arcDev.getMergeMWLCacheSize(), 10);
-        writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
+        writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 3);
         writer.writeNotDef("dcmStoreUpdateDBMinRetryDelay", arcDev.getStoreUpdateDBMinRetryDelay(), 500);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
         writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
