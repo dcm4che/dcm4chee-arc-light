@@ -233,6 +233,8 @@ class ArchiveDeviceFactory {
             newMetricsDescriptor("db-update-on-store","DB Update Time on Store", "ms"),
             newMetricsDescriptor("receive-from-STORESCU","Receive Data-rate from STORESCU", "MB/s"),
             newMetricsDescriptor("send-to-STORESCP","Send Data-rate to STORESCP", "MB/s"),
+            newMetricsDescriptor("assoc-from-STORESCU","Number of concurrent associations from STORESCU", null),
+            newMetricsDescriptor("assoc-to-STORESCP","Number of concurrent associations to STORESCP", null),
             newMetricsDescriptor("write-to-fs1","Write Data-rate to fs1", "MB/s"),
             newMetricsDescriptor("read-from-fs1","Read Data-rate from fs1", "MB/s"),
             newMetricsDescriptor("delete-from-fs1","Object Delete Time on fs1", "ms")

@@ -2869,6 +2869,11 @@ dicomAETitle: IOCM_QUALITY
 dcmWebAppName: IOCM_QUALITY-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/IOCM_QUALITY/wado
 
+dn: dcmMetricsName=assoc-to-STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Number of concurrent associations to STORESCP
+dcmMetricsName: assoc-to-STORESCP
+objectClass: dcmMetrics
+
 dn: dcmMetricsName=db-update-on-store,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: DB Update Time on Store
 dcmMetricsName: db-update-on-store
@@ -2893,6 +2898,11 @@ dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,c
 dcmIDGeneratorName: AccessionNumber
 dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
+
+dn: dcmMetricsName=assoc-from-STORESCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Number of concurrent associations from STORESCU
+dcmMetricsName: assoc-from-STORESCU
+objectClass: dcmMetrics
 
 dn: dcmWebAppName=IOCM_PAT_SAFETY-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Patient Safety Reasons

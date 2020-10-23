@@ -1,0 +1,13 @@
+version: 1
+
+dn: dcmMetricsName=assoc-to-STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Number of concurrent associations to STORESCP
+dcmMetricsName: assoc-to-STORESCP
+objectClass: dcmMetrics
+
+dn: dcmMetricsName=assoc-from-STORESCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Number of concurrent associations from STORESCU
+dcmMetricsName: assoc-from-STORESCU
+objectClass: dcmMetrics

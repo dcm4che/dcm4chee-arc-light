@@ -45,6 +45,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.AssociationMonitor;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4chee.arc.AssociationEvent;
+import org.dcm4chee.arc.metrics.MetricsService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -60,9 +61,19 @@ public class AssociationEventSource implements AssociationMonitor {
     @Inject
     private Event<AssociationEvent> event;
 
+    @Inject
+    private MetricsService metricsService;
+
     @Override
     public void onAssociationEstablished(Association as) {
+        assocTo(as);
+        as.addAssociationListener(this::assocTo);
         event.fire(AssociationEvent.onAssociationEstablished(as));
+    }
+
+    private void assocTo(Association as) {
+        metricsService.accept("assoc-to-" + as.getCalledAET(),
+                () -> as.getApplicationEntity().getDevice().getNumberOfAssociationsInitiatedTo(as.getCalledAET()));
     }
 
     @Override
@@ -77,6 +88,13 @@ public class AssociationEventSource implements AssociationMonitor {
 
     @Override
     public void onAssociationAccepted(Association as) {
+        assocFrom(as);
+        as.addAssociationListener(this::assocFrom);
         event.fire(AssociationEvent.onAssociationAccepted(as));
+    }
+
+    private void assocFrom(Association as) {
+        metricsService.accept("assoc-from-" + as.getCallingAET(),
+                () -> as.getApplicationEntity().getDevice().getNumberOfAssociationsInitiatedBy(as.getCallingAET()));
     }
 }
