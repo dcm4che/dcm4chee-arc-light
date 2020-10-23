@@ -206,4 +206,9 @@ public class PatientServiceImpl implements PatientService {
             patientMgtEvent.fire(ctx);
         }
     }
+
+    @Override
+    public List<String> studyInstanceUIDsOf(Patient patient) {
+        return ejb.studyInstanceUIDsOf(patient);
+    }
 }

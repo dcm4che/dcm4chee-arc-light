@@ -86,4 +86,6 @@ public interface PatientService {
     void deletePatient(PatientMgtContext ctx);
 
     Patient updatePatientStatus(PatientMgtContext ctx);
+
+    List<String> studyInstanceUIDsOf(Patient patient);
 }

@@ -442,4 +442,10 @@ public class PatientServiceEJB {
                     .recordAttributeModification()
                 : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
     }
+
+    public List<String> studyInstanceUIDsOf(Patient patient) {
+        return em.createNamedQuery(Study.STUDY_IUIDS_BY_PATIENT, String.class)
+                .setParameter(1, patient)
+                .getResultList();
+    }
 }

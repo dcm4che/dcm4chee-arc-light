@@ -1604,5 +1604,13 @@
       "type": "boolean",
       "default": false
     }
+  },
+  "verify": {
+    "name": "verify",
+    "in": "query",
+    "description": "AE Title of external C-FIND SCP which content have not to conflict with the merge",
+    "schema": {
+      "type": "string"
+    }
   }
 }

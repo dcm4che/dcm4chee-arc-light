@@ -41,11 +41,13 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -61,6 +63,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -92,6 +95,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -146,6 +150,9 @@ public class IocmRS {
 
     @Inject
     private ProcedureService procedureService;
+
+    @Inject
+    private CFindSCU cfindscu;
 
     @PathParam("AETitle")
     private String aet;
@@ -395,19 +402,66 @@ public class IocmRS {
     @POST
     @Path("/patients/{priorPatientID}/merge/{patientID}")
     public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
-                             @PathParam("patientID") IDWithIssuer patientID) {
+                             @PathParam("patientID") IDWithIssuer patientID,
+                             @QueryParam("verify") String findSCP) {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
+            if (findSCP != null)
+                verifyMergePatient(priorPatientID, patientID, findSCP, cfindscu, arcAE.getApplicationEntity());
             mergePatient(patientID,
                     priorPatientID.exportPatientIDWithIssuer(null),
                     arcAE);
             rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
-        } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (NonUniquePatientException
+                | PatientMergedException
+                | CircularPatientMergeException
+                | VerifyMergePatientException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (WebApplicationException e) {
+            throw e;
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+   private void verifyMergePatient(IDWithIssuer priorPatientID, IDWithIssuer patientID, String findSCP,
+            CFindSCU cfindscu, ApplicationEntity localAE) throws Exception {
+       try {
+           List<Attributes> studiesOfPriorPatient = cfindscu.findStudiesOfPatient(
+                   localAE, findSCP, Priority.NORMAL, priorPatientID);
+           if (!studiesOfPriorPatient.isEmpty()) {
+               throw new VerifyMergePatientException("Found " + studiesOfPriorPatient.size()
+                               + " studies of prior Patient[id=" + priorPatientID + "] at " + findSCP);
+           }
+           Patient priorPatient = patientService.findPatient(priorPatientID);
+           if (priorPatient != null) {
+               for (String studyIUID : patientService.studyInstanceUIDsOf(priorPatient)) {
+                   studiesOfPriorPatient = cfindscu.findStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
+                           Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence);
+                   if (!studiesOfPriorPatient.isEmpty()) {
+                       IDWithIssuer findPatientID = IDWithIssuer.pidOf(studiesOfPriorPatient.get(0));
+                       if (!findPatientID.matches(patientID)) {
+                           throw new VerifyMergePatientException("Found Study[uid=" + studyIUID
+                                   + "] of different Patient[id=" + findPatientID
+                                   + "] than target Patient[id=" + patientID
+                                   + "] at " + findSCP);
+                       }
+                   }
+               }
+           }
+       } catch (ConfigurationNotFoundException e) {
+           throw new WebApplicationException(
+                   errResponse("No such Application Entity: " + findSCP, Response.Status.NOT_FOUND));
+       } catch (ConnectException | DicomServiceException e) {
+           throw new WebApplicationException(
+                   errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));
+       }
+   }
+
+    private static class VerifyMergePatientException extends Exception {
+        public VerifyMergePatientException(String message) {
+            super(message);
         }
     }
 
@@ -522,7 +576,8 @@ public class IocmRS {
     @PUT
     @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
     public Response updateSeriesExpirationDate(
-            @PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
             @PathParam("expirationDate") String expirationDate,
             @QueryParam("ExporterID") String expirationExporterID) {
         return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate,

@@ -248,6 +248,9 @@
         },
         {
           "$ref": "../parameters.json#/patientPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/verify"
         }
       ],
       "responses": {
@@ -255,13 +258,16 @@
           "description": "successful operation"
         },
         "404": {
-          "description": "No such Application Entity or Patient."
+          "description": "No such Archive or external C-FIND SCP Application Entity or Patient."
         },
         "409": {
-          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          "description": "Non unique Patient ID or Patient is already merged, a Circular Patient Merge is detected, or Studies with prior Patient ID or Studies with equal Study Instance UID but different Patient ID than the target Patient ID were found at the external C-FIND SCP."
         },
         "500": {
           "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failed to query external C-FIND SCP."
         }
       }
     }
