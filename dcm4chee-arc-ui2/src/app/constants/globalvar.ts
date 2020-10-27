@@ -348,6 +348,18 @@ export class Globalvar {
                 name: 'Italian',
                 nativeName: 'Italiano',
                 flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAYAAAAougcOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAPwAAAD8BR5eJ4AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAA3SURBVDiNY2SY5PafAQ9Y7VnDEKJii1P+w869DPeLq/EZwcCEV5ZKYNSSUUtGLRm1ZNSSYW8JAPHjCFF7xQeaAAAAAElFTkSuQmCC'
+            },
+            ja: {
+                code: 'ja',
+                name: 'Japanese',
+                nativeName: '日本語 (にほんご／にっぽんご)',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAARCAYAAAAougcOAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AobDjswnFzJlQAAATJJREFUOMvtlD1LA0EURc/MbszKSgIBCUIMNoJdfoo2aqGNIEg6sRBBELFQG0ELLYRAGhURLPwpEhAslBQh2Ciarw1m51kEsdq4bGIqbz3zztz73hslIsIfSzMEDQVihz0oIninBToPj9gz0zj5FZQd7roK05PG1h7ty1vwfVAKRMCyiC/P4+5v9x9X8+gMr3jdLax1F6I1iOAVLmgeHPfnRBoNXjM51JgbHONnh1TlHmVZ0Zy0b+7AcX55psIrXkWPy1SqKKt3okorzFM5OkSnxxFjek+dEXQ2E70n5v2Dt8kcKpkIhrQ8UtUSKhaL6CSZwNnIQ4Ab8X2c1aWegFAj7O5uMrIwi9TqPzBjkFqd+OIc7uHOYJYRwH8u0zo5x1Rf0BNpRtfXsKayg9v4/1/4W1+o7nc/qdSJmAAAAABJRU5ErkJggg=='
+            },
+            mr: {
+                code: 'mr',
+                name: 'Marathi',
+                nativeName: 'मराठी',
+                flag: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAUBAMAAACKWYuOAAAAMFBMVEX///8AZjP/mTMAPGi7y9dmiqWAnrQwYYTv8/YVTHSftsbP2uNAbY7f5+yPqr1QeZcEz6ptAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIUEQYIod+GbwAAADFJREFUGNNjUEICCgy04EGAAwMSYElH4jCzHGBG4jGfZEZWmo/MYXC4AKEFkYAALXgA9uIV01T/BOMAAAAASUVORK5CYII='
             }
         };
         return {
