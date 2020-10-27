@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
   selector: 'app-product-labelling',
@@ -7,6 +8,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class ProductLabellingComponent {
     private _archive;
+    year = j4care.formatDate(new Date(), "yyyy");
     constructor(public dialogRef: MatDialogRef<ProductLabellingComponent>) { }
 
     get archive() {
