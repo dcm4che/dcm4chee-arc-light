@@ -607,7 +607,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Long> unknownSizeStudyPks(Date dt, int fetchSize) {
-        return ejb.unknownSizeStudyPks(dt, fetchSize);
+    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
+        return ejb.unknownSizeStudies(dt, fetchSize);
     }
 }

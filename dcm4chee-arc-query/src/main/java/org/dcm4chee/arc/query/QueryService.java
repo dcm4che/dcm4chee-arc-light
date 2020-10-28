@@ -56,6 +56,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
+import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -142,5 +143,5 @@ public interface QueryService {
 
     List<String> getDistinctModalities();
 
-    List<Long> unknownSizeStudyPks(Date dt, int fetchSize);
+    List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 }

@@ -45,14 +45,10 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.event.ArchiveServiceEvent;
+import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
-import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -208,6 +204,11 @@ public class AuditTriggerObserver {
                     break;
             }
         }
+    }
+
+    public void onStudySizeEvent(@Observes StudySizeEvent event) {
+        if (deviceHasAuditLoggers())
+            auditService.spoolStudySizeEvent(event);
     }
 
     private boolean deviceHasAuditLoggers() {

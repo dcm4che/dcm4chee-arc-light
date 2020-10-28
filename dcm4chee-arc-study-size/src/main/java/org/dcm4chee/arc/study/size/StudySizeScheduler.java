@@ -41,6 +41,8 @@ package org.dcm4chee.arc.study.size;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.PatientID;
+import org.dcm4chee.arc.event.StudySizeEvent;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.impl.QueryAttributesEJB;
 import org.dcm4chee.arc.query.impl.QuerySizeEJB;
@@ -48,7 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -70,6 +74,9 @@ public class StudySizeScheduler extends Scheduler {
     @Inject
     private QueryAttributesEJB queryAttrsEJB;
 
+    @Inject
+    private Event<StudySizeEvent> studySizeEvent;
+
     protected StudySizeScheduler() {
         super(Mode.scheduleWithFixedDelay);
     }
@@ -89,21 +96,25 @@ public class StudySizeScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int calculated = 0;
-        List<Long> studyPks;
+        List<Tuple> studies;
         int studySizeFetchSize;
         do {
-            studyPks = queryService.unknownSizeStudyPks(
+            studies = queryService.unknownSizeStudies(
                     updatedTime(arcDev.getStudySizeDelay()),
                     studySizeFetchSize = arcDev.getCalculateStudySizeFetchSize());
-            for (Long studyPk : studyPks) {
-                if (querySizeEJB.claimAndCalculateStudySize(studyPk) > 0L) {
-                    if (arcDev.isCalculateQueryAttributes()) {
+            for (Tuple studyTuple : studies) {
+                Long studyPk = studyTuple.get(0, Long.class);
+                long studySize = querySizeEJB.claimAndCalculateStudySize(studyPk);
+                if (studySize > 0L) {
+                    if (arcDev.isCalculateQueryAttributes())
                         queryAttrsEJB.calculateStudyQueryAttributes(studyPk);
-                    }
                     calculated++;
+                    studySizeEvent.fire(new StudySizeEvent(
+                            studyTuple.get(1, String.class),
+                            studyTuple.get(2, PatientID.class).getIDWithIssuer()));
                 }
             }
-        } while (studyPks.size() == studySizeFetchSize && getPollingInterval() != null);
+        } while (studies.size() == studySizeFetchSize && getPollingInterval() != null);
         if (calculated > 0)
             LOG.info("Calculated size of {} studies", calculated);
     }

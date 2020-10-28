@@ -72,7 +72,7 @@ class ParticipantObjectID {
         return patientPOIBuilder(new AuditInfo(reader.getInstanceLines().get(0))).build();
     }
 
-    private static ParticipantObjectIdentificationBuilder.Builder patientPOIBuilder(AuditInfo auditInfo) {
+    static ParticipantObjectIdentificationBuilder.Builder patientPOIBuilder(AuditInfo auditInfo) {
         return new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.P_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,

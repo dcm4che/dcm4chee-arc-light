@@ -507,11 +507,11 @@ public class QueryServiceEJB {
         }
     }
 
-    public List<Long> unknownSizeStudyPks(Date dt, int fetchSize) {
-        return em.createNamedQuery(Study.FIND_PK_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Long.class)
-                    .setParameter(1, dt)
-                    .setMaxResults(fetchSize)
-                    .getResultList();
+    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
+        return em.createNamedQuery(Study.FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Tuple.class)
+                .setParameter(1, dt)
+                .setMaxResults(fetchSize)
+                .getResultList();
     }
 
 }

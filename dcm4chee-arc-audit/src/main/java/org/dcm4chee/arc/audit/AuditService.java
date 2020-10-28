@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
@@ -56,15 +57,11 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.event.ArchiveServiceEvent;
+import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.ConnectionEvent;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
-import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -315,6 +312,41 @@ public class AuditService {
         emitAuditMessage(
                 ConnectionEventsAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
+    }
+
+    void spoolStudySizeEvent(StudySizeEvent event) {
+        try {
+            AuditInfoBuilder auditInfoBuilder = new AuditInfoBuilder.Builder()
+                                                    .callingUserID(device.getDeviceName())
+                                                    .studyIUID(event.getStudyIUID())
+                                                    .patID(event.getPatientID(), getArchiveDevice())
+                                                    .build();
+            writeSpoolFile(AuditUtils.EventType.STUDY_READ, null, auditInfoBuilder);
+        } catch (Exception e) {
+            LOG.warn("Failed to spool study size info for {}\n", event, e);
+        }
+    }
+
+    private void auditStudySize(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
+        SpoolFileReader reader = new SpoolFileReader(path.toFile());
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentificationBuilder ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
+        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[1];
+        activeParticipants[0] = new ActiveParticipantBuilder.Builder(auditInfo.getField(AuditInfo.CALLING_USERID),
+                                        getLocalHostName(auditLogger))
+                                        .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
+                                        .altUserID(AuditLogger.processID())
+                                        .isRequester()
+                                        .build();
+        ParticipantObjectIdentificationBuilder.Builder studyPOI = ParticipantObjectID.studyPOI(
+                                                                    auditInfo.getField(AuditInfo.STUDY_UID));
+        studyPOI.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.AggregationSummarizationDerivation);
+        ParticipantObjectIdentificationBuilder patientPOI = ParticipantObjectID.patientPOIBuilder(auditInfo).build();
+        AuditMessage auditMsg = AuditMessages.createMessage(
+                                                ei,
+                                                activeParticipants,
+                                                studyPOI.build(), patientPOI);
+        emitAuditMessage(auditMsg, auditLogger);
     }
 
     void spoolQuery(QueryContext ctx) {
@@ -809,6 +841,11 @@ public class AuditService {
     }
 
     private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
+        if (eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read)) {
+            auditStudySize(auditLogger, path, eventType);
+            return;
+        }
+
         emitAuditMessage(
                 StudyRecordAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);

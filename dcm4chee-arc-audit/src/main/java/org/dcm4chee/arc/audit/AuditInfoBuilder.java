@@ -172,6 +172,10 @@ class AuditInfoBuilder {
             pName = toPatName(patName, arcDev);
             return this;
         }
+        Builder patID(IDWithIssuer patIDWithIssuer, ArchiveDeviceExtension arcDev) {
+            pID = toPID(patIDWithIssuer, arcDev);
+            return this;
+        }
         Builder studyUIDAccNumDate(Attributes attrs, ArchiveDeviceExtension arcDev) {
             studyUID = arcDev.auditUnknownStudyInstanceUID();
             if (attrs != null) {

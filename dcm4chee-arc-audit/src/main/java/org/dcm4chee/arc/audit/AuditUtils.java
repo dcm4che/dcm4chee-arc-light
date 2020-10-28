@@ -70,8 +70,23 @@ class AuditUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditUtils.class);
 
     enum EventClass {
-        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_FAILURE, RETRIEVE, APPLN_ACTIVITY, PATIENT,
-        PROCEDURE, STUDY, PROV_REGISTER, STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT, IMPAX, ASSOCIATION_FAILURE
+        QUERY,
+        USER_DELETED,
+        SCHEDULER_DELETED,
+        STORE_WADOR,
+        CONN_FAILURE,
+        RETRIEVE,
+        APPLN_ACTIVITY,
+        PATIENT,
+        PROCEDURE,
+        STUDY,
+        PROV_REGISTER,
+        STGCMT,
+        INST_RETRIEVED,
+        LDAP_CHANGES,
+        QUEUE_EVENT,
+        IMPAX,
+        ASSOCIATION_FAILURE
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
