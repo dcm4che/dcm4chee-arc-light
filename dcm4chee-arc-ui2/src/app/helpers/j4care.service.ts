@@ -1402,4 +1402,17 @@ export class j4care {
             }
         }
     }
+
+    static extractMessagFromWorningHeader(header:HttpHeaders){
+        const regex = /(\d{3}) ([\w:\/-]*) (.*)/;
+        let m;
+        try{
+            let warningMessage = header.get("Warning");
+            if ((m = regex.exec(warningMessage)) !== null) {
+                return m[3];
+            }
+        }catch (e) {
+            return "";
+        }
+    }
 }
