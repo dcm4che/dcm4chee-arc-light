@@ -1177,6 +1177,11 @@ export class Globalvar {
                     description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 },{
+                    tag:"checkbox",
+                    filterKey:"template",
+                    text:$localize `:@@template:Template`,
+                    description:$localize `:@@template:Template`
+                },{
                     tag:"code-selector",
                     codes:[
                         {

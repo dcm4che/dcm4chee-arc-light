@@ -3332,7 +3332,7 @@ export class StudyService {
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
             }))
     }
-    modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService) {
+    modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService, template?:boolean) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
         let header = new HttpHeaders({'Content-Type': 'application/dicom+json','Accept': 'application/dicom+json'});
         return this.getModifyUPSUrl(deviceWebservice)
@@ -3343,7 +3343,7 @@ export class StudyService {
                         return this.$http.post(`${url}/${workitemUID}`, object, header);
                     } else {
                         //Create new patient
-                        return this.$http.post(url, object,  header);
+                        return this.$http.post(url + j4care.objToUrlParams({template:template},true), object,  header);
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});

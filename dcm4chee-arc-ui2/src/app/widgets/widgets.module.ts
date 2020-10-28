@@ -41,6 +41,7 @@ import { StudyTransferringOverviewComponent } from './dialogs/study-transferring
 import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.component';
 import { CodeSelectorComponent } from './code-selector/code-selector.component';
 import { LanguagePickerComponent } from './language-picker/language-picker.component';
+import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 
 
 @Injectable()
@@ -60,6 +61,7 @@ export const WidgetsComponents = [
     EditPatientComponent,
     EditMwlComponent,
     EditStudyComponent,
+    ModifyUpsComponent,
     CreateAeComponent,
     ConfirmComponent,
     DeleteRejectedInstancesComponent,

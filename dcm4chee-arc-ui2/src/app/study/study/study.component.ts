@@ -62,6 +62,7 @@ import {Observable} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
+import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
 
 
 @Component({
@@ -2622,34 +2623,54 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
             }
             this.service.initEmptyValue(workitem.attrs);
-            this.dialogRef = this.dialog.open(EditPatientComponent, {
+            this.dialogRef = this.dialog.open(ModifyUpsComponent, {
                 height: 'auto',
                 width: '90%'
             });
 
-            this.dialogRef.componentInstance.mode = "create";
-            this.dialogRef.componentInstance.patient = workitem;
+            this.dialogRef.componentInstance.mode = mode;
+            this.dialogRef.componentInstance.ups = workitem;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
             this.dialogRef.componentInstance.saveLabel = config.saveLabel;
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(ok => {
                 if (ok){
+                    console.log("ok",ok);
                     j4care.removeKeyFromObject(workitem.attrs, ["required","enum", "multi"]);
-                    if(mode === "create" || mode === "clone"){
-                        this.service.modifyUPS(undefined,workitem.attrs,this.studyWebService).subscribe(res=>{
+                    let createUPS = (template?:boolean)=>{
+                        let object = _.cloneDeep(workitem);
+                        if(template){
+                            if(_.hasIn(object,"attrs.00404005")){
+                                delete object.attrs["00404005"];
+                            }
+                            successfullMessage = $localize `:@@ups_template_created_successfully:UPS template created successfully!`;
+                        }
+                        this.service.modifyUPS(undefined,object.attrs,this.studyWebService, template).subscribe(res=>{
                             this.appService.showMsg(successfullMessage);
                         },err=>{
-                            workitem = undefined;
+                            if(!template){
+                                workitem = undefined;
+                            }
                             this.httpErrorHandler.handleError(err);
                         });
+                    };
+                    if(ok.templateParameter && (ok.templateParameter === "no_template" || ok.templateParameter === "template_too")){
+                        if(mode === "create" || mode === "clone"){
+                            createUPS();
+                        }else{
+                            this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
+                                this.appService.showMsg(successfullMessage);
+                            },err=>{
+                                _.assign(workitem, originalWorkitemObject);
+                                this.httpErrorHandler.handleError(err);
+                            });
+                        }
+                        if(ok.templateParameter === "template_too"){
+                            createUPS(true);
+                        }
                     }else{
-                        this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
-                            this.appService.showMsg(successfullMessage);
-                        },err=>{
-                            _.assign(workitem, originalWorkitemObject);
-                            this.httpErrorHandler.handleError(err);
-                        });
+                        createUPS(true);
                     }
                 }else{
                     _.assign(workitem, originalWorkitemObject);

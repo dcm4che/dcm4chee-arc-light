@@ -1,0 +1,28 @@
+<div class="vex vex-theme-os edit-ups" xmlns="http://www.w3.org/1999/html">
+    <div class="vex-dialog-form" (click)="checkClick($event)">
+        <h3 [innerHtml]="titleLabel"></h3>
+        <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" i18n-placeholder="@@placeholder.add_new_attribute" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
+        <div class="overlay" *ngIf="opendropdown" (click)="opendropdown = false"></div>
+        <div id="dropdown" class="dropdown study_edit" *ngIf="opendropdown">
+            <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, ups)">({{m.codeComma}}) {{m.name}}</a>
+        </div>
+        <div mat-dialog-content>
+            <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="ups.attrs" [prefix]="" [mode]="mode" [iod]="iod" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+        </div>
+        <div class="template_checkboxes">
+            <label for="no_template">
+                <input id="no_template" type="radio" name="template_radio" [(ngModel)]="templateParameter" value="no_template"> Don't create template
+            </label>
+            <label for="template_too">
+                <input id="template_too" type="radio" name="template_radio" [(ngModel)]="templateParameter" value="template_too"> Create template too
+            </label>
+            <label for="only_template">
+                <input id="only_template" type="radio" name="template_radio"  [(ngModel)]="templateParameter" value="only_template"> Create only template
+            </label>
+        </div>
+        <div class="dialogbuttons">
+            <button class="save" type="button" (click)="dialogRef.close({object:ups,templateParameter:templateParameter})">{{saveLabel}}</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
+        </div>
+    </div>
+</div>
