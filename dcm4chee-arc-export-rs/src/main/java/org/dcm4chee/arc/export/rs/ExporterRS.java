@@ -40,9 +40,13 @@
 
 package org.dcm4chee.arc.export.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -92,6 +96,9 @@ public class ExporterRS {
 
     @Inject
     private ExporterFactory exporterFactory;
+
+    @Inject
+    private IWebApplicationCache iWebAppCache;
 
     @PathParam("AETitle")
     private String aet;
@@ -143,6 +150,9 @@ public class ExporterRS {
             return errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
                     Response.Status.NOT_FOUND);
 
+        if (exporterID.startsWith("stowrs"))
+            return stowExport(exporterID);
+
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter != null) {
             try {
@@ -171,6 +181,26 @@ public class ExporterRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response stowExport(String exporterID) {
+        if (!exporterID.contains(":") || exporterID.endsWith(":"))
+            return errResponse("STOW RS destination webapp is not specified", Response.Status.BAD_REQUEST);
+
+        String destWebApp = exporterID.substring(exporterID.indexOf(":") + 1);
+        WebApplication webApp;
+        try {
+            webApp = iWebAppCache.findWebApplication(destWebApp);
+        } catch (ConfigurationNotFoundException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            return errResponse("Error getting Destination Web Application " + destWebApp + " : " + e.getMessage(),
+                    Response.Status.CONFLICT);
+        }
+
+        String stowDestURL = webApp.getServiceURL().toString();
+        //TODO
+        return Response.ok().build();
     }
 
     private void logRequest() {
