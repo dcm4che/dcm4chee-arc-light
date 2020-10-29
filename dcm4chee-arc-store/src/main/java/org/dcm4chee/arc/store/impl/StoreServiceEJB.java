@@ -1693,37 +1693,40 @@ public class StoreServiceEJB {
             }
     }
 
-    public void checkDuplicatePatientCreated(StoreContext ctx, UpdateDBResult result) {
-        IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-        if (pid == null)
-            return;
-
+    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result) {
         List<Patient> patients = patientService.findPatients(pid);
         if (patients.size() == 1)
             return;
 
-        if (patients.isEmpty()) {
-            LOG.warn("{}: Failed to find created {}", ctx.getStoreSession(), result.getCreatedPatient());
+        patients.removeIf(p -> !ctx.getAttributes().matches(p.getAttributes(), false, false));
+        if (patients.size() == 1)
+            return;
+
+        Patient createdPatient = result.getCreatedPatient();
+        long createdPatientPk = createdPatient.getPk();
+        Patient otherPatient = patients.get(0);
+        if (otherPatient.getPk() == createdPatientPk) {
+            LOG.info("{}: Keep duplicate created {} because {} was created after",
+                    ctx.getStoreSession(), createdPatient, patients.get(1));
             return;
         }
-        Patient createdPatient = null;
-        Patient otherPatient = null;
-        for (Patient patient : patients) {
-            if (createdPatient == null && patient.getPk() == result.getCreatedPatient().getPk())
-                createdPatient = patient;
-            else if (otherPatient == null || otherPatient.getPk() > patient.getPk())
-                otherPatient = patient;
+
+        Optional<Patient> createdPatientFound =
+                patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
+        if (!createdPatientFound.isPresent()) {
+            LOG.warn("{}: Failed to find created {}", ctx.getStoreSession(), createdPatient);
+            return;
         }
 
         if (otherPatient.getMergedWith() != null) {
             LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
-                    ctx.getStoreSession(), createdPatient, otherPatient, pid);
+                    ctx.getStoreSession(), createdPatient, otherPatient);
             return;
         }
         LOG.info("{}: Delete duplicate created {}", ctx.getStoreSession(), createdPatient);
         otherPatient.incrementNumberOfStudies();
         em.merge(result.getCreatedStudy()).setPatient(otherPatient);
-        em.remove(createdPatient);
+        em.remove(createdPatientFound.get());
         result.setCreatedPatient(null);
     }
 

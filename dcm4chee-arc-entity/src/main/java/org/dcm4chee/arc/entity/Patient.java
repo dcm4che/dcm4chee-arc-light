@@ -56,15 +56,12 @@ import java.util.*;
  */
 @NamedQueries({
 @NamedQuery(
-    name=Patient.FIND_BY_PATIENT_ID,
-    query="select p from Patient p " +
-            "where p.patientID.id = ?1"),
-@NamedQuery(
     name=Patient.FIND_BY_PATIENT_ID_EAGER,
     query="select p from Patient p " +
             "left join fetch p.patientName " +
             "join fetch p.attributesBlob " +
-            "where p.patientID.id = ?1"),
+            "where p.patientID.id = ?1 " +
+            "order by p.pk"),
 @NamedQuery(
     name=Patient.FIND_BY_PATIENT_FAMILY_NAME,
     query="select p from Patient p " +
@@ -124,7 +121,6 @@ import java.util.*;
 })
 public class Patient {
 
-    public static final String FIND_BY_PATIENT_ID = "Patient.findByPatientID";
     public static final String FIND_BY_PATIENT_ID_EAGER = "Patient.findByPatientIDEager";
     public static final String FIND_BY_PATIENT_FAMILY_NAME = "Patient.findByPatientFamilyName";
     public static final String FIND_BY_PATIENT_FAMILY_NAME_EAGER = "Patient.findByPatientFamilyNameEager";

@@ -263,13 +263,17 @@ class StoreServiceImpl implements StoreService {
         LOG.debug("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
+            Patient createdPatient = result.getCreatedPatient();
             if (result.getCreatedPatient() != null) {
-                synchronized (this) {
-                    try {
-                        ejb.checkDuplicatePatientCreated(ctx, result);
-                    } catch (Exception e) {
-                        LOG.warn("{}: Failed to remove duplicate created {}:\n",
-                                storeSession, result.getCreatedPatient(), e);
+                IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
+                if (pid != null && pid.getIssuer() == null) {
+                    synchronized (this) {
+                        try {
+                            ejb.checkDuplicatePatientCreated(ctx, pid, result);
+                        } catch (Exception e) {
+                            LOG.warn("{}: Failed to remove duplicate created {}:\n",
+                                    storeSession, createdPatient, e);
+                        }
                     }
                 }
             }
