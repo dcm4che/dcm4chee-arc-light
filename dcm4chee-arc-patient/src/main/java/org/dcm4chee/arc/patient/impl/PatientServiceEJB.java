@@ -315,7 +315,7 @@ public class PatientServiceEJB {
 
         if (list.size() > 1) {
             LOG.info("{}: Multiple Patients with ID: {}", ctx, ctx.getPatientID());
-            list.removeIf(p -> !ctx.getAttributes().matches(p.getAttributes(), false, false));
+            list.removeIf(p -> !ctx.getAttributes().matches(p.getAttributes(), false, true));
             if (list.size() != 1)
                 return null;
             LOG.info("{}: Select {} with matching attributes", ctx, list.get(0));
