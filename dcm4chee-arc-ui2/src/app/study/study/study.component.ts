@@ -4151,7 +4151,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     getSOPClassUIDName(classUID){
         try{
-            console.log("DCM4CHE.SOPClass(classUID)",DCM4CHE.SOPClass.nameOf(classUID));
             return DCM4CHE.SOPClass.nameOf(classUID);
         }catch (e) {
             return classUID;
