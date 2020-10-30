@@ -58,6 +58,7 @@ export interface StudySchemaOptions{
     tableParam?:TableParam;
     studyConfig?:StudyPageConfig;
     appService?:any;
+    getSOPClassUIDName?:Function
 }
 export interface TableAction{
     icon:Icon;

@@ -54,7 +54,14 @@
                     </mat-menu>
                 </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">{{patient.attrs | dynamicPipe:patient_table.pipe}}</ng-container>
-                <ng-container *ngSwitchCase="'value'">{{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}</ng-container>
+                <ng-container *ngSwitchCase="'value'">
+                    <ng-container *ngIf="!patient_table.hook">
+                        {{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}
+                    </ng-container>
+                    <ng-container *ngIf="patient_table.hook">
+                        {{patient_table.hook(_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;')}}
+                    </ng-container>
+                </ng-container>
             </div>
             <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
         </div>
@@ -109,7 +116,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">{{study.attrs | dynamicPipe:studies_table.pipe}}</ng-container>
-                        <ng-container *ngSwitchCase="'value'">{{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">
+                            <ng-container *ngIf="!studies_table.hook">
+                                {{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}
+                            </ng-container>
+                            <ng-container *ngIf="studies_table.hook">
+                                {{studies_table.hook(_.get(study.attrs, studies_table.pathToValue) || '&nbsp;')}}
+                            </ng-container>
+                        </ng-container>
                     </div>
                     <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
                 </div>
@@ -154,7 +168,14 @@
                                     </mat-menu>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'pipe'">{{serie.attrs | dynamicPipe:serie_table.pipe}}</ng-container>
-                                <ng-container *ngSwitchCase="'value'">{{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}</ng-container>
+                                <ng-container *ngSwitchCase="'value'">
+                                    <ng-container *ngIf="!serie_table.hook">
+                                        {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
+                                    </ng-container>
+                                    <ng-container *ngIf="serie_table.hook">
+                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;')}}
+                                    </ng-container>
+                                </ng-container>
                             </div>
                             <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
                         </div>
@@ -202,7 +223,14 @@
                                             </mat-menu>
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'pipe'">{{instance.attrs | dynamicPipe:instance_table.pipe}}</ng-container>
-                                        <ng-container *ngSwitchCase="'value'">{{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}</ng-container>
+                                        <ng-container *ngSwitchCase="'value'">
+                                            <ng-container *ngIf="!instance_table.hook">
+                                                {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
+                                            </ng-container>
+                                            <ng-container *ngIf="instance_table.hook">
+                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;')}}
+                                            </ng-container>
+                                        </ng-container>
                                     </div>
                                     <attribute-list *ngIf="instance.showAttributes" [attrs]="instance.attrs"></attribute-list>
                                     <attribute-list

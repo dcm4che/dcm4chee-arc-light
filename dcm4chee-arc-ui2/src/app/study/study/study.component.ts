@@ -63,6 +63,7 @@ import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
 import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
+declare var DCM4CHE: any;
 
 
 @Component({
@@ -3489,7 +3490,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
             tableParam:this.tableParam,
             studyConfig:this.studyConfig,
-            appService:this.appService
+            appService:this.appService,
+            getSOPClassUIDName:this.getSOPClassUIDName
         }));
     }
 
@@ -4145,6 +4147,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         },err=>{
             this.httpErrorHandler.handleError(err);
         });
+    }
+
+    getSOPClassUIDName(classUID){
+        try{
+            console.log("DCM4CHE.SOPClass(classUID)",DCM4CHE.SOPClass.nameOf(classUID));
+            return DCM4CHE.SOPClass.nameOf(classUID);
+        }catch (e) {
+            return classUID;
+        }
     }
 
     ngAfterContentChecked(): void {

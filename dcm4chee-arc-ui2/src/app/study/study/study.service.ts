@@ -40,6 +40,7 @@ import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
 import {AppService} from "../../app.service";
 import {MwlDicom} from "../../models/mwl-dicom";
+import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 
 @Injectable()
 export class StudyService {
@@ -2449,12 +2450,13 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@sop_class_uid:SOP Class UID`,
+                    header: $localize `:@@sop_class_name:SOP Class Name`,
                     pathToValue: "00080016.Value[0]",
-                    headerDescription: $localize `:@@sop_class_uid:SOP Class UID`,
+                    headerDescription: $localize `:@@sop_class_name:SOP Class Name`,
                     widthWeight: 0.9,
                     calculatedWidth: "20%",
-                    cssClass:"border-left"
+                    cssClass:"border-left",
+                    hook:options.getSOPClassUIDName
                 }),
                 new TableSchemaElement({
                     type: "value",
