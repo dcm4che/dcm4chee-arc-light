@@ -304,18 +304,26 @@ public class PatientServiceEJB {
     }
 
     public Patient findPatient(PatientMgtContext ctx) {
-        if (ctx.getPatientID() == null) {
+        IDWithIssuer patientID = ctx.getPatientID();
+        if (patientID == null) {
             LOG.info("{}: No Patient ID in received object", ctx);
             return null;
         }
 
-        List<Patient> list = findPatients(ctx.getPatientID());
+        List<Patient> list = findPatients(patientID);
+        if (patientID.getIssuer() == null && getArchiveDeviceExtension().isIdentifyPatientByAllAttributes()) {
+            removeNonMatching(ctx, list);
+            if (list.size() > 1) {
+                LOG.info("{}: Found {} Patients with ID: {} and matching attributes", ctx, list.size(), patientID);
+                return null;
+            }
+        }
         if (list.isEmpty())
             return null;
 
         if (list.size() > 1) {
-            LOG.info("{}: Multiple Patients with ID: {}", ctx, ctx.getPatientID());
-            list.removeIf(p -> !ctx.getAttributes().matches(p.getAttributes(), false, true));
+            LOG.info("{}: Found {} Patients with ID: {}", ctx, list.size(), patientID);
+            removeNonMatching(ctx, list);
             if (list.size() != 1)
                 return null;
             LOG.info("{}: Select {} with matching attributes", ctx, list.get(0));
@@ -329,7 +337,7 @@ public class PatientServiceEJB {
         HashSet<Long> patPks = new HashSet<>();
         do {
             if (!patPks.add(mergedWith.getPk())) {
-                LOG.warn("{}: Detected circular merged {}", ctx, ctx.getPatientID());
+                LOG.warn("{}: Detected circular merged {}", ctx, patientID);
                 return null;
             }
 
@@ -337,6 +345,17 @@ public class PatientServiceEJB {
             mergedWith = pat.getMergedWith();
         } while (mergedWith != null);
         return pat;
+    }
+
+    private static void removeNonMatching(PatientMgtContext ctx, List<Patient> list) {
+        Attributes attrs = ctx.getAttributes();
+        int before = list.size();
+        list.removeIf(p -> !attrs.matches(p.getAttributes(), false, true));
+        int removed = before - list.size();
+        if (removed > 0) {
+            LOG.info("{}: Found {} Patients with ID: {} but non-matching other attributes",
+                    ctx, removed, ctx.getPatientID());
+        }
     }
 
     private void moveStudies(PatientMgtContext ctx, Patient from, Patient to) {
@@ -443,7 +462,11 @@ public class PatientServiceEJB {
                 ? ctx.getHL7Application()
                     .getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class)
                     .recordAttributeModification()
-                : device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isRecordAttributeModification();
+                : getArchiveDeviceExtension().isRecordAttributeModification();
+    }
+
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     public List<String> studyInstanceUIDsOf(Patient patient) {

@@ -1909,6 +1909,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.391 NAME 'dcmRequiresOtherUPSComplet
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.392 NAME 'dcmIdentifyPatientByAllAttributes'
+  DESC 'Indicates if all Patient attributes in received objects shall be used for associating an already existing Patient in the archive, if the Assigning Authority of the Patient ID is not specified by an Issuer of Patient ID or Universal Entity ID; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1918,6 +1923,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFuzzyAlgorithmClass )
   MAY (
     dcmRecordAttributeModification $
+    dcmIdentifyPatientByAllAttributes $
     dcmBulkDataDescriptorID $
     dcmCalculateStudySizeDelay $
     dcmCalculateStudySizePollingInterval $

@@ -283,6 +283,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowExcludeAPPMarkers;
     private volatile boolean restrictRetrieveSilently;
     private volatile boolean stowQuicktime2MP4;
+    private volatile boolean identifyPatientByAllAttributes;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
     private volatile Duration studySizeDelay;
     private volatile Duration calculateStudySizePollingInterval;
@@ -2882,6 +2883,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowQuicktime2MP4 = stowQuicktime2MP4;
     }
 
+    public boolean isIdentifyPatientByAllAttributes() {
+        return identifyPatientByAllAttributes;
+    }
+
+    public void setIdentifyPatientByAllAttributes(boolean identifyPatientByAllAttributes) {
+        this.identifyPatientByAllAttributes = identifyPatientByAllAttributes;
+    }
+
     public Duration getMWLPollingInterval() {
         return mwlPollingInterval;
     }
@@ -3150,6 +3159,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
+        identifyPatientByAllAttributes = arcdev.identifyPatientByAllAttributes;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         mwlPollingInterval = arcdev.mwlPollingInterval;
         mwlFetchSize = arcdev.mwlFetchSize;

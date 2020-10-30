@@ -121,7 +121,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDeleteUPSCanceledDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy",
                 ext.getOverwritePolicy(), OverwritePolicy.NEVER);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRecordAttributeModification", ext.isRecordAttributeModification(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRecordAttributeModification",
+                ext.isRecordAttributeModification(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIdentifyPatientByAllAttributes",
+                ext.isIdentifyPatientByAllAttributes(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
                 ext.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
@@ -501,8 +504,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteUPSFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteUPSFetchSize"), 100));
         ext.setDeleteUPSCompletedDelay(toDuration(attrs.get("dcmDeleteUPSCompletedDelay"), null));
         ext.setDeleteUPSCanceledDelay(toDuration(attrs.get("dcmDeleteUPSCanceledDelay"), null));
-        ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), OverwritePolicy.NEVER));
-        ext.setRecordAttributeModification(LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), true));
+        ext.setOverwritePolicy(
+                LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), OverwritePolicy.NEVER));
+        ext.setRecordAttributeModification(
+                LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), true));
+        ext.setIdentifyPatientByAllAttributes(
+                LdapUtils.booleanValue(attrs.get("dcmIdentifyPatientByAllAttributes"), false));
         ext.setBulkDataSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setPersonNameComponentOrderInsensitiveMatching(
@@ -845,6 +852,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isRecordAttributeModification(),
                 bb.isRecordAttributeModification(),
                 true);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIdentifyPatientByAllAttributes",
+                aa.isIdentifyPatientByAllAttributes(),
+                bb.isIdentifyPatientByAllAttributes(),
+                false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(),
                 bb.getBulkDataSpoolDirectory(),
