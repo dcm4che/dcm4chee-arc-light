@@ -392,8 +392,14 @@ public class WadoRS {
         StudyThumbnail(WadoRS::thumbnail) {
             @Override
             public InstanceLocations selectThumbnailInstance(RetrieveContext ctx) {
-                return ctx.getMatches().stream().filter(InstanceLocations::isImage).findAny()
-                        .orElse(super.selectThumbnailInstance(ctx));
+                List<InstanceLocations> matches = ctx.getMatches();
+                int i = -1;
+                do if (++i == matches.size()) return matches.get(i >> 1); while (!matches.get(i).isImage());
+                String seriesIUID = matches.get(i).getAttributes().getString(Tag.SeriesInstanceUID);
+                int j = i;
+                while (++j < matches.size() &&
+                        seriesIUID.equals(matches.get(j).getAttributes().getString(Tag.SeriesInstanceUID)));
+                return matches.get((i + j) >> 1);
             }
         },
         SeriesThumbnail(WadoRS::thumbnail),
@@ -411,7 +417,8 @@ public class WadoRS {
         }
 
         public InstanceLocations selectThumbnailInstance(RetrieveContext ctx) {
-            return ctx.getMatches().iterator().next();
+            List<InstanceLocations> matches = ctx.getMatches();
+            return matches.get(matches.size() >> 1);
         }
     }
 
