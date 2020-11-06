@@ -1157,7 +1157,7 @@ export class StudyService {
                                     return (
                                         (
                                             _.hasIn(e,'attrs.00201200.Value[0]') &&
-                                            _.isEqual(e.attrs['00201200'].Value[0], 0) &&
+                                            e.attrs['00201200'].Value[0] == "0" &&
                                             !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
                                         ) ||
                                         (_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "ALWAYS")
