@@ -1307,6 +1307,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let patientID = this.service.getPatientId(model);
             let patientBirthDate = _.get(model, "00100030.Value.0");
             let accessionNumber = _.get(model, "00080050.Value.0");
+            let patientName = _.get(model, "00100010.Value[0].Alphabetic");
             let dcmWebServicePath = this.studyWebService.selectedWebService.dcmWebServicePath;
             let qidoBaseURL = j4care.getUrlFromDcmWebApplication(this.studyWebService.selectedWebService, true);
             let replaceDoubleBraces = (url, result) => {
@@ -1327,6 +1328,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "patientID": patientID,
                     "patientBirthDate":patientBirthDate,
                     "studyUID": studyUID,
+                    "patientName": patientName,
                     "accessionNumber": accessionNumber,
                     "access_token": token,
                     "qidoBasePath": dcmWebServicePath,
