@@ -39,7 +39,7 @@
                         <option *ngFor="let opt of formelement.options " [value]="opt.value" [selected]="opt.active">{{opt.label}}</option>
                     </select>-->
                 <mat-select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key" (change)="dropdownChange(formelement,form['controls'][formelement.key])">
-                    <mat-option value="">-</mat-option>
+                    <mat-option value="" *ngIf="!formelement.validation.required">-</mat-option>
                     <mat-option *ngFor="let opt of formelement.options " [value]="opt.value">{{opt.label}}</mat-option>
                 </mat-select>
             </div>
