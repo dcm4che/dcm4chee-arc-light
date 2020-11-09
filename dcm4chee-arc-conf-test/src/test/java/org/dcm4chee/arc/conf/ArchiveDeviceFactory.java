@@ -405,6 +405,7 @@ class ArchiveDeviceFactory {
             Tag.SeriesDescription,
             Tag.InstitutionalDepartmentName,
             Tag.InstitutionalDepartmentTypeCodeSequence,
+            Tag.InstitutionAddress,
             Tag.PerformingPhysicianName,
             Tag.ManufacturerModelName,
             Tag.ReferencedPerformedProcedureStepSequence,

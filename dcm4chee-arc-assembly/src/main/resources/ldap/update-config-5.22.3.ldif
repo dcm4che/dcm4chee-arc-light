@@ -84,3 +84,8 @@ dcmUPSProcessingRuleID: SEND_IAN
 dcmUPSPerformedStationNameCode: (dcm4chee-arc, 99DCM4CHEE, "dcm4chee-arc")
 dcmUPSScheduledWorkitemCode: (SEND_IAN, 99DCM4CHEE, "Send Instance Availability Notification")
 dcmURI: ianscu:IANSCP
+
+dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00080081
