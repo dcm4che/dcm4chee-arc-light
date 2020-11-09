@@ -47,6 +47,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -178,6 +179,8 @@ public class ExporterRS {
             exporterFactory.getExporter(new ExporterDescriptor(exporterID, exportURI))
                     .export(retrieveContext);
             return toResponse(retrieveContext);
+        } catch (DicomServiceException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
