@@ -370,6 +370,7 @@ public class ProcedureServiceEJB {
     private void updateSeriesAttributes(Series series, Attributes mwlAttr, IssuerEntity issuerOfAccessionNumber,
                                         AttributeFilter filter, FuzzyStr fuzzyStr, Date now, ProcedureContext ctx) {
         Attributes seriesAttr = series.getAttributes();
+        Attributes.unifyCharacterSets(seriesAttr, mwlAttr);
         Attributes modified = new Attributes(seriesAttr, Tag.RequestAttributesSequence);
         if (modified.containsValue(Tag.RequestAttributesSequence) && recordAttributeModification(ctx))
             seriesAttr.addOriginalAttributes(
