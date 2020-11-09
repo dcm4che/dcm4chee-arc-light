@@ -127,6 +127,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         supplementValue(attrs, Tag.InstitutionName, VR.LO, device.getInstitutionNames());
         supplementCode(attrs, Tag.InstitutionCodeSequence, device.getInstitutionCodes());
         supplementValue(attrs, Tag.InstitutionalDepartmentName, VR.LO, device.getInstitutionalDepartmentNames());
+        supplementValue(attrs, Tag.InstitutionAddress, VR.ST, device.getInstitutionAddresses());
         supplementIssuers(attrs);
         supplementRequestIssuers(attrs);
         supplementRequestIssuers(attrs.getSequence(Tag.RequestAttributesSequence));
