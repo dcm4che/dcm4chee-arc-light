@@ -170,6 +170,7 @@ public class QueryAttributes {
                 case "upsLabel":
                 case "upsScheduledTime":
                 case "readPixelData":
+                case "updatePolicy":
                 case "reasonForModification":
                 case "sourceOfPreviousValues":
                 case "csvPatientID":

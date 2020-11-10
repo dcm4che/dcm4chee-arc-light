@@ -109,6 +109,11 @@ public class ImportStorageRS {
     @Pattern(regexp = "true|false")
     private String readPixelData;
 
+    @QueryParam("updatePolicy")
+    @Pattern(regexp = "SUPPLEMENT|MERGE|OVERWRITE")
+    @DefaultValue("OVERWRITE")
+    private String updatePolicy;
+
     @QueryParam("reasonForModification")
     @Pattern(regexp = "COERCE|CORRECT")
     private String reasonForModification;
@@ -156,9 +161,10 @@ public class ImportStorageRS {
                 .withObjectStorageID(storageID);
         Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
         Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
+        Attributes.UpdatePolicy updatePolicy = Attributes.UpdatePolicy.valueOf(this.updatePolicy);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             reader.lines().forEach(storagePath ->
-                    importInstanceOnStorage(storage, session, coerce, now, storagePath));
+                    importInstanceOnStorage(storage, session, coerce, updatePolicy, now, storagePath));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -172,14 +178,14 @@ public class ImportStorageRS {
     }
 
     private void importInstanceOnStorage(Storage storage, StoreSession session, Attributes coerce,
-            Date now, String storagePath) {
+            Attributes.UpdatePolicy updatePolicy, Date now, String storagePath) {
         ReadContext readContext = createReadContext(storage, storagePath);
         StoreContext ctx = service.newStoreContext(session);
         try {
             Attributes attrs = getAttributes(storage, session, readContext, ctx);
             if (!coerce.isEmpty()) {
                 Attributes modified = new Attributes();
-                attrs.update(Attributes.UpdatePolicy.OVERWRITE, false, coerce, modified);
+                attrs.update(updatePolicy, false, coerce, modified);
                 if (!modified.isEmpty() && reasonForModification != null) {
                     attrs.addOriginalAttributes(sourceOfPreviousValues, now,
                             reasonForModification, device.getDeviceName(), modified);

@@ -761,17 +761,6 @@
       }
     }
   },
-  "coerce": {
-    "name": "coerce",
-    "in": "query",
-    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-    "schema": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
-  },
   "includefield": {
     "name": "includefield",
     "in": "query",
@@ -1631,6 +1620,31 @@
     "schema": {
       "type": "boolean",
       "default": false
+    }
+  },
+  "update": {
+    "name": "update",
+    "in": "query",
+    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "updatePolicy": {
+    "name": "updatePolicy",
+    "in": "query",
+    "description": "Update Policy for modification of original attributes.",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ],
+      "default": "OVERWRITE"
     }
   },
   "reasonForModification": {
