@@ -169,6 +169,9 @@ public class QueryAttributes {
                 case "ExpirationState":
                 case "upsLabel":
                 case "upsScheduledTime":
+                case "readPixelData":
+                case "reasonForModification":
+                case "sourceOfPreviousValues":
                 case "csvPatientID":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":

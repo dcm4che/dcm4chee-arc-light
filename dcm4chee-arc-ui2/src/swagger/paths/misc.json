@@ -472,6 +472,18 @@
         },
         {
           "$ref": "../parameters.json#/storageIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/readPixelData"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/coerce"
         }
       ],
       "requestBody": {

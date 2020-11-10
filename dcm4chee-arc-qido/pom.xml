@@ -97,7 +97,7 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-rs-util</artifactId>
-      <version>5.22.6</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
 

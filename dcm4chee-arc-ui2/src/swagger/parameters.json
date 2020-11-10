@@ -465,7 +465,7 @@
       "$ref": "schemas.json#/accept"
     }
   },
-   "acceptJsonOrMultipartXml": {
+  "acceptJsonOrMultipartXml": {
     "name": "accept",
     "in": "query",
     "description": "Alternative to Accept header field",
@@ -473,7 +473,7 @@
       "$ref": "schemas.json#/jsonOrMultiPartXml"
     }
   },
-   "acceptJsonOrXml": {
+  "acceptJsonOrXml": {
     "name": "accept",
     "in": "query",
     "description": "Alternative to Accept header field",
@@ -752,6 +752,17 @@
   },
   "filter": {
     "name": "filter",
+    "in": "query",
+    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "coerce": {
+    "name": "coerce",
     "in": "query",
     "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
     "schema": {
@@ -1609,6 +1620,35 @@
     "name": "verify",
     "in": "query",
     "description": "AE Title of external C-FIND SCP which content have not to conflict with the merge",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "readPixelData": {
+    "name": "readPixelData",
+    "in": "query",
+    "description": "read Pixel Data from storage",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "reasonForModification": {
+    "name": "reasonForModification",
+    "in": "query",
+    "description": "Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "COERCE",
+        "CORRECT"
+      ]
+    }
+  },
+  "sourceOfPreviousValues": {
+    "name": "sourceOfPreviousValues",
+    "in": "query",
+    "description": "Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)",
     "schema": {
       "type": "string"
     }

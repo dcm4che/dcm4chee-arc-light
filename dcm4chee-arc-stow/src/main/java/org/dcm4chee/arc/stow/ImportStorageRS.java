@@ -49,12 +49,14 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,6 +82,7 @@ import java.util.Set;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
+@InvokeValidate(type = ImportStorageRS.class)
 public class ImportStorageRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportStorageRS.class);
@@ -91,6 +96,9 @@ public class ImportStorageRS {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private UriInfo uriInfo;
+
     @Inject
     private Device device;
 
@@ -100,6 +108,13 @@ public class ImportStorageRS {
     @QueryParam("readPixelData")
     @Pattern(regexp = "true|false")
     private String readPixelData;
+
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
 
     private final Attributes response = new Attributes();
     private final Set<String> studyInstanceUIDs = new HashSet<>();
@@ -128,16 +143,22 @@ public class ImportStorageRS {
         importInstanceOnStorage(ar, in, storageID, OutputType.JSON);
     }
 
-    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, OutputType output) {
+    public void validate() {
         logRequest();
+        new QueryAttributes(uriInfo, null);
+    }
+
+    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, OutputType output) {
         ApplicationEntity ae = getApplicationEntity();
         Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), ae, null)
                 .withObjectStorageID(storageID);
-
+        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
+        Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            reader.lines().forEach(storagePath -> importInstanceOnStorage(storage, session, storagePath));
+            reader.lines().forEach(storagePath ->
+                    importInstanceOnStorage(storage, session, coerce, now, storagePath));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -150,11 +171,20 @@ public class ImportStorageRS {
                 .build());
     }
 
-    private void importInstanceOnStorage(Storage storage, StoreSession session, String storagePath) {
+    private void importInstanceOnStorage(Storage storage, StoreSession session, Attributes coerce,
+            Date now, String storagePath) {
         ReadContext readContext = createReadContext(storage, storagePath);
         StoreContext ctx = service.newStoreContext(session);
         try {
             Attributes attrs = getAttributes(storage, session, readContext, ctx);
+            if (!coerce.isEmpty()) {
+                Attributes modified = new Attributes();
+                attrs.update(Attributes.UpdatePolicy.OVERWRITE, false, coerce, modified);
+                if (!modified.isEmpty() && reasonForModification != null) {
+                    attrs.addOriginalAttributes(sourceOfPreviousValues, now,
+                            reasonForModification, device.getDeviceName(), modified);
+                }
+            }
             service.importInstanceOnStorage(ctx, attrs, readContext);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
