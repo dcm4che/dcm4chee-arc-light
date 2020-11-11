@@ -8,7 +8,7 @@
     "HIGH"
   ]},
   "00741204": { "vr": "LO", "required": 1 },
-  "00404041": { "vr": "LT", "required": 1,"enum": [
+  "00404041": { "vr": "CS", "required": 1,"enum": [
     "INCOMPLETE",
     "UNAVAILABLE",
     "READY"
