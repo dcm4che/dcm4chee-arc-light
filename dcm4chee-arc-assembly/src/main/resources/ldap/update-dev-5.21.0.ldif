@@ -1,0 +1,53 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+
+dn: dcmuiPermissionName=Action - Studies - Download Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmuiAction
+dcmuiAction: action-studies-download
+
+dn: dcmuiPermissionName=Action - Studies - Delete study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmuiActionParam
+dcmuiActionParam: delete
+-
+replace: dcmuiAction
+dcmuiAction: action-studies-study
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0
+dcmImageWriteParam: compressionType=LOSSLESS-6
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.70,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0
+dcmImageWriteParam: compressionType=LOSSLESS-1
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.80,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.81,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0
+dcmImageWriteParam: nearLossless=2.0
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0
+dcmImageWriteParam: compressionType=LOSSLESS
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageWriteParam
+dcmImageWriteParam: bitsCompressed=-16.0

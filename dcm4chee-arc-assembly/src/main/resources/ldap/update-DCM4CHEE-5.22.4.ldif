@@ -1,0 +1,6 @@
+version: 1
+
+dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmWebServiceClass
+dcmWebServiceClass: UPS_MATCHING

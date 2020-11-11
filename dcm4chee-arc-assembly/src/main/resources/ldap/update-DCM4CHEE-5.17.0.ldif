@@ -1,0 +1,11 @@
+version: 1
+
+dn: dcmWebAppName=DCM4CHEE-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=DCM4CHEE
+deleteoldrdn: 1
+
+dn: dcmWebAppName=DCM4CHEE-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=DCM4CHEE
+deleteoldrdn: 1

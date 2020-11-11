@@ -1,0 +1,22 @@
+version: 1
+
+dn: dcmWebAppName=AS_RECEIVED-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Retrieve instances as received
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: AS_RECEIVED
+dcmWebAppName: AS_RECEIVED-RS
+dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/rs
+
+dn: dcmWebAppName=AS_RECEIVED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Retrieve instances as received
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: AS_RECEIVED
+dcmWebAppName: AS_RECEIVED-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/wado

@@ -1,0 +1,22 @@
+version: 1
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_PAT_SAFETY
+dcmWebAppName: IOCM_PAT_SAFETY-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_PAT_SAFETY
+dcmWebAppName: IOCM_PAT_SAFETY-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado

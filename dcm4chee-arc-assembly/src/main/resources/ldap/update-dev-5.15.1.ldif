@@ -1,0 +1,106 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.15.1
+-
+replace: dcmBulkDataDescriptorID
+dcmBulkDataDescriptorID: default
+
+dn: dcmBulkDataDescriptorID=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmBulkDataVRLengthThreshold: DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024
+dcmBulkDataDescriptorID: default
+objectClass: dcmBulkDataDescriptor
+
+dn: dcmAttributeSetID=study+dcmAttributeSetType=QIDO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmAttributeSetTitle: Sample Study Attribute Set
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080061
+dcmTag: 00080090
+dcmTag: 00081030
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100030
+dcmTag: 00100040
+dcmTag: 0020000D
+dcmTag: 00200010
+dcmTag: 00201206
+dcmTag: 00201208
+dcmAttributeSetType: QIDO_RS
+dcmAttributeSetID: study
+objectClass: dcmAttributeSet
+
+dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTrustStoreURL
+dcmTrustStoreURL: file://${env.TRUSTSTORE}
+-
+add: dcmTrustStoreType
+dcmTrustStoreType: JKS
+-
+add: dcmTrustStorePin
+dcmTrustStorePin: ${env.TRUSTSTORE_PASSWORD}
+-
+add: dcmKeyStoreURL
+dcmKeyStoreURL: file://${env.KEYSTORE}
+-
+add: dcmKeyStoreType
+dcmKeyStoreType: ${env.KEYSTORE_TYPE}
+-
+add: dcmKeyStorePin
+dcmKeyStorePin: ${env.KEYSTORE_PASSWORD}
+-
+add: dcmKeyStoreKeyPin
+dcmKeyStoreKeyPin: ${env.KEY_PASSWORD}
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTrustStoreURL
+dcmTrustStoreURL: file://${env.TRUSTSTORE}
+-
+add: dcmTrustStoreType
+dcmTrustStoreType: JKS
+-
+add: dcmTrustStorePin
+dcmTrustStorePin: ${env.TRUSTSTORE_PASSWORD}
+-
+replace: dcmKeyStoreURL
+dcmKeyStoreURL: file://${env.KEYSTORE}
+-
+replace: dcmKeyStoreType
+dcmKeyStoreType: ${env.KEYSTORE_TYPE}
+-
+replace: dcmKeyStorePin
+dcmKeyStorePin: ${env.KEYSTORE_PASSWORD}
+-
+replace: dcmKeyStoreKeyPin
+dcmKeyStoreKeyPin: ${env.KEY_PASSWORD}
+-
+delete: dicomAuthorizedNodeCertificateReference
+-
+delete: userCertificate;binary
+-
+delete: objectClass
+objectClass: pkiUser
+
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmuiModalities
+dcmuiModalities: CR
+dcmuiModalities: CT
+dcmuiModalities: DX
+dcmuiModalities: KO
+dcmuiModalities: MR
+dcmuiModalities: MG
+dcmuiModalities: NM
+dcmuiModalities: OT
+dcmuiModalities: PT
+dcmuiModalities: PR
+dcmuiModalities: US
+dcmuiModalities: XA
+

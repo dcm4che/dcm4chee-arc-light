@@ -1,0 +1,11 @@
+version: 1
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=IOCM_WRONG_MWL
+deleteoldrdn: 1
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=IOCM_WRONG_MWL
+deleteoldrdn: 1

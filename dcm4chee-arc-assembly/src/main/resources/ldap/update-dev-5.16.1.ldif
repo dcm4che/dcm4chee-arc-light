@@ -1,0 +1,122 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.16.1
+-
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+
+## Provide "dcm4chee-arc" Web Application in default configuration #1906
+
+dn: dcmWebAppName=dcm4chee-arc,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Forward Reschedule Task(s)
+dcmWebServiceClass: DCM4CHEE_ARC
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmWebAppName: dcm4chee-arc
+dcmWebServicePath: /dcm4chee-arc
+
+## Use opencv based codecs provided by Weasis 3.x also for JPEG and JPEG 2000 compression #1868
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmImageReadParam
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg-cv
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg-cv
+-
+replace: dcmImageWriteParam
+dcmImageWriteParam: compressionType=EXTENDED
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.53,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.53
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=SPECTRAL
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.55,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+dcmIIOFormatName: jpeg-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.55
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=PROGRESSIVE
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg-cv
+-
+replace: dcmImageWriteParam
+dcmImageWriteParam: compressionType=LOSSLESS-6
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.70,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJPEGImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg-cv
+-
+replace: dcmImageWriteParam
+dcmImageWriteParam: compressionType=LOSSLESS-1
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJ2kImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg2000-cv
+-
+replace: dcmImageWriteParam
+dcmImageWriteParam: compressionType=LOSSLESS
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmJavaClassName
+dcmJavaClassName: org.dcm4che3.opencv.NativeJ2kImageWriter
+-
+replace: dcmIIOFormatName
+dcmIIOFormatName: jpeg2000-cv

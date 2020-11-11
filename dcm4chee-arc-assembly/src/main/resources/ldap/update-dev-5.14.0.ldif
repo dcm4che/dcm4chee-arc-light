@@ -1,0 +1,31 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.14.0
+-
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+add: dcmStorageVerificationAETitle
+dcmStorageVerificationAETitle: DCM4CHEE
+-
+add: dcmCompressionAETitle
+dcmCompressionAETitle: DCM4CHEE
+-
+add: dcmDiffTaskProgressUpdateInterval
+dcmDiffTaskProgressUpdateInterval: PT10S
+-
+
+dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Storage Verification Tasks
+dcmQueueName: StgVerTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/StgVerTasks

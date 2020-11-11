@@ -1,0 +1,11 @@
+version: 1
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=IOCM_PAT_SAFETY
+deleteoldrdn: 1
+
+dn: dcmWebAppName=IOCM_PAT_SAFETY-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=IOCM_PAT_SAFETY
+deleteoldrdn: 1

@@ -1,0 +1,22 @@
+version: 1
+
+dn: dcmWebAppName=IOCM_EXPIRED-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Data Retention Expired
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_EXPIRED
+dcmWebAppName: IOCM_EXPIRED-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/rs
+
+dn: dcmWebAppName=IOCM_EXPIRED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Data Retention Expired
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_EXPIRED
+dcmWebAppName: IOCM_EXPIRED-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_EXPIRED/wado

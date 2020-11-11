@@ -1,0 +1,11 @@
+version: 1
+
+dn: dcmWebAppName=AS_RECEIVED-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=AS_RECEIVED
+deleteoldrdn: 1
+
+dn: dcmWebAppName=AS_RECEIVED-RS,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dcmWebAppName=AS_RECEIVED
+deleteoldrdn: 1

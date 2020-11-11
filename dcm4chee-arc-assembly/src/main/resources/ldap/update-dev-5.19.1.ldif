@@ -1,0 +1,307 @@
+version: 1
+
+dn: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomHostname
+dicomHostname: archive-host
+
+dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmClientBindAddress: 0.0.0.0
+dcmMaxOpsInvoked: 0
+dcmBindAddress: 0.0.0.0
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmMaxOpsPerformed: 0
+cn: dicom-tls
+dicomHostname: archive-host
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dicomPort: 2762
+
+dn: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomHostname
+dicomHostname: archive-host
+
+dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmClientBindAddress: 0.0.0.0
+dcmBindAddress: 0.0.0.0
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: HL7
+cn: hl7-tls
+dicomHostname: archive-host
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dicomPort: 12575
+
+dn: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomHostname
+dicomHostname: archive-host
+
+dn: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomHostname: archive-host
+dicomPort: 8443
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: HTTP
+cn: https
+
+dn: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomHostname
+dicomHostname: archive-host
+
+dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: archive-host
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
+dn: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: keycloak-host
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
+dn: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: FALSE
+dicomHostname: syslog-host
+dicomPort: 6514
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmProtocol: SYSLOG_TLS
+cn: syslog-tls
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: dcmWebAppName=dcm4chee-arc,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: cn=Audit Record Repository,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomNetworkConnectionReference
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog-tls,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
+dn: dcmEntity=Patient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmTag
+dcmTag: 00080005
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100021
+dcmTag: 00100022
+dcmTag: 00100024
+dcmTag: 00100030
+dcmTag: 00100032
+dcmTag: 00100033
+dcmTag: 00100034
+dcmTag: 00100035
+dcmTag: 00100040
+dcmTag: 00100050
+dcmTag: 00100101
+dcmTag: 00100200
+dcmTag: 00100212
+dcmTag: 00100213
+dcmTag: 00100216
+dcmTag: 00100218
+dcmTag: 00100219
+dcmTag: 00100229
+dcmTag: 00101001
+dcmTag: 00101002
+dcmTag: 00101005
+dcmTag: 00101040
+dcmTag: 00101060
+dcmTag: 00101080
+dcmTag: 00101081
+dcmTag: 00101090
+dcmTag: 00101100
+dcmTag: 00102150
+dcmTag: 00102152
+dcmTag: 00102154
+dcmTag: 00102155
+dcmTag: 00102160
+dcmTag: 001021F0
+dcmTag: 00102201
+dcmTag: 00102202
+dcmTag: 00102292
+dcmTag: 00102293
+dcmTag: 00102294
+dcmTag: 00102297
+dcmTag: 00102298
+dcmTag: 00102299
+dcmTag: 00104000
+dcmTag: 00120010
+dcmTag: 00120020
+dcmTag: 00120021
+dcmTag: 00120030
+dcmTag: 00120031
+dcmTag: 00120040
+dcmTag: 00120042
+dcmTag: 00120062
+dcmTag: 00120063
+dcmTag: 00120064
+dcmTag: 00120081
+dcmTag: 00120082
+dcmTag: 00380050
+dcmTag: 00380100
+dcmTag: 00380502
+dcmTag: 00403001
+
+dn: dcmEntity=UPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmTag
+dcmTag: 00080005
+dcmTag: 00080016
+dcmTag: 00080018
+dcmTag: 00080080
+dcmTag: 00080081
+dcmTag: 00080082
+dcmTag: 00080090
+dcmTag: 00080092
+dcmTag: 00080094
+dcmTag: 00080096
+dcmTag: 0008009C
+dcmTag: 0008009D
+dcmTag: 00081040
+dcmTag: 00081041
+dcmTag: 00081080
+dcmTag: 00081084
+dcmTag: 00101010
+dcmTag: 00101020
+dcmTag: 00101021
+dcmTag: 00101023
+dcmTag: 00101024
+dcmTag: 00101030
+dcmTag: 00102000
+dcmTag: 00102110
+dcmTag: 00102180
+dcmTag: 001021A0
+dcmTag: 001021B0
+dcmTag: 001021C0
+dcmTag: 001021D0
+dcmTag: 00102203
+dcmTag: 0020000D
+dcmTag: 00321066
+dcmTag: 00321067
+dcmTag: 00380008
+dcmTag: 00380010
+dcmTag: 00380014
+dcmTag: 00380016
+dcmTag: 00380020
+dcmTag: 00380021
+dcmTag: 00380050
+dcmTag: 00380060
+dcmTag: 00380062
+dcmTag: 00380064
+dcmTag: 00380100
+dcmTag: 00380101
+dcmTag: 00380300
+dcmTag: 00380400
+dcmTag: 00380500
+dcmTag: 00380502
+dcmTag: 00384000
+dcmTag: 00404005
+dcmTag: 00404008
+dcmTag: 00404011
+dcmTag: 00404018
+dcmTag: 00404021
+dcmTag: 00404025
+dcmTag: 00404026
+dcmTag: 00404027
+dcmTag: 00404034
+dcmTag: 00404041
+dcmTag: 00404070
+dcmTag: 0040A370
+dcmTag: 00741000
+dcmTag: 00741002
+dcmTag: 00741200
+dcmTag: 00741202
+dcmTag: 00741204
+dcmTag: 00741210
+dcmTag: 00741216
+dcmTag: 00741224
+
+dn: dcmuiPermissionName=Menu - Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmuiAction
+dcmuiAction: menu-study
+
+dn: dcmuiPermissionName=Tab - Study - Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Study
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-study
+
+dn: dcmuiPermissionName=Tab - Study - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Patient
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-patient
+
+dn: dcmuiPermissionName=Tab - Study - Mwl,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Mwl
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-mwl
+
+dn: dcmuiPermissionName=Tab - Study - Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Diff
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-diff

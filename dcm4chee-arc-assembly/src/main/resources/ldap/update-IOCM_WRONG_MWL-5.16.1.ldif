@@ -1,0 +1,22 @@
+version: 1
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_WRONG_MWL
+dcmWebAppName: IOCM_WRONG_MWL-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/rs
+
+dn: dcmWebAppName=IOCM_WRONG_MWL-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_WRONG_MWL
+dcmWebAppName: IOCM_WRONG_MWL-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/wado

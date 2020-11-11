@@ -1,0 +1,20 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+replace: dcmWadoSupportedPRClasses
+dcmWadoSupportedPRClasses: 1.2.840.10008.5.1.4.1.1.11.1
+
+dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmDuration
+dcmDuration: PT6M
+
+dn: dcmuiPermissionName=Action - Studies - Count,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmAcceptedUserRole
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user

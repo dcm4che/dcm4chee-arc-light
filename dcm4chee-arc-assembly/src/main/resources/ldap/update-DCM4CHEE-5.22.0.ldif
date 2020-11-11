@@ -1,0 +1,17 @@
+version: 1
+
+dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmProperty
+dcmProperty: roles=user,admin
+
+dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmProperty
+dcmProperty: roles=user,admin
+
+dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmWebServiceClass
+dcmWebServiceClass: UPS_RS
+dcmWebServiceClass: MWL_RS
