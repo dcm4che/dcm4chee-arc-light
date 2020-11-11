@@ -108,6 +108,14 @@ public class AccessTokenRequestor {
                 tokenManager.getAccessToken().getExpiresIn());
     }
 
+    public AccessTokenWithExpiration getAccessToken2(KeycloakClient keycloakClient) throws Exception {
+        CachedKeycloak tmp = toCachedKeycloakClient(keycloakClient);
+        TokenManager tokenManager = tmp.keycloak.tokenManager();
+        return new AccessTokenWithExpiration(
+                tokenManager.getAccessTokenString(),
+                tokenManager.getAccessToken().getExpiresIn());
+    }
+
     private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
         if (tmp == null || !tmp.keycloakID.equals(keycloakServerID)) {

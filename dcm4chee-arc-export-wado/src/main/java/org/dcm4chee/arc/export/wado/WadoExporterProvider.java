@@ -44,6 +44,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.storage.StorageFactory;
 
@@ -68,8 +69,11 @@ public class WadoExporterProvider implements ExporterProvider {
     @Inject
     private Device device;
 
+    @Inject
+    private AccessTokenRequestor accessTokenRequestor;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new WadoExporter(descriptor, queryService, storageFactory, device);
+        return new WadoExporter(descriptor, queryService, storageFactory, device, accessTokenRequestor);
     }
 }

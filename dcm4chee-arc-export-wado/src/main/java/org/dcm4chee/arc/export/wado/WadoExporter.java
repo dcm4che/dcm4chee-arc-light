@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -52,6 +53,7 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.storage.Storage;
@@ -81,19 +83,23 @@ public class WadoExporter extends AbstractExporter {
     private final StorageFactory storageFactory;
     private final EnumMap<Entity,List<WadoRequest>> wadoRequests = new EnumMap<>(Entity.class);
 
-    public WadoExporter(ExporterDescriptor descriptor, QueryService queryService, StorageFactory storageFactory, Device device) {
+    public WadoExporter(ExporterDescriptor descriptor, QueryService queryService, StorageFactory storageFactory,
+                        Device device, AccessTokenRequestor accessTokenRequestor) {
         super(descriptor);
         this.queryService = queryService;
         this.storageFactory = storageFactory;
         EnumMap<HeaderField, String> headerFields0 = getHeaderFields(0, new EnumMap<>(HeaderField.class));
         String storageID = descriptor.getProperty("StorageID", null);
+        String keycloakClientID = descriptor.getProperty("KeycloakClientID", null);
         addWadoRequest(descriptor.getExportURI().getSchemeSpecificPart(), headerFields0,
-                storageDescriptor(device, storageID));
+                storageDescriptor(device, storageID),
+                token(device, keycloakClientID, accessTokenRequestor));
         String pattern;
         for (int i = 1; (pattern = descriptor.getProperty("URL." + i, null)) != null; ++i) {
             addWadoRequest(pattern,
                     getHeaderFields(i, new EnumMap<>(headerFields0)),
-                    storageDescriptor(device, descriptor.getProperty("StorageID." + i, storageID)));
+                    storageDescriptor(device, descriptor.getProperty("StorageID." + i, storageID)),
+                    token(device, keycloakClientID, accessTokenRequestor));
         }
     }
 
@@ -119,14 +125,31 @@ public class WadoExporter extends AbstractExporter {
         return storageDescriptor;
     }
 
+    private String token(Device device, String keycloakClientID, AccessTokenRequestor accessTokenRequestor) {
+        if (keycloakClientID == null)
+            return null;
+
+        KeycloakClient keycloakClient = device.getKeycloakClient(keycloakClientID);
+        if (keycloakClient == null)
+            LOG.warn("WADO Exporter {} refers not configured KeycloakClientID={} - cannot send token",
+                    descriptor.getExporterID(), keycloakClientID);
+        else
+            try {
+                return accessTokenRequestor.getAccessToken2(keycloakClient).getToken();
+            } catch (Exception e) {
+                LOG.info("Failed to get access token for KeycloakClient {} \n", keycloakClient, e);
+            }
+        return null;
+    }
+
     private void addWadoRequest(String pattern, EnumMap<HeaderField,String> headerFields,
-                                StorageDescriptor storageDescriptor) {
+                                StorageDescriptor storageDescriptor, String token) {
         MessageFormat format = new MessageFormat(pattern.replace('[', '{').replace(']', '}'));
         Entity entity = Entity.values()[format.getFormats().length];
         List<WadoRequest> list = wadoRequests.get(entity);
         if (list == null)
             wadoRequests.put(entity, list = new ArrayList<WadoRequest>(2));
-        list.add(new WadoRequest(format, headerFields, storageDescriptor));
+        list.add(new WadoRequest(format, headerFields, storageDescriptor, token));
     }
 
     @Override
@@ -281,12 +304,14 @@ public class WadoExporter extends AbstractExporter {
         final MessageFormat format;
         final EnumMap<HeaderField,String> headerFields;
         final StorageDescriptor storageDescriptor;
+        final String token;
 
         public WadoRequest(MessageFormat format, EnumMap<HeaderField,String> headerFields,
-                            StorageDescriptor storageDescriptor) {
+                            StorageDescriptor storageDescriptor, String token) {
             this.format = format;
             this.headerFields = headerFields;
             this.storageDescriptor = storageDescriptor;
+            this.token = token;
         }
 
         public HttpURLConnection openConnection(Object[] params) throws Exception {
@@ -295,6 +320,8 @@ public class WadoExporter extends AbstractExporter {
             for (Map.Entry<HeaderField, String> entry : headerFields.entrySet()) {
                 httpConn.setRequestProperty(entry.getKey().toString(), entry.getValue());
             }
+            if (token != null)
+                httpConn.setRequestProperty("Authorization", "Bearer " + token);
             return httpConn;
         }
     }
