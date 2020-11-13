@@ -1225,51 +1225,6 @@ public class QueryBuilder {
         }
     }
 
-//    private void literalMatch(List<Predicate> predicates, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-//                               PersonName pn, QueryParam param) {
-//        if (!pn.contains(PersonName.Group.Ideographic)
-//                && !pn.contains(PersonName.Group.Phonetic)) {
-//            predicates.add(
-//                    cb.or(
-//                            match(
-//                                    qpn.get(PersonName_.familyName),
-//                                    qpn.get(PersonName_.givenName),
-//                                    qpn.get(PersonName_.middleName),
-//                                    pn, PersonName.Group.Alphabetic, true),
-//                            match(
-//                                    qpn.get(PersonName_.ideographicFamilyName),
-//                                    qpn.get(PersonName_.ideographicGivenName),
-//                                    qpn.get(PersonName_.ideographicMiddleName),
-//                                    pn, PersonName.Group.Alphabetic, true),
-//                            match(
-//                                    qpn.get(PersonName_.phoneticFamilyName),
-//                                    qpn.get(PersonName_.phoneticGivenName),
-//                                    qpn.get(PersonName_.phoneticMiddleName),
-//                                    pn, PersonName.Group.Alphabetic, true)
-//                    )
-//            );
-//        } else {
-//            if (pn.contains(PersonName.Group.Alphabetic))
-//                match(predicates,
-//                        qpn.get(PersonName_.familyName),
-//                        qpn.get(PersonName_.givenName),
-//                        qpn.get(PersonName_.middleName),
-//                        pn, PersonName.Group.Alphabetic, true);
-//            if (pn.contains(PersonName.Group.Ideographic))
-//                match(predicates,
-//                        qpn.get(PersonName_.ideographicFamilyName),
-//                        qpn.get(PersonName_.ideographicGivenName),
-//                        qpn.get(PersonName_.ideographicMiddleName),
-//                        pn, PersonName.Group.Ideographic, false);
-//            if (pn.contains(PersonName.Group.Phonetic))
-//                match(predicates,
-//                        qpn.get(PersonName_.phoneticFamilyName),
-//                        qpn.get(PersonName_.phoneticGivenName),
-//                        qpn.get(PersonName_.phoneticMiddleName),
-//                        pn, PersonName.Group.Phonetic, false);
-//        }
-//    }
-
     private Predicate match(Path<String> qpn, String pn, boolean ignoreCase) {
         List<Predicate> x = new ArrayList<>(1);
         match(x, qpn, pn, ignoreCase);
@@ -1279,20 +1234,6 @@ public class QueryBuilder {
     private void match(List<Predicate> predicates, Path<String> qpn, String pn, boolean ignoreCase) {
         wildCard(predicates, qpn, pn, ignoreCase);
     }
-
-//    private Predicate match(Path<String> familyName, Path<String> givenName, Path<String> middleName,
-//            PersonName pn, PersonName.Group group, boolean ignoreCase) {
-//        List<Predicate> x = new ArrayList<>(3);
-//        match(x, familyName, givenName, middleName, pn, group, ignoreCase);
-//        return cb.and(x.toArray(new Predicate[0]));
-//    }
-//
-//    private void match(List<Predicate> predicates, Path<String> familyName, Path<String> givenName, Path<String> middleName,
-//            PersonName pn, PersonName.Group group, boolean ignoreCase) {
-//        wildCard(predicates, familyName, pn.get(group, PersonName.Component.FamilyName), ignoreCase);
-//        wildCard(predicates, givenName, pn.get(group, PersonName.Component.GivenName), ignoreCase);
-//        wildCard(predicates, middleName, pn.get(group, PersonName.Component.MiddleName), ignoreCase);
-//    }
 
     private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
