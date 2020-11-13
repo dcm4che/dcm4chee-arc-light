@@ -870,6 +870,15 @@ public class QueryBuilder {
         return value == null || value.equals("*");
     }
 
+    private static boolean isUniversalMatching(PersonName pn) {
+        for (PersonName.Group g : PersonName.Group.values())
+            for (PersonName.Component c : PersonName.Component.values()) {
+                if (!isUniversalMatching(pn.get(g, c)))
+                    return false;
+            }
+        return true;
+    }
+
     public static boolean isUniversalMatching(String[] values) {
         return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
     }
@@ -1194,34 +1203,29 @@ public class QueryBuilder {
 
     private void literalMatch(List<Predicate> predicates, Path<org.dcm4chee.arc.entity.PersonName> qpn,
                               PersonName pn, String pnValue) {
+        if (isUniversalMatching(pn))
+            return;
+
         if (!pn.contains(PersonName.Group.Ideographic)
                 && !pn.contains(PersonName.Group.Phonetic)) {
             predicates.add(
-                    cb.or(
-                            match(
-                                    qpn.get(PersonName_.alphabeticName),
-                                    pnValue, true),
-                            match(
-                                    qpn.get(PersonName_.ideographicName),
-                                    pnValue, true),
-                            match(
-                                    qpn.get(PersonName_.phoneticName),
-                                    pnValue, true)
-                    )
+                    cb.or(match(qpn.get(PersonName_.alphabeticName), pnValue, true),
+                          match(qpn.get(PersonName_.ideographicName), pnValue, true),
+                          match(qpn.get(PersonName_.phoneticName), pnValue, true))
             );
         } else {
             if (pn.contains(PersonName.Group.Alphabetic))
                 match(predicates,
                         qpn.get(PersonName_.alphabeticName),
-                        pnValue, true);
+                        pn.toString(PersonName.Group.Alphabetic, false), true);
             if (pn.contains(PersonName.Group.Ideographic))
                 match(predicates,
                         qpn.get(PersonName_.ideographicName),
-                        pnValue, false);
+                        pn.toString(PersonName.Group.Ideographic, false), false);
             if (pn.contains(PersonName.Group.Phonetic))
                 match(predicates,
                         qpn.get(PersonName_.phoneticName),
-                        pnValue, false);
+                        pn.toString(PersonName.Group.Phonetic, false), false);
         }
     }
 
