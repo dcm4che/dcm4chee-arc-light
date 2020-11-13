@@ -56,6 +56,9 @@ import static org.dcm4che3.data.PersonName.Group;
  */
 @Entity
 @Table(name = "person_name", indexes = {
+    @Index(columnList = "alphabetic_name"),
+    @Index(columnList = "ideographic_name"),
+    @Index(columnList = "phonetic_name"),
     @Index(columnList = "family_name"),
     @Index(columnList = "given_name"),
     @Index(columnList = "middle_name"),
@@ -72,6 +75,18 @@ public class PersonName {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
+
+    @Basic(optional=false)
+    @Column(name = "alphabetic_name")
+    private String alphabeticName;
+
+    @Basic(optional=false)
+    @Column(name = "ideographic_name")
+    private String ideographicName;
+
+    @Basic(optional=false)
+    @Column(name = "phonetic_name")
+    private String phoneticName;
 
     @Column(name = "family_name")
     private String familyName;
@@ -129,6 +144,9 @@ public class PersonName {
     }
 
     private void fromDicom(org.dcm4che3.data.PersonName pn, FuzzyStr fuzzyStr) {
+        alphabeticName = pn.toString(Group.Alphabetic, false);
+        ideographicName = pn.toString(Group.Ideographic, false);
+        phoneticName = pn.toString(Group.Phonetic, false);
         familyName = pn.get(Group.Alphabetic, Component.FamilyName);
         givenName = pn.get(Group.Alphabetic, Component.GivenName);
         middleName = pn.get(Group.Alphabetic, Component.MiddleName);
@@ -180,21 +198,9 @@ public class PersonName {
 
     public org.dcm4che3.data.PersonName toPersonName() {
         org.dcm4che3.data.PersonName pn = new org.dcm4che3.data.PersonName();
-        pn.set(Group.Alphabetic, Component.FamilyName, familyName);
-        pn.set(Group.Alphabetic, Component.GivenName, givenName);
-        pn.set(Group.Alphabetic, Component.MiddleName, middleName);
-        pn.set(Group.Alphabetic, Component.NamePrefix, namePrefix);
-        pn.set(Group.Alphabetic, Component.NameSuffix, nameSuffix);
-        pn.set(Group.Ideographic, Component.FamilyName, ideographicFamilyName);
-        pn.set(Group.Ideographic, Component.GivenName, ideographicGivenName);
-        pn.set(Group.Ideographic, Component.MiddleName, ideographicMiddleName);
-        pn.set(Group.Ideographic, Component.NamePrefix, ideographicNamePrefix);
-        pn.set(Group.Ideographic, Component.NameSuffix, ideographicNameSuffix);
-        pn.set(Group.Phonetic, Component.FamilyName, phoneticFamilyName);
-        pn.set(Group.Phonetic, Component.GivenName, phoneticGivenName);
-        pn.set(Group.Phonetic, Component.MiddleName, phoneticMiddleName);
-        pn.set(Group.Phonetic, Component.NamePrefix, phoneticNamePrefix);
-        pn.set(Group.Phonetic, Component.NameSuffix, phoneticNameSuffix);
+        pn.set(Group.Alphabetic, alphabeticName);
+        pn.set(Group.Ideographic, ideographicName);
+        pn.set(Group.Phonetic, phoneticName);
         return pn;
     }
 
