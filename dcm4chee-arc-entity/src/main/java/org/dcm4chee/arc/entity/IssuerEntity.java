@@ -62,10 +62,9 @@ import javax.persistence.*;
             "or (issuer.universalEntityID = ?2 and issuer.universalEntityIDType = ?3)")
 })
 @Entity
-@Table(name = "issuer", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "entity_id"),
-    @UniqueConstraint(columnNames = { "entity_uid", "entity_uid_type" })
-})
+@Table(name = "issuer",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "entity_uid", "entity_uid_type" }),
+        indexes = @Index(columnList = "entity_id"))
 public class IssuerEntity {
 
     public static final String FIND_BY_ENTITY_ID = "IssuerEntity.findByEntityID";

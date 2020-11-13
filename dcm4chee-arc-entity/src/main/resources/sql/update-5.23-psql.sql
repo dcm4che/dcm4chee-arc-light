@@ -17,6 +17,9 @@ create index alphabetic_name_upper_idx on person_name (upper(alphabetic_name));
 create index ideographic_name_upper_idx on person_name (upper(ideographic_name));
 create index phonetic_name_upper_idx on person_name (upper(phonetic_name));
 
+alter table issuer drop constraint UK_gknfxd1vh283cmbg8ymia9ms8;
+create index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer (entity_id);
+
 -- part 2: shall be applied on stopped archive before starting 5.23
 update person_name
 set alphabetic_name = concat(family_name, '^', given_name, '^', middle_name, '^', name_prefix, '^', name_suffix),
