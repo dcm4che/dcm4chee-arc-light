@@ -90,9 +90,9 @@ public class PersonName {
     }
 
     private void fromDicom(org.dcm4che3.data.PersonName pn, FuzzyStr fuzzyStr) {
-        alphabeticName = pn.toString(Group.Alphabetic, false);
-        ideographicName = pn.toString(Group.Ideographic, false);
-        phoneticName = pn.toString(Group.Phonetic, false);
+        setAlphabeticName(pn.toString(Group.Alphabetic, false));
+        setIdeographicName(pn.toString(Group.Ideographic, false));
+        setPhoneticName(pn.toString(Group.Phonetic, false));
         createOrUpdateSoundexCodes(
                 pn.get(Group.Alphabetic, Component.FamilyName),
                 pn.get(Group.Alphabetic, Component.GivenName),
@@ -133,9 +133,9 @@ public class PersonName {
 
     public org.dcm4che3.data.PersonName toPersonName() {
         org.dcm4che3.data.PersonName pn = new org.dcm4che3.data.PersonName();
-        pn.set(Group.Alphabetic, alphabeticName);
-        pn.set(Group.Ideographic, ideographicName);
-        pn.set(Group.Phonetic, phoneticName);
+        pn.set(Group.Alphabetic, getAlphabeticName());
+        pn.set(Group.Ideographic, getIdeographicName());
+        pn.set(Group.Phonetic, getPhoneticName());
         return pn;
     }
 
@@ -167,26 +167,26 @@ public class PersonName {
     }
 
     public String getAlphabeticName() {
-        return alphabeticName;
+        return alphabeticName.substring(0, alphabeticName.length() - 1);
     }
 
     public void setAlphabeticName(String alphabeticName) {
-        this.alphabeticName = alphabeticName;
+        this.alphabeticName = alphabeticName + '^';
     }
 
     public String getIdeographicName() {
-        return ideographicName;
+        return ideographicName.substring(0, ideographicName.length() - 1);
     }
 
     public void setIdeographicName(String ideographicName) {
-        this.ideographicName = ideographicName;
+        this.ideographicName = ideographicName + '^';
     }
 
     public String getPhoneticName() {
-        return phoneticName;
+        return phoneticName.substring(0, phoneticName.length() - 1);
     }
 
     public void setPhoneticName(String phoneticName) {
-        this.phoneticName = phoneticName;
+        this.phoneticName = phoneticName + '^';
     }
 }
