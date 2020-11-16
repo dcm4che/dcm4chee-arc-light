@@ -14,8 +14,6 @@ create index UK_ala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index UK_9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
 
 create index alphabetic_name_upper_idx on person_name (upper(alphabetic_name));
-create index ideographic_name_upper_idx on person_name (upper(ideographic_name));
-create index phonetic_name_upper_idx on person_name (upper(phonetic_name));
 
 alter table issuer drop constraint UK_gknfxd1vh283cmbg8ymia9ms8;
 create index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer (entity_id);
