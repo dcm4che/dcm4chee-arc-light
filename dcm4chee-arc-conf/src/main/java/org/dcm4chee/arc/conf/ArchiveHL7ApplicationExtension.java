@@ -85,6 +85,11 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return hl7App.getDevice().getApplicationEntity(aeTitle, true)
+                    .getAEExtension(ArchiveAEExtension.class);
+    }
+
     @Override
     public void reconfigure(HL7ApplicationExtension src) {
         ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;

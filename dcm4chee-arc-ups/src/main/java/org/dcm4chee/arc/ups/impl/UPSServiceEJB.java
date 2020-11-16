@@ -44,12 +44,9 @@ package org.dcm4chee.arc.ups.impl;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
 import org.dcm4che3.dcmr.ScopeOfAccumulation;
-import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.Status;
-import org.dcm4che3.net.hl7.HL7SAXTransformer;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -77,8 +74,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.xml.transform.TransformerConfigurationException;
-import java.io.IOException;
-import java.net.Socket;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -854,98 +849,9 @@ public class UPSServiceEJB {
         return item;
     }
 
-    private Attributes referencedRequest(HL7Fields hl7Fields, UPSOnHL7 rule) {
-        Attributes item = new Attributes(8);
-        item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(hl7Fields));
-        UPSUtils.setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
-        item.setString(Tag.StudyInstanceUID, VR.UI, rule.getStudyInstanceUID(hl7Fields));
-        setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(hl7Fields));
-        setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(hl7Fields));
-        item.setString(Tag.RequestedProcedureDescription, VR.LO,
-                rule.getRequestedProcedureDescription(hl7Fields));
-        item.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
-        item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(hl7Fields));
-        return item;
-    }
-
-    public void createOnHL7(
-            Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
-            Calendar now, UPSOnHL7 upsOnHL7) {
-        LOG.info("{}: Apply {}", socket, upsOnHL7);
-        String iuid = upsOnHL7.getInstanceUID(hl7Fields);
-        try {
-            UPS ups = findUPS(iuid);
-            LOG.info("UPS {} exists, return", ups);
-        } catch (NoResultException e) {
-            createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7, iuid);
-        }
-    }
-
-    private void createOnHL7(
-            Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
-            Calendar now, UPSOnHL7 upsOnHL7, String iuid) {
-        Attributes attrs = applyXSLT(arcHL7App, msg, upsOnHL7);
-        if (attrs.size() == 0)
-            return;
-
-        UPSContext ctx = new UPSContextImpl(socket, arcHL7App);
-        ctx.setUPSInstanceUID(iuid);
-        ctx.setAttributes(createOnHL7(arcHL7App, attrs, hl7Fields, now, upsOnHL7));
-        createUPS(ctx);
-    }
-
-    private Attributes createOnHL7(ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, HL7Fields hl7Fields,
-            Calendar now, UPSOnHL7 upsOnHL7) {
-        if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
-            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
-        if (upsOnHL7.getCompletionDateTimeDelay() != null)
-            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, upsOnHL7.getCompletionDateTimeDelay()));
-        if (upsOnHL7.getScheduledHumanPerformer() != null)
-            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
-                    .add(upsOnHL7.getScheduledHumanPerformerItem(hl7Fields));
-        if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, upsOnHL7.getScheduledWorkitemCode());
-        if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationName());
-        if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClass());
-        if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
-        if (!attrs.contains(Tag.InputReadinessState))
-            attrs.setString(Tag.InputReadinessState, VR.CS, upsOnHL7.getInputReadinessState().name());
-        if (upsOnHL7.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
-            attrs.newSequence(Tag.OutputDestinationSequence, 1)
-                    .add(UPSUtils.outputStorage(upsOnHL7.getDestinationAE()));
-        }
-        attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
-        if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
-            attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsOnHL7.getUPSPriority().name());
-        if (upsOnHL7.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, upsOnHL7.getStudyInstanceUID(hl7Fields));
-        if (upsOnHL7.isIncludeReferencedRequest() && attrs.containsValue(Tag.StudyInstanceUID))
-            attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(referencedRequest(hl7Fields, upsOnHL7));
-        else
-            attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
-        if (!attrs.contains(Tag.WorklistLabel))
-            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(arcHL7App, hl7Fields, upsOnHL7));
-        if (!attrs.contains(Tag.ProcedureStepLabel))
-            attrs.setString(Tag.ProcedureStepLabel, VR.LO, upsOnHL7.getProcedureStepLabel(hl7Fields));
-        attrs.setNull(Tag.InputInformationSequence, VR.SQ);
-        return attrs;
-    }
-
     private static void setNotNull(Attributes item, int tag, VR vr, String value) {
         if (value != null) {
             item.setString(tag, vr, value);
-        }
-    }
-
-    private static void setSequence(Attributes item, int sqTag, Attributes attrs) {
-        Attributes sqItem = attrs.getNestedDataset(sqTag);
-        if (sqItem != null) {
-            item.newSequence(sqTag, 1).add(new Attributes(sqItem));
-        } else {
-            item.setNull(sqTag, VR.SQ);
         }
     }
 
@@ -953,16 +859,6 @@ public class UPSServiceEJB {
         String worklistLabel = rule.getWorklistLabel(storeCtx.getAttributes());
         return worklistLabel != null ? worklistLabel
                 : storeCtx.getStoreSession().getArchiveAEExtension().upsWorklistLabel();
-    }
-
-    private static String worklistLabel(ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields, UPSOnHL7 upsOnHL7) {
-        String worklistLabel = upsOnHL7.getWorklistLabel(hl7Fields);
-        return worklistLabel != null ? worklistLabel : arcHL7App.getHL7Application().getApplicationName();
-    }
-
-    private Date spsStartDateTime(Calendar now, UPSOnHL7 upsOnHL7, Attributes attrs) {
-        Date spsStartDateTime = attrs.getDate(Tag.ScheduledProcedureStepStartDateTime);
-        return spsStartDateTime != null ? spsStartDateTime : UPSUtils.add(now, upsOnHL7.getStartDateTimeDelay());
     }
 
     private Attributes applyXSLT(UPSOnStore upsOnStore, StoreContext ctx) {
@@ -980,28 +876,6 @@ public class UPSServiceEJB {
             } catch (TransformerConfigurationException e) {
                 LOG.warn("{}: Failed to compile XSL: {}", ctx.getStoreSession(), uri, e);
             }
-        }
-        return new Attributes();
-    }
-
-    private Attributes applyXSLT(
-            ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, UPSOnHL7 upsOnHL7) {
-        try {
-            String hl7Charset = msg.msh().getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
-            return HL7SAXTransformer.transform(
-                    msg.data(),
-                    hl7Charset,
-                    arcHL7App.hl7DicomCharacterSet() != null
-                            ? arcHL7App.hl7DicomCharacterSet()
-                            : HL7Charset.toDicomCharacterSetCode(hl7Charset),
-                    TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(upsOnHL7.getXSLTStylesheetURI())),
-                    null);
-        } catch (SAXException e) {
-            LOG.warn("Failed to apply XSL: {}", upsOnHL7.getXSLTStylesheetURI(), e);
-        } catch (TransformerConfigurationException e) {
-            LOG.warn("Failed to compile XSL: {}", upsOnHL7.getXSLTStylesheetURI(), e);
-        } catch (IOException e) {
-            LOG.warn("Failed to parse HL7 Message{}: {}", msg, upsOnHL7.getXSLTStylesheetURI(), e);
         }
         return new Attributes();
     }

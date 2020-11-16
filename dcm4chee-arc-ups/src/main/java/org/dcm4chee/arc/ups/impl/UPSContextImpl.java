@@ -112,7 +112,7 @@ public class UPSContextImpl implements UPSContext {
     public UPSContextImpl(Socket socket, ArchiveHL7ApplicationExtension archiveHL7AppExtension) {
         this.as = null;
         this.httpRequestInfo = null;
-        this.archiveAEExtension = null;
+        this.archiveAEExtension = archiveHL7AppExtension.getArchiveAEExtension();
         this.patient = null;
         this.socket = socket;
         this.requesterAET = archiveHL7AppExtension.getAETitle();
