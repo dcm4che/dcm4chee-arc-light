@@ -46,11 +46,13 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ScopeOfAccumulation;
+import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.HL7SAXTransformer;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ReverseDNS;
@@ -473,7 +475,58 @@ public class UPSServiceImpl implements UPSService {
         Calendar now = Calendar.getInstance();
         arcHL7App.upsOnHL7Stream()
                 .filter(upsOnHL7 -> upsOnHL7.getConditions().match(host, hl7Fields))
-                .forEach(upsOnHL7 -> ejb.createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
+                .forEach(upsOnHL7 -> createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
+    }
+
+    private void createOnHL7(
+            Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
+            Calendar now, UPSOnHL7 upsOnHL7) {
+        LOG.info("{}: Apply {}", socket, upsOnHL7);
+        UPSContext ctx = new UPSContextImpl(socket, arcHL7App);
+        ctx.setUPSInstanceUID(upsOnHL7.getInstanceUID(hl7Fields));
+        try {
+            UPS ups = ejb.findUPS(ctx);
+            LOG.info("UPS {} exists, return", ups);
+        } catch (DicomServiceException e) {
+            createOnHL7(ctx, arcHL7App, msg, hl7Fields, now, upsOnHL7);
+        }
+    }
+
+    private void createOnHL7(
+            UPSContext ctx, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
+            Calendar now, UPSOnHL7 upsOnHL7) {
+        Attributes attrs = applyXSLT(arcHL7App, msg, upsOnHL7);
+        if (attrs.size() == 0)
+            return;
+
+        ctx.setAttributes(UPSUtils.createOnHL7(arcHL7App, attrs, hl7Fields, now, upsOnHL7));
+        try {
+            createUPS(ctx);
+        } catch (DicomServiceException e) {
+            LOG.info("Failed to apply {} to create UPS", upsOnHL7, e);
+        }
+    }
+
+    private Attributes applyXSLT(
+            ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, UPSOnHL7 upsOnHL7) {
+        try {
+            String hl7Charset = msg.msh().getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
+            return HL7SAXTransformer.transform(
+                    msg.data(),
+                    hl7Charset,
+                    arcHL7App.hl7DicomCharacterSet() != null
+                            ? arcHL7App.hl7DicomCharacterSet()
+                            : HL7Charset.toDicomCharacterSetCode(hl7Charset),
+                    TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(upsOnHL7.getXSLTStylesheetURI())),
+                    null);
+        } catch (SAXException e) {
+            LOG.warn("Failed to apply XSL: {}", upsOnHL7.getXSLTStylesheetURI(), e);
+        } catch (TransformerConfigurationException e) {
+            LOG.warn("Failed to compile XSL: {}", upsOnHL7.getXSLTStylesheetURI(), e);
+        } catch (IOException e) {
+            LOG.warn("Failed to parse HL7 Message{}: {}", msg, upsOnHL7.getXSLTStylesheetURI(), e);
+        }
+        return new Attributes();
     }
 
     boolean websocketChannelsExists(String subscriberAET) {

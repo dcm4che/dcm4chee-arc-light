@@ -43,9 +43,7 @@ package org.dcm4chee.arc.ups;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ScopeOfAccumulation;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 
 import java.util.*;
 
@@ -209,5 +207,74 @@ public class UPSUtils {
                     return ScopeOfAccumulation.PerformedProcedureStep;
             }
         return null;
+    }
+
+    public static Attributes createOnHL7(ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, HL7Fields hl7Fields,
+                                         Calendar now, UPSOnHL7 upsOnHL7) {
+        if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
+        if (upsOnHL7.getCompletionDateTimeDelay() != null)
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsOnHL7.getCompletionDateTimeDelay()));
+        if (upsOnHL7.getScheduledHumanPerformer() != null)
+            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
+                    .add(upsOnHL7.getScheduledHumanPerformerItem(hl7Fields));
+        if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
+            setCode(attrs, Tag.ScheduledWorkitemCodeSequence, upsOnHL7.getScheduledWorkitemCode());
+        if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
+            setCode(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationName());
+        if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
+            setCode(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClass());
+        if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
+            setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
+        if (!attrs.contains(Tag.InputReadinessState))
+            attrs.setString(Tag.InputReadinessState, VR.CS, upsOnHL7.getInputReadinessState().name());
+        if (upsOnHL7.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
+            attrs.newSequence(Tag.OutputDestinationSequence, 1)
+                    .add(outputStorage(upsOnHL7.getDestinationAE()));
+        }
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+        if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
+            attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, upsOnHL7.getUPSPriority().name());
+        if (upsOnHL7.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, upsOnHL7.getStudyInstanceUID(hl7Fields));
+        if (upsOnHL7.isIncludeReferencedRequest() && attrs.containsValue(Tag.StudyInstanceUID))
+            attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(referencedRequest(hl7Fields, upsOnHL7));
+        else
+            attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
+        if (!attrs.contains(Tag.WorklistLabel))
+            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(arcHL7App, hl7Fields, upsOnHL7));
+        if (!attrs.contains(Tag.ProcedureStepLabel))
+            attrs.setString(Tag.ProcedureStepLabel, VR.LO, upsOnHL7.getProcedureStepLabel(hl7Fields));
+        attrs.setNull(Tag.InputInformationSequence, VR.SQ);
+        return attrs;
+    }
+
+    private static String worklistLabel(ArchiveHL7ApplicationExtension arcHL7App, HL7Fields hl7Fields, UPSOnHL7 upsOnHL7) {
+        String worklistLabel = upsOnHL7.getWorklistLabel(hl7Fields);
+        return worklistLabel != null ? worklistLabel : arcHL7App.getHL7Application().getApplicationName();
+    }
+
+    private static Date spsStartDateTime(Calendar now, UPSOnHL7 upsOnHL7, Attributes attrs) {
+        Date spsStartDateTime = attrs.getDate(Tag.ScheduledProcedureStepStartDateTime);
+        return spsStartDateTime != null ? spsStartDateTime : add(now, upsOnHL7.getStartDateTimeDelay());
+    }
+
+    private static Attributes referencedRequest(HL7Fields hl7Fields, UPSOnHL7 rule) {
+        Attributes item = new Attributes(8);
+        item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(hl7Fields));
+        setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        item.setString(Tag.StudyInstanceUID, VR.UI, rule.getStudyInstanceUID(hl7Fields));
+        setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(hl7Fields));
+        setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(hl7Fields));
+        item.setString(Tag.RequestedProcedureDescription, VR.LO,
+                rule.getRequestedProcedureDescription(hl7Fields));
+        item.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
+        item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(hl7Fields));
+        return item;
+    }
+
+    private static void setNotNull(Attributes item, int tag, VR vr, String value) {
+        if (value != null)
+            item.setString(tag, vr, value);
     }
 }
