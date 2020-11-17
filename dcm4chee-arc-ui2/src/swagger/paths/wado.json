@@ -82,6 +82,9 @@
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/retainObj"
         }
       ],
       "responses": {
