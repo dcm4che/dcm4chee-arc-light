@@ -262,10 +262,13 @@ public class IocmRS {
 
     @DELETE
     @Path("/studies/{StudyUID}")
-    public void deleteStudy(@PathParam("StudyUID") String studyUID) {
+    public void deleteStudy(
+            @PathParam("StudyUID") String studyUID,
+            @QueryParam("retainObj") @Pattern(regexp = "true|false") @DefaultValue("false") String retainObj) {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
+            deletionService.deleteStudy(
+                    studyUID, HttpServletRequestInfo.valueOf(request), arcAE, Boolean.parseBoolean(retainObj));
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(

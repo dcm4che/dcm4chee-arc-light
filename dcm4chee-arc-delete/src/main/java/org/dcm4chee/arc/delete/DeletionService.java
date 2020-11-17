@@ -60,7 +60,8 @@ public interface DeletionService {
 
     StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo);
 
-    void deleteStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
+    void deleteStudy(
+            String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)
             throws Exception;
 
     void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE);

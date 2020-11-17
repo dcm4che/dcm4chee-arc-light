@@ -546,6 +546,15 @@
       "default": false
     }
   },
+  "retainObj": {
+    "name": "retainObj",
+    "in": "query",
+    "description": "If present with a value of true objects shall be retained on the filesystem on deletion of studies.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "contentType": {
     "name": "contentType",
     "in": "query",

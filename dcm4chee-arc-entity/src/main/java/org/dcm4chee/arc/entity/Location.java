@@ -160,7 +160,8 @@ public class Location {
         DIFFERING_OBJECT_SIZE,      // 6
         DIFFERING_OBJECT_CHECKSUM,  // 7
         DIFFERING_S3_MD5SUM,        // 8
-        FAILED_TO_DELETE2           // 9
+        FAILED_TO_DELETE2,          // 9
+        TO_NOT_DELETE_ORPHANED      // 10
     }
 
     public enum ObjectType { DICOM_FILE, METADATA }
