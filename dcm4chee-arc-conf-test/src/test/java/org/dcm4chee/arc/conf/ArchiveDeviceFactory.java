@@ -775,6 +775,7 @@ class ArchiveDeviceFactory {
             UID.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage,
             UID.OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage,
             UID.VLWholeSlideMicroscopyImageStorage,
+            UID.DermoscopicPhotographyImageStorage,
             UID.OphthalmicThicknessMapStorage,
             UID.CornealTopographyMapStorage,
             UID.PositronEmissionTomographyImageStorage,
