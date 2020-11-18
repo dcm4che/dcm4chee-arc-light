@@ -604,18 +604,18 @@ public class StoreServiceEJB {
                 .setParameter(1, uidMap).getSingleResult();
     }
 
-    public void removeOrMarkToDelete(Location location, Location.Status status) {
-        if (countLocationsByMultiRef(location.getMultiReference()) > 1)
+    public void removeOrMarkToDelete(Location location, boolean retainObj) {
+        if (countLocationsByMultiRef(location.getMultiReference()) > 1 || retainObj)
             em.remove(location);
         else
-            markToDelete(location, status);
+            markToDelete(location);
     }
 
-    private void markToDelete(Location location, Location.Status status) {
+    private void markToDelete(Location location) {
         location.setMultiReference(null);
         location.setUidMap(null);
         location.setInstance(null);
-        location.setStatus(status);
+        location.setStatus(Location.Status.TO_DELETE);
     }
 
     public void removeOrphaned(UIDMap uidMap) {
@@ -630,7 +630,7 @@ public class StoreServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            removeOrMarkToDelete(location, Location.Status.TO_DELETE);
+            removeOrMarkToDelete(location, false);
         }
         for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
@@ -1004,7 +1004,7 @@ public class StoreServiceEJB {
         createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
                 ctx.getWriteContext(Location.ObjectType.DICOM_FILE), ctx.getStoreTranferSyntax());
         for (Location location : inst.getLocations()) {
-            removeOrMarkToDelete(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()), false);
         }
     }
 
@@ -1540,7 +1540,7 @@ public class StoreServiceEJB {
         addLocation(session, instancePk, newLocation);
         for (Location location : replaceLocations) {
             LOG.info("{}: Mark to delete {}", session, location);
-            removeOrMarkToDelete(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()), false);
         }
     }
 
