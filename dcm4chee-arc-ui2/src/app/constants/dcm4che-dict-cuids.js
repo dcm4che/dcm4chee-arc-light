@@ -148,6 +148,7 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.77.1.5.7":"Ophthalmic Optical Coherence Tomography En Face Image Storage",
 "1.2.840.10008.5.1.4.1.1.77.1.5.8":"Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage",
 "1.2.840.10008.5.1.4.1.1.77.1.6":"VL Whole Slide Microscopy Image Storage",
+"1.2.840.10008.5.1.4.1.1.77.1.7":"Dermoscopic Photography Image Storage",
 "1.2.840.10008.5.1.4.1.1.78.1":"Lensometry Measurements Storage",
 "1.2.840.10008.5.1.4.1.1.78.2":"Autorefraction Measurements Storage",
 "1.2.840.10008.5.1.4.1.1.78.3":"Keratometry Measurements Storage",

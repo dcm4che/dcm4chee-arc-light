@@ -16,3 +16,9 @@ dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configurat
 changetype: modify
 add: dcmTag
 dcmTag: 00080081
+
+dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Attribute Filters
+changetype: modify
+add: dcmTag
+dcmTag: 00080081
