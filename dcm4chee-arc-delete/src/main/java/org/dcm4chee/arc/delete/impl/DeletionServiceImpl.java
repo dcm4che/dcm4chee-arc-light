@@ -206,7 +206,7 @@ public class DeletionServiceImpl implements DeletionService {
         int limit = arcDev.getDeleteStudyChunkSize();
         int n;
         do {
-            n = ejb.deleteStudy(ctx, limit, retainObj ? Location.Status.TO_NOT_DELETE_ORPHANED : Location.Status.TO_DELETE);
+            n = ejb.deleteStudy(ctx, limit, retainObj);
             LOG.debug("Deleted {} instances of {}", n, study);
         } while (n == limit);
     }
