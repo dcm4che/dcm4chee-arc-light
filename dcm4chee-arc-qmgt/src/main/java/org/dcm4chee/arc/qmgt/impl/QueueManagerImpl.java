@@ -38,6 +38,9 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -46,12 +49,14 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import javax.persistence.Tuple;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -64,6 +69,9 @@ import java.util.List;
 public class QueueManagerImpl implements QueueManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private QueueManagerEJB ejb;
@@ -202,10 +210,42 @@ public class QueueManagerImpl implements QueueManager {
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         switch (event.getType()) {
             case STARTED:
-                ejb.retryInProcessTasks();
+                retryInProcessTasks();
             case STOPPED:
             case RELOADED:
                 break;
+        }
+    }
+
+    private void retryInProcessTasks() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        for (QueueDescriptor queueDescriptor : arcDev.getQueueDescriptors()) {
+            retryInProcessTasks(queueDescriptor, arcDev);
+        }
+    }
+
+    private void retryInProcessTasks(QueueDescriptor queueDescriptor, ArchiveDeviceExtension arcDev) {
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                ejb.retryInProcessTasks(queueDescriptor);
+                break;
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to update IN PROCESS Tasks in Queue {} - retry:\n",
+                            queueDescriptor.getQueueName(), e);
+                } else {
+                    LOG.warn("Failed to update IN PROCESS Tasks in Queue {}:\n",
+                            queueDescriptor.getQueueName(), e);
+                    break;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("{}: Failed to delay retry to update IN PROCESS Tasks in Queue {}:\n",
+                        queueDescriptor.getQueueName(), e);
+            }
         }
     }
 }
