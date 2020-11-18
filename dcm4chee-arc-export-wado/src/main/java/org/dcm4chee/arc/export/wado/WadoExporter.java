@@ -59,19 +59,23 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 public class WadoExporter extends AbstractExporter {
@@ -81,6 +85,7 @@ public class WadoExporter extends AbstractExporter {
     private static final int COPY_BUFFER_SIZE = 8192;
     private final QueryService queryService;
     private final StorageFactory storageFactory;
+    private final AccessTokenRequestor accessTokenRequestor;
     private final EnumMap<Entity,List<WadoRequest>> wadoRequests = new EnumMap<>(Entity.class);
 
     public WadoExporter(ExporterDescriptor descriptor, QueryService queryService, StorageFactory storageFactory,
@@ -88,18 +93,27 @@ public class WadoExporter extends AbstractExporter {
         super(descriptor);
         this.queryService = queryService;
         this.storageFactory = storageFactory;
+        this.accessTokenRequestor = accessTokenRequestor;
         EnumMap<HeaderField, String> headerFields0 = getHeaderFields(0, new EnumMap<>(HeaderField.class));
         String storageID = descriptor.getProperty("StorageID", null);
         String keycloakClientID = descriptor.getProperty("KeycloakClientID", null);
+        boolean tlsAllowAnyHostName = Boolean.parseBoolean(
+                                                descriptor.getProperty("TLSAllowAnyHostName", null));
+        boolean tlsDisableTrustManager = Boolean.parseBoolean(
+                                                descriptor.getProperty("TLSDisableTrustManager", null));
         addWadoRequest(descriptor.getExportURI().getSchemeSpecificPart(), headerFields0,
                 storageDescriptor(device, storageID),
-                token(device, keycloakClientID, accessTokenRequestor));
+                token(device, keycloakClientID),
+                tlsAllowAnyHostName,
+                tlsDisableTrustManager);
         String pattern;
         for (int i = 1; (pattern = descriptor.getProperty("URL." + i, null)) != null; ++i) {
             addWadoRequest(pattern,
                     getHeaderFields(i, new EnumMap<>(headerFields0)),
                     storageDescriptor(device, descriptor.getProperty("StorageID." + i, storageID)),
-                    token(device, keycloakClientID, accessTokenRequestor));
+                    token(device, keycloakClientID),
+                    tlsAllowAnyHostName,
+                    tlsDisableTrustManager);
         }
     }
 
@@ -125,7 +139,7 @@ public class WadoExporter extends AbstractExporter {
         return storageDescriptor;
     }
 
-    private String token(Device device, String keycloakClientID, AccessTokenRequestor accessTokenRequestor) {
+    private String token(Device device, String keycloakClientID) {
         if (keycloakClientID == null)
             return null;
 
@@ -142,14 +156,14 @@ public class WadoExporter extends AbstractExporter {
         return null;
     }
 
-    private void addWadoRequest(String pattern, EnumMap<HeaderField,String> headerFields,
-                                StorageDescriptor storageDescriptor, String token) {
+    private void addWadoRequest(String pattern, EnumMap<HeaderField, String> headerFields,
+                                StorageDescriptor storageDescriptor, String token, boolean tlsAllowAnyHostname,
+                                boolean tlsDisableTrustManager) {
         MessageFormat format = new MessageFormat(pattern.replace('[', '{').replace(']', '}'));
         Entity entity = Entity.values()[format.getFormats().length];
-        List<WadoRequest> list = wadoRequests.get(entity);
-        if (list == null)
-            wadoRequests.put(entity, list = new ArrayList<WadoRequest>(2));
-        list.add(new WadoRequest(format, headerFields, storageDescriptor, token));
+        List<WadoRequest> list = wadoRequests.computeIfAbsent(entity, k -> new ArrayList<>(2));
+        list.add(new WadoRequest(
+                format, headerFields, storageDescriptor, token, tlsAllowAnyHostname, tlsDisableTrustManager));
     }
 
     @Override
@@ -191,14 +205,15 @@ public class WadoExporter extends AbstractExporter {
         throw ex;
     }
 
-    private boolean invoke(WadoRequest request, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
+    private boolean invoke(WadoRequest wadoRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
             throws Exception {
-        HttpURLConnection httpConn = request.openConnection(params);
-        int responseCode = httpConn.getResponseCode();
+        Invocation.Builder request = wadoRequest.openConnection(params, accessTokenRequestor);
+        Response response = request.get();
+        int responseCode = response.getStatus();
         if (responseCode == HttpURLConnection.HTTP_NOT_FOUND)
             return false;
-        try (InputStream in = httpConn.getInputStream();
-             OutputStream out = getOutputStream(request.storageDescriptor, params, storageMap)) {
+        try (InputStream in = response.readEntity(InputStream.class);
+             OutputStream out = getOutputStream(wadoRequest.storageDescriptor, params, storageMap)) {
             StreamUtils.copy(in, out, buffer);
         }
         return true;
@@ -305,24 +320,31 @@ public class WadoExporter extends AbstractExporter {
         final EnumMap<HeaderField,String> headerFields;
         final StorageDescriptor storageDescriptor;
         final String token;
+        final boolean tlsAllowAnyHostname;
+        final boolean tlsDisableTrustManager;
 
         public WadoRequest(MessageFormat format, EnumMap<HeaderField,String> headerFields,
-                            StorageDescriptor storageDescriptor, String token) {
+                           StorageDescriptor storageDescriptor, String token, boolean tlsAllowAnyHostname,
+                           boolean tlsDisableTrustManager) {
             this.format = format;
             this.headerFields = headerFields;
             this.storageDescriptor = storageDescriptor;
             this.token = token;
+            this.tlsAllowAnyHostname = tlsAllowAnyHostname;
+            this.tlsDisableTrustManager = tlsDisableTrustManager;
         }
 
-        public HttpURLConnection openConnection(Object[] params) throws Exception {
-            URL url = new URL(format.format(params));
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-            for (Map.Entry<HeaderField, String> entry : headerFields.entrySet()) {
-                httpConn.setRequestProperty(entry.getKey().toString(), entry.getValue());
-            }
+        public Invocation.Builder openConnection(Object[] params, AccessTokenRequestor accessTokenRequestor)
+                throws Exception {
+            String urlStr = format.format(params);
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
+                    urlStr, tlsAllowAnyHostname, tlsDisableTrustManager).build();
+            WebTarget target = client.target(urlStr);
+            Invocation.Builder request = target.request();
+            headerFields.forEach((k,v) -> request.header(k.toString(), v));
             if (token != null)
-                httpConn.setRequestProperty("Authorization", "Bearer " + token);
-            return httpConn;
+                request.header("Authorization", "Bearer " + token);
+            return request;
         }
     }
 }
