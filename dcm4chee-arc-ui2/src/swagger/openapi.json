@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.22.5"
+    "version": "5.23.0"
   },
   "servers": [
     {
@@ -185,6 +185,9 @@
     },
     "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "$ref": "paths/pam.json#/patient.changeid"
+    },
+    "/aets/{aet}/rs/patients/issuer/{issuer}": {
+      "$ref": "paths/pam.json#/patient.issuer"
     },
     "/aets/{aet}/rs/studies": {
       "$ref": "paths/qido.json#/studies"
