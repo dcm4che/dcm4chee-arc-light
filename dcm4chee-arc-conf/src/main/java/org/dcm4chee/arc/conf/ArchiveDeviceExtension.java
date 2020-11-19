@@ -289,6 +289,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration calculateStudySizePollingInterval;
     private volatile int calculateStudySizeFetchSize = 100;
     private volatile boolean calculateQueryAttributes;
+    private volatile int supplementIssuerFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
@@ -2947,6 +2948,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.calculateQueryAttributes = calculateQueryAttributes;
     }
 
+    public int getSupplementIssuerFetchSize() {
+        return supplementIssuerFetchSize;
+    }
+
+    public void setSupplementIssuerFetchSize(int supplementIssuerFetchSize) {
+        this.supplementIssuerFetchSize = supplementIssuerFetchSize;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -3168,6 +3177,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         calculateStudySizePollingInterval = arcdev.calculateStudySizePollingInterval;
         calculateStudySizeFetchSize = arcdev.calculateStudySizeFetchSize;
         calculateQueryAttributes = arcdev.calculateQueryAttributes;
+        supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

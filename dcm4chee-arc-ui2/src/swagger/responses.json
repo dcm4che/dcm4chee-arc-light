@@ -228,6 +228,23 @@
       }
     }
   },
+  "storeInstancesConflict": {
+    "description": "The request was formed correctly but the origin server was unable to store any instances due to a conflict in the request.",
+    "content": {
+      "application/dicom+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/dicom+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
   "createUpdateSPSSuccessful": {
     "description": "Create Update SPS completed successfully, and the attributes are contained in the payload",
     "content": {
@@ -817,6 +834,36 @@
               "type": "string"
             }
           }
+        }
+      }
+    }
+  },
+  "supplementIssuerOK": {
+    "description": "Successfully supplement Issuers to Patient IDs of all matching Patients.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/supplementIssuerResult"
+        }
+      }
+    }
+  },
+  "supplementIssuerAccepted": {
+    "description": "Successfully supplement Issuers to Patient IDs of some matching Patients, but failures exist for others.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/supplementIssuerResult"
+        }
+      }
+    }
+  },
+  "supplementIssuerConflict": {
+    "description": "Supplement Issuers to Patient IDs failed for all matching Patients.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/supplementIssuerResult"
         }
       }
     }

@@ -143,6 +143,15 @@
       "type": "string"
     }
   },
+  "issuerPathParam": {
+    "name": "issuer",
+    "in": "path",
+    "description": "Issuer encoded as HL7 HD using & as delimiter. {attributeID} will be replaced by the value of that patient attribute.",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "studyPathParam": {
     "name": "study",
     "in": "path",
@@ -1205,6 +1214,15 @@
     "schema": {
       "type": "boolean",
       "default": true
+    }
+  },
+  "test": {
+    "name": "test",
+    "in": "query",
+    "description": "test supplementing Issuer of Patient ID without performing the operation",
+    "schema": {
+      "type": "boolean",
+      "default": false
     }
   },
   "dcmRevokeRejection": {

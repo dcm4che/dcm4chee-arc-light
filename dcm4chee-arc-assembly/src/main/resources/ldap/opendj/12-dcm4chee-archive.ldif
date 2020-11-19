@@ -1914,6 +1914,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.392 NAME 'dcmIdentifyPatientByAllAttrib
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.393 NAME 'dcmSupplementIssuerFetchSize'
+  DESC 'Limit result set of DB query for matching Patients by RESTful service for supplementing Issuer of Patient ID; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2132,6 +2137,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
     dcmSchedulerMinStartDelay $
+    dcmSupplementIssuerFetchSize $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $

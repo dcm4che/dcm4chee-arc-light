@@ -272,6 +272,52 @@
       }
     }
   },
+  "patient.issuer": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Supplement Issuer of Patient ID",
+      "operationId": "SupplementIssuerOfPatientID",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/issuerPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/test"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/supplementIssuerOK"
+        },
+        "202": {
+          "$ref": "../responses.json#/supplementIssuerAccepted"
+        },
+        "204": {
+          "description": "No matching patient found"
+        },
+        "404": {
+          "description": "No such Application Entity."
+        },
+        "409": {
+          "$ref": "../responses.json#/supplementIssuerConflict"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "patient.changeid": {
     "post": {
       "tags": [

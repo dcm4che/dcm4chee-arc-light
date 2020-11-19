@@ -2285,6 +2285,53 @@
       }
     }
   },
+  "supplementIssuerResult": {
+    "title": "Supplement Issuer of Patient ID results",
+    "type": "object",
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "pids": {
+        "title": "Patient IDs",
+        "description": "Successfully supplemented Patient IDs encoded as HL7 CX",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "ambiguous": {
+        "title": "Ambiguous Patient IDs",
+        "description": "Ambiguous Patient IDs which did not got unique by supplementing the Issuer",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "Other failures not caused by ambiguous Patient IDs",
+        "items": {
+          "required": [
+            "pid",
+            "errorMessage"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Failed supplemented Patient ID",
+              "description": "Failed supplemented Patient ID as HL7 CX",
+              "type": "string"
+            },
+            "errorMessage": {
+              "title": "Error Message",
+              "description": "error message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
   "stgverBatchList": {
     "title": "StorageVerificationBatchList",
     "type": "array",

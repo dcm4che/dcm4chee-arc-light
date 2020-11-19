@@ -125,7 +125,7 @@
         "200": {
           "$ref": "../responses.json#/storeInstancesSuccessful"
         },
-        "204": {
+        "202": {
           "$ref": "../responses.json#/storeInstancesWarnings"
         },
         "400": {
@@ -133,6 +133,9 @@
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
+        },
+        "409": {
+          "$ref": "../responses.json#/storeInstancesConflict"
         },
         "500": {
           "description": "Internal Server Error."
