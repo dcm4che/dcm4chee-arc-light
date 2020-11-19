@@ -2288,9 +2288,6 @@
   "supplementIssuerResult": {
     "title": "Supplement Issuer of Patient ID results",
     "type": "object",
-    "required": [
-      "status"
-    ],
     "properties": {
       "pids": {
         "title": "Patient IDs",
