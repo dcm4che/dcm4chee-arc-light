@@ -867,7 +867,7 @@
           "$ref": "../parameters.json#/studyPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/newAttributes"
         }
       ],
       "requestBody": {
@@ -937,7 +937,7 @@
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
         },
         {
-          "$ref": "../parameters.json#/filter"
+          "$ref": "../parameters.json#/newAttributes"
         }
       ],
       "requestBody": {

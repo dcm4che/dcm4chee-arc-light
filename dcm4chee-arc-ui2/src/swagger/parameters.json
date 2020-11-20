@@ -779,6 +779,17 @@
       }
     }
   },
+  "newAttributes": {
+    "name": "newAttributes",
+    "in": "query",
+    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
   "includefield": {
     "name": "includefield",
     "in": "query",
@@ -1647,17 +1658,6 @@
     "schema": {
       "type": "boolean",
       "default": false
-    }
-  },
-  "update": {
-    "name": "update",
-    "in": "query",
-    "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-    "schema": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
     }
   },
   "updatePolicy": {
