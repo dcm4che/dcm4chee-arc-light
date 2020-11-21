@@ -477,7 +477,7 @@
           "$ref": "../parameters.json#/readPixelData"
         },
         {
-          "$ref": "../parameters.json#/update"
+          "$ref": "../parameters.json#/newAttributes"
         },
         {
           "$ref": "../parameters.json#/updatePolicy"
