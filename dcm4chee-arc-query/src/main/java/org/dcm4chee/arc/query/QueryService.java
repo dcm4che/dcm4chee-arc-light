@@ -63,6 +63,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -146,5 +147,5 @@ public interface QueryService {
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
-    List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
+    Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
 }

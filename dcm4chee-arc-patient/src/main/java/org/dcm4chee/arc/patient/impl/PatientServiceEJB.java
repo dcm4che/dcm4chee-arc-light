@@ -494,11 +494,8 @@ public class PatientServiceEJB {
                 .setParameter(1, pk)
                 .getSingleResult();
 
-        IssuerEntity issuerEntity = issuerService.create(idWithIssuer.getIssuer());
-        em.createNamedQuery(PatientID.UPDATE_ISSUER)
-                .setParameter(1, patient.getPatientID().getPk())
-                .setParameter(2, issuerEntity)
-                .executeUpdate();
+
+        updateIssuer(patient.getPatientID(), idWithIssuer.getIssuer());
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
         updatePatient(ctx);
