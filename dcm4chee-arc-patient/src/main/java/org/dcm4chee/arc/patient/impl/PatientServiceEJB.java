@@ -494,7 +494,6 @@ public class PatientServiceEJB {
                 .setParameter(1, pk)
                 .getSingleResult();
 
-
         updateIssuer(patient.getPatientID(), idWithIssuer.getIssuer());
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));

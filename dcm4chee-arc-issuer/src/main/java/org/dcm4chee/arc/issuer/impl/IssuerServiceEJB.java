@@ -82,8 +82,7 @@ public class IssuerServiceEJB implements IssuerService {
         }
     }
 
-    @Override
-    public IssuerEntity create(Issuer issuer) {
+    private IssuerEntity create(Issuer issuer) {
         IssuerEntity entity = new IssuerEntity(issuer);
         em.persist(entity);
         return entity;

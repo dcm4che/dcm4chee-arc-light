@@ -44,7 +44,6 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.*;
-import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
@@ -66,7 +65,6 @@ import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -471,7 +469,7 @@ public class IocmRS {
             AtomicInteger count = new AtomicInteger();
             do {
                 count.set(0);
-                Map<String, IssuerInfo> toBeSupplemented = new HashMap<>();
+                Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
                 patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
                         ctx, supplementIssuerFetchSize, testIssuer ? -1 : supplementIssuerFetchSize + failures.size());
                 patientsWithUnknownIssuers.forEach(p -> {
@@ -479,24 +477,39 @@ public class IocmRS {
                     String patientID = p.getPatientID().getID();
                     IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
                     if (!ambiguous.contains(idWithIssuer)) {
-                        if (!toBeSupplemented.containsKey(patientID))
-                            toBeSupplemented.put(patientID, new IssuerInfo(p.getPk(), idWithIssuer));
-                        else {
-                            IDWithIssuer idWithIssuer1 = toBeSupplemented.get(patientID).getIdWithIssuer();
-                            if (idWithIssuer1.equals(idWithIssuer)) {
-                                ambiguous.add(idWithIssuer);
-                                toBeSupplemented.remove(patientID);
-                            } else if (success.contains(idWithIssuer)) {
-                                ambiguous.add(idWithIssuer);
-                                success.remove(idWithIssuer);
-                            } else
-                                supplementIssuer(p.getPk(), idWithIssuer, ambiguous, success, failures, testIssuer);
+                        if (!toBeSupplemented.containsKey(patientID)) {
+                            List<IssuerInfo> issuerInfos = new ArrayList<>();
+                            issuerInfos.add(new IssuerInfo(p.getPk(), idWithIssuer));
+                            toBeSupplemented.put(patientID, issuerInfos);
+                        } else {
+                            Iterator<IssuerInfo> issuerInfos = toBeSupplemented.get(patientID).iterator();
+                            boolean addIDWithIssuer = false;
+                            while (issuerInfos.hasNext()) {
+                                IssuerInfo issuerInfo = issuerInfos.next();
+                                IDWithIssuer idWithIssuer1 = issuerInfo.getIdWithIssuer();
+                                if (idWithIssuer1.equals(idWithIssuer)) {
+                                    ambiguous.add(idWithIssuer);
+                                    issuerInfos.remove();
+                                    break;
+                                } else if (success.contains(idWithIssuer)) {
+                                    ambiguous.add(idWithIssuer);
+                                    success.remove(idWithIssuer);
+                                    break;
+                                } else
+                                    addIDWithIssuer = true;
+                            }
+                            if (addIDWithIssuer)
+                                toBeSupplemented.get(patientID).add(new IssuerInfo(p.getPk(), idWithIssuer));
                         }
+
+                        if (toBeSupplemented.get(patientID).isEmpty())
+                            toBeSupplemented.remove(patientID);
                     }
                 });
-                toBeSupplemented.forEach((patientID, issuerInfo)
-                        -> supplementIssuer(
-                                issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer));
+
+                toBeSupplemented.forEach((patientID, issuerInfos) ->
+                    issuerInfos.forEach(issuerInfo -> supplementIssuer(
+                            issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer)));
             } while (count.get() == supplementIssuerFetchSize && !testIssuer);
             return resp(success, ambiguous, failures);
         } catch (Exception e) {
