@@ -108,7 +108,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -464,74 +466,38 @@ public class IocmRS {
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
             boolean testIssuer = Boolean.parseBoolean(test);
             QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
-//            int count = 0;
-//            do {
-//                try (Query query = queryService.createQuery(ctx)) {
-//                    try {
-//                        Map<String, IssuerInfo> toBeSupplemented = new HashMap<>();
-//                        query.executeQuery(
-//                                supplementIssuerFetchSize, 0, testIssuer ? -1 : supplementIssuerFetchSize + failures.size());
-//                        while (query.hasMoreMatches()) {
-//                            count++;
-//                            Attributes patAttrs = query.nextMatch();
-//                            String patientID = patAttrs.getString(Tag.PatientID);
-//                            IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(patAttrs));
-//                            if (ambiguous.contains(idWithIssuer))
-//                                break;
-//
-//                            long pk = patAttrs.getLong(PrivateTag.PrivateCreator, PrivateTag.PatientPk, 0L);
-//                            if (!toBeSupplemented.containsKey(patientID))
-//                                toBeSupplemented.put(patientID, new IssuerInfo(pk, idWithIssuer));
-//                            else {
-//                                IDWithIssuer idWithIssuer1 = toBeSupplemented.get(patientID).getIdWithIssuer();
-//                                if (idWithIssuer1.equals(idWithIssuer)) {
-//                                    ambiguous.add(idWithIssuer);
-//                                    toBeSupplemented.remove(patientID);
-//                                } else if (success.contains(idWithIssuer)) {
-//                                    ambiguous.add(idWithIssuer);
-//                                    success.remove(idWithIssuer);
-//                                } else
-//                                    supplementIssuer(pk, idWithIssuer, ambiguous, success, failures, testIssuer);
-//                            }
-//                        }
-//                        toBeSupplemented.forEach((patientID, issuerInfo) ->
-//                                supplementIssuer(issuerInfo.getPk(),
-//                                        issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer));
-//                    } catch (Exception e) {
-//                        return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-//                    }
-//                }
-//            } while (count == supplementIssuerFetchSize);
 
-            List<Patient> patientsWithUnknownIssuers;
+            Stream<Patient> patientsWithUnknownIssuers;
+            AtomicInteger count = new AtomicInteger();
             do {
+                count.set(0);
                 Map<String, IssuerInfo> toBeSupplemented = new HashMap<>();
                 patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
                         ctx, supplementIssuerFetchSize, testIssuer ? -1 : supplementIssuerFetchSize + failures.size());
-                for (Patient p : patientsWithUnknownIssuers) {
+                patientsWithUnknownIssuers.forEach(p -> {
+                    count.getAndIncrement();
                     String patientID = p.getPatientID().getID();
                     IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
-                    if (ambiguous.contains(idWithIssuer))
-                        break;
-
-                    if (!toBeSupplemented.containsKey(patientID))
-                        toBeSupplemented.put(patientID, new IssuerInfo(p.getPk(), idWithIssuer));
-                    else {
-                        IDWithIssuer idWithIssuer1 = toBeSupplemented.get(patientID).getIdWithIssuer();
-                        if (idWithIssuer1.equals(idWithIssuer)) {
-                            ambiguous.add(idWithIssuer);
-                            toBeSupplemented.remove(patientID);
-                        } else if (success.contains(idWithIssuer)) {
-                            ambiguous.add(idWithIssuer);
-                            success.remove(idWithIssuer);
-                        } else
-                            supplementIssuer(p.getPk(), idWithIssuer, ambiguous, success, failures, testIssuer);
+                    if (!ambiguous.contains(idWithIssuer)) {
+                        if (!toBeSupplemented.containsKey(patientID))
+                            toBeSupplemented.put(patientID, new IssuerInfo(p.getPk(), idWithIssuer));
+                        else {
+                            IDWithIssuer idWithIssuer1 = toBeSupplemented.get(patientID).getIdWithIssuer();
+                            if (idWithIssuer1.equals(idWithIssuer)) {
+                                ambiguous.add(idWithIssuer);
+                                toBeSupplemented.remove(patientID);
+                            } else if (success.contains(idWithIssuer)) {
+                                ambiguous.add(idWithIssuer);
+                                success.remove(idWithIssuer);
+                            } else
+                                supplementIssuer(p.getPk(), idWithIssuer, ambiguous, success, failures, testIssuer);
+                        }
                     }
-                }
+                });
                 toBeSupplemented.forEach((patientID, issuerInfo)
                         -> supplementIssuer(
                                 issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer));
-            } while (patientsWithUnknownIssuers.size() == supplementIssuerFetchSize);
+            } while (count.get() == supplementIssuerFetchSize && !testIssuer);
             return resp(success, ambiguous, failures);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

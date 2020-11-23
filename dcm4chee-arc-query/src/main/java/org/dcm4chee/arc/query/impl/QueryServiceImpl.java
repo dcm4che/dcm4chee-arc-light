@@ -83,6 +83,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -612,7 +613,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+    public Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
         return ejb.patientsWithUnknownIssuers(ctx, fetchSize, limit);
     }
 }

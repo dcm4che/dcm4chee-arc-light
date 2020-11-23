@@ -515,7 +515,7 @@ public class QueryServiceEJB {
                 .getResultList();
     }
 
-    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+    public Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder builder = new QueryBuilder(cb);
         CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
@@ -535,7 +535,7 @@ public class QueryServiceEJB {
         query.setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (limit > 0)
             query.setMaxResults(limit);
-        return query.getResultList();
+        return query.getResultList().stream();
     }
 
 }
