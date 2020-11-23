@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.hibernate.annotations.QueryHints;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -512,6 +513,29 @@ public class QueryServiceEJB {
                 .setParameter(1, dt)
                 .setMaxResults(fetchSize)
                 .getResultList();
+    }
+
+    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder builder = new QueryBuilder(cb);
+        CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
+        Root<Patient> patient = q.from(Patient.class);
+        patient.join(Patient_.attributesBlob);
+        patient.join(Patient_.patientID);
+
+        List<Predicate> predicates = builder.patientPredicates(q, patient,
+                                                ctx.getPatientIDs(),
+                                                ctx.getQueryKeys(),
+                                                ctx.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        q.orderBy(builder.orderPatients(patient, ctx.getOrderByTags()));
+
+        TypedQuery<Patient> query = em.createQuery(q);
+        query.setHint(QueryHints.FETCH_SIZE, fetchSize);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultList();
     }
 
 }
