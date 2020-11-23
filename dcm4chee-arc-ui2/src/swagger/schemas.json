@@ -2299,7 +2299,7 @@
       },
       "ambiguous": {
         "title": "Ambiguous Patient IDs",
-        "description": "Ambiguous Patient IDs which did not got unique by supplementing the Issuer",
+        "description": "Ambiguous Patient IDs which did not got unique by supplementing the Issuer as HL7 CX",
         "type": "array",
         "items": {
           "type": "string"
@@ -2308,6 +2308,7 @@
       "failures": {
         "title": "Failures",
         "description": "Other failures not caused by ambiguous Patient IDs",
+        "type": "array",
         "items": {
           "required": [
             "pid",
@@ -2315,8 +2316,8 @@
           ],
           "properties": {
             "pid": {
-              "title": "Failed supplemented Patient ID",
-              "description": "Failed supplemented Patient ID as HL7 CX",
+              "title": "Failed to supplement Patient ID",
+              "description": "Failed to supplement Patient ID as HL7 CX",
               "type": "string"
             },
             "errorMessage": {

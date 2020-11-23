@@ -41,15 +41,16 @@
 package org.dcm4chee.arc.patient;
 
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.net.Socket;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -88,4 +89,7 @@ public interface PatientService {
     Patient updatePatientStatus(PatientMgtContext ctx);
 
     List<String> studyInstanceUIDsOf(Patient patient);
+
+    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
+                             boolean test);
 }

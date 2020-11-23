@@ -42,13 +42,17 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.*;
@@ -62,8 +66,11 @@ import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.Query;
+import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -162,6 +169,10 @@ public class IocmRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("fuzzymatching")
+    @Pattern(regexp = "true|false")
+    private String fuzzymatching;
 
     @Context
     private HttpServletRequest request;
@@ -307,8 +318,13 @@ public class IocmRS {
     }
 
     private PatientMgtContext patientMgtCtx(InputStream in) {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+        PatientMgtContext ctx = patientMgtCtx();
         ctx.setAttributes(toAttributes(in));
+        return ctx;
+    }
+
+    private PatientMgtContext patientMgtCtx() {
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
         return ctx;
     }
@@ -426,6 +442,149 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    @POST
+    @Path("/patients/issuer/{issuer}")
+    public Response supplementIssuer(
+            @PathParam("issuer") AttributesFormat issuer,
+            @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        List<IDWithIssuer> success = new ArrayList<>();
+        Set<IDWithIssuer> ambiguous = new HashSet<>();
+        Map<String, String> failures = new HashMap<>();
+        try {
+            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
+            if (queryAttrs.getQueryKeys().getString(Tag.IssuerOfPatientID) != null
+                    || queryAttrs.getQueryKeys().getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence) != null)
+                return errResponse(
+                        "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters",
+                        Response.Status.BAD_REQUEST);
+
+            int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
+            int count = 0;
+            boolean testIssuer = Boolean.parseBoolean(test);
+            QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
+        //    do {
+                try (Query query = queryService.createQuery(ctx)) {
+                    try {
+                        Map<String, IssuerInfo> toBeSupplemented = new HashMap<>();
+                        query.executeQuery(
+                                supplementIssuerFetchSize, 0, supplementIssuerFetchSize + failures.size());
+                        while (query.hasMoreMatches()) {
+                            count++;
+                            Attributes patAttrs = query.nextMatch();
+                            String patientID = patAttrs.getString(Tag.PatientID);
+                            IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(patAttrs));
+                            if (ambiguous.contains(idWithIssuer))
+                                break;
+
+                            if (success.contains(idWithIssuer)) {
+                                ambiguous.add(idWithIssuer);
+                                success.remove(idWithIssuer);
+                                break;
+                            }
+
+                            long pk = patAttrs.getLong(PrivateTag.PrivateCreator, PrivateTag.PatientPk, 0L);
+                            if (!toBeSupplemented.containsKey(patientID))
+                                toBeSupplemented.put(patientID, new IssuerInfo(pk, idWithIssuer));
+                            else {
+                                IDWithIssuer idWithIssuer1 = toBeSupplemented.get(patientID).getIdWithIssuer();
+                                if (idWithIssuer1.equals(idWithIssuer)) {
+                                    ambiguous.add(idWithIssuer);
+                                    toBeSupplemented.remove(patientID);
+                                } else
+                                    supplementIssuer(pk, idWithIssuer, ambiguous, success, failures, testIssuer);
+                            }
+                        }
+                        toBeSupplemented.forEach((patientID, issuerInfo) ->
+                                supplementIssuer(issuerInfo.getPk(),
+                                        issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer));
+                    } catch (Exception e) {
+                        return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+                    }
+                }
+          //  } while (count == supplementIssuerFetchSize);
+            return resp(success, ambiguous, failures);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static class IssuerInfo {
+        final long pk;
+        final IDWithIssuer idWithIssuer;
+
+        IssuerInfo(long pk, IDWithIssuer idWithIssuer) {
+            this.pk = pk;
+            this.idWithIssuer = idWithIssuer;
+        }
+
+        long getPk() {
+            return pk;
+        }
+
+        IDWithIssuer getIdWithIssuer() {
+            return idWithIssuer;
+        }
+    }
+
+    private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
+                                  List<IDWithIssuer> success, Map<String, String> failures, boolean testIssuer) {
+        try {
+            if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous, testIssuer))
+                success.add(idWithIssuer);
+        } catch (Exception e) {
+            failures.put(idWithIssuer.toString(), e.getMessage());
+        }
+    }
+
+    private Response resp(List<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, Map<String, String> failures) {
+        return Response.status(ambiguous.size() > 0 || failures.size() > 0
+                                ? success.size() > 0
+                                    ? Response.Status.ACCEPTED
+                                    : Response.Status.CONFLICT
+                                : success.size() > 0
+                                    ? Response.Status.OK
+                                    : Response.Status.NO_CONTENT)
+                .entity((StreamingOutput)out -> {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
+                    writer.writeNotEmpty("ambiguous", ambiguous.toArray(IDWithIssuer.EMPTY));
+                    failures.forEach((pid, errorMsg) -> {
+                        JsonWriter failuresWriter = new JsonWriter(gen);
+                        gen.writeStartObject();
+                        failuresWriter.writeNotNullOrDef("pid", pid, null);
+                        failuresWriter.writeNotNullOrDef("errorMessage", errorMsg, null);
+                        gen.writeEnd();
+                    });
+                    gen.writeEnd();
+                    gen.flush();
+                })
+                .build();
+    }
+
+    private QueryContext queryContext(ApplicationEntity ae, QueryAttributes queryAttrs) {
+        QueryContext ctx = queryService.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), "supplementIssuer", ae, queryParam(ae));
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
+        Attributes keys = queryAttrs.getQueryKeys();
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
+        if (idWithIssuer != null)
+            ctx.setPatientIDs(idWithIssuer);
+        ctx.setQueryKeys(keys);
+        ctx.setOrderByTags(Collections.singletonList(OrderByTag.asc(Tag.PatientID)));
+        ctx.setReturnPrivate(true);
+        return ctx;
+    }
+
+    private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae) {
+        org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
+        queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setWithoutIssuer(true);
+        return queryParam;
     }
 
    private void verifyMergePatient(IDWithIssuer priorPatientID, IDWithIssuer patientID, String findSCP,
@@ -728,6 +887,8 @@ public class IocmRS {
                 && "studies".equals(uriPath[uriPath.length -4]))) {
             coerceAttrs = new QueryAttributes(uriInfo, null).getQueryKeys();
         }
+        if ("issuer".equals(uriPath[uriPath.length - 2]))
+            new QueryAttributes(uriInfo, null);
     }
 
     private Attributes toAttributes(InputStream in) {

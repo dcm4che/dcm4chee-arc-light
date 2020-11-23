@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -55,6 +56,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.net.Socket;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -209,5 +211,11 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public List<String> studyInstanceUIDsOf(Patient patient) {
         return ejb.studyInstanceUIDsOf(patient);
+    }
+
+    @Override
+    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
+                                    boolean test) {
+        return ejb.supplementIssuer(ctx, pk, idWithIssuer, ambiguous, test);
     }
 }

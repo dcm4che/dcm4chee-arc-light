@@ -79,6 +79,7 @@ public class QueryParam {
     private List<String> studyStorageIDs;
     private long minStudySize;
     private long maxStudySize;
+    private boolean withoutIssuer;
 
     public QueryParam(ApplicationEntity ae) {
         this(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -293,5 +294,13 @@ public class QueryParam {
 
     public void setTemplate(boolean template) {
         this.template = template;
+    }
+
+    public boolean isWithoutIssuer() {
+        return withoutIssuer;
+    }
+
+    public void setWithoutIssuer(boolean withoutIssuer) {
+        this.withoutIssuer = withoutIssuer;
     }
 }
