@@ -51,4 +51,6 @@ public interface IssuerService {
     IssuerEntity updateOrCreate(Issuer issuer);
 
     IssuerEntity mergeOrCreate(Issuer issuer);
+
+    IssuerEntity create(Issuer issuer);
 }

@@ -474,4 +474,34 @@ public class PatientServiceEJB {
                 .setParameter(1, patient)
                 .getResultList();
     }
+
+    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
+                                    boolean test) {
+        if (em.createNamedQuery(PatientID.FIND_BY_ID_AND_ISSUER, PatientID.class)
+                .setParameter(1, idWithIssuer.getID())
+                .setParameter(2, idWithIssuer.getIssuer().getLocalNamespaceEntityID())
+                .setParameter(3, idWithIssuer.getIssuer().getUniversalEntityID())
+                .setParameter(4, idWithIssuer.getIssuer().getUniversalEntityIDType())
+                .getResultList().size() >= 1) {
+            ambiguous.add(idWithIssuer);
+            return false;
+        }
+
+        if (test)
+            return true;
+
+        Patient patient = em.createNamedQuery(Patient.FIND_BY_PK, Patient.class)
+                .setParameter(1, pk)
+                .getSingleResult();
+
+        IssuerEntity issuerEntity = issuerService.create(idWithIssuer.getIssuer());
+        em.createNamedQuery(PatientID.UPDATE_ISSUER)
+                .setParameter(1, patient.getPatientID().getPk())
+                .setParameter(2, issuerEntity)
+                .executeUpdate();
+        Attributes patAttrs = patient.getAttributes();
+        ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
+        updatePatient(ctx);
+        return true;
+    }
 }

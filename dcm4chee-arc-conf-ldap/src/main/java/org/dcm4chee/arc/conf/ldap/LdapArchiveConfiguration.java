@@ -477,6 +477,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateStudySizeFetchSize",
                 ext.getCalculateStudySizeFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateQueryAttributes", ext.isCalculateQueryAttributes(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSupplementIssuerFetchSize",
+                ext.getSupplementIssuerFetchSize(), 100);
     }
 
     @Override
@@ -772,6 +774,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setCalculateStudySizePollingInterval(toDuration(attrs.get("dcmCalculateStudySizePollingInterval"), null));
         ext.setCalculateStudySizeFetchSize(LdapUtils.intValue(attrs.get("dcmCalculateStudySizeFetchSize"), 100));
         ext.setCalculateQueryAttributes(LdapUtils.booleanValue(attrs.get("dcmCalculateQueryAttributes"), false));
+        ext.setSupplementIssuerFetchSize(LdapUtils.intValue(attrs.get("dcmSupplementIssuerFetchSize"), 100));
     }
 
     @Override
@@ -1328,6 +1331,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getCalculateStudySizeFetchSize(), bb.getCalculateStudySizeFetchSize(), 100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmCalculateQueryAttributes",
                 aa.isCalculateQueryAttributes(), bb.isCalculateQueryAttributes(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSupplementIssuerFetchSize",
+                aa.getSupplementIssuerFetchSize(), bb.getSupplementIssuerFetchSize(), 100);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

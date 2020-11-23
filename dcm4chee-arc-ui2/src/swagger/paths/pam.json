@@ -306,6 +306,9 @@
         "204": {
           "description": "No matching patient found"
         },
+        "400": {
+          "description": "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters."
+        },
         "404": {
           "description": "No such Application Entity."
         },

@@ -120,6 +120,8 @@ class PatientQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
+        if (context.getQueryParam().isWithoutIssuer())
+            attrs.setLong(PrivateTag.PrivateCreator, PrivateTag.PatientPk, VR.IS, results.get(patient.get(Patient_.pk)));
         attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT,
                 results.get(patient.get(Patient_.createdTime)));
         attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientUpdateDateTime, VR.DT,
