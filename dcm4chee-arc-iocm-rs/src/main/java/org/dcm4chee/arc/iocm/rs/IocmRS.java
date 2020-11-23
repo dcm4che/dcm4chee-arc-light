@@ -450,7 +450,7 @@ public class IocmRS {
             @PathParam("issuer") AttributesFormat issuer,
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
-        List<IDWithIssuer> success = new ArrayList<>();
+        Set<IDWithIssuer> success = new HashSet<>();
         Set<IDWithIssuer> ambiguous = new HashSet<>();
         Map<String, String> failures = new HashMap<>();
         try {
@@ -465,12 +465,12 @@ public class IocmRS {
             int count = 0;
             boolean testIssuer = Boolean.parseBoolean(test);
             QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
-        //    do {
+            do {
                 try (Query query = queryService.createQuery(ctx)) {
                     try {
                         Map<String, IssuerInfo> toBeSupplemented = new HashMap<>();
                         query.executeQuery(
-                                supplementIssuerFetchSize, 0, supplementIssuerFetchSize + failures.size());
+                                supplementIssuerFetchSize, 0, testIssuer ? -1 : supplementIssuerFetchSize + failures.size());
                         while (query.hasMoreMatches()) {
                             count++;
                             Attributes patAttrs = query.nextMatch();
@@ -478,12 +478,6 @@ public class IocmRS {
                             IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(patAttrs));
                             if (ambiguous.contains(idWithIssuer))
                                 break;
-
-                            if (success.contains(idWithIssuer)) {
-                                ambiguous.add(idWithIssuer);
-                                success.remove(idWithIssuer);
-                                break;
-                            }
 
                             long pk = patAttrs.getLong(PrivateTag.PrivateCreator, PrivateTag.PatientPk, 0L);
                             if (!toBeSupplemented.containsKey(patientID))
@@ -493,6 +487,9 @@ public class IocmRS {
                                 if (idWithIssuer1.equals(idWithIssuer)) {
                                     ambiguous.add(idWithIssuer);
                                     toBeSupplemented.remove(patientID);
+                                } else if (success.contains(idWithIssuer)) {
+                                    ambiguous.add(idWithIssuer);
+                                    success.remove(idWithIssuer);
                                 } else
                                     supplementIssuer(pk, idWithIssuer, ambiguous, success, failures, testIssuer);
                             }
@@ -504,7 +501,7 @@ public class IocmRS {
                         return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
                     }
                 }
-          //  } while (count == supplementIssuerFetchSize);
+            } while (count == supplementIssuerFetchSize);
             return resp(success, ambiguous, failures);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -530,7 +527,7 @@ public class IocmRS {
     }
 
     private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
-                                  List<IDWithIssuer> success, Map<String, String> failures, boolean testIssuer) {
+                                  Set<IDWithIssuer> success, Map<String, String> failures, boolean testIssuer) {
         try {
             if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous, testIssuer))
                 success.add(idWithIssuer);
@@ -539,7 +536,7 @@ public class IocmRS {
         }
     }
 
-    private Response resp(List<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, Map<String, String> failures) {
+    private Response resp(Set<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, Map<String, String> failures) {
         return Response.status(ambiguous.size() > 0 || failures.size() > 0
                                 ? success.size() > 0
                                     ? Response.Status.ACCEPTED
