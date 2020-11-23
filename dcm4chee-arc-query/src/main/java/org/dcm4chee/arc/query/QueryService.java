@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -144,4 +145,6 @@ public interface QueryService {
     List<String> getDistinctModalities();
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
+
+    List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
 }

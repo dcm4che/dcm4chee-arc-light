@@ -610,4 +610,9 @@ class QueryServiceImpl implements QueryService {
     public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
         return ejb.unknownSizeStudies(dt, fetchSize);
     }
+
+    @Override
+    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+        return ejb.patientsWithUnknownIssuers(ctx, fetchSize, limit);
+    }
 }
