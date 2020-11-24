@@ -56,6 +56,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 /**
@@ -477,12 +479,7 @@ public class PatientServiceEJB {
 
     public boolean supplementIssuer(
             PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous) {
-        if (em.createNamedQuery(PatientID.FIND_BY_ID_AND_ISSUER, PatientID.class)
-                .setParameter(1, idWithIssuer.getID())
-                .setParameter(2, idWithIssuer.getIssuer().getLocalNamespaceEntityID())
-                .setParameter(3, idWithIssuer.getIssuer().getUniversalEntityID())
-                .setParameter(4, idWithIssuer.getIssuer().getUniversalEntityIDType())
-                .getResultList().size() >= 1) {
+        if (exists(idWithIssuer)) {
             ambiguous.add(idWithIssuer);
             return false;
         }
@@ -498,5 +495,20 @@ public class PatientServiceEJB {
         return true;
     }
 
-
+    private boolean exists(IDWithIssuer idWithIssuer) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
+        Root<PatientID> patientID = q.from(PatientID.class);
+        Join<PatientID, IssuerEntity> issuerEntity = patientID.join(PatientID_.issuer);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(patientID.get(PatientID_.id), idWithIssuer.getID()));
+        Issuer issuer = idWithIssuer.getIssuer();
+        predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), issuer.getLocalNamespaceEntityID()));
+        if (issuer.getUniversalEntityID() != null)
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), issuer.getUniversalEntityID()));
+        if (issuer.getUniversalEntityIDType() != null)
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), issuer.getUniversalEntityIDType()));
+        q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(q).getResultList().size() >= 1;
+    }
 }

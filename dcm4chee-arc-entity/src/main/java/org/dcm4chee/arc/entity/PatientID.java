@@ -48,24 +48,10 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
-@NamedQueries({
-        @NamedQuery(
-                name=PatientID.FIND_BY_ID_AND_ISSUER,
-                query="select p from PatientID p " +
-                        "where p.id = ?1 and p.issuer.localNamespaceEntityID =?2 and p.issuer.universalEntityID = ?3"
-                        + " and p.issuer.universalEntityIDType = ?4"),
-        @NamedQuery(
-                name=PatientID.UPDATE_ISSUER,
-                query="update PatientID p set p.issuer = ?2 " +
-                        "where p.pk = ?1")
-})
 @Entity
 @Table(name = "patient_id", uniqueConstraints =
     @UniqueConstraint(columnNames = { "pat_id", "issuer_fk" }))
 public class PatientID {
-
-    public static final String FIND_BY_ID_AND_ISSUER = "PatientID.findByIDAndIssuer";
-    public static final String UPDATE_ISSUER = "PatientID.updateIssuer";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
