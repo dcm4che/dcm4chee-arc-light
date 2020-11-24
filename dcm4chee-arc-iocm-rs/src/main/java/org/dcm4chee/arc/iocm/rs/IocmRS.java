@@ -558,14 +558,16 @@ public class IocmRS {
                     gen.writeStartObject();
                     writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
                     writer.writeNotEmpty("ambiguous", ambiguous.toArray(IDWithIssuer.EMPTY));
-                    writer.writeStartArray("failures");
-                    failures.forEach((pid, errorMsg) -> {
-                        writer.writeStartObject();
-                        writer.writeNotNullOrDef("pid", pid, null);
-                        writer.writeNotNullOrDef("errorMessage", errorMsg, null);
+                    if (!failures.isEmpty()) {
+                        writer.writeStartArray("failures");
+                        failures.forEach((pid, errorMsg) -> {
+                            writer.writeStartObject();
+                            writer.writeNotNullOrDef("pid", pid, null);
+                            writer.writeNotNullOrDef("errorMessage", errorMsg, null);
+                            writer.writeEnd();
+                        });
                         writer.writeEnd();
-                    });
-                    writer.writeEnd();
+                    }
                     gen.writeEnd();
                     gen.flush();
                 })
