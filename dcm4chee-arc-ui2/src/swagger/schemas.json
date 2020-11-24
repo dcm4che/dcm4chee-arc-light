@@ -2310,6 +2310,7 @@
         "description": "Other failures not caused by ambiguous Patient IDs",
         "type": "array",
         "items": {
+          "type": "object",
           "required": [
             "pid",
             "errorMessage"
