@@ -41,11 +41,9 @@
 package org.dcm4chee.arc.query.impl;
 
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -63,6 +61,7 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -515,7 +514,7 @@ public class QueryServiceEJB {
                 .getResultList();
     }
 
-    public Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder builder = new QueryBuilder(cb);
         CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
@@ -524,9 +523,9 @@ public class QueryServiceEJB {
         patient.join(Patient_.patientID);
 
         List<Predicate> predicates = builder.patientPredicates(q, patient,
-                                                ctx.getPatientIDs(),
-                                                ctx.getQueryKeys(),
-                                                ctx.getQueryParam());
+                ctx.getPatientIDs(),
+                ctx.getQueryKeys(),
+                ctx.getQueryParam());
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         q.orderBy(builder.orderPatients(patient, ctx.getOrderByTags()));
@@ -535,7 +534,30 @@ public class QueryServiceEJB {
         query.setHint(QueryHints.FETCH_SIZE, fetchSize);
         if (limit > 0)
             query.setMaxResults(limit);
-        return query.getResultList().stream();
+        return query.getResultList();
     }
 
+    private boolean exists(IDWithIssuer idWithIssuer) {
+        return em.createNamedQuery(PatientID.FIND_BY_ID_AND_ISSUER, PatientID.class)
+                .setParameter(1, idWithIssuer.getID())
+                .setParameter(2, idWithIssuer.getIssuer().getLocalNamespaceEntityID())
+                .setParameter(3, idWithIssuer.getIssuer().getUniversalEntityID())
+                .setParameter(4, idWithIssuer.getIssuer().getUniversalEntityIDType())
+                .getResultList().size() >= 1;
+    }
+
+    public void testSupplementIssuers(
+            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, AttributesFormat issuer) {
+        patientsWithUnknownIssuers(ctx, fetchSize, -1).stream()
+                .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
+                .forEach(idWithIssuer -> {
+                    if (exists(idWithIssuer))
+                        ambiguous.add(idWithIssuer);
+                    else if (success.contains(idWithIssuer)) {
+                        ambiguous.add(idWithIssuer);
+                        success.remove(idWithIssuer);
+                    } else
+                        success.add(idWithIssuer);
+                });
+    }
 }

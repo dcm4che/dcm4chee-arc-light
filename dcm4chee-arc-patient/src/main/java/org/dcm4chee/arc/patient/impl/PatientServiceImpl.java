@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -214,8 +213,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
-                                    boolean test) {
-        return ejb.supplementIssuer(ctx, pk, idWithIssuer, ambiguous, test);
+    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous) {
+        return ejb.supplementIssuer(ctx, pk, idWithIssuer, ambiguous);
     }
 }
