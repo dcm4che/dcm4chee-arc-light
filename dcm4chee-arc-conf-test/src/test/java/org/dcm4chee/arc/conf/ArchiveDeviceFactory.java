@@ -244,7 +244,7 @@ class ArchiveDeviceFactory {
             newHL7OrderSPSStatus("SCHEDULED", "NW_SC", "NW_IP", "XO_SC"),
             newHL7OrderSPSStatus("CANCELED", "CA_CA"),
             newHL7OrderSPSStatus("DISCONTINUED", "DC_CA"),
-            newHL7OrderSPSStatus("COMPLETED", "XO_CM")
+            newHL7OrderSPSStatus("COMPLETED", "XO_CM", "SC_CM", "SC_A")
     };
 
     private static QueueDescriptor newQueueDescriptor(String name, String description) {

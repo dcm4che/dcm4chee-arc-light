@@ -2546,6 +2546,8 @@ dcmJndiName: jms/queue/StgCmtSCU
 dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: COMPLETED
 hl7OrderControlStatus: XO_CM
+hl7OrderControlStatus: SC_CM
+hl7OrderControlStatus: SC_A
 objectClass: hl7OrderSPSStatus
 
 dn: dcmSPSStatus=SCHEDULED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
