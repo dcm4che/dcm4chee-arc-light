@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.patient;
 
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -90,6 +89,5 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
-    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
-                             boolean test);
+    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous);
 }

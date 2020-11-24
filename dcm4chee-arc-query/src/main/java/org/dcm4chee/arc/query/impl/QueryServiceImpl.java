@@ -46,6 +46,7 @@ import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -83,7 +84,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -613,7 +613,13 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
+    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
         return ejb.patientsWithUnknownIssuers(ctx, fetchSize, limit);
+    }
+
+    @Override
+    public void testSupplementIssuers(QueryContext ctx, int fetchSize, Set<IDWithIssuer> success,
+                                      Set<IDWithIssuer> ambiguous, AttributesFormat issuer) {
+        ejb.testSupplementIssuers(ctx, fetchSize, success, ambiguous, issuer);
     }
 }

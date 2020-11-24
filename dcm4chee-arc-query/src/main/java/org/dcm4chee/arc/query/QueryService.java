@@ -43,9 +43,11 @@ package org.dcm4chee.arc.query;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -59,11 +61,7 @@ import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.persistence.Tuple;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -147,5 +145,9 @@ public interface QueryService {
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
-    Stream<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
+    List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
+
+    void testSupplementIssuers(
+            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Set<IDWithIssuer> ambiguous,
+            AttributesFormat issuer);
 }

@@ -108,7 +108,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -465,52 +464,52 @@ public class IocmRS {
             boolean testIssuer = Boolean.parseBoolean(test);
             QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
 
-            Stream<Patient> patientsWithUnknownIssuers;
-            AtomicInteger count = new AtomicInteger();
-            do {
-                count.set(0);
-                Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
-                patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
-                        ctx, supplementIssuerFetchSize, testIssuer ? -1 : supplementIssuerFetchSize + failures.size());
-                patientsWithUnknownIssuers.forEach(p -> {
-                    count.getAndIncrement();
-                    String patientID = p.getPatientID().getID();
-                    IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
-                    if (!ambiguous.contains(idWithIssuer)) {
-                        if (!toBeSupplemented.containsKey(patientID)) {
-                            List<IssuerInfo> issuerInfos = new ArrayList<>();
-                            issuerInfos.add(new IssuerInfo(p.getPk(), idWithIssuer));
-                            toBeSupplemented.put(patientID, issuerInfos);
-                        } else {
-                            Iterator<IssuerInfo> issuerInfos = toBeSupplemented.get(patientID).iterator();
-                            boolean addIDWithIssuer = false;
-                            while (issuerInfos.hasNext()) {
-                                IssuerInfo issuerInfo = issuerInfos.next();
-                                IDWithIssuer idWithIssuer1 = issuerInfo.getIdWithIssuer();
-                                if (idWithIssuer1.equals(idWithIssuer)) {
-                                    ambiguous.add(idWithIssuer);
-                                    issuerInfos.remove();
-                                    break;
-                                } else if (success.contains(idWithIssuer)) {
-                                    ambiguous.add(idWithIssuer);
-                                    success.remove(idWithIssuer);
-                                    break;
-                                } else
-                                    addIDWithIssuer = true;
-                            }
-                            if (addIDWithIssuer)
-                                toBeSupplemented.get(patientID).add(new IssuerInfo(p.getPk(), idWithIssuer));
-                        }
+            if (testIssuer)
+                queryService.testSupplementIssuers(ctx, supplementIssuerFetchSize, success, ambiguous, issuer);
+            else {
+                AtomicInteger count = new AtomicInteger();
+                do {
+                    count.set(0);
+                    Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
+                    queryService.patientsWithUnknownIssuers(
+                            ctx, supplementIssuerFetchSize,supplementIssuerFetchSize + failures.size())
+                            .forEach(p -> {
+                                count.getAndIncrement();
+                                String patientID = p.getPatientID().getID();
+                                IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
+                                if (!ambiguous.contains(idWithIssuer)) {
+                                    if (!toBeSupplemented.containsKey(patientID)) {
+                                        List<IssuerInfo> issuerInfos = new ArrayList<>();
+                                        issuerInfos.add(new IssuerInfo(p.getPk(), idWithIssuer));
+                                        toBeSupplemented.put(patientID, issuerInfos);
+                                    } else {
+                                        Iterator<IssuerInfo> issuerInfos = toBeSupplemented.get(patientID).iterator();
+                                        boolean addIDWithIssuer = false;
+                                        while (issuerInfos.hasNext()) {
+                                            IssuerInfo issuerInfo = issuerInfos.next();
+                                            IDWithIssuer idWithIssuer1 = issuerInfo.getIdWithIssuer();
+                                            if (idWithIssuer1.equals(idWithIssuer)) {
+                                                ambiguous.add(idWithIssuer);
+                                                issuerInfos.remove();
+                                                addIDWithIssuer = false;
+                                                break;
+                                            } else
+                                                addIDWithIssuer = true;
+                                        }
+                                        if (addIDWithIssuer)
+                                            toBeSupplemented.get(patientID).add(new IssuerInfo(p.getPk(), idWithIssuer));
+                                    }
 
-                        if (toBeSupplemented.get(patientID).isEmpty())
-                            toBeSupplemented.remove(patientID);
-                    }
-                });
+                                    if (toBeSupplemented.get(patientID).isEmpty())
+                                        toBeSupplemented.remove(patientID);
+                                }
+                            });
 
-                toBeSupplemented.forEach((patientID, issuerInfos) ->
-                    issuerInfos.forEach(issuerInfo -> supplementIssuer(
-                            issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures, testIssuer)));
-            } while (count.get() == supplementIssuerFetchSize && !testIssuer);
+                    toBeSupplemented.forEach((patientID, issuerInfos) ->
+                            issuerInfos.forEach(issuerInfo -> supplementIssuer(
+                                    issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures)));
+                } while (count.get() == supplementIssuerFetchSize);
+            }
             return resp(success, ambiguous, failures);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -536,9 +535,9 @@ public class IocmRS {
     }
 
     private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
-                                  Set<IDWithIssuer> success, Map<String, String> failures, boolean testIssuer) {
+                                  Set<IDWithIssuer> success, Map<String, String> failures) {
         try {
-            if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous, testIssuer))
+            if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous))
                 success.add(idWithIssuer);
         } catch (Exception e) {
             failures.put(idWithIssuer.toString(), e.getMessage());
@@ -559,13 +558,7 @@ public class IocmRS {
                     gen.writeStartObject();
                     writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
                     writer.writeNotEmpty("ambiguous", ambiguous.toArray(IDWithIssuer.EMPTY));
-                    failures.forEach((pid, errorMsg) -> {
-                        JsonWriter failuresWriter = new JsonWriter(gen);
-                        gen.writeStartObject();
-                        failuresWriter.writeNotNullOrDef("pid", pid, null);
-                        failuresWriter.writeNotNullOrDef("errorMessage", errorMsg, null);
-                        gen.writeEnd();
-                    });
+                    writer.writeNotEmpty("failures", failures);
                     gen.writeEnd();
                     gen.flush();
                 })
