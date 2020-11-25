@@ -619,7 +619,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public void testSupplementIssuers(QueryContext ctx, int fetchSize, Set<IDWithIssuer> success,
-                                      Set<IDWithIssuer> ambiguous, AttributesFormat issuer) {
+                                      List<IDWithIssuer> ambiguous, AttributesFormat issuer) {
         ejb.testSupplementIssuers(ctx, fetchSize, success, ambiguous, issuer);
     }
 }

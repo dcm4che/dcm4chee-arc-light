@@ -2302,7 +2302,23 @@
         "description": "Ambiguous Patient IDs which did not got unique by supplementing the Issuer as HL7 CX",
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "object",
+          "required": [
+            "pid",
+            "count"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Ambiguous Patient ID",
+              "description": "Ambiguous Patient ID as HL7 CX",
+              "type": "string"
+            },
+            "count": {
+              "title": "Ambiguous Patient ID Count",
+              "description": "Ambiguous Patient ID Count",
+              "type": "string"
+            }
+          }
         }
       },
       "failures": {
