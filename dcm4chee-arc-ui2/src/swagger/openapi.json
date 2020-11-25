@@ -60,10 +60,6 @@
       "description": "Study access control services"
     },
     {
-      "name": "ACCESS-LEGACY-RS",
-      "description": "Study access control services Legacy"
-    },
-    {
       "name": "CTRL-RS",
       "description": "Start/Stop/Reload Archive"
     },
