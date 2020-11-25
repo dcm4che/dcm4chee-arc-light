@@ -478,7 +478,7 @@ public class PatientServiceEJB {
     }
 
     public boolean supplementIssuer(
-            PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous) {
+            PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous) {
         if (exists(idWithIssuer)) {
             ambiguous.add(idWithIssuer);
             return false;

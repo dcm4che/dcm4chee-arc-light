@@ -107,7 +107,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -450,7 +452,7 @@ public class IocmRS {
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
         Set<IDWithIssuer> success = new HashSet<>();
-        Set<IDWithIssuer> ambiguous = new HashSet<>();
+        List<IDWithIssuer> ambiguous = new ArrayList<>();
         Map<String, String> failures = new HashMap<>();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
@@ -468,16 +470,20 @@ public class IocmRS {
                 queryService.testSupplementIssuers(ctx, supplementIssuerFetchSize, success, ambiguous, issuer);
             else {
                 AtomicInteger count = new AtomicInteger();
+                Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
                 do {
                     count.set(0);
-                    Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
+                    int failed = failures.size() + ambiguous.size();
+                    if (supplementIssuerFetchSize == failed)
+                        return resp(success, ambiguous, failures);
+
                     queryService.patientsWithUnknownIssuers(
-                            ctx, supplementIssuerFetchSize,supplementIssuerFetchSize + failures.size())
+                            ctx, supplementIssuerFetchSize, supplementIssuerFetchSize + failed)
                             .forEach(p -> {
                                 count.getAndIncrement();
                                 String patientID = p.getPatientID().getID();
                                 IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
-                                if (!ambiguous.contains(idWithIssuer)) {
+                                //if (!ambiguous.contains(idWithIssuer)) {
                                     if (!toBeSupplemented.containsKey(patientID)) {
                                         List<IssuerInfo> issuerInfos = new ArrayList<>();
                                         issuerInfos.add(new IssuerInfo(p.getPk(), idWithIssuer));
@@ -502,7 +508,7 @@ public class IocmRS {
 
                                     if (toBeSupplemented.get(patientID).isEmpty())
                                         toBeSupplemented.remove(patientID);
-                                }
+                                //}
                             });
 
                     toBeSupplemented.forEach((patientID, issuerInfos) ->
@@ -534,7 +540,7 @@ public class IocmRS {
         }
     }
 
-    private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, Set<IDWithIssuer> ambiguous,
+    private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous,
                                   Set<IDWithIssuer> success, Map<String, String> failures) {
         try {
             if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous))
@@ -544,7 +550,7 @@ public class IocmRS {
         }
     }
 
-    private Response resp(Set<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, Map<String, String> failures) {
+    private Response resp(Set<IDWithIssuer> success, List<IDWithIssuer> ambiguous, Map<String, String> failures) {
         return Response.status(ambiguous.size() > 0 || failures.size() > 0
                                 ? success.size() > 0
                                     ? Response.Status.ACCEPTED
@@ -557,7 +563,18 @@ public class IocmRS {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
-                    writer.writeNotEmpty("ambiguous", ambiguous.toArray(IDWithIssuer.EMPTY));
+                    if (!ambiguous.isEmpty()) {
+                        writer.writeStartArray("ambiguous");
+                        ambiguous.stream()
+                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                                .forEach((idWithIssuer, count) -> {
+                                    writer.writeStartObject();
+                                    writer.writeNotNullOrDef("pid", idWithIssuer, null);
+                                    writer.writeNotNullOrDef("count", count, null);
+                                    writer.writeEnd();
+                                });
+                        writer.writeEnd();
+                    }
                     if (!failures.isEmpty()) {
                         writer.writeStartArray("failures");
                         failures.forEach((pid, errorMsg) -> {

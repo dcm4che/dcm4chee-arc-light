@@ -555,7 +555,7 @@ public class QueryServiceEJB {
     }
 
     public void testSupplementIssuers(
-            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Set<IDWithIssuer> ambiguous, AttributesFormat issuer) {
+            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, List<IDWithIssuer> ambiguous, AttributesFormat issuer) {
         patientsWithUnknownIssuers(ctx, fetchSize, -1).stream()
                 .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
                 .forEach(idWithIssuer -> {
