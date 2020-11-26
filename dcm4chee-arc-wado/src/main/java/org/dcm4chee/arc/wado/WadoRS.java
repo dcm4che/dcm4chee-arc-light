@@ -423,12 +423,25 @@ public class WadoRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} with Accept: {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
+                accept(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private String accept() {
+        Enumeration<String> acceptHeader = request.getHeaders("Accept");
+        StringBuilder accept = new StringBuilder();
+        boolean multipleValues = false;
+        while (acceptHeader.hasMoreElements()) {
+            if (multipleValues)
+                accept.append(",");
+            accept.append(acceptHeader.nextElement());
+            multipleValues = true;
+        }
+        return accept.toString();
     }
 
     private void validateWebApp() {
