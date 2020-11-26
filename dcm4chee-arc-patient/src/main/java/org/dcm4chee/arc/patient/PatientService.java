@@ -89,5 +89,5 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
-    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous);
+    boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous);
 }

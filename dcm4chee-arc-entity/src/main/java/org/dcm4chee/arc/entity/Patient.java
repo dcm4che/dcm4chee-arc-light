@@ -94,10 +94,7 @@ import java.util.*;
 @NamedQuery(
     name=Patient.CLAIM_PATIENT_VERIFICATION,
     query="update Patient p set p.verificationStatus = ?3 " +
-            "where p.pk = ?1 and p.verificationStatus = ?2"),
-@NamedQuery(
-        name=Patient.FIND_BY_PK,
-        query="select p from Patient p where p.pk = ?1")
+            "where p.pk = ?1 and p.verificationStatus = ?2")
 })
 @Entity
 @Table(name = "patient",
@@ -122,7 +119,6 @@ public class Patient {
     public static final String FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES =
             "Patient.findByVerificationStatusAndTimeAndMaxRetries";
     public static final String CLAIM_PATIENT_VERIFICATION = "Patient.ClaimPatientVerification";
-    public static final String FIND_BY_PK = "Patient.findByPk";
 
     public enum VerificationStatus {
         UNVERIFIED,

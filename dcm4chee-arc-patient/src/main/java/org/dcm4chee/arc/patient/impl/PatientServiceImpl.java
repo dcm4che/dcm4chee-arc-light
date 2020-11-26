@@ -213,8 +213,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer,
+    public boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
                                     Map<IDWithIssuer, Integer> ambiguous) {
-        return ejb.supplementIssuer(ctx, pk, idWithIssuer, ambiguous);
+        return ejb.supplementIssuer(ctx, patient, idWithIssuer, ambiguous);
     }
 }

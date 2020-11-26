@@ -474,18 +474,18 @@ public class IocmRS {
                     if (supplementIssuerFetchSize == failed)
                         return resp(success, ambiguous, failures);
 
-                    Map<String, List<IssuerInfo>> supplement = new HashMap<>();
+                    Map<String, List<PatientInfo>> supplement = new HashMap<>();
                     patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
                             ctx, supplementIssuerFetchSize, supplementIssuerFetchSize + failed);
                     patientsWithUnknownIssuers.stream()
-                            .map(patient -> new IssuerInfo(patient.getPk(), new IDWithIssuer(
+                            .map(patient -> new PatientInfo(patient, new IDWithIssuer(
                                             patient.getPatientID().getID(), issuer.format(patient.getAttributes()))))
-                            .collect(Collectors.groupingBy(IssuerInfo::getIdWithIssuer))
-                            .forEach((idWithIssuer, issuerInfos) -> {
-                                if (issuerInfos.size() > 1)
-                                    ambiguous.put(idWithIssuer, issuerInfos.size());
+                            .collect(Collectors.groupingBy(PatientInfo::getIdWithIssuer))
+                            .forEach((idWithIssuer, patientInfos) -> {
+                                if (patientInfos.size() > 1)
+                                    ambiguous.put(idWithIssuer, patientInfos.size());
                                 else
-                                    supplement.computeIfAbsent(idWithIssuer.getID(), i -> new ArrayList<>()).add(issuerInfos.get(0));
+                                    supplement.computeIfAbsent(idWithIssuer.getID(), i -> new ArrayList<>()).add(patientInfos.get(0));
                             });
 
                     if (supplement.size() == 1 && supplement.entrySet().iterator().next().getValue().size() == supplementIssuerFetchSize)
@@ -493,16 +493,16 @@ public class IocmRS {
                                 Response.Status.FORBIDDEN);
 
                     AtomicInteger count = new AtomicInteger();
-                    supplement.forEach((patientID, issuerInfos) -> {
+                    supplement.forEach((patientID, patientInfos) -> {
                         count.getAndIncrement();
                         if (supplement.size() == 1 || count.get() < supplement.size()) {
-                            issuerInfos.forEach(issuerInfo -> {
+                            patientInfos.forEach(patientInfo -> {
                                 try {
                                     if (patientService.supplementIssuer(
-                                            patientMgtCtx(), issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous))
-                                        success.add(issuerInfo.getIdWithIssuer());
+                                            patientMgtCtx(), patientInfo.getPatient(), patientInfo.getIdWithIssuer(), ambiguous))
+                                        success.add(patientInfo.getIdWithIssuer());
                                 } catch (Exception e) {
-                                    failures.put(issuerInfo.getIdWithIssuer().toString(), e.getMessage());
+                                    failures.put(patientInfo.getIdWithIssuer().toString(), e.getMessage());
                                 } 
                             });
                         }
@@ -515,17 +515,17 @@ public class IocmRS {
         }
     }
 
-    private static class IssuerInfo {
-        final long pk;
+    private static class PatientInfo {
+        final Patient patient;
         final IDWithIssuer idWithIssuer;
 
-        IssuerInfo(long pk, IDWithIssuer idWithIssuer) {
-            this.pk = pk;
+        PatientInfo(Patient patient, IDWithIssuer idWithIssuer) {
+            this.patient = patient;
             this.idWithIssuer = idWithIssuer;
         }
 
-        long getPk() {
-            return pk;
+        Patient getPatient() {
+            return patient;
         }
 
         IDWithIssuer getIdWithIssuer() {
