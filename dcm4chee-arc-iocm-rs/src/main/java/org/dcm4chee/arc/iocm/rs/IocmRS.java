@@ -490,7 +490,7 @@ public class IocmRS {
 
                     if (supplement.size() == 1 && supplement.entrySet().iterator().next().getValue().size() == supplementIssuerFetchSize)
                         return errResponse("Indeterminate state. Try increasing Supplement Issuer Fetch Size.",
-                                Response.Status.CONFLICT);
+                                Response.Status.FORBIDDEN);
 
                     AtomicInteger count = new AtomicInteger();
                     supplement.forEach((patientID, issuerInfos) -> {
