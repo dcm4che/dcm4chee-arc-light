@@ -49,7 +49,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.net.Socket;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,5 +89,5 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
-    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous);
+    boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous);
 }

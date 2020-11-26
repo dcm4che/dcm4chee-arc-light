@@ -107,7 +107,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -452,7 +451,7 @@ public class IocmRS {
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
         Set<IDWithIssuer> success = new HashSet<>();
-        List<IDWithIssuer> ambiguous = new ArrayList<>();
+        Map<IDWithIssuer, Integer> ambiguous = new HashMap<>();
         Map<String, String> failures = new HashMap<>();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
@@ -469,52 +468,46 @@ public class IocmRS {
             if (testIssuer)
                 queryService.testSupplementIssuers(ctx, supplementIssuerFetchSize, success, ambiguous, issuer);
             else {
-                AtomicInteger count = new AtomicInteger();
-                Map<String, List<IssuerInfo>> toBeSupplemented = new HashMap<>();
+                List<Patient> patientsWithUnknownIssuers;
                 do {
-                    count.set(0);
                     int failed = failures.size() + ambiguous.size();
                     if (supplementIssuerFetchSize == failed)
                         return resp(success, ambiguous, failures);
 
-                    queryService.patientsWithUnknownIssuers(
-                            ctx, supplementIssuerFetchSize, supplementIssuerFetchSize + failed)
-                            .forEach(p -> {
-                                count.getAndIncrement();
-                                String patientID = p.getPatientID().getID();
-                                IDWithIssuer idWithIssuer = new IDWithIssuer(patientID, issuer.format(p.getAttributes()));
-                                //if (!ambiguous.contains(idWithIssuer)) {
-                                    if (!toBeSupplemented.containsKey(patientID)) {
-                                        List<IssuerInfo> issuerInfos = new ArrayList<>();
-                                        issuerInfos.add(new IssuerInfo(p.getPk(), idWithIssuer));
-                                        toBeSupplemented.put(patientID, issuerInfos);
-                                    } else {
-                                        Iterator<IssuerInfo> issuerInfos = toBeSupplemented.get(patientID).iterator();
-                                        boolean addIDWithIssuer = false;
-                                        while (issuerInfos.hasNext()) {
-                                            IssuerInfo issuerInfo = issuerInfos.next();
-                                            IDWithIssuer idWithIssuer1 = issuerInfo.getIdWithIssuer();
-                                            if (idWithIssuer1.equals(idWithIssuer)) {
-                                                ambiguous.add(idWithIssuer);
-                                                issuerInfos.remove();
-                                                addIDWithIssuer = false;
-                                                break;
-                                            } else
-                                                addIDWithIssuer = true;
-                                        }
-                                        if (addIDWithIssuer)
-                                            toBeSupplemented.get(patientID).add(new IssuerInfo(p.getPk(), idWithIssuer));
-                                    }
-
-                                    if (toBeSupplemented.get(patientID).isEmpty())
-                                        toBeSupplemented.remove(patientID);
-                                //}
+                    Map<String, List<IssuerInfo>> supplement = new HashMap<>();
+                    patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
+                            ctx, supplementIssuerFetchSize, supplementIssuerFetchSize + failed);
+                    patientsWithUnknownIssuers.stream()
+                            .map(patient -> new IssuerInfo(patient.getPk(), new IDWithIssuer(
+                                            patient.getPatientID().getID(), issuer.format(patient.getAttributes()))))
+                            .collect(Collectors.groupingBy(IssuerInfo::getIdWithIssuer))
+                            .forEach((idWithIssuer, issuerInfos) -> {
+                                if (issuerInfos.size() > 1)
+                                    ambiguous.put(idWithIssuer, issuerInfos.size());
+                                else
+                                    supplement.computeIfAbsent(idWithIssuer.getID(), i -> new ArrayList<>()).add(issuerInfos.get(0));
                             });
 
-                    toBeSupplemented.forEach((patientID, issuerInfos) ->
-                            issuerInfos.forEach(issuerInfo -> supplementIssuer(
-                                    issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous, success, failures)));
-                } while (count.get() == supplementIssuerFetchSize);
+                    if (supplement.size() == 1 && supplement.entrySet().iterator().next().getValue().size() == supplementIssuerFetchSize)
+                        return errResponse("Indeterminate state. Try increasing Supplement Issuer Fetch Size.",
+                                Response.Status.CONFLICT);
+
+                    AtomicInteger count = new AtomicInteger();
+                    supplement.forEach((patientID, issuerInfos) -> {
+                        count.getAndIncrement();
+                        if (supplement.size() == 1 || count.get() < supplement.size()) {
+                            issuerInfos.forEach(issuerInfo -> {
+                                try {
+                                    if (patientService.supplementIssuer(
+                                            patientMgtCtx(), issuerInfo.getPk(), issuerInfo.getIdWithIssuer(), ambiguous))
+                                        success.add(issuerInfo.getIdWithIssuer());
+                                } catch (Exception e) {
+                                    failures.put(issuerInfo.getIdWithIssuer().toString(), e.getMessage());
+                                } 
+                            });
+                        }
+                    });
+                } while (patientsWithUnknownIssuers.size() == supplementIssuerFetchSize);
             }
             return resp(success, ambiguous, failures);
         } catch (Exception e) {
@@ -540,17 +533,7 @@ public class IocmRS {
         }
     }
 
-    private void supplementIssuer(long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous,
-                                  Set<IDWithIssuer> success, Map<String, String> failures) {
-        try {
-            if (patientService.supplementIssuer(patientMgtCtx(), pk, idWithIssuer, ambiguous))
-                success.add(idWithIssuer);
-        } catch (Exception e) {
-            failures.put(idWithIssuer.toString(), e.getMessage());
-        }
-    }
-
-    private Response resp(Set<IDWithIssuer> success, List<IDWithIssuer> ambiguous, Map<String, String> failures) {
+    private Response resp(Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous, Map<String, String> failures) {
         return Response.status(ambiguous.size() > 0 || failures.size() > 0
                                 ? success.size() > 0
                                     ? Response.Status.ACCEPTED
@@ -565,9 +548,7 @@ public class IocmRS {
                     writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
                     if (!ambiguous.isEmpty()) {
                         writer.writeStartArray("ambiguous");
-                        ambiguous.stream()
-                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                                .forEach((idWithIssuer, count) -> {
+                        ambiguous.forEach((idWithIssuer, count) -> {
                                     writer.writeStartObject();
                                     writer.writeNotNullOrDef("pid", idWithIssuer, null);
                                     writer.writeNotNullOrDef("count", count, null);

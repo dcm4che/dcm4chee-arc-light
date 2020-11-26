@@ -148,6 +148,6 @@ public interface QueryService {
     List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
 
     void testSupplementIssuers(
-            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, List<IDWithIssuer> ambiguous,
+            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous,
             AttributesFormat issuer);
 }

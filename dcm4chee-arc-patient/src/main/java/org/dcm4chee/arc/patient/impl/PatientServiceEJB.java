@@ -56,7 +56,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.*;
 
@@ -478,9 +477,10 @@ public class PatientServiceEJB {
     }
 
     public boolean supplementIssuer(
-            PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous) {
-        if (exists(idWithIssuer)) {
-            ambiguous.add(idWithIssuer);
+            PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous) {
+        int existingIDWithIssuerCount = existingIDWithIssuers(idWithIssuer);
+        if (existingIDWithIssuerCount >= 1) {
+            ambiguous.put(idWithIssuer, existingIDWithIssuerCount);
             return false;
         }
 
@@ -495,7 +495,7 @@ public class PatientServiceEJB {
         return true;
     }
 
-    private boolean exists(IDWithIssuer idWithIssuer) {
+    private int existingIDWithIssuers(IDWithIssuer idWithIssuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
         Root<PatientID> patientID = q.from(PatientID.class);
@@ -509,6 +509,6 @@ public class PatientServiceEJB {
         if (issuer.getUniversalEntityIDType() != null)
             predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), issuer.getUniversalEntityIDType()));
         q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).getResultList().size() >= 1;
+        return em.createQuery(q).getResultList().size();
     }
 }
