@@ -477,16 +477,12 @@ public class PatientServiceEJB {
     }
 
     public boolean supplementIssuer(
-            PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous) {
+            PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous) {
         int existingIDWithIssuerCount = existingIDWithIssuers(idWithIssuer);
         if (existingIDWithIssuerCount >= 1) {
             ambiguous.put(idWithIssuer, existingIDWithIssuerCount);
             return false;
         }
-
-        Patient patient = em.createNamedQuery(Patient.FIND_BY_PK, Patient.class)
-                .setParameter(1, pk)
-                .getSingleResult();
 
         updateIssuer(patient.getPatientID(), idWithIssuer.getIssuer());
         Attributes patAttrs = patient.getAttributes();
