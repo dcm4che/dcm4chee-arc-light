@@ -55,7 +55,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.net.Socket;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -213,7 +213,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer, List<IDWithIssuer> ambiguous) {
+    public boolean supplementIssuer(PatientMgtContext ctx, long pk, IDWithIssuer idWithIssuer,
+                                    Map<IDWithIssuer, Integer> ambiguous) {
         return ejb.supplementIssuer(ctx, pk, idWithIssuer, ambiguous);
     }
 }

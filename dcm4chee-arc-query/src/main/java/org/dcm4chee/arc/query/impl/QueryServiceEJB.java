@@ -61,6 +61,7 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -537,7 +538,7 @@ public class QueryServiceEJB {
         return query.getResultList();
     }
 
-    private boolean exists(IDWithIssuer idWithIssuer) {
+    private int existingIDWithIssuers(IDWithIssuer idWithIssuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
         Root<PatientID> patientID = q.from(PatientID.class);
@@ -551,21 +552,23 @@ public class QueryServiceEJB {
         if (issuer.getUniversalEntityIDType() != null)
             predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), issuer.getUniversalEntityIDType()));
         q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).getResultList().size() >= 1;
+        return em.createQuery(q).getResultList().size();
     }
 
     public void testSupplementIssuers(
-            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, List<IDWithIssuer> ambiguous, AttributesFormat issuer) {
+            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous,
+            AttributesFormat issuer) {
         patientsWithUnknownIssuers(ctx, fetchSize, -1).stream()
                 .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
-                .forEach(idWithIssuer -> {
-                    if (exists(idWithIssuer))
-                        ambiguous.add(idWithIssuer);
-                    else if (success.contains(idWithIssuer)) {
-                        ambiguous.add(idWithIssuer);
-                        success.remove(idWithIssuer);
-                    } else
-                        success.add(idWithIssuer);
+                .collect(Collectors.groupingBy(Function.identity()))
+                .forEach((idWithIssuer, idWithIssuers) -> {
+                    if (idWithIssuers.size() == 1) {
+                        int existingIDWithIssuers = existingIDWithIssuers(idWithIssuer);
+                        if (existingIDWithIssuers >= 1)
+                            ambiguous.put(idWithIssuer, existingIDWithIssuers);
+                        else success.add(idWithIssuer);
+                    }
+                    else ambiguous.put(idWithIssuer, idWithIssuers.size());
                 });
     }
 }
