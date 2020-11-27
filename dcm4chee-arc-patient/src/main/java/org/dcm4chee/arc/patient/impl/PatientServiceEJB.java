@@ -484,7 +484,7 @@ public class PatientServiceEJB {
     public boolean supplementIssuer(
             PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
         Long count = countPatientIDWithIssuers(idWithIssuer);
-        if (count != null) {
+        if (count != 0L) {
             ambiguous.put(idWithIssuer, count);
             return false;
         }
@@ -520,7 +520,7 @@ public class PatientServiceEJB {
                             cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), entityUIDType)
                     )));
         }
-        return em.createQuery(q.select(cb.count(patientID))).getSingleResult();
+        return em.createQuery(q.where(predicates.toArray(new Predicate[0])).select(cb.count(patientID))).getSingleResult();
     }
 
     public List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit) {
@@ -537,7 +537,7 @@ public class PatientServiceEJB {
                     .forEach((idWithIssuer, count) -> {
                         if (count == 1) {
                             Long countIDWithIssuers = countPatientIDWithIssuers(idWithIssuer);
-                            if (countIDWithIssuers != null)
+                            if (countIDWithIssuers != 0L)
                                 ambiguous.put(idWithIssuer, countIDWithIssuers);
                             else success.add(idWithIssuer);
                         } else ambiguous.put(idWithIssuer, count);
