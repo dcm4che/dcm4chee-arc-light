@@ -60,6 +60,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaQuery;
 import java.io.IOException;
 import java.util.*;
 import java.util.zip.ZipInputStream;
@@ -145,9 +146,5 @@ public interface QueryService {
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
-    List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit);
-
-    void testSupplementIssuers(
-            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous,
-            AttributesFormat issuer);
+    CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryContext ctx);
 }

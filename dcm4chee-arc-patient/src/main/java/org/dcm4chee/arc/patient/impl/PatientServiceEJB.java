@@ -43,12 +43,14 @@ package org.dcm4chee.arc.patient.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.*;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +60,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -477,10 +482,10 @@ public class PatientServiceEJB {
     }
 
     public boolean supplementIssuer(
-            PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous) {
-        int existingIDWithIssuerCount = existingIDWithIssuers(idWithIssuer);
-        if (existingIDWithIssuerCount >= 1) {
-            ambiguous.put(idWithIssuer, existingIDWithIssuerCount);
+            PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
+        Long count = countPatientIDWithIssuers(idWithIssuer);
+        if (count != null) {
+            ambiguous.put(idWithIssuer, count);
             return false;
         }
 
@@ -491,20 +496,52 @@ public class PatientServiceEJB {
         return true;
     }
 
-    private int existingIDWithIssuers(IDWithIssuer idWithIssuer) {
+    public Long countPatientIDWithIssuers(IDWithIssuer idWithIssuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<PatientID> patientID = q.from(PatientID.class);
         Join<PatientID, IssuerEntity> issuerEntity = patientID.join(PatientID_.issuer);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(patientID.get(PatientID_.id), idWithIssuer.getID()));
         Issuer issuer = idWithIssuer.getIssuer();
-        predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), issuer.getLocalNamespaceEntityID()));
-        if (issuer.getUniversalEntityID() != null)
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), issuer.getUniversalEntityID()));
-        if (issuer.getUniversalEntityIDType() != null)
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), issuer.getUniversalEntityIDType()));
-        q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).getResultList().size();
+        String entityID = issuer.getLocalNamespaceEntityID();
+        String entityUID = issuer.getUniversalEntityID();
+        String entityUIDType = issuer.getUniversalEntityIDType();
+        if (entityID == null) {
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), entityUID));
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), entityUIDType));
+        } else if (entityUID == null) {
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), entityID));
+        } else {
+            predicates.add(cb.or(
+                    cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), entityID),
+                    cb.and(
+                            cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), entityUID),
+                            cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), entityUIDType)
+                    )));
+        }
+        return em.createQuery(q.select(cb.count(patientID))).getSingleResult();
+    }
+
+    public List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit) {
+        return em.createQuery(query).setMaxResults(limit).getResultList();
+    }
+
+    public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+            Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
+        try (Stream<Patient> resultStream =
+                     em.createQuery(query).setHint(QueryHints.FETCH_SIZE, fetchSize).getResultStream()) {
+            resultStream
+                    .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                    .forEach((idWithIssuer, count) -> {
+                        if (count == 1) {
+                            Long countIDWithIssuers = countPatientIDWithIssuers(idWithIssuer);
+                            if (countIDWithIssuers != null)
+                                ambiguous.put(idWithIssuer, countIDWithIssuers);
+                            else success.add(idWithIssuer);
+                        } else ambiguous.put(idWithIssuer, count);
+                    });
+        }
     }
 }

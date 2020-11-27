@@ -44,12 +44,15 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,5 +92,11 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
-    boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Integer> ambiguous);
+    boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
+            Map<IDWithIssuer, Long> ambiguous);
+
+    void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+            Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer);
+
+    List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit);
 }

@@ -168,13 +168,14 @@ export class RangePickerComponent implements OnInit {
         }
     }
     smartInputChange(e){
-        let date = new Date();
-        date.getFullYear()
         let extractedDurationObject = j4care.extractDurationFromValue(e);
         if(extractedDurationObject.Minutes || extractedDurationObject.Hours || extractedDurationObject.Seconds){
-            this.includeTime = true;
-            this.fromTimeModel = `${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Hours)}:${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Minutes)}:${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Seconds)}`;
+            this.fromTimeModel = j4care.formatDate(j4care.createDateFromDuration(extractedDurationObject),"HH:mm:ss");
             this.toTimeModel = j4care.getTimeFromDate(new Date());
+        }else{
+            this.fromTimeModel = "";
+            this.toTimeModel = "";
+            this.includeTime = true;
         }
         this.fromModel = j4care.convertDateToString(this.createDateFromDuration(extractedDurationObject));
     }
