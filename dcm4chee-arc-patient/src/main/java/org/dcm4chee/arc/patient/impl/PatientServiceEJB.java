@@ -484,7 +484,7 @@ public class PatientServiceEJB {
     public boolean supplementIssuer(
             PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
         Long count = countPatientIDWithIssuers(idWithIssuer);
-        if (count != 0L) {
+        if (count != null && count != 0L) {
             ambiguous.put(idWithIssuer, count);
             return false;
         }
@@ -537,7 +537,7 @@ public class PatientServiceEJB {
                     .forEach((idWithIssuer, count) -> {
                         if (count == 1) {
                             Long countIDWithIssuers = countPatientIDWithIssuers(idWithIssuer);
-                            if (countIDWithIssuers != 0L)
+                            if (countIDWithIssuers != null && countIDWithIssuers != 0L)
                                 ambiguous.put(idWithIssuer, countIDWithIssuers);
                             else success.add(idWithIssuer);
                         } else ambiguous.put(idWithIssuer, count);
