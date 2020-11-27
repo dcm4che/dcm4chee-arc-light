@@ -2316,7 +2316,7 @@
             "count": {
               "title": "Ambiguous Patient ID Count",
               "description": "Ambiguous Patient ID Count",
-              "type": "string"
+              "type": "integer"
             }
           }
         }
@@ -2344,6 +2344,11 @@
             }
           }
         }
+      },
+      "tooManyDuplicates" : {
+        "title": "tooManyDuplicates",
+        "description": "Patient ID which number of duplicates exceeds configured fetch size",
+        "type": "string"
       }
     }
   },

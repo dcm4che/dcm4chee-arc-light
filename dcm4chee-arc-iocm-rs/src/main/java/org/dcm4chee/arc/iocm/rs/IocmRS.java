@@ -50,36 +50,34 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.delete.RejectionService;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
-import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.rs.client.RSForward;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -456,17 +454,18 @@ public class IocmRS {
         Map<String, String> failures = new HashMap<>();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
-            if (queryAttrs.getQueryKeys().getString(Tag.IssuerOfPatientID) != null
-                    || queryAttrs.getQueryKeys().getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence) != null)
+            Attributes queryKeys = queryAttrs.getQueryKeys();
+            if (queryKeys.getString(Tag.IssuerOfPatientID) != null
+                    || queryKeys.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence) != null)
                 return errResponse(
                         "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters",
                         Response.Status.BAD_REQUEST);
 
+            CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(
+                    queryParam(arcAE.getApplicationEntity()), queryKeys);
+            String toManyDuplicates = null;
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
             boolean testIssuer = Boolean.parseBoolean(test);
-            QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
-            CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(ctx);
-            String toManyDuplicates = null;
             if (testIssuer) {
                 patientService.testSupplementIssuers(query, supplementIssuerFetchSize, success, ambiguous, issuer);
             } else {
@@ -570,19 +569,6 @@ public class IocmRS {
         }
         gen.writeEnd();
         gen.flush();
-    }
-
-    private QueryContext queryContext(ApplicationEntity ae, QueryAttributes queryAttrs) {
-        QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), "supplementIssuer", ae, queryParam(ae));
-        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
-        Attributes keys = queryAttrs.getQueryKeys();
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
-            ctx.setPatientIDs(idWithIssuer);
-        ctx.setQueryKeys(keys);
-        ctx.setOrderByTags(Collections.singletonList(OrderByTag.asc(Tag.PatientID)));
-        return ctx;
     }
 
     private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae) {
