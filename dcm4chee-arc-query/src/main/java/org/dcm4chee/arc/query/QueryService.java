@@ -55,6 +55,7 @@ import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.persistence.Tuple;
@@ -147,5 +148,5 @@ public interface QueryService {
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
-    CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryContext ctx);
+    CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 }

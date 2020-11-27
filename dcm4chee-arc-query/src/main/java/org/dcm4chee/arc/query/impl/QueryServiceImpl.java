@@ -46,7 +46,6 @@ import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -60,6 +59,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -613,7 +613,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryContext ctx) {
+    public CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder builder = new QueryBuilder(cb);
         CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
@@ -621,13 +621,14 @@ class QueryServiceImpl implements QueryService {
         patient.join(Patient_.attributesBlob);
         patient.join(Patient_.patientID);
 
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
         List<Predicate> predicates = builder.patientPredicates(q, patient,
-                ctx.getPatientIDs(),
-                ctx.getQueryKeys(),
-                ctx.getQueryParam());
+                idWithIssuer != null ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
+                queryKeys,
+                queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        q.orderBy(builder.orderPatients(patient, ctx.getOrderByTags()));
+        q.orderBy(builder.orderPatients(patient, Collections.singletonList(OrderByTag.asc(Tag.PatientID))));
         return q;
     }
 }
