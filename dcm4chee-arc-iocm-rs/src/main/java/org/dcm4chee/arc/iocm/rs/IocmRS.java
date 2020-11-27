@@ -467,16 +467,19 @@ public class IocmRS {
             if (testIssuer) {
                 patientService.testSupplementIssuers(query, supplementIssuerFetchSize, success, ambiguous, issuer);
             } else {
+                Set<Long> failedPks = new HashSet<>();
                 boolean remaining;
                 int carry = 0;
                 do {
-                    int limit = supplementIssuerFetchSize + carry + failures.size() + ambiguous.size();
+                    int limit = supplementIssuerFetchSize + failedPks.size() + carry;
                     List<Patient> matches = patientService.queryWithLimit(query, limit);
+                    remaining = matches.size() == limit;
+                    matches.removeIf(p -> failedPks.contains(p.getPk()));
                     if (matches.isEmpty())
                         break;
 
                     carry = 0;
-                    if (remaining = matches.size() == limit) {
+                    if (remaining) {
                         try {
                             ListIterator<Patient> itr = matches.listIterator(matches.size());
                             toManyDuplicates = itr.previous().getPatientID().getID();
@@ -495,18 +498,23 @@ public class IocmRS {
                             .forEach((idWithIssuer, patients) -> {
                                 if (patients.size() > 1) {
                                     ambiguous.put(idWithIssuer, Long.valueOf(patients.size()));
+                                    patients.stream().map(Patient::getPk).forEach(failedPks::add);
                                 } else {
+                                    Patient patient = patients.get(0);
                                     try {
                                         if (patientService.supplementIssuer(
-                                                patientMgtCtx(), patients.get(0), idWithIssuer, ambiguous)) {
+                                                patientMgtCtx(), patient, idWithIssuer, ambiguous)) {
                                             success.add(idWithIssuer);
+                                        } else {
+                                            failedPks.add(patient.getPk());
                                         }
                                     } catch (Exception e) {
                                         failures.put(idWithIssuer.toString(), e.getMessage());
+                                        failedPks.add(patient.getPk());
                                     }
                                 }
                             });
-                } while (remaining && failures.size() + ambiguous.size() < supplementIssuerFetchSize);
+                } while (remaining && failedPks.size() < supplementIssuerFetchSize);
             }
             return supplementIssuerResponse(success, ambiguous, failures, toManyDuplicates).build();
         } catch (Exception e) {
