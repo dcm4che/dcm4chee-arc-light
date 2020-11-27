@@ -42,7 +42,6 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
@@ -92,6 +91,7 @@ import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
 import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -106,7 +106,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -451,7 +450,7 @@ public class IocmRS {
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
         Set<IDWithIssuer> success = new HashSet<>();
-        Map<IDWithIssuer, Integer> ambiguous = new HashMap<>();
+        Map<IDWithIssuer, Long> ambiguous = new HashMap<>();
         Map<String, String> failures = new HashMap<>();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
@@ -464,112 +463,111 @@ public class IocmRS {
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
             boolean testIssuer = Boolean.parseBoolean(test);
             QueryContext ctx = queryContext(arcAE.getApplicationEntity(), queryAttrs);
-
-            if (testIssuer)
-                queryService.testSupplementIssuers(ctx, supplementIssuerFetchSize, success, ambiguous, issuer);
-            else {
-                List<Patient> patientsWithUnknownIssuers;
+            CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(ctx);
+            String toManyDuplicates = null;
+            if (testIssuer) {
+                patientService.testSupplementIssuers(query, supplementIssuerFetchSize, success, ambiguous, issuer);
+            } else {
+                boolean remaining;
+                int carry = 0;
                 do {
-                    int failed = failures.size() + ambiguous.size();
-                    if (supplementIssuerFetchSize == failed)
-                        return resp(success, ambiguous, failures);
+                    int limit = supplementIssuerFetchSize + carry + failures.size() + ambiguous.size();
+                    List<Patient> matches = patientService.queryWithLimit(query, limit);
+                    if (matches.isEmpty())
+                        break;
 
-                    Map<String, List<PatientInfo>> supplement = new HashMap<>();
-                    patientsWithUnknownIssuers = queryService.patientsWithUnknownIssuers(
-                            ctx, supplementIssuerFetchSize, supplementIssuerFetchSize + failed);
-                    patientsWithUnknownIssuers.stream()
-                            .map(patient -> new PatientInfo(patient, new IDWithIssuer(
-                                            patient.getPatientID().getID(), issuer.format(patient.getAttributes()))))
-                            .collect(Collectors.groupingBy(PatientInfo::getIdWithIssuer))
-                            .forEach((idWithIssuer, patientInfos) -> {
-                                if (patientInfos.size() > 1)
-                                    ambiguous.put(idWithIssuer, patientInfos.size());
-                                else
-                                    supplement.computeIfAbsent(idWithIssuer.getID(), i -> new ArrayList<>()).add(patientInfos.get(0));
-                            });
-
-                    if (supplement.size() == 1 && supplement.entrySet().iterator().next().getValue().size() == supplementIssuerFetchSize)
-                        return errResponse("Indeterminate state. Try increasing Supplement Issuer Fetch Size.",
-                                Response.Status.FORBIDDEN);
-
-                    AtomicInteger count = new AtomicInteger();
-                    supplement.forEach((patientID, patientInfos) -> {
-                        count.getAndIncrement();
-                        if (supplement.size() == 1 || count.get() < supplement.size()) {
-                            patientInfos.forEach(patientInfo -> {
-                                try {
-                                    if (patientService.supplementIssuer(
-                                            patientMgtCtx(), patientInfo.getPatient(), patientInfo.getIdWithIssuer(), ambiguous))
-                                        success.add(patientInfo.getIdWithIssuer());
-                                } catch (Exception e) {
-                                    failures.put(patientInfo.getIdWithIssuer().toString(), e.getMessage());
-                                } 
-                            });
+                    carry = 0;
+                    if (remaining = matches.size() == limit) {
+                        try {
+                            ListIterator<Patient> itr = matches.listIterator(matches.size());
+                            toManyDuplicates = itr.previous().getPatientID().getID();
+                            do {
+                                itr.remove();
+                                carry++;
+                            } while (toManyDuplicates.equals(itr.previous().getPatientID().getID()));
+                            toManyDuplicates = null;
+                        } catch (NoSuchElementException e) {
+                            break;
                         }
-                    });
-                } while (patientsWithUnknownIssuers.size() == supplementIssuerFetchSize);
+                    }
+                    matches.stream()
+                            .collect(Collectors.groupingBy(
+                                    p -> new IDWithIssuer(p.getPatientID().getID(),issuer.format(p.getAttributes()))))
+                            .forEach((idWithIssuer, patients) -> {
+                                if (patients.size() > 1) {
+                                    ambiguous.put(idWithIssuer, Long.valueOf(patients.size()));
+                                } else {
+                                    try {
+                                        if (patientService.supplementIssuer(
+                                                patientMgtCtx(), patients.get(0), idWithIssuer, ambiguous)) {
+                                            success.add(idWithIssuer);
+                                        }
+                                    } catch (Exception e) {
+                                        failures.put(idWithIssuer.toString(), e.getMessage());
+                                    }
+                                }
+                            });
+                } while (remaining && failures.size() + ambiguous.size() < supplementIssuerFetchSize);
             }
-            return resp(success, ambiguous, failures);
+            return supplementIssuerResponse(success, ambiguous, failures, toManyDuplicates).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private static class PatientInfo {
-        final Patient patient;
-        final IDWithIssuer idWithIssuer;
-
-        PatientInfo(Patient patient, IDWithIssuer idWithIssuer) {
-            this.patient = patient;
-            this.idWithIssuer = idWithIssuer;
-        }
-
-        Patient getPatient() {
-            return patient;
-        }
-
-        IDWithIssuer getIdWithIssuer() {
-            return idWithIssuer;
-        }
+    private static Response.ResponseBuilder supplementIssuerResponse(
+            Set<IDWithIssuer> success,
+            Map<IDWithIssuer, Long> ambiguous,
+            Map<String, String> failures,
+            String toManyDuplicates) {
+        boolean ok = ambiguous.isEmpty() && failures.isEmpty() && toManyDuplicates == null;
+        return (ok && success.isEmpty())
+                ? Response.status(Response.Status.NO_CONTENT)
+                : Response.status(ok
+                    ? Response.Status.OK
+                    : success.isEmpty()
+                        ? Response.Status.CONFLICT
+                        : Response.Status.ACCEPTED)
+                .entity((StreamingOutput) out -> supplementIssuerResponsePayload(
+                        success, ambiguous, failures, toManyDuplicates, out));
     }
 
-    private Response resp(Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous, Map<String, String> failures) {
-        return Response.status(ambiguous.size() > 0 || failures.size() > 0
-                                ? success.size() > 0
-                                    ? Response.Status.ACCEPTED
-                                    : Response.Status.CONFLICT
-                                : success.size() > 0
-                                    ? Response.Status.OK
-                                    : Response.Status.NO_CONTENT)
-                .entity((StreamingOutput)out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    JsonWriter writer = new JsonWriter(gen);
-                    gen.writeStartObject();
-                    writer.writeNotEmpty("pids", success.toArray(IDWithIssuer.EMPTY));
-                    if (!ambiguous.isEmpty()) {
-                        writer.writeStartArray("ambiguous");
-                        ambiguous.forEach((idWithIssuer, count) -> {
-                                    writer.writeStartObject();
-                                    writer.writeNotNullOrDef("pid", idWithIssuer, null);
-                                    writer.writeNotNullOrDef("count", count, null);
-                                    writer.writeEnd();
-                                });
-                        writer.writeEnd();
-                    }
-                    if (!failures.isEmpty()) {
-                        writer.writeStartArray("failures");
-                        failures.forEach((pid, errorMsg) -> {
-                            writer.writeStartObject();
-                            writer.writeNotNullOrDef("pid", pid, null);
-                            writer.writeNotNullOrDef("errorMessage", errorMsg, null);
-                            writer.writeEnd();
-                        });
-                        writer.writeEnd();
-                    }
-                    gen.writeEnd();
-                    gen.flush();
-                })
-                .build();
+    private static void supplementIssuerResponsePayload(
+            Set<IDWithIssuer> success,
+            Map<IDWithIssuer, Long> ambiguous,
+            Map<String, String> failures,
+            String toManyDuplicates,
+            OutputStream out) {
+        JsonGenerator gen = Json.createGenerator(out);
+        gen.writeStartObject();
+        gen.writeStartArray("pids");
+        success.stream().map(Object::toString).forEach(gen::write);
+        gen.writeEnd();
+        if (!ambiguous.isEmpty()) {
+            gen.writeStartArray("ambiguous");
+            ambiguous.forEach((idWithIssuer, count) -> {
+                gen.writeStartObject();
+                gen.write("pid", idWithIssuer.toString());
+                gen.write("count", count);
+                gen.writeEnd();
+            });
+            gen.writeEnd();
+        }
+        if (!failures.isEmpty()) {
+            gen.writeStartArray("failures");
+            failures.forEach((pid, errorMsg) -> {
+                gen.writeStartObject();
+                gen.write("pid", pid);
+                gen.write("errorMessage", errorMsg);
+                gen.writeEnd();
+            });
+            gen.writeEnd();
+        }
+        if (toManyDuplicates != null) {
+            gen.write("tooManyDuplicates", toManyDuplicates);
+        }
+        gen.writeEnd();
+        gen.flush();
     }
 
     private QueryContext queryContext(ApplicationEntity ae, QueryAttributes queryAttrs) {

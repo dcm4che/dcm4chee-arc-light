@@ -613,13 +613,21 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
-        return ejb.patientsWithUnknownIssuers(ctx, fetchSize, limit);
-    }
+    public CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryContext ctx) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder builder = new QueryBuilder(cb);
+        CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
+        Root<Patient> patient = q.from(Patient.class);
+        patient.join(Patient_.attributesBlob);
+        patient.join(Patient_.patientID);
 
-    @Override
-    public void testSupplementIssuers(QueryContext ctx, int fetchSize, Set<IDWithIssuer> success,
-                                      Map<IDWithIssuer, Integer> ambiguous, AttributesFormat issuer) {
-        ejb.testSupplementIssuers(ctx, fetchSize, success, ambiguous, issuer);
+        List<Predicate> predicates = builder.patientPredicates(q, patient,
+                ctx.getPatientIDs(),
+                ctx.getQueryKeys(),
+                ctx.getQueryParam());
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        q.orderBy(builder.orderPatients(patient, ctx.getOrderByTags()));
+        return q;
     }
 }

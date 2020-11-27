@@ -45,6 +45,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -53,9 +54,11 @@ import org.dcm4chee.arc.patient.*;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -214,7 +217,18 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
-                                    Map<IDWithIssuer, Integer> ambiguous) {
+                                    Map<IDWithIssuer, Long> ambiguous) {
         return ejb.supplementIssuer(ctx, patient, idWithIssuer, ambiguous);
+    }
+
+    @Override
+    public List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit) {
+        return ejb.queryWithLimit(query, limit);
+    }
+
+    @Override
+    public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize, Set<IDWithIssuer> success,
+            Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
+        ejb.testSupplementIssuers(query, fetchSize, success, ambiguous, issuer);
     }
 }

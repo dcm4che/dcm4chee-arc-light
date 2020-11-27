@@ -41,9 +41,11 @@
 package org.dcm4chee.arc.query.impl;
 
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -52,7 +54,6 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.hibernate.annotations.QueryHints;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -61,8 +62,6 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -515,60 +514,4 @@ public class QueryServiceEJB {
                 .getResultList();
     }
 
-    public List<Patient> patientsWithUnknownIssuers(QueryContext ctx, int fetchSize, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        QueryBuilder builder = new QueryBuilder(cb);
-        CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
-        Root<Patient> patient = q.from(Patient.class);
-        patient.join(Patient_.attributesBlob);
-        patient.join(Patient_.patientID);
-
-        List<Predicate> predicates = builder.patientPredicates(q, patient,
-                ctx.getPatientIDs(),
-                ctx.getQueryKeys(),
-                ctx.getQueryParam());
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        q.orderBy(builder.orderPatients(patient, ctx.getOrderByTags()));
-
-        TypedQuery<Patient> query = em.createQuery(q);
-        query.setHint(QueryHints.FETCH_SIZE, fetchSize);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultList();
-    }
-
-    private int existingIDWithIssuers(IDWithIssuer idWithIssuer) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
-        Root<PatientID> patientID = q.from(PatientID.class);
-        Join<PatientID, IssuerEntity> issuerEntity = patientID.join(PatientID_.issuer);
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(patientID.get(PatientID_.id), idWithIssuer.getID()));
-        Issuer issuer = idWithIssuer.getIssuer();
-        predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), issuer.getLocalNamespaceEntityID()));
-        if (issuer.getUniversalEntityID() != null)
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), issuer.getUniversalEntityID()));
-        if (issuer.getUniversalEntityIDType() != null)
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), issuer.getUniversalEntityIDType()));
-        q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).getResultList().size();
-    }
-
-    public void testSupplementIssuers(
-            QueryContext ctx, int fetchSize, Set<IDWithIssuer> success, Map<IDWithIssuer, Integer> ambiguous,
-            AttributesFormat issuer) {
-        patientsWithUnknownIssuers(ctx, fetchSize, -1).stream()
-                .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
-                .collect(Collectors.groupingBy(Function.identity()))
-                .forEach((idWithIssuer, idWithIssuers) -> {
-                    if (idWithIssuers.size() == 1) {
-                        int existingIDWithIssuers = existingIDWithIssuers(idWithIssuer);
-                        if (existingIDWithIssuers >= 1)
-                            ambiguous.put(idWithIssuer, existingIDWithIssuers);
-                        else success.add(idWithIssuer);
-                    }
-                    else ambiguous.put(idWithIssuer, idWithIssuers.size());
-                });
-    }
 }
