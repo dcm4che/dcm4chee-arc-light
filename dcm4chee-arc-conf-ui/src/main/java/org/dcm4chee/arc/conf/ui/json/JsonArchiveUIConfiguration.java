@@ -47,6 +47,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ui.*;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.stream.JsonParser;
 import java.util.Collection;
 
@@ -55,6 +56,7 @@ import java.util.Collection;
  * @author Shefki Esadi <shralsheki@gmail.com>
  * @since Nov 2017
  */
+@ApplicationScoped
 public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
     @Override
     protected void storeTo(Device device, JsonWriter writer) {

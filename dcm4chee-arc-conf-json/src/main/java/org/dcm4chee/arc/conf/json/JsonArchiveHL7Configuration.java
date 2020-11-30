@@ -56,7 +56,7 @@ import javax.json.stream.JsonParser;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2016
  */
-public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension {
+public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtension {
     @Override
     public void storeTo(HL7Application hl7App, Device device, JsonWriter writer) {
         ArchiveHL7ApplicationExtension ext = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);

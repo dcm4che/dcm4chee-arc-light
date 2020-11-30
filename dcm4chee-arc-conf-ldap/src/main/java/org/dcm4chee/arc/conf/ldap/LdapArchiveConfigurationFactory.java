@@ -113,10 +113,10 @@ public class LdapArchiveConfigurationFactory {
     public static DicomConfiguration newLdapDicomConfiguration(URL envURL)
             throws ConfigurationException {
         return newLdapDicomConfiguration(envURL, Stream.of(
-                new LdapAuditLoggerConfiguration(),
-                new LdapAuditRecordRepositoryConfiguration(),
-                new LdapImageReaderConfiguration(),
-                new LdapImageWriterConfiguration(),
+                ldapAuditLoggerConfiguration,
+                ldapAuditRecordRepositoryConfiguration,
+                ldapImageReaderConfiguration,
+                ldapImageWriterConfiguration,
                 new LdapArchiveConfiguration(),
                 new LdapArchiveUIConfiguration(),
                 newLdapHL7Configuration()));
