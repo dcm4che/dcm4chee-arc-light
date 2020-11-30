@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf.json;
 
 import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.audit.JsonAuditLoggerConfiguration;
 import org.dcm4che3.conf.json.audit.JsonAuditRecordRepositoryConfiguration;
 import org.dcm4che3.conf.json.hl7.JsonHL7Configuration;
@@ -49,7 +50,9 @@ import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
 import org.dcm4chee.arc.conf.ui.json.JsonArchiveUIConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -60,17 +63,52 @@ public class JsonConfigurationProducer {
 
     @Produces
     @ApplicationScoped
-    public static JsonConfiguration newJsonConfiguration() {
-        JsonConfiguration config = new JsonConfiguration();
-        config.addJsonConfigurationExtension(new JsonAuditLoggerConfiguration());
-        config.addJsonConfigurationExtension(new JsonAuditRecordRepositoryConfiguration());
-        config.addJsonConfigurationExtension(new JsonImageReaderConfiguration());
-        config.addJsonConfigurationExtension(new JsonImageWriterConfiguration());
+    private static JsonAuditLoggerConfiguration jsonAuditLoggerConfiguration =
+            new JsonAuditLoggerConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static JsonAuditRecordRepositoryConfiguration jsonAuditRecordRepositoryConfiguration =
+            new JsonAuditRecordRepositoryConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static JsonImageReaderConfiguration jsonImageReaderConfiguration =
+            new JsonImageReaderConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static JsonImageWriterConfiguration jsonImageWriterConfiguration =
+            new JsonImageWriterConfiguration();
+
+    @Produces
+    @ApplicationScoped
+    private static JsonHL7Configuration newJsonHL7Configuration() {
         JsonHL7Configuration hl7Config = new JsonHL7Configuration();
-        hl7Config.addHL7ConfigurationExtension(new JsonArchivHL7Configuration());
-        config.addJsonConfigurationExtension(hl7Config);
-        config.addJsonConfigurationExtension(new JsonArchiveConfiguration());
-        config.addJsonConfigurationExtension(new JsonArchiveUIConfiguration());
+        hl7Config.addHL7ConfigurationExtension(new JsonArchiveHL7Configuration());
+        return hl7Config;
+    }
+
+    public static JsonConfiguration newJsonConfiguration() {
+        return newJsonConfiguration(Stream.of(
+                jsonAuditLoggerConfiguration,
+                jsonAuditRecordRepositoryConfiguration,
+                jsonImageReaderConfiguration,
+                jsonImageWriterConfiguration,
+                new JsonArchiveConfiguration(),
+                new JsonArchiveUIConfiguration(),
+                newJsonHL7Configuration()));
+    }
+
+    private static JsonConfiguration newJsonConfiguration(Stream<JsonConfigurationExtension> stream) {
+        JsonConfiguration config = new JsonConfiguration();
+        stream.forEach(config::addJsonConfigurationExtension);
         return config;
+    }
+
+    @Produces
+    @ApplicationScoped
+    public static JsonConfiguration newJsonConfiguration(Instance<JsonConfigurationExtension> configExts) {
+        return newJsonConfiguration(configExts.stream());
     }
 }

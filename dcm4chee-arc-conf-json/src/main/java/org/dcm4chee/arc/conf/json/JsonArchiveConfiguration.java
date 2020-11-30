@@ -58,6 +58,7 @@ import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.time.Period;
@@ -70,6 +71,7 @@ import java.util.regex.Pattern;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2016
  */
+@ApplicationScoped
 public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonArchiveConfiguration.class);
