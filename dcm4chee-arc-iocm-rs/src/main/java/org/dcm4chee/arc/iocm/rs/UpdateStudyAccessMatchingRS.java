@@ -161,6 +161,13 @@ public class UpdateStudyAccessMatchingRS {
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     public void validate() {
         logRequest();
         new QueryAttributes(uriInfo, null);
@@ -248,10 +255,9 @@ public class UpdateStudyAccessMatchingRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

@@ -200,7 +200,9 @@ public class QidoRS {
 
     @Override
     public String toString() {
-        return request.getRequestURI() + '?' + request.getQueryString();
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     public void validate() {
@@ -458,9 +460,9 @@ public class QidoRS {
     }
 
     private void logRequest() {
-        LOG.info("Process GET {}?{} from {}@{}",
-                request.getRequestURI(),
-                request.getQueryString(),
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

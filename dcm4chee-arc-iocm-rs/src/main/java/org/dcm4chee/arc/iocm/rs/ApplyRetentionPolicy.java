@@ -118,14 +118,15 @@ public class ApplyRetentionPolicy {
 
     @Override
     public String toString() {
-        return request.getRequestURI() + '?' + request.getQueryString();
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     public void validate() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
         new QueryAttributes(uriInfo, null);

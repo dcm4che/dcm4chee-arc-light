@@ -146,6 +146,13 @@ public class QueueManagerRS {
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -475,10 +482,9 @@ public class QueueManagerRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", 
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), 
-                request.getRequestURI(), 
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(), 
                 request.getRemoteHost());
     }

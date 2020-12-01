@@ -105,6 +105,13 @@ public class HL7RS {
     @QueryParam("queue")
     private boolean queue;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @POST
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
@@ -221,10 +228,9 @@ public class HL7RS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

@@ -81,11 +81,17 @@ public class ProxyRS {
         return new ResponseDelegate(resp);
     }
 
+    @Override
+    public String toString() {
+        String requestURI = httpRequest.getRequestURI();
+        String queryString = httpRequest.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 httpRequest.getMethod(),
-                httpRequest.getRequestURI(),
-                httpRequest.getQueryString(),
+                toString(),
                 httpRequest.getRemoteUser(),
                 httpRequest.getRemoteHost());
     }

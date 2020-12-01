@@ -139,6 +139,13 @@ public class RetrieveBatchRS {
     @Context
     private HttpServletRequest request;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -217,10 +224,9 @@ public class RetrieveBatchRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

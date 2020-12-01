@@ -114,10 +114,8 @@ public class QueryPatientDemographicRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
-                request.getMethod(),
+        LOG.info("Process GET {} from {}@{}",
                 request.getRequestURI(),
-                request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

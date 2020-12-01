@@ -97,6 +97,13 @@ public class UpdateSPSMatchingRS {
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     public void validate() {
         logRequest();
         new QueryAttributes(uriInfo, null);
@@ -165,10 +172,9 @@ public class UpdateSPSMatchingRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

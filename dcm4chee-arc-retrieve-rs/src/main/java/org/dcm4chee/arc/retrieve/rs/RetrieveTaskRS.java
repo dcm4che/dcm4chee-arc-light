@@ -201,6 +201,13 @@ public class RetrieveTaskRS {
             "Retrieve13")
     private String newQueueName;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @GET
     @NoCache
     public Response listRetrieveTasks(@QueryParam("accept") List<String> accept) {
@@ -621,10 +628,9 @@ public class RetrieveTaskRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}", 
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(), 
-                request.getRequestURI(), 
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(), 
                 request.getRemoteHost());
     }

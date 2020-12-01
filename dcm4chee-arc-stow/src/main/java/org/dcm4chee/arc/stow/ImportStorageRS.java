@@ -121,6 +121,13 @@ public class ImportStorageRS {
     @QueryParam("sourceOfPreviousValues")
     private String sourceOfPreviousValues;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     private final Attributes response = new Attributes();
     private final Set<String> studyInstanceUIDs = new HashSet<>();
     private Sequence sopSequence;
@@ -231,10 +238,9 @@ public class ImportStorageRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

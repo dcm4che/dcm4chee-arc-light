@@ -222,10 +222,9 @@ public class MwlRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
                 request.getRequestURI(),
-                request.getQueryString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
