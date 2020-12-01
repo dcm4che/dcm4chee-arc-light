@@ -42,7 +42,6 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
@@ -105,7 +104,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -178,6 +176,13 @@ public class IocmRS {
 
     @Context
     private UriInfo uriInfo;
+
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
 
     private Attributes coerceAttrs;
 
@@ -874,12 +879,7 @@ public class IocmRS {
     }
 
     public void validate() {
-        LOG.info("Process {} {}?{} from {}@{}",
-                request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
+        logRequest();
         String[] uriPath = StringUtils.split(uriInfo.getPath(), '/');
         if ("copy".equals(uriPath[uriPath.length -1])
             || ("move".equals(uriPath[uriPath.length -2])
@@ -909,6 +909,14 @@ public class IocmRS {
             throw new WebApplicationException(
                     errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                toString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
     }
 
     private Response reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,

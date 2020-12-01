@@ -108,6 +108,13 @@ public class StgCmtRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -187,10 +194,9 @@ public class StgCmtRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

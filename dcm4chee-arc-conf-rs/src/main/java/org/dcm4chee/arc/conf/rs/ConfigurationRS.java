@@ -103,6 +103,13 @@ public class ConfigurationRS {
     @Pattern(regexp = "true|false")
     private String register;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @QueryParam("dcmWebServiceClass")
     @ValidValueOf(type = WebServiceClasses.class, methodParameterType = List.class)
     private List<String> dcmWebServiceClass;
@@ -712,10 +719,9 @@ public class ConfigurationRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

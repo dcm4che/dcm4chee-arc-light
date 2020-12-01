@@ -160,6 +160,13 @@ class IANSCUMatching {
     @QueryParam("batchID")
     private String batchID;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     public void validate() {
         logRequest();
         new QueryAttributes(uriInfo, null);
@@ -268,10 +275,9 @@ class IANSCUMatching {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

@@ -97,6 +97,13 @@ public class UpdatePatientDemographics {
     @Pattern(regexp = "true|false")
     private String adjustIssuerOfPatientID;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @POST
     @Path("/patients/{PatientID}/pdq/{PDQServiceID}")
     @Produces("application/json")
@@ -160,10 +167,9 @@ public class UpdatePatientDemographics {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

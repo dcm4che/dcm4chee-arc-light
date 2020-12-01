@@ -106,6 +106,13 @@ public class StgVerRS {
     @QueryParam("storageVerificationStorageID")
     private List<String> storageVerificationStorageIDs;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @POST
     @Path("/studies/{StudyInstanceUID}/stgver")
     @Produces("application/dicom+json,application/json")
@@ -164,10 +171,9 @@ public class StgVerRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

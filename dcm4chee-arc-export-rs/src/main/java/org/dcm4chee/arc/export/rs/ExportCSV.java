@@ -94,6 +94,13 @@ class ExportCSV {
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in,
                                   Function<ExportContext, Integer> action) {
         logRequest();
@@ -229,10 +236,9 @@ class ExportCSV {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }

@@ -82,6 +82,13 @@ public class QueryRejectionNotes {
     @Pattern(regexp = "true|false")
     private String revokeRejection;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -113,10 +120,9 @@ public class QueryRejectionNotes {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
