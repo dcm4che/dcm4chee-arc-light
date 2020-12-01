@@ -239,10 +239,11 @@ public class WadoURI {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {}?{} from {}@{}",
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString(),
+                queryString == null ? requestURI : requestURI + '?' + queryString,
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
