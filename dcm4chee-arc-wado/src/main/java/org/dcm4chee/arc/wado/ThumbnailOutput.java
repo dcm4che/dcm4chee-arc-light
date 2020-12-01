@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.ws.rs.MediaTypes;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -49,6 +51,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -63,23 +66,37 @@ public class ThumbnailOutput implements StreamingOutput {
     private final int rows;
     private final int columns;
     private final ImageWriter writer;
+    private final MediaType mediaType;
 
     public ThumbnailOutput(File file, int rows, int columns, MediaType mediaType) {
         this.file = file;
         this.rows = rows;
         this.columns = columns;
         this.writer = RenderedImageOutput.getImageWriter(mediaType);
+        this.mediaType = mediaType;
     }
 
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
         BufferedImage bi = ImageIO.read(file);
+        if (bi.getHeight() != rows || bi.getWidth() != columns)
+            bi = RenderedImageOutput.rescale(bi, rows, columns, 1.f);
+        if (mediaType.equals(MediaTypes.IMAGE_JPEG_TYPE))
+            bi = toRGB(bi);
         try (ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out)) {
             writer.setOutput(imageOut);
-            writer.write(new IIOImage(RenderedImageOutput.rescale(bi, rows, columns, 1.f),
-                    null, null));
+            writer.write(new IIOImage(bi, null, null));
         } finally {
             writer.dispose();
         }
+    }
+
+    private static BufferedImage toRGB(BufferedImage src) {
+        BufferedImage dest = new BufferedImage(
+                src.getWidth(),
+                src.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
+        dest.createGraphics().drawImage(src, 0, 0, Color.WHITE, null);
+        return dest;
     }
 }
