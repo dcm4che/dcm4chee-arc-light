@@ -90,6 +90,12 @@ public class EventReportSender {
             @PathParam("AETitle") String aet,
             @PathParam("SubscriberAET") String subscriberAET) {
         LOG.info("{} open /aets/{}/ws/subscribers/{} ", session, aet, subscriberAET);
+        Queue<UPSEvent> queue = queueMap.remove(subscriberAET);
+        if (queue != null) {
+            List<Session> sessions = Collections.singletonList(session);
+            queue.stream().forEach(queuedEvent -> send(queuedEvent, toInprocessStateReportJson(queuedEvent),
+                    toJson(queuedEvent), subscriberAET, sessions));
+        }
         service.registerWebsocketChannel(session, aet, subscriberAET);
     }
 
@@ -117,10 +123,6 @@ public class EventReportSender {
                 LOG.info("No Websocket channel to send {} EventReport to {}", event.type, subscriberAET);
                 queueUPSEvent(subscriberAET, event);
             } else {
-                Queue<UPSEvent> queue = queueMap.remove(subscriberAET);
-                if (queue != null)
-                    queue.stream().forEach(queuedEvent -> send(queuedEvent, toInprocessStateReportJson(queuedEvent),
-                            toJson(queuedEvent), subscriberAET, sessions));
                 send(event, inprocessStateReport, json, subscriberAET, sessions);
             }
         }

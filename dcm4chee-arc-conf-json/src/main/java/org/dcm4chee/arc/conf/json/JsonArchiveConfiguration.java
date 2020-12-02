@@ -216,6 +216,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet(), null);
         writer.writeNotEmpty("dcmCharsetNameMapping", arcDev.getDicomCharsetNameMappings());
         writer.writeNotEmpty("hl7CharsetNameMapping", arcDev.getHL7CharsetNameMappings());
+        writer.writeNotEmpty("dcmUPSEventWebSocketQueueSize", arcDev.getUPSEventWebSocketQueueSizes());
         writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcDev.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcDev.getUPSEventSCUs());
         writer.writeNotDef("dcmUPSEventSCUKeepAlive", arcDev.getUPSEventSCUKeepAlive(), 0);
@@ -1566,6 +1567,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7CharsetNameMapping":
                     arcDev.setHL7CharsetNameMappings(reader.stringArray());
+                    break;
+                case "dcmUPSEventWebSocketQueueSize":
+                    arcDev.setUPSEventWebSocketQueueSizes(reader.stringArray());
                     break;
                 case "dcmUPSWorklistLabel":
                     arcDev.setUPSWorklistLabel(reader.stringValue());
