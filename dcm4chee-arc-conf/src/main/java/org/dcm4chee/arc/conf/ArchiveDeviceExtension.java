@@ -330,6 +330,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, String> cStoreSCUOfCMoveSCP = new HashMap<>();
     private final Map<String, String> dicomCharsetNameMappings = new HashMap<>();
     private final Map<String, String> hl7CharsetNameMappings = new HashMap<>();
+    private final Map<String, Integer> upsEventWebSocketQueueSizes = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -2720,6 +2721,41 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         } catch (IllegalArgumentException e) {
             hl7CharsetNameMappings.clear();
             hl7CharsetNameMappings.putAll(prev);
+            throw e;
+        }
+    }
+
+    public Map<String, Integer> getUPSEventWebSocketQueueSizes() {
+        return upsEventWebSocketQueueSizes;
+    }
+
+    public void setUPSEventWebSocketQueueSize(String subscriberAET, int size) {
+        if (size > 0)
+            upsEventWebSocketQueueSizes.put(subscriberAET, size);
+        else
+            upsEventWebSocketQueueSizes.remove(subscriberAET);
+    }
+
+    public int getUPSEventWebSocketQueueSize(String subscriberAET) {
+        return upsEventWebSocketQueueSizes.getOrDefault(subscriberAET, Integer.valueOf(0));
+    }
+
+    public void setUPSEventWebSocketQueueSizes(String[] ss) {
+        HashMap<String, Integer> prev = new HashMap<>(upsEventWebSocketQueueSizes);
+        upsEventWebSocketQueueSizes.clear();
+        try {
+            for (String s : ss) {
+                int index = s.indexOf('=');
+                try {
+                    setUPSEventWebSocketQueueSize(s.substring(0, index), Integer.valueOf(s.substring(index+1)));
+                } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                    throw new IllegalArgumentException("UPSEventWebSocketQueueSize in incorrect format: " + s);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            upsEventWebSocketQueueSizes.clear();
+            upsEventWebSocketQueueSizes.putAll(prev);
+            throw e;
         }
     }
 
@@ -3250,5 +3286,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         dicomCharsetNameMappings.putAll(arcdev.dicomCharsetNameMappings);
         hl7CharsetNameMappings.clear();
         hl7CharsetNameMappings.putAll(arcdev.hl7CharsetNameMappings);
+        upsEventWebSocketQueueSizes.clear();
+        upsEventWebSocketQueueSizes.putAll(arcdev.upsEventWebSocketQueueSizes);
     }
 }
