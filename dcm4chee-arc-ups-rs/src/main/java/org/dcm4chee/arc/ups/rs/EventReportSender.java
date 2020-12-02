@@ -43,6 +43,8 @@ package org.dcm4chee.arc.ups.rs;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.ups.UPSEvent;
 import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
@@ -61,9 +63,9 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -75,9 +77,13 @@ public class EventReportSender {
     private static final Logger LOG = LoggerFactory.getLogger(EventReportSender.class);
 
     private final AtomicInteger messageID = new AtomicInteger(0);
+    private final Map<String, Queue<UPSEvent>> queueMap = new HashMap<>();
 
     @Inject
     private UPSService service;
+
+    @Inject
+    private Device device;
 
     @OnOpen
     public void open(Session session,
@@ -109,17 +115,40 @@ public class EventReportSender {
             List<Session> sessions = service.getWebsocketChannels(subscriberAET);
             if (sessions.isEmpty()) {
                 LOG.info("No Websocket channel to send {} EventReport to {}", event.type, subscriberAET);
+                queueUPSEvent(subscriberAET, event);
             } else {
-                try {
-                    LOG.info("Send {} EventReport to {}", event.type, subscriberAET);
-                    if (inprocessStateReport.isPresent()) {
-                        send(inprocessStateReport.get(), sessions);
-                    }
-                    send(json, sessions);
-                } catch (IOException e) {
-                    LOG.warn("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
-                }
+                Queue<UPSEvent> queue = queueMap.remove(subscriberAET);
+                if (queue != null)
+                    queue.stream().forEach(queuedEvent -> send(queuedEvent, toInprocessStateReportJson(queuedEvent),
+                            toJson(queuedEvent), subscriberAET, sessions));
+                send(event, inprocessStateReport, json, subscriberAET, sessions);
             }
+        }
+    }
+
+    private void send(UPSEvent event, Optional<String> inprocessStateReport, String json, String subscriberAET,
+            List<Session> sessions) {
+        try {
+            LOG.info("Send {} EventReport to {}", event.type, subscriberAET);
+            if (inprocessStateReport.isPresent()) {
+                send(inprocessStateReport.get(), sessions);
+            }
+            send(json, sessions);
+        } catch (IOException e) {
+            LOG.warn("Failed to send {} EventReport to {}:\n", event.type, subscriberAET, e);
+        }
+    }
+
+    private synchronized void queueUPSEvent(String subscriberAET, UPSEvent event) {
+        int queueSize = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getUPSEventWebSocketQueueSize(subscriberAET);
+        if (queueSize > 0) {
+            LOG.info("Queue {} EventReport to {}", event.type, subscriberAET);
+            Queue<UPSEvent> queue = queueMap.computeIfAbsent(subscriberAET, s -> new ArrayDeque<>(queueSize));
+            queue.offer(event);
+            while (queue.size() > queueSize) queue.poll();
+        } else {
+            queueMap.remove(subscriberAET);
         }
     }
 

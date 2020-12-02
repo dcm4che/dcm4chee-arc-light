@@ -1919,6 +1919,10 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.393 NAME 'dcmSupplementIssuerFetchSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.394 NAME 'dcmUPSEventWebSocketQueueSize'
+  DESC 'Indicates to queue UPS events to be sent to a particular Web Client identified by its Subscriber AET in case there is no open Web Socket connection to that client at the time of the event. Format: <aet>=<size>.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1940,6 +1944,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCharsetNameMapping $
     hl7CharsetNameMapping $
     dcmUPSWorklistLabel $
+    dcmUPSEventWebSocketQueueSize $
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $
     dcmStorageID $
