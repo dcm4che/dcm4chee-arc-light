@@ -2697,6 +2697,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         } catch (IllegalArgumentException e) {
             dicomCharsetNameMappings.clear();
             dicomCharsetNameMappings.putAll(prev);
+            throw e;
         }
     }
 
