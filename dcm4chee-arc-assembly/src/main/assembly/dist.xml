@@ -55,6 +55,8 @@
       <includes>
         <include>cli/add-data-source-${db}.cli</include>
         <include>cli/add-jms-queues.cli</include>
+        <include>cli/add-wsse-security-handler.cli</include>
+        <include>cli/adjust-managed-executor.cli</include>
         <include>configuration/dcm4chee-arc/ldap.properties</include>
         <include>rs/**</include>
       </includes>
