@@ -283,6 +283,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDefaultCharacterSet(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCharsetNameMapping", ext.getDicomCharsetNameMappings());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7CharsetNameMapping", ext.getHL7CharsetNameMappings());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventWebSocketQueueSize", ext.getUPSEventWebSocketQueueSizes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
@@ -619,6 +620,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setDicomCharsetNameMappings(LdapUtils.stringArray(attrs.get("dcmCharsetNameMapping")));
         ext.setHL7CharsetNameMappings(LdapUtils.stringArray(attrs.get("hl7CharsetNameMapping")));
+        ext.setUPSEventWebSocketQueueSizes(LdapUtils.stringArray(attrs.get("dcmUPSEventWebSocketQueueSize")));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
@@ -1042,6 +1044,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDicomCharsetNameMappings(), bb.getDicomCharsetNameMappings());
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7CharsetNameMapping",
                 aa.getHL7CharsetNameMappings(), bb.getHL7CharsetNameMappings());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmUPSEventWebSocketQueueSize",
+                aa.getUPSEventWebSocketQueueSizes(), bb.getUPSEventWebSocketQueueSizes());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU", aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
