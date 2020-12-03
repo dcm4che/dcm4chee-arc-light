@@ -64,7 +64,13 @@ export class CustomValidatorDirective{
     }
     static regExp(patern: string): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
-            if (!control.value) {
+            if (!control.value ||
+                    (_.isArray(control.value) &&
+                        ((control.value.length === 1 && control.value[0] === "") ||
+                            control.value.length === 0
+                        )
+                    )
+                ) {
                 return null;  // don't validate empty values to allow optional controls
             }
             let re = new RegExp(patern, 'g');
