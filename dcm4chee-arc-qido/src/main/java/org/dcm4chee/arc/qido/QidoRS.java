@@ -367,7 +367,8 @@ public class QidoRS {
     public Response sizeOfStudies() {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         QueryContext ctx = newQueryContext(
-                "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
+                "SizeOfStudies", queryAttrs, null, null, Model.STUDY,
+                getApplicationEntity());
         if (ctx.getQueryParam().noMatches()) {
             return Response.ok("{\"size\":0}").build();
         }
@@ -386,7 +387,8 @@ public class QidoRS {
 
     private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model,
+                                            getApplicationEntity());
         if (ctx.getQueryParam().noMatches()) {
             return Response.ok("{\"count\":0}").build();
         }
@@ -402,11 +404,13 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
-        validateWebApp();
+        ApplicationEntity ae = getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebApp();
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
         try {
-            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
@@ -518,9 +522,7 @@ public class QidoRS {
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, Model model) {
-        ApplicationEntity ae = getApplicationEntity();
-
+                                         String seriesInstanceUID, Model model, ApplicationEntity ae) {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
