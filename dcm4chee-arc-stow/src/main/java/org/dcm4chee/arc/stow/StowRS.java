@@ -279,10 +279,12 @@ public class StowRS {
 
     private void store(AsyncResponse ar, InputStream in, final Input input, OutputType output)  throws Exception {
         logRequest();
-        validateWebApp();
+        ApplicationEntity ae = getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebApp();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), getApplicationEntity(), null);
+                HttpServletRequestInfo.valueOf(request), ae, null);
         new MultipartParser(boundary())
                 .parse(new BufferedInputStream(in), (partNumber, multipartInputStream) -> {
                     Map<String, List<String>> headerParams = multipartInputStream.readHeaderParams();

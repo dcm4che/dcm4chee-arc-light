@@ -213,9 +213,9 @@ public class WadoURI {
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         logRequest();
-        validateWebApp();
+        if (aet.equals(getApplicationEntity().getAETitle()))
+            validateWebApp();
         try {
-            checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
 
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
@@ -350,12 +350,13 @@ public class WadoURI {
         return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
-    private void checkAET() {
+    private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
+        return ae;
     }
 
     private Map<String, String> parameters(InstanceLocations inst) {

@@ -532,8 +532,8 @@ public class WadoRS {
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
             int[] attributePath, String includefields, AsyncResponse ar) {
         logRequest();
-        validateWebApp();
-        checkAET();
+        if (aet.equals(getApplicationEntity().getAETitle()))
+            validateWebApp();
         Output output = target.output(this);
         try {
             // @Inject does not work:
@@ -662,12 +662,13 @@ public class WadoRS {
         return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
-    private void checkAET() {
+    private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
+        return ae;
     }
 
     private enum Output {
