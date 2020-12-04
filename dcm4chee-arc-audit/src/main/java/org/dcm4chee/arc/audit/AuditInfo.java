@@ -41,6 +41,12 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -48,6 +54,9 @@ import org.dcm4che3.util.StringUtils;
  */
 
 class AuditInfo {
+
+    private final static Logger LOG = LoggerFactory.getLogger(AuditInfo.class);
+
     static final int CALLING_HOST = 0;
     static final int CALLING_USERID = 1;
     static final int CALLED_USERID = 2;
@@ -93,55 +102,81 @@ class AuditInfo {
 
     AuditInfo(AuditInfoBuilder i) {
         fields = new String[] {
-                i.callingHost,
-                i.callingUserID,
-                i.calledUserID,
-                i.calledHost,
-                i.studyUID,
-                i.accNum,
-                i.pID,
-                i.pName,
-                i.outcome,
-                i.studyDate,
-                i.queryPOID,
-                i.queryString,
-                i.destUserID,
-                i.destNapID,
-                i.moveUserID,
-                i.warning,
-                i.failedIUIDShow ? String.valueOf(true) : null,
-                i.sopCUID,
-                i.sopIUID,
-                i.mppsUID,
-                i.submissionSetUID,
-                i.isExport ? String.valueOf(true) : null,
-                i.isOutgoingHL7 ? String.valueOf(true) : null,
-                i.outgoingHL7Sender,
-                i.outgoingHL7Receiver,
-                i.filters,
-                String.valueOf(i.count),
-                i.queueMsg,
-                i.taskPOID,
-                i.errorCode,
-                i.patMismatchCode,
-                i.connType != null ? i.connType.name() : null,
-                i.patVerificationStatus != null ? i.patVerificationStatus.name() : null,
-                i.pdqServiceURI,
-                i.impaxEndpoint,
-                String.valueOf(i.failed),
-                i.expirationDate,
-                i.findSCP,
-                i.queueName,
-                i.status
+                encode(i.callingHost),
+                encode(i.callingUserID),
+                encode(i.calledUserID),
+                encode(i.calledHost),
+                encode(i.studyUID),
+                encode(i.accNum),
+                encode(i.pID),
+                encode(i.pName),
+                encode(i.outcome),
+                encode(i.studyDate),
+                encode(i.queryPOID),
+                encode(i.queryString),
+                encode(i.destUserID),
+                encode(i.destNapID),
+                encode(i.moveUserID),
+                encode(i.warning),
+                encode(i.failedIUIDShow ? String.valueOf(true) : null),
+                encode(i.sopCUID),
+                encode(i.sopIUID),
+                encode(i.mppsUID),
+                encode(i.submissionSetUID),
+                encode(i.isExport ? String.valueOf(true) : null),
+                encode(i.isOutgoingHL7 ? String.valueOf(true) : null),
+                encode(i.outgoingHL7Sender),
+                encode(i.outgoingHL7Receiver),
+                encode(i.filters),
+                encode(String.valueOf(i.count)),
+                encode(i.queueMsg),
+                encode(i.taskPOID),
+                encode(i.errorCode),
+                encode(i.patMismatchCode),
+                encode(i.connType != null ? i.connType.name() : null),
+                encode(i.patVerificationStatus != null ? i.patVerificationStatus.name() : null),
+                encode(i.pdqServiceURI),
+                encode(i.impaxEndpoint),
+                encode(String.valueOf(i.failed)),
+                encode(i.expirationDate),
+                encode(i.findSCP),
+                encode(i.queueName),
+                encode(i.status)
         };
     }
 
     AuditInfo(String s) {
         fields = StringUtils.split(s, '\\');
     }
+
     String getField(int field) {
-        return StringUtils.maskEmpty(fields[field], null);
+        return decode(StringUtils.maskEmpty(fields[field], null));
     }
+
+    private static String decode(String val) {
+        if (val == null)
+            return null;
+
+        try {
+            return URLDecoder.decode(val, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOG.info("URL decoding of value {} failed", val);
+            return val;
+        }
+    }
+
+    private static String encode(String val) {
+        if (val == null)
+            return null;
+
+        try {
+            return URLEncoder.encode(val, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOG.info("URL encoding of value {} failed", val);
+            return val;
+        }
+    }
+
     @Override
     public String toString() {
         return StringUtils.concat(fields, '\\');
