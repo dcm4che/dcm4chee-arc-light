@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;

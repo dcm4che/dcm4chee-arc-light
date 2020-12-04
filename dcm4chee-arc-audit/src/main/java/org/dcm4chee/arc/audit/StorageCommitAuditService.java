@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
