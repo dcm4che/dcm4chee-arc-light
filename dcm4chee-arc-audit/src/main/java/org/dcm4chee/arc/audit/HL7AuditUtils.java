@@ -53,7 +53,7 @@ class HL7AuditUtils {
     static HL7Segment getHL7Segment(UnparsedHL7Message hl7Message, String segName) {
         HL7Segment msh = hl7Message.msh();
         String charset = msh.getField(17, "ASCII");
-        HL7Message msg = HL7Message.parse(hl7Message.data(), charset);
+        HL7Message msg = HL7Message.parse(hl7Message.unescapeXdddd(), charset);
         return msg.getSegment(segName);
     }
 
