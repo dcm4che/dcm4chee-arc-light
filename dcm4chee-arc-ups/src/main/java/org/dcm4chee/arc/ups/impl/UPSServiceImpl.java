@@ -512,7 +512,7 @@ public class UPSServiceImpl implements UPSService {
         try {
             String hl7Charset = msg.msh().getField(17, arcHL7App.getHL7Application().getHL7DefaultCharacterSet());
             return HL7SAXTransformer.transform(
-                    msg.data(),
+                    msg.unescapeXdddd(),
                     hl7Charset,
                     arcHL7App.hl7DicomCharacterSet() != null
                             ? arcHL7App.hl7DicomCharacterSet()

@@ -88,7 +88,7 @@ class SAXTransformer {
         if (setup != null)
             setup.setup(th.getTransformer());
         new HL7Parser(th).parse(new InputStreamReader(
-                new ByteArrayInputStream(msg.data()),
+                new ByteArrayInputStream(msg.unescapeXdddd()),
                 HL7Charset.toCharsetName(hl7charset)));
         return attrs;
     }
