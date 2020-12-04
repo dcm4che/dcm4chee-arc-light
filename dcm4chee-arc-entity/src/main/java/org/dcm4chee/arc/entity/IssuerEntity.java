@@ -48,29 +48,11 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-@NamedQueries({
-@NamedQuery(
-    name=IssuerEntity.FIND_BY_ENTITY_ID,
-    query="select issuer from IssuerEntity issuer where issuer.localNamespaceEntityID = ?1"),
-@NamedQuery(
-    name=IssuerEntity.FIND_BY_ENTITY_UID,
-    query="select issuer from IssuerEntity issuer " +
-            "where issuer.universalEntityID = ?1 and issuer.universalEntityIDType = ?2"),
-@NamedQuery(
-    name=IssuerEntity.FIND_BY_ENTITY_ID_OR_UID,
-    query="select issuer from IssuerEntity issuer where issuer.localNamespaceEntityID = ?1 " +
-            "or (issuer.universalEntityID = ?2 and issuer.universalEntityIDType = ?3)")
-})
 @Entity
 @Table(name = "issuer",
         uniqueConstraints = @UniqueConstraint(columnNames = { "entity_uid", "entity_uid_type" }),
         indexes = @Index(columnList = "entity_id"))
 public class IssuerEntity {
-
-    public static final String FIND_BY_ENTITY_ID = "IssuerEntity.findByEntityID";
-    public static final String FIND_BY_ENTITY_UID = "IssuerEntity.findByEntityUID";
-    public static final String FIND_BY_ENTITY_ID_OR_UID = "IssuerEntity.findByEntityIDorUID";
-
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")

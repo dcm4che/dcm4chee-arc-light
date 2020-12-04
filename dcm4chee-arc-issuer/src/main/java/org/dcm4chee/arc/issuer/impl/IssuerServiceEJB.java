@@ -42,13 +42,19 @@ package org.dcm4chee.arc.issuer.impl;
 
 import org.dcm4che3.data.Issuer;
 import org.dcm4chee.arc.entity.IssuerEntity;
+import org.dcm4chee.arc.entity.IssuerEntity_;
 import org.dcm4chee.arc.issuer.IssuerService;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,23 +95,23 @@ public class IssuerServiceEJB implements IssuerService {
     }
 
     private IssuerEntity find(Issuer issuer) {
-        String entityID = issuer.getLocalNamespaceEntityID();
-        String entityUID = issuer.getUniversalEntityID();
-        String entityUIDType = issuer.getUniversalEntityIDType();
-        TypedQuery<IssuerEntity> query;
-        if (entityID == null) {
-            query = em.createNamedQuery(IssuerEntity.FIND_BY_ENTITY_UID, IssuerEntity.class)
-                    .setParameter(1, entityUID)
-                    .setParameter(2, entityUIDType);
-        } else if (entityUID == null) {
-            query = em.createNamedQuery(IssuerEntity.FIND_BY_ENTITY_ID, IssuerEntity.class)
-                    .setParameter(1, entityID);
-        } else {
-            query = em.createNamedQuery(IssuerEntity.FIND_BY_ENTITY_ID_OR_UID, IssuerEntity.class)
-                    .setParameter(1, entityID)
-                    .setParameter(2, entityUID)
-                    .setParameter(3, entityUIDType);
-        }
-        return query.getSingleResult();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<IssuerEntity> q = cb.createQuery(IssuerEntity.class);
+        Root<IssuerEntity> issuerEntity = q.from(IssuerEntity.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if (issuer.getLocalNamespaceEntityID() != null)
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID),
+                    issuer.getLocalNamespaceEntityID()));
+        if (issuer.getUniversalEntityID() != null) {
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID),
+                    issuer.getUniversalEntityID()));
+            if (issuer.getUniversalEntityIDType() != null)
+                predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType),
+                        issuer.getUniversalEntityIDType()));
+        } else
+            predicates.add(cb.isNull(issuerEntity.get(IssuerEntity_.universalEntityID)));
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(q).getSingleResult();
     }
 }
