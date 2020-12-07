@@ -101,6 +101,8 @@ public interface StoreSession extends Closeable {
 
     void cacheSeries(Series series);
 
+    void invalidateCachedStudyAndSeries();
+
     boolean isNotProcessed(ExportPriorsRule rule);
 
     boolean markAsProcessed(ExportPriorsRule rule);

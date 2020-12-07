@@ -243,6 +243,7 @@ class StoreServiceImpl implements StoreService {
                 metricsService.accept("db-update-on-store", time);
                 return result;
             } catch (EJBException e) {
+                session.invalidateCachedStudyAndSeries();
                 if (retries-- > 0) {
                     LOG.info("{}: Failed to update DB - retry:\n", session, e);
                 } else {
