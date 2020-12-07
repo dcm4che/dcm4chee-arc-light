@@ -137,7 +137,13 @@ class ImportReportService extends DefaultHL7Service {
                 arcHL7App.importReportTemplateURI(),
                 tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
-        adjustAttrs(attrs);
+        if (attrs.contains(Tag.MIMETypeOfEncapsulatedDocument) && !adjustAttrs(attrs))
+            throw new HL7Exception(
+                new ERRSegment(msg.msh())
+                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                        .setErrorLocation("OBX^5^5")
+                        .setUserMessage("Encapsulated document missing in OBX^5^5"));
+
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));
             switch (suids.size()) {
@@ -160,13 +166,17 @@ class ImportReportService extends DefaultHL7Service {
         processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
     }
 
-    private void adjustAttrs(Attributes attrs) {
-        if (!attrs.contains(Tag.MIMETypeOfEncapsulatedDocument)
-                || !attrs.getString(Tag.MIMETypeOfEncapsulatedDocument).equals("text/xml"))
-            return;
+    private boolean adjustAttrs(Attributes attrs) {
+        if (attrs.getString(Tag.MIMETypeOfEncapsulatedDocument).equals("text/xml")) {
+            String cdaTxt = attrs.getString(Tag.TextValue);
+            if (cdaTxt == null)
+                return false;
 
-        attrs.setBytes(Tag.EncapsulatedDocument, VR.OB, attrs.getString(Tag.TextValue).getBytes());
-        attrs.remove(Tag.TextValue);
+            attrs.setBytes(Tag.EncapsulatedDocument, VR.OB, cdaTxt.getBytes());
+            attrs.remove(Tag.TextValue);
+        }
+
+        return attrs.containsValue(Tag.EncapsulatedDocument);
     }
 
     private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
