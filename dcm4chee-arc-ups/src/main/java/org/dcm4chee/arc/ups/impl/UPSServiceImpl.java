@@ -433,7 +433,9 @@ public class UPSServiceImpl implements UPSService {
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateOnStore(ctx, now, upsOnStore);
+                UPSContext upsContext = ejb.createOrUpdateOnStore(ctx, now, upsOnStore);
+                if (upsContext != null)
+                    fireUPSEvents(upsContext);
                 return;
             } catch (EJBException e) {
                 if (retries-- > 0) {
