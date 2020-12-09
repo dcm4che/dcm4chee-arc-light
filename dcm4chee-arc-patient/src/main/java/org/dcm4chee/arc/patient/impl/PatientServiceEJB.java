@@ -93,6 +93,8 @@ public class PatientServiceEJB {
             if (issuer != null) {
                 removeWithoutIssuer(list);
             }
+            if (list.size() > 1 && issuer != null)
+                removeLessQualifiedIssuer(list);
         }
         return list;
     }
@@ -113,6 +115,15 @@ public class PatientServiceEJB {
                 if (other != null && !other.matches(issuer))
                     it.remove();
             }
+        }
+    }
+
+    private void removeLessQualifiedIssuer(List<Patient> list) {
+        for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
+            IssuerEntity ie = it.next().getPatientID().getIssuer();
+            Issuer other = ie != null ? ie.getIssuer() : null;
+            if (other != null && other.getUniversalEntityID() == null && other.getUniversalEntityIDType() == null)
+                it.remove();
         }
     }
 
