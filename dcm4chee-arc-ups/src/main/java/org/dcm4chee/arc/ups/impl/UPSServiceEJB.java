@@ -733,7 +733,7 @@ public class UPSServiceEJB {
         }
     }
 
-    public UPS createOrUpdateOnStore(StoreContext ctx, Calendar now, UPSOnStore rule) {
+    public UPSContext createOrUpdateOnStore(StoreContext ctx, Calendar now, UPSOnStore rule) {
         LOG.debug("{}: Apply {}", ctx.getStoreSession(), rule);
         String iuid = rule.getInstanceUID(ctx.getAttributes());
         try {
@@ -759,17 +759,18 @@ public class UPSServiceEJB {
                 attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
             ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
-            return ups;
+            return null;
         } catch (NoResultException e) {
             return createOnStore(iuid, ctx, now, rule);
         }
     }
 
-    private UPS createOnStore(String iuid, StoreContext storeCtx, Calendar now, UPSOnStore rule) {
+    private UPSContext createOnStore(String iuid, StoreContext storeCtx, Calendar now, UPSOnStore rule) {
         UPSContext ctx = new UPSContextImpl(storeCtx, rule);
         ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(createOnStore(storeCtx, now, rule));
-        return createUPS(ctx);
+        createUPS(ctx);
+        return ctx;
     }
 
     private Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {

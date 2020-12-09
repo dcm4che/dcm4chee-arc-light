@@ -265,6 +265,12 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public void invalidateCachedStudyAndSeries() {
+        cachedStudy = null;
+        seriesCache.clear();
+    }
+
+    @Override
     public boolean isNotProcessed(ExportPriorsRule rule) {
         return !processedPrefetchRules.contains(rule.getCommonName());
     }
