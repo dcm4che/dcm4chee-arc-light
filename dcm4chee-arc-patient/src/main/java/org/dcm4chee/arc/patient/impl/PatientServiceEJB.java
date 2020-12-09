@@ -191,6 +191,7 @@ public class PatientServiceEJB {
                 return;
         }
 
+        updateIssuer(pat.getPatientID(), ctx.getPatientID().getIssuer());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
                 ? attrs.addOriginalAttributes(
