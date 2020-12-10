@@ -1248,7 +1248,9 @@ public class QueryBuilder {
     }
 
     private void match(List<Predicate> predicates, Path<String> qpn, String pn, boolean ignoreCase) {
-        wildCard(predicates, qpn, pn + "*", ignoreCase);
+        wildCard(predicates, qpn,
+                pn.endsWith("*") ? pn : pn.endsWith("^") ? pn + "*" : pn + "^*",
+                ignoreCase);
     }
 
     private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
