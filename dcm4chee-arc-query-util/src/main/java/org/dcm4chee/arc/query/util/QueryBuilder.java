@@ -1220,25 +1220,31 @@ public class QueryBuilder {
 
         if (!pn.contains(PersonName.Group.Ideographic)
                 && !pn.contains(PersonName.Group.Phonetic)) {
+            pnValue = appendEndingWildcard(pnValue);
             predicates.add(
                     cb.or(match(qpn.get(PersonName_.alphabeticName), pnValue, true),
-                          match(qpn.get(PersonName_.ideographicName), pnValue, true),
-                          match(qpn.get(PersonName_.phoneticName), pnValue, true))
+                          match(qpn.get(PersonName_.ideographicName), pnValue, false),
+                          match(qpn.get(PersonName_.phoneticName), pnValue, false))
             );
         } else {
+            String[] pnValueGroups = pnValue.split("=");
             if (pn.contains(PersonName.Group.Alphabetic))
                 match(predicates,
                         qpn.get(PersonName_.alphabeticName),
-                        pn.toString(PersonName.Group.Alphabetic, false), true);
+                        appendEndingWildcard(pnValueGroups[0]), true);
             if (pn.contains(PersonName.Group.Ideographic))
                 match(predicates,
                         qpn.get(PersonName_.ideographicName),
-                        pn.toString(PersonName.Group.Ideographic, false), false);
+                        appendEndingWildcard(pnValueGroups[1]), false);
             if (pn.contains(PersonName.Group.Phonetic))
                 match(predicates,
                         qpn.get(PersonName_.phoneticName),
-                        pn.toString(PersonName.Group.Phonetic, false), false);
+                        appendEndingWildcard(pnValueGroups[2]), false);
         }
+    }
+
+    private String appendEndingWildcard(String pnValue) {
+        return pnValue.endsWith("*") ? pnValue : pnValue.endsWith("^") ? pnValue + "*" : pnValue + "^*";
     }
 
     private Predicate match(Path<String> qpn, String pn, boolean ignoreCase) {
@@ -1248,9 +1254,7 @@ public class QueryBuilder {
     }
 
     private void match(List<Predicate> predicates, Path<String> qpn, String pn, boolean ignoreCase) {
-        wildCard(predicates, qpn,
-                pn.endsWith("*") ? pn : pn.endsWith("^") ? pn + "*" : pn + "^*",
-                ignoreCase);
+        wildCard(predicates, qpn, pn, ignoreCase);
     }
 
     private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
