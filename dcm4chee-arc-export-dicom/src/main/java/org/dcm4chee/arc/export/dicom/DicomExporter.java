@@ -93,7 +93,7 @@ public class DicomExporter extends AbstractExporter {
 
         if (descriptor.isExportAsSourceAE()) {
             retrieveContext.getSeriesInfos().stream()
-                    .map(SeriesInfo::getSourceAET)
+                    .map(SeriesInfo::getSendingAET)
                     .filter(Objects::nonNull)
                     .findFirst()
                     .ifPresent(retrieveContext::setCallingAET);

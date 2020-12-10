@@ -57,6 +57,7 @@ public class HttpServletRequestInfo {
 
     public final String requesterUserID;
     public final String requesterHost;
+    public final int requesterPort;
     public final String requestURI;
     public final String queryString;
     public final String localHost;
@@ -65,14 +66,16 @@ public class HttpServletRequestInfo {
     private HttpServletRequestInfo(HttpServletRequest request) {
         requesterUserID = KeycloakContext.valueOf(request).getUserName();
         requesterHost = request.getRemoteHost();
-        requestURI = request.getRequestURI();
+        requesterPort = request.getRemotePort();
+        requestURI = request.getRequestURL().toString();
         queryString = request.getQueryString();
-        localHost = hostOfURI(requestURI);
+        localHost = request.getServerName();
     }
 
     private HttpServletRequestInfo(String requesterUserID, String requesterHost, String requestURI) {
         this.requesterUserID = requesterUserID;
         this.requesterHost = requesterHost;
+        this.requesterPort = 0;
         this.requestURI = requestURI;
         this.queryString = null;
         this.localHost = hostOfURI(requestURI);

@@ -87,7 +87,10 @@ class SeriesAttributes {
                         series.get(Series_.completeness),
                         series.get(Series_.updatedTime),
                         series.get(Series_.expirationDate),
-                        series.get(Series_.sourceAET),
+                        series.get(Series_.sendingAET),
+                        series.get(Series_.receivingAET),
+                        series.get(Series_.sendingPresentationAddress),
+                        series.get(Series_.receivingPresentationAddress),
                         series.get(Series_.size),
                         patientAttrBlob,
                         studyAttrBlob,
@@ -110,7 +113,10 @@ class SeriesAttributes {
                 tuple.get(series.get(Series_.completeness)),
                 tuple.get(series.get(Series_.updatedTime)),
                 tuple.get(series.get(Series_.expirationDate)),
-                tuple.get(series.get(Series_.sourceAET)),
+                tuple.get(series.get(Series_.sendingAET)),
+                tuple.get(series.get(Series_.receivingAET)),
+                tuple.get(series.get(Series_.sendingPresentationAddress)),
+                tuple.get(series.get(Series_.receivingPresentationAddress)),
                 tuple.get(series.get(Series_.size)));
         patientUpdatedTime = tuple.get(patient.get(Patient_.updatedTime));
         Attributes patAttrs = AttributesBlob.decodeAttributes(tuple.get(patientAttrBlob), null);

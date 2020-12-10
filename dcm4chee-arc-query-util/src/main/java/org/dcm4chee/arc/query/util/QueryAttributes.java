@@ -180,6 +180,18 @@ public class QueryAttributes {
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
+                case "ReceivingApplicationEntityTitleOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
+                case "SendingPresentationAddressOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingPresentationAddressOfSeries, VR.UR,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
+                case "ReceivingPresentationAddressOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
                 case "StudyReceiveDateTime":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));

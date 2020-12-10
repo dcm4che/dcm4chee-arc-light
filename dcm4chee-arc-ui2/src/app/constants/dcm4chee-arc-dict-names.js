@@ -52,6 +52,9 @@ DCM4CHE.elementName.addDictionary({
 "7777xx65":"Series Expiration Exporter ID",
 "7777xx66":"Series Metadata Creation Date Time",
 "7777xx67":"Series Metadata Update Failures",
+"7777xx68":"Receiving Application Entity Title of Series",
+"7777xx69":"Sending Presentation Address of Series",
+"7777xx6A":"Receiving Presentation Address of Series",
 "7777xxE0":"X-Road Person Status",
 "7777xxE1":"X-Road Data Status"
 });

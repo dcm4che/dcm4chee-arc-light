@@ -724,9 +724,8 @@ public class StoreServiceEJB {
     }
 
     private static boolean isSameSource(StoreContext ctx, Instance prevInstance) {
-        String sourceAET = ctx.getStoreSession().getCallingAET();
-        String prevSourceAET = prevInstance.getSeries().getSourceAET();
-        return sourceAET != null && sourceAET.equals(prevSourceAET);
+        String callingAET = ctx.getStoreSession().getCallingAET();
+        return callingAET != null && callingAET.equals(prevInstance.getSeries().getSendingAET());
     }
 
     private void deleteQueryAttributes(Instance instance) {
@@ -1447,7 +1446,10 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
-        series.setSourceAET(session.getCallingAET());
+        series.setSendingAET(session.getCallingAET());
+        series.setReceivingAET(session.getCalledAET());
+        series.setSendingPresentationAddress(session.getSendingPresentationAddress());
+        series.setReceivingPresentationAddress(session.getReceivingPresentationAddress());
     }
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,

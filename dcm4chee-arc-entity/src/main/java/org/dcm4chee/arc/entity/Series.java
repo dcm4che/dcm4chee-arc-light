@@ -293,6 +293,10 @@ import java.util.stream.Stream;
         @Index(columnList = "series_custom1"),
         @Index(columnList = "series_custom2"),
         @Index(columnList = "series_custom3"),
+        @Index(columnList = "sending_aet"),
+        @Index(columnList = "receiving_aet"),
+        @Index(columnList = "sending_pres_addr"),
+        @Index(columnList = "receiving_pres_addr"),
         @Index(columnList = "expiration_state"),
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
@@ -528,8 +532,17 @@ public class Series {
     @Column(name = "series_custom3")
     private String seriesCustomAttribute3;
 
-    @Column(name = "src_aet")
-    private String sourceAET;
+    @Column(name = "sending_aet")
+    private String sendingAET;
+
+    @Column(name = "receiving_aet")
+    private String receivingAET;
+
+    @Column(name = "sending_pres_addr")
+    private String sendingPresentationAddress;
+
+    @Column(name = "receiving_pres_addr")
+    private String receivingPresentationAddress;
 
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
@@ -741,12 +754,36 @@ public class Series {
         return seriesCustomAttribute3;
     }
 
-    public String getSourceAET() {
-        return sourceAET;
+    public String getSendingAET() {
+        return sendingAET;
     }
 
-    public void setSourceAET(String sourceAET) {
-        this.sourceAET = sourceAET;
+    public void setSendingAET(String sendingAET) {
+        this.sendingAET = sendingAET;
+    }
+
+    public String getReceivingAET() {
+        return receivingAET;
+    }
+
+    public void setReceivingAET(String receivingAET) {
+        this.receivingAET = receivingAET;
+    }
+
+    public String getSendingPresentationAddress() {
+        return sendingPresentationAddress;
+    }
+
+    public void setSendingPresentationAddress(String sendingPresentationAddress) {
+        this.sendingPresentationAddress = sendingPresentationAddress;
+    }
+
+    public String getReceivingPresentationAddress() {
+        return receivingPresentationAddress;
+    }
+
+    public void setReceivingPresentationAddress(String receivingPresentationAddress) {
+        this.receivingPresentationAddress = receivingPresentationAddress;
     }
 
     public String getExternalRetrieveAET() {

@@ -119,7 +119,10 @@ class SeriesQuery extends AbstractQuery {
                 series.get(Series_.rejectionState),
                 series.get(Series_.completeness),
                 series.get(Series_.failedRetrieves),
-                series.get(Series_.sourceAET),
+                series.get(Series_.sendingAET),
+                series.get(Series_.receivingAET),
+                series.get(Series_.sendingPresentationAddress),
+                series.get(Series_.receivingPresentationAddress),
                 series.get(Series_.externalRetrieveAET),
                 series.get(Series_.metadataScheduledUpdateTime),
                 series.get(Series_.metadataUpdateFailures),
@@ -244,8 +247,14 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.failedRetrieves)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfSeries, VR.US,
                     results.get(series.get(Series_.failedRetrieves)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
-                results.get(series.get(Series_.sourceAET)));
+        setStringNotNull(attrs, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                results.get(series.get(Series_.sendingAET)));
+        setStringNotNull(attrs, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE,
+                results.get(series.get(Series_.receivingAET)));
+        setStringNotNull(attrs, PrivateTag.SendingPresentationAddressOfSeries, VR.UR,
+                results.get(series.get(Series_.sendingPresentationAddress)));
+        setStringNotNull(attrs, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
+                results.get(series.get(Series_.receivingPresentationAddress)));
         if (results.get(series.get(Series_.metadataScheduledUpdateTime))!= null)
             attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
                     results.get(series.get(Series_.metadataScheduledUpdateTime)));
@@ -285,6 +294,10 @@ class SeriesQuery extends AbstractQuery {
                 attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesMetadataStorageObjectStatus, VR.CS,
                         results.get(metadata.get(Metadata_.status)).name());
         }
+    }
+
+    private static void setStringNotNull(Attributes attrs, int tag, VR vr, String value) {
+        if (value != null) attrs.setString(PrivateTag.PrivateCreator, tag, vr, value);
     }
 
     private Attributes toStudyAttributes(Long studyPk, Tuple results) {

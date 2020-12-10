@@ -244,6 +244,33 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public String getSendingPresentationAddress() {
+        return httpRequest != null ? "http-client:" + httpRequest.requesterHost + ":" + httpRequest.requesterPort
+                : as != null ? "dicom:" + ReverseDNS.hostNameOf(socket.getInetAddress()) + ":" + socket.getPort()
+                : hl7App != null ? "mllp:" + ReverseDNS.hostNameOf(socket.getInetAddress()) + ":" + socket.getPort()
+                : null;
+    }
+
+    @Override
+    public String getReceivingPresentationAddress() {
+        return httpRequest != null ? toReceivingPresentationAddress(httpRequest)
+                : as != null ? "dicom:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
+                : hl7App != null ? "mllp:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
+                : null;
+    }
+
+    private static String toReceivingPresentationAddress(HttpServletRequestInfo httpRequest) {
+        int studiesPos = httpRequest.requestURI.indexOf("/studies");
+        return httpRequest.requestURI.startsWith("https")
+                ? "http" + (studiesPos < 0
+                    ? httpRequest.requestURI.substring(5)
+                    : httpRequest.requestURI.substring(5, studiesPos+1))
+                : (studiesPos < 0
+                    ? httpRequest.requestURI
+                    : httpRequest.requestURI.substring(0, studiesPos+1));
+    }
+
+    @Override
     public Study getCachedStudy(String studyInstanceUID) {
         return isStudyCached(studyInstanceUID) ? cachedStudy : null;
     }

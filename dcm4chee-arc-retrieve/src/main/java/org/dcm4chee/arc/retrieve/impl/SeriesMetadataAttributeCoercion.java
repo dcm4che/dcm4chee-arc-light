@@ -87,8 +87,18 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         if (seriesInfo.getExpirationDate() != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
                     seriesInfo.getExpirationDate());
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
-                seriesInfo.getSourceAET());
+        if (seriesInfo.getSendingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                    seriesInfo.getSendingAET());
+        if (seriesInfo.getReceivingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE,
+                    seriesInfo.getReceivingAET());
+        if (seriesInfo.getSendingPresentationAddress() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingPresentationAddressOfSeries, VR.UR,
+                    seriesInfo.getSendingPresentationAddress());
+        if (seriesInfo.getSendingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
+                    seriesInfo.getReceivingPresentationAddress());
 
         attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime, VR.DT,
                 inst.getCreatedTime());

@@ -58,19 +58,26 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final Completeness completeness;
     private final Date updatedTime;
     private final String expirationDate;
-    private final String sourceAET;
+    private final String sendingAET;
+    private final String receivingAET;
+    private final String sendingPresentationAddress;
+    private final String receivingPresentationAddress;
     private final long seriesSize;
 
     public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
-                          Completeness completeness, Date updatedTime, String expirationDate, String sourceAET,
-                          long seriesSize) {
+            Completeness completeness, Date updatedTime, String expirationDate, String sendingAET,
+            String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
+            long seriesSize) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
         this.failedRetrieves = failedRetrieves;
         this.completeness = completeness;
         this.updatedTime = updatedTime;
         this.expirationDate = expirationDate;
-        this.sourceAET = sourceAET;
+        this.sendingAET = sendingAET;
+        this.receivingAET = receivingAET;
+        this.sendingPresentationAddress = sendingPresentationAddress;
+        this.receivingPresentationAddress = receivingPresentationAddress;
         this.seriesSize = seriesSize;
     }
 
@@ -105,8 +112,23 @@ public class SeriesInfoImpl implements SeriesInfo {
     }
 
     @Override
-    public String getSourceAET() {
-        return sourceAET;
+    public String getSendingAET() {
+        return sendingAET;
+    }
+
+    @Override
+    public String getReceivingAET() {
+        return receivingAET;
+    }
+
+    @Override
+    public String getSendingPresentationAddress() {
+        return sendingPresentationAddress;
+    }
+
+    @Override
+    public String getReceivingPresentationAddress() {
+        return receivingPresentationAddress;
     }
 
     @Override

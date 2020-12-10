@@ -63,7 +63,13 @@ public interface SeriesInfo {
 
     String getExpirationDate();
 
-    String getSourceAET();
+    String getSendingAET();
+
+    String getReceivingAET();
+
+    String getSendingPresentationAddress();
+
+    String getReceivingPresentationAddress();
 
     long getSeriesSize();
 }

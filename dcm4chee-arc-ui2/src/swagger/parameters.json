@@ -942,6 +942,30 @@
       "type": "string"
     }
   },
+  "ReceivingApplicationEntityTitleOfSeries": {
+    "name": "ReceivingApplicationEntityTitleOfSeries",
+    "in": "query",
+    "description": "return Instances of Series of Studies received by this Archive <AE Title> (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "SendingPresentationAddressOfSeries": {
+    "name": "SendingPresentationAddressOfSeries",
+    "in": "query",
+    "description": "return Instances of Series of Studies received from this Presentation Address (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "ReceivingPresentationAddressOfSeries": {
+    "name": "ReceivingPresentationAddressOfSeries",
+    "in": "query",
+    "description": "return Instances of Series of Studies received by this Presentation Address (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
   "StudyReceiveDateTime": {
     "name": "StudyReceiveDateTime",
     "in": "query",
