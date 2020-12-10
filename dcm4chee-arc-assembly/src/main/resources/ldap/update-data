@@ -1,0 +1,10 @@
+#!/bin/sh
+. update-comp dev $@
+. update-comp DCM4CHEE $@
+. update-comp AS_RECEIVED $@
+. update-comp IOCM_REGULAR_USE $@
+. update-comp IOCM_QUALITY $@
+. update-comp IOCM_PAT_SAFETY $@
+. update-comp IOCM_WRONG_MWL $@
+. update-comp IOCM_EXPIRED $@
+. update-comp storescp $@
