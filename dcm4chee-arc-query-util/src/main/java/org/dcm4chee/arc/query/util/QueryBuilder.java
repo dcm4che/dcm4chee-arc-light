@@ -891,17 +891,12 @@ public class QueryBuilder {
         return value == null || value.equals("*");
     }
 
-    private static boolean isUniversalMatching(PersonName pn) {
-        for (PersonName.Group g : PersonName.Group.values())
-            for (PersonName.Component c : PersonName.Component.values()) {
-                if (!isUniversalMatching(pn.get(g, c)))
-                    return false;
-            }
-        return true;
-    }
-
     public static boolean isUniversalMatching(String[] values) {
         return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
+    }
+
+    public static boolean isUniversalMatchingPNGroup(String pnGroupValue) {
+        return pnGroupValue.equals("*") || pnGroupValue.equals("^*");
     }
 
     public static boolean isUniversalMatching(IDWithIssuer[] pids) {
@@ -1227,42 +1222,46 @@ public class QueryBuilder {
             if (queryParam.isFuzzySemanticMatching())
                 fuzzyMatch(predicates, q, qpn, pn, queryParam);
             else
-                literalMatch(predicates, qpn, pn, value);
+                literalMatch(predicates, qpn, value);
         }
     }
 
     private void literalMatch(List<Predicate> predicates, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-                              PersonName pn, String pnValue) {
-        if (isUniversalMatching(pn))
+                              String pnValue) {
+        if (isUniversalMatching(pnValue) || pnValue.equals("^"))
             return;
 
-        if (!pn.contains(PersonName.Group.Ideographic)
-                && !pn.contains(PersonName.Group.Phonetic)) {
-            pnValue = appendEndingWildcard(pnValue);
+        String[] pnGroupValues = coalesceWildcards(pnValue.split("="));
+        if (pnGroupValues.length == 1 && !isUniversalMatchingPNGroup(pnGroupValues[0])) {
             predicates.add(
-                    cb.or(match(qpn.get(PersonName_.alphabeticName), pnValue, true),
-                          match(qpn.get(PersonName_.ideographicName), pnValue, false),
-                          match(qpn.get(PersonName_.phoneticName), pnValue, false))
+                    cb.or(match(qpn.get(PersonName_.alphabeticName), pnGroupValues[0], true),
+                          match(qpn.get(PersonName_.ideographicName), pnGroupValues[0], false),
+                          match(qpn.get(PersonName_.phoneticName), pnGroupValues[0], false))
             );
         } else {
-            String[] pnValueGroups = pnValue.split("=");
-            if (pn.contains(PersonName.Group.Alphabetic))
-                match(predicates,
-                        qpn.get(PersonName_.alphabeticName),
-                        appendEndingWildcard(pnValueGroups[0]), true);
-            if (pn.contains(PersonName.Group.Ideographic))
-                match(predicates,
-                        qpn.get(PersonName_.ideographicName),
-                        appendEndingWildcard(pnValueGroups[1]), false);
-            if (pn.contains(PersonName.Group.Phonetic))
-                match(predicates,
-                        qpn.get(PersonName_.phoneticName),
-                        appendEndingWildcard(pnValueGroups[2]), false);
+            if (!isUniversalMatchingPNGroup(pnGroupValues[0]))
+                match(predicates, qpn.get(PersonName_.alphabeticName), pnGroupValues[0], true);
+            if (pnGroupValues.length == 2 && !isUniversalMatchingPNGroup(pnGroupValues[1]))
+                match(predicates, qpn.get(PersonName_.ideographicName), pnGroupValues[1], false);
+            if (pnGroupValues.length == 3 && !isUniversalMatchingPNGroup(pnGroupValues[2]))
+                match(predicates, qpn.get(PersonName_.phoneticName), pnGroupValues[2], false);
         }
     }
 
-    private String appendEndingWildcard(String pnValue) {
-        return pnValue.endsWith("*") ? pnValue : pnValue.endsWith("^") ? pnValue + "*" : pnValue + "^*";
+    private String[] coalesceWildcards(String[] pnValueGroups) {
+        String[] result = new String[pnValueGroups.length];
+        for (int i = 0; i < pnValueGroups.length; i++) {
+            String pnValue = pnValueGroups[i];
+            if (pnValue.endsWith("^"))
+                pnValue += "*";
+
+            do {
+                pnValue = pnValue.endsWith("^*") ? pnValue.substring(0, pnValue.length() - 2) : pnValue;
+            } while (pnValue.endsWith("^*"));
+
+            result[i] = pnValue.endsWith("*") ? pnValue : pnValue.endsWith("^") ? pnValue + "*" : pnValue + "^*";
+        }
+        return result;
     }
 
     private Predicate match(Path<String> qpn, String pn, boolean ignoreCase) {
