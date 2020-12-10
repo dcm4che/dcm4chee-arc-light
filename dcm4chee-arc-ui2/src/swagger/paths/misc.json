@@ -399,7 +399,12 @@
       "summary": "Query report by Study Instance UID",
       "operationId": "queryReportByStudyUID",
       "parameters": [
-
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
       ],
       "responses": {
         "200": {
