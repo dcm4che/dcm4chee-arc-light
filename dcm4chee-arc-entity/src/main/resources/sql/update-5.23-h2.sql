@@ -1,7 +1,7 @@
 -- part 1: can be applied on archive running archive 5.22
 alter table person_name add alphabetic_name varchar(255);
-alter table person_name add add ideographic_name varchar(255);
-alter table person_name add add phonetic_name varchar(255);
+alter table person_name add ideographic_name varchar(255);
+alter table person_name add phonetic_name varchar(255);
 
 update person_name
 set alphabetic_name = concat(family_name, '^', given_name, '^', middle_name, '^', name_prefix, '^', name_suffix, '^'),
@@ -12,7 +12,9 @@ create index UK_gs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name);
 create index UK_ala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index UK_9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
 
+--upper case index does not work
 create index alphabetic_name_upper_idx on person_name (upper(alphabetic_name));
+--upper case index does not work
 
 alter table issuer drop constraint UK_gknfxd1vh283cmbg8ymia9ms8;
 create index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer (entity_id);
@@ -43,20 +45,20 @@ alter table person_name alter column alphabetic_name set not null;
 alter table person_name alter column ideographic_name set not null;
 alter table person_name alter column phonetic_name set not null;
 
-alter table person_name drop family_name;
-alter table person_name drop given_name;
-alter table person_name drop middle_name;
-alter table person_name drop name_prefix;
-alter table person_name drop name_suffix;
-alter table person_name drop i_family_name;
-alter table person_name drop i_given_name;
-alter table person_name drop i_middle_name;
-alter table person_name drop i_name_prefix;
-alter table person_name drop i_name_suffix;
-alter table person_name drop p_family_name;
-alter table person_name drop p_given_name;
-alter table person_name drop p_middle_name;
-alter table person_name drop p_name_prefix;
-alter table person_name drop p_name_suffix;
+alter table person_name drop column family_name;
+alter table person_name drop column given_name;
+alter table person_name drop column middle_name;
+alter table person_name drop column name_prefix;
+alter table person_name drop column name_suffix;
+alter table person_name drop column i_family_name;
+alter table person_name drop column i_given_name;
+alter table person_name drop column i_middle_name;
+alter table person_name drop column i_name_prefix;
+alter table person_name drop column i_name_suffix;
+alter table person_name drop column p_family_name;
+alter table person_name drop column p_given_name;
+alter table person_name drop column p_middle_name;
+alter table person_name drop column p_name_prefix;
+alter table person_name drop column p_name_suffix;
 
-alter table series drop src_aet;
+alter table series drop column src_aet;
