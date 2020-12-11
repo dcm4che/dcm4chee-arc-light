@@ -895,10 +895,6 @@ public class QueryBuilder {
         return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
     }
 
-    public static boolean isUniversalMatchingPNGroup(String pnGroupValue) {
-        return pnGroupValue.equals("*") || pnGroupValue.equals("^*");
-    }
-
     public static boolean isUniversalMatching(IDWithIssuer[] pids) {
         for (IDWithIssuer pid : pids) {
             if (!isUniversalMatching(pid.getID()))
@@ -1217,51 +1213,56 @@ public class QueryBuilder {
             SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute, String value,
             QueryParam queryParam) {
         if (!isUniversalMatching(value)) {
-            Path<org.dcm4chee.arc.entity.PersonName> qpn = patient.join(attribute);
-            PersonName pn = new PersonName(value, true);
+            String[] pnGroupValues = StringUtils.split(value, '=');
             if (queryParam.isFuzzySemanticMatching())
-                fuzzyMatch(predicates, q, qpn, pn, queryParam);
+                fuzzyMatch(predicates, q, patient.join(attribute), new PersonName(pnGroupValues[0], true), queryParam);
             else
-                literalMatch(predicates, qpn, value);
+                literalMatch(predicates, patient.join(attribute), pnGroupValues);
         }
     }
 
     private void literalMatch(List<Predicate> predicates, Path<org.dcm4chee.arc.entity.PersonName> qpn,
-                              String pnValue) {
-        if (isUniversalMatching(pnValue) || pnValue.equals("^"))
-            return;
-
-        String[] pnGroupValues = coalesceWildcards(pnValue.split("="));
-        if (pnGroupValues.length == 1 && !isUniversalMatchingPNGroup(pnGroupValues[0])) {
+                              String[] pnGroupValues) {
+        for (int i = 0; i < pnGroupValues.length; i++) {
+            pnGroupValues[i] = normalizePNGroupValue(pnGroupValues[i]);
+        }
+        if (pnGroupValues.length == 1 && !isEmptyPNGroupMatching(pnGroupValues[0])) {
             predicates.add(
                     cb.or(match(qpn.get(PersonName_.alphabeticName), pnGroupValues[0], true),
                           match(qpn.get(PersonName_.ideographicName), pnGroupValues[0], false),
                           match(qpn.get(PersonName_.phoneticName), pnGroupValues[0], false))
             );
         } else {
-            if (!isUniversalMatchingPNGroup(pnGroupValues[0]))
+            if (!isUniversalMatching(pnGroupValues[0]))
                 match(predicates, qpn.get(PersonName_.alphabeticName), pnGroupValues[0], true);
-            if (pnGroupValues.length == 2 && !isUniversalMatchingPNGroup(pnGroupValues[1]))
+            if (pnGroupValues.length >= 2 && !isUniversalMatching(pnGroupValues[1]))
                 match(predicates, qpn.get(PersonName_.ideographicName), pnGroupValues[1], false);
-            if (pnGroupValues.length == 3 && !isUniversalMatchingPNGroup(pnGroupValues[2]))
+            if (pnGroupValues.length >= 3 && !isUniversalMatching(pnGroupValues[2]))
                 match(predicates, qpn.get(PersonName_.phoneticName), pnGroupValues[2], false);
         }
     }
 
-    private String[] coalesceWildcards(String[] pnValueGroups) {
-        String[] result = new String[pnValueGroups.length];
-        for (int i = 0; i < pnValueGroups.length; i++) {
-            String pnValue = pnValueGroups[i];
-            if (pnValue.endsWith("^"))
-                pnValue += "*";
+    private static boolean isEmptyPNGroupMatching(String pnGroupValue) {
+        return pnGroupValue.chars().allMatch(ch -> ch == '^' || ch == '*');
+    }
 
-            do {
-                pnValue = pnValue.endsWith("^*") ? pnValue.substring(0, pnValue.length() - 2) : pnValue;
-            } while (pnValue.endsWith("^*"));
-
-            result[i] = pnValue.endsWith("*") ? pnValue : pnValue.endsWith("^") ? pnValue + "*" : pnValue + "^*";
+    private static String normalizePNGroupValue(String pnGroupValue) {
+        if (pnGroupValue.isEmpty()) return "*";
+        int length = pnGroupValue.length();
+        char[] value =  new char[length + 2];
+        pnGroupValue.getChars(0, length, value, 0);
+        for (int i = 1; i < length; i++) {
+            if (value[i] == '*' && value[i-1] == '*') {
+                System.arraycopy(value, i + 1, value, i, --length - i);
+            }
         }
-        return result;
+        if (value[length-1] != '*') {
+            while (length >= 2 && value[length-1] == '*' && value[length-2] == '^')
+                length -= 2;
+            value[length++] = '^';
+            value[length++] = '*';
+        }
+        return new String(value, 0, length);
     }
 
     private Predicate match(Path<String> qpn, String pn, boolean ignoreCase) {
