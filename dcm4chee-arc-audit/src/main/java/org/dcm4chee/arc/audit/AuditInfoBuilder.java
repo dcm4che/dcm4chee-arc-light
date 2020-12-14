@@ -372,9 +372,11 @@ class AuditInfoBuilder {
     }
 
     private static String toPatName(String pName, ArchiveDeviceExtension arcDev) {
-        return pName != null && arcDev.showPatientInfoInAuditLog() != ShowPatientInfo.PLAIN_TEXT
-                ? String.valueOf(pName.hashCode())
-                : HL7Separator.unescapeAll(pName);
+        return pName != null
+                ? arcDev.showPatientInfoInAuditLog() != ShowPatientInfo.PLAIN_TEXT
+                    ? String.valueOf(pName.hashCode())
+                    : HL7Separator.unescapeAll(pName)
+                : null;
     }
 
     private static String errorCodeAsString(int errorCode) {
