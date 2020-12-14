@@ -34,6 +34,7 @@ add: hl7OrderControlStatus
 hl7OrderControlStatus: SC_A
 
 dn: dcmuiPermissionName=Tab - Study - UWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
 dcmuiPermissionName: Tab - Study - UWL
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
