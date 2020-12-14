@@ -801,6 +801,9 @@ export class Globalvar {
             "/study/mwl":{
                 permissionsAction:"tab-study-mwl"
             },
+            "/study/uwl":{
+                permissionsAction:"tab-study-uwl"
+            },
             "/study/diff":{
                 permissionsAction:"tab-study-diff"
             },
