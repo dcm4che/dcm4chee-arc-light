@@ -8,10 +8,19 @@ package org.dcm4chee.arc.conf.ui;
 public class UIDeviceCluster {
     private String clusterName;
     private String description;
-    private String loadBalancer;
-    private String keycloakServer;
+    private String clusterWebApp;
+    private String clusterDevice;
     private String[] devices = {};
     private boolean installed = true;
+
+
+
+    public String getClusterDevice() {
+        return clusterDevice;
+    }
+    public void setClusterDevice(String clusterDevice) {
+        this.clusterDevice = clusterDevice;
+    }
 
 
     public UIDeviceCluster() {
@@ -33,20 +42,12 @@ public class UIDeviceCluster {
         return description;
     }
 
-    public String getLoadBalancer() {
-        return loadBalancer;
+    public String getClusterWebApp() {
+        return clusterWebApp;
     }
 
-    public void setLoadBalancer(String loadBalancer) {
-        this.loadBalancer = loadBalancer;
-    }
-
-    public String getKeycloakServer() {
-        return keycloakServer;
-    }
-
-    public void setKeycloakServer(String keycloakServer) {
-        this.keycloakServer = keycloakServer;
+    public void setClusterWebApp(String clusterWebApp) {
+        this.clusterWebApp = clusterWebApp;
     }
 
     public void setDescription(String description) {

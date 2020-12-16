@@ -175,8 +175,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), null);
             writer.writeNotNullOrDef("dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
-            writer.writeNotNullOrDef("dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
-            writer.writeNotNullOrDef("dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
+            writer.writeNotNullOrDef("dcmuiClusterWebApp", uiDeviceCluster.getClusterWebApp(), null);
             writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
             writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
             writer.writeEnd();
@@ -258,8 +257,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchURLS) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
-            writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
-            writer.writeNotNullOrDef("dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(),null);
+            writer.writeNotNullOrDef("dcmuiElasticsearchWebApp", uiElasticsearchURL.getUrl(),null);
             writer.writeNotNullOrDef("dcmuiAuditEnterpriseSiteID", uiElasticsearchURL.getAuditEnterpriseSiteID(),null);
             writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
             writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
@@ -316,7 +314,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
             writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
             writer.writeNotEmpty("dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
-            writer.writeNotNullOrDef("dcmuiCountAET", uiDashboardConfig.getCountAet(),null);
+            writer.writeNotNullOrDef("dcmuiCountWebApp", uiDashboardConfig.getCountWebApp(),null);
             writeUICompareSide(writer, uiDashboardConfig.getCompareSides());
             writer.writeEnd();
         }
@@ -332,6 +330,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiCompareSideName", uiCompareSide.getName(), null);
             writer.writeNotNullOrDef("dcmuiCompareSideDescription", uiCompareSide.getDescription(),null);
+            writer.writeNotDef("dcmuiCompareSideOrder", uiCompareSide.getOrder(),0);
             writer.writeNotNullOrDef("dcmuiCompareSideCluster", uiCompareSide.getCluster(),null);
             writer.writeNotNullOrDef("dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(),null);
             writer.writeNotNullOrDef("dcmuiCompareSideQueueName", uiCompareSide.getQueueName(),null);
@@ -555,11 +554,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiDeviceClusterDescription":
                         uiDeviceCluster.setDescription(reader.stringValue());
                         break;
-                    case "dcmuiDeviceClusterLoadBalancer":
-                        uiDeviceCluster.setLoadBalancer(reader.stringValue());
-                        break;
-                    case "dcmuiDeviceClusterKeycloakServer":
-                        uiDeviceCluster.setKeycloakServer(reader.stringValue());
+                    case "dcmuiClusterWebApp":
+                        uiDeviceCluster.setClusterWebApp(reader.stringValue());
                         break;
                     case "dcmuiDeviceClusterInstalled":
                         uiDeviceCluster.setInstalled(reader.booleanValue());
@@ -673,11 +669,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiElasticsearchURLName":
                         uiElasticsearchURL.setUrlName(reader.stringValue());
                         break;
-                    case "dcmuiElasticsearchURL":
+                    case "dcmuiElasticsearchWebApp":
                         uiElasticsearchURL.setUrl(reader.stringValue());
-                        break;
-                    case "dcmuiElasticsearchURLKeycloakServer":
-                        uiElasticsearchURL.setElasticsearchURLKeycloakServer(reader.stringValue());
                         break;
                     case "dcmuiAuditEnterpriseSiteID":
                         uiElasticsearchURL.setAuditEnterpriseSiteID(reader.stringValue());
@@ -839,8 +832,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dicomuiDockerContainer":
                         uiDashboardConfig.setDockerContainers(reader.stringArray());
                         break;
-                    case "dcmuiCountAET":
-                        uiDashboardConfig.setCountAet(reader.stringValue());
+                    case "dcmuiCountWebApp":
+                        uiDashboardConfig.setCountWebApp(reader.stringValue());
                         break;
                     case "dcmuiCompareSideObjects":
                         loadCompareSides(uiDashboardConfig, reader);
@@ -867,6 +860,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiCompareSideDescription":
                         uiCompareSide.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideOrder":
+                        uiCompareSide.setOrder(reader.intValue());
                         break;
                     case "dcmuiCompareSideCluster":
                         uiCompareSide.setCluster(reader.stringValue());

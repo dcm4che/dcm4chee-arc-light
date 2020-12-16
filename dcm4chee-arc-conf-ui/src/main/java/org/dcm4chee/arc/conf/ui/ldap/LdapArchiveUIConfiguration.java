@@ -218,8 +218,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiDeviceClusterObject"));
         attrs.put(new BasicAttribute("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiClusterWebApp", uiDeviceCluster.getClusterWebApp(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiDeviceClusterInstalled",uiDeviceCluster.isInstalled(),true);
         return attrs;
@@ -302,7 +301,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountAET",uiDashboardConfig.getCountAet(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountWebApp",uiDashboardConfig.getCountWebApp(),null);
         return attrs;
     }
 
@@ -396,8 +395,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL uiElasticsearchURL, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURLObjects"));
         attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURLKeycloakServer", uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchWebApp", uiElasticsearchURL.getUrl(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiAuditEnterpriseSiteID", uiElasticsearchURL.getAuditEnterpriseSiteID(), null);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchIsDefault",uiElasticsearchURL.isDefault(),false);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchInstalled",uiElasticsearchURL.isInstalled(),true);
@@ -415,6 +413,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiCompareSideObjects"));
         attrs.put(new BasicAttribute("dcmuiCompareSideName", uiCompareSide.getName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideDescription", uiCompareSide.getDescription(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmuiCompareSideOrder", uiCompareSide.getOrder(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideCluster", uiCompareSide.getCluster(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideQueueName", uiCompareSide.getQueueName(), null);
@@ -542,8 +541,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UIDeviceCluster uiDeviceCluster = new UIDeviceCluster((String) attrs.get("dcmuiDeviceClusterName").get());
                 uiDeviceCluster.setDescription(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterDescription"), null));
-                uiDeviceCluster.setLoadBalancer(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterLoadBalancer"), null));
-                uiDeviceCluster.setKeycloakServer(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterKeycloakServer"), null));
+                uiDeviceCluster.setClusterWebApp(LdapUtils.stringValue(attrs.get("dcmuiClusterWebApp"), null));
                 uiDeviceCluster.setDevices(LdapUtils.stringArray(attrs.get("dcmuiDeviceClusterDevices")));
                 uiDeviceCluster.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiDeviceClusterInstalled"),true));
                 uiConfig.addDeviceCluster(uiDeviceCluster);
@@ -628,7 +626,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UIDashboardConfig uiDashboardConfig = new UIDashboardConfig((String) attrs.get("dcmuiDashboardConfigName").get());
                 uiDashboardConfig.setShowStarBlock(LdapUtils.booleanValue(attrs.get("dcmuiShowStarBlock"), true));
-                uiDashboardConfig.setCountAet(LdapUtils.stringValue(attrs.get("dcmuiCountAET"),null));
+                uiDashboardConfig.setCountWebApp(LdapUtils.stringValue(attrs.get("dcmuiCountWebApp"),null));
                 uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmuiQueueName")));
                 uiDashboardConfig.setExportNames(LdapUtils.stringArray(attrs.get("dcmuiExportName")));
                 uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
@@ -666,8 +664,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL((String) attrs.get("dcmuiElasticsearchURLName").get());
-                uiElasticsearchURL.setUrl(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURL"), null));
-                uiElasticsearchURL.setElasticsearchURLKeycloakServer(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURLKeycloakServer"), null));
+                uiElasticsearchURL.setUrl(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchWebApp"), null));
                 uiElasticsearchURL.setAuditEnterpriseSiteID(LdapUtils.stringValue(attrs.get("dcmuiAuditEnterpriseSiteID"), null));
                 uiElasticsearchURL.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchIsDefault"),false));
                 uiElasticsearchURL.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiElasticsearchInstalled"),true));
@@ -721,6 +718,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 Attributes attrs = sr.getAttributes();
                 UICompareSide uiCompareSide = new UICompareSide((String) attrs.get("dcmuiCompareSideName").get());
                 uiCompareSide.setDescription(LdapUtils.stringValue(attrs.get("dcmuiCompareSideDescription"), null));
+                uiCompareSide.setOrder(LdapUtils.intValue(attrs.get("dcmuiCompareSideOrder"), 0));
                 uiCompareSide.setCluster(LdapUtils.stringValue(attrs.get("dcmuiCompareSideCluster"), null));
                 uiCompareSide.setElasticsearch(LdapUtils.stringValue(attrs.get("dcmuiCompareSideElasticsearch"), null));
                 uiCompareSide.setQueueName(LdapUtils.stringValue(attrs.get("dcmuiCompareSideQueueName"), null));
@@ -1049,12 +1047,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterDescription",
                 prev.getDescription(),
                 uiDeviceCluster.getDescription(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterLoadBalancer",
-                prev.getLoadBalancer(),
-                uiDeviceCluster.getLoadBalancer(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterKeycloakServer",
-                prev.getKeycloakServer(),
-                uiDeviceCluster.getKeycloakServer(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiClusterWebApp",
+                prev.getClusterWebApp(),
+                uiDeviceCluster.getClusterWebApp(), null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDeviceClusterInstalled",prev.isInstalled(),uiDeviceCluster.isInstalled(),true);
         return mods;
     }
@@ -1297,12 +1292,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL prev,
                                                               UIElasticsearchURL uiElasticsearchURL, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchWebApp",
                 prev.getUrl(),
                 uiElasticsearchURL.getUrl(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURLKeycloakServer",
-                prev.getElasticsearchURLKeycloakServer(),
-                uiElasticsearchURL.getElasticsearchURLKeycloakServer(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiAuditEnterpriseSiteID",
                 prev.getAuditEnterpriseSiteID(),
                 uiElasticsearchURL.getAuditEnterpriseSiteID(), null);
@@ -1335,6 +1327,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiCompareSideDescription",
                 prev.getDescription(),
                 uiCompareSide.getDescription(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiCompareSideOrder",
+                prev.getOrder(),
+                uiCompareSide.getOrder(),null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiCompareSideCluster",
                 prev.getCluster(),
                 uiCompareSide.getCluster(),null);
@@ -1369,9 +1364,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiDockerContainer",
                 prev.getDockerContainers(),
                 uiDashboardConfig.getDockerContainers());
-        LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountAET",
-                prev.getCountAet(),
-                uiDashboardConfig.getCountAet(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountWebApp",
+                prev.getCountWebApp(),
+                uiDashboardConfig.getCountWebApp(), null);
         mergeUICompareSide(diffs, prev, uiDashboardConfig, dn);
         return mods;
     }

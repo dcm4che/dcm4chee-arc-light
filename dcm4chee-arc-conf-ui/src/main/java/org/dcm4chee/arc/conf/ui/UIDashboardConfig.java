@@ -53,7 +53,7 @@ public class UIDashboardConfig {
     private boolean showStarBlock = true;
     private String[] exportNames = {};
     private String[] deviceNames = {};
-    private String countAet;
+    private String countWebApp;
     private String[] ignoreParams = {};
     private String[] dockerContainers = {};
     private final Map<String,UICompareSide> compareSide = new HashMap<>();
@@ -106,9 +106,9 @@ public class UIDashboardConfig {
         this.deviceNames = deviceNames;
     }
 
-    public String getCountAet() { return countAet; }
+    public String getCountWebApp() { return countWebApp; }
 
-    public void setCountAet(String countAet) { this.countAet = countAet; }
+    public void setCountWebApp(String countWebApp) { this.countWebApp = countWebApp; }
 
     public String[] getIgnoreParams() {
         return ignoreParams;

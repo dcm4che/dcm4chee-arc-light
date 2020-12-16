@@ -8,7 +8,6 @@ public class UIElasticsearchURL {
     private String urlName;
     private String url;
     private String auditEnterpriseSiteID;
-    private String elasticsearchURLKeycloakServer;
     private boolean isDefault;
     private boolean installed = true;
 
@@ -40,14 +39,6 @@ public class UIElasticsearchURL {
 
     public void setAuditEnterpriseSiteID(String auditEnterpriseSiteID) {
         this.auditEnterpriseSiteID = auditEnterpriseSiteID;
-    }
-
-    public String getElasticsearchURLKeycloakServer() {
-        return elasticsearchURLKeycloakServer;
-    }
-
-    public void setElasticsearchURLKeycloakServer(String elasticsearchURLKeycloakServer) {
-        this.elasticsearchURLKeycloakServer = elasticsearchURLKeycloakServer;
     }
 
     public boolean isDefault() {

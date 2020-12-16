@@ -6,7 +6,17 @@ public class UICompareSide {
     private String cluster;
     private String elasticsearch;
     private String queueName;
+    private int order;
     private boolean installed = true;
+
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
     public UICompareSide() {
     }
