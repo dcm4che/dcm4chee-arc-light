@@ -1923,6 +1923,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.394 NAME 'dcmUPSEventWebSocketQueueS
   DESC 'Indicates to queue UPS events to be sent to a particular Web Client identified by its Subscriber AET in case there is no open Web Socket connection to that client at the time of the event. Format: <aet>=<size>.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.395 NAME 'dcmEncodeAsJSONNumber'
+  DESC 'VR encoded as JSON Number. If not listed, IS, DS, SV and UV values are encoded as JSON Strings. Enumerated values: IS, DS, SV, UV.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2143,6 +2147,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRetrieveTaskWarningOnNoMatch $
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
+    dcmEncodeAsJSONNumber $
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
     hl7ADTReceivingApplication $
@@ -2267,6 +2272,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRetrieveTaskWarningOnNoMatch $
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
+    dcmEncodeAsJSONNumber $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $

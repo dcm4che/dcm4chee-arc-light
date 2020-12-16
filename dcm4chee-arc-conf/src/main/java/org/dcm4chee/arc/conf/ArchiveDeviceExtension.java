@@ -43,13 +43,16 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.SpecificCharacterSet;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.io.BulkDataDescriptor;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
+import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Period;
 import java.util.*;
@@ -291,6 +294,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean calculateQueryAttributes;
     private volatile int supplementIssuerFetchSize = 100;
 
+    private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -624,6 +628,29 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSendPendingCMoveInterval(Duration sendPendingCMoveInterval) {
         this.sendPendingCMoveInterval = sendPendingCMoveInterval;
+    }
+
+    public VR[] getEncodeAsJSONNumber() {
+        return encodeAsJSONNumber.toArray(new VR[0]);
+    }
+
+    public void setEncodeAsJSONNumber(VR[] vrs) {
+        Stream.of(vrs).forEach(ArchiveDeviceExtension::requireIS_DS_SV_UV);
+        this.encodeAsJSONNumber.clear();
+        this.encodeAsJSONNumber.addAll(Arrays.asList(vrs));
+    }
+
+    public void encodeAsJSONNumber(JSONWriter writer) {
+        encodeAsJSONNumber(writer, encodeAsJSONNumber);
+    }
+
+    static void encodeAsJSONNumber(JSONWriter writer, EnumSet<VR> encodeAsJSONNumber) {
+        encodeAsJSONNumber.forEach(vr -> writer.setJsonType(vr, JsonValue.ValueType.NUMBER));
+    }
+
+    static void requireIS_DS_SV_UV(VR vr) {
+        if (vr != VR.DS && vr != VR.IS && vr != VR.SV && vr != VR.UV)
+            throw new IllegalArgumentException("vr:" + vr);
     }
 
     public String[] getWadoSupportedSRClasses() {

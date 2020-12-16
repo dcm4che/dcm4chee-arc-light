@@ -41,7 +41,9 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.io.BulkDataDescriptor;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
@@ -154,6 +156,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean stowQuicktime2MP4;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
+    private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
@@ -1584,6 +1587,21 @@ public class ArchiveAEExtension extends AEExtension {
         return MultipleStoreAssociations.maxTo(aet,
                 multipleStoreAssociations,
                 getArchiveDeviceExtension().getMultipleStoreAssociations());
+    }
+
+    public VR[] getEncodeAsJSONNumber() {
+        return encodeAsJSONNumber.toArray(new VR[0]);
+    }
+
+    public void setEncodeAsJSONNumber(VR[] vrs) {
+        Stream.of(vrs).forEach(ArchiveDeviceExtension::requireIS_DS_SV_UV);
+        this.encodeAsJSONNumber.clear();
+        this.encodeAsJSONNumber.addAll(Arrays.asList(vrs));
+    }
+
+    public void encodeAsJSONNumber(JSONWriter writer) {
+        ArchiveDeviceExtension.encodeAsJSONNumber(writer, encodeAsJSONNumber);
+        getArchiveDeviceExtension().encodeAsJSONNumber(writer);
     }
 
     public Boolean getRetrieveTaskWarningOnNoMatch() {
