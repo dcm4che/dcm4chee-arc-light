@@ -3,6 +3,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash-es';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {DropdownList} from "../../../helpers/form/dropdown-list";
+import {SelectDropdown} from "../../../interfaces";
+import {Aet} from "../../../models/aet";
 
 @Component({
     selector: 'app-export',
@@ -130,6 +133,7 @@ export class ExportDialogComponent{
         this._count = value;
     }
 
+    aesOption:SelectDropdown<Aet>[];
     getAes(){
         let $this = this;
         this.$http.get(
@@ -138,7 +142,11 @@ export class ExportDialogComponent{
         // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
             $this.aes = response;
+            this.aesOption = this.aes.map((ae:Aet)=>{
+                return new SelectDropdown<Aet>(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription);
+            });
             $this._result.selectedAet = $this._result.selectedAet || $this.aes[0].dicomAETitle;
+
             if ($this.mainservice.global && !$this.mainservice.global.aes){
                 let global = _.cloneDeep($this.mainservice.global);
                 global.aes = response;

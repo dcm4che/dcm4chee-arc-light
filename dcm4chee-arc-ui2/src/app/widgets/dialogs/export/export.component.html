@@ -34,18 +34,18 @@
             </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
                 <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
-<!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
-                    <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
-                </select>
-                <mat-select class="prefix"  [(ngModel)]="result.dicomPrefix">
-                    <mat-option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes"title="{{prefix.description}}">{{prefix.id}}</mat-option>
-                </mat-select>-->
-                <mat-select class="aes" [(ngModel)]="result.selectedAet">
+                <dcm-drop-down
+                        [(model)]="result.selectedAet"
+                        [options]="aesOption"
+                        [editable]="false"
+                        [showSearchField]="true"
+                        [multiSelectMode]="false"
+                        (modelChange)="result.selectedAet = $event"
+                        [showStar]="false"
+                ></dcm-drop-down>
+<!--                <mat-select class="aes" [(ngModel)]="result.selectedAet">
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
-                </mat-select>
-<!--                <select class="aes" [(ngModel)]="result.selectedAet">
-                    <option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes">{{aet.dicomAETitle}}</option>
-                </select>-->
+                </mat-select>-->
             </div>
             <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom'">
                 <p i18n="@@select_the_exporter">Select the exporter:</p>
@@ -97,9 +97,18 @@
                 </div>
                 <div class="dicomBlock">
                     <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
-                    <mat-select class="aes" [(ngModel)]="result.destinationAET">
+<!--                    <mat-select class="aes" [(ngModel)]="result.destinationAET">
                         <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
-                    </mat-select>
+                    </mat-select>-->
+                    <dcm-drop-down
+                            [(model)]="result.destinationAET"
+                            [options]="aesOption"
+                            [editable]="false"
+                            [showSearchField]="true"
+                            [multiSelectMode]="false"
+                            (modelChange)="result.destinationAET = $event"
+                            [showStar]="false"
+                    ></dcm-drop-down>
                 </div>
             </ng-container>
         </div>
