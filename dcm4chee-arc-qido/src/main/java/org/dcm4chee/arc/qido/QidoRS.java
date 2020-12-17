@@ -762,7 +762,9 @@ public class QidoRS {
         return (StreamingOutput) out -> {
                 LOG.debug("Enter StreamingOutput.write");
                 JsonGenerator gen = Json.createGenerator(out);
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = getApplicationEntity()
+                                        .getAEExtensionNotNull(ArchiveAEExtension.class)
+                                        .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 for (Attributes match : matches)
                     writer.write(match);

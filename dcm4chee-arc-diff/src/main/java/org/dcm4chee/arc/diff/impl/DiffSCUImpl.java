@@ -47,7 +47,6 @@ import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -172,6 +171,11 @@ public class DiffSCUImpl implements DiffSCU {
     public void close() {
         safeRelease(as1);
         safeRelease(as2);
+    }
+
+    @Override
+    public DiffContext getDiffCtx() {
+        return ctx;
     }
 
     private static Attributes modifiedAttributesForMissing() {

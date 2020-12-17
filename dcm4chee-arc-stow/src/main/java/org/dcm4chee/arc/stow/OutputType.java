@@ -44,6 +44,8 @@ package org.dcm4chee.arc.stow;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -58,7 +60,7 @@ import javax.xml.transform.stream.StreamResult;
 enum OutputType {
     DICOM_XML {
         @Override
-        StreamingOutput entity(final Attributes response) {
+        StreamingOutput entity(final Attributes response, ApplicationEntity ae) {
             return out -> {
                 try {
                     SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
@@ -70,14 +72,16 @@ enum OutputType {
     },
     JSON {
         @Override
-        StreamingOutput entity(final Attributes response) {
+        StreamingOutput entity(final Attributes response, ApplicationEntity ae) {
             return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
-                new JSONWriter(gen).write(response);
+                ae.getAEExtensionNotNull(ArchiveAEExtension.class)
+                        .encodeAsJSONNumber(new JSONWriter(gen))
+                        .write(response);
                 gen.flush();
             };
         }
     };
 
-    abstract StreamingOutput entity(Attributes response);
+    abstract StreamingOutput entity(Attributes response, ApplicationEntity ae);
 }

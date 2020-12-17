@@ -47,6 +47,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.Entity;
@@ -76,7 +77,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.ConnectException;
 import java.util.EnumSet;
 
 /**
@@ -288,7 +288,7 @@ public class QueryRS {
             DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0,
                     1, splitStudyDateRange());
             dimseRSP.next();
-            ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
+            ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP, localAE)).build());
         } catch (IllegalStateException| ConfigurationException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IOException e) {
@@ -307,14 +307,14 @@ public class QueryRS {
                 request.getRemoteHost());
     }
 
-    private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {
+    private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP, ApplicationEntity localAE) {
         int status = dimseRSP.getCommand().getInt(Tag.Status, -1);
         switch (status) {
             case 0:
                 return Response.ok("[]");
             case Status.Pending:
             case Status.PendingWarning:
-                return Response.ok(writeJSON(dimseRSP));
+                return Response.ok(writeJSON(dimseRSP, localAE));
         }
         return warning(warning(status));
     }
@@ -364,10 +364,11 @@ public class QueryRS {
         }
     }
 
-    private Object writeJSON(final DimseRSP dimseRSP) {
+    private Object writeJSON(final DimseRSP dimseRSP, ApplicationEntity localAE) {
         return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = localAE.getAEExtensionNotNull(ArchiveAEExtension.class)
+                                           .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 int skip = offset();
                 int remaining = limit();

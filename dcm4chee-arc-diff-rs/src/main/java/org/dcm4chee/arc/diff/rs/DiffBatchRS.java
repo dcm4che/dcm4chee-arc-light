@@ -42,6 +42,8 @@ package org.dcm4chee.arc.diff.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
@@ -77,6 +79,9 @@ import java.util.List;
 public class DiffBatchRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffBatchRS.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private DiffService diffService;
@@ -237,7 +242,8 @@ public class DiffBatchRS {
     private StreamingOutput entity(List<byte[]> diffTaskAttributesList) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                          .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 for (byte[] diffTaskAttributes : diffTaskAttributesList)
                     writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes, null));

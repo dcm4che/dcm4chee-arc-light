@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
@@ -391,7 +392,9 @@ public class DiffRS {
     private StreamingOutput entity(final Attributes diff1, final DiffSCU diffSCU) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = diffSCU.getDiffCtx().getLocalAE()
+                                        .getAEExtensionNotNull(ArchiveAEExtension.class)
+                                        .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 int remaining = limit();
                 Attributes diff = diff1;

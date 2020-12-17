@@ -74,7 +74,7 @@ public class RSForward {
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
         forward(rsOp,
                 arcAE,
-                toContent(attrs),
+                toContent(attrs, arcAE),
                 rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs).toString() : null,
                 request);
     }
@@ -109,13 +109,13 @@ public class RSForward {
         }
     }
 
-    private static byte[] toContent(Attributes attrs) {
+    private static byte[] toContent(Attributes attrs, ArchiveAEExtension arcAE) {
         if (attrs == null)
             return ByteUtils.EMPTY_BYTES;
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonGenerator gen = Json.createGenerator(out)) {
-            new JSONWriter(gen).write(attrs);
+            arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
         }
         return out.toByteArray();
     }

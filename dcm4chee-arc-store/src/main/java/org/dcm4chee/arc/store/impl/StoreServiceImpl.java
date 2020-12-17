@@ -481,9 +481,10 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void storeMetadata(StoreContext ctx) throws IOException {
-        if (ctx.getStoreSession().getArchiveAEExtension().getMetadataStorageIDs().length > 0) {
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        if (arcAE.getMetadataStorageIDs().length > 0) {
             try (JsonGenerator gen = Json.createGenerator(openOutputStream(ctx, Location.ObjectType.METADATA))) {
-                JSONWriter jsonWriter = new JSONWriter(gen);
+                JSONWriter jsonWriter = arcAE.encodeAsJSONNumber(new JSONWriter(gen));
                 jsonWriter.setReplaceBulkDataURI("");
                 jsonWriter.write(ctx.getAttributes());
             }

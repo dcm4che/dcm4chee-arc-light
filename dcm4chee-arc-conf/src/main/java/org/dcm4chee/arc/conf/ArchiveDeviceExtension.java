@@ -640,12 +640,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.encodeAsJSONNumber.addAll(Arrays.asList(vrs));
     }
 
-    public void encodeAsJSONNumber(JSONWriter writer) {
-        encodeAsJSONNumber(writer, encodeAsJSONNumber);
+    public JSONWriter encodeAsJSONNumber(JSONWriter writer) {
+        return encodeAsJSONNumber(writer, encodeAsJSONNumber);
     }
 
-    static void encodeAsJSONNumber(JSONWriter writer, EnumSet<VR> encodeAsJSONNumber) {
+    static JSONWriter encodeAsJSONNumber(JSONWriter writer, EnumSet<VR> encodeAsJSONNumber) {
         encodeAsJSONNumber.forEach(vr -> writer.setJsonType(vr, JsonValue.ValueType.NUMBER));
+        return writer;
     }
 
     static void requireIS_DS_SV_UV(VR vr) {

@@ -1599,9 +1599,9 @@ public class ArchiveAEExtension extends AEExtension {
         this.encodeAsJSONNumber.addAll(Arrays.asList(vrs));
     }
 
-    public void encodeAsJSONNumber(JSONWriter writer) {
-        ArchiveDeviceExtension.encodeAsJSONNumber(writer, encodeAsJSONNumber);
-        getArchiveDeviceExtension().encodeAsJSONNumber(writer);
+    public JSONWriter encodeAsJSONNumber(JSONWriter writer) {
+        return getArchiveDeviceExtension().encodeAsJSONNumber(
+                ArchiveDeviceExtension.encodeAsJSONNumber(writer, encodeAsJSONNumber));
     }
 
     public Boolean getRetrieveTaskWarningOnNoMatch() {

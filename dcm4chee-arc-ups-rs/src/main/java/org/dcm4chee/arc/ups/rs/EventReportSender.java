@@ -65,7 +65,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -165,7 +164,9 @@ public class EventReportSender {
     private String toJson(UPSEvent event, Attributes attrs) {
         StringWriter out = new StringWriter(256);
         try (JsonGenerator gen = Json.createGenerator(out)) {
-            new JSONWriter(gen).write(event.withCommandAttributes(attrs, messageID.incrementAndGet()));
+            event.getArchiveAEExtension()
+                    .encodeAsJSONNumber(new JSONWriter(gen))
+                    .write(event.withCommandAttributes(attrs, messageID.incrementAndGet()));
         }
         return out.toString();
     }

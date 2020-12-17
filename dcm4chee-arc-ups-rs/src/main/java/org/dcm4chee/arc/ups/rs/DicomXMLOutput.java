@@ -41,8 +41,8 @@
 
 package org.dcm4chee.arc.ups.rs;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXTransformer;
+import org.dcm4chee.arc.ups.UPSContext;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -55,16 +55,16 @@ import java.io.OutputStream;
  * @since Sep 2019
  */
 public class DicomXMLOutput implements StreamingOutput {
-    private final Attributes attrs;
+    private final UPSContext ctx;
 
-    public DicomXMLOutput(Attributes attrs) {
-        this.attrs = attrs;
+    public DicomXMLOutput(UPSContext ctx) {
+        this.ctx = ctx;
     }
 
     @Override
     public void write(OutputStream out) {
         try {
-            SAXTransformer.getSAXWriter(new StreamResult(out)).write(attrs);
+            SAXTransformer.getSAXWriter(new StreamResult(out)).write(ctx.getAttributes());
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }

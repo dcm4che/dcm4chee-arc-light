@@ -48,7 +48,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
@@ -208,7 +207,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                         for (InstanceLocations match : ctx.getMatches()) {
                             out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
                             JsonGenerator gen = Json.createGenerator(out);
-                            new JSONWriter(gen).write(loadMetadata(ctx, match));
+                            arcDev.encodeAsJSONNumber(new JSONWriter(gen)).write(loadMetadata(ctx, match));
                             gen.flush();
                             out.closeEntry();
                         }

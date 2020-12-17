@@ -94,8 +94,8 @@ public class QueryPatientDemographicRS {
     public Response query(@PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
         Attributes attrs;
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         try {
-            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             PDQServiceDescriptor descriptor = arcdev.getPDQServiceDescriptor(pdqServiceID);
             if (descriptor == null)
                 return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
@@ -109,7 +109,7 @@ public class QueryPatientDemographicRS {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
         return attrs != null
-                ? Response.ok(toJSON(attrs)).build()
+                ? Response.ok(toJSON(attrs, arcdev)).build()
                 : errResponse("Querying the PDQ Service returned null attributes", Response.Status.NOT_FOUND);
     }
 
@@ -138,10 +138,10 @@ public class QueryPatientDemographicRS {
         return sw.toString();
     }
 
-    private StreamingOutput toJSON(Attributes attrs) {
+    private StreamingOutput toJSON(Attributes attrs, ArchiveDeviceExtension arcDev) {
         return out -> {
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                (new JSONWriter(gen)).write(attrs);
+                (arcDev.encodeAsJSONNumber(new JSONWriter(gen))).write(attrs);
             }
         };
     }

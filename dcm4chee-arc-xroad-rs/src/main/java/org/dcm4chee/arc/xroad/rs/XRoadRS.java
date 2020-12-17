@@ -122,7 +122,9 @@ public class XRoadRS {
     private StreamingOutput toJSON(Attributes attrs) {
         return out -> {
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                (new JSONWriter(gen)).write(attrs);
+                (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                        .encodeAsJSONNumber(new JSONWriter(gen)))
+                        .write(attrs);
             }
         };
     }

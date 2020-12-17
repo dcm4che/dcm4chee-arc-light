@@ -173,7 +173,7 @@ public class UpsRS {
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::retrieveFailed, e);
         }
-        return Response.ok(responseMediaType.entity(ctx.getAttributes()), responseMediaType.type).build();
+        return Response.ok(responseMediaType.entity(ctx), responseMediaType.type).build();
     }
 
     @POST
@@ -532,27 +532,27 @@ public class UpsRS {
     private enum ResponseMediaType {
         DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE, DicomXMLOutput::new){
             @Override
-            Object entity(Attributes attrs) {
-                return new DicomXMLOutput(attrs);
+            Object entity(UPSContext ctx) {
+                return new DicomXMLOutput(ctx);
             }
         },
         DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE, DicomJSONOutput::new){
             @Override
-            Object entity(Attributes attrs) {
-                return new DicomJSONOutput(attrs);
+            Object entity(UPSContext ctx) {
+                return new DicomJSONOutput(ctx);
             }
         };
 
         final MediaType type;
-        private final Function<Attributes, Object> toEntity;
+        private final Function<UPSContext, Object> toEntity;
 
-        ResponseMediaType(MediaType type, Function<Attributes, Object> toEntity) {
+        ResponseMediaType(MediaType type, Function<UPSContext, Object> toEntity) {
             this.type = type;
             this.toEntity = toEntity;
         }
 
-        Object entity(Attributes attrs) {
-            return toEntity.apply(attrs);
+        Object entity(UPSContext ctx) {
+            return toEntity.apply(ctx);
         }
     }
 }

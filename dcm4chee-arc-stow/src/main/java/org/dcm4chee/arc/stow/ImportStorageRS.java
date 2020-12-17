@@ -179,7 +179,7 @@ public class ImportStorageRS {
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         Response.ResponseBuilder responseBuilder = Response.status(status());
         ar.resume(responseBuilder
-                .entity(output.entity(response))
+                .entity(output.entity(response, ae))
                 .header("Warning", response.getString(Tag.ErrorComment))
                 .build());
     }

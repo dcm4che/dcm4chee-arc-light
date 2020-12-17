@@ -1404,7 +1404,7 @@ public class WadoRS {
         return (StreamingOutput) out -> {
                 try {
                     JsonGenerator gen = Json.createGenerator(out);
-                    JSONWriter writer = new JSONWriter(gen);
+                    JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
                     gen.writeStartArray();
                     for (InstanceLocations inst : insts)
                         writer.write(loadMetadata(ctx, inst));

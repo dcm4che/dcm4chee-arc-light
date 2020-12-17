@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.impax.report.ImpaxReportConverter;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
@@ -134,7 +135,7 @@ public class ImportImpaxReportRS {
                     storeReport(storeCtx, sr, response);
                 });
             }
-            return buildResponse(xmlReports, response);
+            return buildResponse(xmlReports, response, ae);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -186,7 +187,7 @@ public class ImportImpaxReportRS {
         }
     }
 
-    private Response buildResponse(List<String> xmlReports, Attributes response) {
+    private Response buildResponse(List<String> xmlReports, Attributes response, ApplicationEntity ae) {
         Response.Status status = !response.contains(Tag.ReferencedSOPSequence)
                 ? Response.Status.CONFLICT
                 : !xmlReports.isEmpty() && !response.contains(Tag.FailedSOPSequence)
@@ -195,7 +196,9 @@ public class ImportImpaxReportRS {
         return Response.status(status)
                 .entity((StreamingOutput) out -> {
                     JsonGenerator gen = Json.createGenerator(out);
-                    new JSONWriter(gen).write(response);
+                    ae.getAEExtensionNotNull(ArchiveAEExtension.class)
+                            .encodeAsJSONNumber(new JSONWriter(gen))
+                            .write(response);
                     gen.flush();
                 }).build();
     }

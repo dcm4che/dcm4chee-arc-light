@@ -47,6 +47,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
@@ -166,7 +167,7 @@ public class StgVerRS {
         }
         Attributes eventInfo = ctx.getEventInfo();
         return Response.status(toStatus(eventInfo))
-                .entity(toStreamingOutput(eventInfo))
+                .entity(toStreamingOutput(eventInfo, ae))
                 .build();
     }
 
@@ -208,10 +209,11 @@ public class StgVerRS {
         return seq != null ? seq.size() : 0;
     }
 
-    private StreamingOutput toStreamingOutput(Attributes eventInfo) {
+    private StreamingOutput toStreamingOutput(Attributes eventInfo, ApplicationEntity ae) {
         return out -> {
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = ae.getAEExtensionNotNull(ArchiveAEExtension.class)
+                                      .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 writer.write(eventInfo);
                 gen.writeEnd();

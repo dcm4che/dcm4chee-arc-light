@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
@@ -182,7 +183,7 @@ public class DiffPatientDemographicsRS {
 
             query.executeQuery(arcdev.getQueryFetchSize());
             return (query.hasMoreMatches()
-                        ? Response.ok(entity(calculateDiffs(query, service)))
+                        ? Response.ok(entity(calculateDiffs(query, service), ae))
                         : Response.noContent())
                     .build();
         } catch (IllegalStateException e) {
@@ -192,10 +193,11 @@ public class DiffPatientDemographicsRS {
         }
    }
 
-    private StreamingOutput entity(List<Attributes> diffs) {
+    private StreamingOutput entity(List<Attributes> diffs, ApplicationEntity ae) {
         return out -> {
             JsonGenerator gen = Json.createGenerator(out);
-            JSONWriter writer = new JSONWriter(gen);
+            JSONWriter writer = ae.getAEExtensionNotNull(ArchiveAEExtension.class)
+                                    .encodeAsJSONNumber(new JSONWriter(gen));
             gen.writeStartArray();
             diffs.forEach(writer::write);
             gen.writeEnd();

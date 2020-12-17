@@ -153,7 +153,7 @@ public class MwlRS {
             rsForward.forward(rsOp, arcAE, attrs, request);
             return out -> {
                     try (JsonGenerator gen = Json.createGenerator(out)) {
-                        new JSONWriter(gen).write(attrs);
+                        arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
                     }
             };
         } catch (Exception e) {

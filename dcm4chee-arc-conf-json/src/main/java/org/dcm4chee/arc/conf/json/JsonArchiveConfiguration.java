@@ -45,10 +45,7 @@ import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Issuer;
-import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.Property;
@@ -63,6 +60,7 @@ import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.time.Period;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -108,6 +106,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
+        writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcDev.getEncodeAsJSONNumber());
         writer.writeNotEmpty("hl7ORUAction", arcDev.getHl7ORUAction());
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
@@ -1116,6 +1115,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID(), null);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
+        writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcAE.getEncodeAsJSONNumber());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
@@ -1305,6 +1305,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
                     arcDev.setHideSPSWithStatusFrom(reader.enumArray(SPSStatus.class));
+                    break;
+                case "dcmEncodeAsJSONNumber":
+                    arcDev.setEncodeAsJSONNumber(reader.enumArray(VR.class));
                     break;
                 case "hl7ORUAction":
                     arcDev.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
@@ -3595,6 +3598,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
                     arcAE.setHideSPSWithStatusFromMWL(reader.enumArray(SPSStatus.class));
+                    break;
+                case "dcmEncodeAsJSONNumber":
+                    arcAE.setEncodeAsJSONNumber(reader.enumArray(VR.class));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());

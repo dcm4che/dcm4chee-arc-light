@@ -89,6 +89,10 @@ public class UPSEvent {
         return dest;
     }
 
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
+    }
+
     public enum Type {
         StateReportInProcessAndCanceled {
             @Override

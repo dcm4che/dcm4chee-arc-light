@@ -555,7 +555,8 @@ public class DiffTaskRS {
     private StreamingOutput entity(List<byte[]> diffTaskAttributesList) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
-                JSONWriter writer = new JSONWriter(gen);
+                JSONWriter writer = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                                        .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 diffTaskAttributesList.forEach(diffTaskAttributes ->
                     writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes, null)));
