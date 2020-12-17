@@ -181,15 +181,35 @@
     <xsl:param name="tag"/>
     <xsl:param name="xpn"/>
     <xsl:param name="xpn25" select="$xpn/component"/>
+    <xsl:variable name="val">
+      <xsl:apply-templates select="$xpn" mode="txt"/>
+    </xsl:variable>
+    <xsl:variable name="gn">
+      <xsl:apply-templates select="$xpn25[1]" mode="txt"/>
+    </xsl:variable>
     <xsl:call-template name="pnAttr">
       <xsl:with-param name="tag" select="$tag"/>
-      <xsl:with-param name="val" select="string($xpn/text())"/>
-      <xsl:with-param name="fn" select="string($xpn/text())"/>
-      <xsl:with-param name="gn" select="string($xpn25[1]/text())"/>
-      <xsl:with-param name="mn" select="string($xpn25[2]/text())"/>
-      <xsl:with-param name="ns" select="string($xpn25[3]/text())"/>
-      <xsl:with-param name="np" select="string($xpn25[4]/text())"/>
-      <xsl:with-param name="deg" select="string($xpn25[5]/text())"/>
+      <xsl:with-param name="val">
+        <xsl:value-of select="$val"/>
+      </xsl:with-param>
+      <xsl:with-param name="fn">
+        <xsl:value-of select="substring-before($val, $gn)"/>
+      </xsl:with-param>
+      <xsl:with-param name="gn">
+        <xsl:value-of select="$gn"/>
+      </xsl:with-param>
+      <xsl:with-param name="mn">
+        <xsl:apply-templates select="$xpn25[2]" mode="txt"/>
+      </xsl:with-param>
+      <xsl:with-param name="ns">
+        <xsl:apply-templates select="$xpn25[3]" mode="txt"/>
+      </xsl:with-param>
+      <xsl:with-param name="np">
+        <xsl:apply-templates select="$xpn25[4]" mode="txt"/>
+      </xsl:with-param>
+      <xsl:with-param name="deg">
+        <xsl:apply-templates select="$xpn25[5]" mode="txt"/>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
 
@@ -201,12 +221,24 @@
       <xsl:call-template name="pnAttr">
         <xsl:with-param name="tag" select="$tag"/>
         <xsl:with-param name="val" select="string($cn/text())"/>
-        <xsl:with-param name="fn" select="string($cn26[1]/text())"/>
-        <xsl:with-param name="gn" select="string($cn26[2]/text())"/>
-        <xsl:with-param name="mn" select="string($cn26[3]/text())"/>
-        <xsl:with-param name="ns" select="string($cn26[4]/text())"/>
-        <xsl:with-param name="np" select="string($cn26[5]/text())"/>
-        <xsl:with-param name="deg" select="string($cn26[6]/text())"/>
+        <xsl:with-param name="fn">
+          <xsl:apply-templates select="$cn26[1]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="gn">
+          <xsl:apply-templates select="$cn26[2]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="mn">
+          <xsl:apply-templates select="$cn26[3]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="ns">
+          <xsl:apply-templates select="$cn26[4]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="np">
+          <xsl:apply-templates select="$cn26[5]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="deg">
+          <xsl:apply-templates select="$cn26[6]" mode="txt"/>
+        </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
@@ -218,12 +250,24 @@
       <xsl:call-template name="pnAttr">
         <xsl:with-param name="tag" select="$tag"/>
         <xsl:with-param name="val" select="string($cn)"/>
-        <xsl:with-param name="fn" select="string($cn/subcomponent[1]/text())"/>
-        <xsl:with-param name="gn" select="string($cn/subcomponent[2]/text())"/>
-        <xsl:with-param name="mn" select="string($cn/subcomponent[3]/text())"/>
-        <xsl:with-param name="ns" select="string($cn/subcomponent[4]/text())"/>
-        <xsl:with-param name="np" select="string($cn/subcomponent[5]/text())"/>
-        <xsl:with-param name="deg" select="string($cn/subcomponent[6]/text())"/>
+        <xsl:with-param name="fn">
+          <xsl:apply-templates select="$cn/subcomponent[1]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="gn">
+          <xsl:apply-templates select="$cn/subcomponent[2]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="mn">
+          <xsl:apply-templates select="$cn/subcomponent[3]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="ns">
+          <xsl:apply-templates select="$cn/subcomponent[4]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="np">
+          <xsl:apply-templates select="$cn/subcomponent[5]" mode="txt"/>
+        </xsl:with-param>
+        <xsl:with-param name="deg">
+          <xsl:apply-templates select="$cn/subcomponent[6]" mode="txt"/>
+        </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
@@ -265,10 +309,10 @@
           <xsl:with-param name="tag" select="'00080102'"/>
         </xsl:call-template>
         <!-- Code Meaning -->
-        <xsl:call-template name="attr">
-          <xsl:with-param name="val" select="substring($meaning,1,64)"/>
-          <xsl:with-param name="vr" select="'LO'"/>
+        <xsl:call-template name="trimmedAttr">
           <xsl:with-param name="tag" select="'00080104'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="$meaning"/>
         </xsl:call-template>
       </Item>
     </xsl:if>
@@ -287,7 +331,9 @@
         </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
-      <xsl:with-param name="meaning" select="$codedEntry/component[$offset+1]"/>
+      <xsl:with-param name="meaning">
+        <xsl:apply-templates select="$codedEntry/component[$offset+1]" mode="txt" />
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
 
@@ -296,28 +342,46 @@
     <xsl:param name="seqTag"/>
     <xsl:param name="codedEntry"/>
     <xsl:param name="offset" select="0"/>
-    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]/text()"/>
+    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]"/>
+    <xsl:call-template name="trimmedAttr">
+      <xsl:with-param name="tag" select="$descTag"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="codeItemDesc">
+          <xsl:with-param name="descVal" select="$desc"/>
+          <xsl:with-param name="codedEntry" select="$codedEntry"/>
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
+    <xsl:call-template name="ce2codeItem">
+      <xsl:with-param name="seqTag" select="$seqTag"/>
+      <xsl:with-param name="codedEntry" select="$codedEntry"/>
+      <xsl:with-param name="offset" select="$offset"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="codeItemDesc">
+    <xsl:param name="descVal"/>
+    <xsl:param name="codedEntry"/>
     <xsl:choose>
-        <xsl:when test="$desc">
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="$descTag"/>
-            <xsl:with-param name="vr" select="'LO'"/>
-            <xsl:with-param name="val" select="substring($desc,1,64)"/>
-          </xsl:call-template>
-          <xsl:call-template name="ce2codeItem">
-            <xsl:with-param name="seqTag" select="$seqTag"/>
-            <xsl:with-param name="codedEntry" select="$codedEntry"/>
-            <xsl:with-param name="offset" select="$offset"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:when test="$offset = 0">
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="$descTag"/>
-            <xsl:with-param name="vr" select="'LO'"/>
-            <xsl:with-param name="val" select="$codedEntry/text()"/>
-          </xsl:call-template>
-        </xsl:when>
+      <xsl:when test="$descVal and $descVal != '&quot;&quot;'">
+        <xsl:apply-templates select="$descVal" mode="txt"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="$codedEntry" mode="txt"/>
+      </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="trimmedAttr">
+    <xsl:param name="tag"/>
+    <xsl:param name="vr"/>
+    <xsl:param name="val"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="$tag"/>
+      <xsl:with-param name="vr" select="$vr"/>
+      <xsl:with-param name="val" select="substring($val, 1, 64)"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="PID">
@@ -612,6 +676,33 @@
         </Item>
       </DicomAttribute>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="text()" mode="txt">
+    <xsl:value-of select='.'/>
+  </xsl:template>
+
+  <xsl:template match="escape" mode="txt">
+    <xsl:choose>
+      <xsl:when test="text()='.br' or translate(text(), 'daA0', 'DDD')='XD'">
+        <xsl:text>&#13;&#10;</xsl:text>
+      </xsl:when>
+      <xsl:when test="text()='F'">
+        <xsl:text>|</xsl:text>
+      </xsl:when>
+      <xsl:when test="text()='S'">
+        <xsl:text>^</xsl:text>
+      </xsl:when>
+      <xsl:when test="text()='T'">
+        <xsl:text>&amp;</xsl:text>
+      </xsl:when>
+      <xsl:when test="text()='R'">
+        <xsl:text>~</xsl:text>
+      </xsl:when>
+      <xsl:when test="text()='E'">
+        <xsl:text>\\</xsl:text>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

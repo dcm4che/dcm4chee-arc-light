@@ -71,10 +71,12 @@
   </xsl:template>
   <xsl:template match="OBR[1]">
     <!-- Medical Alerts -->
-    <xsl:call-template name="attr">
+    <xsl:call-template name="trimmedAttr">
       <xsl:with-param name="tag" select="'00102000'"/>
       <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="substring(field[13]/text(),1,64)"/>
+      <xsl:with-param name="val">
+        <xsl:apply-templates select="field[13]" mode="txt"/>
+      </xsl:with-param>
     </xsl:call-template>
     <!-- Requesting Physician -->
     <xsl:call-template name="cn2pnAttr">
@@ -244,22 +246,19 @@
 
     <xsl:variable name="firstSiblingSPSID" select="$spsSiblings[1]/field[$spsIDField]"/>
     <xsl:variable name="codedEntry" select="$spsSiblings[1]/field[$spsDescCodeField]"/>
-    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]/text()"/>
+    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]"/>
 
-    <xsl:call-template name="attr">
+    <xsl:call-template name="trimmedAttr">
       <xsl:with-param name="tag" select="'00400007'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val">
-        <xsl:choose>
-          <xsl:when test="$desc">
-            <xsl:value-of select="substring($desc,1,64)"/>
-          </xsl:when>
-          <xsl:when test="$offset = 0">
-            <xsl:value-of select="$codedEntry/text()"/>
-          </xsl:when>
-        </xsl:choose>
+        <xsl:call-template name="codeItemDesc">
+          <xsl:with-param name="descVal" select="$desc"/>
+          <xsl:with-param name="codedEntry" select="$codedEntry"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+
     <!-- Scheduled Protocol Step Description and Code Sequence -->
     <DicomAttribute tag="00400008" vr="SQ">
       <xsl:for-each select="$spsSiblings">
@@ -288,7 +287,9 @@
         </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
-      <xsl:with-param name="meaning" select="$codedEntry/component[$offset+1]"/>
+      <xsl:with-param name="meaning">
+        <xsl:apply-templates select="$codedEntry/component[$offset+1]" mode="txt" />
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
 

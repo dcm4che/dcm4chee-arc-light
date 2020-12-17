@@ -503,11 +503,9 @@
         <xsl:with-param name="val" select="'CONTAINER'"/>
       </xsl:call-template>
       <!--Concept Name Code Sequence-->
-      <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag" select="'0040A043'"/>
-        <xsl:with-param name="code" select="$observationID/text()"/>
-        <xsl:with-param name="scheme" select="$observationID/component[2]"/>
-        <xsl:with-param name="meaning" select="$observationID/component[1]"/>
+      <xsl:call-template name="ce2codeItem">
+        <xsl:with-param name="seqTag" select="'0040A043'"/>
+        <xsl:with-param name="codedEntry" select="$observationID"/>
       </xsl:call-template>
       <!--Continuity Of Content-->
       <xsl:call-template name="attr">
@@ -540,11 +538,9 @@
             </xsl:with-param>
           </xsl:call-template>
           <!--Concept Name Code Sequence-->
-          <xsl:call-template name="codeItem">
-            <xsl:with-param name="sqtag" select="'0040A043'"/>
-            <xsl:with-param name="code" select="$observationID/text()"/>
-            <xsl:with-param name="scheme" select="$observationID/component[2]"/>
-            <xsl:with-param name="meaning" select="$observationID/component[1]"/>
+          <xsl:call-template name="ce2codeItem">
+            <xsl:with-param name="seqTag" select="'0040A043'"/>
+            <xsl:with-param name="codedEntry" select="$observationID"/>
           </xsl:call-template>
           <xsl:choose>
             <xsl:when test="$valueType = 'TX'">
@@ -607,33 +603,6 @@
           <xsl:with-param name="text" select="$text"/>
         </xsl:call-template>
       </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template match="text()" mode="txt">
-    <xsl:value-of select='.'/>
-  </xsl:template>
-
-  <xsl:template match="escape" mode="txt">
-    <xsl:choose>
-      <xsl:when test="text()='.br' or translate(text(), 'daA0', 'DDD')='XD'">
-        <xsl:text>&#13;&#10;</xsl:text>
-      </xsl:when>
-      <xsl:when test="text()='F'">
-        <xsl:text>|</xsl:text>
-      </xsl:when>
-      <xsl:when test="text()='S'">
-        <xsl:text>^</xsl:text>
-      </xsl:when>
-      <xsl:when test="text()='T'">
-        <xsl:text>&amp;</xsl:text>
-      </xsl:when>
-      <xsl:when test="text()='R'">
-        <xsl:text>~</xsl:text>
-      </xsl:when>
-      <xsl:when test="text()='E'">
-        <xsl:text>\\</xsl:text>
-      </xsl:when>
     </xsl:choose>
   </xsl:template>
 
