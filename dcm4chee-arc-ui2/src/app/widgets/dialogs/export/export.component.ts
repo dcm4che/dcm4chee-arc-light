@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+///<reference path="../../../../../node_modules/@angular/core/core.d.ts"/>
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash-es';
@@ -11,7 +12,7 @@ import {Aet} from "../../../models/aet";
     selector: 'app-export',
     templateUrl: './export.component.html',
 })
-export class ExportDialogComponent{
+export class ExportDialogComponent implements OnInit, OnDestroy{
 
     private _noDicomExporters;
     private _aes;
@@ -29,6 +30,7 @@ export class ExportDialogComponent{
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
+        destinationAET: undefined,
         selectedExporter: undefined,
         queue:false,
         externalAET:undefined,
@@ -40,6 +42,8 @@ export class ExportDialogComponent{
     };
     private _preselectedAet;
     constructor(public dialogRef: MatDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
+    }
+    ngOnInit() {
         this.getAes();
     }
 
@@ -145,7 +149,12 @@ export class ExportDialogComponent{
             this.aesOption = this.aes.map((ae:Aet)=>{
                 return new SelectDropdown<Aet>(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription);
             });
+            let resultTemp = JSON.parse(localStorage.getItem('export_result'));
+            if(resultTemp){
+                $this._result = resultTemp;
+            }
             $this._result.selectedAet = $this._result.selectedAet || $this.aes[0].dicomAETitle;
+            $this._result.destinationAET = $this._result.destinationAET || $this.aes[0].dicomAETitle;
 
             if ($this.mainservice.global && !$this.mainservice.global.aes){
                 let global = _.cloneDeep($this.mainservice.global);
@@ -197,5 +206,8 @@ export class ExportDialogComponent{
 
     set quantity(value) {
         this._quantity = value;
+    }
+    ngOnDestroy(){
+        localStorage.setItem('export_result', JSON.stringify(this._result));
     }
 }

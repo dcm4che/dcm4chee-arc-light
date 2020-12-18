@@ -35,8 +35,8 @@
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
                 <p i18n="@@select_the_destination_aetitle">Select the destination AETitle:</p>
                 <dcm-drop-down
-                        [(model)]="result.selectedAet"
                         [options]="aesOption"
+                        [(model)]="result.selectedAet"
                         [editable]="false"
                         [showSearchField]="true"
                         [multiSelectMode]="false"
@@ -101,8 +101,8 @@
                         <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                     </mat-select>-->
                     <dcm-drop-down
-                            [(model)]="result.destinationAET"
                             [options]="aesOption"
+                            [(model)]="result.destinationAET"
                             [editable]="false"
                             [showSearchField]="true"
                             [multiSelectMode]="false"
