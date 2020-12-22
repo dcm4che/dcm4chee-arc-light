@@ -574,7 +574,7 @@ export class DeviceConfiguratorService{
         let options = [];
         switch (m.type) {
             case 'string':
-                if (i === 'dicomDeviceName' && _.hasIn(device, 'dicomDeviceName') && device.dicomDeviceName != ''){
+                if (i === 'dicomDeviceName' && _.hasIn(device, 'dicomDeviceName') && device.dicomDeviceName != '' && this.pagination.length < 3){
                     form.push({
                         controlType: 'constantField',
                         key: i,
