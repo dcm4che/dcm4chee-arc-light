@@ -487,6 +487,7 @@ public class DeletionServiceEJB {
                 if (study.getRejectionState() == RejectionState.PARTIAL
                         && !hasSeriesWithOtherRejectionState(study, RejectionState.NONE))
                     study.setRejectionState(RejectionState.NONE);
+                study.setModifiedTime(new Date());
             }
         }
     }
