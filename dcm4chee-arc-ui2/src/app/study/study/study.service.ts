@@ -3665,7 +3665,8 @@ export class StudyService {
 
     getExporters = () => this.$http.get('../export');
 
-    deleteStudy = (studyInstanceUID: string, dcmWebApp: DcmWebApp) => this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}`);
+    deleteStudy = (studyInstanceUID: string, dcmWebApp: DcmWebApp, param) =>
+        this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}${j4care.param(param)}`);
 
     deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
 

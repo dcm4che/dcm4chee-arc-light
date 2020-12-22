@@ -3208,11 +3208,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     deleteStudy(study){
         console.log('study', study);
         this.confirm({
-            content: $localize `:@@study.want_to_delete_study:Are you sure you want to delete this study?`
+            content: $localize `:@@study.want_to_delete_study:Are you sure you want to delete this study?`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@retainObj:Retain objects on the filesystem`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"retainObj"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@DELETE:DELETE`
         }).subscribe(result => {
             this.cfpLoadingBar.start();
             if (result){
-                this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"),this.studyWebService.selectedWebService)
+                this.service.deleteStudy(_.get(study,"attrs['0020000D'].Value[0]"), this.studyWebService.selectedWebService, result.schema_model)
                 .subscribe(
                     (response) => {
                         this.appService.showMsg($localize `:@@study.study_deleted:Study deleted successfully!`);
