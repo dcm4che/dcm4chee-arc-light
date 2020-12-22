@@ -508,6 +508,7 @@ public class StoreServiceEJB {
                         hasSeriesWithOtherRejectionState(study, RejectionState.NONE)
                                 ? RejectionState.PARTIAL
                                 : RejectionState.NONE);
+                study.setModifiedTime(new Date());
                 deleteStudyQueryAttributes(study);
             }
         }

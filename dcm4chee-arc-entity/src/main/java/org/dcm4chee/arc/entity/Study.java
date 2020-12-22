@@ -385,6 +385,10 @@ public class Study {
         return modifiedTime;
     }
 
+    public void setModifiedTime(Date modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
+
     public Date getAccessTime() {
         return accessTime;
     }
