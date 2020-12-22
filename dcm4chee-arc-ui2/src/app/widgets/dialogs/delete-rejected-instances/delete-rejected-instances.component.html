@@ -28,9 +28,10 @@
             ></range-picker>
         </div>
         <div class="checkbox">
-        <label>
+        <label i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">
+            if checked, keep rejection note instances - only delete rejected instances
             <input type="checkbox" name="keepRejectionNote" [(ngModel)]="results.keepRejectionNote" />
-            <ng-container i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">if checked, keep rejection note instances - only delete rejected instances</ng-container>
+            <!--<ng-container i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">if checked, keep rejection note instances - only delete rejected instances</ng-container>-->
         </label>
         </div>
         <div class="dialogbuttons">
