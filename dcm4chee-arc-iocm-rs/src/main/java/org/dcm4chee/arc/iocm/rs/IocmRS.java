@@ -367,11 +367,11 @@ public class IocmRS {
                 ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
                 if (mergePatients) {
                     msgType = "ADT^A40^ADT_A39";
-                    rsOp = RSOperation.MergePatient;
+                    rsOp = RSOperation.MergePatient2;
                     patientService.mergePatient(ctx);
                 } else {
                     msgType = "ADT^A47^ADT_A30";
-                    rsOp = RSOperation.ChangePatientID;
+                    rsOp = RSOperation.ChangePatientID2;
                     patientService.changePatientID(ctx);
                 }
             }
