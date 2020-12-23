@@ -156,6 +156,9 @@ public class IANScheduler extends Scheduler {
     }
 
     void onMPPSReceive(@Observes MPPSContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         MPPS mpps = ctx.getMPPS();
         if (mpps.getStatus() == MPPS.Status.COMPLETED) {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
@@ -287,6 +290,9 @@ public class IANScheduler extends Scheduler {
     }
 
     public void onExport(@Observes ExportContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         if (descriptor.getIanDestinations().length != 0
                 && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)

@@ -410,10 +410,8 @@ public class UPSServiceImpl implements UPSService {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getStoredInstance() == null
-                || ctx.getException() != null) {
+        if (ctx.getStoredInstance() == null || ctx.getException() != null)
             return;
-        }
 
         StoreSession session = ctx.getStoreSession();
         Calendar now = Calendar.getInstance();
@@ -457,7 +455,7 @@ public class UPSServiceImpl implements UPSService {
     }
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
-        if (!(event.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED && event.getException() == null))
+        if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
             return;
 
         UnparsedHL7Message msg = event.getHL7Message();

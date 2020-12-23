@@ -166,6 +166,9 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     public void onMPPS(@Observes MPPSContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         String mppsStatus = ctx.getAttributes().getString(Tag.PerformedProcedureStepStatus);
         if (mppsStatus != null) {
             MPPS mergedMPPS = ctx.getMPPS();

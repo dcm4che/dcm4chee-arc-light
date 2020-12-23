@@ -90,7 +90,8 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
 
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
-        if (!desc.isRejectForDataRetentionExpiry() || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+        if (ctx.getException() != null || !desc.isRejectForDataRetentionExpiry()
+                || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
             return;
 
         ApplicationEntity ae = getApplicationEntity(desc.getAETitle());

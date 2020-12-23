@@ -133,7 +133,8 @@ public class PurgeStorageScheduler extends Scheduler {
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
         String storageID = desc.getDeleteStudyFromStorageID();
-        if (storageID == null || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+        if (ctx.getException() != null || storageID == null
+                || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
             return;
 
         String suid = ctx.getStudyInstanceUID();
@@ -369,7 +370,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 try {
                     studyDeletedEvent.fire(ctx);
                 } catch (Exception e) {
-                    LOG.warn("Unexpected exception in audit : " + e.getMessage());
+                    LOG.warn("Unexpected exception in Study Deletion audit : " + e.getMessage());
                 }
             }
         }

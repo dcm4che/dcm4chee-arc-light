@@ -151,7 +151,7 @@ public class HL7PSUScheduler extends Scheduler {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocations().isEmpty() || ctx.getRejectionNote() != null)
+        if (ctx.getException() != null || ctx.getLocations().isEmpty() || ctx.getRejectionNote() != null)
             return;
 
         StoreSession session = ctx.getStoreSession();
@@ -179,6 +179,9 @@ public class HL7PSUScheduler extends Scheduler {
     }
 
     void onMPPSReceive(@Observes MPPSContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         if (createHL7PSUOnMPPS(ctx)) {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             if (arcAE.hl7PSUOnMPPS()) {

@@ -124,6 +124,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     public void onExport(@Observes ExportContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
         if (stgCmtSCPAETitle != null && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)

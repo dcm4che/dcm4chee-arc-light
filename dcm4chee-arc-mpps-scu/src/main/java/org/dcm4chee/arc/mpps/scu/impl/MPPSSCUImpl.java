@@ -94,6 +94,9 @@ class MPPSSCUImpl implements MPPSSCU {
     private IApplicationEntityCache aeCache;
 
     void onMPPSReceive(@Observes MPPSContext ctx) {
+        if (ctx.getException() != null)
+            return;
+
         for (String remoteAET : ctx.getArchiveAEExtension().mppsForwardDestinations()) {
             Attributes ssAttrs = ctx.getMPPS().getAttributes().getNestedDataset(Tag.ScheduledStepAttributesSequence);
             Patient patient = ctx.getMPPS().getPatient();

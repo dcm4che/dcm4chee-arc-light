@@ -50,6 +50,8 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.MPPSService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -64,6 +66,7 @@ import javax.persistence.PersistenceException;
 @ApplicationScoped
 @Typed(DicomService.class)
 class MPPSSCP extends BasicMPPSSCP {
+    private static final Logger LOG = LoggerFactory.getLogger(MPPSSCP.class);
 
     @Inject
     private MPPSService mppsService;
@@ -81,16 +84,23 @@ class MPPSSCP extends BasicMPPSSCP {
         try {
             ctx.setMPPS(mppsService.createMPPS(ctx));
         } catch (DicomServiceException e) {
+            ctx.setException(e);
             throw e;
         } catch (PersistenceException e) {
+            DicomServiceException dse;
+            int status;
             try {
                 mppsService.findMPPS(ctx);
-                throw new DicomServiceException(Status.DuplicateSOPinstance);
+                status = Status.DuplicateSOPinstance;
             } catch (Exception e1) {
-                throw new DicomServiceException(Status.ProcessingFailure, e);
+                status = Status.ProcessingFailure;
             }
+            ctx.setException((dse = status == Status.DuplicateSOPinstance
+                                    ? new DicomServiceException(status)
+                                    : new DicomServiceException(status, e)));
+            throw dse;
         }
-        mppsEvent.fire(ctx);
+        fire(ctx);
         return null;
     }
 
@@ -104,11 +114,22 @@ class MPPSSCP extends BasicMPPSSCP {
         try {
             ctx.setMPPS(mppsService.updateMPPS(ctx));
         } catch (DicomServiceException e) {
+            ctx.setException(e);
             throw e;
         } catch (PersistenceException e) {
-            throw new DicomServiceException(Status.ProcessingFailure, e);
+            DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
+            ctx.setException(dse);
+            throw dse;
         }
-        mppsEvent.fire(ctx);
+        fire(ctx);
         return null;
    }
+
+    private void fire(MPPSContext ctx) {
+        try {
+            mppsEvent.fire(ctx);
+        } catch (Exception e) {
+            LOG.warn("Failed on firing MPPS context :\n", e);
+        }
+    }
 }

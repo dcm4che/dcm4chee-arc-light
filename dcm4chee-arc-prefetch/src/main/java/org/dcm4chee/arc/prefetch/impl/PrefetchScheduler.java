@@ -81,7 +81,7 @@ public class PrefetchScheduler {
     private RetrieveManager retrieveManager;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
-        if (!(event.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED && event.getException() == null))
+        if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
             return;
 
         UnparsedHL7Message hl7Message = event.getHL7Message();

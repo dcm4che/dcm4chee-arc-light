@@ -61,6 +61,7 @@ public class MPPSContextImpl implements MPPSContext {
     private String sopInstanceUID;
     private Dimse dimse;
     private MPPS mpps;
+    private Exception exception;
 
     public MPPSContextImpl(Association as) {
         this.as = as;
@@ -140,6 +141,16 @@ public class MPPSContextImpl implements MPPSContext {
     @Override
     public void setMPPS(MPPS mpps) {
         this.mpps = mpps;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     @Override

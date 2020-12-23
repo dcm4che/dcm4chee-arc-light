@@ -81,4 +81,8 @@ public interface MPPSContext {
     MPPS getMPPS();
 
     void setMPPS(MPPS mpps);
+
+    Exception getException();
+
+    void setException(Exception exception);
 }
