@@ -285,7 +285,8 @@ public class QueryRS {
                         }
             });
             as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0,
+            DimseRSP dimseRSP = findSCU.query(as, priority(), findSCU.coerceCFindRQ(as, keys),
+                    !count && limit != null ? offset() + limit() : 0,
                     1, splitStudyDateRange());
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP, localAE)).build());
@@ -373,7 +374,7 @@ public class QueryRS {
                 int skip = offset();
                 int remaining = limit();
                 try {
-                    Attributes dataset = dimseRSP.getDataset();
+                    Attributes dataset = findSCU.coerceCFindRSP(as, dimseRSP.getDataset());
                     dimseRSP.next();
                     do {
                         if (skip > 0)

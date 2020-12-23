@@ -240,8 +240,8 @@ public class UpsDimseRS {
                                 queryAET,
                                 UID.StudyRootQueryRetrieveInformationModelFind,
                                 queryOptions);
-                DimseRSP dimseRSP = findSCU.query(
-                        as, parseInt(priority, 0), keys, 0, 1, splitStudyDateRange());
+                DimseRSP dimseRSP = findSCU.query(as, parseInt(priority, 0),
+                        findSCU.coerceCFindRQ(as, keys), 0, 1, splitStudyDateRange());
                 dimseRSP.next();
                 int status;
                 Attributes ups = new Attributes(upsTemplateAttrs);
@@ -249,8 +249,8 @@ public class UpsDimseRS {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                     if (Status.isPending(status)) {
                         ups = studyInstanceUID == null ? new Attributes(upsTemplateAttrs) : ups;
-                        UPSUtils.updateUPSAttributes(
-                                ups, dimseRSP.getDataset(), studyInstanceUID, seriesInstanceUID, moveSCP);
+                        UPSUtils.updateUPSAttributes(ups, findSCU.coerceCFindRSP(as, dimseRSP.getDataset()),
+                                studyInstanceUID, seriesInstanceUID, moveSCP);
                         matches++;
                         if (studyInstanceUID == null)
                             createUPS(arcAE, ups, count);

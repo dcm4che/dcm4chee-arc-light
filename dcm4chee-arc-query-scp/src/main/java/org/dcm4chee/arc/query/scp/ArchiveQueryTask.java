@@ -81,6 +81,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private final SpanningCFindSCPPolicy spanningPolicy;
     private final int queryMaxNumberOfResults;
     private final int queryFetchSize;
+    private CFindSCU cfindscu;
     private Association spanningAssoc;
     private DimseRSP spanningCFindRSP;
     private Attributes spanningMatch;
@@ -170,13 +171,16 @@ public class ArchiveQueryTask extends BasicQueryTask {
     }
 
     private void initSpanning() throws Exception {
-        CFindSCU cfindscu = ctx.getQueryService().cfindSCU();
+        cfindscu = ctx.getQueryService().cfindSCU();
         spanningAssoc = cfindscu.openAssociation(
                 as.getApplicationEntity(),
                 spanningCFindSCP,
                 ctx.getSOPClassUID(),
                 as.getQueryOptionsFor(ctx.getSOPClassUID()));
-        spanningCFindRSP = cfindscu.query(spanningAssoc, Priority.NORMAL, spanningQueryKeys(), 0, 1, null);
+        Attributes spanningQueryKeys = spanningQueryKeys();
+        spanningCFindRSP = cfindscu.query(spanningAssoc, Priority.NORMAL,
+                cfindscu.coerceCFindRQ(spanningAssoc, spanningQueryKeys),
+                0, 1, null);
         spanningCFindRSP.next();
         nextSpanningMatch();
     }
@@ -290,7 +294,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
         Attributes match = spanningMatch;
         spanningMatch = spanningCFindRSP.getDataset();
         spanningCFindRSP.next();
-        return match;
+        return match != null ? cfindscu.coerceCFindRSP(spanningAssoc, match) : match;
     }
 
 

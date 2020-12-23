@@ -540,7 +540,9 @@ public class QueryRetrieveRS {
             try {
                 as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
                 priorityAsInt = parseInt(priority, 0);
-                DimseRSP dimseRSP = findSCU.query(as, priorityAsInt, keys, 0, 1, splitStudyDateRange());
+                DimseRSP dimseRSP = findSCU.query(as, priorityAsInt,
+                        findSCU.coerceCFindRQ(as, keys),
+                        0, 1, splitStudyDateRange());
                 dimseRSP.next();
                 int status;
                 do {

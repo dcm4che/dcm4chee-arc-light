@@ -42,19 +42,28 @@ package org.dcm4chee.arc.query.scu.impl;
 
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.UseCallingAETitleAsCoercion;
+import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -196,9 +205,8 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel, int capacity,
                           Duration splitStudyDateRange) throws Exception {
-        AAssociateRQ aarq = as.getAAssociateRQ();
-        String cuid = aarq.getPresentationContext(PCID).getAbstractSyntax();
-        if (QueryOption.toOptions(aarq.getExtNegotiationFor(cuid)).contains(QueryOption.DATETIME)
+        String cuid = getAbstractSyntax(as);
+        if (as.getRequestedQueryOptionsFor(cuid).contains(QueryOption.DATETIME)
                 && !as.getQueryOptionsFor(cuid).contains(QueryOption.DATETIME))
             keys.accept(nullifyTM, true);
         DateRange dateRange;
@@ -218,9 +226,13 @@ public class CFindSCUImpl implements CFindSCU {
         return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel, capacity);
     }
 
+    private static String getAbstractSyntax(Association as) {
+        return as.getAAssociateRQ().getPresentationContext(PCID).getAbstractSyntax();
+    }
+
     private List<Attributes> find(Association as, int priority, Attributes keys) throws Exception {
         List<Attributes> list = new ArrayList<>();
-        DimseRSP rsp = query(as, priority, keys, 0, 1, null);
+        DimseRSP rsp = query(as, priority, coerceCFindRQ(as, keys), 0, 1, null);
         rsp.next();
         Attributes match = rsp.getDataset();
         String defaultCharacterSet = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class)
@@ -231,7 +243,7 @@ public class CFindSCUImpl implements CFindSCU {
                         "supplement configured Default Character Set: {}", as, defaultCharacterSet);
                 match.setString(Tag.SpecificCharacterSet, VR.CS, defaultCharacterSet);
             }
-            list.add(match);
+            list.add(coerceCFindRSP(as, match));
             match = rsp.getDataset();
         }
         Attributes cmd = rsp.getCommand();
@@ -278,5 +290,69 @@ public class CFindSCUImpl implements CFindSCU {
             aarq.addExtendedNegotiation(new ExtendedNegotiation(cuid,
                     QueryOption.toExtendedNegotiationInformation(queryOptions)));
         return aarq;
+    }
+
+    @Override
+    public Attributes coerceCFindRQ(Association as, Attributes keys) {
+        return coerce(Dimse.C_FIND_RQ, as, keys);
+    }
+
+    @Override
+    public Attributes coerceCFindRSP(Association as, Attributes keys) {
+        return coerce(Dimse.C_FIND_RSP, as, keys);
+    }
+
+    private Attributes coerce(Dimse dimse, Association as, Attributes keys) {
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        ArchiveAttributeCoercion rule = arcAE.findAttributeCoercion(
+                dimse,
+                TransferCapability.Role.SCP,
+                getAbstractSyntax(as),
+                as.getLocalHostName(),
+                as.getCallingAET(),
+                as.getRemoteHostName(),
+                as.getCalledAET(),
+                keys);
+        if (rule == null)
+            return keys;
+
+        AttributesCoercion coercion = null;
+        coercion = coerceAttributesByXSL(as, rule, coercion);
+        coercion = SupplementAssigningAuthorities.forQuery(rule.getSupplementFromDevice(), coercion);
+        coercion = rule.supplementIssuerOfPatientID(coercion);
+        coercion = rule.nullifyIssuerOfPatientID(keys, coercion);
+        coercion = rule.mergeAttributes(coercion);
+        coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
+        if (rule.isTrimISO2022CharacterSet())
+            coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
+        coercion = UseCallingAETitleAsCoercion.of(rule.getUseCallingAETitleAs(), as.getCallingAET(), coercion);
+        if (coercion != null) {
+            LOG.info("{}: Coerce Attributes from rule: {}", as, rule);
+            coercion.coerce(keys = new Attributes(keys), null);
+        }
+        return keys;
+    }
+
+    private AttributesCoercion coerceAttributesByXSL(
+            Association as, ArchiveAttributeCoercion rule, AttributesCoercion next) {
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
+            try {
+                Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                return new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(as));
+            } catch (TransformerConfigurationException e) {
+                LOG.error("{}: Failed to compile XSL: {}", as, xsltStylesheetURI, e);
+            }
+        return next;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(Association as) {
+        return t -> {
+            t.setParameter("LocalAET", as.getCallingAET());
+            t.setParameter("RemoteAET", as.getCalledAET());
+            t.setParameter("RemoteHost", as.getRemoteHostName());
+        };
     }
 }

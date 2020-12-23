@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query.scu;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -89,4 +90,8 @@ public interface CFindSCU {
             throws Exception;
 
     DimseRSP query(Association as, int priority, Attributes keys, int autocancel, int capacity, Duration splitStudyDateRange) throws Exception;
+
+    Attributes coerceCFindRQ(Association as, Attributes keys);
+
+    Attributes coerceCFindRSP(Association as, Attributes keys);
 }

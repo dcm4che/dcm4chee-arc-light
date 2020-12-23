@@ -93,11 +93,14 @@ public class DiffSCUImpl implements DiffSCU {
         as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
         if (!ctx.isForceQueryByStudyUID() && ctx.supportSorting()) {
-            dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0, 1, ctx.getSplitStudyDateRange());
+            dimseRSP2 = findSCU.query(as2, ctx.priority(),
+                    findSCU.coerceCFindRQ(as2, ctx.getQueryKeys()),
+                    0, 1, ctx.getSplitStudyDateRange());
             dimseRSP2.next();
             checkRSP(dimseRSP2);
         }
-        dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0, 1, ctx.getSplitStudyDateRange());
+        dimseRSP = findSCU.query(as1, ctx.priority(),
+                findSCU.coerceCFindRQ(as1, ctx.getQueryKeys()), 0, 1, ctx.getSplitStudyDateRange());
         dimseRSP.next();
         return checkRSP(dimseRSP);
     }
@@ -107,11 +110,12 @@ public class DiffSCUImpl implements DiffSCU {
         do {
             Attributes match = dimseRSP.getDataset();
             if (match != null) {
+                match = findSCU.coerceCFindRSP(as1, match);
                 matches++;
                 Attributes other = findOther(match.getString(Tag.StudyInstanceUID));
                 if (other == null)
                     missing++;
-                else if (other.diff(match, ctx.getCompareKeys(),null) > 0)
+                else if (findSCU.coerceCFindRSP(as2, other).diff(match, ctx.getCompareKeys(),null) > 0)
                     different++;
             }
         } while (dimseRSP.next());
@@ -124,6 +128,7 @@ public class DiffSCUImpl implements DiffSCU {
             Attributes match = dimseRSP.getDataset();
             next = dimseRSP.next();
             if (match != null) {
+                match = findSCU.coerceCFindRSP(as1, match);
                 matches++;
                 Attributes other = findOther(match.getString(Tag.StudyInstanceUID));
                 if (other == null) {
@@ -132,6 +137,7 @@ public class DiffSCUImpl implements DiffSCU {
                         return addOriginalAttributesSequence(match, modifiedAttributesForMissing());
                     }
                 } else if (ctx.isCheckDifferent()) {
+                    other = findSCU.coerceCFindRSP(as2, other);
                     Attributes modified = new Attributes(match.size());
                     if (other.diff(match, ctx.getCompareKeys(), modified) > 0) {
                         different++;
