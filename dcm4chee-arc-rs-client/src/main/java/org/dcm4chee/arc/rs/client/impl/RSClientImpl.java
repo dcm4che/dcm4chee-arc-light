@@ -256,10 +256,10 @@ public class RSClientImpl implements RSClient {
             case UpdateStudyExpirationDate:
             case UpdateSeriesExpirationDate:
             case UpdateStudyAccessControlID:
-                method = "PUT";
-                break;
             case ChangePatientID:
             case MergePatient:
+                method = "PUT";
+                break;
             case MergePatients:
             case UpdateStudy:
             case RejectStudy:
