@@ -53,7 +53,6 @@ public enum RSOperation {
     ChangePatientID2,
     MergePatient,
     MergePatient2,
-    MergePatients,
     UpdateStudy,
     DeleteStudy,
     RejectStudy,

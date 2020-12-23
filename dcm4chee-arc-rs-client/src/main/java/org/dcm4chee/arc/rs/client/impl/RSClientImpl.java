@@ -262,7 +262,6 @@ public class RSClientImpl implements RSClient {
                 break;
             case ChangePatientID:
             case MergePatient:
-            case MergePatients:
             case UpdateStudy:
             case RejectStudy:
             case RejectSeries:
