@@ -59,13 +59,17 @@ class IssuerServiceImpl implements IssuerService {
 
     @Override
     public IssuerEntity updateOrCreate(Issuer issuer) {
-        IssuerEntity issuerEntity = ejb.updateOrCreate(issuer);
-        return ejb.checkDuplicateIssuerCreated(issuer, issuerEntity);
+        IssuerServiceEJB.IssuerInfo issuerInfo = ejb.updateOrCreate(issuer);
+        return issuerInfo.isCreated()
+                ? ejb.checkDuplicateIssuerCreated(issuer, issuerInfo.getIssuerEntity())
+                : issuerInfo.getIssuerEntity();
     }
 
     @Override
     public IssuerEntity mergeOrCreate(Issuer issuer) {
-        IssuerEntity issuerEntity = ejb.mergeOrCreate(issuer);
-        return ejb.checkDuplicateIssuerCreated(issuer, issuerEntity);
+        IssuerServiceEJB.IssuerInfo issuerInfo = ejb.mergeOrCreate(issuer);
+        return issuerInfo.isCreated()
+                ? ejb.checkDuplicateIssuerCreated(issuer, issuerInfo.getIssuerEntity())
+                : issuerInfo.getIssuerEntity();
     }
 }

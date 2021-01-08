@@ -73,23 +73,23 @@ public class IssuerServiceEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public IssuerEntity updateOrCreate(Issuer issuer) {
+    public IssuerInfo updateOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
             entity.setIssuer(issuer);
-            return entity;
+            return new IssuerInfo(entity, false);
         } catch (NoResultException e) {
-            return create(issuer);
+            return new IssuerInfo(create(issuer), true);
         }
     }
 
-    public IssuerEntity mergeOrCreate(Issuer issuer) {
+    public IssuerInfo mergeOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
             entity.merge(issuer);
-            return entity;
+            return new IssuerInfo(entity, false);
         } catch (NoResultException e) {
-            return create(issuer);
+            return new IssuerInfo(create(issuer), true);
         }
     }
 
@@ -97,6 +97,24 @@ public class IssuerServiceEJB {
         IssuerEntity entity = new IssuerEntity(issuer);
         em.persist(entity);
         return entity;
+    }
+
+    static class IssuerInfo {
+        final IssuerEntity issuerEntity;
+        final boolean created;
+
+        IssuerInfo(IssuerEntity issuerEntity, boolean created) {
+            this.issuerEntity = issuerEntity;
+            this.created = created;
+        }
+
+        IssuerEntity getIssuerEntity() {
+            return issuerEntity;
+        }
+
+        boolean isCreated() {
+            return created;
+        }
     }
 
     public IssuerEntity checkDuplicateIssuerCreated(Issuer issuer, IssuerEntity issuerEntity) {
