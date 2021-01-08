@@ -43,7 +43,6 @@ package org.dcm4chee.arc.issuer.impl;
 import org.dcm4che3.data.Issuer;
 import org.dcm4chee.arc.entity.IssuerEntity;
 import org.dcm4chee.arc.entity.IssuerEntity_;
-import org.dcm4chee.arc.issuer.IssuerService;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -61,12 +60,11 @@ import java.util.List;
  * @since Jul 2015
  */
 @Stateless
-public class IssuerServiceEJB implements IssuerService {
+public class IssuerServiceEJB {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    @Override
     public IssuerEntity updateOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = find(issuer);
@@ -77,7 +75,6 @@ public class IssuerServiceEJB implements IssuerService {
         }
     }
 
-    @Override
     public IssuerEntity mergeOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = find(issuer);
@@ -88,13 +85,27 @@ public class IssuerServiceEJB implements IssuerService {
         }
     }
 
-    private IssuerEntity create(Issuer issuer) {
+    public IssuerEntity update(IssuerEntity issuerEntity, Issuer issuer) {
+        issuerEntity.setIssuer(issuer);
+        return issuerEntity;
+    }
+
+    public IssuerEntity merge(IssuerEntity issuerEntity, Issuer issuer) {
+        issuerEntity.merge(issuer);
+        return issuerEntity;
+    }
+
+    public IssuerEntity create(Issuer issuer) {
         IssuerEntity entity = new IssuerEntity(issuer);
         em.persist(entity);
         return entity;
     }
 
     private IssuerEntity find(Issuer issuer) {
+        return em.createQuery(findIssuer(issuer)).getSingleResult();
+    }
+
+    private CriteriaQuery<IssuerEntity> findIssuer(Issuer issuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<IssuerEntity> q = cb.createQuery(IssuerEntity.class);
         Root<IssuerEntity> issuerEntity = q.from(IssuerEntity.class);
@@ -112,6 +123,10 @@ public class IssuerServiceEJB implements IssuerService {
             predicates.add(cb.isNull(issuerEntity.get(IssuerEntity_.universalEntityID)));
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).getSingleResult();
+        return q;
+    }
+
+    public List<IssuerEntity> find1(Issuer issuer) {
+        return em.createQuery(findIssuer(issuer)).getResultList();
     }
 }
