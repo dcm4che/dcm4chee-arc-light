@@ -46,7 +46,6 @@ import org.dcm4chee.arc.issuer.IssuerService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -60,13 +59,13 @@ class IssuerServiceImpl implements IssuerService {
 
     @Override
     public IssuerEntity updateOrCreate(Issuer issuer) {
-        List<IssuerEntity> issuers = ejb.find1(issuer);
-        return issuers.size() == 0 ? ejb.create(issuer) : ejb.update(issuers.get(0), issuer);
+        IssuerEntity issuerEntity = ejb.updateOrCreate(issuer);
+        return ejb.checkDuplicateIssuerCreated(issuer, issuerEntity);
     }
 
     @Override
     public IssuerEntity mergeOrCreate(Issuer issuer) {
-        List<IssuerEntity> issuers = ejb.find1(issuer);
-        return issuers.size() == 0 ? ejb.create(issuer) : ejb.merge(issuers.get(0), issuer);
+        IssuerEntity issuerEntity = ejb.mergeOrCreate(issuer);
+        return ejb.checkDuplicateIssuerCreated(issuer, issuerEntity);
     }
 }

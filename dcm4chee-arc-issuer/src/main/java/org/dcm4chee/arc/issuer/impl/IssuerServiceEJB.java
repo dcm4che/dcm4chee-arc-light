@@ -43,8 +43,12 @@ package org.dcm4chee.arc.issuer.impl;
 import org.dcm4che3.data.Issuer;
 import org.dcm4chee.arc.entity.IssuerEntity;
 import org.dcm4chee.arc.entity.IssuerEntity_;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -54,20 +58,24 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @Stateless
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class IssuerServiceEJB {
+    private static final Logger LOG = LoggerFactory.getLogger(IssuerServiceEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
     public IssuerEntity updateOrCreate(Issuer issuer) {
         try {
-            IssuerEntity entity = find(issuer);
+            IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
             entity.setIssuer(issuer);
             return entity;
         } catch (NoResultException e) {
@@ -77,22 +85,12 @@ public class IssuerServiceEJB {
 
     public IssuerEntity mergeOrCreate(Issuer issuer) {
         try {
-            IssuerEntity entity = find(issuer);
+            IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
             entity.merge(issuer);
             return entity;
         } catch (NoResultException e) {
             return create(issuer);
         }
-    }
-
-    public IssuerEntity update(IssuerEntity issuerEntity, Issuer issuer) {
-        issuerEntity.setIssuer(issuer);
-        return issuerEntity;
-    }
-
-    public IssuerEntity merge(IssuerEntity issuerEntity, Issuer issuer) {
-        issuerEntity.merge(issuer);
-        return issuerEntity;
     }
 
     public IssuerEntity create(Issuer issuer) {
@@ -101,11 +99,31 @@ public class IssuerServiceEJB {
         return entity;
     }
 
-    private IssuerEntity find(Issuer issuer) {
-        return em.createQuery(findIssuer(issuer)).getSingleResult();
+    public IssuerEntity checkDuplicateIssuerCreated(Issuer issuer, IssuerEntity issuerEntity) {
+        List<IssuerEntity> issuerEntities = em.createQuery(find(issuer)).getResultList();
+        if (issuerEntities.size() == 1)
+            return issuerEntity;
+
+        long createdIssuerEntityPk = issuerEntity.getPk();
+        IssuerEntity otherIssuerEntity = issuerEntities.get(0);
+        if (otherIssuerEntity.getPk() == createdIssuerEntityPk) {
+            LOG.info("Keep duplicate created {} because {} was created after", issuerEntity, issuerEntities.get(1));
+            return issuerEntity;
+        }
+
+        Optional<IssuerEntity> createdIssuerEntityFound =
+                issuerEntities.stream().filter(iss -> iss.getPk() == createdIssuerEntityPk).findFirst();
+        if (!createdIssuerEntityFound.isPresent()) {
+            LOG.warn("Failed to find created {}", issuerEntity);
+            return issuerEntity;
+        }
+
+        LOG.info("Delete duplicate created {}", issuerEntity);
+        em.remove(createdIssuerEntityFound.get());
+        return otherIssuerEntity;
     }
 
-    private CriteriaQuery<IssuerEntity> findIssuer(Issuer issuer) {
+    private CriteriaQuery<IssuerEntity> find(Issuer issuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<IssuerEntity> q = cb.createQuery(IssuerEntity.class);
         Root<IssuerEntity> issuerEntity = q.from(IssuerEntity.class);
@@ -123,10 +141,6 @@ public class IssuerServiceEJB {
             predicates.add(cb.isNull(issuerEntity.get(IssuerEntity_.universalEntityID)));
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        return q;
-    }
-
-    public List<IssuerEntity> find1(Issuer issuer) {
-        return em.createQuery(findIssuer(issuer)).getResultList();
+        return q.orderBy(cb.asc(issuerEntity.get(IssuerEntity_.pk)));
     }
 }
