@@ -193,7 +193,14 @@
         <xsl:value-of select="$val"/>
       </xsl:with-param>
       <xsl:with-param name="fn">
-        <xsl:value-of select="substring-before($val, $gn)"/>
+        <xsl:choose>
+          <xsl:when test="string-length($gn) != 0">
+            <xsl:value-of select="substring-before($val, $gn)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$val"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="gn">
         <xsl:value-of select="$gn"/>
