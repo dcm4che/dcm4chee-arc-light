@@ -64,6 +64,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class FileSystemStorage extends AbstractStorage {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileSystemStorage.class);
+    private static final int COPY_BUFFER_SIZE = 8192;
 
     private final URI rootURI;
     private final AttributesFormat pathFormat;
@@ -193,17 +194,16 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected void copyA(InputStream in, WriteContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
-        Path dir = path.getParent();
-        Files.createDirectories(dir);
-        long copy = 0L;
-        while (copy == 0L)
-            try {
-                copy = Files.copy(in, path);
-            } catch (FileAlreadyExistsException e) {
-                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
-            }
-        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
+        try (OutputStream out = openOutputStreamA(ctx)) {
+            byte[] b = new byte[COPY_BUFFER_SIZE];
+            int read = in.read(b, 0, COPY_BUFFER_SIZE);
+            if (read <= 0)
+                throw new IOException("No bytes to copy");
+            do {
+                out.write(b, 0, read);
+                read = in.read(b, 0, COPY_BUFFER_SIZE);
+            } while (read > 0);
+        }
     }
 
     @Override
