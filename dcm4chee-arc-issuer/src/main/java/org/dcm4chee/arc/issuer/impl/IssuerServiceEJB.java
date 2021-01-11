@@ -50,7 +50,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -74,23 +73,51 @@ public class IssuerServiceEJB {
     private EntityManager em;
 
     public IssuerInfo updateOrCreate(Issuer issuer) {
-        try {
-            IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
-            entity.setIssuer(issuer);
-            return new IssuerInfo(entity, false);
-        } catch (NoResultException e) {
+        IssuerEntity entity;
+        List<IssuerEntity> entities = em.createQuery(find(issuer)).getResultList();
+        if (entities.size() == 0)
             return new IssuerInfo(create(issuer), true);
+
+        if (entities.size() == 1) {
+            entity = entities.get(0);
+            if (entity.getIssuer().getUniversalEntityID() != null && issuer.getUniversalEntityID() != null
+                    && !entity.getIssuer().getUniversalEntityID().equals(issuer.getUniversalEntityID()))
+                return new IssuerInfo(create(issuer), true);
+            else
+                return update(entity, issuer);
         }
+
+        entities.removeIf(issEntity -> issEntity.getIssuer().getUniversalEntityID() == null);
+        return update(entities.get(0), issuer);
     }
 
     public IssuerInfo mergeOrCreate(Issuer issuer) {
-        try {
-            IssuerEntity entity = em.createQuery(find(issuer)).getSingleResult();
-            entity.merge(issuer);
-            return new IssuerInfo(entity, false);
-        } catch (NoResultException e) {
+        IssuerEntity entity;
+        List<IssuerEntity> entities = em.createQuery(find(issuer)).getResultList();
+        if (entities.size() == 0)
             return new IssuerInfo(create(issuer), true);
+
+        if (entities.size() == 1) {
+            entity = entities.get(0);
+            if (entity.getIssuer().getUniversalEntityID() != null && issuer.getUniversalEntityID() != null
+                    && !entity.getIssuer().getUniversalEntityID().equals(issuer.getUniversalEntityID()))
+                return new IssuerInfo(create(issuer), true);
+            else
+                return merge(entity, issuer);
         }
+
+        entities.removeIf(issEntity -> issEntity.getIssuer().getUniversalEntityID() == null);
+        return merge(entities.get(0), issuer);
+    }
+
+    private IssuerInfo update(IssuerEntity entity, Issuer issuer) {
+        entity.setIssuer(issuer);
+        return new IssuerInfo(entity, false);
+    }
+
+    private IssuerInfo merge(IssuerEntity entity, Issuer issuer) {
+        entity.merge(issuer);
+        return new IssuerInfo(entity, false);
     }
 
     public IssuerEntity create(Issuer issuer) {
@@ -117,8 +144,8 @@ public class IssuerServiceEJB {
         }
     }
 
-    public IssuerEntity checkDuplicateIssuerCreated(Issuer issuer, IssuerEntity issuerEntity) {
-        List<IssuerEntity> issuerEntities = em.createQuery(find(issuer)).getResultList();
+    public IssuerEntity checkDuplicateIssuerCreated(IssuerEntity issuerEntity) {
+        List<IssuerEntity> issuerEntities = em.createQuery(findDuplicate(issuerEntity.getIssuer())).getResultList();
         if (issuerEntities.size() == 1)
             return issuerEntity;
 
@@ -141,7 +168,7 @@ public class IssuerServiceEJB {
         return otherIssuerEntity;
     }
 
-    private CriteriaQuery<IssuerEntity> find(Issuer issuer) {
+    private CriteriaQuery<IssuerEntity> findDuplicate(Issuer issuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<IssuerEntity> q = cb.createQuery(IssuerEntity.class);
         Root<IssuerEntity> issuerEntity = q.from(IssuerEntity.class);
@@ -152,11 +179,36 @@ public class IssuerServiceEJB {
         if (issuer.getUniversalEntityID() != null) {
             predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID),
                     issuer.getUniversalEntityID()));
-            if (issuer.getUniversalEntityIDType() != null)
-                predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType),
-                        issuer.getUniversalEntityIDType()));
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType),
+                    issuer.getUniversalEntityIDType()));
         } else
             predicates.add(cb.isNull(issuerEntity.get(IssuerEntity_.universalEntityID)));
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return q.orderBy(cb.asc(issuerEntity.get(IssuerEntity_.pk)));
+    }
+
+    private CriteriaQuery<IssuerEntity> find(Issuer issuer) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<IssuerEntity> q = cb.createQuery(IssuerEntity.class);
+        Root<IssuerEntity> issuerEntity = q.from(IssuerEntity.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if (issuer.getLocalNamespaceEntityID() == null) {
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID),
+                    issuer.getUniversalEntityID()));
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType),
+                    issuer.getUniversalEntityIDType()));
+        } else if (issuer.getUniversalEntityID() == null) {
+            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID),
+                    issuer.getLocalNamespaceEntityID()));
+        } else {
+            predicates.add(cb.or(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID),
+                                    issuer.getLocalNamespaceEntityID()),
+                                cb.and(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID),
+                                        issuer.getUniversalEntityID()),
+                                       cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType),
+                                        issuer.getUniversalEntityIDType()))));
+        }
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return q.orderBy(cb.asc(issuerEntity.get(IssuerEntity_.pk)));
