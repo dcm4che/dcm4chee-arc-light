@@ -18,6 +18,7 @@
       </DicomAttribute>
       <xsl:apply-templates select="ZDS"/>
       <xsl:apply-templates select="NTE"/>
+      <xsl:apply-templates select="OBX"/>
     </NativeDicomModel>
   </xsl:template>
 
@@ -388,6 +389,27 @@
       <xsl:with-param name="vr" select="'LT'"/>
       <xsl:with-param name="val" select="field[3]"/>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="OBX">
+    <xsl:variable name="patDemo" select="field[3]"/>
+    <xsl:choose>
+      <xsl:when test="$patDemo/text()='kg' and $patDemo/component[1] = 'Body Weight'">
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00101030'"/>
+          <xsl:with-param name="vr" select="'DS'"/>
+          <xsl:with-param name="val" select="field[5]"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$patDemo/text()='m' and $patDemo/component[1] = 'Body Height'">
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00101020'"/>
+          <xsl:with-param name="vr" select="'DS'"/>
+          <xsl:with-param name="val" select="field[5]"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
