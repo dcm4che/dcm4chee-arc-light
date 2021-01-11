@@ -87,6 +87,9 @@ public class IssuerServiceEJB {
                 return update(entity, issuer);
         }
 
+        if (issuer.getUniversalEntityID() == null)
+            return new IssuerInfo(create(issuer), true);
+
         entities.removeIf(issEntity -> issEntity.getIssuer().getUniversalEntityID() == null);
         return update(entities.get(0), issuer);
     }
@@ -106,8 +109,12 @@ public class IssuerServiceEJB {
                 return merge(entity, issuer);
         }
 
+        if (issuer.getUniversalEntityID() == null)
+            return new IssuerInfo(create(issuer), true);
+
         entities.removeIf(issEntity -> issEntity.getIssuer().getUniversalEntityID() == null);
         return merge(entities.get(0), issuer);
+
     }
 
     private IssuerInfo update(IssuerEntity entity, Issuer issuer) {
