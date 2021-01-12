@@ -41,6 +41,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -193,6 +202,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -293,6 +311,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -388,6 +415,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -488,6 +524,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -593,6 +638,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -690,6 +744,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -784,6 +847,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -876,6 +948,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -975,6 +1056,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -1070,6 +1160,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -1172,6 +1271,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -1263,6 +1371,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -1352,6 +1469,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -1448,6 +1574,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -1537,6 +1672,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -1631,6 +1775,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -1730,6 +1883,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -1822,6 +1984,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -1918,6 +2089,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -2010,6 +2190,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -2109,6 +2298,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -2204,6 +2402,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -2306,6 +2513,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -2403,6 +2619,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -2498,6 +2723,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -2600,6 +2834,15 @@
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
         },
         {
@@ -2695,6 +2938,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -2795,6 +3047,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
@@ -2898,6 +3159,15 @@
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
         },
         {
           "$ref": "../parameters.json#/StudyReceiveDateTime"
