@@ -1338,6 +1338,27 @@ export class Globalvar {
                     filterKey:"PatientBirthDate",
                     description:$localize `:@@patients_birth_date:Patient's Birth Date`,
                     placeholder:$localize `:@@birth_date:Birth Date`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingApplicationEntityTitleOfSeries",
+                    description:$localize `:@@receiving_application_entity_title_of_series:Receiving Application Entity Title of Series`,
+                    placeholder:$localize `:@@receiving_aet_of_series:Receiving AET of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingPresentationAddressOfSeries",
+                    description:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`,
+                    placeholder:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingPresentationAddressOfSeries",
+                    description:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`,
+                    placeholder:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`
                 }
             ];
         }
