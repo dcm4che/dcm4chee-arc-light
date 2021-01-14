@@ -2145,6 +2145,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
         filterModel["PatientID"] = j4care.valueOf(patient.attrs['00100020']);
         filterModel["IssuerOfPatientID"] = j4care.valueOf(patient.attrs['00100021']);
+        filterModel["IssuerOfPatientIDQualifiersSequence.UniversalEntityID"] = (<string>_.get(patient.attrs, "['00100024'].Value[0]['00400032'].Value[0]"));
+        filterModel["IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType"] = (<string>_.get(patient.attrs, "['00100024'].Value[0]['00400033'].Value[0]"));
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe((res) => {
                 if (res && res.length > 0){
