@@ -30,6 +30,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -115,6 +118,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -203,6 +209,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
