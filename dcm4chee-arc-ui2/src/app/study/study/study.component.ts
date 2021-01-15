@@ -176,6 +176,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
+            new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
@@ -394,6 +395,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         switch (e){
             case "create_patient":
                 this.createPatient();
+                break;
+            case "supplement_issuer":
+                this.supplementIssuer();
                 break;
             case "create_ups":
                 this.createUPS();
@@ -1619,6 +1623,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         return filter;
     }
+    createPatientFilterParams(withoutPagination?:boolean) {
+        let filter = this.getFilterClone();
+        if(withoutPagination) {
+            delete filter["offset"];
+            delete filter["orderby"];
+            delete filter["limit"];
+            delete filter["includefield"];
+        }
+        return filter;
+    }
     onSubPaginationClick(e){
         console.log("e",e);
         if(e.level === "instance"){
@@ -2379,7 +2393,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
-            if(option.value === "create_patient"){
+            if(option.value === "create_patient" ||  option.value === "supplement_issuer"){
                 return (studyConfig && studyConfig.tab === "patient")
             }else{
                 if(studyConfig && studyConfig.tab === "mwl"){
@@ -2573,6 +2587,59 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         };
         this.modifyPatient(newPatient, 'create', config);
     };
+
+    supplementIssuer(){
+        this.confirm({
+            content: $localize`:@@supplement_new_issuer:Supplement new Issuer`,
+            doNotSave: true,
+            form_schema: [
+                [
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@issuer_of_patient:Issuer of Patient`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "issuerOfPatient",
+                            description: $localize`:@@issuer_of_patient:Issuer of Patient`,
+                            placeholder: $localize`:@@issuer_of_patient:Issuer of Patient`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@supplement_issuer_test_only:Test only, without actually supplementing`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "testSupplement"
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize`:@@SUPPLEMENT:SUPPLEMENT`
+        }).subscribe((ok) => {
+            if (ok) {
+                this.cfpLoadingBar.start();
+                this.service.supplementIssuer(ok.schema_model.issuerOfPatient,
+                                ok.schema_model.testSupplement,
+                                this.createPatientFilterParams(true),
+                                this.studyWebService).subscribe(res => {
+                    this.cfpLoadingBar.complete();
+                    this.appService.showMsgSupplementIssuer(res);
+                }, err => {
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+
+            }
+        });
+    }
 
     createUPS(){
         this.modifyUPS(

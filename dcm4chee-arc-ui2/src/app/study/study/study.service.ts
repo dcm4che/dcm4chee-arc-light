@@ -965,6 +965,17 @@ export class StudyService {
 
     scheduleStorageVerification = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
 
+    supplementIssuer = (issuer:string, testSupplement:string, param, studyWebService: StudyWebService) => {
+        let paramString = `${j4care.param(param)}`;
+        paramString = paramString == ''
+                            ? testSupplement != ''
+                                ? '?test=' + testSupplement : ''
+                            : paramString + '&test=' + testSupplement;
+        return this.$http.post(
+            `${this.getDicomURL("patient", studyWebService.selectedWebService)}/issuer/${issuer}${paramString}`,
+            {});
+    };
+
     storageVerificationForSelected(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, param){
         return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) =>
             (element.dicomLevel === "study" || element.dicomLevel === "instance" || element.dicomLevel === "series"))
