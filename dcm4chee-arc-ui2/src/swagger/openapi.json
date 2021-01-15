@@ -719,9 +719,6 @@
     "/ui2/rs/keycloak.json": {
       "$ref": "paths/config.json#/keycloak"
     },
-    "/token/{keycloakID}": {
-      "$ref": "paths/misc.json#/token.keycloak"
-    },
     "/ctrl/start": {
       "$ref": "paths/misc.json#/start"
     },

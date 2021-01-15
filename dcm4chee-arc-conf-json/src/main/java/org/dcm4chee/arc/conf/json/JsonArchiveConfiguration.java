@@ -47,7 +47,10 @@ import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentifier;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -60,7 +63,6 @@ import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.time.Period;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -403,7 +405,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeAttributeSet(writer, arcDev);
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
-        writeKeycloakServers(writer, arcDev.getKeycloakServers());
         writeMetricsDescriptors(writer, arcDev.getMetricsDescriptors());
         writeUPSOnStoreList(writer, arcDev.listUPSOnStore());
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
@@ -817,25 +818,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
             writer.writeNotDef("dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
             writer.writeNotNullOrDef("dcmURIPattern", rule.getRequestURLPattern(), null);
-            writer.writeEnd();
-        }
-        writer.writeEnd();
-    }
-
-    private static void writeKeycloakServers(JsonWriter writer, Collection<KeycloakServer> keycloakServers) {
-        writer.writeStartArray("dcmKeycloakServer");
-        for (KeycloakServer keycloakServer : keycloakServers) {
-            writer.writeStartObject();
-            writer.writeNotNullOrDef("dcmKeycloakServerID", keycloakServer.getKeycloakServerID(), null);
-            writer.writeNotNullOrDef("dcmURI", keycloakServer.getServerURL(), null);
-            writer.writeNotNullOrDef("dcmKeycloakRealm", keycloakServer.getRealm(), null);
-            writer.writeNotNullOrDef("dcmKeycloakClientID", keycloakServer.getClientID(), null);
-            writer.writeNotNullOrDef("dcmKeycloakGrantType", keycloakServer.getGrantType(), null);
-            writer.writeNotNullOrDef("dcmKeycloakClientSecret", keycloakServer.getClientSecret(), null);
-            writer.writeNotDef("dcmTLSAllowAnyHostname", keycloakServer.isTlsAllowAnyHostname(), false);
-            writer.writeNotDef("dcmTLSDisableTrustManager", keycloakServer.isTlsDisableTrustManager(), false);
-            writer.writeNotNullOrDef("uid", keycloakServer.getUserID(), null);
-            writer.writeNotNullOrDef("userPassword", keycloakServer.getPassword(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1983,9 +1965,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7OrderSPSStatus":
                     loadHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), reader);
                     break;
-                case "dcmKeycloakServer":
-                    loadKeycloakServers(arcDev, reader);
-                    break;
                 case "dcmMetrics":
                     loadMetricsDescriptors(arcDev, reader);
                     break;
@@ -2986,54 +2965,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(rule);
-        }
-        reader.expect(JsonParser.Event.END_ARRAY);
-    }
-
-    private static void loadKeycloakServers(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        reader.next();
-        reader.expect(JsonParser.Event.START_ARRAY);
-        while (reader.next() == JsonParser.Event.START_OBJECT) {
-            reader.expect(JsonParser.Event.START_OBJECT);
-            KeycloakServer keycloakServer = new KeycloakServer();
-            while (reader.next() == JsonParser.Event.KEY_NAME) {
-                switch (reader.getString()) {
-                    case "dcmKeycloakServerID":
-                        keycloakServer.setKeycloakServerID(reader.stringValue());
-                        break;
-                    case "dcmURI":
-                        keycloakServer.setServerURL(reader.stringValue());
-                        break;
-                    case "dcmKeycloakRealm":
-                        keycloakServer.setRealm(reader.stringValue());
-                        break;
-                    case "dcmKeycloakClientID":
-                        keycloakServer.setClientID(reader.stringValue());
-                        break;
-                    case "dcmKeycloakGrantType":
-                        keycloakServer.setGrantType(KeycloakServer.GrantType.valueOf(reader.stringValue()));
-                        break;
-                    case "dcmKeycloakClientSecret":
-                        keycloakServer.setClientSecret(reader.stringValue());
-                        break;
-                    case "dcmTLSAllowAnyHostname":
-                        keycloakServer.setTlsAllowAnyHostname(reader.booleanValue());
-                        break;
-                    case "dcmTLSDisableTrustManager":
-                        keycloakServer.setTlsDisableTrustManager(reader.booleanValue());
-                        break;
-                    case "uid":
-                        keycloakServer.setUserID(reader.stringValue());
-                        break;
-                    case "userPassword":
-                        keycloakServer.setPassword(reader.stringValue());
-                        break;
-                    default:
-                        reader.skipUnknownProperty();
-                }
-            }
-            reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addKeycloakServer(keycloakServer);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

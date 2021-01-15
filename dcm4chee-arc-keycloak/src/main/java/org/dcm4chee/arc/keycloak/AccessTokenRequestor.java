@@ -44,8 +44,6 @@ package org.dcm4chee.arc.keycloak;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -59,7 +57,6 @@ import org.keycloak.jose.jwk.JSONWebKeySet;
 import org.keycloak.jose.jwk.JWK;
 import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
@@ -91,14 +88,6 @@ public class AccessTokenRequestor {
         if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
             cachedKeycloak = null;
     }
-    
-    public AccessTokenWithExpiration getAccessToken(String keycloakServerID) throws Exception {
-        CachedKeycloak tmp = toCachedKeycloak(keycloakServerID);
-        TokenManager tokenManager = tmp.keycloak.tokenManager();
-        return new AccessTokenWithExpiration(
-                tokenManager.getAccessTokenString(),
-                tokenManager.getAccessToken().getExpiresIn());
-    }
 
     public AccessTokenWithExpiration getAccessToken2(WebApplication webApp) throws Exception {
         CachedKeycloak tmp = toCachedKeycloakClient(webApp);
@@ -114,25 +103,6 @@ public class AccessTokenRequestor {
         return new AccessTokenWithExpiration(
                 tokenManager.getAccessTokenString(),
                 tokenManager.getAccessToken().getExpiresIn());
-    }
-
-    private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
-        CachedKeycloak tmp = cachedKeycloak;
-        if (tmp == null || !tmp.keycloakID.equals(keycloakServerID)) {
-            KeycloakServer keycloakServer = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getKeycloakServerNotNull(keycloakServerID);
-            cachedKeycloak = tmp = cachedKeycloak(keycloakServerID,
-                    keycloakServer.getServerURL(),
-                    keycloakServer.getRealm(),
-                    keycloakServer.getClientID(),
-                    keycloakServer.getClientSecret(),
-                    keycloakServer.getUserID(),
-                    keycloakServer.getPassword(),
-                    keycloakServer.getGrantType().name(),
-                    keycloakServer.isTlsAllowAnyHostname(),
-                    keycloakServer.isTlsDisableTrustManager());
-        }
-        return tmp;
     }
 
     private CachedKeycloak toCachedKeycloakClient(WebApplication webApp) throws Exception {
@@ -154,21 +124,6 @@ public class AccessTokenRequestor {
             cachedKeycloakClient = tmp = new CachedKeycloak(kc.getKeycloakClientID(), toKeycloak(kc));
 
         return tmp;
-    }
-
-    private CachedKeycloak cachedKeycloak(String keycloakID, String serverURL, String realm, String clientID,
-                                          String clientSecret, String userID, String password, String grantType,
-                                          boolean tlsAllowAnyHost, boolean tlsDisableTrustMgr) throws Exception {
-        return new CachedKeycloak(keycloakID, KeycloakBuilder.builder()
-                .serverUrl(serverURL)
-                .realm(realm)
-                .clientId(clientID)
-                .clientSecret(clientSecret)
-                .username(userID)
-                .password(password)
-                .grantType(grantType)
-                .resteasyClient(resteasyClientBuilder(serverURL, tlsAllowAnyHost, tlsDisableTrustMgr).build())
-                .build());
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(

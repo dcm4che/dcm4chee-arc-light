@@ -308,7 +308,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
-    private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
     private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
@@ -2643,29 +2642,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         multipleStoreAssociations = MultipleStoreAssociations.of(ss);
     }
 
-    public Collection<KeycloakServer> getKeycloakServers() {
-        return keycloakServerMap.values();
-    }
-
-    public KeycloakServer getKeycloakServer(String keycloakServerID) {
-        return keycloakServerMap.get(keycloakServerID);
-    }
-
-    public KeycloakServer getKeycloakServerNotNull(String keycloakServerID) {
-        KeycloakServer keycloakServer = getKeycloakServer(keycloakServerID);
-        if (keycloakServer == null)
-            throw new IllegalArgumentException("No Keycloak Server configured with ID:" + keycloakServerID);
-        return keycloakServer;
-    }
-
-    public KeycloakServer removeKeycloakServer(String keycloakServerID) {
-        return keycloakServerMap.remove(keycloakServerID);
-    }
-
-    public void addKeycloakServer(KeycloakServer keycloakServer) {
-        keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
-    }
-
     public Map<String, String> getImportReportTemplateParams() {
         return importReportTemplateParams;
     }
@@ -3301,8 +3277,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mwlIdleTimeoutList.addAll(arcdev.mwlIdleTimeoutList);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
-        keycloakServerMap.clear();
-        keycloakServerMap.putAll(arcdev.keycloakServerMap);
         xRoadProperties.clear();
         xRoadProperties.putAll(arcdev.xRoadProperties);
         impaxReportProperties.clear();

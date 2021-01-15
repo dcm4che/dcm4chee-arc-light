@@ -292,15 +292,6 @@
       "type": "string"
     }
   },
-  "keycloakIDPathParam": {
-    "name": "keycloakID",
-    "in": "path",
-    "description": "Keycloak Server ID",
-    "required": true,
-    "schema": {
-      "type": "string"
-    }
-  },
   "pdqServiceIDPathParam": {
     "name": "pdqServiceID",
     "in": "path",
