@@ -554,9 +554,11 @@ public class IocmRS {
             OutputStream out) {
         JsonGenerator gen = Json.createGenerator(out);
         gen.writeStartObject();
-        gen.writeStartArray("pids");
-        success.stream().map(Object::toString).forEach(gen::write);
-        gen.writeEnd();
+        if (!success.isEmpty()) {
+            gen.writeStartArray("pids");
+            success.stream().map(Object::toString).forEach(gen::write);
+            gen.writeEnd();
+        }
         if (!ambiguous.isEmpty()) {
             gen.writeStartArray("ambiguous");
             ambiguous.forEach((idWithIssuer, count) -> {
