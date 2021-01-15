@@ -3893,7 +3893,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     let msg;
                     this.cfpLoadingBar.start();
                     msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
-                    this.service.scheduleStorageVerification(_.merge(ok.schema_model, this.createStudyFilterParams(true)), this.studyWebService).subscribe(res => {
+                    this.service.scheduleStorageVerification(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessage(msg, res);
