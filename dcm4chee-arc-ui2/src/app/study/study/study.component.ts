@@ -1613,7 +1613,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
         }
         if(withoutPagination){
-            delete filter["size"];
             delete filter["offset"];
         }
         if(withoutDefaultQueryStudyParam){
