@@ -716,12 +716,6 @@ export class Globalvar {
                 msg:$localize `:@@dynamic_formatter.ui_elasticsearch_url:Create first an UI Elasticsearch URL!`,
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiElasticsearchConfig[0].dcmuiElasticsearchURLObjects'
             },
-            dcmKeycloakServer:{
-                key:'dcmKeycloakServerID',
-                labelKey:'{dcmKeycloakServerID}',
-                msg:$localize `:@@dynamic_formatter.keycloak_server:Create first an Keycloak Server!`,
-                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmKeycloakServer'
-            },
             dcmKeycloakClient:{
                 key:'dcmKeycloakClientID',
                 labelKey:'{dcmKeycloakClientID}',
