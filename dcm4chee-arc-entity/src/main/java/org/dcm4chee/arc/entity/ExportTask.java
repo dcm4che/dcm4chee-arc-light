@@ -377,6 +377,7 @@ public class ExportTask {
     @Override
     public String toString() {
         return "ExportTask[pk=" + pk
+                + ", deviceName=" + deviceName
                 + ", exporterID=" + exporterID
                 + ", studyUID=" + studyInstanceUID
                 + ", seriesUID=" + seriesInstanceUID
