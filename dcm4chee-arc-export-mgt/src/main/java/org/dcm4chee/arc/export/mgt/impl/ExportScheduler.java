@@ -93,7 +93,8 @@ public class ExportScheduler extends Scheduler {
                 return;
             }
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
-            String exporterDeviceName = exporterDeviceName(rule);
+            String exporterDeviceName = rule.getExporterDeviceName() == null
+                                            ? device.getDeviceName() : rule.getExporterDeviceName();
             switch (rule.getEntity()) {
                 case Study:
                     createOrUpdateStudyExportTask(session, exporterDeviceName, exporterID,
@@ -123,10 +124,6 @@ public class ExportScheduler extends Scheduler {
                     break;
             }
         });
-    }
-
-    private String exporterDeviceName(ExportRule rule) {
-        return rule.getExporterDeviceName() == null ? device.getDeviceName() : rule.getExporterDeviceName();
     }
 
     private ExporterDescriptor getExporterDesc(ExportRule rule, String exporterID, ArchiveDeviceExtension arcDev) {
