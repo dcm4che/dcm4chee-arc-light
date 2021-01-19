@@ -126,8 +126,7 @@ public class ExportScheduler extends Scheduler {
     }
 
     private String exporterDeviceName(ExportRule rule) {
-        return rule.getExporterDeviceName() == null || rule.getExporterDeviceName().equals(device.getDeviceName())
-                ? device.getDeviceName() : rule.getExporterDeviceName();
+        return rule.getExporterDeviceName() == null ? device.getDeviceName() : rule.getExporterDeviceName();
     }
 
     private ExporterDescriptor getExporterDesc(ExportRule rule, String exporterID, ArchiveDeviceExtension arcDev) {
