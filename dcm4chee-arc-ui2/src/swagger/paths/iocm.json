@@ -1043,6 +1043,89 @@
       }
     }
   },
+  "study.patient": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Move Study to Patient",
+      "operationId": "MoveStudyToPatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newPatientAttributes"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Study successfully move to Patient"
+        },
+        "400": {
+          "description": "Patient ID not specified by Query Parameter."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or no Study with the specified Study Instance UID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.reimport": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Re-import Study",
+      "operationId": "ReimportStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/readPixelData"
+        },
+        {
+          "$ref": "../parameters.json#/newAttributes"
+        },
+        {
+          "$ref": "../parameters.json#/updatePolicy"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/storeInstancesSuccessful"
+        },
+        "204": {
+          "$ref": "../responses.json#/storeInstancesWarnings"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title or no Storage with the specified StorageID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "study.expire": {
     "put": {
       "tags": [

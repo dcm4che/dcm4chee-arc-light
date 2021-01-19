@@ -781,6 +781,18 @@
       }
     }
   },
+  "newPatientAttributes": {
+    "name": "newPatientAttributes",
+    "in": "query",
+    "required": true,
+    "description": "{patientAttributeID}={patientAttributeValue}; {patientAttributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
   "includefield": {
     "name": "includefield",
     "in": "query",

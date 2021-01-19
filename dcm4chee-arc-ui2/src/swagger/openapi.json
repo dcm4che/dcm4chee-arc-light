@@ -242,6 +242,12 @@
     "/aets/{aet}/rs/studies/{study}/expire/{expirationDate}": {
       "$ref": "paths/iocm.json#/study.expire"
     },
+    "/aets/{aet}/rs/studies/{study}/patient": {
+      "$ref": "paths/iocm.json#/study.patient"
+    },
+    "/aets/{aet}/rs/studies/{study}/reimport": {
+      "$ref": "paths/iocm.json#/study.reimport"
+    },
     "/aets/{aet}/rs/studies/{study}/stgver": {
       "$ref": "paths/stgver.json#/study"
     },
