@@ -314,7 +314,7 @@ public class IocmRS {
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
-            return "{\"PatientID\":\"" + ctx.getAttributes().getString(Tag.PatientID) + "\"}";
+            return "{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}";
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
