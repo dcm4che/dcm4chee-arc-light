@@ -117,8 +117,9 @@ public class StgVerScheduler extends Scheduler {
         String batchID = arcDev.getStorageVerificationBatchID();
         List<Series.StorageVerification> storageVerifications;
         do {
-            for (Series.StorageVerification storageVerification : storageVerifications =
-                    ejb.findSeriesForScheduledStorageVerifications(fetchSize)) {
+            storageVerifications = ejb.findSeriesForScheduledStorageVerifications(fetchSize);
+            LOG.info("Found {} Series scheduled for Storage Verification", storageVerifications.size());
+            for (Series.StorageVerification storageVerification : storageVerifications) {
                 if (claim(storageVerification, period)) {
                     try {
                         if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, storageVerification), null, batchID)) {

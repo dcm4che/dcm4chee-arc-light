@@ -113,6 +113,7 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
                     return;
 
                 series = ejb.findSeriesToPurgeInstances(fetchSize);
+                LOG.info("Found {} Series to purge instance records", series.size());
                 for (Series.MetadataUpdate metadataUpdate : series) {
                     if (getPollingInterval() == null)
                         return;

@@ -189,8 +189,7 @@ import java.util.stream.Stream;
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "left join se.metadata metadata " +
-                "where se.metadataScheduledUpdateTime < current_timestamp " +
-                "order by se.metadataScheduledUpdateTime"),
+                "where se.metadataScheduledUpdateTime < current_timestamp"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
@@ -199,8 +198,7 @@ import java.util.stream.Stream;
                 "from Series se " +
                 "join se.metadata metadata " +
                 "where se.instancePurgeTime < current_timestamp " +
-                "and se.metadataScheduledUpdateTime is null " +
-                "order by se.instancePurgeTime"),
+                "and se.metadataScheduledUpdateTime is null"),
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
@@ -241,16 +239,14 @@ import java.util.stream.Stream;
         query = "select new org.dcm4chee.arc.entity.Series$StorageVerification(" +
                 "se.pk, se.storageVerificationTime, se.seriesInstanceUID, se.study.studyInstanceUID) " +
                 "from Series se " +
-                "where se.storageVerificationTime < current_timestamp " +
-                "order by se.storageVerificationTime"),
+                "where se.storageVerificationTime < current_timestamp"),
 @NamedQuery(
         name = Series.SCHEDULED_COMPRESSION,
         query = "select new org.dcm4chee.arc.entity.Series$Compression(" +
                 "se.study.pk, se.pk, se.compressionTime, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
                 "se.compressionImageWriteParams, se.seriesInstanceUID, se.study.studyInstanceUID) " +
                 "from Series se " +
-                "where se.compressionTime < current_timestamp " +
-                "order by se.compressionTime"),
+                "where se.compressionTime < current_timestamp"),
 @NamedQuery(
         name=Series.INCREMENT_METADATA_UPDATE_FAILURES,
         query = "update Series se set se.metadataUpdateFailures = se.metadataUpdateFailures + 1, se.metadataScheduledUpdateTime = ?2 " +

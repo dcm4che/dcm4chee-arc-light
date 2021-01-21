@@ -116,7 +116,9 @@ public class CompressionScheduler extends Scheduler {
         Semaphore semaphore = new Semaphore(permits);
         List<Series.Compression> compressions;
         do {
-            for (Series.Compression compression : compressions = ejb.findSeriesForCompression(fetchSize)) {
+            compressions = ejb.findSeriesForCompression(fetchSize);
+            LOG.info("Found {} Series scheduled for compression", compressions.size());
+            for (Series.Compression compression : compressions) {
                 if (ejb.claimForCompression(compression)) {
                     acquire(semaphore, 1);
                     device.execute(() -> {
