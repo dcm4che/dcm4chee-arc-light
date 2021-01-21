@@ -148,8 +148,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         } catch (Exception e) {
             throw new HL7Exception(
                     new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                            .setErrorLocation(msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7")
+                            .setHL7ErrorCode(ERRSegment.DataTypeError)
+                            .setErrorLocation(msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7^1")
                             .setUserMessage("Invalid SPS Start Date/Time"));
         }
     }
