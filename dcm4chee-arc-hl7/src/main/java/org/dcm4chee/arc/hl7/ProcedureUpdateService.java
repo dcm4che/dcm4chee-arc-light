@@ -57,7 +57,6 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
-import org.dcm4chee.arc.conf.HL7OrderMissingStudyIUIDPolicy;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
@@ -71,6 +70,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -142,9 +142,22 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
+    private void validateSPSStartDateTime(Attributes sps, HL7Segment msh) throws Exception {
+        try {
+            new SimpleDateFormat("yyyyMMddHHmmss").parse(sps.getString(Tag.ScheduledProcedureStepStartDateTime));
+        } catch (Exception e) {
+            throw new HL7Exception(
+                    new ERRSegment(msh)
+                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                            .setErrorLocation(msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7")
+                            .setUserMessage("Invalid SPS Start Date/Time"));
+        }
+    }
+
     private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
-        boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msg.msh());
+        HL7Segment msh = msg.msh();
+        boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msh);
 
         Collection<Device> hl7OrderScheduledStations = arcHL7App.hl7OrderScheduledStation(
                 ReverseDNS.hostNameOf(s.getLocalAddress()),
@@ -153,7 +166,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
         while (spsItems.hasNext()) {
             Attributes sps = spsItems.next();
-
+            validateSPSStartDateTime(sps, msh);
             String spsStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
                 if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(spsStatus)) {
@@ -166,7 +179,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 LOG.warn("MWL item will not created/updated; no Scheduled Procedure Step Status configured with ORC-1_ORC-5 : {}",
                         spsStatus);
                 throw new HL7Exception(
-                        new ERRSegment(msg.msh())
+                        new ERRSegment(msh)
                                 .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
                                 .setErrorLocation("ORC^1^1 or ORC^1^5")
                                 .setUserMessage("Invalid Order Control Code or Order Status"));
