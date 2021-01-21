@@ -2,6 +2,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -160,7 +161,8 @@ public class ExportScheduler extends Scheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Study Export Task - retry:\n", session, e);
+                    LOG.info("{}: Failed to update Study Export Task caused by {} - retry", session,
+                            DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("{}: Failed to update Study Export Task:\n", session, e);
                     return false;
@@ -185,7 +187,8 @@ public class ExportScheduler extends Scheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Series Export Task - retry:\n", session, e);
+                    LOG.info("{}: Failed to update Series Export Task caused by {} - retry", session,
+                            DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("{}: Failed to update Series Export Task:\n", session, e);
                     return false;
@@ -212,7 +215,8 @@ public class ExportScheduler extends Scheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Instance Export Task - retry:\n", session, e);
+                    LOG.info("{}: Failed to update Instance Export Task caused by {} - retry", session,
+                            DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("{}: Failed to update Instance Export Task:\n", session, e);
                     return false;

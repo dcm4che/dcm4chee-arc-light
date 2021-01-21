@@ -39,6 +39,7 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -232,8 +233,8 @@ public class QueueManagerImpl implements QueueManager {
                 break;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("Failed to update IN PROCESS Tasks in Queue {} - retry:\n",
-                            queueDescriptor.getQueueName(), e);
+                    LOG.info("Failed to update IN PROCESS Tasks in Queue {} caused by {} - retry",
+                            queueDescriptor.getQueueName(), DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("Failed to update IN PROCESS Tasks in Queue {}:\n",
                             queueDescriptor.getQueueName(), e);

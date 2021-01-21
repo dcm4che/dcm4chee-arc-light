@@ -437,8 +437,8 @@ public class UPSServiceImpl implements UPSService {
                 return;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to create or update UPS triggered by {} - retry:\n",
-                            ctx.getStoreSession(), upsOnStore, e);
+                    LOG.info("{}: Failed to create or update UPS triggered by {} caused by {} - retry",
+                            ctx.getStoreSession(), upsOnStore, DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("{}: Failed to create or update UPS triggered by {}:\n",
                             ctx.getStoreSession(), upsOnStore, e);

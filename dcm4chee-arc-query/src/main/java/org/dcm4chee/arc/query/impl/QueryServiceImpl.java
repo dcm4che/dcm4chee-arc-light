@@ -46,6 +46,7 @@ import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -294,7 +295,8 @@ class QueryServiceImpl implements QueryService {
                 return attrs;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("Failed to query Export Task Info for {} - retry:\n", exportTask, e);
+                    LOG.info("Failed to query Export Task Info for {} caused by {} - retry",
+                            exportTask, DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("Failed to query Export Task Info for {}:\n", exportTask, e);
                     return null;

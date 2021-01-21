@@ -245,7 +245,8 @@ class StoreServiceImpl implements StoreService {
             } catch (EJBException e) {
                 session.invalidateCachedStudyAndSeries();
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update DB - retry:\n", session, e);
+                    LOG.info("{}: Failed to update DB caused by {} - retry", session,
+                            DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("{}: Failed to update DB:\n", session, e);
                     throw e;

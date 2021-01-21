@@ -42,6 +42,7 @@ package org.dcm4chee.arc.code.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.CodeEntity;
@@ -76,7 +77,7 @@ public class CodeServiceImpl implements CodeService {
                 return ejb.findOrCreate(code);
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("Failed to update DB - retry:\n", e);
+                    LOG.info("Failed to update DB caused by {} - retry", DicomServiceException.initialCauseOf(e));
                 } else {
                     LOG.warn("Failed to update DB:\n", e);
                     throw e;
