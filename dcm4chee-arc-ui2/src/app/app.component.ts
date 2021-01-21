@@ -22,6 +22,7 @@ import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {LanguageConfig, LanguageObject, LocalLanguageObject} from "./interfaces";
+import {AppRequestsService} from "./app-requests.service";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 
@@ -59,7 +60,7 @@ export class AppComponent implements OnInit {
         public dialog: MatDialog,
         public config: MatDialogConfig,
         public mainservice: AppService,
-        private $http:J4careHttpService,
+        private appRequests: AppRequestsService,
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService,
@@ -173,7 +174,7 @@ export class AppComponent implements OnInit {
     }
     setServerTime(recall?:Function){
         let currentBrowserTime = new Date().getTime();
-        this.getServerTime()
+        this.appRequests.getServerTime()
             .subscribe(res=>{
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     console.log("server clock res",res);
@@ -348,14 +349,14 @@ export class AppComponent implements OnInit {
     }*/
     initGetDevicename(retries){
         let $this = this;
-        this.getDeviceName()
+        this.appRequests.getDeviceName()
             .subscribe(
                 (res) => {
                     // $this.mainservice["deviceName"] = res.dicomDeviceName;
                     $this.mainservice["xRoad"] = res.xRoad || false;
                     $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
                     $this.mainservice["management-https-port"] = res["management-https-port"] || 9993;
-                    this.getDeviceInfo(res.dicomDeviceName)
+                    this.appRequests.getDeviceInfo(res.dicomDeviceName)
                         .subscribe(
                             arc => {
                                 $this.mainservice["archiveDevice"] = arc[0];
@@ -378,21 +379,10 @@ export class AppComponent implements OnInit {
             );
     }
     initGetPDQServices(){
-        this.getPDQServices().subscribe(pdqs=>{
+        this.appRequests.getPDQServices().subscribe(pdqs=>{
             this.mainservice.updateGlobal("PDQs",pdqs);
         })
     }
-    getPDQServices(url?:string):Observable<any[]>{
-        return this.$http.get(`${url || '..'}/pdq`)
-    }
-    getServerTime(url?:string){
-        return this.$http.get(`${url || '..'}/monitor/serverTime`)
-    }
-    getDeviceName(url?:string){
-        return this.$http.get(`${url || '..'}/devicename`)
-    }
-    getDeviceInfo(dicomDeviceName:string, url?:string){
-        return this.$http.get(`${url || '..'}/devices?dicomDeviceName=${dicomDeviceName}`)
-    }
+
 }
 
