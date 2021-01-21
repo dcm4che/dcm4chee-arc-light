@@ -102,6 +102,8 @@ class ImportReportService extends DefaultHL7Service {
         if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message) != null) {
             try {
                 importReport(hl7App, s, msg);
+            } catch(HL7Exception e) {
+                throw e;
             } catch (Exception e) {
                 throw new HL7Exception(
                         new ERRSegment(msg.msh())

@@ -104,6 +104,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         if (pat != null) {
             try {
                 updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
+            } catch(HL7Exception e) {
+                throw e;
             } catch (Exception e) {
                 throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
             }
