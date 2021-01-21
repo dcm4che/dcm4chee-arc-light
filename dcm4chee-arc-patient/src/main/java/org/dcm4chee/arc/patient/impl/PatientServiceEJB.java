@@ -505,6 +505,7 @@ public class PatientServiceEJB {
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
         updatePatientAttrs(ctx, patient);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         return true;
     }
 

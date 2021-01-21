@@ -218,7 +218,12 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
                                     Map<IDWithIssuer, Long> ambiguous) {
-        return ejb.supplementIssuer(ctx, patient, idWithIssuer, ambiguous);
+        try {
+            return ejb.supplementIssuer(ctx, patient, idWithIssuer, ambiguous);
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override
