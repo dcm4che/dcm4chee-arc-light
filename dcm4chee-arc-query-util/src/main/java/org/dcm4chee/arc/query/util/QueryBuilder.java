@@ -288,14 +288,16 @@ public class QueryBuilder {
 
     public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids,
                                        boolean withoutIssuer) {
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        if (withoutIssuer)
+            predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
+
         if (isUniversalMatching(pids))
             return;
 
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
 
         if (withoutIssuer) {
-            predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
             for (IDWithIssuer pid : pids)
                 if (!isUniversalMatching(pid.getID())) {
                     List<Predicate> idPredicate = new ArrayList<>(1);

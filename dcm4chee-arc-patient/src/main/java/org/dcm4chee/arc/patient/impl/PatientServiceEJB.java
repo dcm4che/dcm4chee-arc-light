@@ -501,7 +501,9 @@ public class PatientServiceEJB {
             return false;
         }
 
-        updateIssuer(patient.getPatientID(), idWithIssuer.getIssuer());
+        PatientID patientID = patient.getPatientID();
+        updateIssuer(patientID, idWithIssuer.getIssuer());
+        em.merge(patientID);
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
         updatePatientAttrs(ctx, patient);
