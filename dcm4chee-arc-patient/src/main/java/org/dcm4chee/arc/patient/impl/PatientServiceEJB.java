@@ -202,7 +202,9 @@ public class PatientServiceEJB {
                 return;
         }
 
-        updateIssuer(pat.getPatientID(), ctx.getPatientID().getIssuer());
+        PatientID patientID = pat.getPatientID();
+        updateIssuer(patientID, ctx.getPatientID().getIssuer());
+        em.merge(patientID);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
                 ? attrs.addOriginalAttributes(
@@ -269,9 +271,11 @@ public class PatientServiceEJB {
         Patient pat2 = findPatient(patientID);
         if (pat2 == null)
             pat.setPatientID(createPatientID(patientID));
-        else if (pat2 == pat)
-            updateIssuer(pat.getPatientID(), patientID.getIssuer());
-        else
+        else if (pat2 == pat) {
+            PatientID patientID1 = pat.getPatientID();
+            updateIssuer(patientID1, patientID.getIssuer());
+            em.merge(patientID1);
+        } else
             throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         updatePatientAttrs(ctx, pat);
