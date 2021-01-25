@@ -64,5 +64,6 @@ public enum RSOperation {
     CreateMWL,
     UpdateMWL,
     DeleteMWL,
-    UpdateStudyAccessControlID
+    UpdateStudyAccessControlID,
+    MoveStudyToPatient
 }

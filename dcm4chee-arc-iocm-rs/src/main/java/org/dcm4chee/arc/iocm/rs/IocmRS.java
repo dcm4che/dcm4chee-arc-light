@@ -78,6 +78,7 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -524,6 +525,40 @@ public class IocmRS {
                 } while (remaining && failedPks.size() < supplementIssuerFetchSize);
             }
             return supplementIssuerResponse(success, ambiguous, failures, toManyDuplicates).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/studies/{study}/patient")
+    public Response moveStudyToPatient(
+            @PathParam("study") String studyUID,
+            @QueryParam("updatePolicy")
+            @ValidValueOf(type = Attributes.UpdatePolicy.class, message = "Invalid attribute update policy")
+            String updatePolicy) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
+        Attributes queryKeys = queryAttrs.getQueryKeys();
+        if (queryKeys.getString(Tag.PatientID) == null)
+            return errResponse("Missing Patient ID in query filters", Response.Status.BAD_REQUEST);
+
+        IDWithIssuer pid = IDWithIssuer.pidOf(queryKeys);
+        try {
+            PatientMgtContext ctx = patientMgtCtx();
+            ctx.setPatientID(pid);
+            ctx.setAttributes(queryKeys);
+            if (updatePolicy != null)
+                ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(updatePolicy));
+            studyService.moveStudyToPatient(studyUID, ctx);
+            rsForward.forward(RSOperation.MoveStudyToPatient, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (StudyMissingException e) {
+            return errResponse("Study with specified UID does not exist : " + studyUID, Response.Status.BAD_REQUEST);
+        } catch (NonUniquePatientException e) {
+            return errResponse("Multiple patients found for patient with identifier : " + pid, Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse("Patient with identifier is already merged : " + pid, Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

@@ -1059,6 +1059,9 @@
         },
         {
           "$ref": "../parameters.json#/newPatientAttributes"
+        },
+        {
+          "$ref": "../parameters.json#/patientUpdatePolicy"
         }
       ],
       "responses": {
@@ -1068,8 +1071,14 @@
         "400": {
           "description": "Patient ID not specified by Query Parameter."
         },
+        "403": {
+          "description": "Patient already merged for Patient ID with Issuer specified in Query Parameters."
+        },
         "404": {
           "description": "There is no Archive AE with the specified Title or no Study with the specified Study Instance UID."
+        },
+        "409": {
+          "description": "Multiple patients found for Patient ID with Issuer specified by Query Parameters."
         },
         "500": {
           "description": "Internal Server Error."

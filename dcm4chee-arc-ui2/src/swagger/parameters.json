@@ -1687,6 +1687,22 @@
       "default": false
     }
   },
+  "patientUpdatePolicy": {
+    "name": "updatePolicy",
+    "in": "query",
+    "description": "Update Policy for patient on moving study to patient.",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE",
+        "PRESERVE"
+      ],
+      "default": "REPLACE"
+    }
+  },
   "updatePolicy": {
     "name": "updatePolicy",
     "in": "query",

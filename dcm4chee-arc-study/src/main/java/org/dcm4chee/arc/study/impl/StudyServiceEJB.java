@@ -47,7 +47,7 @@ import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.patient.PatientMismatchException;
+import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.slf4j.Logger;
@@ -82,11 +82,14 @@ public class StudyServiceEJB {
     private IssuerService issuerService;
 
     @Inject
+    private PatientService patientService;
+
+    @Inject
     private Device device;
 
     public void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
         AttributeFilter filter = ctx.getStudyAttributeFilter();
-        Study study = findStudy(ctx);
+        Study study = findStudy(ctx.getStudyInstanceUID());
         Attributes attrs = study.getAttributes();
         Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection(false));
         Attributes modified = new Attributes();
@@ -120,13 +123,13 @@ public class StudyServiceEJB {
                 .executeUpdate();
     }
 
-    private Study findStudy(StudyMgtContext ctx) throws StudyMissingException {
+    public Study findStudy(String studyUID) throws StudyMissingException {
         try {
             return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(1, studyUID)
                     .getSingleResult();
         } catch (NoResultException e) {
-            throw new StudyMissingException("Study to be updated does not exist: " + ctx.getStudyInstanceUID());
+            throw new StudyMissingException("Study to be updated does not exist: " + studyUID);
         }
     }
 
@@ -251,11 +254,20 @@ public class StudyServiceEJB {
             return;
         }
 
-        Study study = findStudy(ctx);
+        Study study = findStudy(ctx.getStudyInstanceUID());
         ctx.setAttributes(study.getAttributes());
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         study.setAccessControlID(ctx.getAccessControlID());
+    }
+
+    public void moveStudyToPatient(String studyUID, PatientMgtContext ctx)
+            throws StudyMissingException {
+        Study study = findStudy(studyUID);
+        Patient patient = patientService.updatePatient(ctx);
+        patient.incrementNumberOfStudies();
+        study.getPatient().decrementNumberOfStudies();
+        study.setPatient(patient);
     }
 
     private void setCodes(Collection<CodeEntity> codes, Sequence seq) {

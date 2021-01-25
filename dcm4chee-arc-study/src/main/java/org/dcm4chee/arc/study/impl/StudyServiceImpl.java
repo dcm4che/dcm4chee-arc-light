@@ -44,6 +44,9 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.patient.NonUniquePatientException;
+import org.dcm4chee.arc.patient.PatientMergedException;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
@@ -116,6 +119,17 @@ public class StudyServiceImpl implements StudyService {
         } finally {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void moveStudyToPatient(String studyUID, PatientMgtContext ctx)
+            throws StudyMissingException, NonUniquePatientException, PatientMergedException {
+        try {
+            ejb.moveStudyToPatient(studyUID, ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
         }
     }
 

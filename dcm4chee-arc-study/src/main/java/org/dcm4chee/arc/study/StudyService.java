@@ -43,6 +43,9 @@ package org.dcm4chee.arc.study;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.patient.NonUniquePatientException;
+import org.dcm4chee.arc.patient.PatientMergedException;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 
 import java.net.Socket;
@@ -62,4 +65,7 @@ public interface StudyService {
     void updateExpirationDate(StudyMgtContext ctx) throws Exception;
 
     void updateAccessControlID(StudyMgtContext ctx) throws StudyMissingException;
+
+    void moveStudyToPatient(String studyUID, PatientMgtContext ctx)
+            throws StudyMissingException, NonUniquePatientException, PatientMergedException;
 }
