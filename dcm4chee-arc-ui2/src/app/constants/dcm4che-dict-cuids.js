@@ -200,6 +200,8 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.200.4":"Protocol Approval Information Model - FIND",
 "1.2.840.10008.5.1.4.1.1.200.5":"Protocol Approval Information Model - MOVE",
 "1.2.840.10008.5.1.4.1.1.200.6":"Protocol Approval Information Model - GET",
+"1.2.840.10008.5.1.4.1.1.200.7":"XA Defined Procedure Protocol Storage",
+"1.2.840.10008.5.1.4.1.1.200.8":"XA Performed Procedure Protocol Storage",
 "1.2.840.10008.5.1.4.1.1.481.1":"RT Image Storage",
 "1.2.840.10008.5.1.4.1.1.481.2":"RT Dose Storage",
 "1.2.840.10008.5.1.4.1.1.481.3":"RT Structure Set Storage",
