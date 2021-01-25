@@ -967,10 +967,11 @@ export class StudyService {
 
     supplementIssuer = (issuer:string, testSupplement:string, param, studyWebService: StudyWebService) => {
         let paramString = `${j4care.param(param)}`;
-        paramString = paramString == ''
-                            ? testSupplement != ''
-                                ? '?test=' + testSupplement : ''
-                            : paramString + '&test=' + testSupplement;
+        paramString = testSupplement
+                    ? paramString == ''
+                        ? '?test=' + testSupplement
+                        : paramString + '&test=' + testSupplement
+                    : paramString;
         return this.$http.post(
             `${this.getDicomURL("patient", studyWebService.selectedWebService)}/issuer/${issuer}${paramString}`,
             {});
