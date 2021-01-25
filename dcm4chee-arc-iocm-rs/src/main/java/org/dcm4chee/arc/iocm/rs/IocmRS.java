@@ -554,11 +554,11 @@ public class IocmRS {
             rsForward.forward(RSOperation.MoveStudyToPatient, arcAE, null, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+            return errResponse("Study with specified UID does not exist : " + studyUID, Response.Status.BAD_REQUEST);
         } catch (NonUniquePatientException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+            return errResponse("Multiple patients found for patient with identifier : " + pid, Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
-            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+            return errResponse("Patient with identifier is already merged : " + pid, Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

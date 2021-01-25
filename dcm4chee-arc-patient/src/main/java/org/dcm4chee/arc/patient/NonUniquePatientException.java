@@ -40,13 +40,10 @@
 
 package org.dcm4chee.arc.patient;
 
-import javax.ejb.ApplicationException;
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-@ApplicationException(rollback = true)
 public class NonUniquePatientException extends RuntimeException {
     public NonUniquePatientException() {
         super();

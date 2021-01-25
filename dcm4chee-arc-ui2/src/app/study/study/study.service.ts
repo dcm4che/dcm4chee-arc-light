@@ -967,14 +967,6 @@ export class StudyService {
 
     supplementIssuer = (issuer:string, testSupplement:string, param, studyWebService: StudyWebService) => {
         let paramString = `${j4care.param(param)}`;
-        let paramClone = _.clone(param);
-        let paramClone1 = _.clone(testSupplement);
-        let val = "aaa";
-        console.log("test val........" + testSupplement == "true");
-        console.log("test val 1........" + val == "aaa");
-        console.log("test val 1........" + val);
-        console.log("paramclone........" + paramClone);
-        console.log("paramclone1........" + paramClone1);
         paramString = paramString == ''
                             ? testSupplement != ''
                                 ? '?test=' + testSupplement : ''
