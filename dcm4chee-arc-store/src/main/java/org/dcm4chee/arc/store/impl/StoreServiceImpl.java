@@ -58,6 +58,7 @@ import org.dcm4che3.util.CountingInputStream;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.Cache;
+import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.conf.*;
@@ -66,6 +67,8 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.store.*;
 import org.dcm4chee.arc.storage.*;
 import org.slf4j.Logger;
@@ -122,6 +125,12 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private MetricsService metricsService;
+
+    @Inject
+    private CFindSCU cfindscu;
+
+    @Inject
+    private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -531,6 +540,11 @@ class StoreServiceImpl implements StoreService {
         if (rule.isTrimISO2022CharacterSet())
             coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
         coercion = UseCallingAETitleAsCoercion.of(rule.getUseCallingAETitleAs(), session.getCallingAET(), coercion);
+        String leadingCFindSCP = rule.getLeadingCFindSCP();
+        if (leadingCFindSCP != null) {
+            coercion = new CFindSCUAttributeCoercion(session.getLocalApplicationEntity(), leadingCFindSCP,
+                    rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+        }
         if (coercion != null)
             coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
     }
