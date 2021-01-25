@@ -525,6 +525,8 @@ public class IocmRS {
                                 }
                             });
                 } while (remaining && failedPks.size() < supplementIssuerFetchSize);
+                if (!success.isEmpty())
+                    rsForward.forward(RSOperation.SupplementIssuer, arcAE, null, request);
             }
             return supplementIssuerResponse(success, ambiguous, failures, toManyDuplicates).build();
         } catch (Exception e) {
