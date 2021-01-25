@@ -316,6 +316,10 @@ public class IocmRS {
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
             return "{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}";
+        } catch (NonUniquePatientException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (PatientMergedException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -382,9 +386,11 @@ public class IocmRS {
 
             rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
             rsHL7Sender.sendHL7Message(msgType, ctx);
-        } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
+                | CircularPatientMergeException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (PatientMergedException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
         } catch(Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -415,8 +421,6 @@ public class IocmRS {
         } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage(), Response.Status.CONFLICT));
-        } catch (WebApplicationException e) {
-            throw e;
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -441,8 +445,6 @@ public class IocmRS {
                 | CircularPatientMergeException
                 | VerifyMergePatientException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
-        } catch (WebApplicationException e) {
-            throw e;
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
@@ -695,9 +697,11 @@ public class IocmRS {
             patientService.changePatientID(ctx);
             rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
-        } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
+                | CircularPatientMergeException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (PatientMergedException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
         } catch(Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

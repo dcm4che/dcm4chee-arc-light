@@ -40,10 +40,13 @@
 
 package org.dcm4chee.arc.patient;
 
+import javax.ejb.ApplicationException;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2016
  */
+@ApplicationException(rollback = true)
 public class PatientAlreadyExistsException extends RuntimeException {
     public PatientAlreadyExistsException(String message) {
         super(message);

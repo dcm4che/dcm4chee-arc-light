@@ -38,10 +38,13 @@
 
 package org.dcm4chee.arc.patient;
 
+import javax.ejb.ApplicationException;
+
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2017
  */
+@ApplicationException(rollback = true)
 public class PatientTrackingNotAllowedException extends RuntimeException {
     public PatientTrackingNotAllowedException() {
         super();

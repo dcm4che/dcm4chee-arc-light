@@ -40,10 +40,13 @@
 
 package org.dcm4chee.arc.patient;
 
+import javax.ejb.ApplicationException;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2015
  */
+@ApplicationException(rollback = true)
 public class PatientMergedException extends RuntimeException {
     public PatientMergedException() {
         super();
