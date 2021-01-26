@@ -2022,6 +2022,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     getMWL(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
+        if(this.studyConfig.tab === "mwl" && !_.hasIn(filterModel,"includefield")){
+            filterModel["includefield"] = "all";
+        }
         this.service.getMWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
                 this.patients = [];
                 //           this.studies = [];
@@ -2074,6 +2077,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     getUWL(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
+        if(this.studyConfig.tab === "uwl" && !_.hasIn(filterModel,"includefield")){
+            filterModel["includefield"] = "all";
+        }
         this.service.getUWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
                 this.patients = [];
                 //           this.studies = [];
