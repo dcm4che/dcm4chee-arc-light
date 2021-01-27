@@ -287,12 +287,9 @@ public class IocmRS {
                     studyUID, HttpServletRequestInfo.valueOf(request), arcAE, Boolean.parseBoolean(retainObj));
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(
-                    errResponse("Study with study instance UID " + studyUID + " not found.",
-                    Response.Status.NOT_FOUND));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + studyUID, Response.Status.FORBIDDEN));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));

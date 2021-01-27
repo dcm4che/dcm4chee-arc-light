@@ -157,7 +157,7 @@ public class StoreServiceEJB {
                 Study prevStudy = prevSeries.getStudy();
                 prevStudy.addStorageID(session.getObjectStorageID());
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                createDicomFileLocation(ctx, prevInstance, result);
+                createOrUpdateDicomFileLocation(ctx, prevInstance, result);
                 prevSeries.resetSize();
                 prevStudy.resetSize();
                 result.setStoredInstance(prevInstance);
@@ -250,11 +250,12 @@ public class StoreServiceEJB {
                 rejectInstances(ctx, rjNote, conceptNameCode, arcAE);
             }
         }
-        boolean createLocations = ctx.getLocations().isEmpty();
+        boolean createOrUpdateLocations = ctx.getLocations().isEmpty()
+                                            || ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
-                createLocations ? Attributes.COERCE : Attributes.CORRECT);
-        if (createLocations) {
-            createDicomFileLocation(ctx, instance, result);
+                createOrUpdateLocations ? Attributes.COERCE : Attributes.CORRECT);
+        if (createOrUpdateLocations) {
+            createOrUpdateDicomFileLocation(ctx, instance, result);
             createMetadataLocation(ctx, instance, result);
         } else
             copyLocations(ctx, instance, result);
@@ -265,7 +266,7 @@ public class StoreServiceEJB {
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
-        if (createLocations) {
+        if (createOrUpdateLocations) {
             series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
         }
         if (rjNote == null) {
@@ -609,14 +610,21 @@ public class StoreServiceEJB {
         if (countLocationsByMultiRef(location.getMultiReference()) > 1 || retainObj)
             em.remove(location);
         else
-            markToDelete(location);
+            markLocationAs(location, Location.Status.TO_DELETE);
     }
 
-    private void markToDelete(Location location) {
+    public void removeOrMarkReimport(Location location) {
+        if (location.getObjectType() == Location.ObjectType.METADATA)
+            em.remove(location);
+        else
+            markLocationAs(location, Location.Status.REIMPORT);
+    }
+
+    private void markLocationAs(Location location, Location.Status status) {
         location.setMultiReference(null);
         location.setUidMap(null);
         location.setInstance(null);
-        location.setStatus(Location.Status.TO_DELETE);
+        location.setStatus(status);
     }
 
     public void removeOrphaned(UIDMap uidMap) {
@@ -1470,10 +1478,9 @@ public class StoreServiceEJB {
         return instance;
     }
 
-    private void createDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
+    private void createOrUpdateDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
         ReadContext readContext = ctx.getReadContext();
-        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
-                readContext, ctx.getStoreTranferSyntax()));
+        result.getLocations().add(createOrUpdateLocation(ctx, instance, readContext, ctx.getStoreTranferSyntax()));
         instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
         if (readContext instanceof WriteContext)
             result.getWriteContexts().add((WriteContext) readContext);
@@ -1484,11 +1491,27 @@ public class StoreServiceEJB {
         if (writeContext == null)
             return;
 
-        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.METADATA, writeContext, null));
+        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.METADATA,
+                writeContext, null));
         result.getWriteContexts().add(writeContext);
     }
 
-    private Location createLocation(StoreContext ctx, Instance instance, Location.ObjectType objectType, ReadContext readContext, String transferSyntaxUID) {
+    private Location createOrUpdateLocation(StoreContext ctx, Instance instance, ReadContext readContext,
+                                            String transferSyntaxUID) {
+        if (ctx.getLocations().isEmpty()) 
+            return createLocation(ctx, instance, Location.ObjectType.DICOM_FILE, readContext, transferSyntaxUID);
+            
+        Location location = ctx.getLocations().get(0);
+        location.setStatus(Location.Status.OK);
+        location.setInstance(instance);
+        em.merge(location);
+        LOG.info("{}: Update {}", ctx.getStoreSession(), location);
+        return location;
+    }
+
+    private Location createLocation(
+            StoreContext ctx, Instance instance, Location.ObjectType objectType, ReadContext readContext,
+            String transferSyntaxUID) {
         Storage storage = readContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()

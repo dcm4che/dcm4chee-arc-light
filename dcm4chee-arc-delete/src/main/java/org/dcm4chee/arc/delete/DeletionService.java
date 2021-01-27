@@ -42,10 +42,12 @@ package org.dcm4chee.arc.delete;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -62,6 +64,9 @@ public interface DeletionService {
 
     void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)
+            throws Exception;
+
+    List<Location> reimportStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
             throws Exception;
 
     void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE);

@@ -46,10 +46,18 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyNotEmptyException;
+import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -67,13 +75,10 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -92,6 +97,12 @@ public class ImportStorageRS {
 
     @Inject
     private StoreService service;
+
+    @Inject
+    private DeletionService deletionService;
+
+    @Inject
+    private RSForward rsForward;
 
     @Context
     private HttpServletRequest request;
@@ -121,6 +132,9 @@ public class ImportStorageRS {
     @QueryParam("sourceOfPreviousValues")
     private String sourceOfPreviousValues;
 
+    @Context
+    private HttpHeaders httpHeaders;
+
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
@@ -136,23 +150,11 @@ public class ImportStorageRS {
     @POST
     @Path("/instances/storage/{StorageID}")
     @Consumes("text/*")
-    @Produces("application/dicom+xml")
-    public void importInstancesXML(
+    public void importInstances(
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
             InputStream in) {
-        importInstanceOnStorage(ar, in, storageID, OutputType.DICOM_XML);
-    }
-
-    @POST
-    @Path("/instances/storage/{StorageID}")
-    @Consumes("text/*")
-    @Produces("application/dicom+json")
-    public void importInstancesJSON(
-            @PathParam("StorageID") String storageID,
-            @Suspended AsyncResponse ar,
-            InputStream in) {
-        importInstanceOnStorage(ar, in, storageID, OutputType.JSON);
+        importInstanceOnStorage(ar, in, storageID, selectMediaType());
     }
 
     public void validate() {
@@ -160,7 +162,49 @@ public class ImportStorageRS {
         new QueryAttributes(uriInfo, null);
     }
 
-    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, OutputType output) {
+    @POST
+    @Path("/studies/{study}/reimport")
+    public void reimportStudy(@Suspended AsyncResponse ar, @PathParam("study") String studyUID) {
+        Output output = selectMediaType();
+        ApplicationEntity ae = getApplicationEntity();
+        try {
+            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+            List<Location> locations = deletionService.reimportStudy(
+                                            studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
+            Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
+            Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
+            Attributes.UpdatePolicy updatePolicy = Attributes.UpdatePolicy.valueOf(this.updatePolicy);
+            for (Location location : locations) {
+                if (location.getObjectType() == Location.ObjectType.METADATA)
+                    continue;
+
+                Storage storage = storageFactory.getStorage(getStorageDesc(location.getStorageID()));
+                final StoreSession session = service.newStoreSession(
+                        HttpServletRequestInfo.valueOf(request), ae, null)
+                        .withObjectStorageID(location.getStorageID());
+                StoreContext ctx = service.newStoreContext(session);
+                ctx.getLocations().add(location);
+                importInstanceOnStorage(
+                        storage, ctx, coerce, updatePolicy, now, location.getStoragePath());
+            }
+            rsForward.forward(RSOperation.ReimportStudy, arcAE, null, request);
+        } catch (StudyNotFoundException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (StudyNotEmptyException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+        response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
+        Response.ResponseBuilder responseBuilder = Response.status(status());
+        ar.resume(responseBuilder
+                .entity(output.entity(response, ae))
+                .header("Warning", response.getString(Tag.ErrorComment))
+                .build());
+    }
+
+    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, Output output) {
         ApplicationEntity ae = getApplicationEntity();
         Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
         final StoreSession session = service.newStoreSession(
@@ -171,7 +215,8 @@ public class ImportStorageRS {
         Attributes.UpdatePolicy updatePolicy = Attributes.UpdatePolicy.valueOf(this.updatePolicy);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             reader.lines().forEach(storagePath ->
-                    importInstanceOnStorage(storage, session, coerce, updatePolicy, now, storagePath));
+                    importInstanceOnStorage(
+                            storage, service.newStoreContext(session), coerce, updatePolicy, now, storagePath));
         } catch (Exception e) {
             throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -184,10 +229,10 @@ public class ImportStorageRS {
                 .build());
     }
 
-    private void importInstanceOnStorage(Storage storage, StoreSession session, Attributes coerce,
+    private void importInstanceOnStorage(Storage storage, StoreContext ctx, Attributes coerce,
             Attributes.UpdatePolicy updatePolicy, Date now, String storagePath) {
         ReadContext readContext = createReadContext(storage, storagePath);
-        StoreContext ctx = service.newStoreContext(session);
+        StoreSession session = ctx.getStoreSession();
         try {
             Attributes attrs = getAttributes(storage, session, readContext, ctx);
             if (!coerce.isEmpty()) {
@@ -220,14 +265,57 @@ public class ImportStorageRS {
             dis.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
             dis.setURI("java:iis"); // avoid copy of bulkdata to temporary file
             ctx.setReceiveTransferSyntax(dis.getTransferSyntax());
-            return dis.readDataset(-1, stopTag(storage));
+            return Boolean.parseBoolean(readPixelData) || storage.getStorageDescriptor().getDigestAlgorithm() != null
+                    ? dis.readDataset() : dis.readDatasetUntilPixelData();
         }
     }
 
-    private int stopTag(Storage storage) {
-        return Boolean.parseBoolean(readPixelData) || storage.getStorageDescriptor().getDigestAlgorithm() != null
-                ? -1
-                : Tag.PixelData;
+    private Output selectMediaType() {
+        return httpHeaders.getAcceptableMediaTypes()
+                .stream()
+                .map(Output::valueOf)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseThrow(() -> {
+                        LOG.warn("Response Status : Not Acceptable. Accept Media Type(s) in request : \n{}",
+                                httpHeaders.getAcceptableMediaTypes().stream()
+                                        .map(MediaType::toString)
+                                        .collect(Collectors.joining("\n")));
+                        return new WebApplicationException(Response.notAcceptable(
+                                Variant.mediaTypes(MediaTypes.APPLICATION_DICOM_JSON_TYPE,
+                                        MediaTypes.APPLICATION_DICOM_XML_TYPE).build())
+                                .build());
+                    }
+                );
+    }
+
+    private enum Output {
+        JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE) {
+            @Override
+            Object entity(final Attributes response, ApplicationEntity ae) {
+                return OutputType.JSON.entity(response, ae);
+            }
+        },
+        XML(MediaTypes.APPLICATION_DICOM_XML_TYPE) {
+            @Override
+            Object entity(final Attributes response, ApplicationEntity ae) {
+                return OutputType.DICOM_XML.entity(response, ae);
+            }
+        };
+
+        final MediaType type;
+
+        Output(MediaType type) {
+            this.type = type;
+        }
+
+        static Output valueOf(MediaType type) {
+            return MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(type) ? Output.JSON
+                    : MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(type) ? Output.XML
+                    : null;
+        }
+
+        abstract Object entity(final Attributes response, ApplicationEntity ae);
     }
 
     private ReadContext createReadContext(Storage storage, String storagePath) {

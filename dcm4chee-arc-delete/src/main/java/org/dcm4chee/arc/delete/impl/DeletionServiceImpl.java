@@ -62,6 +62,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -128,25 +130,31 @@ public class DeletionServiceImpl implements DeletionService {
     public void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)
             throws Exception {
+        deleteStudy(findStudy(studyUID), httpServletRequestInfo, arcAE, null, retainObj, false);
+    }
+
+    private Study findStudy(String studyUID) throws StudyNotFoundException {
         try {
-            deleteStudy(em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                            .setParameter(1, studyUID).getSingleResult(),
-                    httpServletRequestInfo,
-                    arcAE,
-                    null,
-                    retainObj);
+            return em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                    .setParameter(1, studyUID)
+                    .getSingleResult();
         } catch (NoResultException e) {
-            throw new StudyNotFoundException(e.getMessage());
+            throw new StudyNotFoundException("No study found for " + studyUID);
         }
     }
 
-    private void deleteStudy(Study study, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
-                       PatientMgtContext pCtx, boolean retainObj) throws Exception {
+    @Override
+    public List<Location> reimportStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
+            throws Exception {
+        return deleteStudy(findStudy(studyUID), httpServletRequestInfo, arcAE, null, false, true);
+    }
+
+    private List<Location> deleteStudy(Study study, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
+                       PatientMgtContext pCtx, boolean retainObj, boolean reimport) throws Exception {
         StudyDeleteContext ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
         try {
             LOG.info("Start deleting {} from database", study);
-            deleteStudy(ctx, study, arcAE, pCtx, retainObj);
-            LOG.info("Successfully delete {} from database", study);
+            return deleteStudy(ctx, study, arcAE, pCtx, retainObj, reimport);
         } catch (Exception e) {
             LOG.warn("Failed to delete {} from database:\n", study, e);
             ctx.setException(e);
@@ -164,7 +172,7 @@ public class DeletionServiceImpl implements DeletionService {
                 .getResultList();
         try {
             for (Study study : resultList) {
-                deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx, false);
+                deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx, false, false);
             }
             patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
@@ -176,21 +184,23 @@ public class DeletionServiceImpl implements DeletionService {
         }
     }
 
-    private void deleteStudy(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx,
-                             boolean retainObj)
+    private List<Location> deleteStudy(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx,
+                             boolean retainObj, boolean reimport)
             throws Exception {
+        List<Location> locations = new ArrayList<>();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         RejectionState rejectionState = study.getRejectionState();
         if (pCtx == null) {
             if (arcAE.allowDeleteStudy() == AllowDeleteStudyPermanently.REJECTED
                 && (rejectionState == RejectionState.NONE || rejectionState == RejectionState.PARTIAL))
-                    throw new StudyNotEmptyException(
-                            "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
+                    throw new StudyNotEmptyException(MessageFormat.format(
+                            "Deletion of Study[uid={0}, rejectionState={1}] not permitted",
+                            study.getStudyInstanceUID(), study.getRejectionState()));
             ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
         }
         if (rejectionState == RejectionState.EMPTY) {
             ejb.deleteEmptyStudy(ctx);
-            return;
+            return locations;
         }
         List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
         if (!seriesWithPurgedInstances.isEmpty()) {
@@ -206,8 +216,12 @@ public class DeletionServiceImpl implements DeletionService {
         int limit = arcDev.getDeleteStudyChunkSize();
         int n;
         do {
-            n = ejb.deleteStudy(ctx, limit, retainObj);
+            List<Location> locations1 = ejb.deleteStudy(ctx, limit, retainObj, reimport);
+            n = locations1.size();
             LOG.debug("Deleted {} instances of {}", n, study);
+            locations.addAll(locations1);
         } while (n == limit);
+        LOG.info("Successfully delete {} from database", study);
+        return locations;
     }
 }

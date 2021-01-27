@@ -1127,7 +1127,7 @@
           "description": "There was a problem with the request."
         },
         "404": {
-          "description": "There is no Archive AE with the specified Title or no Storage with the specified StorageID."
+          "description": "There is no Archive AE with the specified Title or no Study with the specified UID."
         },
         "500": {
           "description": "Internal Server Error."
