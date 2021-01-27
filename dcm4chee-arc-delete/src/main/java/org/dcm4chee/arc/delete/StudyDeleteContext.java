@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.delete;
 
 import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
@@ -57,6 +56,8 @@ public interface StudyDeleteContext {
 
     Study getStudy();
 
+    void setStudy(Study study);
+
     List<Instance> getInstances();
 
     void addInstance(Instance inst);
@@ -64,8 +65,6 @@ public interface StudyDeleteContext {
     Exception getException();
 
     void setException(Exception exception);
-
-    Patient getPatient();
 
     HttpServletRequestInfo getHttpServletRequestInfo();
 

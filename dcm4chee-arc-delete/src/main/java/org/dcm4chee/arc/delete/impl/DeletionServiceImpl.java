@@ -152,7 +152,12 @@ public class DeletionServiceImpl implements DeletionService {
             ctx.setException(e);
             throw e;
         } finally {
-            studyDeletedEvent.fire(ctx);
+            if (ctx.getStudy() != null)
+                try {
+                    studyDeletedEvent.fire(ctx);
+                } catch (Exception e) {
+                    LOG.warn("Unexpected exception in Study Deletion audit : " + e.getMessage());
+                }
         }
     }
 
@@ -183,9 +188,11 @@ public class DeletionServiceImpl implements DeletionService {
         RejectionState rejectionState = study.getRejectionState();
         if (pCtx == null) {
             if (arcAE.allowDeleteStudy() == AllowDeleteStudyPermanently.REJECTED
-                && (rejectionState == RejectionState.NONE || rejectionState == RejectionState.PARTIAL))
-                    throw new StudyNotEmptyException(
-                            "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
+                && (rejectionState == RejectionState.NONE || rejectionState == RejectionState.PARTIAL)) {
+                ctx.setStudy(study);
+                throw new StudyNotEmptyException(
+                        "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
+            }
             ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
         }
         if (rejectionState == RejectionState.EMPTY) {

@@ -42,7 +42,6 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
@@ -61,6 +60,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private Exception exception;
     private HttpServletRequestInfo httpServletRequestInfo;
     private boolean deletePatientOnDeleteLastStudy;
+    private Study study;
 
     public StudyDeleteContextImpl(Long studyPk) {
         this.studyPk = studyPk;
@@ -73,7 +73,12 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     @Override
     public Study getStudy() {
-        return instances.isEmpty() ? null : instances.get(0).getSeries().getStudy();
+        return study != null ? study : instances.isEmpty() ? null : instances.get(0).getSeries().getStudy();
+    }
+
+    @Override
+    public void setStudy(Study study) {
+        this.study = study;
     }
 
     @Override
@@ -94,11 +99,6 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
-    }
-
-    @Override
-    public Patient getPatient() {
-        return instances.isEmpty() ? null : instances.get(0).getSeries().getStudy().getPatient();
     }
 
     @Override
