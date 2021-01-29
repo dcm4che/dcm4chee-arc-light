@@ -1,27 +1,7 @@
 version: 1
 
-dn: ou=users,dc=dcm4che,dc=org
-ou: users
-objectClass: organizationalUnit
-objectClass: top
-
-dn: uid=admin,ou=users,dc=dcm4che,dc=org
-uid: admin
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-sn:: IA==
-cn:: IA==
-userPassword:: Y2hhbmdlaXQ=
-
-dn: uid=user,ou=users,dc=dcm4che,dc=org
-uid: user
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-sn:: IA==
-cn:: IA==
-userPassword:: Y2hhbmdlaXQ=
-
 dn: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+changetype: add
 uid: keycloak-admin
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -30,6 +10,7 @@ cn:: IA==
 userPassword:: Y2hhbmdlaXQ=
 
 dn: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
+changetype: add
 uid: wildfly-admin
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -37,125 +18,108 @@ sn:: IA==
 cn:: IA==
 userPassword:: Y2hhbmdlaXQ=
 
-dn: cn=admin,ou=users,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: admin
-member: uid=admin,ou=users,dc=dcm4che,dc=org
-
 dn: cn=user,ou=users,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: user
-member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=user,ou=users,dc=dcm4che,dc=org
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
 
-dn: cn=auditlog,ou=users,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: auditlog
-member: uid=admin,ou=users,dc=dcm4che,dc=org
-
 dn: cn=ADMINISTRATOR,ou=users,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: ADMINISTRATOR
+changetype: modify
+add: member
 member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
 
-dn: ou=realm-management,dc=dcm4che,dc=org
-objectClass: top
-objectClass: organizationalUnit
-ou: realm-management
-
 dn: cn=create-client,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: create-client
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=impersonation,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: impersonation
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-authorization,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-authorization
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-clients,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-clients
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-events,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-events
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-identity-providers,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-identity-providers
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-realm,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-realm
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: manage-users
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=realm-admin,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: realm-admin
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-authorization,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-authorization
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-clients,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-clients
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-events,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-events
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-identity-providers,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-identity-providers
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-realm,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-realm
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: view-users
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-users,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: query-users
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-groups,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: query-groups
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-realms,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: query-realms
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-clients,ou=realm-management,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: query-clients
+changetype: modify
+add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
