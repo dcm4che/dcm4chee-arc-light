@@ -170,7 +170,7 @@
     "/aets/{aet}/rs/patients/{patientID}/pdq/{PDQServiceID}": {
       "$ref": "paths/pam.json#/patient.pdq"
     },
-    "/aets/{aet}/rs/patients/{PatientID}": {
+    "/aets/{aet}/rs/patients/{patientID}": {
       "$ref": "paths/pam.json#/patient"
     },
     "/aets/{aet}/rs/patients/{patientID}/merge": {
