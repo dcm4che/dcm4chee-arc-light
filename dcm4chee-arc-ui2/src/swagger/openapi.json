@@ -773,7 +773,7 @@
     "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}/changeid": {
       "$ref": "paths/legacy.json#/hl7.patient.changeID"
     },
-    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}": {
+    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{PatientID}": {
       "$ref": "paths/pam.json#/hl7.patient"
     },
     "/pdq/{pdqServiceID}/patients/{patientID}": {

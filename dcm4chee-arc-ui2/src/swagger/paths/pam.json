@@ -630,6 +630,9 @@
           "$ref": "../parameters.json#/externalHL7AppPathParam"
         },
         {
+          "$ref": "../parameters.json#/patientPathParam"
+        },
+        {
           "$ref": "../parameters.json#/queue"
         },
         {
