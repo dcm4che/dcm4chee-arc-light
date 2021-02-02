@@ -9,3 +9,6 @@ dn: dcmuiPermissionName=Action - Studies - Reject Instance,dcmuiConfigName=defau
 changetype: modify
 replace: dcmuiAction
 dcmuiAction: action-studies-instance
+
+dn: dcmuiPermissionName=Action - Studies - Delete Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
