@@ -304,7 +304,7 @@ dcmuiPermissionName: Action - Studies - Reject Instance
 dcmuiActionParam: reject
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
-dcmuiAction: action-studies-serie
+dcmuiAction: action-studies-instance
 
 dn: dcmuiPermissionName=Tab - Monitoring External Retrieve,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Tab - Monitoring External Retrieve
@@ -354,13 +354,6 @@ dcmuiAction: action-monitoring->queues-all_action
 dn: dcmuiPermissionName=Action - Studies - Upload File in study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Upload File in study
 dcmuiActionParam: upload
-objectClass: dcmuiPermission
-dcmAcceptedUserRole: admin
-dcmuiAction: action-studies-study
-
-dn: dcmuiPermissionName=Action - Studies - Delete Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Action - Studies - Delete Study
-dcmuiActionParam: delete
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-studies-study
