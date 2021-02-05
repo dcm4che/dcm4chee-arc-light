@@ -911,10 +911,12 @@ public class QidoRS {
         if (coercion != null)
             coercion.coerce(match, null);
         match = query.adjust(match);
-        model.addRetrieveURL(this, match);
-        StringBuffer sb = model.retrieveURL(this, match);
-        if (sb != null)
-            match.setString(Tag.RetrieveURL, VR.UR, sb.toString());
+        if (model != Model.PATIENT && model != Model.MWL) {
+            model.addRetrieveURL(this, match);
+            StringBuffer sb = model.retrieveURL(this, match);
+            if (sb != null)
+                match.setString(Tag.RetrieveURL, VR.UR, sb.toString());
+        }
         return match;
     }
 
