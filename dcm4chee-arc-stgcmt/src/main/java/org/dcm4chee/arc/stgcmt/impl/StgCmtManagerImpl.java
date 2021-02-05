@@ -193,7 +193,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     studyInfo.setStudySize(studySize);
                 }
             }
-            ejb.updateSeries(retrCtx.getStudyInstanceUID(), seriesIUID, seriesResult.failures, seriesResult.size);
+            ejb.updateSeries(seriesInfo.getSeriesPk(), seriesResult.failures, seriesResult.size);
         } catch (Exception e) {
             LOG.warn("Failed to update size[={}] and failures[={}] of Storage Verification of Series[uid={}] of Study[uid={}]\n",
                     seriesResult.size, seriesResult.failures, seriesIUID, retrCtx.getStudyInstanceUID(), e);

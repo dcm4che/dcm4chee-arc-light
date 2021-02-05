@@ -63,11 +63,12 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final String sendingPresentationAddress;
     private final String receivingPresentationAddress;
     private final long seriesSize;
+    private final long seriesPk;
 
     public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
             Completeness completeness, Date updatedTime, String expirationDate, String sendingAET,
             String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
-            long seriesSize) {
+            long seriesSize, long seriesPk) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
         this.failedRetrieves = failedRetrieves;
@@ -79,6 +80,7 @@ public class SeriesInfoImpl implements SeriesInfo {
         this.sendingPresentationAddress = sendingPresentationAddress;
         this.receivingPresentationAddress = receivingPresentationAddress;
         this.seriesSize = seriesSize;
+        this.seriesPk = seriesPk;
     }
 
     @Override
@@ -89,6 +91,11 @@ public class SeriesInfoImpl implements SeriesInfo {
     @Override
     public String getSeriesInstanceUID() {
         return seriesInstanceUID;
+    }
+
+    @Override
+    public long getSeriesPk() {
+        return seriesPk;
     }
 
     @Override
