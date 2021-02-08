@@ -636,10 +636,8 @@ public class StoreServiceEJB {
     }
 
     public void removeOrMarkReimport(Location location) {
-        if (location.getObjectType() == Location.ObjectType.METADATA)
-            em.remove(location);
-        else
-            markLocationAs(location, Location.Status.REIMPORT);
+        markLocationAs(location, location.getObjectType() == Location.ObjectType.METADATA
+                                    ? Location.Status.TO_DELETE : Location.Status.REIMPORT);
     }
 
     private void markLocationAs(Location location, Location.Status status) {
