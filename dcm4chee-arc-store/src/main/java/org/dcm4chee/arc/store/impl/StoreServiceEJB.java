@@ -133,6 +133,25 @@ public class StoreServiceEJB {
     @Inject
     private Device device;
 
+    private enum LocationOp {
+        CREATE(Attributes.COERCE),
+        REIMPORT(Attributes.COERCE),
+        COPY(Attributes.CORRECT);
+
+        final String reasonForTheAttributeModification;
+
+        LocationOp(String reasonForTheAttributeModification) {
+            this.reasonForTheAttributeModification = reasonForTheAttributeModification;
+        }
+
+        static LocationOp valueOf(List<Location> locations) {
+            return locations.isEmpty() ? CREATE
+                    : locations.get(0).getStatus() == Location.Status.REIMPORT
+                        ? REIMPORT
+                        : COPY;
+        }
+    }
+
     public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result)
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
@@ -250,20 +269,22 @@ public class StoreServiceEJB {
                 rejectInstances(ctx, rjNote, conceptNameCode, arcAE);
             }
         }
+        LocationOp locationOp = LocationOp.valueOf(ctx.getLocations());
         boolean createLocations = ctx.getLocations().isEmpty();
         boolean updateLocations = !ctx.getLocations().isEmpty()
                                     && ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
-                createLocations || updateLocations ? Attributes.COERCE : Attributes.CORRECT);
-        if (createLocations) {
-            createDicomFileLocation(ctx, instance, result);
-            createMetadataLocation(ctx, instance, result);
-        } else if (updateLocations) {
-            updateDicomFileLocation(ctx, instance, result);
-            createMetadataLocation(ctx, instance, result);
-        } else
+                locationOp.reasonForTheAttributeModification);
+        if (locationOp == LocationOp.COPY) {
             copyLocations(ctx, instance, result);
-
+        } else {
+            if (locationOp == LocationOp.CREATE) {
+                createDicomFileLocation(ctx, instance, result);
+            } else { // locationOp == LocationOp.REIMPORT
+                updateDicomFileLocation(ctx, instance, result);
+            }
+            createMetadataLocation(ctx, instance, result);
+        }
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         Series series = instance.getSeries();
@@ -1502,11 +1523,8 @@ public class StoreServiceEJB {
     }
 
     private void updateDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
-        ReadContext readContext = ctx.getReadContext();
         result.getLocations().add(updateLocation(ctx, instance));
         instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
-        if (readContext instanceof WriteContext)
-            result.getWriteContexts().add((WriteContext) readContext);
     }
 
     private Location updateLocation(StoreContext ctx, Instance instance) {
