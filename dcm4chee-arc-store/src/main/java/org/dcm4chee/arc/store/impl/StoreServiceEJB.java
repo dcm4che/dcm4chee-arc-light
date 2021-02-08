@@ -157,7 +157,7 @@ public class StoreServiceEJB {
                 Study prevStudy = prevSeries.getStudy();
                 prevStudy.addStorageID(session.getObjectStorageID());
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                createOrUpdateDicomFileLocation(ctx, prevInstance, result);
+                createDicomFileLocation(ctx, prevInstance, result);
                 prevSeries.resetSize();
                 prevStudy.resetSize();
                 result.setStoredInstance(prevInstance);
@@ -250,12 +250,15 @@ public class StoreServiceEJB {
                 rejectInstances(ctx, rjNote, conceptNameCode, arcAE);
             }
         }
-        boolean createOrUpdateLocations = ctx.getLocations().isEmpty()
-                                            || ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
+        boolean createLocations = ctx.getLocations().isEmpty();
+        boolean updateLocations = ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
-                createOrUpdateLocations ? Attributes.COERCE : Attributes.CORRECT);
-        if (createOrUpdateLocations) {
-            createOrUpdateDicomFileLocation(ctx, instance, result);
+                createLocations || updateLocations ? Attributes.COERCE : Attributes.CORRECT);
+        if (createLocations) {
+            createDicomFileLocation(ctx, instance, result);
+            createMetadataLocation(ctx, instance, result);
+        } else if (updateLocations) {
+            updateDicomFileLocation(ctx, instance, result);
             createMetadataLocation(ctx, instance, result);
         } else
             copyLocations(ctx, instance, result);
@@ -266,7 +269,7 @@ public class StoreServiceEJB {
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
-        if (createOrUpdateLocations) {
+        if (createLocations || updateLocations) {
             series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
         }
         if (rjNote == null) {
@@ -1478,9 +1481,10 @@ public class StoreServiceEJB {
         return instance;
     }
 
-    private void createOrUpdateDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
+    private void createDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
         ReadContext readContext = ctx.getReadContext();
-        result.getLocations().add(createOrUpdateLocation(ctx, instance, readContext, ctx.getStoreTranferSyntax()));
+        result.getLocations().add(createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
+                readContext, ctx.getStoreTranferSyntax()));
         instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
         if (readContext instanceof WriteContext)
             result.getWriteContexts().add((WriteContext) readContext);
@@ -1496,11 +1500,15 @@ public class StoreServiceEJB {
         result.getWriteContexts().add(writeContext);
     }
 
-    private Location createOrUpdateLocation(StoreContext ctx, Instance instance, ReadContext readContext,
-                                            String transferSyntaxUID) {
-        if (ctx.getLocations().isEmpty()) 
-            return createLocation(ctx, instance, Location.ObjectType.DICOM_FILE, readContext, transferSyntaxUID);
-            
+    private void updateDicomFileLocation(StoreContext ctx, Instance instance, UpdateDBResult result) {
+        ReadContext readContext = ctx.getReadContext();
+        result.getLocations().add(updateLocation(ctx, instance));
+        instance.getSeries().getStudy().addStorageID(ctx.getStoreSession().getObjectStorageID());
+        if (readContext instanceof WriteContext)
+            result.getWriteContexts().add((WriteContext) readContext);
+    }
+
+    private Location updateLocation(StoreContext ctx, Instance instance) {
         Location location = ctx.getLocations().get(0);
         location.setStatus(Location.Status.OK);
         location.setInstance(instance);
