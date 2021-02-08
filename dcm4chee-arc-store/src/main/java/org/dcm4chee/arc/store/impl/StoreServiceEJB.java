@@ -251,7 +251,8 @@ public class StoreServiceEJB {
             }
         }
         boolean createLocations = ctx.getLocations().isEmpty();
-        boolean updateLocations = ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
+        boolean updateLocations = !ctx.getLocations().isEmpty()
+                                    && ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
                 createLocations || updateLocations ? Attributes.COERCE : Attributes.CORRECT);
         if (createLocations) {
