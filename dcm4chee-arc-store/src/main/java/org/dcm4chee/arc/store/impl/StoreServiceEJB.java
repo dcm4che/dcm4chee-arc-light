@@ -270,9 +270,6 @@ public class StoreServiceEJB {
             }
         }
         LocationOp locationOp = LocationOp.valueOf(ctx.getLocations());
-        boolean createLocations = ctx.getLocations().isEmpty();
-        boolean updateLocations = !ctx.getLocations().isEmpty()
-                                    && ctx.getLocations().get(0).getStatus() == Location.Status.REIMPORT;
         Instance instance = createInstance(ctx, conceptNameCode, result, new Date(),
                 locationOp.reasonForTheAttributeModification);
         if (locationOp == LocationOp.COPY) {
@@ -291,7 +288,7 @@ public class StoreServiceEJB {
         series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
-        if (createLocations || updateLocations) {
+        if (locationOp != LocationOp.COPY) {
             series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
         }
         if (rjNote == null) {
