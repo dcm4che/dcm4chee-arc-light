@@ -367,11 +367,12 @@ public class PurgeStorageScheduler extends Scheduler {
                 LOG.warn("Failed to delete {} on {}", pkUID, desc, e);
                 ctx.setException(e);
             } finally {
-                try {
-                    studyDeletedEvent.fire(ctx);
-                } catch (Exception e) {
-                    LOG.warn("Unexpected exception in Study Deletion audit : " + e.getMessage());
-                }
+                if (ctx.getStudy() != null)
+                    try {
+                        studyDeletedEvent.fire(ctx);
+                    } catch (Exception e) {
+                        LOG.warn("Unexpected exception in Study Deletion audit : " + e.getMessage());
+                    }
             }
         }
         return removed;

@@ -40,11 +40,6 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.Tuple;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -62,12 +57,14 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -314,12 +311,11 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    public int updateSeries(String studyIUID, String seriesIUID, int failures, long size) {
+    public int updateSeries(long seriesPk, int failures, long size) {
         return em.createNamedQuery(Series.UPDATE_STGVER_FAILURES)
-                .setParameter(1, studyIUID)
-                .setParameter(2, seriesIUID)
-                .setParameter(3, failures)
-                .setParameter(4, size)
+                .setParameter(1, seriesPk)
+                .setParameter(2, failures)
+                .setParameter(3, size)
                 .executeUpdate();
     }
 

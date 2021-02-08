@@ -168,9 +168,10 @@ class DeletionAuditService {
 
     static AuditInfoBuilder[] studyDeletedAuditInfo(StudyDeleteContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        Study study = ctx.getStudy();
         AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
-                .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
+                .studyUIDAccNumDate(study.getAttributes(), arcDev)
+                .pIDAndName(study.getPatient().getAttributes(), arcDev)
                 .outcome(outcome(ctx.getException()));
 
         AuditInfoBuilder[] auditInfoBuilders = new AuditInfoBuilder[ctx.getInstances().size() + 1];

@@ -286,38 +286,42 @@ public class QueryBuilder {
         return true;
     }
 
-    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids,
-                                       boolean withoutIssuer) {
+    public <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-        if (withoutIssuer)
-            predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
-
+        predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
         if (isUniversalMatching(pids))
             return;
 
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
+        for (IDWithIssuer pid : pids)
+            if (!isUniversalMatching(pid.getID())) {
+                List<Predicate> idPredicate = new ArrayList<>(1);
+                if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID()))
+                    idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
+            }
 
-        if (withoutIssuer) {
-            for (IDWithIssuer pid : pids)
-                if (!isUniversalMatching(pid.getID())) {
-                    List<Predicate> idPredicate = new ArrayList<>(1);
-                    if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID()))
-                        idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
+        if (!idPredicates.isEmpty())
+            predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
+    }
+
+    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
+        if (isUniversalMatching(pids))
+            return;
+
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
+                ? patientID.join(PatientID_.issuer, JoinType.LEFT)
+                : null;
+        List<Predicate> idPredicates = new ArrayList<>(pids.length);
+        for (IDWithIssuer pid : pids)
+            if (!isUniversalMatching(pid.getID())) {
+                List<Predicate> idPredicate = new ArrayList<>(3);
+                if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID())) {
+                    if (pid.getIssuer() != null)
+                        issuer(idPredicate, issuer, pid.getIssuer());
+                    idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
                 }
-        } else {
-            Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
-                    ? patientID.join(PatientID_.issuer, JoinType.LEFT)
-                    : null;
-            for (IDWithIssuer pid : pids)
-                if (!isUniversalMatching(pid.getID())) {
-                    List<Predicate> idPredicate = new ArrayList<>(3);
-                    if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID())) {
-                        if (pid.getIssuer() != null)
-                            issuer(idPredicate, issuer, pid.getIssuer());
-                        idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
-                    }
-                }
-        }
+            }
 
         if (!idPredicates.isEmpty())
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
@@ -391,7 +395,10 @@ public class QueryBuilder {
             if (queryParam.isOnlyWithStudies())
                 predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
-        patientIDPredicate(predicates, patient, pids, queryParam.isWithoutIssuer());
+        if (queryParam.isWithoutIssuer())
+            patIDWithoutIssuerPredicate(predicates, patient, pids);
+        else
+            patientIDPredicate(predicates, patient, pids);
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),

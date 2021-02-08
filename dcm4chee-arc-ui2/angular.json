@@ -375,7 +375,8 @@
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-bamwallthickness-1.0.js",
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-orthoview-2.1.js",
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-rad_pacs-.js"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -478,7 +479,8 @@
             "tsConfig": [
               "tsconfig.app.json",
               "tsconfig.spec.json",
-              "e2e/tsconfig.json"
+              "e2e/tsconfig.json",
+              "tsconfig.worker.json"
             ],
             "exclude": [
               "**/node_modules/**"

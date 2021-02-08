@@ -55,6 +55,8 @@ public interface SeriesInfo {
 
     String getSeriesInstanceUID();
 
+    long getSeriesPk();
+
     Completeness getCompleteness();
 
     int getFailedRetrieves();

@@ -72,6 +72,7 @@ export class AppComponent implements OnInit {
 
 
     ngOnInit(){
+
         // const savedLanguageCode = localStorage.getItem('language_code');
 /*        let languageConfig:any = localStorage.getItem('languageConfig');
         console.log("global",this.mainservice.global);
@@ -113,6 +114,8 @@ export class AppComponent implements OnInit {
             })
         }
     }
+
+
     initLanguage(){
         let languageConfig:any = localStorage.getItem('languageConfig');
         if(languageConfig){
@@ -142,9 +145,44 @@ export class AppComponent implements OnInit {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         this.initGetDevicename(2);
-        this.setServerTime(()=>{
-            this.initGetPDQServices();
-        });
+/*        this.setServerTime(()=>{
+        });*/
+        this.initGetPDQServices();
+        this.startTime();
+    }
+    startTime(){
+        if (typeof Worker !== 'undefined') {
+            const worker = new Worker('./server-time.worker', { type: 'module' });
+            worker.onmessage = ({data}) => {
+                try{
+                    this.currentServerTime = new Date(data.serverTime);
+                    this.mainservice.serverTime = this.currentServerTime;
+                    if(data.refresh){
+                        this.refreshTime(worker);
+                    }
+                }catch (e) {
+                    j4care.log("Error on setting time coming  from worker",e);
+                }
+            };
+            this.refreshTime(worker);
+            // worker.postMessage('worker started');
+        }else{
+            console.log("worker not available");
+        }
+    }
+    refreshTime(worker){
+        let currentBrowserTime = new Date().getTime();
+        this.appRequests.getServerTime()
+            .subscribe(res=>{
+                if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
+                    let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
+                    this.timeZone = serverTimeObject.timeZone;
+                    worker.postMessage({
+                        serverTime:new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2)
+                    });
+                    this.hideExtendedClock();
+                }
+            });
     }
     switchLanguage(language:LanguageObject){
 /*        if(language.code === "en"){
