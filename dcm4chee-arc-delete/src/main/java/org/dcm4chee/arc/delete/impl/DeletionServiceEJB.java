@@ -426,10 +426,10 @@ public class DeletionServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            if (orphaned)
-                storeEjb.markToDeleteOrOrphaned(location);
-            else
-                storeEjb.removeOrMarkToDelete(location);
+            storeEjb.removeOrMarkLocationAs(
+                    location,
+                    orphaned && location.getObjectType() == Location.ObjectType.DICOM_FILE
+                        ? Location.Status.ORPHANED : Location.Status.TO_DELETE);
         }
         for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
