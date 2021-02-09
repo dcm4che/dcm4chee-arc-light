@@ -135,7 +135,7 @@ public class StoreServiceEJB {
 
     private enum LocationOp {
         CREATE(Attributes.COERCE),
-        REIMPORT(Attributes.COERCE),
+        ORPHANED(Attributes.COERCE),
         COPY(Attributes.CORRECT);
 
         final String reasonForTheAttributeModification;
@@ -146,8 +146,8 @@ public class StoreServiceEJB {
 
         static LocationOp valueOf(List<Location> locations) {
             return locations.isEmpty() ? CREATE
-                    : locations.get(0).getStatus() == Location.Status.REIMPORT
-                        ? REIMPORT
+                    : locations.get(0).getStatus() == Location.Status.ORPHANED
+                        ? ORPHANED
                         : COPY;
         }
     }
@@ -277,7 +277,7 @@ public class StoreServiceEJB {
         } else {
             if (locationOp == LocationOp.CREATE) {
                 createDicomFileLocation(ctx, instance, result);
-            } else { // locationOp == LocationOp.REIMPORT
+            } else { // locationOp == LocationOp.ORPHANED
                 updateDicomFileLocation(ctx, instance, result);
             }
             createMetadataLocation(ctx, instance, result);
@@ -628,16 +628,16 @@ public class StoreServiceEJB {
                 .setParameter(1, uidMap).getSingleResult();
     }
 
-    public void removeOrMarkToDelete(Location location, boolean retainObj) {
-        if (countLocationsByMultiRef(location.getMultiReference()) > 1 || retainObj)
+    public void removeOrMarkToDelete(Location location) {
+        if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else
             markLocationAs(location, Location.Status.TO_DELETE);
     }
 
-    public void removeOrMarkReimport(Location location) {
+    public void markToDeleteOrOrphaned(Location location) {
         markLocationAs(location, location.getObjectType() == Location.ObjectType.METADATA
-                                    ? Location.Status.TO_DELETE : Location.Status.REIMPORT);
+                                    ? Location.Status.TO_DELETE : Location.Status.ORPHANED);
     }
 
     private void markLocationAs(Location location, Location.Status status) {
@@ -659,7 +659,7 @@ public class StoreServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            removeOrMarkToDelete(location, false);
+            removeOrMarkToDelete(location);
         }
         for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
@@ -1032,7 +1032,7 @@ public class StoreServiceEJB {
         createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
                 ctx.getWriteContext(Location.ObjectType.DICOM_FILE), ctx.getStoreTranferSyntax());
         for (Location location : inst.getLocations()) {
-            removeOrMarkToDelete(em.find(Location.class, location.getPk()), false);
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()));
         }
     }
 
@@ -1588,7 +1588,7 @@ public class StoreServiceEJB {
         addLocation(session, instancePk, newLocation);
         for (Location location : replaceLocations) {
             LOG.info("{}: Mark to delete {}", session, location);
-            removeOrMarkToDelete(em.find(Location.class, location.getPk()), false);
+            removeOrMarkToDelete(em.find(Location.class, location.getPk()));
         }
     }
 

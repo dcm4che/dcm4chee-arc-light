@@ -281,7 +281,7 @@ public class DeletionServiceEJB {
                 .executeUpdate();
     }
 
-    public List<Location> deleteStudy(StudyDeleteContext ctx, int limit, boolean retainObj, boolean reimport) {
+    public List<Location> deleteStudy(StudyDeleteContext ctx, int limit, boolean orphaned) {
         Long studyPk = ctx.getStudyPk();
         LOG.debug("Query for objects of Study[pk={}]", studyPk);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_ORDER_BY_INSTANCE_PK, Location.class)
@@ -290,7 +290,7 @@ public class DeletionServiceEJB {
                 .getResultList();
         if (!locations.isEmpty()) {
             LOG.debug("Found {} objects of Study[pk={}]", locations.size(), studyPk);
-            Collection<Instance> insts = removeOrMarkLocationAs(locations, limit, retainObj, reimport);
+            Collection<Instance> insts = removeOrMarkLocationAs(locations, limit, orphaned);
             LOG.debug("Marked {}/{} objects/instances of Study[pk={} for deletion}",
                     locations.size(), insts.size(), studyPk);
             deleteInstances(insts, ctx);
@@ -345,7 +345,7 @@ public class DeletionServiceEJB {
             return false;
         }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
-        Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false, false);
+        Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false);
         LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
                 locations.size(), insts.size(), study, storageIDs);
         Set<Long> seriesPks = new HashSet<>();
@@ -395,7 +395,7 @@ public class DeletionServiceEJB {
         List<Location> locations = query.setMaxResults(limit).getResultList();
         if (!locations.isEmpty()) {
             LOG.debug("{} - Found {} objects", queryName, locations.size());
-            Collection<Instance> insts = removeOrMarkLocationAs(locations, limit, false, false);
+            Collection<Instance> insts = removeOrMarkLocationAs(locations, limit, false);
             LOG.debug("{} - Marked {}/{} objects/instances", queryName, locations.size(), insts.size());
             deleteInstances(insts, null);
             LOG.debug("{} - Deleted {} instances", queryName, insts.size());
@@ -411,8 +411,7 @@ public class DeletionServiceEJB {
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
-    private Collection<Instance> removeOrMarkLocationAs(
-            List<Location> locations, int limit, boolean retainObj, boolean reimport) {
+    private Collection<Instance> removeOrMarkLocationAs(List<Location> locations, int limit, boolean orphaned) {
         int size = locations.size();
         int initialCapacity = size * 4 / 3;
         HashMap<Long, Instance> insts = new HashMap<>(initialCapacity);
@@ -427,10 +426,10 @@ public class DeletionServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            if (reimport)
-                storeEjb.removeOrMarkReimport(location);
+            if (orphaned)
+                storeEjb.markToDeleteOrOrphaned(location);
             else
-                storeEjb.removeOrMarkToDelete(location, retainObj);
+                storeEjb.removeOrMarkToDelete(location);
         }
         for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
