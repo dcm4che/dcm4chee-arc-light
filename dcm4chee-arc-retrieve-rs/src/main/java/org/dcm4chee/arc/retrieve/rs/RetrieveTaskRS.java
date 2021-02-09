@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.rs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -573,7 +574,8 @@ public class RetrieveTaskRS {
                     Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
                             .withHeader(RetrieveTask.header)
-                            .withDelimiter(delimiter));
+                            .withDelimiter(delimiter)
+                            .withQuoteMode(QuoteMode.ALL));
                     tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
                     writer.flush();
                 };
