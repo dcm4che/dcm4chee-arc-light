@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.qido;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -53,7 +56,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.ExpirationState;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.Query;
@@ -781,9 +785,11 @@ public class QidoRS {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             int[] tags = tagsFrom(model, matches.get(0));
             if (tags.length != 0) {
-                writeCSVHeader(writer, tags, matches.get(0));
-                for (Attributes match : matches)
-                    write(writer, match, tags);
+                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                                            .withHeader(csvHeader(matches.get(0), tags))
+                                            .withDelimiter(csvDelimiter)
+                                            .withQuoteMode(QuoteMode.ALL));
+                matches.forEach(match -> printRecord(printer, match, tags));
             }
             writer.flush();
         };
@@ -879,32 +885,19 @@ public class QidoRS {
         return tags.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    private void writeCSVHeader(Writer writer, int[] tags, Attributes match) throws IOException {
-        writer.write(ElementDictionary.keywordOf(tags[0], match.getPrivateCreator(tags[0])));
-        for (int i = 1; i < tags.length; i++) {
-            writer.write(csvDelimiter);
-            writer.write(ElementDictionary.keywordOf(tags[i], match.getPrivateCreator(tags[i])));
-        }
-        writer.write('\r');
-        writer.write('\n');
+    private String[] csvHeader(Attributes match, int[] tags) {
+        return Arrays.stream(tags)
+                .mapToObj(tag -> ElementDictionary.keywordOf(tag, match.getPrivateCreator(tag)))
+                .toArray(String[]::new);
     }
 
-    private void write(Writer writer, Attributes attrs, int[] tags) throws IOException {
-        writeNotNull(writer, attrs.getString(tags[0]));
-        for (int i = 1; i < tags.length; i++) {
-            writer.write(csvDelimiter);
-            writeNotNull(writer, attrs.getString(tags[i]));
-        }
-        writer.write('\r');
-        writer.write('\n');
-    }
-
-    private void writeNotNull(Writer writer, String val) throws IOException {
-        if (val != null) {
-            writer.append("\"");
-            writer.write(val.replace("\"", "\"\""));
-            writer.append("\"");
-        }
+    private void printRecord(CSVPrinter printer, Attributes match, int[] tags) {
+        for (int tag : tags)
+            try {
+                printer.print(match.getString(tag));
+            } catch (IOException e) {
+                LOG.debug("Error printing record for {}", tag);
+            }
     }
 
     private Attributes adjust(Attributes match, Model model, Query query, AttributesCoercion coercion) {
