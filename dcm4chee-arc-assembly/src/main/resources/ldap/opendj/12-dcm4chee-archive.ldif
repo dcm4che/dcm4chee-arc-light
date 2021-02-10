@@ -1927,6 +1927,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.395 NAME 'dcmEncodeAsJSONNumber'
   DESC 'VR encoded as JSON Number. If not listed, IS, DS, SV and UV values are encoded as JSON Strings. Enumerated values: IS, DS, SV, UV.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.396 NAME 'dcmExternalRetrieveInstanceAvailability'
+  DESC 'Updates instance availability on deletion  of studies for instances available on external retrieve archive. Enumerated values: ONLINE, NEARLINE or OFFLINE.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2341,6 +2346,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmDeleteStudiesNotUsedSince $
     dcmDeleterThreads $
     dcmExternalRetrieveAET $
+    dcmExternalRetrieveInstanceAvailability $
     dcmExportStorageID $
     dcmRetrieveCacheStorageID $
     dcmRetrieveCacheMaxParallel $
