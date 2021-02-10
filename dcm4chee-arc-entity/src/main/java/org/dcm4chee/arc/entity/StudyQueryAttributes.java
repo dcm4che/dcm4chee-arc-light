@@ -55,7 +55,11 @@ import javax.persistence.*;
 ),
 @NamedQuery(
         name = StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK,
-        query = "select a.viewID from StudyQueryAttributes a where a.study.pk = ?1")
+        query = "select a.viewID from StudyQueryAttributes a where a.study.pk = ?1"),
+@NamedQuery(
+        name = StudyQueryAttributes.UPDATE_AVAILABILITY,
+        query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
+                "where studyQueryAttrs.study = ?1")
 })
 @Entity
 @Table(name = "study_query_attrs", uniqueConstraints =
@@ -64,6 +68,7 @@ public class StudyQueryAttributes {
 
     public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
     public static final String VIEW_IDS_FOR_STUDY_PK = "StudyQueryAttributes.viewIDsForStudyPk";
+    public static final String UPDATE_AVAILABILITY = "StudyQueryAttributes.updateAvailability";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

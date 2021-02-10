@@ -357,7 +357,27 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         updateStorageIDs(study, storageIDs);
+        updateInstanceAvailability(desc, study);
         return true;
+    }
+
+    private void updateInstanceAvailability(StorageDescriptor desc, Study study) {
+        StorageDescriptor exportStorage = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getStorageDescriptorNotNull(desc.getExportStorageID()[0]);
+        if (desc.getInstanceAvailability().compareTo(exportStorage.getInstanceAvailability()) < 0) {
+            em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
+                    .setParameter(1, study.getStudyInstanceUID())
+                    .setParameter(2, exportStorage.getInstanceAvailability())
+                    .executeUpdate();
+            em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
+                    .setParameter(1, study)
+                    .setParameter(2, exportStorage.getInstanceAvailability())
+                    .executeUpdate();
+            em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY)
+                    .setParameter(1, study)
+                    .setParameter(2, exportStorage.getInstanceAvailability())
+                    .executeUpdate();
+        }
     }
 
     private void updateStorageIDs(Study study, List<String> storageIDs) {
