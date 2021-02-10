@@ -610,6 +610,8 @@ public class StowRS {
                     supplementMissing(session, Tag.FrameOfReferenceUID, VR.UI, UIDUtils.createUID(), attrs);
                 break;
             case UID.EncapsulatedPDFStorage:
+                if (!attrs.containsValue(Tag.Modality))
+                    supplementMissing(session, Tag.Modality, VR.CS, "DOC", attrs);
                 if (!attrs.containsValue(Tag.ConversionType))
                     supplementMissing(session, Tag.ConversionType, VR.CS, "SD", attrs);
                 break;
