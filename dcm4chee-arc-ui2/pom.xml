@@ -67,7 +67,7 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-lang</artifactId>
-      <version>5.23.0</version>
+      <version>${project.version}</version>
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
