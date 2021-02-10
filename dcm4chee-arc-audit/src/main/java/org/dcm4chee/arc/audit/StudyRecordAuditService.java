@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
@@ -53,6 +54,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2019
  */
 class StudyRecordAuditService {
@@ -101,17 +103,17 @@ class StudyRecordAuditService {
                 ParticipantObjectID.studyPatParticipants(auditInfo, reader, auditLogger));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode calledUserIDTypeCode = userIDTypeCode(calledUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(callingUserID,
+        activeParticipants[0] = new ActiveParticipantBuilder(callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditService.remoteUserIDTypeCode(calledUserIDTypeCode, callingUserID))
                 .isRequester()
                 .build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 calledUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(calledUserIDTypeCode)

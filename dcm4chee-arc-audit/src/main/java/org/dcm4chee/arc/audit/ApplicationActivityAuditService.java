@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
@@ -52,6 +53,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2019
  */
 class ApplicationActivityAuditService {
@@ -82,11 +84,11 @@ class ApplicationActivityAuditService {
                 activeParticipants(auditLogger, eventType, auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(
+    private static ActiveParticipant[] activeParticipants(
             AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(userIDTypeCode(archiveUserID))
@@ -95,7 +97,7 @@ class ApplicationActivityAuditService {
                 .build();
         String callingUser = auditInfo.getField(AuditInfo.CALLING_USERID);
         if (callingUser != null) {
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     callingUser,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUser))
@@ -103,7 +105,7 @@ class ApplicationActivityAuditService {
                     .roleIDCode(eventType.source)
                     .build();
         }
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
     private static String getLocalHostName(AuditLogger auditLogger) {

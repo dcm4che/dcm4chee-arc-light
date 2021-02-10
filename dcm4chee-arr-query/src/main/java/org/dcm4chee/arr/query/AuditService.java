@@ -86,12 +86,12 @@ public class AuditService {
     }
 
     private static void emitAudit(AuditLogger logger, HttpServletRequest request, ArchiveDeviceExtension arcDev) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
-        activeParticipantBuilder[0] = buildActiveParticipant(request);
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[1];
+        activeParticipants[0] = activeParticipant(request);
         AuditMessage msg = AuditMessages.createMessage(
-                buildEventIdentification(logger),
-                activeParticipantBuilder,
-                buildParticipantObjectIdentification(arcDev));
+                eventIdentification(logger),
+                activeParticipants,
+                participantObjectIdentification(arcDev));
         msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         try {
             logger.write(logger.timeStamp(), msg);
@@ -100,8 +100,8 @@ public class AuditService {
         }
     }
 
-    private static ParticipantObjectIdentificationBuilder buildParticipantObjectIdentification(ArchiveDeviceExtension arcDev) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    private static ParticipantObjectIdentification participantObjectIdentification(ArchiveDeviceExtension arcDev) {
+        return new ParticipantObjectIdentificationBuilder(
                 arcDev.getProxyUpstreamURL(),
                 AuditMessages.ParticipantObjectIDTypeCode.URI,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -109,9 +109,9 @@ public class AuditService {
                 .name("Security Audit Log").build();
     }
 
-    private static ActiveParticipantBuilder buildActiveParticipant(HttpServletRequest request) {
+    private static ActiveParticipant activeParticipant(HttpServletRequest request) {
         String userID = KeycloakContext.valueOf(request).getUserName();
-        return new ActiveParticipantBuilder.Builder(
+        return new ActiveParticipantBuilder(
                 userID,
                 request.getRemoteHost())
                 .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
@@ -119,8 +119,8 @@ public class AuditService {
                 .isRequester().build();
     }
 
-    private static EventIdentificationBuilder buildEventIdentification(AuditLogger logger) {
-        return new EventIdentificationBuilder.Builder(
+    private static EventIdentification eventIdentification(AuditLogger logger) {
+        return new EventIdentificationBuilder(
                 AuditMessages.EventID.AuditLogUsed,
                 AuditMessages.EventActionCode.Read,
                 logger.timeStamp(),

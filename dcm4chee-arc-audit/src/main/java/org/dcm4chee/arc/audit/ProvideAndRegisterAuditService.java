@@ -12,6 +12,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class ProvideAndRegisterAuditService {
@@ -64,14 +65,14 @@ class ProvideAndRegisterAuditService {
 
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipantBuilders(auditLogger, eventType, auditInfo),
+                activeParticipants(auditLogger, eventType, auditInfo),
                 ParticipantObjectID.submissionSetParticipants(auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipantBuilders(
+    private static ActiveParticipant[] activeParticipants(
             AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.DEST_USER_ID),
                 auditInfo.getField(AuditInfo.DEST_NAP_ID))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
@@ -79,21 +80,21 @@ class ProvideAndRegisterAuditService {
                 .build();
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         if (auditInfo.getField(AuditInfo.CALLING_HOST) != null) {
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     auditInfo.getField(AuditInfo.CALLED_USERID),
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
                     .altUserID(AuditLogger.processID())
                     .roleIDCode(eventType.source)
                     .build();
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
                     .isRequester()
                     .build();
         } else
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     callingUserID,
                     getLocalHostName(auditLogger))
                     .altUserID(AuditLogger.processID())
@@ -101,7 +102,7 @@ class ProvideAndRegisterAuditService {
                     .isRequester()
                     .roleIDCode(eventType.source)
                     .build();
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
     private static String getLocalHostName(AuditLogger auditLogger) {

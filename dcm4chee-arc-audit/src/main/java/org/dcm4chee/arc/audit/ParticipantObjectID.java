@@ -54,12 +54,13 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2019
  */
 class ParticipantObjectID {
 
-    static ParticipantObjectIdentificationBuilder patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
-        ParticipantObjectIdentificationBuilder.Builder patientPOIBuilder = patientPOIBuilder(auditInfo)
+    static ParticipantObjectIdentification patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
+        ParticipantObjectIdentificationBuilder patientPOIBuilder = patientPOIBuilder(auditInfo)
                 .detail(hl7ParticipantObjectDetail(reader).toArray(new ParticipantObjectDetail[0]));
 
         String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
@@ -70,12 +71,12 @@ class ParticipantObjectID {
         return patientPOIBuilder.build();
     }
 
-    static ParticipantObjectIdentificationBuilder patientPOI(SpoolFileReader reader) {
+    static ParticipantObjectIdentification patientPOI(SpoolFileReader reader) {
         return patientPOIBuilder(new AuditInfo(reader.getInstanceLines().get(0))).build();
     }
 
-    static ParticipantObjectIdentificationBuilder.Builder patientPOIBuilder(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    static ParticipantObjectIdentificationBuilder patientPOIBuilder(AuditInfo auditInfo) {
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.P_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person,
@@ -100,25 +101,24 @@ class ParticipantObjectID {
     }
 
     private static ParticipantObjectIdentificationBuilder submissionSetPOI(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.SUBMISSION_SET_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Job)
-                .build();
+                AuditMessages.ParticipantObjectTypeCodeRole.Job);
     }
 
-    static ParticipantObjectIdentificationBuilder[] submissionSetParticipants(AuditInfo auditInfo) {
-        ParticipantObjectIdentificationBuilder[] submissionSetParticipants = new ParticipantObjectIdentificationBuilder[2];
-        submissionSetParticipants[0] = submissionSetPOI(auditInfo);
+    static ParticipantObjectIdentification[] submissionSetParticipants(AuditInfo auditInfo) {
+        ParticipantObjectIdentification[] submissionSetParticipants = new ParticipantObjectIdentification[2];
+        submissionSetParticipants[0] = submissionSetPOI(auditInfo).build();
         submissionSetParticipants[1] = patientPOIBuilder(auditInfo).build();
         return submissionSetParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
+    static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType, AuditLogger auditLogger) {
-        ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
-        ParticipantObjectIdentificationBuilder.Builder studyPOIBuilder = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
+        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
+        ParticipantObjectIdentificationBuilder studyPOIBuilder = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
                 .detail(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
                 .desc(participantObjDesc(
                         auditInfo,
@@ -136,9 +136,9 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
+    static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, InstanceInfo instanceInfo) {
-        ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
+        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
         studyPatParticipants[0] = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
                                     .detail(AuditMessages.createParticipantObjectDetail(
                                             "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
@@ -150,15 +150,15 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
+    static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);
         instanceInfo.addMpps(auditInfo);
 
         boolean hasPatient = auditInfo.getField(AuditInfo.P_ID) != null;
-        ParticipantObjectIdentificationBuilder[] studyPatParticipants
-                = new ParticipantObjectIdentificationBuilder[hasPatient ? 2 : 1];
+        ParticipantObjectIdentification[] studyPatParticipants
+                = new ParticipantObjectIdentification[hasPatient ? 2 : 1];
         List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
         participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
                     "ExpirationDate", auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
@@ -173,9 +173,9 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder[] studyPatParticipants(
+    static ParticipantObjectIdentification[] studyPatParticipants(
             SpoolFileReader reader, AuditInfo auditInfo, AuditLogger auditLogger) {
-        ParticipantObjectIdentificationBuilder[] studyPatParticipants = new ParticipantObjectIdentificationBuilder[2];
+        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
         String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
         studyPatParticipants[0] = studyPOI(studyUIDs[0])
                                     .desc(participantObjDesc(auditInfo, reader.getInstanceLines(),
@@ -189,15 +189,15 @@ class ParticipantObjectID {
         return studyPatParticipants;
     }
 
-    static ParticipantObjectIdentificationBuilder.Builder studyPOI(String uid) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    static ParticipantObjectIdentificationBuilder studyPOI(String uid) {
+        return new ParticipantObjectIdentificationBuilder(
                 uid,
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 AuditMessages.ParticipantObjectTypeCodeRole.Report);
     }
 
-    static ParticipantObjectIdentificationBuilder studyPOI(
+    static ParticipantObjectIdentification studyPOI(
             String studyUID, InstanceInfo instanceInfo, boolean showIUID) {
         return studyPOI(studyUID)
                 .desc(participantObjDesc(instanceInfo, showIUID).build())
@@ -207,7 +207,7 @@ class ParticipantObjectID {
                 .build();
     }
 
-    private static ParticipantObjectDescriptionBuilder.Builder participantObjDesc(
+    private static ParticipantObjectDescriptionBuilder participantObjDesc(
             AuditInfo auditInfo, List<String> instanceInfoLines, boolean showIUID) {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);
@@ -220,8 +220,8 @@ class ParticipantObjectID {
         return participantObjDesc(instanceInfo, showIUID);
     }
 
-    private static ParticipantObjectDescriptionBuilder.Builder participantObjDesc(InstanceInfo instanceInfo, boolean showIUID) {
-        return new ParticipantObjectDescriptionBuilder.Builder()
+    private static ParticipantObjectDescriptionBuilder participantObjDesc(InstanceInfo instanceInfo, boolean showIUID) {
+        return new ParticipantObjectDescriptionBuilder()
                 .sopC(instanceInfo.getSopClassMap().entrySet().stream().map(entry ->
                         AuditMessages.createSOPClass(
                                 showIUID ? entry.getValue() : null,
@@ -232,8 +232,8 @@ class ParticipantObjectID {
                 .mpps(instanceInfo.getMpps());
     }
 
-    static ParticipantObjectIdentificationBuilder qidoParticipant(AuditInfo auditInfo) {
-        ParticipantObjectIdentificationBuilder.Builder qidoParticipant = new ParticipantObjectIdentificationBuilder.Builder(
+    static ParticipantObjectIdentification qidoParticipant(AuditInfo auditInfo) {
+        ParticipantObjectIdentificationBuilder qidoParticipant = new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.Q_POID),
                 AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -244,8 +244,8 @@ class ParticipantObjectID {
         return qidoParticipant.build();
     }
 
-    static ParticipantObjectIdentificationBuilder cFindParticipant(AuditInfo auditInfo, byte[] data) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    static ParticipantObjectIdentification cFindParticipant(AuditInfo auditInfo, byte[] data) {
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.Q_POID),
                 AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -255,11 +255,11 @@ class ParticipantObjectID {
                 .build();
     }
 
-    static ParticipantObjectIdentificationBuilder taskParticipant(AuditInfo auditInfo) {
+    static ParticipantObjectIdentification taskParticipant(AuditInfo auditInfo) {
         if (auditInfo.getField(AuditInfo.QUEUE_MSG) == null)
             return tasksParticipant(auditInfo);
 
-        return new ParticipantObjectIdentificationBuilder.Builder(
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.TASK_POID),
                 AuditMessages.ParticipantObjectIDTypeCode.TASK,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -268,8 +268,8 @@ class ParticipantObjectID {
                 .build();
     }
 
-    private static ParticipantObjectIdentificationBuilder tasksParticipant(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    private static ParticipantObjectIdentification tasksParticipant(AuditInfo auditInfo) {
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.TASK_POID),
                 AuditMessages.ParticipantObjectIDTypeCode.TASKS,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -281,8 +281,8 @@ class ParticipantObjectID {
                 .build();
     }
 
-    static ParticipantObjectIdentificationBuilder softwareConfParticipant(SpoolFileReader reader, AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder.Builder(
+    static ParticipantObjectIdentification softwareConfParticipant(SpoolFileReader reader, AuditInfo auditInfo) {
+        return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.CALLED_USERID),
                 AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,

@@ -331,22 +331,22 @@ public class AuditService {
     private void auditStudySize(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[1];
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(auditInfo.getField(AuditInfo.CALLING_USERID),
+        EventIdentification ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[1];
+        activeParticipants[0] = new ActiveParticipantBuilder(auditInfo.getField(AuditInfo.CALLING_USERID),
                                         getLocalHostName(auditLogger))
                                         .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                                         .altUserID(AuditLogger.processID())
                                         .isRequester()
                                         .build();
-        ParticipantObjectIdentificationBuilder.Builder studyPOI = ParticipantObjectID.studyPOI(
+        ParticipantObjectIdentificationBuilder studyPOI = ParticipantObjectID.studyPOI(
                                                                     auditInfo.getField(AuditInfo.STUDY_UID));
         studyPOI.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.AggregationSummarizationDerivation);
-        ParticipantObjectIdentificationBuilder patientPOI = ParticipantObjectID.patientPOIBuilder(auditInfo).build();
+        ParticipantObjectIdentificationBuilder patientPOI = ParticipantObjectID.patientPOIBuilder(auditInfo);
         AuditMessage auditMsg = AuditMessages.createMessage(
                                                 ei,
                                                 activeParticipants,
-                                                studyPOI.build(), patientPOI);
+                                                studyPOI.build(), patientPOI.build());
         emitAuditMessage(auditMsg, auditLogger);
     }
 
@@ -404,7 +404,7 @@ public class AuditService {
 
     private AuditMessage createMinimalAuditMsg(AuditUtils.EventType eventType, String userID) {
         AuditMessage msg = new AuditMessage();
-        msg.setEventIdentification(AuditMessages.toEventIdentification(EventID.toEventIdentification(eventType)));
+        msg.setEventIdentification(EventID.toEventIdentification(eventType));
         ActiveParticipant ap = new ActiveParticipant();
         ap.setUserID(userID);
         ap.setUserIsRequestor(true);
@@ -534,20 +534,20 @@ public class AuditService {
     }
 
 
-    private ActiveParticipantBuilder[] patientMismatchActiveParticipants(AuditLogger logger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[3];
+    private ActiveParticipant[] patientMismatchActiveParticipants(AuditLogger logger, AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(logger))
+        activeParticipants[0] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(logger))
                 .userIDTypeCode(userIDTypeCode(calledUserID)).build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 callingUserID, callingHost != null ? callingHost : getLocalHostName(logger))
                 .userIDTypeCode(callingHost != null
                         ? AuditMessages.userIDTypeCode(callingUserID) : AuditMessages.UserIDTypeCode.DeviceName)
                 .isRequester().build();
         String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
-        activeParticipants[2] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[2] = new ActiveParticipantBuilder(
                 impaxEndpoint, impaxEndpointHost(impaxEndpoint))
                 .userIDTypeCode(userIDTypeCode(impaxEndpoint))
                 .build();
@@ -648,13 +648,13 @@ public class AuditService {
         emitAuditMessage(auditMsg, auditLogger);
     }
 
-    private ActiveParticipantBuilder[] storeWadoURIActiveParticipants(
+    private ActiveParticipant[] storeWadoURIActiveParticipants(
             AuditLogger auditLogger, AuditInfo auditInfo, AuditUtils.EventType eventType) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(archiveUserIDTypeCode)
@@ -663,22 +663,22 @@ public class AuditService {
                 .build();
         String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
         String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
-        ActiveParticipantBuilder.Builder requester = new ActiveParticipantBuilder.Builder(
+        ActiveParticipantBuilder requester = new ActiveParticipantBuilder(
                 callingUserID, callingHost != null ? callingHost : getLocalHostName(auditLogger))
                 .userIDTypeCode(callingHost != null
                         ? remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID)
                         : AuditMessages.UserIDTypeCode.DeviceName)
                 .isRequester();
         if (impaxEndpoint != null) {
-            activeParticipantBuilder[1] = requester.build();
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = requester.build();
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     impaxEndpoint, impaxEndpointHost(impaxEndpoint))
                     .userIDTypeCode(userIDTypeCode(impaxEndpoint))
                     .roleIDCode(eventType.source)
                     .build();
         } else
-            activeParticipantBuilder[1] = requester.roleIDCode(eventType.source).build();
-        return activeParticipantBuilder;
+            activeParticipants[1] = requester.roleIDCode(eventType.source).build();
+        return activeParticipants;
     }
 
     void spoolRetrieve(AuditUtils.EventType eventType, RetrieveContext ctx) {

@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class DeletionAuditService {
@@ -232,33 +233,33 @@ class DeletionAuditService {
                 ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(
+    private static ActiveParticipant[] activeParticipants(
             AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
 
         if (eventType.eventClass == AuditUtils.EventClass.USER_DELETED) {
             String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
             AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                     .isRequester().build();
-            activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     archiveUserID,
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(archiveUserIDTypeCode)
                     .altUserID(AuditLogger.processID())
                     .build();
         } else
-            activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     callingUserID,
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
                     .isRequester().build();
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
     private static AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {

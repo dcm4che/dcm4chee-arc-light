@@ -48,6 +48,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class ConnectionEventsAuditService {
@@ -88,27 +89,27 @@ class ConnectionEventsAuditService {
                 activeParticipants(auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+    private static ActiveParticipant[] activeParticipants(AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         if (ConnectionEvent.Type.valueOf(auditInfo.getField(AuditInfo.CONN_TYPE)) == ConnectionEvent.Type.REJECTED) {
-            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     auditInfo.getField(AuditInfo.CALLED_USERID),
                     auditInfo.getField(AuditInfo.CALLED_HOST))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
                     .build();
-            activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     auditInfo.getField(AuditInfo.CALLING_USERID),
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
                     .isRequester().build();
         } else {
-            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     auditInfo.getField(AuditInfo.CALLED_USERID),
                     auditInfo.getField(AuditInfo.CALLED_HOST))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
                     .build();
-            activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     auditInfo.getField(AuditInfo.CALLING_USERID),
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)

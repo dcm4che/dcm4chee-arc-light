@@ -50,6 +50,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class AssociationEventsAuditService {
@@ -89,17 +90,17 @@ class AssociationEventsAuditService {
                 activeParticipants(auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilders = new ActiveParticipantBuilder[2];
-        activeParticipantBuilders[0] = new ActiveParticipantBuilder.Builder(
+    private static ActiveParticipant[] activeParticipants(AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.CALLING_USERID), auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .isRequester()
                 .build();
-        activeParticipantBuilders[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.CALLED_USERID), auditInfo.getField(AuditInfo.CALLED_HOST))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .build();
-        return activeParticipantBuilders;
+        return activeParticipants;
     }
 }

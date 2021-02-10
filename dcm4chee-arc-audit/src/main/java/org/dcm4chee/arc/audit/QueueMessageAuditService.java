@@ -56,6 +56,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class QueueMessageAuditService {
@@ -102,25 +103,25 @@ class QueueMessageAuditService {
                 ParticipantObjectID.taskParticipant(auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipantBuilder[] activeParticipants;
+    private static ActiveParticipant[] activeParticipants(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant[] activeParticipants;
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         if (calledUserID == null) {
-            activeParticipants = new ActiveParticipantBuilder[1];
-            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants = new ActiveParticipant[1];
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditLogger.getConnections().get(0).getHostname())
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .isRequester().build();
         } else {
-            activeParticipants = new ActiveParticipantBuilder[2];
-            activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+            activeParticipants = new ActiveParticipant[2];
+            activeParticipants[0] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
                     .isRequester().build();
-            activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     calledUserID,
                     auditLogger.getConnections().get(0).getHostname())
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)

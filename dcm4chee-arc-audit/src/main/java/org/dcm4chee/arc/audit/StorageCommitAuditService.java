@@ -55,6 +55,7 @@ import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class StorageCommitAuditService {
@@ -144,12 +145,12 @@ class StorageCommitAuditService {
             ParticipantObjectID.studyPatParticipants(reader, auditInfo, auditLogger));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(
+    private static ActiveParticipant[] activeParticipants(
             AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        ActiveParticipantBuilder.Builder archive = new ActiveParticipantBuilder.Builder(
+        ActiveParticipantBuilder archive = new ActiveParticipantBuilder(
                 archiveUserID,
                 auditLogger.getConnections().get(0).getHostname())
                 .userIDTypeCode(archiveUserIDTypeCode)
@@ -157,7 +158,7 @@ class StorageCommitAuditService {
                 .roleIDCode(eventType.destination);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         if (callingUserID != null)
-            activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[1] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))

@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentification;
 import org.dcm4che3.audit.EventIdentificationBuilder;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -52,19 +53,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2019
  */
 class EventID {
     private final static Logger LOG = LoggerFactory.getLogger(EventID.class);
 
-    static EventIdentificationBuilder toEventIdentification(
+    static EventIdentification toEventIdentification(
             AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, AuditInfo auditInfo) {
         Event event = new Event(auditInfo, eventType);
-        return new EventIdentificationBuilder.Builder(
+        return new EventIdentificationBuilder(
                 eventType.eventID,
                 eventType.eventActionCode,
                 getEventTime(path, auditLogger),
@@ -74,8 +75,8 @@ class EventID {
                 .build();
     }
 
-    static EventIdentificationBuilder toEventIdentification(AuditUtils.EventType eventType) {
-        return new EventIdentificationBuilder.Builder(
+    static EventIdentification toEventIdentification(AuditUtils.EventType eventType) {
+        return new EventIdentificationBuilder(
                 eventType.eventID,
                 eventType.eventActionCode,
                 null,
@@ -84,10 +85,10 @@ class EventID {
                 .build();
     }
 
-    static EventIdentificationBuilder toEventIdentification(
+    static EventIdentification toEventIdentification(
             AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, HashSet<String> outcome,
             HashSet<AuditMessages.EventTypeCode> errorCode) {
-        return new EventIdentificationBuilder.Builder(
+        return new EventIdentificationBuilder(
                 eventType.eventID,
                 eventType.eventActionCode,
                 getEventTime(path, auditLogger),

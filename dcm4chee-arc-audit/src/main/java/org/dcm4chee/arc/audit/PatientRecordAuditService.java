@@ -39,6 +39,7 @@
  */
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
@@ -61,6 +62,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class PatientRecordAuditService {
@@ -177,22 +179,22 @@ class PatientRecordAuditService {
                                  IHL7ApplicationCache hl7AppCache) throws ConfigurationException {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        ActiveParticipantBuilder[] activeParticipantBuilder = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI) != null
+        ActiveParticipant[] activeParticipants = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI) != null
                 ? patVerActiveParticipants(auditLogger, eventType, auditInfo)
                 : eventType.source == null
-                    ? new ActiveParticipantBuilder[]{schedulerTriggered(auditLogger, auditInfo).build()}
+                    ? new ActiveParticipant[]{schedulerTriggered(auditLogger, auditInfo).build()}
                     : auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
                         ? outgoingActiveParticipants(auditLogger, eventType, auditInfo, hl7AppCache)
                         : incomingActiveParticipants(auditLogger, eventType, auditInfo);
 
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipantBuilder,
+                activeParticipants,
                 ParticipantObjectID.patientPOI(auditInfo, reader));
     }
 
-    private static ActiveParticipantBuilder.Builder schedulerTriggered(AuditLogger auditLogger, AuditInfo auditInfo) {
-        return new ActiveParticipantBuilder.Builder(
+    private static ActiveParticipantBuilder schedulerTriggered(AuditLogger auditLogger, AuditInfo auditInfo) {
+        return new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.CALLING_USERID),
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
@@ -200,36 +202,36 @@ class PatientRecordAuditService {
                 .isRequester();
     }
 
-    private static ActiveParticipantBuilder[] patVerActiveParticipants(
+    private static ActiveParticipant[] patVerActiveParticipants(
             AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
 
-        ActiveParticipantBuilder.Builder calledUser = calledUserID == null
+        ActiveParticipantBuilder calledUser = calledUserID == null
                 ? schedulerTriggered(auditLogger, auditInfo)
-                : new ActiveParticipantBuilder.Builder(
+                : new ActiveParticipantBuilder(
                     calledUserID,
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                     .altUserID(AuditLogger.processID());
 
-        activeParticipantBuilder[0] = pdqService(et, auditInfo);
-        activeParticipantBuilder[1] = calledUser.roleIDCode(et.destination).build();
+        activeParticipants[0] = pdqService(et, auditInfo);
+        activeParticipants[1] = calledUser.roleIDCode(et.destination).build();
         if (calledUserID != null)
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
                     .isRequester()
                     .build();
 
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
-    private static ActiveParticipantBuilder pdqService(AuditUtils.EventType et, AuditInfo auditInfo) {
+    private static ActiveParticipant pdqService(AuditUtils.EventType et, AuditInfo auditInfo) {
         String pdqServiceURI = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI);
-        return new ActiveParticipantBuilder.Builder(
+        return new ActiveParticipantBuilder(
                 pdqServiceURI, null)
                 .userIDTypeCode(pdqServiceURI.indexOf('/') != -1
                         ? AuditMessages.UserIDTypeCode.URI : AuditMessages.UserIDTypeCode.StationAETitle)
@@ -237,34 +239,34 @@ class PatientRecordAuditService {
                 .build();
     }
 
-    private static ActiveParticipantBuilder[] incomingActiveParticipants(
+    private static ActiveParticipant[] incomingActiveParticipants(
             AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
 
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(archiveUserIDTypeCode)
                 .altUserID(AuditLogger.processID())
                 .roleIDCode(et.destination)
                 .build();
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                 .isRequester()
                 .roleIDCode(et.source)
                 .build();
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
-    private static ActiveParticipantBuilder[] outgoingActiveParticipants(
+    private static ActiveParticipant[] outgoingActiveParticipants(
             AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo, IHL7ApplicationCache hl7AppCache)
             throws ConfigurationException {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[4];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[4];
         HL7DeviceExtension hl7Dev = auditLogger.getDevice().getDeviceExtension(HL7DeviceExtension.class);
 
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
@@ -278,10 +280,10 @@ class PatientRecordAuditService {
         boolean isHL7Forward = hl7SendingAppWithFacility.equals(callingUserID)
                 && hl7ReceivingAppWithFacility.equals(calledUserID);
 
-        activeParticipantBuilder[0] = hl7Sender(et, hl7SendingAppWithFacility, hl7AppSender);
-        activeParticipantBuilder[1] = hl7Receiver(et, hl7AppCache, hl7ReceivingAppWithFacility);
+        activeParticipants[0] = hl7Sender(et, hl7SendingAppWithFacility, hl7AppSender);
+        activeParticipants[1] = hl7Receiver(et, hl7AppCache, hl7ReceivingAppWithFacility);
         if (isHL7Forward)
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     auditLogger.getDevice().getDeviceName(),
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
@@ -289,13 +291,13 @@ class PatientRecordAuditService {
                     .isRequester()
                     .build();
         else {
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     callingUserID,
                     auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
                     .isRequester()
                     .build();
-            activeParticipantBuilder[3] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[3] = new ActiveParticipantBuilder(
                     calledUserID,
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
@@ -303,14 +305,14 @@ class PatientRecordAuditService {
                     .build();
         }
 
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
-    private static ActiveParticipantBuilder hl7Receiver(
+    private static ActiveParticipant hl7Receiver(
             AuditUtils.EventType et, IHL7ApplicationCache hl7AppCache, String hl7ReceivingAppWithFacility)
             throws ConfigurationException{
         HL7Application hl7AppReceiver = hl7AppCache.findHL7Application(hl7ReceivingAppWithFacility);
-        return new ActiveParticipantBuilder.Builder(
+        return new ActiveParticipantBuilder(
                 hl7ReceivingAppWithFacility,
                 hl7AppReceiver.getConnections().get(0).getHostname())
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
@@ -318,9 +320,9 @@ class PatientRecordAuditService {
                 .build();
     }
 
-    private static ActiveParticipantBuilder hl7Sender(
+    private static ActiveParticipant hl7Sender(
             AuditUtils.EventType et, String hl7SendingAppWithFacility, HL7Application hl7AppSender) {
-        return new ActiveParticipantBuilder.Builder(
+        return new ActiveParticipantBuilder(
                 hl7SendingAppWithFacility,
                 hl7AppSender.getConnections().get(0).getHostname())
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)

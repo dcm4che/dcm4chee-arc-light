@@ -39,6 +39,7 @@
  */
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
@@ -61,6 +62,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class ProcedureRecordAuditService {
@@ -196,36 +198,36 @@ class ProcedureRecordAuditService {
                 ParticipantObjectID.studyPatParticipants(auditInfo, reader, auditLogger));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
+    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode calledUserIDTypeCode = userIDTypeCode(calledUserID);
         boolean isHL7Forward = auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null;
-        ActiveParticipantBuilder.Builder callingUserParticipant = callingUserParticipant(auditInfo, calledUserIDTypeCode);
-        activeParticipantBuilder[0] = isHL7Forward
+        ActiveParticipantBuilder callingUserParticipant = callingUserParticipant(auditInfo, calledUserIDTypeCode);
+        activeParticipants[0] = isHL7Forward
                 ? callingUserParticipant.build()
                 : callingUserParticipant.isRequester().build();
-        activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 calledUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(calledUserIDTypeCode)
                 .altUserID(AuditLogger.processID())
                 .build();
         if (isHL7Forward)
-            activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[2] = new ActiveParticipantBuilder(
                     auditLogger.getDevice().getDeviceName(),
                     getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .altUserID(AuditLogger.processID())
                     .isRequester()
                     .build();
-        return activeParticipantBuilder;
+        return activeParticipants;
     }
 
-    private static ActiveParticipantBuilder.Builder callingUserParticipant(
+    private static ActiveParticipantBuilder callingUserParticipant(
             AuditInfo auditInfo, AuditMessages.UserIDTypeCode archiveUserIDTypeCode) {
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        return new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
+        return new ActiveParticipantBuilder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID));
     }
 

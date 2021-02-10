@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.ActiveParticipantBuilder;
-import org.dcm4che3.audit.AuditMessage;
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.ParticipantObjectIdentificationBuilder;
+import org.dcm4che3.audit.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryContext;
@@ -57,6 +54,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2019
  */
 class QueryAuditService {
@@ -89,8 +87,8 @@ class QueryAuditService {
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws IOException {
         AuditInfo auditInfo;
-        ParticipantObjectIdentificationBuilder poi;
-        ActiveParticipantBuilder[] activeParticipants;
+        ParticipantObjectIdentification poi;
+        ActiveParticipant[] activeParticipants;
         try (InputStream in = new BufferedInputStream(Files.newInputStream(path))) {
             auditInfo = new AuditInfo(new DataInputStream(in).readUTF());
             activeParticipants = activeParticipants(auditLogger, eventType, auditInfo);
@@ -118,20 +116,20 @@ class QueryAuditService {
         return data;
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(
+    private static ActiveParticipant[] activeParticipants(
             AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[2];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
                 .isRequester()
                 .roleIDCode(eventType.source)
                 .build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(archiveUserIDTypeCode)

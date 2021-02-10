@@ -49,6 +49,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
 class SoftwareConfigurationAuditService {
@@ -77,22 +78,22 @@ class SoftwareConfigurationAuditService {
                 ParticipantObjectID.softwareConfParticipant(reader, auditInfo));
     }
 
-    private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipantBuilders = new ActiveParticipantBuilder[2];
+    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         if (callingUserID != null) {
-            activeParticipantBuilders[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
+            activeParticipants[0] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.URI).build();
-            activeParticipantBuilders[1]
-                    = new ActiveParticipantBuilder.Builder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
+            activeParticipants[1]
+                    = new ActiveParticipantBuilder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
                     .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
                     .isRequester().build();
         } else
-            activeParticipantBuilders[0] = new ActiveParticipantBuilder.Builder(calledUserID, getLocalHostName(auditLogger))
+            activeParticipants[0] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(auditLogger))
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
                     .isRequester().build();
-        return activeParticipantBuilders;
+        return activeParticipants;
     }
 
     private static String getLocalHostName(AuditLogger auditLogger) {

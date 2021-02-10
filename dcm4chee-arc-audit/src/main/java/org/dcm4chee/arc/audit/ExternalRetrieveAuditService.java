@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
@@ -56,6 +57,7 @@ import java.nio.file.Path;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2019
  */
 class ExternalRetrieveAuditService {
@@ -105,34 +107,34 @@ class ExternalRetrieveAuditService {
                         .build());
     }
     
-    private static ActiveParticipantBuilder[] activeParticipants(AuditLogger auditLogger, AuditUtils.EventType eventType,
+    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditUtils.EventType eventType,
                                                                  AuditInfo auditInfo, IApplicationEntityCache aeCache) {
         return auditInfo.getField(AuditInfo.CALLING_HOST) == null
                 ? schedulerTriggeredAPs(auditLogger, eventType, auditInfo, aeCache)
                 : restfulTriggeredAPs(auditLogger, eventType, auditInfo);
     }
 
-    private static ActiveParticipantBuilder[] restfulTriggeredAPs(AuditLogger auditLogger, AuditUtils.EventType eventType,
+    private static ActiveParticipant[] restfulTriggeredAPs(AuditLogger auditLogger, AuditUtils.EventType eventType,
                                                                  AuditInfo auditInfo) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[4];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[4];
         String userID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(userID, auditInfo.getField(AuditInfo.CALLING_HOST))
+        activeParticipants[0] = new ActiveParticipantBuilder(userID, auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
                 .isRequester()
                 .build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.MOVE_USER_ID),
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
                 .altUserID(AuditLogger.processID())
                 .build();
-        activeParticipants[2] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[2] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.CALLED_USERID),
                 auditInfo.getField(AuditInfo.CALLED_HOST))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .roleIDCode(eventType.source)
                 .build();
-        activeParticipants[3] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[3] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.DEST_USER_ID),
                 auditInfo.getField(AuditInfo.DEST_NAP_ID))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
@@ -141,32 +143,32 @@ class ExternalRetrieveAuditService {
         return activeParticipants;
     }
 
-    private static ActiveParticipantBuilder[] schedulerTriggeredAPs(
+    private static ActiveParticipant[] schedulerTriggeredAPs(
             AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo, IApplicationEntityCache aeCache) {
-        ActiveParticipantBuilder[] activeParticipants = new ActiveParticipantBuilder[4];
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[4];
         String userID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String findSCP = auditInfo.getField(AuditInfo.FIND_SCP);
-        activeParticipants[0] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[0] = new ActiveParticipantBuilder(
                 userID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .altUserID(AuditLogger.processID())
                 .isRequester()
                 .build();
-        activeParticipants[1] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[1] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.MOVE_USER_ID),
                 auditInfo.getField(AuditInfo.CALLED_HOST))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .roleIDCode(eventType.source)
                 .build();
-        activeParticipants[2] = new ActiveParticipantBuilder.Builder(
+        activeParticipants[2] = new ActiveParticipantBuilder(
                 auditInfo.getField(AuditInfo.DEST_USER_ID),
                 auditInfo.getField(AuditInfo.DEST_NAP_ID))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .roleIDCode(eventType.destination)
                 .build();
         try {
-            activeParticipants[3] = new ActiveParticipantBuilder.Builder(
+            activeParticipants[3] = new ActiveParticipantBuilder(
                     findSCP,
                     aeCache.findApplicationEntity(findSCP).getConnections().get(0).getHostname())
                     .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
