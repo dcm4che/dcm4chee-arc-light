@@ -46,6 +46,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RetentionPeriod;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -362,25 +363,39 @@ public class DeletionServiceEJB {
     }
 
     private void updateInstanceAvailability(StorageDescriptor desc, Study study) {
-        if (desc.getExportStorageID().length == 0)
-            return;
-        
-        StorageDescriptor exportStorage = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getStorageDescriptorNotNull(desc.getExportStorageID()[0]);
-        if (desc.getInstanceAvailability().compareTo(exportStorage.getInstanceAvailability()) < 0) {
-            em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
-                    .setParameter(1, study.getStudyInstanceUID())
-                    .setParameter(2, exportStorage.getInstanceAvailability())
-                    .executeUpdate();
-            em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
-                    .setParameter(1, study)
-                    .setParameter(2, exportStorage.getInstanceAvailability())
-                    .executeUpdate();
-            em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY)
-                    .setParameter(1, study)
-                    .setParameter(2, exportStorage.getInstanceAvailability())
-                    .executeUpdate();
+        if (desc.getExportStorageID().length > 0) {
+            StorageDescriptor exportStorage = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStorageDescriptorNotNull(desc.getExportStorageID()[0]);
+            updateInstanceAvailability(study, desc.getInstanceAvailability(), exportStorage.getInstanceAvailability());
         }
+        if (desc.getExternalRetrieveAETitles().length > 0) {
+            if (desc.getExternalRetrieveInstanceAvailability() == null) {
+                LOG.info("No External Retrieve Instance Availability configured for {}. Abort instance availability updates",
+                        desc);
+                return;
+            }
+
+            updateInstanceAvailability(study, desc.getInstanceAvailability(), desc.getExternalRetrieveInstanceAvailability());
+        }
+    }
+
+    private void updateInstanceAvailability(Study study, Availability from, Availability to) {
+        if (from.compareTo(to) >= 0)
+            return;
+
+        LOG.info("Update Instance Availability from {} to {}", from, to);
+        em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
+                .setParameter(1, study.getStudyInstanceUID())
+                .setParameter(2, to)
+                .executeUpdate();
+        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
+                .setParameter(1, study)
+                .setParameter(2, to)
+                .executeUpdate();
+        em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY)
+                .setParameter(1, study)
+                .setParameter(2, to)
+                .executeUpdate();
     }
 
     private void updateStorageIDs(Study study, List<String> storageIDs) {
