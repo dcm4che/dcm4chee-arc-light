@@ -916,6 +916,18 @@ export class Globalvar {
                 },{
                     tag:"input",
                     type:"text",
+                    filterKey:"AdmissionID",
+                    description:$localize `:@@admission_id:Admission ID`,
+                    placeholder:$localize `:@@admission_id:Admission ID`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
+                },{
+                    tag:"input",
+                    type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledStationAETitle",
                     description:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`,
                     placeholder:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`
@@ -1353,6 +1365,20 @@ export class Globalvar {
                     filterKey:"ReceivingPresentationAddressOfSeries",
                     description:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`,
                     placeholder:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"AdmissionID",
+                    description:$localize `:@@admission_id:Admission ID`,
+                    placeholder:$localize `:@@admission_id:Admission ID`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }
             ];
         }
