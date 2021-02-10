@@ -362,6 +362,9 @@ public class DeletionServiceEJB {
     }
 
     private void updateInstanceAvailability(StorageDescriptor desc, Study study) {
+        if (desc.getExportStorageID().length == 0)
+            return;
+        
         StorageDescriptor exportStorage = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getStorageDescriptorNotNull(desc.getExportStorageID()[0]);
         if (desc.getInstanceAvailability().compareTo(exportStorage.getInstanceAvailability()) < 0) {
