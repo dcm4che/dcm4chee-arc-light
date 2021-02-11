@@ -63,9 +63,8 @@ import javax.persistence.*;
 @NamedQuery(
     name = SeriesQueryAttributes.UPDATE_AVAILABILITY,
     query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
-            "where serQueryAttrs.pk in (" +
-                "select serQueryAttrs1.pk from SeriesQueryAttributes serQueryAttrs1 " +
-                "where serQueryAttrs1.series.study = ?1)")
+            "where serQueryAttrs.series in (" +
+                "select ser.pk from Series ser where ser.study = ?1)")
 })
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =

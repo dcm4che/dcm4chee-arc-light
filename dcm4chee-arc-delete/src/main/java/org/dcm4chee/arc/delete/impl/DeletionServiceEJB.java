@@ -385,7 +385,7 @@ public class DeletionServiceEJB {
 
         LOG.info("Update Instance Availability from {} to {}", from, to);
         em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
-                .setParameter(1, study.getStudyInstanceUID())
+                .setParameter(1, study)
                 .setParameter(2, to)
                 .executeUpdate();
         em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
