@@ -130,6 +130,9 @@ class StoreServiceImpl implements StoreService {
     private CFindSCU cfindscu;
 
     @Inject
+    private Device device;
+
+    @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Override
@@ -172,11 +175,44 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        UpdateDBResult result = null;
         try {
             CountingInputStream countingInputStream = new CountingInputStream(data);
-            long startTime = System.nanoTime();
             writeToStorage(ctx, countingInputStream);
+            store(ctx, countingInputStream);
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void store(StoreContext ctx, InputStream data, Attributes coerce, String reasonForModification,
+                      String sourceOfPreviousValues, Attributes.UpdatePolicy updatePolicy) throws IOException {
+        Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
+        try {
+            CountingInputStream countingInputStream = new CountingInputStream(data);
+            writeToStorage(ctx, countingInputStream);
+            Attributes attrs = ctx.getAttributes();
+            if (!coerce.isEmpty()) {
+                Attributes modified = new Attributes();
+                attrs.update(updatePolicy, false, coerce, modified);
+                if (!modified.isEmpty() && reasonForModification != null) {
+                    attrs.addOriginalAttributes(sourceOfPreviousValues, now,
+                            reasonForModification, device.getDeviceName(), modified);
+                }
+            }
+            ctx.setAttributes(attrs);
+            store(ctx, countingInputStream);
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            throw e;
+        }
+    }
+
+    private void store(StoreContext ctx, CountingInputStream countingInputStream) throws IOException {
+        UpdateDBResult result = null;
+        try {
+            long startTime = System.nanoTime();
             String callingAET = ctx.getStoreSession().getCallingAET();
             if (callingAET != null) {
                 metricsService.acceptDataRate("receive-from-" + callingAET,

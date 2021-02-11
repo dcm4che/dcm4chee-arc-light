@@ -52,7 +52,6 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 
-import javax.management.Attribute;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -103,6 +102,9 @@ public interface StoreService {
     StoreContext newStoreContext(StoreSession session);
 
     void store(StoreContext ctx, InputStream data) throws IOException;
+
+    void store(StoreContext ctx, InputStream data, Attributes coerce, String reasonForModification,
+               String sourceOfPreviousValues, Attributes.UpdatePolicy updatePolicy) throws IOException;
 
     void addStorageID(String studyIUID, String storageID);
 

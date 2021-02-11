@@ -62,9 +62,11 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,14 +79,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
@@ -101,6 +101,7 @@ import java.util.*;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
+@InvokeValidate(type = StowRS.class)
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
@@ -129,6 +130,9 @@ public class StowRS {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private UriInfo uriInfo;
+
     @Inject
     private Device device;
 
@@ -137,6 +141,18 @@ public class StowRS {
 
     @PathParam("AETitle")
     private String aet;
+
+    @QueryParam("updatePolicy")
+    @Pattern(regexp = "SUPPLEMENT|MERGE|OVERWRITE")
+    @DefaultValue("OVERWRITE")
+    private String updatePolicy;
+
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
 
     private String acceptedStudyInstanceUID;
     private final Set<String> studyInstanceUIDs = new HashSet<>();
@@ -148,9 +164,16 @@ public class StowRS {
     private java.nio.file.Path spoolDirectory;
     private Map<String, BulkDataWithMediaType> bulkdataMap = new HashMap<>();
 
+    public void validate() {
+        logRequest();
+        new QueryAttributes(uriInfo, null);
+    }
+
     @Override
     public String toString() {
-        return request.getRequestURI();
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     @POST
@@ -278,7 +301,6 @@ public class StowRS {
     }
 
     private void store(AsyncResponse ar, InputStream in, final Input input, OutputType output)  throws Exception {
-        logRequest();
         ApplicationEntity ae = getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
             validateWebApp();
@@ -331,7 +353,7 @@ public class StowRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                request.getRequestURI(),
+                toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
@@ -438,7 +460,10 @@ public class StowRS {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
-            service.store(ctx, in);
+            service.store(ctx, in,
+                    new QueryAttributes(uriInfo, null).getQueryKeys(),
+                    reasonForModification, sourceOfPreviousValues,
+                    Attributes.UpdatePolicy.valueOf(updatePolicy));
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
