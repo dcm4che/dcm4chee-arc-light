@@ -181,21 +181,12 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data, Consumer<Attributes> coerce) throws IOException {
-        try {
-            CountingInputStream countingInputStream = new CountingInputStream(data);
-            writeToStorage(ctx, countingInputStream);
-            coerce.accept(ctx.getAttributes());
-            store(ctx, countingInputStream);
-        } catch (DicomServiceException e) {
-            ctx.setException(e);
-            throw e;
-        }
-    }
-
-    private void store(StoreContext ctx, CountingInputStream countingInputStream) throws IOException {
         UpdateDBResult result = null;
         try {
+            CountingInputStream countingInputStream = new CountingInputStream(data);
             long startTime = System.nanoTime();
+            writeToStorage(ctx, countingInputStream);
+            coerce.accept(ctx.getAttributes());
             String callingAET = ctx.getStoreSession().getCallingAET();
             if (callingAET != null) {
                 metricsService.acceptDataRate("receive-from-" + callingAET,
