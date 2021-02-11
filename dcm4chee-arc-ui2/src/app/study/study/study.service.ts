@@ -1886,7 +1886,7 @@ export class StudyService {
                     header: $localize `:@@study_instance_uid:Study Instance UID`,
                     pathToValue: "[0020000D].Value[0]",
                     headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
-                    widthWeight: 3,
+                    widthWeight: 2.5,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
@@ -1918,6 +1918,14 @@ export class StudyService {
                     header: $localize `:@@accession_number:Accession Number`,
                     pathToValue: "[00080050].Value[0]",
                     headerDescription: $localize `:@@accession_number:Accession Number`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@admission_id:Admission ID`,
+                    pathToValue: "[00380010].Value[0]",
+                    headerDescription: $localize `:@@admission_id:Admission ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -2681,6 +2689,14 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
+                    header: $localize `:@@admission_id:Admission ID`,
+                    pathToValue: "[00380010].Value[0]",
+                    headerDescription: $localize `:@@admission_id:Admission ID`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
                     header:  $localize `:@@modality:Modality`,
                     pathToValue: "00400100.Value[0].00080060.Value[0]",
                     headerDescription:  $localize `:@@modality:Modality`,
@@ -2908,6 +2924,14 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
+                    header: $localize `:@@admission_id:Admission ID`,
+                    pathToValue: "[00380010].Value[0]",
+                    headerDescription: $localize `:@@admission_id:Admission ID`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
                     header: $localize `:@@study.input_readiness:Input Readiness`,
                     pathToValue: "00404041.Value[0]",
                     headerDescription: $localize `:@@input_readiness_state:Input Readiness State`,
@@ -3044,6 +3068,14 @@ export class StudyService {
                     pathToValue: "[00080050].Value[0]",
                     showBorderPath:"[00080050].showBorder",
                     headerDescription: $localize `:@@accession_number:Accession Number`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@admission_id:Admission ID`,
+                    pathToValue: "[00380010].Value[0]",
+                    headerDescription: $localize `:@@admission_id:Admission ID`,
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
