@@ -1,7 +1,7 @@
 -- part 1: can be applied on archive running archive 5.22
-alter table person_name add alphabetic_name nvarchar2(255 char);
-alter table person_name add ideographic_name nvarchar2(255 char);
-alter table person_name add phonetic_name nvarchar2(255 char);
+alter table person_name add alphabetic_name nvarchar2(255);
+alter table person_name add ideographic_name nvarchar2(255);
+alter table person_name add phonetic_name nvarchar2(255);
 
 update person_name
 set alphabetic_name = family_name || '^' || given_name || '^' || middle_name || '^' || name_prefix || '^' || name_suffix || '^',
