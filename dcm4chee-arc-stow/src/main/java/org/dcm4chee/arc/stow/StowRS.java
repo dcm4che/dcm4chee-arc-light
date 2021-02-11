@@ -71,7 +71,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -84,8 +83,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.*;
-import java.awt.image.BufferedImage;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -460,16 +461,25 @@ public class StowRS {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
-            service.store(ctx, in,
-                    new QueryAttributes(uriInfo, null).getQueryKeys(),
-                    reasonForModification, sourceOfPreviousValues,
-                    Attributes.UpdatePolicy.valueOf(updatePolicy));
+            service.store(ctx, in, this::coerceAttributes);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
             LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
             response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
+        }
+    }
+
+    private void coerceAttributes(Attributes attrs) {
+        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
+        if (!coerce.isEmpty()) {
+            Attributes modified = new Attributes();
+            attrs.update(Attributes.UpdatePolicy.valueOf(updatePolicy), false, coerce, modified);
+            if (!modified.isEmpty() && reasonForModification != null) {
+                attrs.addOriginalAttributes(sourceOfPreviousValues, new Date(),
+                        reasonForModification, device.getDeviceName(), modified);
+            }
         }
     }
 

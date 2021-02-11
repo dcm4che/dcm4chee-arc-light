@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -103,8 +104,7 @@ public interface StoreService {
 
     void store(StoreContext ctx, InputStream data) throws IOException;
 
-    void store(StoreContext ctx, InputStream data, Attributes coerce, String reasonForModification,
-               String sourceOfPreviousValues, Attributes.UpdatePolicy updatePolicy) throws IOException;
+    void store(StoreContext ctx, InputStream data, Consumer<Attributes> coerce) throws IOException;
 
     void addStorageID(String studyIUID, String storageID);
 

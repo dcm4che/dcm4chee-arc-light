@@ -89,6 +89,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
@@ -175,33 +176,15 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        try {
-            CountingInputStream countingInputStream = new CountingInputStream(data);
-            writeToStorage(ctx, countingInputStream);
-            store(ctx, countingInputStream);
-        } catch (DicomServiceException e) {
-            ctx.setException(e);
-            throw e;
-        }
+        store(ctx, data, attrs -> {});
     }
 
     @Override
-    public void store(StoreContext ctx, InputStream data, Attributes coerce, String reasonForModification,
-                      String sourceOfPreviousValues, Attributes.UpdatePolicy updatePolicy) throws IOException {
-        Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
+    public void store(StoreContext ctx, InputStream data, Consumer<Attributes> coerce) throws IOException {
         try {
             CountingInputStream countingInputStream = new CountingInputStream(data);
             writeToStorage(ctx, countingInputStream);
-            Attributes attrs = ctx.getAttributes();
-            if (!coerce.isEmpty()) {
-                Attributes modified = new Attributes();
-                attrs.update(updatePolicy, false, coerce, modified);
-                if (!modified.isEmpty() && reasonForModification != null) {
-                    attrs.addOriginalAttributes(sourceOfPreviousValues, now,
-                            reasonForModification, device.getDeviceName(), modified);
-                }
-            }
-            ctx.setAttributes(attrs);
+            coerce.accept(ctx.getAttributes());
             store(ctx, countingInputStream);
         } catch (DicomServiceException e) {
             ctx.setException(e);
