@@ -91,6 +91,9 @@ export class DynamicFieldComponent implements OnInit {
                     }
                 });
             }
+            if(this.type === "array" && _.isArray(this.elements) && this.elements.length > 5){
+                this.longMode = true;
+            }
             this.detectChanges();
             if(this.type === 'array' && this.elementView && this.elementView.nativeElement){
               let height = this.elementView.nativeElement.offsetHeight;
