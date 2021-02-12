@@ -113,18 +113,18 @@ import java.util.stream.Stream;
 @NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
-            "where ser.pk in (" +
-            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+            "where ser.seriesInstanceUID = ?2 and ser.study.pk in (" +
+            "select study.pk from Study study where study.studyInstanceUID = ?1)"),
 @NamedQuery(
     name=Series.SET_COMPLETENESS_OF_STUDY,
     query="update Series ser set ser.completeness = ?2 " +
-            "where ser.pk in (" +
-            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1)"),
+            "where ser.study.pk in (" +
+            "select study.pk from Study study where study.studyInstanceUID = ?1)"),
 @NamedQuery(
     name=Series.INCREMENT_FAILED_RETRIEVES,
     query="update Series ser set ser.failedRetrieves = ser.failedRetrieves + 1, ser.completeness = ?3 " +
-            "where ser.pk in (" +
-            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+            "where ser.seriesInstanceUID = ?2 and ser.study.pk in (" +
+            "select study.pk from Study study where study.studyInstanceUID = ?1)"),
 @NamedQuery(
     name=Series.UPDATE_STGVER_FAILURES,
     query="update Series ser set ser.failuresOfLastStorageVerification = ?2, ser.size = ?3 " +
