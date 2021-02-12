@@ -21,7 +21,7 @@ alter table queue_msg modify queue_name not null;
 alter table export_task add created_time timestamp;
 alter table export_task add updated_time timestamp;
 alter table export_task add num_instances number(10,0);
-alter table export_task add modalities varchar(255);
+alter table export_task add modalities varchar2(255);
 alter table export_task add queue_msg_fk number(19,0);
 update export_task set created_time = current_timestamp, updated_time = current_timestamp;
 alter table export_task modify created_time not null;

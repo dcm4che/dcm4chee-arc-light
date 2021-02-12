@@ -1,7 +1,7 @@
 -- part 1: can be applied on archive running archive 5.22
-alter table person_name add alphabetic_name varchar2(255 char);
-alter table person_name add ideographic_name varchar2(255 char);
-alter table person_name add phonetic_name varchar2(255 char);
+alter table person_name add alphabetic_name nvarchar2(255);
+alter table person_name add ideographic_name nvarchar2(255);
+alter table person_name add phonetic_name nvarchar2(255);
 
 update person_name
 set alphabetic_name = family_name || '^' || given_name || '^' || middle_name || '^' || name_prefix || '^' || name_suffix || '^',
@@ -17,10 +17,10 @@ create index alphabetic_name_upper_idx on person_name (upper(alphabetic_name));
 alter table issuer drop constraint UK_gknfxd1vh283cmbg8ymia9ms8;
 create index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer (entity_id);
 
-alter table series add receiving_aet varchar(255);
-alter table series add receiving_pres_addr varchar(255);
-alter table series add sending_aet varchar(255);
-alter table series add sending_pres_addr varchar(255);
+alter table series add receiving_aet varchar2(255);
+alter table series add receiving_pres_addr varchar2(255);
+alter table series add sending_aet varchar2(255);
+alter table series add sending_pres_addr varchar2(255);
 
 update series set sending_aet = src_aet;
 

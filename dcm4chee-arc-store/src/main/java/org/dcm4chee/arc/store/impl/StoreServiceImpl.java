@@ -89,6 +89,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
@@ -128,6 +129,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private CFindSCU cfindscu;
+
+    @Inject
+    private Device device;
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
@@ -172,11 +176,17 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
+        store(ctx, data, attrs -> {});
+    }
+
+    @Override
+    public void store(StoreContext ctx, InputStream data, Consumer<Attributes> coerce) throws IOException {
         UpdateDBResult result = null;
         try {
             CountingInputStream countingInputStream = new CountingInputStream(data);
             long startTime = System.nanoTime();
             writeToStorage(ctx, countingInputStream);
+            coerce.accept(ctx.getAttributes());
             String callingAET = ctx.getStoreSession().getCallingAET();
             if (callingAET != null) {
                 metricsService.acceptDataRate("receive-from-" + callingAET,

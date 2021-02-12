@@ -47,6 +47,18 @@
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newAttributes"
+        },
+        {
+          "$ref": "../parameters.json#/updatePolicy"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
         }
       ],
       "requestBody": {

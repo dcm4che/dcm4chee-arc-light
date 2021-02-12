@@ -228,50 +228,14 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="person_name_pk_seq"/>
       </id>
-      <basic name="familyName">
-        <column name="family_name" column-definition="nvarchar2(255)"/>
+      <basic name="alphabeticName">
+        <column name="alphabetic_name" column-definition="nvarchar2(255)"/>
       </basic>
-      <basic name="givenName">
-        <column name="given_name" column-definition="nvarchar2(255)"/>
+      <basic name="ideographicName">
+        <column name="ideographic_name" column-definition="nvarchar2(255)"/>
       </basic>
-      <basic name="middleName">
-        <column name="middle_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="namePrefix">
-        <column name="name_prefix" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="nameSuffix">
-        <column name="name_suffix" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="ideographicFamilyName">
-        <column name="i_family_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="ideographicGivenName">
-        <column name="i_given_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="ideographicMiddleName">
-        <column name="i_middle_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="ideographicNamePrefix">
-        <column name="i_name_prefix" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="ideographicNameSuffix">
-        <column name="i_name_suffix" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="phoneticFamilyName">
-        <column name="p_family_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="phoneticGivenName">
-        <column name="p_given_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="phoneticMiddleName">
-        <column name="p_middle_name" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="phoneticNamePrefix">
-        <column name="p_name_prefix" column-definition="nvarchar2(255)"/>
-      </basic>
-      <basic name="phoneticNameSuffix">
-        <column name="p_name_suffix" column-definition="nvarchar2(255)"/>
+      <basic name="phoneticName">
+        <column name="phonetic_name" column-definition="nvarchar2(255)"/>
       </basic>
     </attributes>
   </entity>
