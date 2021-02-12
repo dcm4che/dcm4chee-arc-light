@@ -70,9 +70,8 @@ public class RetrieveServiceEJB {
         String[] seriesIUIDs = ctx.getSeriesInstanceUIDs();
         switch (ctx.getQueryRetrieveLevel()) {
             case STUDY:
-                for (String studyIUID : studyIUIDs) {
-                    setCompletenessOfStudy(studyIUIDs[0], completeness);
-                }
+                for (String studyIUID : studyIUIDs)
+                    setCompletenessOfStudy(studyIUID, completeness);
                 break;
             case SERIES:
                 for (String seriesIUID : seriesIUIDs) {
