@@ -46,6 +46,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RetentionPeriod;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -357,7 +358,41 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         updateStorageIDs(study, storageIDs);
+        updateInstanceAvailability(study, desc.getInstanceAvailability(), remainingInstanceAvailability(desc));
         return true;
+    }
+
+    private Availability remainingInstanceAvailability(StorageDescriptor desc) {
+        Availability availability1 = desc.getExportStorageID().length > 0
+                ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStorageDescriptorNotNull(desc.getExportStorageID()[0])
+                    .getInstanceAvailability()
+                : null;
+        Availability availability2 = desc.getExternalRetrieveAETitles().length > 0
+                ? desc.getExternalRetrieveInstanceAvailability()
+                : null;
+        return availability1 == null ? availability2
+                : availability2 == null || availability2.compareTo(availability1) > 0 ? availability1
+                : availability2;
+    }
+
+    private void updateInstanceAvailability(Study study, Availability from, Availability to) {
+        if (to == null || from.compareTo(to) >= 0)
+            return;
+
+        LOG.info("Update Instance Availability from {} to {}", from, to);
+        em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
+                .setParameter(1, study)
+                .setParameter(2, to)
+                .executeUpdate();
+        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
+                .setParameter(1, study)
+                .setParameter(2, to)
+                .executeUpdate();
+        em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY)
+                .setParameter(1, study)
+                .setParameter(2, to)
+                .executeUpdate();
     }
 
     private void updateStorageIDs(Study study, List<String> storageIDs) {

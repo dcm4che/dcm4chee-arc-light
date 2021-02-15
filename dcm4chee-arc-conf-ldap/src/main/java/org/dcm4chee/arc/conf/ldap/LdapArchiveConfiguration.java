@@ -2398,6 +2398,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getProperties());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExternalRetrieveAET",
                 descriptor.getExternalRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveInstanceAvailability",
+                descriptor.getExternalRetrieveInstanceAvailability(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExportStorageID",
                 descriptor.getExportStorageID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
@@ -2442,6 +2444,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmExternalRetrieveAET")));
+                desc.setExternalRetrieveInstanceAvailability(LdapUtils.enumValue(
+                        Availability.class, attrs.get("dcmExternalRetrieveInstanceAvailability"), null));
                 desc.setExportStorageID(LdapUtils.stringArray(attrs.get("dcmExportStorageID")));
                 desc.setRetrieveCacheStorageID(
                         LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
@@ -2524,6 +2528,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExternalRetrieveAET",
                 prev.getExternalRetrieveAETitles(), desc.getExternalRetrieveAETitles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveInstanceAvailability",
+                prev.getExternalRetrieveInstanceAvailability(), desc.getExternalRetrieveInstanceAvailability(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportStorageID",
                 prev.getExportStorageID(), desc.getExportStorageID());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",

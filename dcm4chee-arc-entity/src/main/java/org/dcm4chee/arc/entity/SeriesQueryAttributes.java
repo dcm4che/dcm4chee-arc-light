@@ -59,8 +59,12 @@ import javax.persistence.*;
 ),
 @NamedQuery(
     name = SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK,
-    query = "select a.viewID from SeriesQueryAttributes a where a.series.pk = ?1"
-)
+    query = "select a.viewID from SeriesQueryAttributes a where a.series.pk = ?1"),
+@NamedQuery(
+    name = SeriesQueryAttributes.UPDATE_AVAILABILITY,
+    query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
+            "where serQueryAttrs.series in (" +
+                "select ser from Series ser where ser.study = ?1)")
 })
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =
@@ -70,6 +74,7 @@ public class SeriesQueryAttributes {
     public static final String FIND_BY_VIEW_ID_AND_SERIES_PK = "SeriesQueryAttributes.findByViewIDAndSeriesPk";
     public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
     public static final String VIEW_IDS_FOR_SERIES_PK = "SeriesQueryAttributes.viewIDsForSeriesPk";
+    public static final String UPDATE_AVAILABILITY = "SeriesQueryAttributes.updateAvailability";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
