@@ -42,7 +42,11 @@
 package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.DatePrecision;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -52,6 +56,8 @@ import org.hibernate.annotations.QueryHints;
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -197,5 +203,10 @@ abstract class AbstractQuery implements Query {
     protected String[] retrieveAETs(String retrieveAETs, String externalRetrieveAET) {
         String[] aets = context.getArchiveAEExtension().returnRetrieveAETitles();
         return aets.length > 0 ? aets : splitAndAppend(retrieveAETs, externalRetrieveAET);
+    }
+
+    static void setDTwTZ(Attributes attrs, int tag, Date value) {
+        attrs.setString(PrivateTag.PrivateCreator, tag, VR.DT,
+                DateUtils.formatDT(null, value, new DatePrecision(Calendar.MILLISECOND, true)));
     }
 }

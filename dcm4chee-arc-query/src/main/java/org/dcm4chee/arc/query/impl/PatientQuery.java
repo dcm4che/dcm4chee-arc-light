@@ -53,7 +53,6 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -120,14 +119,13 @@ class PatientQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.PatientCreateDateTime,
                 results.get(patient.get(Patient_.createdTime)));
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientUpdateDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.PatientUpdateDateTime,
                 results.get(patient.get(Patient_.updatedTime)));
         Date verificationTime = results.get(patient.get(Patient_.verificationTime));
         if (verificationTime != null) {
-            attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.PatientVerificationDateTime, VR.DT,
-                    verificationTime);
+            setDTwTZ(attrs, PrivateTag.PatientVerificationDateTime, verificationTime);
         }
         Patient.VerificationStatus verificationStatus = results.get(patient.get(Patient_.verificationStatus));
         if (verificationStatus != Patient.VerificationStatus.UNVERIFIED || verificationTime != null) {

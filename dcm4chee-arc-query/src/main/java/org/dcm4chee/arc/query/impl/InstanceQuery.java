@@ -168,10 +168,8 @@ class InstanceQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return attrs;
 
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime, VR.DT,
-                results.get(instance.get(Instance_.createdTime)));
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceUpdateDateTime, VR.DT,
-                results.get(instance.get(Instance_.updatedTime)));
+        setDTwTZ(attrs, PrivateTag.InstanceReceiveDateTime, results.get(instance.get(Instance_.createdTime)));
+        setDTwTZ(attrs, PrivateTag.InstanceUpdateDateTime, results.get(instance.get(Instance_.updatedTime)));
         addRejectionNoteCode(attrs, rejectedInstancesOfSeries.get(instAttrs.getString(Tag.SOPInstanceUID)));
         context.getQueryService().addLocationAttributes(attrs, results.get(instance.get(Instance_.pk)));
         return attrs;

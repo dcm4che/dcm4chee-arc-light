@@ -230,11 +230,11 @@ class StudyQuery extends AbstractQuery {
         if (!context.isReturnPrivate())
             return;
 
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.StudyReceiveDateTime,
                 results.get(study.get(Study_.createdTime)));
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyUpdateDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.StudyUpdateDateTime,
                 results.get(study.get(Study_.updatedTime)));
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.StudyAccessDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.StudyAccessDateTime,
                 results.get(study.get(Study_.accessTime)));
         attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState, VR.CS,
                 results.get(study.get(Study_.expirationState)).toString());

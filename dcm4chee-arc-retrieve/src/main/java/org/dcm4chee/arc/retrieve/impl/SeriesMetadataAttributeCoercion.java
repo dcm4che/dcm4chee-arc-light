@@ -40,17 +40,18 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.AttributesCoercion;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
 import org.dcm4chee.arc.retrieve.StudyInfo;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -100,9 +101,9 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
                     seriesInfo.getReceivingPresentationAddress());
 
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.InstanceReceiveDateTime,
                 inst.getCreatedTime());
-        attrs.setDate(PrivateTag.PrivateCreator, PrivateTag.InstanceUpdateDateTime, VR.DT,
+        setDTwTZ(attrs, PrivateTag.InstanceUpdateDateTime,
                 inst.getUpdatedTime());
         if (inst.getRejectionCode() != null)
             attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence, 1).
@@ -135,5 +136,10 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
                             location.getStatus().name());
             }
         }
+    }
+
+    static void setDTwTZ(Attributes attrs, int tag, Date value) {
+        attrs.setString(PrivateTag.PrivateCreator, tag, VR.DT,
+                DateUtils.formatDT(null, value, new DatePrecision(Calendar.MILLISECOND, true)));
     }
 }
