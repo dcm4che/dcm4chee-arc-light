@@ -358,29 +358,26 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         updateStorageIDs(study, storageIDs);
-        updateInstanceAvailability(desc, study);
+        updateInstanceAvailability(study, desc.getInstanceAvailability(), remainingInstanceAvailability(desc));
         return true;
     }
 
-    private void updateInstanceAvailability(StorageDescriptor desc, Study study) {
-        if (desc.getExportStorageID().length > 0) {
-            StorageDescriptor exportStorage = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getStorageDescriptorNotNull(desc.getExportStorageID()[0]);
-            updateInstanceAvailability(study, desc.getInstanceAvailability(), exportStorage.getInstanceAvailability());
-        }
-        if (desc.getExternalRetrieveAETitles().length > 0) {
-            if (desc.getExternalRetrieveInstanceAvailability() == null) {
-                LOG.info("No External Retrieve Instance Availability configured for {}. Abort instance availability updates",
-                        desc);
-                return;
-            }
-
-            updateInstanceAvailability(study, desc.getInstanceAvailability(), desc.getExternalRetrieveInstanceAvailability());
-        }
+    private Availability remainingInstanceAvailability(StorageDescriptor desc) {
+        Availability availability1 = desc.getExportStorageID().length > 0
+                ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getStorageDescriptorNotNull(desc.getExportStorageID()[0])
+                    .getInstanceAvailability()
+                : null;
+        Availability availability2 = desc.getExternalRetrieveAETitles().length > 0
+                ? desc.getExternalRetrieveInstanceAvailability()
+                : null;
+        return availability1 == null ? availability2
+                : availability2 == null || availability2.compareTo(availability1) > 0 ? availability1
+                : availability2;
     }
 
     private void updateInstanceAvailability(Study study, Availability from, Availability to) {
-        if (from.compareTo(to) >= 0)
+        if (to == null || from.compareTo(to) >= 0)
             return;
 
         LOG.info("Update Instance Availability from {} to {}", from, to);
