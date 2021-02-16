@@ -243,6 +243,10 @@ public interface RetrieveContext extends Closeable {
 
     void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs);
 
+    int getFallbackMoveRSPStatus();
+
+    void setFallbackMoveRSPStatus(int fallbackMoveRSPStatus);
+
     boolean isRetryFailedRetrieve();
 
     void setRetryFailedRetrieve(boolean retryFailedRetrieve);

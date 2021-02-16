@@ -109,6 +109,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private volatile int fallbackMoveRSPNumberOfMatches;
     private volatile int fallbackMoveRSPFailed;
     private volatile String[] fallbackMoveRSPFailedIUIDs = {};
+    private volatile int fallbackMoveRSPStatus;
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
@@ -595,6 +596,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs) {
         this.fallbackMoveRSPFailedIUIDs = fallbackMoveRSPFailedIUIDs;
+    }
+
+    @Override
+    public int getFallbackMoveRSPStatus() {
+        return fallbackMoveRSPStatus;
+    }
+
+    @Override
+    public void setFallbackMoveRSPStatus(int fallbackMoveRSPStatus) {
+        this.fallbackMoveRSPStatus = fallbackMoveRSPStatus;
     }
 
     @Override

@@ -68,7 +68,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     protected final RetrieveContext ctx;
     private final PresentationContext pc;
-    private final Attributes rqCmd;
+    protected final Attributes rqCmd;
     private final int msgId;
     private final String cuid;
     protected final Attributes keys;
@@ -244,17 +244,22 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
             int failed = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
             ctx.setFallbackMoveRSPFailed(failed);
+            int status = cmd.getInt(Tag.Status, -1);
+            boolean pending = Status.isPending(status);
             if (rspCount++ == 0) {
                 ctx.setFallbackMoveRSPNumberOfMatches(failed +
                         cmd.getInt(Tag.NumberOfRemainingSuboperations, 0) +
                         cmd.getInt(Tag.NumberOfWarningSuboperations, 0));
-                if (Status.isPending(cmd.getInt(Tag.Status, -1))) {
+                if (pending) {
                     startWritePendingRSP();
                 }
             }
-            if (data != null)
-                ctx.setFallbackMoveRSPFailedIUIDs(StringUtils.maskNull(
-                        data.getStrings(Tag.FailedSOPInstanceUIDList), StringUtils.EMPTY_STRING));
+            if (!pending) {
+                ctx.setFallbackMoveRSPStatus(status);
+                if (data != null)
+                    ctx.setFallbackMoveRSPFailedIUIDs(StringUtils.maskNull(
+                            data.getStrings(Tag.FailedSOPInstanceUIDList), StringUtils.EMPTY_STRING));
+            }
         }
 
         @Override
@@ -281,15 +286,23 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
 
         private void writeFinalRSP() {
-            writeMoveRSP(status(), 0, ctx.completed(), ctx.failed(), ctx.warning(), finalRSPDataset());
+            int status = status();
+            if (status == Status.Success
+                    || status == Status.UnableToPerformSubOperations
+                    || status == Status.OneOrMoreFailures)
+                writeMoveRSP(status, 0, ctx.completed(), ctx.failed(), ctx.warning(), finalRSPDataset());
+            else
+                writeMoveRSP(Commands.mkCMoveRSP(rqCmd, status), null);
         }
 
         private int status() {
-            return (ctx.failed() == 0 && ctx.warning() == 0)
-                    ? Status.Success
-                    : (ctx.completed() == 0 && ctx.warning() == 0)
-                    ? Status.UnableToPerformSubOperations
-                    : Status.OneOrMoreFailures;
+            return (ctx.completed() == 0 && ctx.warning() == 0)
+                    ? ctx.failed() == 0
+                        ? ctx.getFallbackMoveRSPStatus()
+                        : Status.UnableToPerformSubOperations
+                    : ctx.failed() == 0 && ctx.getFallbackMoveRSPStatus() == Status.Success
+                        ? Status.Success
+                        : Status.OneOrMoreFailures;
         }
 
         private Attributes finalRSPDataset() {
