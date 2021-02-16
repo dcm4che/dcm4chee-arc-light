@@ -54,8 +54,9 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.metrics.MetricsService;
+import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
@@ -86,7 +87,7 @@ public interface RetrieveService {
                                           Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
     RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
+                                           Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException;
 
     RetrieveContext newRetrieveContextWADO(
@@ -159,4 +160,6 @@ public interface RetrieveService {
     Date getLastModifiedFromMatches(RetrieveContext ctx);
 
     Date getLastModified(RetrieveContext ctx);
+
+    UIDMap getUIDMap(Long uidMapPk, Map<Long, UIDMap> uidMapCache);
 }

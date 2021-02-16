@@ -57,6 +57,8 @@ import java.util.Date;
     @Index(columnList = "multi_ref")
 })
 @NamedQueries({
+        @NamedQuery(name = Location.COUNT_IN_USE_FILES,
+                query = "select count(l) from Location l where l.storageID=?1 and l.status=?2 and l.storagePath=?3"),
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
@@ -128,6 +130,7 @@ import java.util.Date;
 })
 public class Location {
 
+    public static final String COUNT_IN_USE_FILES = "Location.CountInUseFiles";
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
