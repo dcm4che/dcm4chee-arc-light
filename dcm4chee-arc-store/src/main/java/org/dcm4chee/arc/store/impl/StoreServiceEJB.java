@@ -1220,8 +1220,11 @@ public class StoreServiceEJB {
         }
 
         Attributes attrs = ctx.getAttributes();
-        if (pat != null)
-            attrs.addAll(pat.getAttributes());
+        if (pat != null) {
+            Attributes patAttrs = new Attributes(pat.getAttributes());
+            Attributes.unifyCharacterSets(attrs, patAttrs);
+            attrs.addAll(patAttrs);
+        }
         String urlspec = new AttributesFormat(serviceURL).format(attrs);
         StorePermission storePermission = storePermissionCache.get(urlspec);
         if (storePermission == null) {
@@ -1244,8 +1247,11 @@ public class StoreServiceEJB {
             return;
 
         Attributes attrs = ctx.getAttributes();
-        if (pat != null)
-            attrs.addAll(pat.getAttributes());
+        if (pat != null) {
+            Attributes patAttrs = new Attributes(pat.getAttributes());
+            Attributes.unifyCharacterSets(attrs, patAttrs);
+            attrs.addAll(patAttrs);
+        }
 
         String response = new AttributesFormat(storePermissionServiceResponse).format(attrs);
         Pattern responsePattern = session.getArchiveAEExtension().storePermissionServiceResponsePattern();
