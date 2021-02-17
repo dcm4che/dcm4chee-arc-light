@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
@@ -768,13 +769,14 @@ public class RetrieveServiceImpl implements RetrieveService {
             return Completeness.PARTIAL;
         }
 
-        int failed = ctx.getFallbackMoveRSPFailed();
-        if (failed == 0)
+        if (ctx.getFallbackMoveRSPStatus() == Status.Success)
             return Completeness.COMPLETE;
 
-        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
+        int failed = ctx.getFallbackMoveRSPFailed();
+        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {} with status: {}H",
                 as, failed, ctx.getFallbackMoveRSPNumberOfMatches(),
-                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);
+                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP,
+                TagUtils.shortToHexString(ctx.getFallbackMoveRSPStatus()));
 
         String[] failedIUIDs = ctx.getFallbackMoveRSPFailedIUIDs();
         if (failedIUIDs.length == 0) {
