@@ -27,6 +27,7 @@ import {
     StudySchemaOptions, TableAction
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
+import {PatientIssuerPipe} from "../../pipes/patient-issuer.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
@@ -1435,12 +1436,12 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    pathToValue: "00100021.Value[0]",
-                    headerDescription: $localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
-                    widthWeight: 1,
-                    calculatedWidth: "20%"
+                    headerDescription: $localize `:@@issuer_of_patient:Issuer of Patient`,
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(PatientIssuerPipe, undefined)
                 }),
                 new TableSchemaElement({
                     type: "value",
