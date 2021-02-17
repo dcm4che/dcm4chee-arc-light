@@ -48,11 +48,10 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -188,6 +187,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 } catch (Exception e1) {
                     LOG.warn("Failed to revoke storage", e1);
                 }
+            ctx.getCopyStudyFailures().add(match.getAttributes().getString(Tag.StudyInstanceUID));
             return false;
         } finally {
             ctx.getRetrieveService().updateLocations(ctx);
@@ -199,8 +199,9 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 ctx, match)) {
             writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
+            StorageDescriptor retrieveCache = storage.getStorageDescriptor();
             return new Location.Builder()
-                    .storageID(storage.getStorageDescriptor().getStorageID())
+                    .storageID(retrieveCache.getStorageID())
                     .storagePath(writeCtx.getStoragePath())
                     .transferSyntaxUID(locationInputStream.location.getTransferSyntaxUID())
                     .objectType(Location.ObjectType.DICOM_FILE)

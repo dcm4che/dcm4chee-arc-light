@@ -44,10 +44,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -59,6 +56,7 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -276,4 +274,6 @@ public interface RetrieveContext extends Closeable {
     boolean isStorageVerificationOnRetrieve();
 
     void decrementNumberOfMatches();
+
+    Set<String> getCopyStudyFailures();
 }

@@ -169,7 +169,11 @@ import java.util.*;
     name = Instance.UPDATE_AVAILABILITY,
     query = "update Instance inst set inst.availability = ?2 " +
             "where inst.series.pk in (" +
-            "select ser.pk from Series ser where ser.study = ?1)")
+            "select ser.pk from Series ser where ser.study = ?1)"),
+@NamedQuery(
+        name = Instance.UPDATE_AVAILABILITY_BY_PK,
+        query = "update Instance inst set inst.availability = ?2 " +
+                "where pk in ?1")
 })
 @Entity
 @Table(name = "instance",
@@ -202,6 +206,7 @@ public class Instance {
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
     public static final String UPDATE_AVAILABILITY = "Instance.updateAvailability";
+    public static final String UPDATE_AVAILABILITY_BY_PK = "Instance.updateAvailabilityByPK";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

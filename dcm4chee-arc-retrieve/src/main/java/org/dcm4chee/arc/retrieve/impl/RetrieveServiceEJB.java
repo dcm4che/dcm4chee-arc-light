@@ -40,14 +40,17 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4chee.arc.entity.Completeness;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,6 +58,7 @@ import javax.persistence.PersistenceContext;
  */
 @Stateless
 public class RetrieveServiceEJB {
+    private static Logger LOG = LoggerFactory.getLogger(RetrieveServiceEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
@@ -109,5 +113,36 @@ public class RetrieveServiceEJB {
                 .setParameter(2, seriesInstanceUID)
                 .setParameter(3, completeness)
                 .executeUpdate();
+    }
+
+    public void updateInstanceAvailability(
+            Map<Availability, Set<String>> availabilityStudyUIDs, Map<Availability, Set<String>> availabilitySeriesUIDs,
+            Map<Availability, Set<Long>> availabilityInstPks, RetrieveContext ctx) {
+        switch (ctx.getQueryRetrieveLevel()) {
+            case STUDY:
+                availabilityStudyUIDs.forEach((availability, studyUIDs) -> {
+                    LOG.info("Update {} study query attributes availability to {}", studyUIDs, availability);
+                    em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_UID)
+                            .setParameter(1, studyUIDs)
+                            .setParameter(2, availability)
+                            .executeUpdate();
+                });
+            case SERIES:
+                availabilitySeriesUIDs.forEach((availability, seriesUIDs) -> {
+                    LOG.info("Update {} series query attributes availability to {}", seriesUIDs, availability);
+                    em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_UID)
+                            .setParameter(1, seriesUIDs)
+                            .setParameter(2, availability)
+                            .executeUpdate();
+                });
+            case IMAGE:
+                availabilityInstPks.forEach((availability, instPks) -> {
+                    LOG.info("Update Instances with PKs {} availability to {}", instPks, availability);
+                    em.createNamedQuery(Instance.UPDATE_AVAILABILITY_BY_PK)
+                            .setParameter(1, instPks)
+                            .setParameter(2, availability)
+                            .executeUpdate();
+                });
+        }
     }
 }

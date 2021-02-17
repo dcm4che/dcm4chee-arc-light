@@ -115,6 +115,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
+    private Set<String> copyStudyFailures = new HashSet<>();
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -707,5 +708,10 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void decrementNumberOfMatches() {
         numberOfMatches--;
+    }
+
+    @Override
+    public Set<String> getCopyStudyFailures() {
+        return copyStudyFailures;
     }
 }

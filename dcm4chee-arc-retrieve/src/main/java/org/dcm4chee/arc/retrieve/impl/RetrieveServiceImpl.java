@@ -933,6 +933,42 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
+    public void updateInstanceAvailability(RetrieveContext ctx) {
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
+        List<InstanceLocations> matches = ctx.getMatches();
+        matches.removeIf(il -> ctx.getCopyStudyFailures().contains(il.getAttributes().getString(Tag.StudyInstanceUID)));
+        if (matches.isEmpty())
+            return;
+
+        Map<Availability, Set<String>> availabilityStudyUIDs = new HashMap<>();
+        Map<Availability, Set<String>> availabilitySeriesUIDs = new HashMap<>();
+        Map<Availability, Set<Long>> availabilityInstPks = new HashMap<>();
+        matches.forEach(match ->
+            match.getLocations().stream()
+                    .map(l -> {
+                        StorageDescriptor sd = arcDev.getStorageDescriptor(l.getStorageID());
+                        StorageDescriptor rc;
+                        return sd == null || sd.getRetrieveCacheStorageID() == null
+                                || (rc = arcDev.getStorageDescriptor(sd.getRetrieveCacheStorageID())) == null
+                                || sd.getInstanceAvailability().compareTo(rc.getInstanceAvailability()) <= 0
+                                ? null : rc.getInstanceAvailability();
+                    })
+                    .filter(Objects::nonNull)
+                    .distinct().sorted()
+                    .findFirst()
+                    .ifPresent(availability -> {
+                        Attributes attrs = match.getAttributes();
+                        availabilityStudyUIDs.computeIfAbsent(availability, k -> new HashSet<>())
+                                .add(attrs.getString(Tag.StudyInstanceUID));
+                        availabilitySeriesUIDs.computeIfAbsent(availability, k -> new HashSet<>())
+                                .add(attrs.getString(Tag.SeriesInstanceUID));
+                        availabilityInstPks.computeIfAbsent(availability, k -> new HashSet<>())
+                                .add(match.getInstancePk());
+                    })
+        );
+        ejb.updateInstanceAvailability(availabilityStudyUIDs, availabilitySeriesUIDs, availabilityInstPks, ctx);
+    }
+
     private LocationInputStream openLocationInputStream(
             Storage storage, Location location, String studyInstanceUID)
             throws IOException {

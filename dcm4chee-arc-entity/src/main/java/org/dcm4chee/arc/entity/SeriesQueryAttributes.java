@@ -64,7 +64,12 @@ import javax.persistence.*;
     name = SeriesQueryAttributes.UPDATE_AVAILABILITY,
     query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
             "where serQueryAttrs.series in (" +
-                "select ser from Series ser where ser.study = ?1)")
+                "select ser from Series ser where ser.study = ?1)"),
+@NamedQuery(
+        name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_UID,
+        query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
+                "where serQueryAttrs.series in (" +
+                "select ser from Series ser where ser.seriesInstanceUID in ?1)")
 })
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =
@@ -75,6 +80,7 @@ public class SeriesQueryAttributes {
     public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
     public static final String VIEW_IDS_FOR_SERIES_PK = "SeriesQueryAttributes.viewIDsForSeriesPk";
     public static final String UPDATE_AVAILABILITY = "SeriesQueryAttributes.updateAvailability";
+    public static final String UPDATE_AVAILABILITY_BY_SERIES_UID = "SeriesQueryAttributes.updateAvailabilityBySeriesUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
