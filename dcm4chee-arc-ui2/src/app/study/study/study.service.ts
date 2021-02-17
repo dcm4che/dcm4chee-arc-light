@@ -123,7 +123,7 @@ export class StudyService {
             if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')) {
                 patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
             }
-            return patientId;
+            return _.replace(patientId,"/","%2F");
         } else {
             return undefined;
         }
@@ -628,7 +628,7 @@ export class StudyService {
     }
 
     deletePatient(dcmWebApp: DcmWebApp, patientId:string){
-        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`);
+        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`, undefined, true);
     }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
@@ -3407,7 +3407,7 @@ export class StudyService {
                 if (url) {
                     if (patientId) {
                         //Change patient;
-                        return this.$http.put(`${url}/${patientId}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject);
+                        return this.$http.put(`${url}/${patientId}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject, undefined,true);
                     } else {
                         //Create new patient
                         return this.$http.post(url, patientObject);
