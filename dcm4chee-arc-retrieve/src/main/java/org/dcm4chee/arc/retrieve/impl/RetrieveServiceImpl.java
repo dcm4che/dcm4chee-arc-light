@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -138,6 +139,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     private IApplicationEntityCache aeCache;
 
     @Inject
+    private IWebApplicationCache webAppCache;
+
+    @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Inject @RetrieveFailures
@@ -190,6 +194,15 @@ public class RetrieveServiceImpl implements RetrieveService {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
         ctx.setDestinationAETitle(destAET);
         ctx.setDestinationAE(aeCache.findApplicationEntity(destAET));
+        return ctx;
+    }
+
+    @Override
+    public RetrieveContext newRetrieveContextSTOW(
+            String localAET, String studyUID, String seriesUID, String objectUID, String destWebApp)
+            throws ConfigurationException {
+        RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
+        ctx.setDestinationWebApp(webAppCache.findWebApplication(destWebApp));
         return ctx;
     }
 

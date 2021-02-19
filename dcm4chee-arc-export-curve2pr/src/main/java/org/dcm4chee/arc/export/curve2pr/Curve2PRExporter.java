@@ -193,7 +193,7 @@ public class Curve2PRExporter extends AbstractExporter {
 
     private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws IOException {
         try (DicomInputStream dis = ctx.getRetrieveService().openDicomInputStream(ctx, inst)) {
-            Attributes attrs = dis.readDataset(-1, Tag.PixelData);
+            Attributes attrs = dis.readDatasetUntilPixelData();
             ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(attrs, null);
             return attrs;
         }
@@ -388,10 +388,6 @@ public class Curve2PRExporter extends AbstractExporter {
             displayAreaSelectionSeq.get(0).remove(Tag.ReferencedImageSequence);
     }
 
-    private static String noMatches(ExportContext ctx) {
-        return appendEntity(ctx, new StringBuilder("Could not find ")).toString();
-    }
-
     private static String noPresentationStateCreated(ExportContext ctx) {
         return appendEntity(ctx, new StringBuilder("No Presentation State created for ")).toString();
     }
@@ -404,16 +400,5 @@ public class Curve2PRExporter extends AbstractExporter {
                         .append(numImages)
                         .append(" Images of "))
                 .toString();
-    }
-
-    private static StringBuilder appendEntity(ExportContext exportContext, StringBuilder sb) {
-        String studyInstanceUID = exportContext.getStudyInstanceUID();
-        String seriesInstanceUID = exportContext.getSeriesInstanceUID();
-        String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (sopInstanceUID != null && !sopInstanceUID.equals("*"))
-            sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (seriesInstanceUID != null && !seriesInstanceUID.equals("*"))
-            sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
-        return sb.append("Study[uid=").append(studyInstanceUID).append("]");
     }
 }

@@ -522,6 +522,7 @@
     <module>dcm4chee-arc-export-pr2ko</module>
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-storage</module>
+    <module>dcm4chee-arc-export-stow</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
     <module>dcm4chee-arc-hl7</module>
@@ -583,6 +584,7 @@
     <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-study-size</module>
     <module>dcm4chee-arc-stow</module>
+    <module>dcm4chee-arc-stow-client</module>
     <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-ian</module>

@@ -296,17 +296,6 @@ public class PR2KOExporter extends AbstractExporter {
         return appendEntity(ctx, new StringBuilder("No Key Object created for ")).toString();
     }
 
-    private static StringBuilder appendEntity(ExportContext exportContext, StringBuilder sb) {
-        String studyInstanceUID = exportContext.getStudyInstanceUID();
-        String seriesInstanceUID = exportContext.getSeriesInstanceUID();
-        String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (sopInstanceUID != null && !sopInstanceUID.equals("*"))
-            sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (seriesInstanceUID != null && !seriesInstanceUID.equals("*"))
-            sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
-        return sb.append("Study[uid=").append(studyInstanceUID).append("]");
-    }
-
     private static String toMessage(ExportContext ctx, int numKOs) {
         return appendEntity(ctx,
                 new StringBuilder("Created ")

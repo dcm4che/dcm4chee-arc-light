@@ -89,7 +89,7 @@ public class DicomExporter extends AbstractExporter {
                     retrieveContext.failed() > 0
                             ? QueueMessage.Status.WARNING
                             : QueueMessage.Status.COMPLETED,
-                    outcomeMessage(exportContext, retrieveContext));
+                    outcomeMessage(exportContext, retrieveContext, destAET));
 
         if (descriptor.isExportAsSourceAE()) {
             retrieveContext.getSeriesInfos().stream()
@@ -111,59 +111,9 @@ public class DicomExporter extends AbstractExporter {
                                 ? QueueMessage.Status.FAILED
                                 : QueueMessage.Status.WARNING)
                             : QueueMessage.Status.COMPLETED,
-                    outcomeMessage(exportContext, retrieveContext));
+                    outcomeMessage(exportContext, retrieveContext, destAET));
         } finally {
             retrieveTaskMap.remove(messageID);
         }
     }
-
-    @Override
-    public void export(RetrieveContext retrieveContext) throws Exception {
-        if (retrieveService.calculateMatches(retrieveContext)
-                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
-            storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
-    }
-
-    private String noMatches(ExportContext exportContext) {
-        StringBuilder sb = new StringBuilder(256);
-        sb.append("Could not find ");
-        appendEntity(exportContext, sb);
-        return sb.toString();
-    }
-
-    private String outcomeMessage(ExportContext exportContext, RetrieveContext retrieveContext) {
-        int remaining = retrieveContext.remaining();
-        int completed = retrieveContext.completed();
-        int warning = retrieveContext.warning();
-        int failed = retrieveContext.failed();
-        int missing = retrieveContext.missing();
-        StringBuilder sb = new StringBuilder(256);
-        sb.append("Export ");
-        appendEntity(exportContext, sb);
-        sb.append(" to AE: ").append(destAET);
-        if (remaining > 0)
-            sb.append(" canceled - remaining:").append(remaining).append(", ");
-        else
-            sb.append(" - ");
-        sb.append("completed:").append(completed);
-        if (warning > 0)
-            sb.append(", ").append("warning:").append(warning);
-        if (failed > 0)
-            sb.append(", ").append("failed:").append(failed);
-        if (missing > 0)
-            sb.append(", ").append("missing:").append(missing);
-        return sb.toString();
-    }
-
-    private StringBuilder appendEntity(ExportContext exportContext, StringBuilder sb) {
-        String studyInstanceUID = exportContext.getStudyInstanceUID();
-        String seriesInstanceUID = exportContext.getSeriesInstanceUID();
-        String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (sopInstanceUID != null && !sopInstanceUID.equals("*"))
-            sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (seriesInstanceUID != null && !seriesInstanceUID.equals("*"))
-            sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
-        return sb.append("Study[uid=").append(studyInstanceUID).append("]");
-    }
-
 }

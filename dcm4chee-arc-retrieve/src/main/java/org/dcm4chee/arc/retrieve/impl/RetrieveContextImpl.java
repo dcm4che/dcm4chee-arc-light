@@ -43,10 +43,7 @@ package org.dcm4chee.arc.retrieve.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Priority;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
@@ -86,6 +83,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
+    private WebApplication destinationWebApp;
     private StorageDescriptor destinationStorage;
     private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
@@ -251,6 +249,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setDestinationAE(ApplicationEntity destinationAE) {
         this.destinationAE = destinationAE;
+    }
+
+    @Override
+    public WebApplication getDestinationWebApp() {
+        return destinationWebApp;
+    }
+
+    @Override
+    public void setDestinationWebApp(WebApplication destinationWebApp) {
+        this.destinationWebApp = destinationWebApp;
     }
 
     @Override

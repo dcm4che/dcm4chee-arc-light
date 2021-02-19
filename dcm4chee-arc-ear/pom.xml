@@ -152,6 +152,11 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-export-stow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-export-wado</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -383,6 +388,11 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-store-scu</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-stow-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
