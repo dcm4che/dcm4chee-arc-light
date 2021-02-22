@@ -79,6 +79,7 @@ public class CodeServiceImpl implements CodeService {
                 if (retries-- > 0) {
                     LOG.info("Failed to update DB caused by {} - retry",
                             DicomServiceException.initialCauseOf(e).toString());
+                    LOG.debug("Failed to update DB - retry:\n", e);
                 } else {
                     LOG.warn("Failed to update DB:\n", e);
                     throw e;
