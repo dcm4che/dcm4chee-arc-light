@@ -77,7 +77,8 @@ public class CodeServiceImpl implements CodeService {
                 return ejb.findOrCreate(code);
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("Failed to update DB caused by {} - retry", DicomServiceException.initialCauseOf(e));
+                    LOG.info("Failed to update DB caused by {} - retry",
+                            DicomServiceException.initialCauseOf(e).toString());
                 } else {
                     LOG.warn("Failed to update DB:\n", e);
                     throw e;
