@@ -168,8 +168,8 @@ import java.util.*;
 @NamedQuery(
     name = Instance.UPDATE_AVAILABILITY,
     query = "update Instance inst set inst.availability = ?2 " +
-            "where inst.series.pk in (" +
-            "select ser.pk from Series ser where ser.study = ?1)")
+            "where inst.series in (" +
+            "select ser from Series ser where ser.study = ?1)")
 })
 @Entity
 @Table(name = "instance",
