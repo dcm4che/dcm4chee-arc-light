@@ -1220,7 +1220,7 @@ export class Globalvar {
         }
     }
 
-    static STUDY_FILTER_SCHEMA(aets,hidden?):FilterSchema{
+    static STUDY_FILTER_SCHEMA(aets, storages, hidden?):FilterSchema{
         if(hidden){
             return [
                 {
@@ -1379,6 +1379,26 @@ export class Globalvar {
                     filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
                     description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
+                },
+                {
+                    tag:"select",
+                    options:storages,
+                    showStar:true,
+                    filterKey:"storageID",
+                    placeholder:$localize `:@@storage_id:Storage ID`,
+                    description:$localize `:@@storage_id_tooltip:Only query studies whose objects are on a particular storage system`
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageClustered",
+                    text:$localize `:@@storage_clustered:Storage Clustered`,
+                    description:$localize `:@@storage_clustered_tooltip:Only query studies whose objects is on storage system selected by 'Storage ID' and also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"storageExported",
+                    text:$localize `:@@storage_exported:Storage Exported`,
+                    description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
                 }
             ];
         }

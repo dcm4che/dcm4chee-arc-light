@@ -4,7 +4,7 @@ import {
     AccessLocation,
     DicomLevel,
     DicomMode,
-    DicomResponseType, DiffAttributeSet,
+    DicomResponseType, DiffAttributeSet, StorageSystems,
     FilterSchema, FilterSchemaElement,
     SelectDropdown, SelectedDetailObject, SelectionAction, StudyFilterConfig,
     UniqueSelectIdObject, UPSModifyMode
@@ -282,8 +282,8 @@ export class StudyService {
                         break;
                     default:
                         return [
-                            ...Globalvar.STUDY_FILTER_SCHEMA([],false),
-                            ...Globalvar.STUDY_FILTER_SCHEMA([],true)
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], false),
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -295,7 +295,10 @@ export class StudyService {
         return [];
     }
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean, filter?:StudyFilterConfig) {
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'),
+                    storages?:SelectDropdown<StorageSystems>[],
+                    studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],
+                    showCount?:boolean, filter?:StudyFilterConfig) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -320,7 +323,7 @@ export class StudyService {
                 // lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
