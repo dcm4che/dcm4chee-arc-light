@@ -98,9 +98,9 @@ export class PermissionService {
                             realm:userInfo.realm,
                             user:_.get(userInfo,"userProfile.username"),
                             roles:roles,
-                            su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1)
+                            su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1),
+                            tokenParsed:userInfo.tokenParsed
                         });
-                        console.log("......user about to set",user);
                         this.mainservice.setUser(user);
                         this.user = user;
                     }

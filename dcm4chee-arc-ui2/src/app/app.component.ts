@@ -240,13 +240,11 @@ export class AppComponent implements OnInit {
                     this.realm = user.realm;
                     this.superUser = user.su;
                     this.authServerUrl = user.authServerUrl;
+                    this.hasAdministrator = _.hasIn(user,"tokenParsed.realm_access.roles") && user.tokenParsed.realm_access.roles.indexOf("ADMINISTRATOR") > -1;
+                    this.hasViewRealm = _.hasIn(user,"tokenParsed.resource_access[realm-management].roles") && user.tokenParsed.resource_access["realm-management"].roles.indexOf("view-realm") > -1;
                     recall.apply(this);
                 },(err)=>{
                     recall.apply(this);
-                });
-                this._keycloakService.getUserInfo().subscribe(res=>{
-                    this.hasAdministrator = _.hasIn(res,"tokenParsed.realm_access.roles") && res.tokenParsed.realm_access.roles.indexOf("ADMINISTRATOR") > -1;
-                    this.hasViewRealm = _.hasIn(res,"tokenParsed.resource_access[realm-management].roles") && res.tokenParsed.resource_access["realm-management"].roles.indexOf("view-realm") > -1;
                 });
             }catch (e) {
                 j4care.log("User information couldn't be set",e);

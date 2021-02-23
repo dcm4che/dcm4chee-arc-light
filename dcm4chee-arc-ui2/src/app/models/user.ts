@@ -4,19 +4,22 @@ export class User {
     private _realm:string;
     private _authServerUrl:string;
     private _su:boolean;
+    private _tokenParsed:any;
 
     constructor(model:{
         user?: string,
         roles?: Array<string>,
         realm?:string,
         authServerUrl?:string,
-        su?:boolean
+        su?:boolean,
+        tokenParsed?:any
     }={}){
         this._user = model.user;
         this._roles = model.roles;
         this._realm = model.realm;
         this._authServerUrl = model.authServerUrl;
         this._su = model.su;
+        this._tokenParsed = model.tokenParsed;
     }
     get su(): boolean {
         return this._su;
@@ -56,5 +59,13 @@ export class User {
 
     set authServerUrl(value:string) {
         this._authServerUrl = value;
+    }
+
+    get tokenParsed(): any {
+        return this._tokenParsed;
+    }
+
+    set tokenParsed(value: any) {
+        this._tokenParsed = value;
     }
 }
