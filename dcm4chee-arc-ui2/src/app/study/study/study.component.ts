@@ -2780,7 +2780,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         {
                             tag:"input",
                             type:"text",
-                            filterKey:"workitem",
+                            filterKey:"newWorkitem",
                             description:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`,
                             placeholder:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
                         }
@@ -2790,7 +2790,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
                         },
                         {
-                            tag:"p-calendar",
+                            tag:"single-date-time-picker",
+                            type:"text",
                             filterKey:"upsScheduledTime",
                             description:$localize `:@@scheduled_procedure_step_start_date_time_00404005_as_in_created_ups:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS`,
                             placeholder:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
