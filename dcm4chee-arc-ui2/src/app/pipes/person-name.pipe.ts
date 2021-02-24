@@ -6,10 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class PersonNamePipe implements PipeTransform {
 
   transform(attrs: any, tags?: any): any {
-      console.log("Person Name passed tags are.........", tags);
       function valueOf(attrs, tag) {
           try {
-              console.log("Person Name passed tags to valueOf are.........", tags);
               return attrs[tag].Value[0].Alphabetic;
           } catch (e) {
               return "false";
@@ -31,7 +29,6 @@ export class PersonNamePipe implements PipeTransform {
 
       function valueOfItem(attrs, seqTag, tag) {
           try {
-              console.log("Person Name passed tags to valueOfItem are.........", seqTag, tag);
               let item = attrs[seqTag].Value[0];
               return valueOf(item, tag);
           } catch (e) {
