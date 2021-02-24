@@ -208,7 +208,9 @@ class HL7PSUMessage {
     private void setObservationDateTime(Attributes studyAttrs, Attributes seriesAttrs) {
         obr.setField(7, studyAttrs.getDate(Tag.StudyDate) != null
                 ? studyAttrs.getString(Tag.StudyDate) + studyAttrs.getString(Tag.StudyTime)
-                : seriesAttrs.getString(Tag.SeriesDate) + seriesAttrs.getString(Tag.SeriesTime));
+                : seriesAttrs.getString(Tag.SeriesDate) != null
+                    ? seriesAttrs.getString(Tag.SeriesDate) + seriesAttrs.getString(Tag.SeriesTime)
+                    : null);
     }
 
     private void setIssuerOfAccNumSq(Attributes studyAttrs) {
