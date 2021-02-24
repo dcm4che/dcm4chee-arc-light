@@ -48,7 +48,6 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
@@ -68,7 +67,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     protected final RetrieveContext ctx;
     private final PresentationContext pc;
-    private final Attributes rqCmd;
+    protected final Attributes rqCmd;
     private final int msgId;
     private final String cuid;
     protected final Attributes keys;
@@ -242,19 +241,10 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
-            int failed = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
-            ctx.setFallbackMoveRSPFailed(failed);
-            if (rspCount++ == 0) {
-                ctx.setFallbackMoveRSPNumberOfMatches(failed +
-                        cmd.getInt(Tag.NumberOfRemainingSuboperations, 0) +
-                        cmd.getInt(Tag.NumberOfWarningSuboperations, 0));
-                if (Status.isPending(cmd.getInt(Tag.Status, -1))) {
-                    startWritePendingRSP();
-                }
+            ctx.setFallbackMoveRSP(cmd, data);
+            if (rspCount++ == 0 && Status.isPending(cmd.getInt(Tag.Status, -1))) {
+                startWritePendingRSP();
             }
-            if (data != null)
-                ctx.setFallbackMoveRSPFailedIUIDs(StringUtils.maskNull(
-                        data.getStrings(Tag.FailedSOPInstanceUIDList), StringUtils.EMPTY_STRING));
         }
 
         @Override
@@ -271,32 +261,45 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
             if (pendingRSPInterval != null)
                 ctx.setWritePendingRSP(ctx.getLocalApplicationEntity().getDevice()
                         .scheduleAtFixedRate(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        writePendingRSP();
-                                    }
-                                },
+                                () -> writePendingRSP(),
                                 0, pendingRSPInterval.getSeconds(), TimeUnit.SECONDS));
         }
 
         private void writeFinalRSP() {
-            writeMoveRSP(status(), 0, ctx.completed(), ctx.failed(), ctx.warning(), finalRSPDataset());
-        }
-
-        private int status() {
-            return (ctx.failed() == 0 && ctx.warning() == 0)
-                    ? Status.Success
-                    : (ctx.completed() == 0 && ctx.warning() == 0)
-                    ? Status.UnableToPerformSubOperations
-                    : Status.OneOrMoreFailures;
+            Attributes fallbackMoveRSPCommand = ctx.getFallbackMoveRSPCommand();
+            if (ctx.getNumberOfMatches() == 0 // no local matches
+                    && fallbackMoveRSPCommand != null // nothing received from fallbackMoveRSP
+                    && fallbackMoveRSPCommand.getInt(Tag.NumberOfCompletedSuboperations, 0) == 0
+                    && fallbackMoveRSPCommand.getInt(Tag.NumberOfWarningSuboperations, 0) == 0) {
+                writeMoveRSP(fallbackMoveRSPCommand, ctx.getFallbackMoveRSPData());
+            } else {
+                int status = fallbackMoveRSPCommand != null
+                        ? fallbackMoveRSPCommand.getInt(Tag.Status, 0)
+                        : Status.UnableToPerformSubOperations;
+                int failed = ctx.failed();
+                int warning = ctx.warning();
+                int completed = ctx.completed();
+                if (failed > 0) {
+                    status = completed == 0 && warning == 0
+                            ? Status.UnableToPerformSubOperations
+                            : Status.OneOrMoreFailures;
+                }
+                Attributes cmd = Commands.mkCMoveRSP(rqCmd, status);
+                if (completed > 0)
+                    cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US, completed);
+                if (failed > 0)
+                    cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, failed);
+                if (warning > 0)
+                    cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, warning);
+                writeMoveRSP(cmd, finalRSPDataset());
+            }
         }
 
         private Attributes finalRSPDataset() {
-            if (ctx.failed() == 0)
+            String[] failedIUIDs;
+            if (ctx.failed() == 0 || (failedIUIDs = ctx.failedSOPInstanceUIDs()).length == 0)
                 return null;
 
-            String[] failedIUIDs = cat(ctx.failedSOPInstanceUIDs(), ctx.getFallbackMoveRSPFailedIUIDs());
             Attributes data = new Attributes(1);
             data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
             return data;
@@ -304,21 +307,14 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         private void writePendingRSP() {
             int remaining = ctx.remaining();
-            if (remaining > 0)
-                writeMoveRSP(Status.Pending, remaining, ctx.completed(), ctx.failed(), ctx.warning(), null);
+            if (remaining > 0) {
+                Attributes cmd = Commands.mkCMoveRSP(rqCmd, Status.Pending);
+                cmd.setInt(Tag.NumberOfRemainingSuboperations, VR.US, remaining);
+                cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US, ctx.completed());
+                cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, ctx.failed());
+                cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, ctx.warning());
+                writeMoveRSP(cmd, null);
+            }
         }
-    }
-
-    private static String[] cat(String[] ss1, String[] ss2) {
-        if (ss1.length == 0)
-            return ss2;
-
-        if (ss2.length == 0)
-            return ss1;
-
-        String[] ss = new String[ss1.length + ss2.length];
-        System.arraycopy(ss1, 0, ss, 0, ss1.length);
-        System.arraycopy(ss2, 0, ss, ss1.length, ss2.length);
-        return ss;
     }
 }

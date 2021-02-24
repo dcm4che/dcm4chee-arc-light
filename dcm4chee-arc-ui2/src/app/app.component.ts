@@ -41,6 +41,8 @@ export class AppComponent implements OnInit {
     isRole: any;
     archive;
     realm;
+    hasAdministrator:boolean = false;
+    hasViewRealm:boolean = false;
     authServerUrl;
     showMenu = false;
     showScrollButton = false;
@@ -241,6 +243,10 @@ export class AppComponent implements OnInit {
                     recall.apply(this);
                 },(err)=>{
                     recall.apply(this);
+                });
+                this._keycloakService.getUserInfo().subscribe(res=>{
+                    this.hasAdministrator = _.hasIn(res,"tokenParsed.realm_access.roles") && res.tokenParsed.realm_access.roles.indexOf("ADMINISTRATOR") > -1;
+                    this.hasViewRealm = _.hasIn(res,"tokenParsed.resource_access[realm-management].roles") && res.tokenParsed.resource_access["realm-management"].roles.indexOf("view-realm") > -1;
                 });
             }catch (e) {
                 j4care.log("User information couldn't be set",e);

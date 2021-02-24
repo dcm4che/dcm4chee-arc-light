@@ -15,7 +15,7 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet, AccessControlIDMode, UPSModifyMode, ModifyConfig,
+    DicomResponseType, DiffAttributeSet, StorageSystems, AccessControlIDMode, UPSModifyMode, ModifyConfig,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -234,6 +234,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     checkboxFunctions = false;
     currentWebAppClass = "QIDO_RS";
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
+    storages:SelectDropdown<StorageSystems>[];
 
     constructor(
         private route:ActivatedRoute,
@@ -302,6 +303,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
+                        this.getApplicationEntities();
+                    });
+                }
+                if (this.studyConfig.tab === "study") {
+                    this.getStorages(this, () => {
                         this.getApplicationEntities();
                     });
                 }
@@ -2467,7 +2473,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.filterSchemaMain.lineLength = undefined;
             this._filter.filterSchemaExpand.lineLength = undefined;
             this.setMainSchema();
-            this._filter.filterSchemaExpand  = this.service.getFilterSchema(this.studyConfig.tab, this.applicationEntities.aes,this._filter.quantityText,'expand');
+            this._filter.filterSchemaExpand  = this.service.getFilterSchema(
+                this.studyConfig.tab, this.applicationEntities.aes, this._filter.quantityText,
+                'expand', this.storages);
         }catch (e) {
             j4care.log("Error on schema set",e);
         }
@@ -2479,6 +2487,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.applicationEntities.aes,
             this._filter.quantityText,
             'main',
+            this.storages,
             this.studyWebService,
             this.diffAttributeSets,
             this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
@@ -2771,7 +2780,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         {
                             tag:"input",
                             type:"text",
-                            filterKey:"workitem",
+                            filterKey:"newWorkitem",
                             description:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`,
                             placeholder:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
                         }
@@ -2781,7 +2790,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
                         },
                         {
-                            tag:"p-calendar",
+                            tag:"single-date-time-picker",
+                            type:"text",
                             filterKey:"upsScheduledTime",
                             description:$localize `:@@scheduled_procedure_step_start_date_time_00404005_as_in_created_ups:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS`,
                             placeholder:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
@@ -4231,6 +4241,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         },err=>{
             this.httpErrorHandler.handleError(err);
         })
+    }
+
+    getStorages($this, callback?:Function) {
+        this.service.getStorageSystems().subscribe((storageSystems:StorageSystems[]) => {
+            this.storages = storageSystems.map((storageSystem:StorageSystems) => {
+                return new SelectDropdown(storageSystem.dcmStorageID, storageSystem.dcmStorageID);
+            });
+            callback.call($this);
+        }, err => {
+            this.httpErrorHandler.handleError(err);
+        });
     }
 
     getDiffAttributeSet($this, callback?:Function){

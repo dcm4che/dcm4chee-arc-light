@@ -252,8 +252,10 @@ public class StoreServiceEJB {
             }
             result.setRejectedInstance(rejectedInstance);
         }
+        boolean replaceLocationOnDifferentStorage = false;
         if (prevInstance != null) {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
+            replaceLocationOnDifferentStorage = replaceLocationOnDifferentStorage(session, prevInstance);
             deleteInstance(prevInstance, ctx);
         }
         RejectionNote rjNote = null;
@@ -285,7 +287,19 @@ public class StoreServiceEJB {
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         Series series = instance.getSeries();
-        series.getStudy().resetSize();
+        Study study = series.getStudy();
+        study.resetSize();
+        if (replaceLocationOnDifferentStorage) {
+            String prevStorageIDs = study.getEncodedStorageIDs();
+            study.setStorageIDs(queryStorageIDsOfStudy(study).toArray(StringUtils.EMPTY_STRING));
+            String newStorageIDs = study.getEncodedStorageIDs();
+            if (!newStorageIDs.equals(prevStorageIDs) && !em.contains(study)) { // not attached
+                    em.createNamedQuery(Study.SET_STORAGE_IDS)
+                            .setParameter(1, study.getPk())
+                            .setParameter(2, study.getEncodedStorageIDs())
+                            .executeUpdate();
+            }
+        }
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
         if (locationOp != LocationOp.COPY) {
@@ -293,7 +307,6 @@ public class StoreServiceEJB {
         }
         if (rjNote == null) {
             updateSeriesRejectionState(ctx, series, rejectedInstance);
-            Study study = series.getStudy();
             updateStudyRejectionState(ctx, study, rejectedInstance);
             study.setExternalRetrieveAET("*");
             study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
@@ -668,15 +681,6 @@ public class StoreServiceEJB {
                 .setParameter(2, series.getSeriesInstanceUID())
                 .setParameter(3, instance.getSopInstanceUID())
                 .executeUpdate();
-        String newStorageID = ctx.getStoreSession().getObjectStorageID();
-        if (replaceLocationOnDifferentStorage(locations, newStorageID)) {
-            List<String> storageIDs = queryStorageIDsOfStudy(study);
-            if (storageIDs.isEmpty())
-                // to avoid additional update statement for adding it later
-                study.setStorageIDs(newStorageID);
-            else
-                study.setStorageIDs(storageIDs.toArray(StringUtils.EMPTY_STRING));
-        }
         locations.clear();
         em.flush(); // to avoid ERROR: duplicate key value violates unique constraint on re-insert
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
@@ -690,8 +694,9 @@ public class StoreServiceEJB {
         }
     }
 
-    private static boolean replaceLocationOnDifferentStorage(Collection<Location> locations, String storageID) {
-        return locations.stream().anyMatch(
+    private static boolean replaceLocationOnDifferentStorage(StoreSession session, Instance prevInstance) {
+        String storageID = session.getObjectStorageID();
+        return prevInstance.getLocations().stream().anyMatch(
                 l -> Location.isDicomFile(l) && !l.getStorageID().equals(storageID));
     }
 
@@ -1220,8 +1225,11 @@ public class StoreServiceEJB {
         }
 
         Attributes attrs = ctx.getAttributes();
-        if (pat != null)
-            attrs.addAll(pat.getAttributes());
+        if (pat != null) {
+            Attributes patAttrs = new Attributes(pat.getAttributes());
+            Attributes.unifyCharacterSets(attrs, patAttrs);
+            attrs.addAll(patAttrs);
+        }
         String urlspec = new AttributesFormat(serviceURL).format(attrs);
         StorePermission storePermission = storePermissionCache.get(urlspec);
         if (storePermission == null) {
@@ -1244,8 +1252,11 @@ public class StoreServiceEJB {
             return;
 
         Attributes attrs = ctx.getAttributes();
-        if (pat != null)
-            attrs.addAll(pat.getAttributes());
+        if (pat != null) {
+            Attributes patAttrs = new Attributes(pat.getAttributes());
+            Attributes.unifyCharacterSets(attrs, patAttrs);
+            attrs.addAll(patAttrs);
+        }
 
         String response = new AttributesFormat(storePermissionServiceResponse).format(attrs);
         Pattern responsePattern = session.getArchiveAEExtension().storePermissionServiceResponsePattern();

@@ -1,5 +1,5 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,61 +35,41 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.code.impl;
+package org.dcm4chee.arc.stow.client.impl;
 
-import org.dcm4che3.data.Code;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.code.CodeService;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.CodeEntity;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.stow.client.StowClient;
+import org.dcm4chee.arc.stow.client.StowTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2016
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Feb 2021
  */
 @ApplicationScoped
-public class CodeServiceImpl implements CodeService {
-
-    static final Logger LOG = LoggerFactory.getLogger(CodeServiceImpl.class);
-
-    @Inject
-    private CodeServiceEJB ejb;
+public class StowClientImpl implements StowClient {
+    static final Logger LOG = LoggerFactory.getLogger(StowClientImpl.class);
 
     @Inject
-    private Device device;
+    @RetrieveStart
+    private Event<RetrieveContext> retrieveStart;
+
+    @Inject @RetrieveEnd
+    private Event<RetrieveContext> retrieveEnd;
 
     @Override
-    public CodeEntity findOrCreate(Code code) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int retries = arcDev.getStoreUpdateDBMaxRetries();
-        for (;;) {
-            try {
-                return ejb.findOrCreate(code);
-            } catch (EJBException e) {
-                if (retries-- > 0) {
-                    LOG.info("Failed to update DB caused by {} - retry",
-                            DicomServiceException.initialCauseOf(e).toString());
-                    LOG.debug("Failed to update DB - retry:\n", e);
-                } else {
-                    LOG.warn("Failed to update DB:\n", e);
-                    throw e;
-                }
-            }
-            try {
-                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
-            } catch (InterruptedException e) {
-                LOG.info("Failed to delay retry to update DB:\n", e);
-            }
-        }
+    public StowTask newStowTask(RetrieveContext ctx) {
+        return new StowTaskImpl(ctx, retrieveStart, retrieveEnd);
     }
 }

@@ -265,7 +265,8 @@ class StoreServiceImpl implements StoreService {
                 session.invalidateCachedStudyAndSeries();
                 if (retries-- > 0) {
                     LOG.info("{}: Failed to update DB caused by {} - retry", session,
-                            DicomServiceException.initialCauseOf(e));
+                            DicomServiceException.initialCauseOf(e).toString());
+                    LOG.debug("{}: Failed to update DB - retry:\n", session, e);
                 } else {
                     LOG.warn("{}: Failed to update DB:\n", session, e);
                     throw e;

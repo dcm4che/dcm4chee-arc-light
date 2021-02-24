@@ -96,6 +96,10 @@ public interface RetrieveService {
             String localAET, String studyUID, String seriesUID, String objectUID, String destAET)
             throws ConfigurationException;
 
+    RetrieveContext newRetrieveContextSTOW(
+            String localAET, String studyUID, String seriesUID, String objectUID, String destWebApp)
+            throws ConfigurationException;
+
     RetrieveContext newRetrieveContextSTORE(
             String localAET, String studyUID, String seriesUID, Sequence refSopSeq, String destAET)
             throws ConfigurationException;

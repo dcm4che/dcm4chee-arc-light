@@ -245,34 +245,40 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     private void writeFinalRSP() {
         int remaining = ctx.remaining();
+        int completed = ctx.completed();
+        int failed = ctx.failed();
+        int warning = ctx.warning();
         if (!canceled) {
             ctx.addFailed(remaining);
             remaining = 0;
         }
-        writeRSP(remaining > 0 ? Status.Cancel : ctx.status(), remaining, finalRSPDataset());
+        int status = remaining > 0 ? Status.Cancel : ctx.status();
+        Attributes cmd = Commands.mkRSP(rqCmd, status, dimserq);
+        if (remaining > 0)
+            cmd.setInt(Tag.NumberOfRemainingSuboperations, VR.US, remaining);
+        if (completed > 0)
+            cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US, completed);
+        if (failed > 0) {
+            cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, failed);
+        }
+        if (warning > 0)
+            cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, warning);
+        try {
+            rqas.writeDimseRSP(pc, cmd, finalRSPDataset());
+        } catch (IOException e) {
+            LOG.warn("{}: Unable to send C-GET or C-MOVE RSP on association to {}",
+                    rqas, rqas.getRemoteAET(), e);
+        }
     }
 
     private Attributes finalRSPDataset() {
-        if (ctx.failed() == 0)
+        String[] failedIUIDs;
+        if (ctx.failed() == 0 || (failedIUIDs = ctx.failedSOPInstanceUIDs()).length == 0)
             return null;
 
-        String[] failedIUIDs = cat(ctx.failedSOPInstanceUIDs(), ctx.getFallbackMoveRSPFailedIUIDs());
         Attributes attrs = new Attributes(1);
         attrs.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
         return attrs;
-    }
-
-    private static String[] cat(String[] ss1, String[] ss2) {
-        if (ss1.length == 0)
-            return ss2;
-
-        if (ss2.length == 0)
-            return ss1;
-
-        String[] ss = new String[ss1.length + ss2.length];
-        System.arraycopy(ss1, 0, ss, 0, ss1.length);
-        System.arraycopy(ss2, 0, ss, ss1.length, ss2.length);
-        return ss;
     }
 
     private void writePendingRSP() {
@@ -280,22 +286,18 @@ final class RetrieveTaskImpl implements RetrieveTask {
             return;
 
         int remaining = ctx.remaining();
-        if (remaining > 0)
-            writeRSP(Status.Pending, remaining, null);
-    }
-
-    private void writeRSP(int status, int remaining, Attributes data) {
-        Attributes cmd = Commands.mkRSP(rqCmd, status, dimserq);
-        if (remaining > 0)
+        if (remaining > 0) {
+            Attributes cmd = Commands.mkRSP(rqCmd, Status.Pending, dimserq);
             cmd.setInt(Tag.NumberOfRemainingSuboperations, VR.US, remaining);
-        cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US, ctx.completed());
-        cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, ctx.failed());
-        cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, ctx.warning());
-        try {
-            rqas.writeDimseRSP(pc, cmd, data);
-        } catch (IOException e) {
-            LOG.warn("{}: Unable to send C-GET or C-MOVE RSP on association to {}",
-                    rqas, rqas.getRemoteAET(), e);
+            cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US, ctx.completed());
+            cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, ctx.failed());
+            cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, ctx.warning());
+            try {
+                rqas.writeDimseRSP(pc, cmd, null);
+            } catch (IOException e) {
+                LOG.warn("{}: Unable to send C-GET or C-MOVE RSP on association to {}",
+                        rqas, rqas.getRemoteAET(), e);
+            }
         }
     }
 

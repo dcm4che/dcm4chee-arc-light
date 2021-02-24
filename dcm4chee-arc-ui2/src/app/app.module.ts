@@ -26,6 +26,7 @@ import { FormatDAPipe } from './pipes/format-da.pipe';
 import { FormatTMPipe } from './pipes/format-tm.pipe';
 import { FormatTagPipe } from './pipes/format-tag.pipe';
 import { ContentDescriptionPipe } from './pipes/content-description.pipe';
+import { PatientIssuerPipe } from './pipes/patient-issuer.pipe';
 import { FormatAttributeValuePipe } from './pipes/format-attribute-value.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from './studies/studies.service';
@@ -128,6 +129,7 @@ import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
         FormatTMPipe,
         FormatTagPipe,
         ContentDescriptionPipe,
+        PatientIssuerPipe,
         FormatAttributeValuePipe,
         RemovedotsPipe,
         AttributeListComponent,
@@ -266,6 +268,7 @@ import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
         StorageVerificationService,
         StudyService,
         ContentDescriptionPipe,
+        PatientIssuerPipe,
         ArrayToStringPipe,
         OptionService,
         KeycloakService,

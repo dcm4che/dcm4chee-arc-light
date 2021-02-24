@@ -40,24 +40,21 @@
 
 package org.dcm4chee.arc.export.rs;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.dcm4chee.arc.stow.client.StowClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +69,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -93,13 +88,13 @@ public class ExporterRS {
     private RetrieveService retrieveService;
 
     @Inject
+    private CStoreSCU storeSCU;
+
+    @Inject
+    private StowClient stowClient;
+
+    @Inject
     private ExportManager exportManager;
-
-    @Inject
-    private ExporterFactory exporterFactory;
-
-    @Inject
-    private IWebApplicationCache iWebAppCache;
 
     @PathParam("AETitle")
     private String aet;
@@ -158,59 +153,56 @@ public class ExporterRS {
             return errResponse("Archive Device Extension not configured for device: " + device.getDeviceName(),
                     Response.Status.NOT_FOUND);
 
-        if (exporterID.startsWith("stowrs"))
-            return stowExport(exporterID);
+        try {
+            try {
+                if (exporterID.startsWith("dicom:"))
+                    return dicomExport(studyUID, seriesUID, objectUID, exporterID.substring(6));
 
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-        if (exporter != null) {
+                if (exporterID.startsWith("stowrs:"))
+                    return stowExport(studyUID, seriesUID, objectUID, exporterID.substring(7));
+
+            } catch (DicomServiceException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
+            } catch (ConfigurationNotFoundException e) {
+                return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            }
+
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+            if (exporter == null) {
+                return errResponse("No such Exporter: " + exporterID, Response.Status.NOT_FOUND);
+            }
             try {
                 exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
                         HttpServletRequestInfo.valueOf(request), batchID, studyUID);
             } catch (QueueSizeLimitExceededException e) {
                 return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
-            } catch (Exception e) {
-                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
             }
-
             return Response.accepted().build();
-        }
-
-        URI exportURI = toDicomURI(exporterID);
-        if (exportURI == null)
-            return errResponse("Export destination should start with dicom:", Response.Status.NOT_FOUND);
-
-        try {
-            RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
-                    aet, studyUID, seriesUID, objectUID, exportURI.getSchemeSpecificPart());
-            retrieveContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
-            exporterFactory.getExporter(new ExporterDescriptor(exporterID, exportURI))
-                    .export(retrieveContext);
-            return toResponse(retrieveContext);
-        } catch (DicomServiceException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private Response stowExport(String exporterID) {
-        if (!exporterID.contains(":") || exporterID.endsWith(":"))
-            return errResponse("STOW RS destination webapp is not specified", Response.Status.BAD_REQUEST);
+    private Response dicomExport(String studyUID, String seriesUID, String objectUID, String destAET)
+            throws Exception{
+        RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
+                aet, studyUID, seriesUID, objectUID, destAET);
+        retrieveContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+        if (retrieveService.calculateMatches(retrieveContext)
+                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
+            storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
+        return toResponse(retrieveContext);
+    }
 
-        String destWebApp = exporterID.substring(exporterID.indexOf(":") + 1);
-        WebApplication webApp;
-        try {
-            webApp = iWebAppCache.findWebApplication(destWebApp);
-        } catch (ConfigurationNotFoundException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (ConfigurationException e) {
-            return errResponse("Error getting Destination Web Application " + destWebApp + " : " + e.getMessage(),
-                    Response.Status.CONFLICT);
-        }
-
-        String stowDestURL = webApp.getServiceURL().toString();
-        //TODO
-        return Response.ok().build();
+    private Response stowExport(String studyUID, String seriesUID, String objectUID, String destWebApp)
+            throws Exception{
+        RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTOW(
+                aet, studyUID, seriesUID, objectUID, destWebApp);
+        retrieveContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+        if (retrieveService.calculateMatches(retrieveContext)
+                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
+            stowClient.newStowTask(retrieveContext).run();
+        return toResponse(retrieveContext);
     }
 
     private void logRequest() {
@@ -249,16 +241,6 @@ public class ExporterRS {
         };
     }
 
-    private static URI toDicomURI(String exporterID) {
-        if (exporterID.startsWith("dicom:"))
-            try {
-                return new URI(exporterID);
-            } catch (URISyntaxException e) {
-                LOG.warn("Malformed URI : {}", exporterID);
-            }
-        return null;
-    }
-
     private Response errResponse(String msg, Response.Status status) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
@@ -275,17 +257,5 @@ public class ExporterRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private ExportContext createExportContext(
-            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
-        Exporter e = exporterFactory.getExporter(exporter);
-        ExportContext ctx = e.createExportContext();
-        ctx.setStudyInstanceUID(studyUID);
-        ctx.setSeriesInstanceUID(seriesUID);
-        ctx.setSopInstanceUID(objectUID);
-        ctx.setAETitle(aet);
-        ctx.setBatchID(batchID);
-        return ctx;
     }
 }

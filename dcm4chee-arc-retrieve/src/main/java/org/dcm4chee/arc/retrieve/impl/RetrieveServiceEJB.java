@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -49,8 +50,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -115,34 +114,35 @@ public class RetrieveServiceEJB {
                 .executeUpdate();
     }
 
-    public void updateInstanceAvailability(
-            Map<Availability, Set<String>> availabilityStudyUIDs, Map<Availability, Set<String>> availabilitySeriesUIDs,
-            Map<Availability, Set<Long>> availabilityInstPks, RetrieveContext ctx) {
+    public void updateInstanceAvailability(RetrieveContext ctx) {
         switch (ctx.getQueryRetrieveLevel()) {
             case STUDY:
-                availabilityStudyUIDs.forEach((availability, studyUIDs) -> {
-                    LOG.info("Update {} study query attributes availability to {}", studyUIDs, availability);
-                    em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_UID)
-                            .setParameter(1, studyUIDs)
-                            .setParameter(2, availability)
-                            .executeUpdate();
-                });
+                updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
             case SERIES:
-                availabilitySeriesUIDs.forEach((availability, seriesUIDs) -> {
-                    LOG.info("Update {} series query attributes availability to {}", seriesUIDs, availability);
-                    em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_UID)
-                            .setParameter(1, seriesUIDs)
-                            .setParameter(2, availability)
-                            .executeUpdate();
-                });
+                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
             case IMAGE:
-                availabilityInstPks.forEach((availability, instPks) -> {
-                    LOG.info("Update Instances with PKs {} availability to {}", instPks, availability);
-                    em.createNamedQuery(Instance.UPDATE_AVAILABILITY_BY_PK)
-                            .setParameter(1, instPks)
-                            .setParameter(2, availability)
-                            .executeUpdate();
-                });
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
+                        ctx.getSopInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
+        }
+    }
+
+    private void updateInstanceAvailability(String name, String[] uids, Availability availability) {
+        for (String uid : uids) {
+            em.createNamedQuery(name)
+                    .setParameter(1, uid)
+                    .setParameter(2, availability)
+                    .executeUpdate();
         }
     }
 }

@@ -187,7 +187,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 } catch (Exception e1) {
                     LOG.warn("Failed to revoke storage", e1);
                 }
-            ctx.getCopyStudyFailures().add(match.getAttributes().getString(Tag.StudyInstanceUID));
+            ctx.incrementFailuresOnCopyToRetrieveCache();
             return false;
         } finally {
             ctx.getRetrieveService().updateLocations(ctx);
@@ -200,6 +200,11 @@ public class CopyToRetrieveCacheTask implements Runnable {
             writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
             StorageDescriptor retrieveCache = storage.getStorageDescriptor();
+            if (ctx.getUpdateInstanceAvailability() == null
+                    && retrieveCache.getInstanceAvailability().compareTo(
+                        locationInputStream.ctx.getStorage().getStorageDescriptor().getInstanceAvailability()) < 0) {
+                ctx.setUpdateInstanceAvailability(retrieveCache.getInstanceAvailability());
+            }
             return new Location.Builder()
                     .storageID(retrieveCache.getStorageID())
                     .storagePath(writeCtx.getStoragePath())

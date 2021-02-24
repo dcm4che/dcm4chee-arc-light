@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ **** BEGIN LICENSE BLOCK *****
+  ~ ***** BEGIN LICENSE BLOCK *****
   ~ Version: MPL 1.1/GPL 2.0/LGPL 2.1
   ~
   ~ The contents of this file are subject to the Mozilla Public License Version
@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2013
+  ~ Portions created by the Initial Developer are Copyright (C) 2015-2019
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -36,7 +36,8 @@
   ~ the provisions above, a recipient may use your version of this file under
   ~ the terms of any one of the MPL, the GPL or the LGPL.
   ~
-  ~ **** END LICENSE BLOCK *****
+  ~ ***** END LICENSE BLOCK *****
+  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -49,7 +50,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-export-rs</artifactId>
+  <artifactId>dcm4chee-arc-export-stow</artifactId>
 
   <dependencies>
     <dependency>
@@ -66,19 +67,7 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-event</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-export</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-export-mgt</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -96,37 +85,7 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query-scu</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query-util</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-retrieve</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-service</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-store-scu</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -135,28 +94,6 @@
       <artifactId>dcm4chee-arc-stow-client</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-rs-client</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-rs-util</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-validation</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-csv</artifactId>
     </dependency>
   </dependencies>
 

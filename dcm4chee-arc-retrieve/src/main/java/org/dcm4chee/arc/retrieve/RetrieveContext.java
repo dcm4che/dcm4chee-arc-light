@@ -40,9 +40,11 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
@@ -114,6 +116,10 @@ public interface RetrieveContext extends Closeable {
     ApplicationEntity getDestinationAE();
 
     void setDestinationAE(ApplicationEntity remoteAE);
+
+    WebApplication getDestinationWebApp();
+
+    void setDestinationWebApp(WebApplication destinationWebApp);
 
     StorageDescriptor getDestinationStorage();
 
@@ -229,17 +235,19 @@ public interface RetrieveContext extends Closeable {
 
     void stopWritePendingRSP();
 
-    int getFallbackMoveRSPNumberOfMatches();
+    void setFallbackMoveRSP(Attributes cmd, Attributes data);
 
-    void setFallbackMoveRSPNumberOfMatches(int fallbackMoveRSPNumberOfMatches);
+    Attributes getFallbackMoveRSPCommand();
+
+    Attributes getFallbackMoveRSPData();
+
+    int getFallbackMoveRSPNumberOfMatches();
 
     int getFallbackMoveRSPFailed();
 
-    void setFallbackMoveRSPFailed(int fallbackMoveRSPFailed);
-
     String[] getFallbackMoveRSPFailedIUIDs();
 
-    void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs);
+    int getFallbackMoveRSPStatus();
 
     boolean isRetryFailedRetrieve();
 
@@ -275,5 +283,11 @@ public interface RetrieveContext extends Closeable {
 
     void decrementNumberOfMatches();
 
-    Set<String> getCopyStudyFailures();
+    Availability getUpdateInstanceAvailability();
+
+    void setUpdateInstanceAvailability(Availability updateInstanceAvailability);
+
+    int failuresOnCopyToRetrieveCache();
+
+    void incrementFailuresOnCopyToRetrieveCache();
 }

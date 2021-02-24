@@ -166,14 +166,24 @@ import java.util.*;
             "and instance.series.seriesInstanceUID = ?2 " +
             "and instance.sopInstanceUID = ?3"),
 @NamedQuery(
-    name = Instance.UPDATE_AVAILABILITY,
-    query = "update Instance inst set inst.availability = ?2 " +
-            "where inst.series.pk in (" +
-            "select ser.pk from Series ser where ser.study = ?1)"),
+    name = Instance.UPDATE_AVAILABILITY_OF_STUDY,
+    query = "update Instance i set i.availability = ?2 " +
+            "where i.series in (" +
+            "select ser from Series ser where ser.study = ?1)"),
 @NamedQuery(
-        name = Instance.UPDATE_AVAILABILITY_BY_PK,
-        query = "update Instance inst set inst.availability = ?2 " +
-                "where pk in ?1")
+        name = Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+        query = "update Instance i set i.availability = ?2 " +
+                "where i.series in (" +
+                "select ser from Series ser where ser.study.studyInstanceUID = ?1)"),
+@NamedQuery(
+        name = Instance.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+        query = "update Instance i set i.availability = ?2 " +
+                "where i.series in (" +
+                "select ser from Series ser where ser.seriesInstanceUID = ?1)"),
+@NamedQuery(
+        name = Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
+        query = "update Instance i set i.availability = ?2 " +
+                "where i.sopInstanceUID = ?1")
 })
 @Entity
 @Table(name = "instance",
@@ -205,8 +215,10 @@ public class Instance {
     public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Instance.findLastModifiedStudyLevel";
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
-    public static final String UPDATE_AVAILABILITY = "Instance.updateAvailability";
-    public static final String UPDATE_AVAILABILITY_BY_PK = "Instance.updateAvailabilityByPK";
+    public static final String UPDATE_AVAILABILITY_OF_STUDY = "Instance.updateAvailabilityOfStudy";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "Instance.updateAvailabilityByStudyIUID";
+    public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "Instance.updateAvailabilityBySeriesIUID";
+    public static final String UPDATE_AVAILABILITY_BY_SOP_IUID = "Instance.updateAvailabilityBySopIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

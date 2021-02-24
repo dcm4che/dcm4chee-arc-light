@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -53,6 +54,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
@@ -137,6 +139,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     private IApplicationEntityCache aeCache;
 
     @Inject
+    private IWebApplicationCache webAppCache;
+
+    @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Inject @RetrieveFailures
@@ -189,6 +194,15 @@ public class RetrieveServiceImpl implements RetrieveService {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
         ctx.setDestinationAETitle(destAET);
         ctx.setDestinationAE(aeCache.findApplicationEntity(destAET));
+        return ctx;
+    }
+
+    @Override
+    public RetrieveContext newRetrieveContextSTOW(
+            String localAET, String studyUID, String seriesUID, String objectUID, String destWebApp)
+            throws ConfigurationException {
+        RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
+        ctx.setDestinationWebApp(webAppCache.findWebApplication(destWebApp));
         return ctx;
     }
 
@@ -768,13 +782,14 @@ public class RetrieveServiceImpl implements RetrieveService {
             return Completeness.PARTIAL;
         }
 
-        int failed = ctx.getFallbackMoveRSPFailed();
-        if (failed == 0)
+        if (ctx.getFallbackMoveRSPStatus() == Status.Success)
             return Completeness.COMPLETE;
 
-        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
+        int failed = ctx.getFallbackMoveRSPFailed();
+        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {} with status: {}H",
                 as, failed, ctx.getFallbackMoveRSPNumberOfMatches(),
-                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);
+                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP,
+                TagUtils.shortToHexString(ctx.getFallbackMoveRSPStatus()));
 
         String[] failedIUIDs = ctx.getFallbackMoveRSPFailedIUIDs();
         if (failedIUIDs.length == 0) {
@@ -934,39 +949,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     public void updateInstanceAvailability(RetrieveContext ctx) {
-        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
-        List<InstanceLocations> matches = ctx.getMatches();
-        matches.removeIf(il -> ctx.getCopyStudyFailures().contains(il.getAttributes().getString(Tag.StudyInstanceUID)));
-        if (matches.isEmpty())
-            return;
-
-        Map<Availability, Set<String>> availabilityStudyUIDs = new HashMap<>();
-        Map<Availability, Set<String>> availabilitySeriesUIDs = new HashMap<>();
-        Map<Availability, Set<Long>> availabilityInstPks = new HashMap<>();
-        matches.forEach(match ->
-            match.getLocations().stream()
-                    .map(l -> {
-                        StorageDescriptor sd = arcDev.getStorageDescriptor(l.getStorageID());
-                        StorageDescriptor rc;
-                        return sd == null || sd.getRetrieveCacheStorageID() == null
-                                || (rc = arcDev.getStorageDescriptor(sd.getRetrieveCacheStorageID())) == null
-                                || sd.getInstanceAvailability().compareTo(rc.getInstanceAvailability()) <= 0
-                                ? null : rc.getInstanceAvailability();
-                    })
-                    .filter(Objects::nonNull)
-                    .distinct().sorted()
-                    .findFirst()
-                    .ifPresent(availability -> {
-                        Attributes attrs = match.getAttributes();
-                        availabilityStudyUIDs.computeIfAbsent(availability, k -> new HashSet<>())
-                                .add(attrs.getString(Tag.StudyInstanceUID));
-                        availabilitySeriesUIDs.computeIfAbsent(availability, k -> new HashSet<>())
-                                .add(attrs.getString(Tag.SeriesInstanceUID));
-                        availabilityInstPks.computeIfAbsent(availability, k -> new HashSet<>())
-                                .add(match.getInstancePk());
-                    })
-        );
-        ejb.updateInstanceAvailability(availabilityStudyUIDs, availabilitySeriesUIDs, availabilityInstPks, ctx);
+        if (ctx.getUpdateInstanceAvailability() != null
+                || ctx.failuresOnCopyToRetrieveCache() == 0)
+            ejb.updateInstanceAvailability(ctx);
     }
 
     private LocationInputStream openLocationInputStream(

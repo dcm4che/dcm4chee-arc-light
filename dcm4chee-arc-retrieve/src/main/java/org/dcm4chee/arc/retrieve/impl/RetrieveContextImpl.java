@@ -40,11 +40,10 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Priority;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
@@ -61,6 +60,7 @@ import org.dcm4chee.arc.store.UpdateLocation;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,6 +83,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
+    private WebApplication destinationWebApp;
     private StorageDescriptor destinationStorage;
     private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
@@ -106,16 +107,17 @@ class RetrieveContextImpl implements RetrieveContext {
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
     private ScheduledFuture<?> writePendingRSP;
-    private volatile int fallbackMoveRSPNumberOfMatches;
-    private volatile int fallbackMoveRSPFailed;
-    private volatile String[] fallbackMoveRSPFailedIUIDs = {};
+    private volatile Attributes fallbackMoveRSPCommand;
+    private volatile Attributes fallbackMoveRSPData;
+    private volatile int fallbackMoveRSPNumberOfMatches = -1;
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
-    private Set<String> copyStudyFailures = new HashSet<>();
+    private volatile Availability updateInstanceAvailability;
+    private final AtomicInteger failuresOnCopyToRetrieveCache = new AtomicInteger();
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -249,6 +251,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setDestinationAE(ApplicationEntity destinationAE) {
         this.destinationAE = destinationAE;
+    }
+
+    @Override
+    public WebApplication getDestinationWebApp() {
+        return destinationWebApp;
+    }
+
+    @Override
+    public void setDestinationWebApp(WebApplication destinationWebApp) {
+        this.destinationWebApp = destinationWebApp;
     }
 
     @Override
@@ -451,7 +463,10 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int failed() {
-        return failed.get() + fallbackMoveRSPFailed;
+        return failed.get()
+                + (fallbackMoveRSPCommand != null
+                    ? fallbackMoveRSPCommand.getInt(Tag.NumberOfFailedSuboperations, 0)
+                    : 0);
     }
 
     @Override
@@ -476,7 +491,16 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String[] failedSOPInstanceUIDs() {
-        return failedSOPInstanceUIDs.toArray(StringUtils.EMPTY_STRING);
+        String[] src;
+        if (fallbackMoveRSPData == null
+                || (src = fallbackMoveRSPData.getStrings(Tag.FailedSOPInstanceUIDList)) == null
+                || src.length == 0)
+            return failedSOPInstanceUIDs.toArray(StringUtils.EMPTY_STRING);
+
+        int destPos = failedSOPInstanceUIDs.size();
+        String[] dest = failedSOPInstanceUIDs.toArray(new String[destPos + src.length]);
+        System.arraycopy(src, 0, dest, destPos, src.length);
+        return dest;
     }
 
     @Override
@@ -487,11 +511,18 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int status() {
-        return (failed() == 0 && warning() == 0)
+        if (fallbackMoveRSPCommand != null) {
+            int status = fallbackMoveRSPCommand.getInt(Tag.Status, 0);
+            if (status != Status.Success)
+                return (completed() == 0 && warning() == 0)
+                        ? Status.UnableToPerformSubOperations
+                        : Status.OneOrMoreFailures;
+        }
+        return (failed() == 0)
                 ? Status.Success
                 : (completed() == 0 && warning() == 0)
-                ? Status.UnableToPerformSubOperations
-                : Status.OneOrMoreFailures;
+                    ? Status.UnableToPerformSubOperations
+                    : Status.OneOrMoreFailures;
     }
 
     @Override
@@ -569,33 +600,61 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void setFallbackMoveRSP(Attributes cmd, Attributes data) {
+        if (fallbackMoveRSPCommand == null) {
+            fallbackMoveRSPNumberOfMatches = fallbackMoveRSPNumberOfMatchesOf(cmd);
+        }
+        this.fallbackMoveRSPCommand = cmd;
+        this.fallbackMoveRSPData = data;
+    }
+
+    private int fallbackMoveRSPNumberOfMatchesOf(Attributes cmd) {
+        int[] a = IntStream.of(
+                Tag.NumberOfRemainingSuboperations,
+                Tag.NumberOfCompletedSuboperations,
+                Tag.NumberOfWarningSuboperations,
+                Tag.NumberOfFailedSuboperations)
+                .map(tag -> cmd.getInt(tag, -1))
+                .filter(n -> n >= 0)
+                .toArray();
+
+        return a.length == 0 ? -1 : Arrays.stream(a).sum();
+    }
+
+    @Override
+    public Attributes getFallbackMoveRSPCommand() {
+        return fallbackMoveRSPCommand;
+    }
+
+    @Override
+    public Attributes getFallbackMoveRSPData() {
+        return fallbackMoveRSPData;
+    }
+
+    @Override
     public int getFallbackMoveRSPNumberOfMatches() {
         return fallbackMoveRSPNumberOfMatches;
     }
 
     @Override
-    public void setFallbackMoveRSPNumberOfMatches(int fallbackMoveRSPNumberOfMatches) {
-        this.fallbackMoveRSPNumberOfMatches = fallbackMoveRSPNumberOfMatches;
-    }
-
-    @Override
     public int getFallbackMoveRSPFailed() {
-        return fallbackMoveRSPFailed;
-    }
-
-    @Override
-    public void setFallbackMoveRSPFailed(int fallbackMoveRSPFailed) {
-        this.fallbackMoveRSPFailed = fallbackMoveRSPFailed;
+        return fallbackMoveRSPCommand != null
+                ? fallbackMoveRSPCommand.getInt(Tag.NumberOfFailedSuboperations, -1)
+                : -1;
     }
 
     @Override
     public String[] getFallbackMoveRSPFailedIUIDs() {
-        return fallbackMoveRSPFailedIUIDs;
+        return fallbackMoveRSPData != null
+                ? StringUtils.maskNull(fallbackMoveRSPData.getStrings(Tag.FailedSOPInstanceUIDList))
+                : StringUtils.EMPTY_STRING;
     }
 
     @Override
-    public void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs) {
-        this.fallbackMoveRSPFailedIUIDs = fallbackMoveRSPFailedIUIDs;
+    public int getFallbackMoveRSPStatus() {
+        return fallbackMoveRSPCommand != null
+                ? fallbackMoveRSPCommand.getInt(Tag.Status, -1)
+                : -1;
     }
 
     @Override
@@ -711,7 +770,22 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public Set<String> getCopyStudyFailures() {
-        return copyStudyFailures;
+    public Availability getUpdateInstanceAvailability() {
+        return updateInstanceAvailability;
+    }
+
+    @Override
+    public void setUpdateInstanceAvailability(Availability updateInstanceAvailability) {
+        this.updateInstanceAvailability = updateInstanceAvailability;
+    }
+
+    @Override
+    public int failuresOnCopyToRetrieveCache() {
+        return failuresOnCopyToRetrieveCache.get();
+    }
+
+    @Override
+    public void incrementFailuresOnCopyToRetrieveCache() {
+        failuresOnCopyToRetrieveCache.getAndIncrement();
     }
 }

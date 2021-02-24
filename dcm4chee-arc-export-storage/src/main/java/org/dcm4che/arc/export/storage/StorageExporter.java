@@ -157,7 +157,7 @@ public class StorageExporter extends AbstractExporter {
                 return new Outcome(retrieveContext.failed() > 0
                         ? QueueMessage.Status.FAILED
                         : QueueMessage.Status.COMPLETED,
-                        outcomeMessage(exportContext, retrieveContext));
+                        outcomeMessage(exportContext, retrieveContext, retrieveContext.getDestinationStorage()));
             } finally {
                 retrieveContext.getRetrieveService().updateLocations(retrieveContext);
             }
@@ -180,36 +180,4 @@ public class StorageExporter extends AbstractExporter {
                     .build();
         }
     }
-
-    private String noMatches(ExportContext exportContext) {
-        StringBuilder sb = new StringBuilder(256);
-        sb.append("Could not find ");
-        appendEntity(exportContext, sb);
-        return sb.toString();
-    }
-
-    private String outcomeMessage(ExportContext exportContext, RetrieveContext retrieveContext) {
-        int completed = retrieveContext.completed();
-        int failed = retrieveContext.failed();
-        StringBuilder sb = new StringBuilder(256);
-        sb.append("Export ");
-        appendEntity(exportContext, sb);
-        sb.append(" to ").append(retrieveContext.getDestinationStorage());
-        sb.append(" - completed:").append(completed);
-        if (failed > 0)
-            sb.append(", ").append("failed:").append(failed);
-        return sb.toString();
-    }
-
-    private StringBuilder appendEntity(ExportContext exportContext, StringBuilder sb) {
-        String studyInstanceUID = exportContext.getStudyInstanceUID();
-        String seriesInstanceUID = exportContext.getSeriesInstanceUID();
-        String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (sopInstanceUID != null && !sopInstanceUID.equals("*"))
-            sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (seriesInstanceUID != null && !seriesInstanceUID.equals("*"))
-            sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
-        return sb.append("Study[uid=").append(studyInstanceUID).append("]");
-    }
-
 }

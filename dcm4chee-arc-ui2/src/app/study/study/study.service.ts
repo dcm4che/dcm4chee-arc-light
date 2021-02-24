@@ -4,7 +4,7 @@ import {
     AccessLocation,
     DicomLevel,
     DicomMode,
-    DicomResponseType, DiffAttributeSet,
+    DicomResponseType, DiffAttributeSet, StorageSystems,
     FilterSchema, FilterSchemaElement,
     SelectDropdown, SelectedDetailObject, SelectionAction, StudyFilterConfig,
     UniqueSelectIdObject, UPSModifyMode
@@ -27,6 +27,7 @@ import {
     StudySchemaOptions, TableAction
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
+import {PatientIssuerPipe} from "../../pipes/patient-issuer.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
@@ -122,7 +123,7 @@ export class StudyService {
             if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')) {
                 patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
             }
-            return patientId;
+            return _.replace(patientId,"/","%2F");
         } else {
             return undefined;
         }
@@ -281,8 +282,8 @@ export class StudyService {
                         break;
                     default:
                         return [
-                            ...Globalvar.STUDY_FILTER_SCHEMA([],false),
-                            ...Globalvar.STUDY_FILTER_SCHEMA([],true)
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], false),
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -294,7 +295,10 @@ export class StudyService {
         return [];
     }
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'), studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],showCount?:boolean, filter?:StudyFilterConfig) {
+    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'),
+                    storages?:SelectDropdown<StorageSystems>[],
+                    studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],
+                    showCount?:boolean, filter?:StudyFilterConfig) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -319,7 +323,7 @@ export class StudyService {
                 // lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, filterMode === "expand").filter(filter => {
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
@@ -627,7 +631,7 @@ export class StudyService {
     }
 
     deletePatient(dcmWebApp: DcmWebApp, patientId:string){
-        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`);
+        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`, undefined, true);
     }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
@@ -1435,12 +1439,12 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    pathToValue: "00100021.Value[0]",
-                    headerDescription: $localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
-                    widthWeight: 1,
-                    calculatedWidth: "20%"
+                    headerDescription: $localize `:@@issuer_of_patient:Issuer of Patient`,
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(PatientIssuerPipe, undefined)
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -3406,7 +3410,7 @@ export class StudyService {
                 if (url) {
                     if (patientId) {
                         //Change patient;
-                        return this.$http.put(`${url}/${patientId}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject);
+                        return this.$http.put(`${url}/${patientId}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject, undefined,true);
                     } else {
                         //Create new patient
                         return this.$http.post(url, patientObject);

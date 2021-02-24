@@ -1,5 +1,5 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,61 +35,52 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.code.impl;
+package org.dcm4chee.arc.export.stow;
 
-import org.dcm4che3.data.Code;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.code.CodeService;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.CodeEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.stow.client.StowClient;
+import org.dcm4chee.arc.stow.client.StowTask;
 
-import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2016
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Feb 2021
  */
 @ApplicationScoped
-public class CodeServiceImpl implements CodeService {
-
-    static final Logger LOG = LoggerFactory.getLogger(CodeServiceImpl.class);
-
-    @Inject
-    private CodeServiceEJB ejb;
+@Named("stow")
+public class StowExporterProvider implements ExporterProvider {
 
     @Inject
-    private Device device;
+    private RetrieveService retrieveService;
+
+    @Inject
+    private StowClient stowClient;
+
+    private final Map<String, StowTask> stowTaskMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
-    public CodeEntity findOrCreate(Code code) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int retries = arcDev.getStoreUpdateDBMaxRetries();
-        for (;;) {
-            try {
-                return ejb.findOrCreate(code);
-            } catch (EJBException e) {
-                if (retries-- > 0) {
-                    LOG.info("Failed to update DB caused by {} - retry",
-                            DicomServiceException.initialCauseOf(e).toString());
-                    LOG.debug("Failed to update DB - retry:\n", e);
-                } else {
-                    LOG.warn("Failed to update DB:\n", e);
-                    throw e;
-                }
-            }
-            try {
-                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
-            } catch (InterruptedException e) {
-                LOG.info("Failed to delay retry to update DB:\n", e);
-            }
-        }
+    public Exporter getExporter(ExporterDescriptor descriptor) {
+        return new StowExporter(descriptor, retrieveService, stowClient, stowTaskMap);
+    }
+
+    public void cancelStowTask(@Observes MessageCanceled event) {
+        StowTask stowTask = stowTaskMap.get(event.getMessageID());
+        if (stowTask != null)
+            stowTask.cancel();
     }
 }

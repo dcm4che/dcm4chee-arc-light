@@ -57,14 +57,14 @@ import javax.persistence.*;
         name = StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK,
         query = "select a.viewID from StudyQueryAttributes a where a.study.pk = ?1"),
 @NamedQuery(
-        name = StudyQueryAttributes.UPDATE_AVAILABILITY,
+        name = StudyQueryAttributes.UPDATE_AVAILABILITY_OF_STUDY,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
                 "where studyQueryAttrs.study = ?1"),
 @NamedQuery(
-        name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_UID,
+        name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
                 "where studyQueryAttrs.study = (" +
-                "select study from Study study where study.studyInstanceUID in ?1)")
+                "select study from Study study where study.studyInstanceUID = ?1)")
 })
 @Entity
 @Table(name = "study_query_attrs", uniqueConstraints =
@@ -73,8 +73,8 @@ public class StudyQueryAttributes {
 
     public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
     public static final String VIEW_IDS_FOR_STUDY_PK = "StudyQueryAttributes.viewIDsForStudyPk";
-    public static final String UPDATE_AVAILABILITY = "StudyQueryAttributes.updateAvailability";
-    public static final String UPDATE_AVAILABILITY_BY_STUDY_UID = "StudyQueryAttributes.updateAvailabilityByStudyUID";
+    public static final String UPDATE_AVAILABILITY_OF_STUDY = "StudyQueryAttributes.updateAvailabilityOfStudy";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "StudyQueryAttributes.updateAvailabilityByStudyIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

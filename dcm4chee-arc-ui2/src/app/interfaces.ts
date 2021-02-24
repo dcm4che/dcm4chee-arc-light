@@ -296,6 +296,10 @@ export interface DiffAttributeSet {
     type: string;
 }
 
+export interface StorageSystems {
+    dcmStorageID:string;
+}
+
 export type AccessControlIDMode = "level_access_control_id" | "update_access_control_id_to_matching"|"update_access_control_id_to_selections";
 
 export interface OptionsTree {

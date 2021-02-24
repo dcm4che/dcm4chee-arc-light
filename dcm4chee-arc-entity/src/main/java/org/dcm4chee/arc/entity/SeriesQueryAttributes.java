@@ -61,15 +61,20 @@ import javax.persistence.*;
     name = SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK,
     query = "select a.viewID from SeriesQueryAttributes a where a.series.pk = ?1"),
 @NamedQuery(
-    name = SeriesQueryAttributes.UPDATE_AVAILABILITY,
+    name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
             "where serQueryAttrs.series in (" +
                 "select ser from Series ser where ser.study = ?1)"),
 @NamedQuery(
-        name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_UID,
+        name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
                 "where serQueryAttrs.series in (" +
-                "select ser from Series ser where ser.seriesInstanceUID in ?1)")
+                "select ser from Series ser where ser.study.studyInstanceUID = ?1)"),
+@NamedQuery(
+        name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+        query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
+                "where serQueryAttrs.series in (" +
+                "select ser from Series ser where ser.seriesInstanceUID = ?1)")
 })
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =
@@ -79,8 +84,9 @@ public class SeriesQueryAttributes {
     public static final String FIND_BY_VIEW_ID_AND_SERIES_PK = "SeriesQueryAttributes.findByViewIDAndSeriesPk";
     public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
     public static final String VIEW_IDS_FOR_SERIES_PK = "SeriesQueryAttributes.viewIDsForSeriesPk";
-    public static final String UPDATE_AVAILABILITY = "SeriesQueryAttributes.updateAvailability";
-    public static final String UPDATE_AVAILABILITY_BY_SERIES_UID = "SeriesQueryAttributes.updateAvailabilityBySeriesUID";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_PK = "SeriesQueryAttributes.updateAvailabilityByStudyPk";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "SeriesQueryAttributes.updateAvailabilityByStudyIUID";
+    public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "SeriesQueryAttributes.updateAvailabilityBySeriesIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

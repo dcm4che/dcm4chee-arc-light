@@ -32,7 +32,7 @@ export class DevicesService {
         if (_.hasIn(device, 'dicomNetworkAE') && _.size(device.dicomNetworkAE) > 0){
             _.forEach(device.dicomNetworkAE, (m, i) => {
                 if (_.hasIn(m, 'dicomAETitle')){
-                    m.dicomAETitle = this.generateNewTitle(m.dicomAETitle, aes, "dicomAETitle");
+                    m.dicomAETitle = this.generateNewAETitle(m.dicomAETitle, 1, 0, aes, "dicomAETitle");
                 }
             });
         }
@@ -71,27 +71,70 @@ export class DevicesService {
             `../devices/${deviceName}`
         );
     }
-    generateNewTitle(oldTitle, aes, titleName){
+    generateNewTitle(oldTitle, nodes, titleName){
         let newTitle;
-        if (_.endsWith(oldTitle, '_CLONE')){
+        if (_.endsWith(oldTitle, '_CLONE'))
             newTitle = oldTitle + '(1)';
-        }else{
-            if (_.endsWith(oldTitle, ')')){
+        else {
+            if (_.endsWith(oldTitle, ')')) {
                 let split = _.split(oldTitle,  '(');
                 let index = _.last(split);
                 split.pop();
                 index = _.replace(index, ')', '');
                 let indexInt = _.parseInt(index);
                 newTitle = split + '(' + _.add(indexInt, 1) + ')';
-            }else{
+            } else
                 newTitle = oldTitle + '_CLONE';
-            }
         }
-        if(aes && _.findIndex(aes, function(o) { return (_.hasIn(o,titleName) && o[titleName] == newTitle); }) > -1){
-            return this.generateNewTitle(newTitle, aes, titleName);
-        }else{
-            return newTitle;
+        return this.nodeExists(newTitle, nodes, titleName)
+                ? this.generateNewTitle(newTitle, nodes, titleName)
+                : newTitle;
+    }
+
+    generateNewAETitle(oldAETitle, sliceUpto, existsCounter, aes, titleName){
+        let newAETitle;
+        if (oldAETitle.length > 16)
+            newAETitle = this.newAETitleFrom(oldAETitle, 15);
+        else {
+            let lastChar = _.parseInt(oldAETitle.slice(-1));
+            let lastCharIsNotDigit = _.isNaN(lastChar);
+            newAETitle = oldAETitle.length < 16
+                        ? lastCharIsNotDigit
+                            ? oldAETitle + 1
+                            : oldAETitle.slice(0, -1) + (lastChar + 1)
+                        : lastCharIsNotDigit
+                            ? oldAETitle.slice(0, -1) + 1
+                            : lastChar < 9
+                                ? oldAETitle.slice(0, -1) + (lastChar + 1)
+                                : this.newAETitleFrom(oldAETitle, 15);
         }
+
+        let aeExists = this.nodeExists(newAETitle, aes, titleName);
+        if (aeExists && newAETitle.length == 16 && existsCounter == 9) {
+            sliceUpto = sliceUpto + 1;
+            newAETitle = this.newAETitleFrom(oldAETitle, 16 - sliceUpto);
+        }
+        return aeExists
+                    ? this.generateNewAETitle(newAETitle, sliceUpto, existsCounter, aes, titleName)
+                    : newAETitle;
+    }
+
+    newAETitleFrom(oldAETitle, substringUpto) {
+        let trimmedOldAETitle = oldAETitle.substring(0, substringUpto);
+        let lastChar = _.parseInt(trimmedOldAETitle.slice(-1));
+        let lastCharIsNotDigit = _.isNaN(lastChar);
+        return lastCharIsNotDigit
+                ? trimmedOldAETitle + 1
+                : trimmedOldAETitle.slice(0, -1) + (lastChar + 1);
+    }
+
+    nodeExists(nodeTitle, nodes, titleName) {
+        return nodes &&
+                    _.findIndex(nodes, function(o)
+                    {
+                        return (_.hasIn(o,titleName) && o[titleName] == nodeTitle);
+                    })
+                    > -1;
     }
 
     selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean, queueNames?:SelectDropdown<string>[], title?:string){
