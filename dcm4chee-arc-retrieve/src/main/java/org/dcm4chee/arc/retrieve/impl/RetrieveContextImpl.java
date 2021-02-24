@@ -116,6 +116,8 @@ class RetrieveContextImpl implements RetrieveContext {
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
+    private volatile Availability updateInstanceAvailability;
+    private final AtomicInteger failuresOnCopyToRetrieveCache = new AtomicInteger();
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -765,5 +767,25 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void decrementNumberOfMatches() {
         numberOfMatches--;
+    }
+
+    @Override
+    public Availability getUpdateInstanceAvailability() {
+        return updateInstanceAvailability;
+    }
+
+    @Override
+    public void setUpdateInstanceAvailability(Availability updateInstanceAvailability) {
+        this.updateInstanceAvailability = updateInstanceAvailability;
+    }
+
+    @Override
+    public int failuresOnCopyToRetrieveCache() {
+        return failuresOnCopyToRetrieveCache.get();
+    }
+
+    @Override
+    public void incrementFailuresOnCopyToRetrieveCache() {
+        failuresOnCopyToRetrieveCache.getAndIncrement();
     }
 }

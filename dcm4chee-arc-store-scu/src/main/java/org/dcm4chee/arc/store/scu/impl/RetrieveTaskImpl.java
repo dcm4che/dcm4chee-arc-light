@@ -149,6 +149,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             waitForPendingCStoreForward();
             updateCompleteness();
             ctx.getRetrieveService().updateLocations(ctx);
+            ctx.getRetrieveService().updateInstanceAvailability(ctx);
             ctx.stopWritePendingRSP();
             if (rqas != null) {
                 writeFinalRSP();

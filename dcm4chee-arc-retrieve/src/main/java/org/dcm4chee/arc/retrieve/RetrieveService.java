@@ -160,6 +160,8 @@ public interface RetrieveService {
 
     void updateLocations(RetrieveContext ctx);
 
+    void updateInstanceAvailability(RetrieveContext ctx);
+
     Date getLastModifiedFromMatches(RetrieveContext ctx);
 
     Date getLastModified(RetrieveContext ctx);

@@ -381,15 +381,15 @@ public class DeletionServiceEJB {
             return;
 
         LOG.info("Update Instance Availability from {} to {}", from, to);
-        em.createNamedQuery(Instance.UPDATE_AVAILABILITY)
+        em.createNamedQuery(Instance.UPDATE_AVAILABILITY_OF_STUDY)
                 .setParameter(1, study)
                 .setParameter(2, to)
                 .executeUpdate();
-        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY)
+        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY_OF_STUDY)
                 .setParameter(1, study)
                 .setParameter(2, to)
                 .executeUpdate();
-        em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY)
+        em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK)
                 .setParameter(1, study)
                 .setParameter(2, to)
                 .executeUpdate();

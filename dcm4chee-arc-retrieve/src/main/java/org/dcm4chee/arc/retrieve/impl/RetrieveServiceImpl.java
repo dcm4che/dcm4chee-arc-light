@@ -948,6 +948,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
+    public void updateInstanceAvailability(RetrieveContext ctx) {
+        if (ctx.getUpdateInstanceAvailability() != null
+                || ctx.failuresOnCopyToRetrieveCache() == 0)
+            ejb.updateInstanceAvailability(ctx);
+    }
+
     private LocationInputStream openLocationInputStream(
             Storage storage, Location location, String studyInstanceUID)
             throws IOException {

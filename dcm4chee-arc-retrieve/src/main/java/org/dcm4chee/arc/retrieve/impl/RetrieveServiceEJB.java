@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4chee.arc.entity.Completeness;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -55,6 +57,7 @@ import javax.persistence.PersistenceContext;
  */
 @Stateless
 public class RetrieveServiceEJB {
+    private static Logger LOG = LoggerFactory.getLogger(RetrieveServiceEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
@@ -109,5 +112,37 @@ public class RetrieveServiceEJB {
                 .setParameter(2, seriesInstanceUID)
                 .setParameter(3, completeness)
                 .executeUpdate();
+    }
+
+    public void updateInstanceAvailability(RetrieveContext ctx) {
+        switch (ctx.getQueryRetrieveLevel()) {
+            case STUDY:
+                updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
+            case SERIES:
+                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
+            case IMAGE:
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
+                        ctx.getSopInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                break;
+        }
+    }
+
+    private void updateInstanceAvailability(String name, String[] uids, Availability availability) {
+        for (String uid : uids) {
+            em.createNamedQuery(name)
+                    .setParameter(1, uid)
+                    .setParameter(2, availability)
+                    .executeUpdate();
+        }
     }
 }
