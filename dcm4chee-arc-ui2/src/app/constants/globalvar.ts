@@ -882,8 +882,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"PatientName",
-                    description:$localize `:@@patient_name:Patient name`,
-                    placeholder:$localize `:@@patient_name:Patient name`
+                    placeholder:$localize `:@@patient_family_name:Patient family name`,
+                    description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
                 },
                 {
                     tag:"checkbox",
@@ -970,8 +970,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
-                    description:$localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
-                    placeholder:$localize `:@@sp_physicians_name:SP Physician's Name`
+                    description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`,
+                    placeholder:$localize `:@@sp_physicians_family_name:SP Physician's family name`
                 }
                 ,{
                     tag:"range-picker",
@@ -1059,8 +1059,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"00100010",
-                    description:$localize `:@@patients_name:Patient's Name`,
-                    placeholder:$localize `:@@patients_name:Patient's Name`
+                    description:$localize `:@@patient_family_name:Patient family name`,
+                    placeholder:$localize `:@@patient_family_name:Patient family name`
                 },
                 {
                     tag:"checkbox",
@@ -1415,8 +1415,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"PatientName",
-                description:$localize `:@@patient_name:Patient name`,
-                placeholder:$localize `:@@patient_name:Patient name`
+                placeholder:$localize `:@@patient_family_name:Patient family name`,
+                description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
             },
             {
                 tag:"checkbox",
@@ -1483,8 +1483,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"ReferringPhysicianName",
-                description:$localize `:@@referring_physician_name:Referring physician name`,
-                placeholder:$localize `:@@referring_physician_name:Referring physician name`
+                placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
+                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
             },{
                 tag:"input",
                 type:"text",
@@ -1648,8 +1648,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"PatientName",
-                description:$localize `:@@patient_name:Patient name`,
-                placeholder:$localize `:@@patient_name:Patient name`
+                description:$localize `:@@patient_family_name:Patient family name`,
+                placeholder:$localize `:@@patient_family_name:Patient family name`
             },
             {
                 tag:"checkbox",
@@ -1694,8 +1694,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"ReferringPhysicianName",
-                description:$localize `:@@referring_physician_name:Referring physician name`,
-                placeholder:$localize `:@@referring_physician_name:Referring physician name`
+                placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
+                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
             },{
                 tag:"input",
                 type:"text",
@@ -1842,8 +1842,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"PatientName",
-                description:$localize `:@@patient_name:Patient name`,
-                placeholder:$localize `:@@patient_name:Patient name`
+                placeholder:$localize `:@@patient_family_name:Patient family name`,
+                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
             },
             {
                 tag:"checkbox",

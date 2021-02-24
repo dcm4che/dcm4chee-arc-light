@@ -28,6 +28,7 @@ import {
 } from "../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../../pipes/content-description.pipe";
 import {PatientIssuerPipe} from "../../pipes/patient-issuer.pipe";
+import {PersonNamePipe} from "../../pipes/person-name.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {WebAppsListService} from "../../configuration/web-apps-list/web-apps-list.service";
@@ -1422,13 +1423,12 @@ export class StudyService {
                     pxWidth: 40
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@patients_name:Patient's Name`,
-                    pathToValue: "00100010.Value[0].Alphabetic",
                     headerDescription: $localize `:@@patients_name:Patient's Name`,
-                    widthWeight: 1,
+                    widthWeight: 1.5,
                     calculatedWidth: "20%",
-                    cssClass:"border-left"
+                    pipe: new DynamicPipe(PersonNamePipe, ["00100010"])
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1910,12 +1910,12 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.r._physicians_name:R. Physician's Name`,
-                    pathToValue: "[00080090].Value[0].Alphabetic",
                     headerDescription: $localize `:@@referring_physician_name:Referring physician name`,
                     widthWeight: 1,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(PersonNamePipe, ["00080090"])
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -2676,12 +2676,12 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@sp_physicians_name:SP Physician's Name`,
-                    pathToValue: "00400100.Value[0].00400006.Value[0].Alphabetic",
                     headerDescription: $localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
-                    calculatedWidth: "20%"
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(PersonNamePipe, ["00400100.00400006"])
                 }),
                 new TableSchemaElement({
                     type: "value",
