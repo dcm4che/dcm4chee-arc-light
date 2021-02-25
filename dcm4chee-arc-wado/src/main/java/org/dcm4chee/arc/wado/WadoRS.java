@@ -66,7 +66,6 @@ import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.jboss.resteasy.util.MediaTypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
