@@ -65,6 +65,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private Boolean hl7UseNullValue;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
+    private String hl7ImportReportMissingStudyIUIDCFindSCP;
     private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
@@ -105,6 +106,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ImportReportMissingStudyIUIDCFindSCP = arcapp.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
@@ -502,6 +504,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHl7ImportReportMissingStudyIUIDPolicy(HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy) {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
+    public String hl7ImportReportMissingStudyIUIDCFindSCP() {
+        return hl7ImportReportMissingStudyIUIDCFindSCP != null
+                ? hl7ImportReportMissingStudyIUIDCFindSCP
+                : getArchiveDeviceExtension().getHl7ImportReportMissingStudyIUIDCFindSCP();
+    }
+
+    public String getHl7ImportReportMissingStudyIUIDCFindSCP() {
+        return hl7ImportReportMissingStudyIUIDCFindSCP;
+    }
+
+    public void setHl7ImportReportMissingStudyIUIDCFindSCP(String hl7ImportReportMissingStudyIUIDCFindSCP) {
+        this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
     }
 
     public HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy() {

@@ -58,6 +58,7 @@ import org.dcm4chee.arc.conf.HL7ORUAction;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -69,6 +70,7 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.net.Socket;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,6 +91,9 @@ class ImportReportService extends DefaultHL7Service {
 
     @Inject
     private ProcedureService procedureService;
+
+    @Inject
+    private CFindSCU cfindscu;
 
     public ImportReportService() {
         super("ORU^R01");
@@ -147,7 +152,17 @@ class ImportReportService extends DefaultHL7Service {
                         .setUserMessage("Encapsulated document missing in OBX^5^5"));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
-            List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));
+            String accNo = attrs.getString(Tag.AccessionNumber);
+            List<String> suids = storeService.studyIUIDsByAccessionNo(accNo);
+            if (suids.isEmpty()) {
+                String cFindSCP = arcHL7App.hl7ImportReportMissingStudyIUIDCFindSCP();
+                if (cFindSCP != null) {
+                    suids = cfindscu.findStudiesByAccessionNumber(
+                            ae, cFindSCP, 0, accNo, Tag.StudyInstanceUID).stream()
+                            .map(match -> match.getString(Tag.StudyInstanceUID))
+                            .collect(Collectors.toList());
+                }
+            }
             switch (suids.size()) {
                 case 0:
                     adjustStudyIUID(attrs, arcHL7App, msg.msh());

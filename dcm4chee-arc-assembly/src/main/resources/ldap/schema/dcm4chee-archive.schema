@@ -2318,6 +2318,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.396 NAME 'dcmExternalRetrieveInstanceAvai
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.397 NAME 'hl7ImportReportMissingStudyIUIDCFindSCP'
+  DESC 'AE Title of external C-FIND SCP to query for missing Study Instance UID in incoming HL7 Import Report (ORU) messages by given Accession Number.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2560,6 +2566,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7UseNullValue $
     hl7OrderMissingStudyIUIDPolicy $
     hl7ImportReportMissingStudyIUIDPolicy $
+    hl7ImportReportMissingStudyIUIDCFindSCP $
     hl7ReferredMergedPatientPolicy $
     hl7DicomCharacterSet $
     hl7VeterinaryUsePatientName $
@@ -2708,6 +2715,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
     hl7UseNullValue $
     hl7OrderMissingStudyIUIDPolicy $
     hl7ImportReportMissingStudyIUIDPolicy $
+    hl7ImportReportMissingStudyIUIDCFindSCP $
     hl7ReferredMergedPatientPolicy $
     hl7DicomCharacterSet $
     hl7VeterinaryUsePatientName $

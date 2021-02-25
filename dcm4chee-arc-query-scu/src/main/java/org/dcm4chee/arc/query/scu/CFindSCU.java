@@ -71,6 +71,10 @@ public interface CFindSCU {
     List<Attributes> findStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,
                                int... returnKeys) throws Exception;
 
+    List<Attributes> findStudiesByAccessionNumber(
+            ApplicationEntity localAE, String calledAET, int priority, String accNo, int... returnKeys)
+            throws Exception;
+
     List<Attributes> findStudy(Association as, int priority, String studyIUID, int... returnKeys) throws Exception;
 
     List<Attributes> findSeries(ApplicationEntity localAE, String calledAET, int priority, String studyIUID,

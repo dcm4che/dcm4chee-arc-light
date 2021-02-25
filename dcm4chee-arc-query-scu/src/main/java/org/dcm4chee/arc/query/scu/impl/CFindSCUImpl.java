@@ -140,6 +140,16 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
+    public List<Attributes> findStudiesByAccessionNumber(
+            ApplicationEntity localAE, String calledAET, int priority, String accNo, int... returnKeys)
+            throws Exception {
+        Attributes keys = withQueryLevelAndReturnKeys("STUDY", returnKeys,
+                new Attributes(2 + returnKeys.length));
+        keys.setString(Tag.AccessionNumber, VR.SH, accNo);
+        return find(localAE, calledAET, queryOptions(false), priority, keys);
+    }
+
+    @Override
     public List<Attributes> findStudy(Association as, int priority, String studyIUID, int... returnKeys)
             throws Exception {
         return find(as, priority,

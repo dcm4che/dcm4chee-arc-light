@@ -77,7 +77,10 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
-        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy", ext.getHl7ImportReportMissingStudyIUIDPolicy(), null);
+        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
+                ext.getHl7ImportReportMissingStudyIUIDPolicy(), null);
+        writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDCFindSCP",
+                ext.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         writer.writeNotNullOrDef("hl7VeterinaryUsePatientName", ext.getHl7VeterinaryUsePatientName(), null);
         writer.writeNotEmpty("hl7ORUAction", ext.getHl7ORUAction());
@@ -155,6 +158,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                 case "hl7ImportReportMissingStudyIUIDPolicy":
                     ext.setHl7ImportReportMissingStudyIUIDPolicy(
                             HL7ImportReportMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7ImportReportMissingStudyIUIDCFindSCP":
+                    ext.setHl7ImportReportMissingStudyIUIDCFindSCP(reader.stringValue());
                     break;
                 case "hl7DicomCharacterSet":
                     ext.setHl7DicomCharacterSet(reader.stringValue());

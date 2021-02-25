@@ -271,6 +271,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
             HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
+    private volatile String hl7ImportReportMissingStudyIUIDCFindSCP;
     private volatile HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy =
             HL7ReferredMergedPatientPolicy.REJECT;
     private volatile String hl7DicomCharacterSet;
@@ -2781,6 +2782,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
     }
 
+    public String getHl7ImportReportMissingStudyIUIDCFindSCP() {
+        return hl7ImportReportMissingStudyIUIDCFindSCP;
+    }
+
+    public void setHl7ImportReportMissingStudyIUIDCFindSCP(String hl7ImportReportMissingStudyIUIDCFindSCP) {
+        this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
+    }
+
     public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
         return hl7ReferredMergedPatientPolicy;
     }
@@ -3197,6 +3206,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         validateUID = arcdev.validateUID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;

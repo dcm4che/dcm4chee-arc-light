@@ -26,6 +26,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-id</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-procedure</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -50,13 +56,13 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-store</artifactId>
+      <artifactId>dcm4chee-arc-query-scu</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-id</artifactId>
+      <artifactId>dcm4chee-arc-store</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
