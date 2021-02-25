@@ -492,11 +492,12 @@ public class WadoRS {
 
     private Output thumbnail() {
         initAcceptableMediaTypes();
-        renderedMediaType = selectMediaType(acceptableMediaTypes,
+        MediaType mediaType = selectMediaType(acceptableMediaTypes,
                 MediaTypes.IMAGE_PNG_TYPE,
                 MediaTypes.IMAGE_JPEG_TYPE,
-                MediaTypes.IMAGE_GIF_TYPE)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_ACCEPTABLE));
+                MediaTypes.IMAGE_GIF_TYPE);
+        if (mediaType == null) new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        renderedMediaType = mediaType;
         return Output.THUMBNAIL;
     }
 
@@ -505,7 +506,7 @@ public class WadoRS {
         if (acceptableMultipartRelatedMediaTypes.isEmpty() && acceptableZipTransferSyntaxes.isEmpty()) {
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
         }
-        return selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE).isPresent()
+        return selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE) != null
                 ? Output.DICOM
                 : acceptableZipTransferSyntaxes.isEmpty() ? Output.BULKDATA : Output.ZIP;
     }
@@ -514,19 +515,23 @@ public class WadoRS {
         initAcceptableMediaTypes();
         MediaType mediaType = selectMediaType(acceptableMediaTypes,
                 MediaTypes.APPLICATION_DICOM_JSON_TYPE,
-                MediaType.APPLICATION_JSON_TYPE)
-                .orElseGet(() ->
-                        selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_XML_TYPE)
-                                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_ACCEPTABLE)));
+                MediaType.APPLICATION_JSON_TYPE);
+        if (mediaType == null) {
+            mediaType = selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_XML_TYPE);
+            if (mediaType == null) {
+                throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+            }
+        }
         return mediaType == MediaTypes.APPLICATION_DICOM_XML_TYPE ? Output.METADATA_XML : Output.METADATA_JSON;
     }
 
-    private static Optional<MediaType> selectMediaType(List<MediaType> list, MediaType... mediaTypes) {
-        return list.stream()
-                .map(entry -> Stream.of(mediaTypes).filter(mediaType -> mediaType.isCompatible(entry)).findFirst())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
+    private static MediaType selectMediaType(List<MediaType> accepted, MediaType... provided) {
+        for (MediaType acceptedMediaType : accepted) {
+            for (MediaType mediaType : provided) {
+                if (mediaType.isCompatible(acceptedMediaType)) return mediaType;
+            }
+        }
+        return null;
     }
 
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
@@ -641,7 +646,7 @@ public class WadoRS {
         }
         Attributes attrs;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
-            attrs = dis.readDataset(-1, -1);
+            attrs = dis.readDataset();
             service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
         }
         Collection<InstanceLocations> matches = new ArrayList<>();
@@ -674,7 +679,7 @@ public class WadoRS {
     private enum Output {
         DICOM {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
@@ -717,7 +722,7 @@ public class WadoRS {
         },
         ZIP {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
@@ -786,9 +791,9 @@ public class WadoRS {
                     InstanceLocations inst = ctx.getMatches().iterator().next();
                     MediaType[] mediaTypes = mediaTypesFor(inst, ctx, null, 0);
                     if (mediaTypes != null) {
-                        Optional<MediaType> mediaType = wadoRS.selectMediaType(wadoRS.acceptableMediaTypes, mediaTypes);
-                        if (mediaType.isPresent()) {
-                            wadoRS.renderedMediaType = mediaType.get();
+                        MediaType mediaType = wadoRS.selectMediaType(wadoRS.acceptableMediaTypes, mediaTypes);
+                        if (mediaType != null) {
+                            wadoRS.renderedMediaType = mediaType;
                             return RENDER;
                         }
                     }
@@ -804,10 +809,10 @@ public class WadoRS {
                     if (frameList == null ? !inst.isMultiframe() : frameList.length == 1) {
                         MediaType[] mediaTypes = mediaTypesFor(inst, ctx, null, 1);
                         if (mediaTypes != null) {
-                            Optional<MediaType> mediaType =
+                            MediaType mediaType =
                                     wadoRS.selectMediaType(wadoRS.acceptableMediaTypes, mediaTypes);
-                            if (mediaType.isPresent()) {
-                                wadoRS.renderedMediaType = mediaType.get();
+                            if (mediaType != null) {
+                                wadoRS.renderedMediaType = mediaType;
                                 return RENDER_FRAME;
                             }
                         }
@@ -829,7 +834,7 @@ public class WadoRS {
         },
         RENDER {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
@@ -852,7 +857,7 @@ public class WadoRS {
         },
         RENDER_FRAME {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
@@ -875,7 +880,7 @@ public class WadoRS {
         },
         METADATA_XML {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -890,7 +895,7 @@ public class WadoRS {
         },
         THUMBNAIL {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
                     int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
@@ -918,7 +923,7 @@ public class WadoRS {
         },
         METADATA_JSON {
             @Override
-            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -951,10 +956,10 @@ public class WadoRS {
             return output;
         }
 
-        public Collection<InstanceLocations> removeNotAcceptedMatches(
+        public List<InstanceLocations> removeNotAcceptedMatches(
                 WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
             Collection<InstanceLocations> matches = ctx.getMatches();
-            Collection<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
+            List<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
             Map<String,MediaType> selectedMediaTypes = new HashMap<>(matches.size() * 4 / 3);
             Iterator<InstanceLocations> iter = matches.iterator();
             while (iter.hasNext()) {
@@ -964,10 +969,10 @@ public class WadoRS {
                     iter.remove();
                     continue;
                 }
-                Optional<MediaType> mediaType =
-                        wadoRS.selectMediaType(wadoRS.acceptableMultipartRelatedMediaTypes, mediaTypes);
-                if (mediaType.isPresent()) {
-                    selectedMediaTypes.put(match.getSopInstanceUID(), mediaType.get());
+                MediaType mediaType =
+                        selectMediaType(wadoRS.acceptableMultipartRelatedMediaTypes, mediaTypes);
+                if (mediaType != null) {
+                    selectedMediaTypes.put(match.getSopInstanceUID(), mediaType);
                 } else {
                     iter.remove();
                     notAcceptable.add(match);
@@ -1324,22 +1329,11 @@ public class WadoRS {
     }
 
     private void addDirEntries(ZipOutputStream zip, String name, Set<String> added) throws IOException {
-        try {
-            IntStream.range(0, name.length())
-                    .filter(i -> name.charAt(i) == '/')
-                    .mapToObj(i -> name.substring(0, i + 1))
-                    .filter(added::add)
-                    .forEach(dirPath -> {
-                        try {
-                            zip.putNextEntry(new ZipEntry(dirPath));
-                            zip.closeEntry();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof IOException)
-                throw (IOException) e.getCause();
+        int endIndex = 0;
+        int i;
+        while ((i = name.indexOf('/', endIndex)) >= 0) {
+            zip.putNextEntry(new ZipEntry(name.substring(0, endIndex = (i + 1))));
+            zip.closeEntry();
         }
     }
 
