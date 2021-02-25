@@ -10,29 +10,30 @@ export class PatientIssuerPipe implements PipeTransform {
           try{
               return attrs[tag].Value[0];
           }catch (e){
-              return "false";
+              return false;
           }
-      };
+      }
+
       function valueOfItem(attrs, seqTag, tag) {
           try{
               let item = attrs[seqTag].Value[0];
               return valueOf(item, tag);
           }catch (e){
-              return "false";
+              return false;
           }
-      };
+      }
+
       function issuerOf(attrs) {
           let issuerOfPID = valueOf(attrs, '00100021');
-          let issuerOfPIDQualifiers = valueOfItem(attrs, '00100024', '00400032')
-                                        + '&'
-                                        + valueOfItem(attrs, '00100024', '00400033');
-          return issuerOfPID == "false"
-                  ? issuerOfPIDQualifiers == "false&false"
+          let issuerOfPIDQualifiersUniversalEntityID = valueOfItem(attrs, '00100024', '00400032');
+          let issuerOfPIDQualifiersUniversalEntityIDType = valueOfItem(attrs, '00100024', '00400033');
+          return issuerOfPID === false
+                  ? issuerOfPIDQualifiersUniversalEntityID === false
                       ? ''
-                      : '&' + issuerOfPIDQualifiers
-                  : issuerOfPIDQualifiers == "false&false"
+                      : '&' + issuerOfPIDQualifiersUniversalEntityID + '&' + issuerOfPIDQualifiersUniversalEntityIDType
+                  : issuerOfPIDQualifiersUniversalEntityID === false
                       ? issuerOfPID
-                      : issuerOfPID + '&' + issuerOfPIDQualifiers;
+                      : issuerOfPID + '&' + issuerOfPIDQualifiersUniversalEntityID + '&' + issuerOfPIDQualifiersUniversalEntityIDType;
       }
 
       return issuerOf(attrs);
