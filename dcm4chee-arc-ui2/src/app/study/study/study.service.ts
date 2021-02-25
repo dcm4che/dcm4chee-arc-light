@@ -19,7 +19,7 @@ import * as _ from 'lodash-es'
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
-import {DcmWebApp} from "../../models/dcm-web-app";
+import {DcmWebApp, WebServiceClass} from "../../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {
     DicomTableSchema,
@@ -1667,6 +1667,9 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'export'
+                                },
+                                showIf:(e)=>{
+                                    return options.internal || this.webAppGroupHasClass(options.studyWebService, "MOVE");
                                 }
                             }, {
                                 icon: {
@@ -3434,6 +3437,11 @@ export class StudyService {
         }));
     }
 
+    webAppGroupHasClass(studyWebService:StudyWebService, webServiceClass:WebServiceClass){
+        return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||
+            studyWebService.webServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0
+
+    }
     getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string):Observable<DcmWebApp> {
         if (_.hasIn(deviceWebService, "selectedWebService.dcmWebServiceClass") && deviceWebService.selectedWebService.dcmWebServiceClass.indexOf(neededWebServiceClass) > -1) {
             return of(deviceWebService.selectedWebService);

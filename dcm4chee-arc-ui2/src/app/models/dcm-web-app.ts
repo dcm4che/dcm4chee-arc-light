@@ -1,7 +1,7 @@
 import {DicomNetworkConnection} from "../interfaces";
 import {Aet} from "./aet";
 
-export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "DCM4CHEE_ARC" | "DCM4CHEE_ARC_AET"|string;
+export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "MOVE" |"DCM4CHEE_ARC" | "DCM4CHEE_ARC_AET"|string;
 
 export class DcmWebApp{
     private _dcmWebAppName:string;

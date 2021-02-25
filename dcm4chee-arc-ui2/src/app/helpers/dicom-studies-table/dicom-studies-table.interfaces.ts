@@ -1,6 +1,7 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyPageConfig} from "../../interfaces";
+import {StudyWebService} from "../../study/study/study-web-service.model";
 
 export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy";
 
@@ -58,7 +59,9 @@ export interface StudySchemaOptions{
     tableParam?:TableParam;
     studyConfig?:StudyPageConfig;
     appService?:any;
-    getSOPClassUIDName?:Function
+    getSOPClassUIDName?:Function;
+    internal?:boolean;
+    studyWebService:StudyWebService;
 }
 export interface TableAction{
     icon:Icon;

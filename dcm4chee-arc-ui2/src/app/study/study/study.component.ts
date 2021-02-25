@@ -1460,70 +1460,71 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         })
     }
 
-    downloadZip(object, level, mode){
-
-        this.confirm({
-            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
-            doNotSave:true,
-            form_schema:[
-                [
+    downloadZip(object, level, mode) {
+        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"MOVE","MOVE").subscribe(webService=>{
+            this.confirm({
+                content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
+                doNotSave: true,
+                form_schema: [
                     [
-                        {
-                            tag:"label",
-                            text:$localize `:@@compress:Compress`
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"compressed"
-                        }
-                    ],
-                    [
-                        {
-                            tag:"label",
-                            text:$localize `:@@including_dicomdir:Include DICOMDIR`
-                        },
-                        {
-                            tag:"checkbox",
-                            filterKey:"includingdicomdir"
-                        }
+                        [
+                            {
+                                tag: "label",
+                                text: $localize `:@@compress:Compress`
+                            },
+                            {
+                                tag: "checkbox",
+                                filterKey: "compressed"
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize `:@@including_dicomdir:Include DICOMDIR`
+                            },
+                            {
+                                tag: "checkbox",
+                                filterKey: "includingdicomdir"
+                            }
+                        ]
                     ]
-                ]
-            ],
-            result: {
-                schema_model: {}
-            },
-            saveButton: $localize `:@@download:Download`
-        }).subscribe((ok)=>{
-            if(ok){
-                let token;
-                let param = {
-                    accept:'application/zip'
-                };
-                // dicomdir:true
-                console.log("url",this.service.getDicomURL(mode, this.studyWebService.selectedWebService));
-                let url = this.service.studyURL(object.attrs, this.studyWebService.selectedWebService);
-                let fileName = this.service.studyFileName(object.attrs);
-                if(_.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed")){
-                    param.accept += ';transfer-syntax=*';
-                }
-                if(_.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir")) {
-                    param["dicomdir"] = true;
-                }
-                if(level === 'series'){
-                    url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
-                    fileName = this.service.seriesFileName(object.attrs);
-                }
-                this.service.getTokenService(this.studyWebService).subscribe((response)=>{
-                    if(!this.appService.global.notSecure){
-                        token = response.token;
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@download:Download`
+            }).subscribe((ok) => {
+                if (ok) {
+                    let token;
+                    let param = {
+                        accept: 'application/zip'
+                    };
+                    // dicomdir:true
+                    console.log("url", this.service.getDicomURL(mode, webService));
+                    let url = this.service.studyURL(object.attrs, webService);
+                    let fileName = this.service.studyFileName(object.attrs);
+                    if (_.hasIn(ok, "schema_model.compressed") && _.get(ok, "schema_model.compressed")) {
+                        param.accept += ';transfer-syntax=*';
                     }
-                    if(!this.appService.global.notSecure){
-                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}&access_token=${token}`,`${fileName}.zip`)
-                    }else{
-                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}`,`${fileName}.zip`)
+                    if (_.hasIn(ok, "schema_model.includingdicomdir") && _.get(ok, "schema_model.includingdicomdir")) {
+                        param["dicomdir"] = true;
                     }
-                });
-            }
+                    if (level === 'series') {
+                        url = this.service.seriesURL(object.attrs, webService);
+                        fileName = this.service.seriesFileName(object.attrs);
+                    }
+                    this.service.getTokenService(this.studyWebService).subscribe((response) => {
+                        if (!this.appService.global.notSecure) {
+                            token = response.token;
+                        }
+                        if (!this.appService.global.notSecure) {
+                            j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}&access_token=${token}`, `${fileName}.zip`)
+                        } else {
+                            j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}`, `${fileName}.zip`)
+                        }
+                    });
+                }
+            });
         });
     };
     downloadURL(inst, transferSyntax?:string) {
@@ -3593,10 +3594,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
+            studyWebService:this.studyWebService,
             tableParam:this.tableParam,
             studyConfig:this.studyConfig,
             appService:this.appService,
-            getSOPClassUIDName:this.getSOPClassUIDName
+            getSOPClassUIDName:this.getSOPClassUIDName,
+            internal:this.internal
         }));
     }
 
