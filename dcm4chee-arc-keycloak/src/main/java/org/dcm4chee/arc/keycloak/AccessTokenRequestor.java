@@ -80,13 +80,14 @@ public class AccessTokenRequestor {
     @Inject
     private Device device;
 
-    private volatile CachedKeycloak cachedKeycloak;
     private volatile CachedKeycloak cachedKeycloakClient;
     private volatile CachedPublicKey cachedPublicKey;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
-            cachedKeycloak = null;
+        if (event.getType() == ArchiveServiceEvent.Type.RELOADED) {
+            cachedKeycloakClient = null;
+            cachedPublicKey = null;
+        }
     }
 
     public AccessTokenWithExpiration getAccessToken2(WebApplication webApp) throws Exception {
