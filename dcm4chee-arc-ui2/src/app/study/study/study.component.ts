@@ -1523,6 +1523,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                 });
             }
+        });
     };
     downloadURL(inst, transferSyntax?:string) {
         let token;
