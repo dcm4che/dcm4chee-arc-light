@@ -1461,70 +1461,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     downloadZip(object, level, mode) {
-        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"MOVE","MOVE").subscribe(webService=>{
-            this.confirm({
-                content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
-                doNotSave: true,
-                form_schema: [
+        this.confirm({
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
+            doNotSave: true,
+            form_schema: [
+                [
                     [
-                        [
-                            {
-                                tag: "label",
-                                text: $localize `:@@compress:Compress`
-                            },
-                            {
-                                tag: "checkbox",
-                                filterKey: "compressed"
-                            }
-                        ],
-                        [
-                            {
-                                tag: "label",
-                                text: $localize `:@@including_dicomdir:Include DICOMDIR`
-                            },
-                            {
-                                tag: "checkbox",
-                                filterKey: "includingdicomdir"
-                            }
-                        ]
+                        {
+                            tag: "label",
+                            text: $localize `:@@compress:Compress`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "compressed"
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize `:@@including_dicomdir:Include DICOMDIR`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "includingdicomdir"
+                        }
                     ]
-                ],
-                result: {
-                    schema_model: {}
-                },
-                saveButton: $localize `:@@download:Download`
-            }).subscribe((ok) => {
-                if (ok) {
-                    let token;
-                    let param = {
-                        accept: 'application/zip'
-                    };
-                    // dicomdir:true
-                    console.log("url", this.service.getDicomURL(mode, webService));
-                    let url = this.service.studyURL(object.attrs, webService);
-                    let fileName = this.service.studyFileName(object.attrs);
-                    if (_.hasIn(ok, "schema_model.compressed") && _.get(ok, "schema_model.compressed")) {
-                        param.accept += ';transfer-syntax=*';
-                    }
-                    if (_.hasIn(ok, "schema_model.includingdicomdir") && _.get(ok, "schema_model.includingdicomdir")) {
-                        param["dicomdir"] = true;
-                    }
-                    if (level === 'series') {
-                        url = this.service.seriesURL(object.attrs, webService);
-                        fileName = this.service.seriesFileName(object.attrs);
-                    }
-                    this.service.getTokenService(this.studyWebService).subscribe((response) => {
-                        if (!this.appService.global.notSecure) {
-                            token = response.token;
-                        }
-                        if (!this.appService.global.notSecure) {
-                            j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}&access_token=${token}`, `${fileName}.zip`)
-                        } else {
-                            j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}`, `${fileName}.zip`)
-                        }
-                    });
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@download:Download`
+        }).subscribe((ok) => {
+            if (ok) {
+                let token;
+                let param = {
+                    accept: 'application/zip'
+                };
+                // dicomdir:true
+                console.log("url", this.service.getDicomURL(mode, webService));
+                let url = this.service.studyURL(object.attrs, webService);
+                let fileName = this.service.studyFileName(object.attrs);
+                if (_.hasIn(ok, "schema_model.compressed") && _.get(ok, "schema_model.compressed")) {
+                    param.accept += ';transfer-syntax=*';
                 }
-            });
+                if (_.hasIn(ok, "schema_model.includingdicomdir") && _.get(ok, "schema_model.includingdicomdir")) {
+                    param["dicomdir"] = true;
+                }
+                if (level === 'series') {
+                    url = this.service.seriesURL(object.attrs, webService);
+                    fileName = this.service.seriesFileName(object.attrs);
+                }
+                this.service.getTokenService(this.studyWebService).subscribe((response) => {
+                    if (!this.appService.global.notSecure) {
+                        token = response.token;
+                    }
+                    if (!this.appService.global.notSecure) {
+                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}&access_token=${token}`, `${fileName}.zip`)
+                    } else {
+                        j4care.downloadFile(`${url}?${j4care.objToUrlParams(param)}`, `${fileName}.zip`)
+                    }
+                });
+            }
         });
     };
     downloadURL(inst, transferSyntax?:string) {
