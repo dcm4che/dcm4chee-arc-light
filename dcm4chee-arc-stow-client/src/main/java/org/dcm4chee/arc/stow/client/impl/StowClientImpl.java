@@ -41,17 +41,23 @@
 
 package org.dcm4chee.arc.stow.client.impl;
 
+import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.stow.client.StowClient;
 import org.dcm4chee.arc.stow.client.StowTask;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -68,8 +74,30 @@ public class StowClientImpl implements StowClient {
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
 
+    @Inject
+    private AccessTokenRequestor accessTokenRequestor;
+
     @Override
     public StowTask newStowTask(RetrieveContext ctx) {
-        return new StowTaskImpl(ctx, retrieveStart, retrieveEnd);
+        return new StowTaskImpl(ctx, retrieveStart, retrieveEnd, accessTokenRequestor, openRequest(ctx));
+    }
+
+    private void openMultipleRequests(RetrieveContext ctx) throws DicomServiceException {
+
+    }
+
+    private Invocation.Builder openRequest(RetrieveContext ctx) {
+        try {
+            WebApplication destinationWebApp = ctx.getDestinationWebApp();
+            String uri = destinationWebApp.getServiceURL().toString();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
+                    uri, true, false)
+                    .build();
+            WebTarget target = client.target(uri);
+            return target.request();
+        } catch (Exception e) {
+            LOG.warn(e.getMessage());
+        }
+        return null;
     }
 }

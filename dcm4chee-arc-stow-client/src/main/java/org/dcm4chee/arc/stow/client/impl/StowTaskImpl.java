@@ -41,28 +41,62 @@
 
 package org.dcm4chee.arc.stow.client.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.Base64;
+import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowTask;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Feb 2021
  */
 public class StowTaskImpl implements StowTask {
-    static final Logger LOG = LoggerFactory.getLogger(StowTaskImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StowTaskImpl.class);
+    private static InstanceLocations NO_MORE_MATCHES = new NoMoreMatches();
+    private static final String boundary = UIDUtils.createUID();
 
     private final Event<RetrieveContext> retrieveStart;
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
+    private final AccessTokenRequestor accessTokenRequestor;
+    private final Invocation.Builder[] requests;
+    private final BlockingQueue<InstanceLocations> matches = new LinkedBlockingQueue<>();
+    private final CountDownLatch doneSignal;
+    private volatile boolean canceled;
 
-    public StowTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
+    public StowTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd,
+                        AccessTokenRequestor accessTokenRequestor, Invocation.Builder... requests) {
         this.ctx = ctx;
         this.retrieveStart = retrieveStart;
         this.retrieveEnd = retrieveEnd;
+        this.requests = requests;
+        this.accessTokenRequestor = accessTokenRequestor;
+        this.doneSignal = new CountDownLatch(requests.length);
     }
 
     @Override
@@ -72,6 +106,227 @@ public class StowTaskImpl implements StowTask {
 
     @Override
     public void run() {
-        //TODO
+        retrieveStart.fire(ctx);
+        try {
+            if (requests.length > 1) startStoreOperations();
+            for (InstanceLocations match : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(match)) {
+                    matches.offer(match);
+                }
+            }
+            ctx.copyToRetrieveCache(null);
+            if (requests.length == 1) {
+                matches.offer(NO_MORE_MATCHES);
+                runStoreOperations(requests[0]);
+            } else {
+                InstanceLocations match;
+                while ((match = ctx.copiedToRetrieveCache()) != null && !canceled) {
+                    matches.offer(match);
+                }
+                for (int i = 0; i < requests.length; i++) {
+                    matches.offer(NO_MORE_MATCHES);
+                }
+            }
+        } finally {
+            ctx.getRetrieveService().updateLocations(ctx);
+            SafeClose.close(ctx);
+        }
+        retrieveEnd.fire(ctx);
+    }
+
+    private void startStoreOperations() {
+        Device device = ctx.getArchiveAEExtension().getApplicationEntity().getDevice();
+        for (Invocation.Builder request : requests) {
+            device.execute(() -> runStoreOperations(request));
+        }
+    }
+
+    private void runStoreOperations(Invocation.Builder request) {
+        Collection<InstanceLocations> outstandingRSPs = Collections.synchronizedList(new ArrayList<>());
+        try {
+            InstanceLocations match = null;
+            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES) {
+                store(match, request, outstandingRSPs);
+            }
+            while (!canceled && (match = ctx.copiedToRetrieveCache()) != null) {
+                store(match, request, outstandingRSPs);
+            }
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to fetch next match from queue:\n",
+                    request, e);
+        } finally {
+            doneSignal.countDown();
+        }
+    }
+
+    private void store(InstanceLocations inst, Invocation.Builder request, Collection<InstanceLocations> outstandingRSP) {
+        String iuid = inst.getSopInstanceUID();
+        WebApplication destinationWebApp = ctx.getDestinationWebApp();
+        try {
+            authorize(request);
+            MultipartRelatedOutput output = new MultipartRelatedOutput();
+            output.setBoundary(boundary);
+            writeDICOM(output, ctx, inst);
+            output.setBoundary(boundary);
+            request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE));
+            outstandingRSP.add(inst);
+            ctx.incrementCompleted();
+            //metrics
+        } catch (Exception e) {
+            outstandingRSP.remove(inst);
+            ctx.incrementFailed();
+            ctx.addFailedSOPInstanceUID(iuid);
+            LOG.warn("{}: failed to send {} to {}:", request, inst, destinationWebApp, e);
+        }
+    }
+
+    private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
+        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
+        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, Collections.singletonList(tsuid));
+        output.addPart(entity,
+                new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
+                        MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
+                        new HashMap<String, String>().put("transfer-syntax", tsuid)));
+    }
+
+    static class DicomObjectOutput implements StreamingOutput {
+
+        private final RetrieveContext ctx;
+        private final InstanceLocations inst;
+        private final Collection<String> tsuids;
+        private Attributes fileMetaInformation;
+
+        public DicomObjectOutput(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
+            this.ctx = ctx;
+            this.inst = inst;
+            this.tsuids = tsuids.contains("*") ? Collections.EMPTY_LIST : tsuids;
+        }
+
+        public Attributes getFileMetaInformation() {
+            return fileMetaInformation;
+        }
+
+        @Override
+        public void write(final OutputStream out) throws IOException {
+            try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
+                transcoder.transcode(new Transcoder.Handler() {
+                    @Override
+                    public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
+                        ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
+                        return out;
+                    }
+                });
+                fileMetaInformation = transcoder.getFileMetaInformation();
+            }
+        }
+    }
+
+    private void authorize(Invocation.Builder request) throws Exception {
+        String user = ctx.getDestinationWebApp().getProperties().get("User");
+        String authorization = user != null
+                ? basicAuth(user)
+                : bearer();
+        if (authorization == null)
+            return;
+
+        request.header("Authorization", authorization);
+    }
+
+    private String basicAuth(String user) {
+        byte[] userPswdBytes = user.getBytes();
+        int len = (userPswdBytes.length * 4 / 3 + 3) & ~3;
+        char[] ch = new char[len];
+        Base64.encode(userPswdBytes, 0, userPswdBytes.length, ch, 0);
+        return "Basic " + new String(ch);
+    }
+
+    private String bearer() throws Exception {
+        String token = ctx.getDestinationWebApp().getProperties().get("Token");
+        if (token == null && ctx.getDestinationWebApp().getKeycloakClient() == null)
+            return null;
+
+        return "Bearer "
+                + (token != null ? token : accessTokenRequestor.getAccessToken2(ctx.getDestinationWebApp()).getToken());
+    }
+
+    private static final class NoMoreMatches implements InstanceLocations {
+        @Override
+        public Long getInstancePk() {
+            return null;
+        }
+
+        @Override
+        public void setInstancePk(Long pk) {
+        }
+
+        @Override
+        public String getSopInstanceUID() {
+            return null;
+        }
+
+        @Override
+        public String getSopClassUID() {
+            return null;
+        }
+
+        @Override
+        public List<Location> getLocations() {
+            return null;
+        }
+
+        @Override
+        public Attributes getAttributes() {
+            return null;
+        }
+
+        @Override
+        public String getRetrieveAETs() {
+            return null;
+        }
+
+        @Override
+        public String getExternalRetrieveAET() {
+            return null;
+        }
+
+        @Override
+        public Availability getAvailability() {
+            return null;
+        }
+
+        @Override
+        public Date getCreatedTime() {
+            return null;
+        }
+
+        @Override
+        public Date getUpdatedTime() {
+            return null;
+        }
+
+        @Override
+        public Attributes getRejectionCode() {
+            return null;
+        }
+
+        @Override
+        public boolean isContainsMetadata() {
+            return false;
+        }
+
+        @Override
+        public boolean isImage() {
+            return false;
+        }
+
+        @Override
+        public boolean isVideo() {
+            return false;
+        }
+
+        @Override
+        public boolean isMultiframe() {
+            return false;
+        }
     }
 }
