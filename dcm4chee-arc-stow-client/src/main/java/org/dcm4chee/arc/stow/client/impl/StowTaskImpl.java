@@ -42,7 +42,8 @@
 package org.dcm4chee.arc.stow.client.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.Base64;
@@ -60,13 +61,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import javax.json.Json;
+import javax.json.JsonException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -142,14 +149,13 @@ public class StowTaskImpl implements StowTask {
     }
 
     private void runStoreOperations(Invocation.Builder request) {
-        Collection<InstanceLocations> outstandingRSPs = Collections.synchronizedList(new ArrayList<>());
         try {
-            InstanceLocations match = null;
+            InstanceLocations match;
             while (!canceled && (match = matches.take()) != NO_MORE_MATCHES) {
-                store(match, request, outstandingRSPs);
+                store(match, request);
             }
             while (!canceled && (match = ctx.copiedToRetrieveCache()) != null) {
-                store(match, request, outstandingRSPs);
+                store(match, request);
             }
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to fetch next match from queue:\n",
@@ -159,25 +165,54 @@ public class StowTaskImpl implements StowTask {
         }
     }
 
-    private void store(InstanceLocations inst, Invocation.Builder request, Collection<InstanceLocations> outstandingRSP) {
+    private void store(InstanceLocations inst, Invocation.Builder request) {
         String iuid = inst.getSopInstanceUID();
         WebApplication destinationWebApp = ctx.getDestinationWebApp();
         try {
             authorize(request);
+            request.header("Accept", MediaTypes.APPLICATION_DICOM_JSON);
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             output.setBoundary(boundary);
             writeDICOM(output, ctx, inst);
             output.setBoundary(boundary);
-            request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE));
-            outstandingRSP.add(inst);
+            onStowRsp(toAttributes(request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE))));
             ctx.incrementCompleted();
             //metrics
         } catch (Exception e) {
-            outstandingRSP.remove(inst);
             ctx.incrementFailed();
             ctx.addFailedSOPInstanceUID(iuid);
             LOG.warn("{}: failed to send {} to {}:", request, inst, destinationWebApp, e);
         }
+    }
+
+    private void onStowRsp(Attributes rsp) {
+        if (rsp == null)
+            return;
+
+        if (rsp.contains(Tag.FailedSOPSequence)) {
+            ctx.incrementFailed();
+            return;
+        }
+        Attributes refSOP = rsp.getNestedDataset(Tag.ReferencedSOPSequence);
+        if (refSOP.contains(Tag.WarningReason))
+            ctx.incrementWarning();
+        else
+            ctx.incrementCompleted();
+    }
+
+    private Attributes toAttributes(Response response) {
+        Attributes rsp = null;
+        try {
+            rsp = new JSONReader(Json.createParser(new InputStreamReader(
+                    response.readEntity(InputStream.class), StandardCharsets.UTF_8)))
+                    .readDataset(null);
+        } catch (JsonException e) {
+            LOG.info("Invalid JSON payload");
+            ctx.incrementFailed();
+        } catch (Exception e) {
+            ctx.incrementFailed();
+        }
+        return rsp;
     }
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
@@ -187,38 +222,6 @@ public class StowTaskImpl implements StowTask {
                 new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
                         MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
                         new HashMap<String, String>().put("transfer-syntax", tsuid)));
-    }
-
-    static class DicomObjectOutput implements StreamingOutput {
-
-        private final RetrieveContext ctx;
-        private final InstanceLocations inst;
-        private final Collection<String> tsuids;
-        private Attributes fileMetaInformation;
-
-        public DicomObjectOutput(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
-            this.ctx = ctx;
-            this.inst = inst;
-            this.tsuids = tsuids.contains("*") ? Collections.EMPTY_LIST : tsuids;
-        }
-
-        public Attributes getFileMetaInformation() {
-            return fileMetaInformation;
-        }
-
-        @Override
-        public void write(final OutputStream out) throws IOException {
-            try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-                transcoder.transcode(new Transcoder.Handler() {
-                    @Override
-                    public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                        ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                        return out;
-                    }
-                });
-                fileMetaInformation = transcoder.getFileMetaInformation();
-            }
-        }
     }
 
     private void authorize(Invocation.Builder request) throws Exception {
