@@ -168,7 +168,6 @@ public class StowTaskImpl implements StowTask {
         WebApplication destinationWebApp = ctx.getDestinationWebApp();
         try {
             authorize(request);
-            request.header("Accept", MediaTypes.APPLICATION_DICOM_JSON);
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             output.setBoundary(boundary);
             writeDICOM(output, ctx, inst);

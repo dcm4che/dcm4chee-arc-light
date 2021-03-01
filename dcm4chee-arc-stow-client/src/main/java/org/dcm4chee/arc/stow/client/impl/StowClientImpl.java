@@ -44,6 +44,7 @@ package org.dcm4chee.arc.stow.client.impl;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
@@ -98,7 +99,7 @@ public class StowClientImpl implements StowClient {
                     properties.containsKey("allowAnyHost") && Boolean.parseBoolean(properties.get("allowAnyHost")),
                     properties.containsKey("disableTM") && Boolean.parseBoolean(properties.get("disableTM")))
                     .build();
-            return client.target(uri).request();
+            return client.target(uri).request(MediaTypes.APPLICATION_DICOM_JSON);
         } catch (Exception e) {
             LOG.info("Failed to build STOW request: ", e);
             DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);
