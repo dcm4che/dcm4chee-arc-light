@@ -95,7 +95,7 @@ public class StowClientImpl implements StowClient {
             Map<String, String> properties = destinationWebApp.getProperties();
             ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
                     uri,
-                    !properties.containsKey("allowAnyHost") || Boolean.parseBoolean(properties.get("allowAnyHost")),
+                    properties.containsKey("allowAnyHost") && Boolean.parseBoolean(properties.get("allowAnyHost")),
                     properties.containsKey("disableTM") && Boolean.parseBoolean(properties.get("disableTM")))
                     .build();
             return client.target(uri).request();
