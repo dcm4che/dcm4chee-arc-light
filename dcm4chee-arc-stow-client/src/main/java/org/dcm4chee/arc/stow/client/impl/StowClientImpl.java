@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.stow.client.impl;
 
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
@@ -57,7 +58,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import java.util.Map;
 
 /**
@@ -80,7 +80,7 @@ public class StowClientImpl implements StowClient {
     private AccessTokenRequestor accessTokenRequestor;
 
     @Override
-    public StowTask newStowTask(RetrieveContext ctx) {
+    public StowTask newStowTask(RetrieveContext ctx) throws DicomServiceException {
         return new StowTaskImpl(ctx, retrieveStart, retrieveEnd, accessTokenRequestor, openRequest(ctx));
     }
 
@@ -88,7 +88,7 @@ public class StowClientImpl implements StowClient {
 
     }
 
-    private Invocation.Builder openRequest(RetrieveContext ctx) {
+    private Invocation.Builder openRequest(RetrieveContext ctx) throws DicomServiceException {
         try {
             WebApplication destinationWebApp = ctx.getDestinationWebApp();
             String uri = destinationWebApp.getServiceURL().toString();
@@ -98,11 +98,13 @@ public class StowClientImpl implements StowClient {
                     !properties.containsKey("allowAnyHost") || Boolean.parseBoolean(properties.get("allowAnyHost")),
                     properties.containsKey("disableTM") && Boolean.parseBoolean(properties.get("disableTM")))
                     .build();
-            WebTarget target = client.target(uri);
-            return target.request();
+            return client.target(uri).request();
         } catch (Exception e) {
             LOG.info("Failed to build STOW request: ", e);
+            DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);
+            ctx.setException(dse);
+            retrieveStart.fire(ctx);
+            throw dse;
         }
-        return null;
     }
 }

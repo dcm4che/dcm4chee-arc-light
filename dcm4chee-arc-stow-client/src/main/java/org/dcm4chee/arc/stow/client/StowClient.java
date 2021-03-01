@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.stow.client;
 
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 /**
@@ -48,5 +49,5 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
  * @since Feb 2021
  */
 public interface StowClient {
-    StowTask newStowTask(RetrieveContext retrieveContext);
+    StowTask newStowTask(RetrieveContext retrieveContext) throws DicomServiceException;
 }
