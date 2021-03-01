@@ -58,9 +58,11 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2021
  */
 @ApplicationScoped
@@ -90,13 +92,16 @@ public class StowClientImpl implements StowClient {
         try {
             WebApplication destinationWebApp = ctx.getDestinationWebApp();
             String uri = destinationWebApp.getServiceURL().toString();
+            Map<String, String> properties = destinationWebApp.getProperties();
             ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                    uri, true, false)
+                    uri,
+                    !properties.containsKey("allowAnyHost") || Boolean.parseBoolean(properties.get("allowAnyHost")),
+                    properties.containsKey("disableTM") && Boolean.parseBoolean(properties.get("disableTM")))
                     .build();
             WebTarget target = client.target(uri);
             return target.request();
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            LOG.info("Failed to build STOW request: ", e);
         }
         return null;
     }

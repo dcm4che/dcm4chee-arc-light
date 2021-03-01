@@ -80,6 +80,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2021
  */
 public class StowTaskImpl implements StowTask {
@@ -143,20 +144,17 @@ public class StowTaskImpl implements StowTask {
 
     private void startStoreOperations() {
         Device device = ctx.getArchiveAEExtension().getApplicationEntity().getDevice();
-        for (Invocation.Builder request : requests) {
+        for (Invocation.Builder request : requests)
             device.execute(() -> runStoreOperations(request));
-        }
     }
 
     private void runStoreOperations(Invocation.Builder request) {
         try {
             InstanceLocations match;
-            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES) {
+            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES)
                 store(match, request);
-            }
-            while (!canceled && (match = ctx.copiedToRetrieveCache()) != null) {
+            while (!canceled && (match = ctx.copiedToRetrieveCache()) != null)
                 store(match, request);
-            }
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to fetch next match from queue:\n",
                     request, e);
@@ -176,8 +174,7 @@ public class StowTaskImpl implements StowTask {
             writeDICOM(output, ctx, inst);
             output.setBoundary(boundary);
             onStowRsp(toAttributes(request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE))));
-            ctx.incrementCompleted();
-            //metrics
+            //TODO - metrics
         } catch (Exception e) {
             ctx.incrementFailed();
             ctx.addFailedSOPInstanceUID(iuid);

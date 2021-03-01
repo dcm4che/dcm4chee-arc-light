@@ -56,6 +56,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2021
  */
 public class StowExporter extends AbstractExporter {
