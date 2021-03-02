@@ -149,7 +149,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         try {
             String spsStartDateTime = sps.getString(Tag.ScheduledProcedureStepStartDate);
             if (spsStartDateTime == null) {
-                LOG.info("SPS Start Date / Time is missing in {}", spsDTField);
+                LOG.info("SPS Start Date / Time is missing in {} - use current date time", spsDTField);
                 return;
             }
             new SimpleDateFormat("yyyyMMdd").parse(spsStartDateTime);
