@@ -145,17 +145,19 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     }
 
     private void validateSPSStartDateTime(Attributes sps, HL7Segment msh) throws Exception {
+        String spsDTField = msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7^1";
         try {
             String spsStartDateTime = sps.getString(Tag.ScheduledProcedureStepStartDate);
-            if (spsStartDateTime == null)
+            if (spsStartDateTime == null) {
+                LOG.info("SPS Start Date / Time is missing in {}", spsDTField);
                 return;
-
+            }
             new SimpleDateFormat("yyyyMMdd").parse(spsStartDateTime);
         } catch (Exception e) {
             throw new HL7Exception(
                     new ERRSegment(msh)
                             .setHL7ErrorCode(ERRSegment.DataTypeError)
-                            .setErrorLocation(msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7^1")
+                            .setErrorLocation(spsDTField)
                             .setUserMessage("Invalid SPS Start Date/Time"));
         }
     }
