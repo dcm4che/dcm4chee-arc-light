@@ -146,7 +146,11 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
     private void validateSPSStartDateTime(Attributes sps, HL7Segment msh) throws Exception {
         try {
-            new SimpleDateFormat("yyyyMMdd").parse(sps.getString(Tag.ScheduledProcedureStepStartDate));
+            String spsStartDateTime = sps.getString(Tag.ScheduledProcedureStepStartDate);
+            if (spsStartDateTime == null)
+                return;
+
+            new SimpleDateFormat("yyyyMMdd").parse(spsStartDateTime);
         } catch (Exception e) {
             throw new HL7Exception(
                     new ERRSegment(msh)
