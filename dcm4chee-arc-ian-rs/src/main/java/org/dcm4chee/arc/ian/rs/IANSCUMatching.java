@@ -194,7 +194,7 @@ class IANSCUMatching {
                         && query.fetchCount() > queryMaxNumberOfResults)
                     return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-                IANSCUMatchingObjects ianSCUMatchingObjects = new IANSCUMatchingObjects(ae, ianscp, qrlevel, query, status);
+                IANSCUMatchingObjects ianSCUMatchingObjects = new IANSCUMatchingObjects(ae, ianscp, query, status);
                 runInTx.execute(ianSCUMatchingObjects);
                 count = ianSCUMatchingObjects.getCount();
                 status = ianSCUMatchingObjects.getStatus();
@@ -217,16 +217,13 @@ class IANSCUMatching {
         private int count;
         private final ApplicationEntity ae;
         private final String ianscp;
-        private final QueryRetrieveLevel2 qrLevel;
         private final Query query;
         private Response.Status status;
         private String warning;
 
-        IANSCUMatchingObjects(
-                ApplicationEntity ae, String ianscp, QueryRetrieveLevel2 qrLevel, Query query, Response.Status status) {
+        IANSCUMatchingObjects(ApplicationEntity ae, String ianscp, Query query, Response.Status status) {
             this.ae = ae;
             this.ianscp = ianscp;
-            this.qrLevel = qrLevel;
             this.query = query;
             this.status = status;
         }
