@@ -58,6 +58,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +99,9 @@ class ExportMatching {
 
     @Inject
     private ExporterFactory exporterFactory;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -187,27 +191,20 @@ class ExportMatching {
                 return errResponse(Response.Status.NOT_FOUND, "No such Exporter: " + exporterID);
 
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
-            String warning = null;
-            int count = 0;
+            String warning;
+            int count;
             Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(ctx)) {
-                try {
-                    query.executeQuery(arcDev.getQueryFetchSize());
-                    while (query.hasMoreMatches()) {
-                        Attributes match = query.nextMatch();
-                        if (match == null)
-                            continue;
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse(Response.Status.BAD_REQUEST, "Request entity too large");
 
-                        scheduleExportTask(exporter, match, qrlevel);
-                        count++;
-                    }
-                } catch (QueueSizeLimitExceededException e) {
-                    status = Response.Status.SERVICE_UNAVAILABLE;
-                    warning = e.getMessage();
-                } catch (Exception e) {
-                    warning = e.getMessage();
-                    status = Response.Status.INTERNAL_SERVER_ERROR;
-                }
+                ExportMatchingObjects exportMatchingObjects = new ExportMatchingObjects(exporter, qrlevel, query, status);
+                runInTx.execute(exportMatchingObjects);
+                count = exportMatchingObjects.getCount();
+                status = exportMatchingObjects.getStatus();
+                warning = exportMatchingObjects.getWarning();
             }
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {
@@ -230,6 +227,55 @@ class ExportMatching {
                 request.getRemoteHost());
     }
 
+    class ExportMatchingObjects implements Runnable {
+        private int count;
+        private final ExporterDescriptor exporter;
+        private final QueryRetrieveLevel2 qrLevel;
+        private final Query query;
+        private Response.Status status;
+        private String warning;
+
+        ExportMatchingObjects(
+                ExporterDescriptor exporter, QueryRetrieveLevel2 qrLevel, Query query, Response.Status status) {
+            this.exporter = exporter;
+            this.qrLevel = qrLevel;
+            this.query = query;
+            this.status = status;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        Response.Status getStatus() {
+            return status;
+        }
+
+        String getWarning() {
+            return warning;
+        }
+
+        @Override
+        public void run() {
+            try {
+                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+                while (query.hasMoreMatches()) {
+                    Attributes match = query.nextMatch();
+                    if (match == null)
+                        continue;
+
+                    scheduleExportTask(exporter, match, qrLevel);
+                    count++;
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
+        }
+    }
 
     private Response errResponse(Response.Status status, String msg) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);

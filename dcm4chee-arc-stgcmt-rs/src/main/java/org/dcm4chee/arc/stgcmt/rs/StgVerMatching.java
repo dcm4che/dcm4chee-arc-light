@@ -41,10 +41,7 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
@@ -59,6 +56,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
@@ -96,6 +94,9 @@ class StgVerMatching {
 
     @Inject
     private StgCmtManager stgCmtMgr;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -176,31 +177,21 @@ class StgVerMatching {
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         try {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
-            String warning = null;
-            int count = 0;
+            String warning;
+            int count;
             Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(ctx)) {
-                try {
-                    query.executeQuery(arcDev.getQueryFetchSize());
-                    while (query.hasMoreMatches()) {
-                        Attributes match = query.nextMatch();
-                        if (match == null)
-                            continue;
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse(Response.Status.BAD_REQUEST, "Request entity too large");
 
-                        if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, match, qrlevel),
-                                HttpServletRequestInfo.valueOf(request), batchID)) {
-                            count++;
-                        }
-                    }
-                } catch (QueueSizeLimitExceededException e) {
-                    status = Response.Status.SERVICE_UNAVAILABLE;
-                    warning = e.getMessage();
-                } catch (Exception e) {
-                    warning = e.getMessage();
-                    status = Response.Status.INTERNAL_SERVER_ERROR;
-                }
+                StgVerMatchingObjects stgVerMatchingObjects = new StgVerMatchingObjects(aet, qrlevel, query, status);
+                runInTx.execute(stgVerMatchingObjects);
+                count = stgVerMatchingObjects.getCount();
+                status = stgVerMatchingObjects.getStatus();
+                warning = stgVerMatchingObjects.getWarning();
             }
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {
@@ -212,6 +203,57 @@ class StgVerMatching {
             return errResponse(Response.Status.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    class StgVerMatchingObjects implements Runnable {
+        private int count;
+        private final String aet;
+        private final QueryRetrieveLevel2 qrLevel;
+        private final Query query;
+        private Response.Status status;
+        private String warning;
+
+        StgVerMatchingObjects(String aet, QueryRetrieveLevel2 qrLevel, Query query, Response.Status status) {
+            this.aet = aet;
+            this.qrLevel = qrLevel;
+            this.query = query;
+            this.status = status;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        Response.Status getStatus() {
+            return status;
+        }
+
+        String getWarning() {
+            return warning;
+        }
+
+        @Override
+        public void run() {
+            try {
+                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+                while (query.hasMoreMatches()) {
+                    Attributes match = query.nextMatch();
+                    if (match == null)
+                        continue;
+
+                    if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, match, qrLevel),
+                            HttpServletRequestInfo.valueOf(request), batchID)) {
+                        count++;
+                    }
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
         }
     }
 

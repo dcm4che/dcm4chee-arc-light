@@ -59,6 +59,7 @@ import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -108,6 +109,9 @@ public class DiffPatientDemographicsRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @PathParam("AETitle")
     private String aet;
@@ -175,15 +179,15 @@ public class DiffPatientDemographicsRS {
         try {
             QueryContext ctx = createQueryContext(ae);
             Query query = ctx.getQueryService().createQuery(ctx);
-            PDQService service = serviceFactory.getPDQService(descriptor);
-            int queryMaxNumberOfResults1 = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
-            if (queryMaxNumberOfResults1 > 0 && !ctx.containsUniqueKey()
-                    && query.fetchCount() > queryMaxNumberOfResults1)
+            int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+            if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                    && query.fetchCount() > queryMaxNumberOfResults)
                 return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-            query.executeQuery(arcdev.getQueryFetchSize());
-            return (query.hasMoreMatches()
-                        ? Response.ok(entity(calculateDiffs(query, service), ae))
+            DiffPatientDemographics diffPatientDemographics = new DiffPatientDemographics(query, descriptor);
+            runInTx.execute(diffPatientDemographics);
+            return (diffPatientDemographics.hasMoreMatches()
+                        ? Response.ok(entity(diffPatientDemographics.getResult(), ae))
                         : Response.noContent())
                     .build();
         } catch (IllegalStateException e) {
@@ -191,6 +195,38 @@ public class DiffPatientDemographicsRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+   }
+
+   class DiffPatientDemographics implements Runnable {
+        private List<Attributes> result = new ArrayList<>();
+        private final Query query;
+        private final PDQServiceDescriptor descriptor;
+        private boolean hasMoreMatches;
+
+       DiffPatientDemographics(Query query, PDQServiceDescriptor descriptor) {
+           this.query = query;
+           this.descriptor = descriptor;
+       }
+
+       List<Attributes> getResult() {
+           return result;
+       }
+
+       boolean hasMoreMatches() {
+           return hasMoreMatches;
+       }
+
+       @Override
+       public void run() {
+           try {
+               PDQService service = serviceFactory.getPDQService(descriptor);
+               query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+               if ((hasMoreMatches = query.hasMoreMatches()))
+                   result = calculateDiffs(query, service);
+           } catch (DicomServiceException e) {
+               throw new WebApplicationException(e);
+           }
+       }
    }
 
     private StreamingOutput entity(List<Attributes> diffs, ApplicationEntity ae) {

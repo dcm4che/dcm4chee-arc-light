@@ -57,6 +57,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
@@ -93,6 +94,9 @@ class StgCmtSCUMatching {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @Context
     private HttpServletRequest request;
@@ -180,29 +184,22 @@ class StgCmtSCUMatching {
 
         try {
             aeCache.findApplicationEntity(stgcmtscp);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             QueryContext ctx = queryContext(method, qrlevel, studyUID, seriesUID, ae);
-            String warning = null;
-            int count = 0;
+            String warning;
+            int count;
             Response.Status status = Response.Status.ACCEPTED;
             try (Query query = queryService.createQuery(ctx)) {
-                try {
-                    query.executeQuery(arcDev.getQueryFetchSize());
-                    while (query.hasMoreMatches()) {
-                        Attributes match = query.nextMatch();
-                        if (match == null)
-                            continue;
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-                        stgCmtSCU.scheduleStorageCommit(aet, stgcmtscp, match, batchID, qrlevel);
-                        count++;
-                    }
-                } catch (QueueSizeLimitExceededException e) {
-                    status = Response.Status.SERVICE_UNAVAILABLE;
-                    warning = e.getMessage();
-                } catch (Exception e) {
-                    warning = e.getMessage();
-                    status = Response.Status.INTERNAL_SERVER_ERROR;
-                }
+                StgCmtSCUMatchingObjects stgCmtSCUMatchingObjects = new StgCmtSCUMatchingObjects(
+                                                                            aet, stgcmtscp, qrlevel, query, status);
+                runInTx.execute(stgCmtSCUMatchingObjects);
+                count = stgCmtSCUMatchingObjects.getCount();
+                status = stgCmtSCUMatchingObjects.getStatus();
+                warning = stgCmtSCUMatchingObjects.getWarning();
             }
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {
@@ -214,6 +211,58 @@ class StgCmtSCUMatching {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    class StgCmtSCUMatchingObjects implements Runnable {
+        private int count;
+        private final String aet;
+        private final String stgcmtscp;
+        private final QueryRetrieveLevel2 qrLevel;
+        private final Query query;
+        private Response.Status status;
+        private String warning;
+
+        StgCmtSCUMatchingObjects(
+                String aet, String stgcmtscp, QueryRetrieveLevel2 qrLevel, Query query, Response.Status status) {
+            this.aet = aet;
+            this.stgcmtscp = stgcmtscp;
+            this.qrLevel = qrLevel;
+            this.query = query;
+            this.status = status;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        Response.Status getStatus() {
+            return status;
+        }
+
+        String getWarning() {
+            return warning;
+        }
+
+        @Override
+        public void run() {
+            try {
+                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+                while (query.hasMoreMatches()) {
+                    Attributes match = query.nextMatch();
+                    if (match == null)
+                        continue;
+
+                    stgCmtSCU.scheduleStorageCommit(aet, stgcmtscp, match, batchID, qrLevel);
+                    count++;
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
         }
     }
 

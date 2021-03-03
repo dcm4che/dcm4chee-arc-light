@@ -59,6 +59,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,8 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.*;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -97,6 +99,9 @@ class RejectMatching {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @QueryParam("batchID")
     private String batchID;
@@ -186,28 +191,21 @@ class RejectMatching {
                         "No such Rejection Note : " + codeValue + "^" + designator, Response.Status.NOT_FOUND);
 
             QueryContext ctx = queryContext(method, qrlevel, studyInstanceUID, seriesInstanceUID, ae);
-            String warning = null;
-            int count = 0;
+            String warning;
+            int count;
             Response.Status status = Response.Status.ACCEPTED;
-            HttpServletRequestInfo httpRequestInfo = HttpServletRequestInfo.valueOf(request);
             try (Query query = queryService.createQuery(ctx)) {
-                try {
-                    query.executeQuery(arcDev().getQueryFetchSize());
-                    while (query.hasMoreMatches()) {
-                        Attributes match = query.nextMatch();
-                        if (match == null)
-                            continue;
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-                        rejectMatching(aet, rjNoteCode, match, qrlevel, httpRequestInfo);
-                        count++;
-                    }
-                } catch (QueueSizeLimitExceededException e) {
-                    status = Response.Status.SERVICE_UNAVAILABLE;
-                    warning = e.getMessage();
-                } catch (Exception e) {
-                    warning = e.getMessage();
-                    status = Response.Status.INTERNAL_SERVER_ERROR;
-                }
+                RejectMatchingObjects rejectMatchingObjects = new RejectMatchingObjects(
+                                                                        aet, rjNoteCode, qrlevel, query, status);
+                runInTx.execute(rejectMatchingObjects);
+                count = rejectMatchingObjects.getCount();
+                status = rejectMatchingObjects.getStatus();
+                warning = rejectMatchingObjects.getWarning();
             }
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {
@@ -219,6 +217,59 @@ class RejectMatching {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    class RejectMatchingObjects implements Runnable {
+        private int count;
+        private final String aet;
+        private final Code rjNoteCode;
+        private final QueryRetrieveLevel2 qrLevel;
+        private final Query query;
+        private Response.Status status;
+        private String warning;
+
+        RejectMatchingObjects(
+                String aet, Code rjNoteCode, QueryRetrieveLevel2 qrLevel, Query query, Response.Status status) {
+            this.aet = aet;
+            this.rjNoteCode = rjNoteCode;
+            this.qrLevel = qrLevel;
+            this.query = query;
+            this.status = status;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        Response.Status getStatus() {
+            return status;
+        }
+
+        String getWarning() {
+            return warning;
+        }
+
+        @Override
+        public void run() {
+            try {
+                HttpServletRequestInfo httpRequestInfo = HttpServletRequestInfo.valueOf(request);
+                query.executeQuery(arcDev().getQueryFetchSize());
+                while (query.hasMoreMatches()) {
+                    Attributes match = query.nextMatch();
+                    if (match == null)
+                        continue;
+
+                    rejectMatching(aet, rjNoteCode, match, qrLevel, httpRequestInfo);
+                    count++;
+                }
+            } catch (QueueSizeLimitExceededException e) {
+                status = Response.Status.SERVICE_UNAVAILABLE;
+                warning = e.getMessage();
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
         }
     }
 

@@ -47,6 +47,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.ExpirationState;
@@ -55,8 +56,10 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
@@ -94,6 +97,9 @@ public class UpdateStudyAccessMatchingRS {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private RunInTransaction runInTx;
 
     @Context
     private HttpServletRequest request;
@@ -182,11 +188,48 @@ public class UpdateStudyAccessMatchingRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             QueryContext qCtx = queryContext(ae);
-            int count = 0;
+            int count;
             try (Query query = queryService.createQuery(qCtx)) {
-                query.executeQuery(arcDev.getQueryFetchSize());
+                int queryMaxNumberOfResults = qCtx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !qCtx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
+
+                UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID);
+                runInTx.execute(updateStudyAccess);
+                count = updateStudyAccess.getCount();
+            }
+            return Response.ok("{\"count\":" + count + '}').build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (WebApplicationException e) {
+            return errResponse(e.getMessage(), Response.Status.fromStatusCode(e.getResponse().getStatus()));
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    class UpdateStudyAccess implements Runnable {
+        private int count;
+        private final ApplicationEntity ae;
+        private final Query query;
+        private final String accessControlID;
+
+        UpdateStudyAccess(ApplicationEntity ae, Query query, String accessControlID) {
+            this.ae = ae;
+            this.query = query;
+            this.accessControlID = accessControlID;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        @Override
+        public void run() {
+            try {
+                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
                 while (query.hasMoreMatches()) {
                     Attributes match = query.nextMatch();
                     if (match == null)
@@ -201,12 +244,13 @@ public class UpdateStudyAccessMatchingRS {
                     studyService.updateAccessControlID(ctx);
                     count++;
                 }
+            } catch (StudyMissingException e) {
+                throw new WebApplicationException(e.getMessage(), Response.Status.NOT_FOUND);
+            } catch (DicomServiceException e) {
+                throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+            } catch (Exception e) {
+                throw new WebApplicationException(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
             }
-            return Response.ok("{\"count\":" + count + '}').build();
-        } catch(IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

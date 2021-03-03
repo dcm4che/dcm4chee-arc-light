@@ -50,6 +50,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.entity.ExpirationState;
@@ -57,6 +58,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
@@ -101,6 +103,9 @@ public class ApplyRetentionPolicy {
     private Device device;
 
     @Inject
+    private RunInTransaction runInTx;
+
+    @Inject
     private QueryService queryService;
 
     @Inject
@@ -141,66 +146,94 @@ public class ApplyRetentionPolicy {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
+            int count;
             ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
-            int queryFetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
-            int count = 0;
             QueryContext ctx = queryContext(ae);
             try (Query query = queryService.createQuery(ctx)) {
-                try {
-                    query.executeQuery(queryFetchSize);
-                    String prevStudyInstanceUID = null;
-                    LocalDate prevStudyExpirationDate = null;
-                    while (query.hasMoreMatches()) {
-                        Attributes attrs = query.nextMatch();
-                        if (attrs == null)
-                            continue;
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-                        StudyRetentionPolicy retentionPolicy =
-                                arcAE.findStudyRetentionPolicy(
-                                        null,
-                                        attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries),
-                                        null,
-                                        aet,
-                                        attrs);
-
-                        String studyExpirationState = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState);
-                        String studyExpirationDate = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate);
-                        String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-
-                        if (retentionPolicy == null
-                                || (ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN
-                                    && (studyExpirationDate == null || !retentionPolicy.protectStudy()))) {
-                            LOG.info("Skip applying {} to Study[UID={}, ExpirationDate={}, ExpirationState={}]",
-                                    retentionPolicy, studyInstanceUID, studyExpirationDate, studyExpirationState);
-                            continue;
-                        }
-
-                        LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
-                        if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
-                            prevStudyInstanceUID = studyInstanceUID;
-                            prevStudyExpirationDate = expirationDate;
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
-                                    retentionPolicy);
-                            count++;
-                        } else if (retentionPolicy.isFreezeExpirationDate()
-                                || prevStudyExpirationDate.compareTo(expirationDate) < 0) {
-                            prevStudyExpirationDate = expirationDate;
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
-                                        retentionPolicy);
-                        }
-
-                        if (retentionPolicy.isExpireSeriesIndividually() && !retentionPolicy.isFreezeExpirationDate())
-                            updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
-                                    expirationDate, ae, retentionPolicy);
-                    }
-                } catch (Exception e) {
-                    return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-                }
+                ExpireSeries es = new ExpireSeries(ae, query);
+                runInTx.execute(es);
+                count = es.getCount();
             }
             rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    class ExpireSeries implements Runnable {
+        private int count;
+        private final ApplicationEntity ae;
+        private final Query query;
+        private final ArchiveAEExtension arcAE;
+
+        ExpireSeries(ApplicationEntity ae, Query query) {
+            this.ae = ae;
+            this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+            this.query = query;
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        @Override
+        public void run() {
+            try {
+                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
+                String prevStudyInstanceUID = null;
+                LocalDate prevStudyExpirationDate = null;
+                while (query.hasMoreMatches()) {
+                    Attributes attrs = query.nextMatch();
+                    if (attrs == null)
+                        continue;
+
+                    StudyRetentionPolicy retentionPolicy =
+                            arcAE.findStudyRetentionPolicy(
+                                    null,
+                                    attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries),
+                                    null,
+                                    aet,
+                                    attrs);
+
+                    String studyExpirationState = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState);
+                    String studyExpirationDate = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate);
+                    String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+
+                    if (retentionPolicy == null
+                            || (ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN
+                            && (studyExpirationDate == null || !retentionPolicy.protectStudy()))) {
+                        LOG.info("Skip applying {} to Study[UID={}, ExpirationDate={}, ExpirationState={}]",
+                                retentionPolicy, studyInstanceUID, studyExpirationDate, studyExpirationState);
+                        continue;
+                    }
+
+                    LocalDate expirationDate = retentionPolicy.expirationDate(attrs);
+                    if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
+                        prevStudyInstanceUID = studyInstanceUID;
+                        prevStudyExpirationDate = expirationDate;
+                        updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                retentionPolicy);
+                        count++;
+                    } else if (retentionPolicy.isFreezeExpirationDate()
+                            || prevStudyExpirationDate.compareTo(expirationDate) < 0) {
+                        prevStudyExpirationDate = expirationDate;
+                        updateExpirationDate(studyInstanceUID, null, expirationDate, ae,
+                                retentionPolicy);
+                    }
+
+                    if (retentionPolicy.isExpireSeriesIndividually() && !retentionPolicy.isFreezeExpirationDate())
+                        updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID),
+                                expirationDate, ae, retentionPolicy);
+                }
+            } catch (Exception e) {
+                throw new WebApplicationException(e);
+            }
         }
     }
 
