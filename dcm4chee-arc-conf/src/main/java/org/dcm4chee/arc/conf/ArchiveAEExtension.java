@@ -1743,6 +1743,8 @@ public class ArchiveAEExtension extends AEExtension {
         retrieveTaskWarningOnWarnings = aeExt.retrieveTaskWarningOnWarnings;
         stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
+        encodeAsJSONNumber.clear();
+        encodeAsJSONNumber.addAll(aeExt.encodeAsJSONNumber);
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         upsOnStoreList.clear();

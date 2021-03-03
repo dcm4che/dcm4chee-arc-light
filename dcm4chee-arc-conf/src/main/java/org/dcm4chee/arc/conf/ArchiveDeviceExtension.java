@@ -3041,6 +3041,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         validateCallingAEHostname = arcdev.validateCallingAEHostname;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
+        encodeAsJSONNumber.clear();
+        encodeAsJSONNumber.addAll(arcdev.encodeAsJSONNumber);
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSupportedPRClasses.clear();
