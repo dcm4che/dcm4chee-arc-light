@@ -43,6 +43,7 @@ package org.dcm4chee.arc.stow.client.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
@@ -166,11 +167,20 @@ public class StowTaskImpl implements StowTask {
     private void store(InstanceLocations inst, Invocation.Builder request) {
         String iuid = inst.getSopInstanceUID();
         WebApplication destinationWebApp = ctx.getDestinationWebApp();
+        String tsuid = selectTransferSyntax(inst);
+        if (tsuid == null) {
+            LOG.info("Transfer syntax of instance location {} do not match with any transfer syntax configured in " +
+                            "destination web application {}",
+                    inst.getLocations().get(0).getTransferSyntaxUID(), destinationWebApp);
+            ctx.incrementFailed();
+            return;
+        }
+
         try {
             authorize(request);
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             output.setBoundary(boundary);
-            writeDICOM(output, ctx, inst);
+            writeDICOM(output, inst, tsuid);
             output.setBoundary(boundary);
             onStowRsp(toAttributes(request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE))));
             //TODO - metrics
@@ -211,13 +221,30 @@ public class StowTaskImpl implements StowTask {
         return rsp;
     }
 
-    private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
-        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
+    private void writeDICOM(MultipartRelatedOutput output, InstanceLocations inst, String tsuid)  {
         DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, Collections.singletonList(tsuid));
         output.addPart(entity,
                 new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
                         MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
                         new HashMap<String, String>().put("transfer-syntax", tsuid)));
+    }
+
+    private String selectTransferSyntax(InstanceLocations inst) {
+        String tsuidsStr = ctx.getDestinationWebApp().getProperties().get("transfer-syntax");
+        String instTSUID = inst.getLocations().get(0).getTransferSyntaxUID();
+        if (tsuidsStr == null)
+            return instTSUID;
+
+        boolean hasExplicitVRLittleEndian = false;
+        String[] tsuids = tsuidsStr.split(",");
+        for (String tsuid : tsuids) {
+            if (!hasExplicitVRLittleEndian)
+                hasExplicitVRLittleEndian = tsuid.equals(UID.ExplicitVRLittleEndian) || tsuid.equals("ExplicitVRLittleEndian");
+
+            if (instTSUID.equals(tsuid) || instTSUID.equals(UID.forName(tsuid)))
+                return instTSUID;
+        }
+        return hasExplicitVRLittleEndian ? UID.ExplicitVRLittleEndian : null;
     }
 
     private void authorize(Invocation.Builder request) throws Exception {
