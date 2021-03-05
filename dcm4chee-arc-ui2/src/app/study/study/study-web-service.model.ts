@@ -4,6 +4,7 @@ import {SelectDropdown} from "../../interfaces";
 
 export class StudyWebService {
     private _webServices:DcmWebApp[];
+    private _allWebServices:DcmWebApp[];
     private _selectedWebService:DcmWebApp;
     private _selectDropdownWebServices:SelectDropdown<DcmWebApp>[];
 
@@ -11,10 +12,12 @@ export class StudyWebService {
     constructor(
         object:{
             webServices?:DcmWebApp[];
-            selectedWebService?:DcmWebApp
+            selectedWebService?:DcmWebApp,
+            allWebServices?:DcmWebApp[]
         } = {}
     ){
         this.webServices = object.webServices;
+        this.allWebServices = object.allWebServices;
         if(_.hasIn(object,"selectedWebService.dcmWebAppName")){
             object.webServices.forEach((webService:DcmWebApp)=>{
                if(object.selectedWebService.dcmWebAppName === webService.dcmWebAppName){
@@ -63,5 +66,14 @@ export class StudyWebService {
 
     set selectDropdownWebServices(value: SelectDropdown<DcmWebApp>[]) {
         this._selectDropdownWebServices = value;
+    }
+
+
+    get allWebServices(): DcmWebApp[] {
+        return this._allWebServices;
+    }
+
+    set allWebServices(value: DcmWebApp[]) {
+        this._allWebServices = value;
     }
 }

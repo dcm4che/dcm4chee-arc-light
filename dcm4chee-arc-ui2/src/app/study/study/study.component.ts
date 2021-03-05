@@ -63,6 +63,8 @@ import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
 import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
+import {Subscriber} from "rxjs/index";
+import {Device} from "../../models/device";
 declare var DCM4CHE: any;
 
 
@@ -106,7 +108,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     patientAttributes;
-
+    devices;
     private _filter:StudyFilterConfig = {
         filterSchemaEntry:{
             lineLength:undefined,
@@ -452,14 +454,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.tableParam.tableSchema  = this.getSchema();
         }
         if(e === "export_object"){
-            this.exporter(
-                    undefined,
-                $localize `:@@study.export_selected_object:Export selected objects`,
-                $localize `:@@single:single`,
-                    undefined,
-                    undefined,
-                   this.selectedElements
-            );
+            if(this.internal){
+                this.exporter(
+                        undefined,
+                    $localize `:@@study.export_selected_object:Export selected objects`,
+                    $localize `:@@single:single`,
+                        undefined,
+                        undefined,
+                       this.selectedElements
+                );
+            }else{
+                this.retrieveObject(undefined,undefined,this.selectedElements);
+            }
         }
         if(e === "reject_object" || e === "restore_object"){
             this.rejectRestoreMultipleObjects();
@@ -808,14 +814,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.storageCommitmen(id.level, model);
             }
             if(id.action === "export"){
-                if(id.level === "study"){
-                    this.exportStudy(model);
-                }
-                if(id.level === "instance"){
-                    this.exportInstance(model);
-                }
-                if(id.level === "series"){
-                    this.exportSeries(model);
+                if(this.internal){
+                    if(id.level === "study"){
+                        this.exportStudy(model);
+                    }
+                    if(id.level === "instance"){
+                        this.exportInstance(model);
+                    }
+                    if(id.level === "series"){
+                        this.exportSeries(model);
+                    }
+                }else{
+                    this.retrieveObject(id.level, model);
                 }
             }
             if(id.action === "edit_study"){
@@ -2558,29 +2568,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }*/
     }
 
-/*    getDevices(){
-        this.service.getDevices()
-            .subscribe(devices=>{
-                if(_.hasIn(this.appService,"global.myDevice") && this.appService.deviceName && this.appService.deviceName === this.appService.global.myDevice.dicomDeviceName){
-                    this.studyWebService = new StudystudyWebServiceModel({
-                        devices:devices,
-                        selectedDeviceObject:this.appService.global.myDevice
-                    });
-                    // this.studyWebService.setSelectedWebAppByString(this.appService.deviceName);
-                    this.filter.filterEntryModel["device"] = this.appService.deviceName;
-                    // this.entryFilterChanged();
-                    this.initExporters(2);
-                    this.initRjNotes(2);
-                }else{
-                    this.studyWebService = new StudystudyWebServiceModel({devices:devices});
-                }
-                this.setSchema();
+    getDevices(){
+        return new Observable((observer: Subscriber<any>) => {
+            this.service.getDevices().subscribe(devices => {
                 // this.getApplicationEntities();
-        },err=>{
-            j4care.log("Something went wrong on getting Devices",err);
-            this.httpErrorHandler.handleError(err);
-        })
-    }*/
+                observer.next(devices);
+            }, err => {
+                observer.next([]);
+            })
+        });
+    }
 
     createPatient(){
         let config:ModifyConfig = {
@@ -3620,7 +3617,160 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             "study"
         );
     }
+    retrieveObject(level:DicomLevel, object?, multipleObjects?:SelectionActionElement){
+        console.log("object",object);
+        let modalText;
+        switch(level){
+            case "study":
+                modalText = $localize `:@@study.retrieve_study:Retrieve Study`;
+                break;
+            case "instance":
+                modalText = $localize `:@@study.retrieve_instance:Retrieve Instance`;
+                break;
+            case "series":
+                modalText = $localize `:@@study.retrieve_series:Retrieve Series`;
+                break;
+            default:
+                modalText = $localize `:@@retrieve_selected_objects:Retrieve selected objects`
+        }
+        this.getDevices().subscribe(devices=>{
+           this.devices = devices;
+            this.confirm({
+                content: modalText,
+                doNotSave: true,
+                form_schema: [
+                    [
+                        [
+                            {
+                                tag:"label_large",
+                                text:modalText
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@destination_aet:Destination AET`
+                            },{
+                                tag:"select",
+                                options:this.applicationEntities.aets,
+                                filterKey:"destination",
+                                description: $localize `:@@destination_aet:Destination AET`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@priority:Priority`
+                            },
+                            {
+                                tag:"select",
+                                options:[
+                                    new SelectDropdown(0, $localize `:@@normal:NORMAL`),
+                                    new SelectDropdown(1, $localize `:@@HIGH:HIGH`),
+                                    new SelectDropdown(2, $localize `:@@LOW:LOW`)
+                                ],
+                                filterKey:"priority",
+                                type:"number",
+                                description:$localize `:@@priority:Priority`,
+                                placeholder:$localize `:@@priority:Priority`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@queue_name:Queue Name`
+                            },
+                            {
+                                tag:"select",
+                                options:this.queues,
+                                filterKey:"dcmQueueName",
+                                description:$localize `:@@queue_name:Queue Name`,
+                                placeholder:$localize `:@@queue_name:Queue Name`
+                            }
+                        ],[
+                            {
+                                tag:"label",
+                                text: $localize `:@@batch_id:Batch ID`
+                            },{
+                                tag: "input",
+                                type: "text",
+                                filterKey: "batchID",
+                                description: $localize `:@@batch_id:Batch ID`,
+                                placeholder: $localize `:@@batch_id:Batch ID`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@device_name:Device Name`
+                            },
+                            {
+                                tag:"select",
+                                options:devices.map((device:Device)=>{
+                                    return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription)
+                                }),
+                                filterKey:"dicomDeviceName",
+                                description:$localize `:@@device_name:Device Name`,
+                                placeholder:$localize `:@@device_name:Device Name`
+                            }
+                        ],[
+                            {
+                                tag:"label",
+                                text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
+                            },{
+                                tag:"single-date-time-picker",
+                                type:"text",
+                                filterKey:"scheduledTime",
+                                description:$localize `:@@scheduled_time:Scheduled Time`
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize`:@@RETRIEVE:RETRIEVE`
+            }).subscribe((ok) => {
+                if(ok){
+                    console.log("ok",ok);
+                    this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                        this.studyWebService,
+                        "MOVE",
+                        "MOVE_MATCHING"
+                    ).subscribe(webApp=>{
+                        if(webApp){
+/*                            let tempObject = _.clone(ok.schema_model);
+                            delete tempObject["destination"];
+                            console.log("url",`${this.service.getURL(object.attrs,webApp,level) }/export/dicom:${ok.schema_model.destination}`);
+                            console.log("tempObject",tempObject);*/
+                            this.cfpLoadingBar.start();
+                            this.service.retrieve(webApp, ok.schema_model, object, level, multipleObjects).subscribe(res=>{
+                                this.cfpLoadingBar.complete();
+                                this.appService.showMsg("Succsefull");
+                            },err=>{
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
 
+                            });
+                            // fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
+/*                            let urlRest = `${
+                                j4care.getUrlFromDcmWebApplication(webApp)
+                                }/studies/export/dicom:${ //TODO
+                                ok.result_model.destination
+                                }?${
+                                ok.result_model.destination
+                                }${
+                                this.appService.param({...this.createStudyFilterParams(true,true),...{batchID:ok.result_model.batchID}})
+                                }`;*/
+                        }else{
+                            this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
+                        }
+                        // fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
+                    });
+                }
+            });
+        });
+    }
     exportStudy(study) {
         this.exporter(
             this.service.studyURL(study.attrs, this.studyWebService.selectedWebService),
@@ -3695,7 +3845,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(mode === "multiple-retrieve"){
                     this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                         this.studyWebService,
-                        "MOVE_MATCHING",
+                        "MOVE",
                         "MOVE_MATCHING"
                     ).subscribe(webApp=>{
                         if(webApp){
@@ -4104,6 +4254,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     initWebApps(){
         let aetsTemp;
         let aesTemp;
+        let webAppsTemp:DcmWebApp[];
         this.service.getAets().pipe(
             map((aets:Aet[])=>{
                 aetsTemp = aets;
@@ -4114,12 +4265,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             switchMap((aes)=>{
                 aesTemp = aes;
                 let filter = {
+                    dcmWebServiceClass: "MOVE"
+                };
+                return this.service.getWebApps(filter)
+            }),
+            switchMap((webApps:DcmWebApp[])=>{
+                webAppsTemp = webApps;
+                let filter = {
                     dcmWebServiceClass: this.currentWebAppClass
                 };
                 return this.service.getWebApps(filter)
             })
         ).subscribe(
                 (webApps:DcmWebApp[])=> {
+                    // webApps = _.uniq([...webApps,...webAppsTemp],"dcmWebAppName");
                     console.log("this.studyWebService",this.studyWebService);
                     console.log("this.filter",this.filter.filterModel);
                     this.studyWebService= new StudyWebService({
@@ -4132,7 +4291,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET']);
                             return webApp;
                         }),
-                        selectedWebService:_.get(this.studyWebService,"selectedWebService")
+                        selectedWebService:_.get(this.studyWebService,"selectedWebService"),
+                        allWebServices:_.uniq([...webApps,...webAppsTemp],"dcmWebAppName"),
                     });
                     this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);

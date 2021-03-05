@@ -3438,8 +3438,20 @@ export class StudyService {
     }
 
     webAppGroupHasClass(studyWebService:StudyWebService, webServiceClass:WebServiceClass){
-        return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||
-            studyWebService.webServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0
+        try{
+/*
+            console.log("+++++++test=",studyWebService.webServices.filter((webService:DcmWebApp)=>{
+                return webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1
+            }));
+            console.log("+++++++test2=",studyWebService.allWebServices.filter((webService:DcmWebApp)=>{
+                return webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1
+            }));*/
+            return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||
+                studyWebService.webServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0 ||
+                studyWebService.allWebServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0
+        }catch(e){
+            return false;
+        }
 
     }
     getWebAppFromWebServiceClassAndSelectedWebApp(deviceWebService: StudyWebService, neededWebServiceClass: string, alternativeWebServiceClass: string):Observable<DcmWebApp> {
@@ -3858,6 +3870,22 @@ export class StudyService {
                     this.jsonHeader
                 );
             }));
+        }
+    };
+
+    retrieve = (webApp:DcmWebApp, param, object, level,multipleObjects?:SelectionActionElement) => {
+        let tempParam = _.clone(param);
+        delete tempParam["destination"];
+        if(multipleObjects){
+            return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
+                return this.$http.post(
+                    `${this.getURL(element.object.attrs,webApp,element.dicomLevel) }/export/dicom:${param.destination}${j4care.param(tempParam)}`,
+                    {},
+                    this.jsonHeader
+                );
+            }));
+        }else{
+            return this.$http.post(`${this.getURL(object.attrs,webApp,level) }/export/dicom:${param.destination}${j4care.param(tempParam)}`,{});
         }
     };
 
