@@ -3746,7 +3746,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.cfpLoadingBar.start();
                             this.service.retrieve(webApp, ok.schema_model, object, level, multipleObjects).subscribe(res=>{
                                 this.cfpLoadingBar.complete();
-                                this.appService.showMsg("Succsefull");
+                                $this.appService.showMsg($this.service.getMsgFromResponse(res,$localize `:@@study.command_executed:Command executed successfully!`));
                             },err=>{
                                 this.cfpLoadingBar.complete();
                                 this.httpErrorHandler.handleError(err);
