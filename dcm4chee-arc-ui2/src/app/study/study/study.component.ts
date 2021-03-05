@@ -2410,7 +2410,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
-    moreFunctionFilterPipe(value, args){
+    moreFunctionFilterPipe = (value, args) => {
         let internal = args[0];
         let studyConfig = args[1];
         return value.filter(option=>{
@@ -2427,8 +2427,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }else{
                             switch (option.value) {
                                 case "retrieve_multiple":
-                                    return !internal && !(studyConfig && studyConfig.tab === "diff");
-
+                                    return (!internal || this.service.webAppGroupHasClass(this.studyWebService,"MOVE_MATCHING")) && !(studyConfig && studyConfig.tab === "diff");
                                 case "export_multiple":
                                     return internal && !(studyConfig && studyConfig.tab === "diff");
                                 case "upload_dicom":
@@ -2501,7 +2500,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.storages,
             this.studyWebService,
             this.diffAttributeSets,
-            this.studyWebService.selectedWebService && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
+            _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
             this.filter
         );
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
@@ -3815,7 +3814,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-        this.dialogRef.componentInstance.externalInternalAetMode = this.internal ? "internal" : "external";
+        this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? "external" : "internal";
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.queues = this.queues;
