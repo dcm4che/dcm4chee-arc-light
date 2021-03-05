@@ -50,9 +50,6 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.exporter.Exporter;
-import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
@@ -96,9 +93,6 @@ class ExportMatching {
 
     @Inject
     private ExportManager exportManager;
-
-    @Inject
-    private ExporterFactory exporterFactory;
 
     @Inject
     private RunInTransaction runInTx;
@@ -349,22 +343,6 @@ class ExportMatching {
 
     private static Boolean parseBoolean(String s) {
         return s != null ? Boolean.valueOf(s) : null;
-    }
-
-    private ExportContext createExportContext(String aet,
-            Attributes match, QueryRetrieveLevel2 qrlevel, ExporterDescriptor exporter) {
-        Exporter e = exporterFactory.getExporter(exporter);
-        ExportContext ctx = e.createExportContext();
-        ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
-        switch (qrlevel) {
-            case IMAGE:
-                ctx.setSopInstanceUID(match.getString(Tag.SOPInstanceUID));
-            case SERIES:
-                ctx.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
-        }
-        ctx.setAETitle(aet);
-        ctx.setBatchID(batchID);
-        return ctx;
     }
 
     private void scheduleExportTask(ExporterDescriptor exporter, Attributes match, QueryRetrieveLevel2 qrlevel)
