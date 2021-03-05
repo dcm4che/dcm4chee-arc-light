@@ -1627,7 +1627,7 @@ export class StudyService {
                                         action: "download"
                                     }, e);
                                 },
-                                title: $localize `:@@study.retrieve_study:Retrieve Study`,
+                                title: $localize `:@@download:Download`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -1663,7 +1663,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: $localize `:@@study.export_study:Export study`,
+                                title: options.internal ? $localize `:@@study.export_study:Export study`: $localize `:@@study.retrieve_study:Retrieve study`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'export'
@@ -2034,7 +2034,7 @@ export class StudyService {
                                         action: "download"
                                     }, e);
                                 },
-                                title: $localize `:@@study.retrieve_series:Retrieve Series`,
+                                title: $localize `:@@download:Download`,
                                 permission: {
                                     id: 'action-studies-download',
                                     param: 'visible'
@@ -2071,7 +2071,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: $localize `:@@export_series:Export series`,
+                                title: options.internal ? $localize `:@@export_series:Export series` : $localize `:@@retrieve_series:Retrieve series`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'export'
@@ -2363,7 +2363,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
-                                title: $localize `:@@export_instance:Export instance`,
+                                title: options.internal ? $localize `:@@export_instance:Export instance` : $localize `:@@retrieve_instance:Retrieve instance`,
                                 permission: {
                                     id: 'action-studies-instance',
                                     param: 'export'

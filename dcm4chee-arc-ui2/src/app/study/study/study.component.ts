@@ -195,11 +195,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         ],
         model:undefined
     };
+    internal = true;
     actionsSelections = {
         placeholder: $localize `:@@actions_for_selections:Actions for selections`,
         options:[
             new SelectDropdown("toggle_checkboxes", $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
-            new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
+            new SelectDropdown("export_object",
+                this.internal ? $localize `:@@study.short_export_object:Export selections`:$localize `:@@retrieve_selections:Retrieve selections`,
+                this.internal ? $localize `:@@study.export_object:Export selected studies, series or instances`: $localize `:@@retrieve_selected_objects:Retrieve selected studies, series or instances`),
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
@@ -232,7 +235,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         count:[],
         size:[]
     };
-    internal = true;
     checkboxFunctions = false;
     currentWebAppClass = "QIDO_RS";
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
@@ -3654,7 +3656,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"select",
                                 options:this.applicationEntities.aets,
                                 filterKey:"destination",
-                                description: $localize `:@@destination_aet:Destination AET`
+                                description: $localize `:@@destination_aet:Destination AET`,
+                                placeholder: $localize `:@@destination_aet:Destination AET`
                             }
                         ],
                         [
@@ -3739,10 +3742,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         "MOVE_MATCHING"
                     ).subscribe(webApp=>{
                         if(webApp){
-/*                            let tempObject = _.clone(ok.schema_model);
-                            delete tempObject["destination"];
-                            console.log("url",`${this.service.getURL(object.attrs,webApp,level) }/export/dicom:${ok.schema_model.destination}`);
-                            console.log("tempObject",tempObject);*/
                             this.cfpLoadingBar.start();
                             this.service.retrieve(webApp, ok.schema_model, object, level, multipleObjects).subscribe(res=>{
                                 this.cfpLoadingBar.complete();
@@ -3752,16 +3751,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 this.httpErrorHandler.handleError(err);
 
                             });
-                            // fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
-/*                            let urlRest = `${
-                                j4care.getUrlFromDcmWebApplication(webApp)
-                                }/studies/export/dicom:${ //TODO
-                                ok.result_model.destination
-                                }?${
-                                ok.result_model.destination
-                                }${
-                                this.appService.param({...this.createStudyFilterParams(true,true),...{batchID:ok.result_model.batchID}})
-                                }`;*/
                         }else{
                             this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                         }
