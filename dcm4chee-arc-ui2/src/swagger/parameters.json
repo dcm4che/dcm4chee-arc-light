@@ -1356,6 +1356,24 @@
       "default": false
     }
   },
+  "differentStudies": {
+    "name": "different",
+    "in": "query",
+    "description": "include Studies different at originalAET",
+    "schema": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "missingStudies": {
+    "name": "missing",
+    "in": "query",
+    "description": "include Studies missing at originalAET",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "stgcmtStatus": {
     "name": "status",
     "in": "query",

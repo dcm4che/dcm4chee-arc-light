@@ -1654,10 +1654,10 @@
           "$ref": "../parameters.json#/secondaryFindSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/different"
+          "$ref": "../parameters.json#/differentStudies"
         },
         {
-          "$ref": "../parameters.json#/missing"
+          "$ref": "../parameters.json#/missingStudies"
         },
         {
           "$ref": "../parameters.json#/ForceQueryByStudyUID"
@@ -1743,10 +1743,10 @@
           "$ref": "../parameters.json#/secondaryFindSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/different"
+          "$ref": "../parameters.json#/differentStudies"
         },
         {
-          "$ref": "../parameters.json#/missing"
+          "$ref": "../parameters.json#/missingStudies"
         },
         {
           "$ref": "../parameters.json#/ForceQueryByStudyUID"
@@ -1813,10 +1813,10 @@
           "$ref": "../parameters.json#/csvFieldPathParam"
         },
         {
-          "$ref": "../parameters.json#/different"
+          "$ref": "../parameters.json#/differentStudies"
         },
         {
-          "$ref": "../parameters.json#/missing"
+          "$ref": "../parameters.json#/missingStudies"
         },
         {
           "$ref": "../parameters.json#/includefield"
