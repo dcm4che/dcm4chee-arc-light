@@ -1239,9 +1239,6 @@ class ArchiveDeviceFactory {
     static final URI NEARLINE_STORAGE_EXPORTER_URI = URI.create("storage:nearline");
     static final Duration NEARLINE_STORAGE_DELAY = Duration.valueOf("PT1M");
 
-    static final Duration UPS_CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT6M");
-    static final Duration UPS_CALC_QUERY_ATTRS_DELAY = Duration.valueOf("PT5M");
-
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
