@@ -90,7 +90,7 @@
             <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
         </exclusions>
     </sub-deployment>
-    <sub-deployment name="dcm4chee-arc-keycloak-${project.version}.jar">
+    <sub-deployment name="dcm4chee-arc-export-mgt-${project.version}.jar">
         <exclusions>
             <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
         </exclusions>
