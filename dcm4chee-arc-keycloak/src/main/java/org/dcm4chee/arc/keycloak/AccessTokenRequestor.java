@@ -57,6 +57,7 @@ import org.keycloak.jose.jwk.JSONWebKeySet;
 import org.keycloak.jose.jwk.JWK;
 import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
@@ -93,9 +94,10 @@ public class AccessTokenRequestor {
     public AccessTokenWithExpiration getAccessToken2(WebApplication webApp) throws Exception {
         CachedKeycloak tmp = toCachedKeycloakClient(webApp);
         TokenManager tokenManager = tmp.keycloak.tokenManager();
+        AccessTokenResponse accessToken = tokenManager.getAccessToken();
         return new AccessTokenWithExpiration(
-                tokenManager.getAccessTokenString(),
-                tokenManager.getAccessToken().getExpiresIn());
+                accessToken.getToken(),
+                accessToken.getExpiresIn());
     }
 
     public AccessTokenWithExpiration getAccessToken2(KeycloakClient keycloakClient) throws Exception {
