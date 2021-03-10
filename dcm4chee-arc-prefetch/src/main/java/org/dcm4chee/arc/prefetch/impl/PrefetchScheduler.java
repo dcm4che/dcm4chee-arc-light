@@ -101,7 +101,7 @@ public class PrefetchScheduler {
         Calendar now = Calendar.getInstance();
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         arcHL7App.hl7PrefetchRules()
-                .filter(rule -> rule.getConditions().match(host, hl7Fields))
+                .filter(rule -> rule.match(host, hl7Fields))
                 .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now));
     }
 
@@ -179,6 +179,7 @@ public class PrefetchScheduler {
                 .setFindSCP(rule.getPrefetchCFindSCP())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
+                .setPriority(rule.getPriority())
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
         retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, notRetrievedAfter, delay);
     }

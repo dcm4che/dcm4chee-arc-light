@@ -642,6 +642,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmPrefetchCFindSCP", rule.getPrefetchCFindSCP(), null);
             writer.writeNotNullOrDef("dcmPrefetchCMoveSCP", rule.getPrefetchCMoveSCP(), null);
             writer.writeNotEmpty("dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
+            writer.writeNotDef("dcmPrefetchPriority", rule.getPriority(), 4);
             writer.writeNotEmpty("dcmProperty", rule.getConditions().getMap());
             writer.writeNotEmpty("dcmSchedule", rule.getSchedules());
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", rule.getIgnoreAssigningAuthorityOfPatientID(), null);
@@ -2508,6 +2509,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmPrefetchCStoreSCP":
                         rule.setPrefetchCStoreSCPs(reader.stringArray());
+                        break;
+                    case "dcmPrefetchPriority":
+                        rule.setPriority(reader.intValue());
                         break;
                     case "dcmEntitySelector":
                         rule.setEntitySelectors(EntitySelector.valuesOf(reader.stringArray()));

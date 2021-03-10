@@ -38,17 +38,15 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.Tuple;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.QueueMessage_;
+import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.RetrieveTask_;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -63,11 +61,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -123,7 +126,7 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("StudyInstanceUID", studyUID);
             HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
-                    Message.DEFAULT_PRIORITY, ctx.getBatchID(), delay);
+                    ctx.getPriority(), ctx.getBatchID(), delay);
             persist(createRetrieveTask(ctx, queueMessage),
                     studyUID,
                     new Date(System.currentTimeMillis() + delay));

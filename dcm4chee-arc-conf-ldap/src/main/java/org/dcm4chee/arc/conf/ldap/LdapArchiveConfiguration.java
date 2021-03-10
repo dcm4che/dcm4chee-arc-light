@@ -3608,6 +3608,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPrefetchPriority", rule.getPriority(), 4);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
                 rule.getIgnoreAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
@@ -3630,6 +3631,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setPrefetchCFindSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCFindSCP"), null));
                 rule.setPrefetchCMoveSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCMoveSCP"), null));
                 rule.setPrefetchCStoreSCPs(LdapUtils.stringArray(attrs.get("dcmPrefetchCStoreSCP")));
+                rule.setPriority(LdapUtils.intValue(attrs.get("dcmPrefetchPriority"), 4));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 rule.setIgnoreAssigningAuthorityOfPatientID(
@@ -4328,6 +4330,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getSuppressDuplicateRetrieveInterval(), rule.getSuppressDuplicateRetrieveInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPrefetchPriority", prev.getPriority(), rule.getPriority(), 4);
         return mods;
     }
 
