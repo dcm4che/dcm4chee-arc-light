@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.export.wado;
 
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
@@ -72,8 +73,12 @@ public class WadoExporterProvider implements ExporterProvider {
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
 
+    @Inject
+    private IWebApplicationCache webApplicationCache;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new WadoExporter(descriptor, queryService, storageFactory, device, accessTokenRequestor);
+        return new WadoExporter(
+                descriptor, queryService, storageFactory, device, accessTokenRequestor, webApplicationCache);
     }
 }

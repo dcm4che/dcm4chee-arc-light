@@ -2570,14 +2570,6 @@ dcmEntity: Patient
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: SUPPLEMENT
 
-dn: cn=Forward to WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: WADO
-dcmDuration: PT1M
-dcmEntity: Series
-dcmProperty: SendingApplicationEntityTitle=WADO
-objectClass: dcmExportRule
-cn: Forward to WADO
-
 dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ
@@ -2630,19 +2622,6 @@ dcmTag: 00700083
 dcmTag: 00700084
 dcmEntity: Instance
 objectClass: dcmAttributeFilter
-
-dn: dcmExporterID=WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: WADO
-dicomDescription: Export to WADO
-dcmQueueName: Export2
-dcmProperty: Accept.1=application/json
-dcmProperty: Cache-Control=no-cache
-dcmProperty: URL.1=http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata
-dcmProperty: StorageID.1=wado-json
-dcmProperty: StorageID=wado-jpeg
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE
-dcmURI: wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]
 
 dn: cn=JPEG 8-bit Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50
@@ -3132,6 +3111,22 @@ dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
 
+dn: cn=Forward to WADO-JPEG,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO-JPEG
+dcmDuration: PT1M
+dcmEntity: Series
+dcmProperty: SendingApplicationEntityTitle=WADO_JPEG
+objectClass: dcmExportRule
+cn: Forward to WADO-JPEG
+
+dn: cn=Forward to WADO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO-JSON
+dcmDuration: PT1M
+dcmEntity: Series
+dcmProperty: SendingApplicationEntityTitle=WADO_JSON
+objectClass: dcmExportRule
+cn: Forward to WADO-JSON
+
 dn: cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageReaderFactory
 cn: Image Reader Factory
@@ -3147,6 +3142,29 @@ dcmProperty: SendingApplicationEntityTitle=STORESCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
+
+dn: dcmExporterID=WADO-JPEG,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO-JPEG
+dicomDescription: Export to WADO-JPEG
+dcmQueueName: Export2
+dcmProperty: Cache-Control=no-cache
+dcmProperty: WadoService=?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]
+dcmProperty: StorageID=wado-jpeg
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: wado:DCM4CHEE-WADO
+
+dn: dcmExporterID=WADO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO-JSON
+dicomDescription: Export to WADO-JSON
+dcmQueueName: Export2
+dcmProperty: Cache-Control=no-cache
+dcmProperty: Accept=application/json
+dcmProperty: WadoService=/studies/[0]/metadata
+dcmProperty: StorageID=wado-json
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: wado:DCM4CHEE
 
 dn: dcmQueueName=Retrieve10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Dicom Retrieve Tasks 10

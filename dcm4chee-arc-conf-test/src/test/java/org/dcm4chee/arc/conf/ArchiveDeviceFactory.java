@@ -1242,11 +1242,15 @@ class ArchiveDeviceFactory {
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
-    static final String WADO_EXPORTER_ID = "WADO";
-    static final String WADO_EXPORTER_DESC = "Export to WADO";
-    static final URI WADO_EXPORT_URI = URI.create("wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]");
+    static final String WADO_JPEG_EXPORTER_ID = "WADO-JPEG";
+    static final String WADO_JSON_EXPORTER_ID = "WADO-JSON";
+    static final String WADO_JPEG_EXPORTER_DESC = "Export to WADO-JPEG";
+    static final String WADO_JSON_EXPORTER_DESC = "Export to WADO-JSON";
+    static final URI WADO_EXPORT_URI = URI.create("wado:DCM4CHEE-WADO");
+    static final String WADO_JPEG_EXPORT_SERVICE = "?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]";
     static final String WADO_CACHE_CONTROL = "no-cache";
-    static final String WADO_JSON_EXPORT_URL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata";
+    static final URI WADO_JSON_EXPORT_URL = URI.create("wado:DCM4CHEE");
+    static final String WADO_JSON_EXPORT_SERVICE = "/studies/[0]/metadata";
     static final String WADO_JSON_ACCEPT = "application/json";
     static final String XDSI_EXPORTER_ID = "XDS-I";
     static final String XDSI_EXPORTER_DESC = "XDS-I Provide and Register";
@@ -1935,24 +1939,40 @@ class ArchiveDeviceFactory {
             exportRule.setExporterIDs(DICOM_EXPORTER_ID);
             ext.addExportRule(exportRule);
 
-            ExporterDescriptor wadoExportDescriptor = new ExporterDescriptor(WADO_EXPORTER_ID);
-            wadoExportDescriptor.setDescription(WADO_EXPORTER_DESC);
-            wadoExportDescriptor.setExportURI(WADO_EXPORT_URI);
-            wadoExportDescriptor.setQueueName("Export2");
-            wadoExportDescriptor.setAETitle(AE_TITLE);
-            wadoExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
-            wadoExportDescriptor.setProperty("StorageID", WADO_JPEG_STORAGE_ID);
-            wadoExportDescriptor.setProperty("URL.1", WADO_JSON_EXPORT_URL);
-            wadoExportDescriptor.setProperty("Accept.1", WADO_JSON_ACCEPT);
-            wadoExportDescriptor.setProperty("StorageID.1", WADO_JSON_STORAGE_ID);
-            ext.addExporterDescriptor(wadoExportDescriptor);
+            ExporterDescriptor wadoJpegExportDescriptor = new ExporterDescriptor(WADO_JPEG_EXPORTER_ID);
+            wadoJpegExportDescriptor.setDescription(WADO_JPEG_EXPORTER_DESC);
+            wadoJpegExportDescriptor.setExportURI(WADO_EXPORT_URI);
+            wadoJpegExportDescriptor.setQueueName("Export2");
+            wadoJpegExportDescriptor.setAETitle(AE_TITLE);
+            wadoJpegExportDescriptor.setProperty("WadoService", WADO_JPEG_EXPORT_SERVICE);
+            wadoJpegExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
+            wadoJpegExportDescriptor.setProperty("StorageID", WADO_JPEG_STORAGE_ID);
+            ext.addExporterDescriptor(wadoJpegExportDescriptor);
 
-            ExportRule wadoExportRule = new ExportRule("Forward to WADO");
-            wadoExportRule.getConditions().setSendingAETitle("WADO");
-            wadoExportRule.setEntity(Entity.Series);
-            wadoExportRule.setExportDelay(Duration.valueOf("PT1M"));
-            wadoExportRule.setExporterIDs(WADO_EXPORTER_ID);
-            ext.addExportRule(wadoExportRule);
+            ExporterDescriptor wadoJsonExportDescriptor = new ExporterDescriptor(WADO_JSON_EXPORTER_ID);
+            wadoJsonExportDescriptor.setDescription(WADO_JSON_EXPORTER_DESC);
+            wadoJsonExportDescriptor.setExportURI(WADO_JSON_EXPORT_URL);
+            wadoJsonExportDescriptor.setQueueName("Export2");
+            wadoJsonExportDescriptor.setAETitle(AE_TITLE);
+            wadoJsonExportDescriptor.setProperty("WadoService", WADO_JSON_EXPORT_SERVICE);
+            wadoJsonExportDescriptor.setProperty("Accept", WADO_JSON_ACCEPT);
+            wadoJpegExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
+            wadoJsonExportDescriptor.setProperty("StorageID", WADO_JSON_STORAGE_ID);
+            ext.addExporterDescriptor(wadoJsonExportDescriptor);
+
+            ExportRule wadoJpegExportRule = new ExportRule("Forward to WADO-JPEG");
+            wadoJpegExportRule.getConditions().setSendingAETitle("WADO_JPEG");
+            wadoJpegExportRule.setEntity(Entity.Series);
+            wadoJpegExportRule.setExportDelay(Duration.valueOf("PT1M"));
+            wadoJpegExportRule.setExporterIDs(WADO_JPEG_EXPORTER_ID);
+            ext.addExportRule(wadoJpegExportRule);
+
+            ExportRule wadoJsonExportRule = new ExportRule("Forward to WADO-JSON");
+            wadoJsonExportRule.getConditions().setSendingAETitle("WADO_JSON");
+            wadoJsonExportRule.setEntity(Entity.Series);
+            wadoJsonExportRule.setExportDelay(Duration.valueOf("PT1M"));
+            wadoJsonExportRule.setExporterIDs(WADO_JSON_EXPORTER_ID);
+            ext.addExportRule(wadoJsonExportRule);
 
             ExporterDescriptor xdsiExportDescriptor = new ExporterDescriptor(XDSI_EXPORTER_ID);
             xdsiExportDescriptor.setDescription(XDSI_EXPORTER_DESC);
