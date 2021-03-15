@@ -374,13 +374,13 @@ public class QueryRS {
                 int skip = offset();
                 int remaining = limit();
                 try {
-                    Attributes dataset = findSCU.coerceCFindRSP(as, dimseRSP.getDataset());
+                    Attributes dataset = dimseRSP.getDataset();
                     dimseRSP.next();
                     do {
                         if (skip > 0)
                             skip--;
                         else  {
-                            writer.write(dataset);
+                            writer.write(findSCU.coerceCFindRSP(as, dataset));
                             if (limit != null && --remaining == 0)
                                 break;
                         }
