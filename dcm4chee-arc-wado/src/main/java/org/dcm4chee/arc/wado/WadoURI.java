@@ -203,7 +203,9 @@ public class WadoURI {
 
     @Override
     public String toString() {
-        return request != null ? request.getRequestURI() + '?' + request.getQueryString() : null;
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     @GET
@@ -239,13 +241,39 @@ public class WadoURI {
     }
 
     private void logRequest() {
-        String requestURI = request.getRequestURI();
-        String queryString = request.getQueryString();
-        LOG.info("Process {} {} from {}@{}",
+        LOG.info("Process {} {} with HTTPHeaders[{}] from {}@{}",
                 request.getMethod(),
-                queryString == null ? requestURI : requestURI + '?' + queryString,
+                toString(),
+                headers(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private String headers() {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        StringBuilder header = new StringBuilder();
+        boolean multipleHeaders = false;
+        while (headerNames.hasMoreElements()) {
+            if (multipleHeaders)
+                header.append(", ");
+            String headerName = headerNames.nextElement();
+            header.append(headerName).append(":").append(headerValues(headerName));
+            multipleHeaders = true;
+        }
+        return header.toString();
+    }
+
+    private String headerValues(String headerName) {
+        Enumeration<String> header = request.getHeaders(headerName);
+        StringBuilder headerValues = new StringBuilder();
+        boolean multipleValues = false;
+        while (header.hasMoreElements()) {
+            if (multipleValues)
+                headerValues.append(",");
+            headerValues.append(header.nextElement());
+            multipleValues = true;
+        }
+        return headerValues.toString();
     }
 
     private void validateWebApp() {

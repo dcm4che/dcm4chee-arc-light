@@ -423,25 +423,39 @@ public class WadoRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} with Accept: {} from {}@{}",
+        LOG.info("Process {} {} with HTTPHeaders[{}] from {}@{}",
                 request.getMethod(),
                 toString(),
-                accept(),
+                headers(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
     }
 
-    private String accept() {
-        Enumeration<String> acceptHeader = request.getHeaders("Accept");
-        StringBuilder accept = new StringBuilder();
+    private String headers() {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        StringBuilder header = new StringBuilder();
+        boolean multipleHeaders = false;
+        while (headerNames.hasMoreElements()) {
+            if (multipleHeaders)
+                header.append(", ");
+            String headerName = headerNames.nextElement();
+            header.append(headerName).append(":").append(headerValues(headerName));
+            multipleHeaders = true;
+        }
+        return header.toString();
+    }
+
+    private String headerValues(String headerName) {
+        Enumeration<String> header = request.getHeaders(headerName);
+        StringBuilder headerValues = new StringBuilder();
         boolean multipleValues = false;
-        while (acceptHeader.hasMoreElements()) {
+        while (header.hasMoreElements()) {
             if (multipleValues)
-                accept.append(",");
-            accept.append(acceptHeader.nextElement());
+                headerValues.append(",");
+            headerValues.append(header.nextElement());
             multipleValues = true;
         }
-        return accept.toString();
+        return headerValues.toString();
     }
 
     private void validateWebApp() {
