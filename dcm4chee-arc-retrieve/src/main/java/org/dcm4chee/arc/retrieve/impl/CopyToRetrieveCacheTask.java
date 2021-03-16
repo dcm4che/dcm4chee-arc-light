@@ -231,7 +231,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
         }
     }
 
-    private class WrappedInstanceLocations {
+    private static class WrappedInstanceLocations {
         final InstanceLocations instanceLocations;
 
         private WrappedInstanceLocations(InstanceLocations instanceLocations) {

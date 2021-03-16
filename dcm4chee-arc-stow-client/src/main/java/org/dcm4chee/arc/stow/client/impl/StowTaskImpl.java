@@ -43,18 +43,12 @@ package org.dcm4chee.arc.stow.client.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
 import org.dcm4che3.json.JSONReader;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
-import org.dcm4che3.util.Base64;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
+import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowTask;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -66,18 +60,15 @@ import javax.json.Json;
 import javax.json.JsonException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -86,56 +77,45 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class StowTaskImpl implements StowTask {
     private static final Logger LOG = LoggerFactory.getLogger(StowTaskImpl.class);
-    private static InstanceLocations NO_MORE_MATCHES = new NoMoreMatches();
-    private static final String boundary = UIDUtils.createUID();
 
     private final Event<RetrieveContext> retrieveStart;
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
-    private final AccessTokenRequestor accessTokenRequestor;
-    private final Invocation.Builder[] requests;
-    private final BlockingQueue<InstanceLocations> matches = new LinkedBlockingQueue<>();
-    private final CountDownLatch doneSignal;
+    private final BlockingQueue<WrappedInstanceLocations> matches = new LinkedBlockingQueue<>();
+    private final Invocation.Builder request;
+    private final Collection<String> acceptableTransferSyntaxes;
+    private final int concurrency;
+    private final Semaphore semaphore;
     private volatile boolean canceled;
 
     public StowTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd,
-                        AccessTokenRequestor accessTokenRequestor, Invocation.Builder... requests) {
+            Invocation.Builder request, Collection<String> acceptableTransferSyntaxes, int concurrency) {
         this.ctx = ctx;
         this.retrieveStart = retrieveStart;
         this.retrieveEnd = retrieveEnd;
-        this.requests = requests;
-        this.accessTokenRequestor = accessTokenRequestor;
-        this.doneSignal = new CountDownLatch(requests.length);
+        this.request = request;
+        this.acceptableTransferSyntaxes = acceptableTransferSyntaxes;
+        this.concurrency = concurrency;
+        this.semaphore = concurrency > 1 ? new Semaphore(concurrency) : null;
     }
 
     @Override
     public void cancel() {
-        //TODO
+        canceled = true;
     }
 
     @Override
     public void run() {
         retrieveStart.fire(ctx);
         try {
-            if (requests.length > 1) startStoreOperations();
             for (InstanceLocations match : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(match)) {
-                    matches.offer(match);
+                    matches.offer(new WrappedInstanceLocations(match));
                 }
             }
             ctx.copyToRetrieveCache(null);
-            if (requests.length == 1) {
-                matches.offer(NO_MORE_MATCHES);
-                runStoreOperations(requests[0]);
-            } else {
-                InstanceLocations match;
-                while ((match = ctx.copiedToRetrieveCache()) != null && !canceled) {
-                    matches.offer(match);
-                }
-                for (int i = 0; i < requests.length; i++) {
-                    matches.offer(NO_MORE_MATCHES);
-                }
-            }
+            matches.offer(new WrappedInstanceLocations(null));
+            runStoreOperations();
         } finally {
             ctx.getRetrieveService().updateLocations(ctx);
             SafeClose.close(ctx);
@@ -143,52 +123,69 @@ public class StowTaskImpl implements StowTask {
         retrieveEnd.fire(ctx);
     }
 
-    private void startStoreOperations() {
-        Device device = ctx.getArchiveAEExtension().getApplicationEntity().getDevice();
-        for (Invocation.Builder request : requests)
-            device.execute(() -> runStoreOperations(request));
-    }
-
-    private void runStoreOperations(Invocation.Builder request) {
+    private void runStoreOperations() {
         try {
             InstanceLocations match;
-            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES)
-                store(match, request);
+            while (!canceled && (match = matches.take().instanceLocations) != null)
+                store(match);
             while (!canceled && (match = ctx.copiedToRetrieveCache()) != null)
-                store(match, request);
+                store(match);
         } catch (InterruptedException e) {
-            LOG.warn("{}: failed to fetch next match from queue:\n",
-                    request, e);
+            LOG.warn("{}: failed to fetch next match from queue:\n", request, e);
         } finally {
-            doneSignal.countDown();
+            if (semaphore != null) {
+                try {
+                    semaphore.acquire(concurrency);
+                } catch (InterruptedException e) {
+                    LOG.warn("{}: failed to wait for pending responses:\n", request, e);
+                }
+            }
         }
     }
 
-    private void store(InstanceLocations inst, Invocation.Builder request) {
-        String iuid = inst.getSopInstanceUID();
-        WebApplication destinationWebApp = ctx.getDestinationWebApp();
-        String tsuid = selectTransferSyntax(inst);
-        if (tsuid == null) {
-            LOG.info("Transfer syntax of instance location {} do not match with any transfer syntax configured in " +
-                            "destination web application {}",
-                    inst.getLocations().get(0).getTransferSyntaxUID(), destinationWebApp);
-            ctx.incrementFailed();
-            return;
-        }
+    private void store(InstanceLocations inst) {
+        MultipartRelatedOutput output = new MultipartRelatedOutput();
+        output.addPart(new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes),
+                MediaTypes.applicationDicomWithTransferSyntax(MediaTypeUtils.selectTransferSyntax(
+                        acceptableTransferSyntaxes, inst.getLocations().get(0).getTransferSyntaxUID())));
+        Entity<MultipartRelatedOutput> entity = Entity.entity(output,
+                MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE);
+        InvocationCallback<Response> callback = new InvocationCallback<Response>() {
+            @Override
+            public void completed(Response response) {
+                if (semaphore != null) semaphore.release();
+                onStowRsp(toAttributes(response));
+            }
 
-        try {
-            authorize(request);
-            MultipartRelatedOutput output = new MultipartRelatedOutput();
-            output.setBoundary(boundary);
-            writeDICOM(output, inst, tsuid);
-            output.setBoundary(boundary);
-            onStowRsp(toAttributes(request.post(Entity.entity(output, MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE))));
-            //TODO - metrics
-        } catch (Exception e) {
-            ctx.incrementFailed();
-            ctx.addFailedSOPInstanceUID(iuid);
-            LOG.warn("{}: failed to send {} to {}:", request, inst, destinationWebApp, e);
+            @Override
+            public void failed(Throwable e) {
+                if (semaphore != null) semaphore.release();
+                ctx.incrementFailed();
+                ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                LOG.warn("{}: failed to send {} to {}:\n", request, inst, ctx.getDestinationWebApp(), e);
+            }
+        };
+        if (async()) {
+            request.async().post(entity, callback);
+        } else {
+            try {
+                callback.completed(request.post(entity));
+            } catch (Throwable e) {
+                callback.failed(e);
+            }
         }
+    }
+
+    private boolean async() {
+        if (semaphore != null) {
+            try {
+                semaphore.acquire();
+                return true;
+            } catch (InterruptedException e) {
+                LOG.info("{}: failed to wait for pending responses:\n", request, e);
+            }
+        }
+        return false;
     }
 
     private void onStowRsp(Attributes rsp) {
@@ -221,138 +218,11 @@ public class StowTaskImpl implements StowTask {
         return rsp;
     }
 
-    private void writeDICOM(MultipartRelatedOutput output, InstanceLocations inst, String tsuid)  {
-        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, Collections.singletonList(tsuid));
-        output.addPart(entity,
-                new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
-                        MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
-                        new HashMap<String, String>().put("transfer-syntax", tsuid)));
-    }
+    private static class WrappedInstanceLocations {
+        final InstanceLocations instanceLocations;
 
-    private String selectTransferSyntax(InstanceLocations inst) {
-        String tsuidsStr = ctx.getDestinationWebApp().getProperties().get("transfer-syntax");
-        String instTSUID = inst.getLocations().get(0).getTransferSyntaxUID();
-        if (tsuidsStr == null)
-            return instTSUID;
-
-        boolean hasExplicitVRLittleEndian = false;
-        String[] tsuids = tsuidsStr.split(",");
-        for (String tsuid : tsuids) {
-            if (!hasExplicitVRLittleEndian)
-                hasExplicitVRLittleEndian = tsuid.equals(UID.ExplicitVRLittleEndian) || tsuid.equals("ExplicitVRLittleEndian");
-
-            if (instTSUID.equals(tsuid) || instTSUID.equals(UID.forName(tsuid)))
-                return instTSUID;
-        }
-        return hasExplicitVRLittleEndian ? UID.ExplicitVRLittleEndian : null;
-    }
-
-    private void authorize(Invocation.Builder request) throws Exception {
-        String user = ctx.getDestinationWebApp().getProperties().get("User");
-        String authorization = user != null
-                ? basicAuth(user)
-                : bearer();
-        if (authorization == null)
-            return;
-
-        request.header("Authorization", authorization);
-    }
-
-    private String basicAuth(String user) {
-        byte[] userPswdBytes = user.getBytes();
-        int len = (userPswdBytes.length * 4 / 3 + 3) & ~3;
-        char[] ch = new char[len];
-        Base64.encode(userPswdBytes, 0, userPswdBytes.length, ch, 0);
-        return "Basic " + new String(ch);
-    }
-
-    private String bearer() throws Exception {
-        String token = ctx.getDestinationWebApp().getProperties().get("Token");
-        if (token == null && ctx.getDestinationWebApp().getKeycloakClient() == null)
-            return null;
-
-        return "Bearer "
-                + (token != null ? token : accessTokenRequestor.getAccessToken2(ctx.getDestinationWebApp()).getToken());
-    }
-
-    private static final class NoMoreMatches implements InstanceLocations {
-        @Override
-        public Long getInstancePk() {
-            return null;
-        }
-
-        @Override
-        public void setInstancePk(Long pk) {
-        }
-
-        @Override
-        public String getSopInstanceUID() {
-            return null;
-        }
-
-        @Override
-        public String getSopClassUID() {
-            return null;
-        }
-
-        @Override
-        public List<Location> getLocations() {
-            return null;
-        }
-
-        @Override
-        public Attributes getAttributes() {
-            return null;
-        }
-
-        @Override
-        public String getRetrieveAETs() {
-            return null;
-        }
-
-        @Override
-        public String getExternalRetrieveAET() {
-            return null;
-        }
-
-        @Override
-        public Availability getAvailability() {
-            return null;
-        }
-
-        @Override
-        public Date getCreatedTime() {
-            return null;
-        }
-
-        @Override
-        public Date getUpdatedTime() {
-            return null;
-        }
-
-        @Override
-        public Attributes getRejectionCode() {
-            return null;
-        }
-
-        @Override
-        public boolean isContainsMetadata() {
-            return false;
-        }
-
-        @Override
-        public boolean isImage() {
-            return false;
-        }
-
-        @Override
-        public boolean isVideo() {
-            return false;
-        }
-
-        @Override
-        public boolean isMultiframe() {
-            return false;
+        private WrappedInstanceLocations(InstanceLocations instanceLocations) {
+            this.instanceLocations = instanceLocations;
         }
     }
 }

@@ -51,9 +51,7 @@ import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
-import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -75,14 +73,13 @@ import java.util.concurrent.TimeUnit;
 final class RetrieveTaskImpl implements RetrieveTask {
 
     static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskImpl.class);
-    private static InstanceLocations NO_MORE_MATCHES = new NoMoreMatches();
 
     private final Event<RetrieveContext> retrieveStart;
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
     private final Association[] storeass;
     private final ArchiveAEExtension aeExt;
-    private final BlockingQueue<InstanceLocations> matches = new LinkedBlockingQueue<>();
+    private final BlockingQueue<WrappedInstanceLocations> matches = new LinkedBlockingQueue<>();
     private final CountDownLatch doneSignal;
     private Dimse dimserq;
     private Association rqas;
@@ -127,20 +124,20 @@ final class RetrieveTaskImpl implements RetrieveTask {
             if (storeass.length > 1) startStoreOperations();
             for (InstanceLocations match : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(match)) {
-                    matches.offer(match);
+                    matches.offer(new WrappedInstanceLocations(match));
                 }
             }
             ctx.copyToRetrieveCache(null);
             if (storeass.length == 1) {
-                matches.offer(NO_MORE_MATCHES);
+                matches.offer(new WrappedInstanceLocations(null));
                 runStoreOperations(storeass[0]);
             } else {
                 InstanceLocations match;
                 while ((match = ctx.copiedToRetrieveCache()) != null && !canceled) {
-                    matches.offer(match);
+                    matches.offer(new WrappedInstanceLocations(match));
                 }
                 for (int i = 0; i < storeass.length; i++) {
-                    matches.offer(NO_MORE_MATCHES);
+                    matches.offer(new WrappedInstanceLocations(null));
                 }
             }
             waitForPendingStoreOperations();
@@ -179,7 +176,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         Collection<InstanceLocations> outstandingRSPs = Collections.synchronizedList(new ArrayList<>());
         try {
             InstanceLocations match = null;
-            while (!canceled && (match = matches.take()) != NO_MORE_MATCHES) {
+            while (!canceled && (match = matches.take().instanceLocations) != null) {
                 store(match, storeas, outstandingRSPs);
                 waitForNonBlockingInvoke(storeas);
             }
@@ -187,8 +184,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 store(match, storeas, outstandingRSPs);
             }
         } catch (InterruptedException e) {
-            LOG.warn("{}: failed to fetch next match from queue:\n",
-                    rqas, storeas.getRemoteAET(), e);
+            LOG.warn("{}: failed to fetch next match from queue:\n", rqas, e);
         } finally {
             waitForOutstandingCStoreRSP(storeas, outstandingRSPs);
             releaseStoreAssociation(storeas);
@@ -404,86 +400,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
         }
     }
 
-    private static final class NoMoreMatches implements InstanceLocations {
-        @Override
-        public Long getInstancePk() {
-            return null;
-        }
+    private static class WrappedInstanceLocations {
+        final InstanceLocations instanceLocations;
 
-        @Override
-        public void setInstancePk(Long pk) {
-        }
-
-        @Override
-        public String getSopInstanceUID() {
-            return null;
-        }
-
-        @Override
-        public String getSopClassUID() {
-            return null;
-        }
-
-        @Override
-        public List<Location> getLocations() {
-            return null;
-        }
-
-        @Override
-        public Attributes getAttributes() {
-            return null;
-        }
-
-        @Override
-        public String getRetrieveAETs() {
-            return null;
-        }
-
-        @Override
-        public String getExternalRetrieveAET() {
-            return null;
-        }
-
-        @Override
-        public Availability getAvailability() {
-            return null;
-        }
-
-        @Override
-        public Date getCreatedTime() {
-            return null;
-        }
-
-        @Override
-        public Date getUpdatedTime() {
-            return null;
-        }
-
-        @Override
-        public Attributes getRejectionCode() {
-            return null;
-        }
-
-        @Override
-        public boolean isContainsMetadata() {
-            return false;
-        }
-
-        @Override
-        public boolean isImage() {
-            return false;
-        }
-
-        @Override
-        public boolean isVideo() {
-            return false;
-        }
-
-        @Override
-        public boolean isMultiframe() {
-            return false;
+        private WrappedInstanceLocations(InstanceLocations instanceLocations) {
+            this.instanceLocations = instanceLocations;
         }
     }
-
 }
 

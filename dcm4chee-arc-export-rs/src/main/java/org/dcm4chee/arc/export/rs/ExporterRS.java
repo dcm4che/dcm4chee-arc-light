@@ -48,7 +48,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -199,8 +198,7 @@ public class ExporterRS {
         RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTOW(
                 aet, studyUID, seriesUID, objectUID, destWebApp);
         retrieveContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
-        if (retrieveService.calculateMatches(retrieveContext)
-                && retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
+        if (retrieveService.calculateMatches(retrieveContext))
             stowClient.newStowTask(retrieveContext).run();
         return toResponse(retrieveContext);
     }

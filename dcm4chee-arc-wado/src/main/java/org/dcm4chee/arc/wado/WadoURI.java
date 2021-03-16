@@ -58,6 +58,7 @@ import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
+import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.*;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;

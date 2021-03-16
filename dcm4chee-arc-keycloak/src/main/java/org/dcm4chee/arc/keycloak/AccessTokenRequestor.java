@@ -61,6 +61,9 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedExecutorService;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -80,6 +83,12 @@ public class AccessTokenRequestor {
 
     @Inject
     private Device device;
+
+    @Resource
+    private ManagedExecutorService executor;
+
+    @Resource
+    private ManagedScheduledExecutorService scheduledExecutor;
 
     private volatile CachedKeycloak cachedKeycloakClient;
     private volatile CachedPublicKey cachedPublicKey;
@@ -141,6 +150,8 @@ public class AccessTokenRequestor {
             if (disableTrustManager)
                 builder.disableTrustManager();
         }
+        builder.executorService(executor);
+        builder.scheduledExecutorService(scheduledExecutor);
         return builder;
     }
 

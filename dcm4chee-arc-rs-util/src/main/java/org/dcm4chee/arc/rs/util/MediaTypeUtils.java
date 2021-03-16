@@ -41,11 +41,13 @@
 
 package org.dcm4chee.arc.rs.util;
 
+import org.dcm4che3.data.UID;
 import org.dcm4che3.util.StringUtils;
 import org.jboss.resteasy.util.MediaTypeHelper;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,5 +70,13 @@ public class MediaTypeUtils {
                 .collect(Collectors.toList());
         MediaTypeHelper.sortByWeight(list);
         return list;
+    }
+
+    public static String selectTransferSyntax(Collection<String> acceptable, String tsuid) {
+        return acceptable.isEmpty() || acceptable.contains(tsuid)
+                ? tsuid
+                : acceptable.contains(UID.ExplicitVRLittleEndian)
+                ? UID.ExplicitVRLittleEndian
+                : UID.ImplicitVRLittleEndian;
     }
 }

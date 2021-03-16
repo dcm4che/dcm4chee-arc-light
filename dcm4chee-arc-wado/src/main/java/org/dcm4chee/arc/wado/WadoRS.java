@@ -60,6 +60,7 @@ import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
@@ -1288,23 +1289,9 @@ public class WadoRS {
     }
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
-        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes);
-        output.addPart(entity,
-                new MediaType(MediaTypes.APPLICATION_DICOM_TYPE.getType(),
-                              MediaTypes.APPLICATION_DICOM_TYPE.getSubtype(),
-                              parameters(inst)));
-    }
-
-    private Map<String, String> parameters(InstanceLocations inst) {
-        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("transfer-syntax",
-                acceptableTransferSyntaxes.isEmpty() || acceptableTransferSyntaxes.contains(tsuid)
-                        ? tsuid
-                        : acceptableTransferSyntaxes.contains(UID.ExplicitVRLittleEndian)
-                            ? UID.ExplicitVRLittleEndian
-                            : UID.ImplicitVRLittleEndian);
-        return parameters;
+        output.addPart(new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes),
+                MediaTypes.applicationDicomWithTransferSyntax(MediaTypeUtils.selectTransferSyntax(
+                        acceptableTransferSyntaxes, inst.getLocations().get(0).getTransferSyntaxUID())));
     }
 
     private Object writeZIP(RetrieveContext ctx) {
