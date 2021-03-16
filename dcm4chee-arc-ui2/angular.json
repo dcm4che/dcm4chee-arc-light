@@ -35,8 +35,6 @@
             "styles": [
               "node_modules/animate.css/animate.min.css",
               "node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css",
-              "node_modules/jspdf/dist/jspdf.min.js",
-              "node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js",
               "src/styles.scss",
               "src/assets/scss/old_style.scss",
               "src/assets/scss/old_mobile.scss"
