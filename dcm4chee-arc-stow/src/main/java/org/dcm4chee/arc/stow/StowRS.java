@@ -539,7 +539,7 @@ public class StowRS {
             verifyImagePixelModule(attrs);
         }
         if (attrs.containsValue(Tag.EncapsulatedDocument)) {
-            verifyEncapsulatedDocumentModule(session, attrs, bulkdata.mediaType);
+            verifyEncapsulatedDocumentModule(session, attrs, bulkdata);
         } else {
             switch (cuid) {
                 case UID.EncapsulatedPDFStorage:
@@ -596,6 +596,11 @@ public class StowRS {
         attrs.setString(tag, vr, value);
     }
 
+    private static void supplementMissing(StoreSession session, int tag, VR vr, int value, Attributes attrs) {
+        logSupplementMissing(session, tag, value);
+        attrs.setInt(tag, vr, value);
+    }
+
     private static void logSupplementMissing(StoreSession session, int tag, Object value) {
         LOG.info("{}: Supplement Missing {} {} - {}", session, DICT.keywordOf(tag), TagUtils.toString(tag), value);
     }
@@ -608,17 +613,19 @@ public class StowRS {
             throw missingAttribute(Tag.PlanarConfiguration);
     }
 
-    private static void verifyEncapsulatedDocumentModule(StoreSession session, Attributes attrs, MediaType bulkdataMediaType)
-            throws DicomServiceException {
+    private static void verifyEncapsulatedDocumentModule(
+            StoreSession session, Attributes attrs, BulkDataWithMediaType bulkdata) throws DicomServiceException {
         String cuid = attrs.getString(Tag.SOPClassUID);
         if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
-            String mimeType = bulkdataMediaType.toString();
+            String mimeType = bulkdata.mediaType.toString();
             if (mimeType == null)
                 throw missingAttribute(Tag.MIMETypeOfEncapsulatedDocument);
             supplementMissing(session, Tag.MIMETypeOfEncapsulatedDocument, VR.LO, mimeType, attrs);
         }
         if (!attrs.containsValue(Tag.BurnedInAnnotation))
             supplementMissing(session, Tag.BurnedInAnnotation, VR.CS, "YES", attrs);
+        if (!attrs.containsValue(Tag.EncapsulatedDocumentLength))
+            supplementMissing(session, Tag.EncapsulatedDocumentLength, VR.UL, bulkdata.bulkData.length(), attrs);
         switch (cuid) {
             case UID.EncapsulatedSTLStorage:
             case UID.EncapsulatedMTLStorage:
