@@ -52,7 +52,6 @@ import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowTask;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.client.jaxrs.internal.ClientInvocationBuilder;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
