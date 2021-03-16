@@ -54,6 +54,9 @@ import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.stow.client.StowClient;
 import org.dcm4chee.arc.stow.client.StowTask;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.internal.ClientInvocationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +65,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -92,25 +96,25 @@ public class StowClientImpl implements StowClient {
             WebApplication webApp = ctx.getDestinationWebApp();
             Map<String, String> props = webApp.getProperties();
             String url = webApp.getServiceURL().append("/studies").toString();
-            Client client = accessTokenRequestor.resteasyClientBuilder(
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
                     url,
                     Boolean.parseBoolean(props.get("allow-any-hostname")),
                     Boolean.parseBoolean(props.get("disable-trust-manager")))
                     .build();
-            Invocation.Builder request = client.target(url).request(MediaTypes.APPLICATION_DICOM_JSON);
-            if (webApp.getKeycloakClientID() != null) {
-                request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessToken2(webApp));
-            } else if (props.containsKey("bearer-token")) {
-                request.header("Authorization", "Bearer " + props.get("bearer-token"));
-            } else if (props.containsKey("basic-auth")) {
-                request.header("Authorization", "Basic "
-                        + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8)));
-            }
-            return new StowTaskImpl(ctx, retrieveStart, retrieveEnd, request,
+            ResteasyWebTarget target = client.target(url)
+                    .setChunked(Boolean.parseBoolean(props.get("chunked")));
+            String authorization = webApp.getKeycloakClientID() != null
+                    ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp)
+                    : props.containsKey("bearer-token")
+                    ? "Bearer " + props.get("bearer-token")
+                    : props.containsKey("basic-auth")
+                    ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                    : null;
+            return new StowTaskImpl(ctx, retrieveStart, retrieveEnd,
+                    target,
+                    authorization,
                     uidsOf(props.get("transfer-syntax")),
-                    props.containsKey("concurrency")
-                            ? Integer.parseInt(props.get("concurrency"))
-                            : 1);
+                    props.containsKey("concurrency") ? Integer.parseInt(props.get("concurrency")) : 1);
         } catch (Exception e) {
             LOG.info("Failed to build STOW request: ", e);
             DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);

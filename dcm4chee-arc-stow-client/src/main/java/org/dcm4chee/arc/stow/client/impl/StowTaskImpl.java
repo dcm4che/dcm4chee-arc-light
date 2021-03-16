@@ -51,6 +51,8 @@ import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowTask;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.internal.ClientInvocationBuilder;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,18 +84,21 @@ public class StowTaskImpl implements StowTask {
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
     private final BlockingQueue<WrappedInstanceLocations> matches = new LinkedBlockingQueue<>();
-    private final Invocation.Builder request;
+    private final ResteasyWebTarget target;
+    private final String authorization;
     private final Collection<String> acceptableTransferSyntaxes;
     private final int concurrency;
     private final Semaphore semaphore;
     private volatile boolean canceled;
 
     public StowTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd,
-            Invocation.Builder request, Collection<String> acceptableTransferSyntaxes, int concurrency) {
+            ResteasyWebTarget target, String authorization, Collection<String> acceptableTransferSyntaxes,
+            int concurrency) {
         this.ctx = ctx;
         this.retrieveStart = retrieveStart;
         this.retrieveEnd = retrieveEnd;
-        this.request = request;
+        this.target = target;
+        this.authorization = authorization;
         this.acceptableTransferSyntaxes = acceptableTransferSyntaxes;
         this.concurrency = concurrency;
         this.semaphore = concurrency > 1 ? new Semaphore(concurrency) : null;
@@ -131,15 +136,16 @@ public class StowTaskImpl implements StowTask {
             while (!canceled && (match = ctx.copiedToRetrieveCache()) != null)
                 store(match);
         } catch (InterruptedException e) {
-            LOG.warn("{}: failed to fetch next match from queue:\n", request, e);
+            LOG.warn("{}: failed to fetch next match from queue:\n", target, e);
         } finally {
             if (semaphore != null) {
                 try {
                     semaphore.acquire(concurrency);
                 } catch (InterruptedException e) {
-                    LOG.warn("{}: failed to wait for pending responses:\n", request, e);
+                    LOG.warn("{}: failed to wait for pending responses:\n", target, e);
                 }
             }
+            target.getResteasyClient().close();
         }
     }
 
@@ -150,19 +156,24 @@ public class StowTaskImpl implements StowTask {
                         acceptableTransferSyntaxes, inst.getLocations().get(0).getTransferSyntaxUID())));
         Entity<MultipartRelatedOutput> entity = Entity.entity(output,
                 MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE);
+        Invocation.Builder request = target.request(MediaTypes.APPLICATION_DICOM_JSON);
+        if (authorization != null) {
+            request.header("Authorization", authorization);
+        }
         InvocationCallback<Response> callback = new InvocationCallback<Response>() {
             @Override
             public void completed(Response response) {
-                if (semaphore != null) semaphore.release();
                 onStowRsp(toAttributes(response));
+                response.close();
+                if (semaphore != null) semaphore.release();
             }
 
             @Override
             public void failed(Throwable e) {
-                if (semaphore != null) semaphore.release();
                 ctx.incrementFailed();
                 ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
-                LOG.warn("{}: failed to send {} to {}:\n", request, inst, ctx.getDestinationWebApp(), e);
+                LOG.warn("{}: failed to send {} to {}:\n", target, inst, ctx.getDestinationWebApp(), e);
+                if (semaphore != null) semaphore.release();
             }
         };
         if (async()) {
@@ -182,7 +193,7 @@ public class StowTaskImpl implements StowTask {
                 semaphore.acquire();
                 return true;
             } catch (InterruptedException e) {
-                LOG.info("{}: failed to wait for pending responses:\n", request, e);
+                LOG.info("{}: failed to wait for pending responses:\n", target, e);
             }
         }
         return false;
