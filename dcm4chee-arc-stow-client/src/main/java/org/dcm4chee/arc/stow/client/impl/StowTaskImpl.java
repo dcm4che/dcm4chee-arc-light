@@ -122,6 +122,14 @@ public class StowTaskImpl implements StowTask {
             matches.offer(new WrappedInstanceLocations(null));
             runStoreOperations();
         } finally {
+            if (semaphore != null) {
+                try {
+                    semaphore.acquire(concurrency);
+                } catch (InterruptedException e) {
+                    LOG.warn("{}: failed to wait for pending responses:\n", target, e);
+                }
+            }
+            target.getResteasyClient().close();
             ctx.getRetrieveService().updateLocations(ctx);
             SafeClose.close(ctx);
         }
@@ -137,15 +145,6 @@ public class StowTaskImpl implements StowTask {
                 store(match);
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to fetch next match from queue:\n", target, e);
-        } finally {
-            if (semaphore != null) {
-                try {
-                    semaphore.acquire(concurrency);
-                } catch (InterruptedException e) {
-                    LOG.warn("{}: failed to wait for pending responses:\n", target, e);
-                }
-            }
-            target.getResteasyClient().close();
         }
     }
 
