@@ -90,9 +90,9 @@ export class DevicesComponent implements OnInit{
         this.getAes();
         this.getHl7ApplicationsList(2);
         this.getWebApps(2);
-        console.log("deviceconfiguratorservice paginantion",this.deviceConfigurator.pagination)
-        if(this.deviceConfigurator.pagination){
-            this.deviceConfigurator.pagination = [
+        console.log("deviceconfiguratorservice paginantion",this.deviceConfigurator.breadcrumbs)
+        if(this.deviceConfigurator.breadcrumbs){
+            this.deviceConfigurator.breadcrumbs = [
                 {
                     url: '/device/devicelist',
                     title: 'devicelist',

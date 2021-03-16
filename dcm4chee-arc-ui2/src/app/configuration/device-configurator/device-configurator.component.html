@@ -3,45 +3,45 @@
     <div class="breadcrumb_container">
         <div class="row">
             <div class="btn-group btn-breadcrumb">
-                <ng-container *ngFor="let pagination of params;let i = index">
-                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default prev_breadcrumb"  title="{{(pagination.materialIconName === 'subdirectory_arrow_right'? pagination.childObjectTitle:'')}}">
-<!--                        <ul class="prefix_breadcrumb" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0">
-                            <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
-                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
+                <ng-container *ngFor="let breadcrumbs of params;let i = index">
+                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(breadcrumbs)" class="btn btn-default prev_breadcrumb"  title="{{(breadcrumbs.materialIconName === 'subdirectory_arrow_right'? breadcrumbs.childObjectTitle:'')}}">
+<!--                        <ul class="prefix_breadcrumb" [ngClass]="{'visible_input':breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 9}" *ngIf="breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 0">
+                            <li *ngIf="breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of breadcrumbs.prefixArray|search:searchBreadcrum[i]">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
                             </li>
                         </ul>-->
-                        <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
-                        <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
-                        <span>{{pagination.title}}</span>
-                        <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
-                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
-                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
+                        <i class="material-icons breadcrumb_icon">{{breadcrumbs.materialIconName}}</i>
+                        <!--<span *ngIf="breadcrumbs.materialIconName === 'subdirectory_arrow_right'">{{breadcrumbs.childObjectTitle}}:</span>-->
+                        <span>{{breadcrumbs.title}}</span>
+                        <ul class="suffix_breadcrumb" *ngIf="breadcrumbs.allArray && breadcrumbs.allArray.length > 0" [ngClass]="{'visible_input':breadcrumbs.allArray && breadcrumbs.allArray.length > 9}">
+                            <li *ngIf="breadcrumbs.allArray && breadcrumbs.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of breadcrumbs.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a><span class="compare_button"(click)="compare(prefix)"><i class="material-icons">compare_arrows</i></span>
                             </li>
-                            <li class="active_breadcrumb">{{pagination.title}}</li>
-                            <li *ngFor="let suffix of pagination.suffixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(suffix)">
+                            <li class="active_breadcrumb">{{breadcrumbs.title}}</li>
+                            <li *ngFor="let suffix of breadcrumbs.suffixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(suffix)">
                                 <a (click)="fireBreadcrumb(suffix)">{{suffix.title}}</a><span class="compare_button"(click)="compare(suffix)"><i class="material-icons">compare_arrows</i></span>
                             </li>
                         </ul>
                     </a>
-                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()" title="{{(pagination.materialIconName === 'subdirectory_arrow_right'? pagination.childObjectTitle:'')}}">
-<!--                        <ul class="prefix_breadcrumb" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}">
-                            <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
-                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
+                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()" title="{{(breadcrumbs.materialIconName === 'subdirectory_arrow_right'? breadcrumbs.childObjectTitle:'')}}">
+<!--                        <ul class="prefix_breadcrumb" *ngIf="breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 0" [ngClass]="{'visible_input':breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 9}">
+                            <li *ngIf="breadcrumbs.prefixArray && breadcrumbs.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of breadcrumbs.prefixArray|search:searchBreadcrum[i]">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
                             </li>
                         </ul>-->
-                        <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
-                        <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
-                        <span>{{pagination.title}}</span>
-                        <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
-                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
-                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
+                        <i class="material-icons breadcrumb_icon">{{breadcrumbs.materialIconName}}</i>
+                        <!--<span *ngIf="breadcrumbs.materialIconName === 'subdirectory_arrow_right'">{{breadcrumbs.childObjectTitle}}:</span>-->
+                        <span>{{breadcrumbs.title}}</span>
+                        <ul class="suffix_breadcrumb" *ngIf="breadcrumbs.allArray && breadcrumbs.allArray.length > 0" [ngClass]="{'visible_input':breadcrumbs.allArray && breadcrumbs.allArray.length > 9}">
+                            <li *ngIf="breadcrumbs.allArray && breadcrumbs.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" i18n-placeholder="@@search_dot" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of breadcrumbs.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a><span class="compare_button"(click)="compare(prefix)"><i class="material-icons">compare_arrows</i></span>
                             </li>
-                            <li class="active_breadcrumb" *ngIf="!pagination.clone">{{pagination.title}}</li>
-                            <li *ngFor="let suffix of pagination.suffixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(suffix)">
+                            <li class="active_breadcrumb" *ngIf="!breadcrumbs.clone">{{breadcrumbs.title}}</li>
+                            <li *ngFor="let suffix of breadcrumbs.suffixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(suffix)">
                                 <a (click)="fireBreadcrumb(suffix)">{{suffix.title}}</a><span class="compare_button"(click)="compare(suffix)"><i class="material-icons">compare_arrows</i></span>
                             </li>
                         </ul>
@@ -52,7 +52,7 @@
     </div>
 <!--    <button (click)="deleteForm()">deleteform</button>
     <button (click)="addModel()">addmodel</button>-->
-    <div class="first_block" [class.compare_mode]="showCompare" *ngIf="formObj && showform">
+    <div class="first_block" [class.compare_mode]="showCompare" *ngIf="formObj && showForm">
         <dynamic-form [formelements]="formObj" [model]="model" (submitFunction)="submitFunction($event)" [readOnlyMode]="false"></dynamic-form>
     </div>
     <div class="second_block"  [class.compare_mode]="showCompare" *ngIf="showCompare && toCompareObject && toCompareFormelement">

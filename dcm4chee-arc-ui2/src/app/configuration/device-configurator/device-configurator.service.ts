@@ -18,13 +18,14 @@ import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {DevicesService} from "../devices/devices.service";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 import {LocalLanguageObject} from "../../interfaces";
+import {map, switchMap} from "rxjs/operators";
 
 @Injectable()
 export class DeviceConfiguratorService{
     getFormaterValue = {};
     device;
     schema;
-    pagination = [];
+    breadcrumbs = [];
     allOptions = {};
     defaultOpenBlock:string = "ext"; //possible values'attr'|'child'|'ext'
     constructor(
@@ -35,7 +36,7 @@ export class DeviceConfiguratorService{
         private hl7service:Hl7ApplicationsService,
         private webAppListService:WebAppsListService
     ) {
-        this.pagination = [
+        this.breadcrumbs = [
             {
                 url: '/device/devicelist',
                 title: $localize `:@@devicelist:devicelist`,
@@ -111,7 +112,7 @@ export class DeviceConfiguratorService{
             return m;
         });
     }
-    getPaginationTitleFromModel(model, schemaObject){
+    getBreadcrumbTitleFromModel(model, schemaObject){
         let title = 'object';
         if (_.hasIn(schemaObject, 'type') && schemaObject.type === 'array'){
             if (model){
@@ -574,7 +575,7 @@ export class DeviceConfiguratorService{
         let options = [];
         switch (m.type) {
             case 'string':
-                if (i === 'dicomDeviceName' && _.hasIn(device, 'dicomDeviceName') && device.dicomDeviceName != '' && this.pagination.length < 3){
+                if (i === 'dicomDeviceName' && _.hasIn(device, 'dicomDeviceName') && device.dicomDeviceName != '' && this.breadcrumbs.length < 3){
                     form.push({
                         controlType: 'constantField',
                         key: i,
@@ -1211,6 +1212,138 @@ export class DeviceConfiguratorService{
             console.log("device",this.device);
         }catch (e) {
             j4care.log("Trying to update the new value in the device according to 'use' array, (device-cofigurator.service.ts)",e);
+        }
+    }
+
+    getSchemaDeep(currentSchema, schemaPath){
+        let paramArray = schemaPath.split('.');
+        return this.getSchemaDeepHelper(currentSchema,paramArray,0);
+    }
+    private getSchemaDeepHelper(currentSchema,paramArray, currentIndex){
+        let path = paramArray.filter((m,i)=> i <= currentIndex).join('.');
+        let previousPath = paramArray.filter((m,i)=> i < currentIndex).join('.');
+        if(_.hasIn(currentSchema,path)){
+            if(currentIndex >= paramArray.length-1){
+                return this.getSchemaPart(currentSchema,path,paramArray, currentIndex);
+            }else{
+                return this.getSchemaDeepHelper(currentSchema,paramArray,currentIndex + 1);
+            }
+        }else{
+            return this.getSchemaPart(currentSchema, previousPath, paramArray, currentIndex);
+        }
+
+    }
+    private getSchemaPart(currentSchema, path, paramArray, currentIndex){
+        if (_.hasIn(currentSchema, `${path}.$ref`) || _.hasIn(currentSchema,  `${path}.items.$ref`) || _.hasIn(currentSchema,  `${path}.properties.$ref`)) {
+            let schemaName = _.get(currentSchema, `${path}.$ref`) || _.get(currentSchema,  `${path}.items.$ref`) || _.get(currentSchema,  `${path}.properties.$ref`);
+            let schemaRefPath = _.hasIn(currentSchema, `${path}.$ref`) ? `${path}.$ref` : null  ||
+            _.hasIn(currentSchema,  `${path}.items.$ref`) ?  `${path}.items.$ref` : null || `${path}.properties.$ref`;
+            return this.getSchema(schemaName).pipe(switchMap((newSchema)=>{
+                let schemaPathWithoutRef = schemaRefPath.replace(".$ref", "");
+                _.set(currentSchema, schemaPathWithoutRef,newSchema);
+                return this.getSchemaDeepHelper(currentSchema, paramArray, currentIndex + 1);
+            }))
+        }else{
+            return of(currentSchema);
+        }
+    }
+
+    getMissingBreadcrumbObjects(lastBreadcrumbObject, breadcrumbs){
+        if(lastBreadcrumbObject.url != this.breadcrumbs[this.breadcrumbs.length - 1 ].url){
+            breadcrumbs.push(lastBreadcrumbObject);
+            let previousBreadcrumb = this.getPreviousBreadcrumbObject(lastBreadcrumbObject);
+            return this.getMissingBreadcrumbObjects(previousBreadcrumb,breadcrumbs);
+        }else{
+            return breadcrumbs.reverse();
+        }
+    }
+
+
+    getPreviousBreadcrumbObject(params){
+        const regex = /\/(.*)\/(.*)\/(.*)\/(.*)/g;
+        let match;
+        let prevUrl;
+        if ((match = regex.exec(params.url)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (match.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            let prevSchemaPath = this.getPreviousPathPart(match[4]);
+            let prevDevicePath = this.getPreviousPathPart(match[3]);
+            let newModel = _.get(this.device,prevDevicePath);
+            let newSchema = _.get(this.schema,prevSchemaPath);
+            console.log("schema",newSchema);
+            console.log("device",newModel);
+            console.log("title",this.getBreadcrumbTitleFromModel(newModel, newSchema));
+            prevUrl = prevDevicePath && prevSchemaPath ? `/${match[1]}/${match[2]}/${prevDevicePath}/${prevSchemaPath}` : `/${match[1]}/${match[2]}`;
+            console.log("prevUrl",prevUrl);
+            console.log("params",params);
+            console.log("getPrefixAndSuffixArray=",this.getPrefixAndSuffixArray(prevUrl,this.allOptions[prevSchemaPath]));
+            console.log("getoption",this.getBreadcrumbOptions(prevDevicePath,prevSchemaPath,this.allOptions,this.device, `/${match[1]}/${match[2]}`));
+            let prefixSuffix = this.getPrefixAndSuffixArray(prevUrl,this.allOptions[prevSchemaPath]);
+            return {
+                url:prevUrl,
+                prefixArray:prefixSuffix.prefix,
+                suffixArray:prefixSuffix.suffix,
+                allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
+                title:this.getBreadcrumbTitleFromModel(newModel, newSchema),
+                childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
+                devicereff: prevDevicePath,
+                materialIconName:this.getMaterialIconNameForBreadcrumbs(prevDevicePath),
+            }
+        }
+    }
+    getBreadcrumbOptions(devicePath,schemaPath, allOptions, deviceObject, prefixUrl){
+        try{
+            if(devicePath.indexOf("[") > -1){
+                let pathWithoutIndex = this.extractArraysPathFromSpecific(devicePath);
+                let options = _.get(deviceObject,pathWithoutIndex).map((el,i)=>{
+                    return {
+                        title:this.getBreadcrumbTitleFromModel(el, _.get(this.schema,schemaPath)),
+                        currentElementUrl:`${pathWithoutIndex}[${i}]`,
+                        url:`${prefixUrl}/${pathWithoutIndex}[${i}]/${schemaPath}`
+                    }
+                });
+                allOptions[schemaPath] = new OrderByPipe().transform(options,'title') || [];
+                return allOptions[schemaPath];
+            }
+        }catch(e){
+            return [];
+        }
+
+    }
+    getPreviousPathPart(path){
+        console.log("path",path);
+        try{
+            //let path = "properties.dicomNetworkConnection.items.properties.dcmNetworkConnection";
+            let splited = path.split(".");
+            let i = splited.length - 1;
+            let groupString = "";
+            let tempArray = [];
+            while(i > -1){
+                if(groupString === ""){
+                    groupString = splited[i];
+                    i--;
+                }else{
+                    if(["properties", "items"].indexOf(splited[i]) > -1){
+                        groupString = `${splited[i]}.${groupString}`
+                        i--;
+                    }else{
+                        tempArray.push(groupString);
+                        groupString = "";
+                    }
+                }
+
+            }
+            if(groupString){
+                tempArray.push(groupString);
+            }
+            tempArray.splice(0,1);
+            return tempArray.reverse().join(".");
+
+        }catch(e){
+            console.error(e);
+            return path;
         }
     }
 }

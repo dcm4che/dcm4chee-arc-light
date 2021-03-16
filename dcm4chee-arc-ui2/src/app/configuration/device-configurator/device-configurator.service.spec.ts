@@ -296,5 +296,31 @@ describe("DeviceConfiguratorService",()=> {
                 ]
             }
         })
-    })
+    });
+
+    it("Should return the previous breadcrumbs object",()=>{
+        expect(service.getPreviousBreadcrumbObject({
+            "url": "/device/edit/dcm4chee-arc/dcmDevice.dcmWebApp[1]/properties.dcmDevice.properties.dcmWebApp",
+            "title": "AS_RECEIVED",
+            "devicereff": "dcmDevice.dcmWebApp[1]",
+            "materialIconName": "subdirectory_arrow_right",
+            "childObjectTitle": "Web Applications"
+        }).url).toEqual("/device/edit/dcm4chee-arc/dcmDevice/properties.dcmDevice")
+        expect(service.getPreviousBreadcrumbObject({
+            "url": "/device/edit/dcm4chee-arc/dcmDevice/properties.dcmDevice"
+        }).url).toEqual("/device/edit/dcm4chee-arc")
+    });
+
+    it("Should return the previous path part",()=>{
+       expect(service.getPreviousPathPart("properties.dcmDevice.properties.dcmWebApp")).toEqual("properties.dcmDevice");
+       expect(service.getPreviousPathPart("dcmDevice.dcmWebApp[1]")).toEqual("dcmDevice");
+       expect(service.getPreviousPathPart("testpart.dcmDevice.dcmWebApp[1]")).toEqual("testpart.dcmDevice");
+       expect(service.getPreviousPathPart("dcmDevice")).toEqual("");
+       expect(service.getPreviousPathPart("properties.dicomNetworkConnection.items.properties.dcmNetworkConnection")).toEqual("properties.dicomNetworkConnection");
+    });
+
+    fit("Should extract the whole array path from specific array path",()=>{
+        expect(service.extractArraysPathFromSpecific("dcmDevice.dcmWebApp[1]")).toEqual("dcmDevice.dcmWebApp");
+        expect(service.extractArraysPathFromSpecific("test.properties.test2[2].dcmDevice.dcmWebApp[1]")).toEqual("test.properties.test2[2].dcmDevice.dcmWebApp");
+    });
 });

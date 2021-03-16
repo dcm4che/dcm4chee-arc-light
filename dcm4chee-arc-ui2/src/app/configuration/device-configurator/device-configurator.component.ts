@@ -26,7 +26,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     model;
     device;
     schema;
-    showform;
+    showForm;
     params = [];
     recentParams;
     inClone;
@@ -73,8 +73,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             this.service.addChangesToDevice(value, this.recentParams.devicereff);
             if (_.hasIn(this.recentParams, 'schema')){
                 let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
-                let title = this.service.getPaginationTitleFromModel(value, newSchema);
-                this.service.pagination[this.service.pagination.length - 1].title = title;
+                let title = this.service.getBreadcrumbTitleFromModel(value, newSchema);
+                this.service.breadcrumbs[this.service.breadcrumbs.length - 1].title = title;
                 let key;
                 let diff = j4care.diffObjects(_.get(deviceClone, this.recentParams.devicereff), value, true, true);
                 if(_.hasIn(newSchema, "properties") || _.hasIn(newSchema, "items.properties")){
@@ -109,17 +109,17 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     });
                 }
             }
-            if (_.hasIn(this.service.pagination, '[1].title') && this.service.pagination[1].title === '[new_device]'){
-                let creatDevice = this.service.createDevice();
-                if (creatDevice){
-                    creatDevice
+            if (_.hasIn(this.service.breadcrumbs, '[1].title') && this.service.breadcrumbs[1].title === '[new_device]'){
+                let createDevice = this.service.createDevice();
+                if (createDevice){
+                    createDevice
                         .subscribe(
                             (success) => {
                                 console.log('succes', success);
                                 $this.mainservice.showMsg($localize `:@@device-configurator.device_created:Device created successfully!`);
                                 try {
                                     $this.recentParams = {};
-                                    $this.service.pagination = $this.params = [
+                                    $this.service.breadcrumbs = $this.params = [
                                         {
                                             url: '/device/devicelist',
                                             title: $localize `:@@devicelist:devicelist`,
@@ -132,7 +132,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         }
                                     ];
                                 }catch (e){
-                                    console.warn('error on chagning pagination', e);
+                                    console.warn('error on chagning breadcrumbs', e);
                                 }
                                 $this.controlService.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
@@ -171,13 +171,13 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 if(extensionAdded){
                                     // $this.setFormFromParameters($this.recentParams, form);
                                     $this.deleteForm();
-                                    $this.showform = false;
+                                    $this.showForm = false;
                                     let url = window.location.hash.substr(1);
                                     if(url){
                                         setTimeout(() => {
                                             $this.router.navigateByUrl('blank').then(() => {
                                                 $this.router.navigateByUrl(url);
-                                                $this.showform = true;
+                                                $this.showForm = true;
                                             });
                                         });
                                     }
@@ -201,7 +201,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         $this.cfpLoadingBar.complete();
                                     }
                                 );
-                                $this.refreshExternalRefferences();
+                                $this.refreshExternalReferences();
                             },
                             (err) => {
                                 _.assign($this.service.device, deviceClone);
@@ -220,7 +220,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
         }
     }
-    refreshExternalRefferences(){
+    refreshExternalReferences(){
         this.getAes();
         this.getHl7ApplicationsList();
         this.getDevices();
@@ -305,9 +305,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     init() {
         let $this = this;
         let form;
-        this.params = $this.service.pagination;
+        this.params = $this.service.breadcrumbs;
         this.inClone = false;
-        this.service.pagination.forEach((m,i)=>{
+        this.service.breadcrumbs.forEach((m, i)=>{
             this.searchBreadcrum[i] = '';
         });
         $this.cfpLoadingBar.start();
@@ -320,15 +320,15 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }
                 console.log("allOptions",this.service.allOptions);
                 if (
-                    ($this.service.pagination.length < 3) // If the deepest pagination level is the device than go one
+                    ($this.service.breadcrumbs.length < 3) // If the deepest breadcrumb level is the device than go one
                         ||
-                    (_.size(params.devicereff) < _.size($this.service.pagination[$this.service.pagination.length - 1].devicereff)) //If the user goes back allow it
+                    (_.size(params.devicereff) < _.size($this.service.breadcrumbs[$this.service.breadcrumbs.length - 1].devicereff)) //If the user goes back allow it
                         ||
                     (
-                        $this.service.pagination.length > 2 &&
-                        _.hasIn($this.service.pagination, [$this.service.pagination.length - 1, 'devicereff']) &&
-                        $this.service.pagination[$this.service.pagination.length - 1].devicereff &&
-                        _.hasIn(this.service.device, $this.service.pagination[$this.service.pagination.length - 1].devicereff)
+                        $this.service.breadcrumbs.length > 2 &&
+                        _.hasIn($this.service.breadcrumbs, [$this.service.breadcrumbs.length - 1, 'devicereff']) &&
+                        $this.service.breadcrumbs[$this.service.breadcrumbs.length - 1].devicereff &&
+                        _.hasIn(this.service.device, $this.service.breadcrumbs[$this.service.breadcrumbs.length - 1].devicereff)
                     )
                 ){
                 $this.recentParams = params;
@@ -336,7 +336,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 /*                $this.formObj = undefined;
                  $this.model = undefined;*/
                 if (!(_.hasIn(params, 'devicereff') && _.hasIn(params, 'schema')) || !$this.service.schema) {
-                    let newPaginationObject = {
+                    let newBreadcrumbObject = {
                         url: '/device/edit/' + params['device'],
                         title: params['device'],
                         prefixArray:[],
@@ -346,15 +346,15 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         childObjectTitle:'',
                         clone:this.inClone
                     };
-                    let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
-                        return p.url === newPaginationObject.url;
+                    let newBreadcrumbIndex = _.findIndex($this.service.breadcrumbs, (p) => {
+                        return p.url === newBreadcrumbObject.url;
                     });
-                    if (newPaginationIndex > -1) {
-                        let dropedPaginations = _.dropRight($this.service.pagination, $this.service.pagination.length - newPaginationIndex - 1);
-                        $this.service.pagination = dropedPaginations;
-                        $this.params = dropedPaginations;
+                    if (newBreadcrumbIndex > -1) {
+                        let droppedBreadcrumbs = _.dropRight($this.service.breadcrumbs, $this.service.breadcrumbs.length - newBreadcrumbIndex - 1);
+                        $this.service.breadcrumbs = droppedBreadcrumbs;
+                        $this.params = droppedBreadcrumbs;
                     } else {
-                        $this.service.pagination.push(newPaginationObject);
+                        $this.service.breadcrumbs.push(newBreadcrumbObject);
                     }
                         let deviceSchemaURL = `./assets/schema/device.schema.json`;
                         if(_.hasIn(this.currentSavedLanguage,"language.code") && this.currentSavedLanguage.language.code && this.currentSavedLanguage.language.code != "en"){
@@ -364,7 +364,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                             $this.$http.get(deviceSchemaURL)
                                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                                 .subscribe((schema) => {
-                                $this.showform = false;
+                                $this.showForm = false;
                                 $this.device = {};
                                 $this.service.device = {};
                                 $this.schema = schema;
@@ -373,7 +373,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.formObj = formObject;
                                 $this.model = {};
                                 setTimeout(() => {
-                                    $this.showform = true;
+                                    $this.showForm = true;
                                     $this.cfpLoadingBar.complete();
                                 }, 1);
                             });
@@ -389,7 +389,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 if (_.hasIn(params, 'devicereff') && _.hasIn(params, 'schema')){
                                     this.setFormFromParameters(params, form);
                                 }else{
-                                    $this.showform = false;
+                                    $this.showForm = false;
                                     console.log('deviceschema', deviceschema);
                                     $this.device = deviceschema[0];
                                     $this.schema = deviceschema[1];
@@ -398,7 +398,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     $this.model = {};
                                     setTimeout(() => {
                                         $this.cfpLoadingBar.complete();
-                                        $this.showform = true;
+                                        $this.showForm = true;
                                     }, 1);
                                 }
                             },(err)=>{
@@ -414,7 +414,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }else {
                 //We assume that the user tryes to go one level deeper than allowed
                 $this.mainservice.showError($localize `:@@device-configurator.parent_dont_exist:Parent didn't exist, save first the parent`);
-                $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length - 1].url);
+                $this.router.navigateByUrl($this.service.breadcrumbs[$this.service.breadcrumbs.length - 1].url);
                 $this.cfpLoadingBar.complete();
             }
             });
@@ -436,119 +436,236 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             newModel = _.get(this.service.device, params['devicereff']);
         }
         if (newSchema === null){
-            if (_.hasIn(params, 'device')){
+            this.service.getSchemaDeep($this.service.schema, params["schema"]).subscribe(schema=>{
+                $this.service.schema = schema;
+                newSchema = _.get(schema, params["schema"]);
+                let title = $this.service.getBreadcrumbTitleFromModel(newModel, newSchema);
+                if(title == '[NEW]'){
+                    this.isNew = true;
+                }else{
+                    this.isNew = false;
+                }
+                let prefixSuffix;
+                let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
+                if(this.inClone)
+                    prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['clone']]);
+                else
+                    prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
+
+                let newBreadcrumbObject = {
+                    url: newUrl,
+                    // title:_.replace(newTitle,lastreff,''),
+                    title: title,
+                    prefixArray:prefixSuffix.prefix,
+                    suffixArray:prefixSuffix.suffix,
+                    allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
+                    devicereff: params['devicereff'],
+                    materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
+                    childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
+                    clone:this.inClone
+                };
+                // this.service.generateMissingBreadcrumbs($this.service.breadcrumbs, params);
+                // console.log("missingbreadcrumb",this.service.getMissingBreadcrumbObjects(newBreadcrumbObject, []));
+                this.service.breadcrumbs = [...this.service.breadcrumbs, ...this.service.getMissingBreadcrumbObjects(newBreadcrumbObject, [])];
+                let newBreadcrumbIndex = _.findIndex($this.service.breadcrumbs, (p) => {
+                    return this.service.isSameSiblingUrl(p.url,newBreadcrumbObject.url);
+                });
+                if (newBreadcrumbIndex > -1) {
+                    let droppedBreadcrumbs = _.dropRight($this.service.breadcrumbs, $this.service.breadcrumbs.length - newBreadcrumbIndex - 1);
+                    if(this.service.isSameSiblingUrl(newUrl, droppedBreadcrumbs[droppedBreadcrumbs.length-1].url) && newUrl !== droppedBreadcrumbs[droppedBreadcrumbs.length-1].url){
+                        droppedBreadcrumbs[droppedBreadcrumbs.length-1] = newBreadcrumbObject;
+                    }
+                    $this.service.breadcrumbs = droppedBreadcrumbs;
+                    $this.params = droppedBreadcrumbs;
+
+                } else {
+
+                    if(this.service.isSameSiblingUrl(this.service.breadcrumbs[this.service.breadcrumbs.length-1].url,newBreadcrumbObject.url)){
+                        this.service.breadcrumbs[this.service.breadcrumbs.length-1] = newBreadcrumbObject;
+                        $this.params = this.service.breadcrumbs;
+                    }else{
+                        $this.service.breadcrumbs.push(newBreadcrumbObject);
+                        $this.params = this.service.breadcrumbs;
+                    }
+                }
+
+                $this.deleteForm();
+                $this.showForm = false;
+                $this.model = newModel;
+                if (_.hasIn(newSchema, '$ref') || _.hasIn(newSchema, 'items.$ref') || _.hasIn(newSchema, 'properties.$ref')) {
+                    let schemaName;
+                    let deleteRef;
+                    let refPath = '';
+                    if (_.hasIn(newSchema, 'properties.$ref')) {
+                        schemaName = newSchema.properties.$ref;
+                        refPath = 'properties';
+                        deleteRef = () => {
+                            delete newSchema.properties.$ref;
+                        };
+                    }
+                    if (_.hasIn(newSchema, 'items.$ref')) {
+                        schemaName = newSchema.items.$ref;
+                        refPath = 'items';
+                        deleteRef = () => {
+                            delete newSchema.items.$ref;
+                        };
+                    }
+                    if (_.hasIn(newSchema, '$ref')) {
+                        schemaName = newSchema.$ref;
+                        deleteRef = () => {
+                            delete newSchema.$ref;
+                        };
+                    }
+                    $this.service.getSchema(schemaName).subscribe(subRefSchema => {
+                            deleteRef();
+                            if (refPath === '') {
+                                _.merge(newSchema, subRefSchema);
+                            } else {
+                                _.set(newSchema, refPath, subRefSchema);
+                                refPath = '.' + refPath;
+                            }
+                            if(this.inClone){
+                                //TODO
+                            }
+                            _.set($this.service.schema, params['schema'], newSchema);
+                            form = $this.service.convertSchemaToForm($this.model, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
+                            $this.formObj = form;
+                            setTimeout(() => {
+                                $this.showForm = true;
+                                $this.cfpLoadingBar.complete();
+                            }, 1);
+                        }, (err) => {
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
+                    form = $this.service.convertSchemaToForm(newModel, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
+                    _.set($this.service.schema, params['schema'], newSchema);
+                    $this.formObj = form;
+                    setTimeout(() => {
+                        $this.showForm = true;
+                        $this.cfpLoadingBar.complete();
+                    }, 1);
+                    // this._changeDetectionRef.detectChanges();
+
+                }
+            });
+/*            if (_.hasIn(params, 'device')){
                 this.router.navigateByUrl(`/device/edit/${params['device']}`);
             }else{
                 this.router.navigateByUrl('/device/devicelist');
-            }
-        }
-        let title = $this.service.getPaginationTitleFromModel(newModel, newSchema);
-        if(title == '[NEW]'){
-            this.isNew = true;
+            }*/
         }else{
-            this.isNew = false;
-        }
-        let prefixSuffix;
-        let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
-        if(this.inClone)
-            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['clone']]);
-        else
-            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
 
-        let newPaginationObject = {
-            url: newUrl,
-            // title:_.replace(newTitle,lastreff,''),
-            title: title,
-            prefixArray:prefixSuffix.prefix,
-            suffixArray:prefixSuffix.suffix,
-            allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
-            devicereff: params['devicereff'],
-            materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
-            childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
-            clone:this.inClone
-        };
-        let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
-            return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
-        });
-        if (newPaginationIndex > -1) {
-            let dropedPaginations = _.dropRight($this.service.pagination, $this.service.pagination.length - newPaginationIndex - 1);
-            if(this.service.isSameSiblingUrl(newUrl, dropedPaginations[dropedPaginations.length-1].url) && newUrl !== dropedPaginations[dropedPaginations.length-1].url){
-                dropedPaginations[dropedPaginations.length-1] = newPaginationObject;
-            }
-            $this.service.pagination = dropedPaginations;
-            $this.params = dropedPaginations;
-
-        } else {
-
-            if(this.service.isSameSiblingUrl(this.service.pagination[this.service.pagination.length-1].url,newPaginationObject.url)){
-                this.service.pagination[this.service.pagination.length-1] = newPaginationObject;
-                $this.params = this.service.pagination;
+            let title = $this.service.getBreadcrumbTitleFromModel(newModel, newSchema);
+            if(title == '[NEW]'){
+                this.isNew = true;
             }else{
-                $this.service.pagination.push(newPaginationObject);
-                $this.params = this.service.pagination;
+                this.isNew = false;
             }
-        }
+            let prefixSuffix;
+            let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
+            if(this.inClone)
+                prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['clone']]);
+            else
+                prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
 
-        $this.deleteForm();
-        $this.showform = false;
-        $this.model = newModel;
-        if (_.hasIn(newSchema, '$ref') || _.hasIn(newSchema, 'items.$ref') || _.hasIn(newSchema, 'properties.$ref')) {
-            let schemaName;
-            let deleteRef;
-            let refPath = '';
-            if (_.hasIn(newSchema, 'properties.$ref')) {
-                schemaName = newSchema.properties.$ref;
-                refPath = 'properties';
-                deleteRef = () => {
-                    delete newSchema.properties.$ref;
-                };
-            }
-            if (_.hasIn(newSchema, 'items.$ref')) {
-                schemaName = newSchema.items.$ref;
-                refPath = 'items';
-                deleteRef = () => {
-                    delete newSchema.items.$ref;
-                };
-            }
-            if (_.hasIn(newSchema, '$ref')) {
-                schemaName = newSchema.$ref;
-                deleteRef = () => {
-                    delete newSchema.$ref;
-                };
-            }
-            $this.service.getSchema(schemaName).subscribe(subRefSchema => {
-                deleteRef();
-                if (refPath === '') {
-                    _.merge(newSchema, subRefSchema);
-                } else {
-                    _.set(newSchema, refPath, subRefSchema);
-                    refPath = '.' + refPath;
+            let newBreadcrumbObject = {
+                url: newUrl,
+                // title:_.replace(newTitle,lastreff,''),
+                title: title,
+                prefixArray:prefixSuffix.prefix,
+                suffixArray:prefixSuffix.suffix,
+                allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
+                devicereff: params['devicereff'],
+                materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
+                childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
+                clone:this.inClone
+            };
+            let newBreadcrumbIndex = _.findIndex($this.service.breadcrumbs, (p) => {
+                return this.service.isSameSiblingUrl(p.url,newBreadcrumbObject.url);
+            });
+            if (newBreadcrumbIndex > -1) {
+                let droppedBreadcrumbs = _.dropRight($this.service.breadcrumbs, $this.service.breadcrumbs.length - newBreadcrumbIndex - 1);
+                if(this.service.isSameSiblingUrl(newUrl, droppedBreadcrumbs[droppedBreadcrumbs.length-1].url) && newUrl !== droppedBreadcrumbs[droppedBreadcrumbs.length-1].url){
+                    droppedBreadcrumbs[droppedBreadcrumbs.length-1] = newBreadcrumbObject;
                 }
-                if(this.inClone){
-                    //TODO
+                $this.service.breadcrumbs = droppedBreadcrumbs;
+                $this.params = droppedBreadcrumbs;
+
+            } else {
+
+                if(this.service.isSameSiblingUrl(this.service.breadcrumbs[this.service.breadcrumbs.length-1].url,newBreadcrumbObject.url)){
+                    this.service.breadcrumbs[this.service.breadcrumbs.length-1] = newBreadcrumbObject;
+                    $this.params = this.service.breadcrumbs;
+                }else{
+                    $this.service.breadcrumbs.push(newBreadcrumbObject);
+                    $this.params = this.service.breadcrumbs;
                 }
+            }
+
+            $this.deleteForm();
+            $this.showForm = false;
+            $this.model = newModel;
+            if (_.hasIn(newSchema, '$ref') || _.hasIn(newSchema, 'items.$ref') || _.hasIn(newSchema, 'properties.$ref')) {
+                let schemaName;
+                let deleteRef;
+                let refPath = '';
+                if (_.hasIn(newSchema, 'properties.$ref')) {
+                    schemaName = newSchema.properties.$ref;
+                    refPath = 'properties';
+                    deleteRef = () => {
+                        delete newSchema.properties.$ref;
+                    };
+                }
+                if (_.hasIn(newSchema, 'items.$ref')) {
+                    schemaName = newSchema.items.$ref;
+                    refPath = 'items';
+                    deleteRef = () => {
+                        delete newSchema.items.$ref;
+                    };
+                }
+                if (_.hasIn(newSchema, '$ref')) {
+                    schemaName = newSchema.$ref;
+                    deleteRef = () => {
+                        delete newSchema.$ref;
+                    };
+                }
+                $this.service.getSchema(schemaName).subscribe(subRefSchema => {
+                    deleteRef();
+                    if (refPath === '') {
+                        _.merge(newSchema, subRefSchema);
+                    } else {
+                        _.set(newSchema, refPath, subRefSchema);
+                        refPath = '.' + refPath;
+                    }
+                    if(this.inClone){
+                        //TODO
+                    }
+                    _.set($this.service.schema, params['schema'], newSchema);
+                    form = $this.service.convertSchemaToForm($this.model, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
+                    $this.formObj = form;
+                    setTimeout(() => {
+                        $this.showForm = true;
+                        $this.cfpLoadingBar.complete();
+                    }, 1);
+                }, (err) => {
+                    $this.cfpLoadingBar.complete();
+                }
+                );
+            } else {
+                // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
+                form = $this.service.convertSchemaToForm(newModel, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
                 _.set($this.service.schema, params['schema'], newSchema);
-                form = $this.service.convertSchemaToForm($this.model, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
                 $this.formObj = form;
                 setTimeout(() => {
-                    $this.showform = true;
+                    $this.showForm = true;
                     $this.cfpLoadingBar.complete();
                 }, 1);
-            }, (err) => {
-                $this.cfpLoadingBar.complete();
-            }
-            );
-        } else {
-            // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
-            form = $this.service.convertSchemaToForm(newModel, newSchema, params, (this.inClone||this.isNew || this.emptyExtension)?'attr':'ext');
-            _.set($this.service.schema, params['schema'], newSchema);
-            $this.formObj = form;
-            setTimeout(() => {
-                $this.showform = true;
-                $this.cfpLoadingBar.complete();
-            }, 1);
-            // this._changeDetectionRef.detectChanges();
+                // this._changeDetectionRef.detectChanges();
 
+            }
         }
     }
     deleteForm(){
@@ -562,8 +679,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     }
     fireBreadcrumb(breadcrumb){
         this.clearSearch();
-        if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
-            this.params = this.service.pagination = [
+        if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the breadcrumb
+            this.params = this.service.breadcrumbs = [
                  {
                      url: '/device/devicelist',
                      title: $localize `:@@devicelist:devicelist`,
@@ -603,7 +720,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         },1)
     }
         ngOnDestroy(){
-/*            this.service.pagination = [
+/*            this.service.breadcrumbs = [
                 {
                     url: '/device/devicelist',
                     title: 'devicelist',
@@ -611,6 +728,6 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 }
             ];*/
             console.log("param",this.recentParams);
-            console.log("ondestroy",this.service.pagination);
+            console.log("ondestroy",this.service.breadcrumbs);
         }
 }
