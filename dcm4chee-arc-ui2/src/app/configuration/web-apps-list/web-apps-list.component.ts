@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {WebAppsListService} from "./web-apps-list.service";
 import { DicomNetworkConnection, FilterSchema, SelectDropdown} from "../../interfaces";
 import {j4care} from "../../helpers/j4care.service";
@@ -7,6 +7,9 @@ import {Aet} from "../../models/aet";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {forkJoin} from "rxjs";
+import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
+import {CreateWebappComponent} from "../../widgets/dialogs/create-webapp/create-webapp.component";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-web-apps-list',
@@ -20,14 +23,18 @@ export class WebAppsListComponent implements OnInit {
     tableConfig;
     webApps;
     filterHeight = 2;
-
+    search = "";
     serviceClasses:SelectDropdown<string>;
     devices:SelectDropdown<Device>;
     aes:Aet[];
+    dialogRef: MatDialogRef<CreateWebappComponent>;
     constructor(
         private service:WebAppsListService,
         private cfpLoadingBar:LoadingBarService,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private viewContainerRef: ViewContainerRef,
+        private dialog: MatDialog,
+        private config: MatDialogConfig,
     ){}
 
     ngOnInit() {
@@ -89,5 +96,11 @@ export class WebAppsListComponent implements OnInit {
           this.filterHeight
         );
     }
-
+    createWebApp(){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(CreateWebappComponent, this.config);
+        this.dialogRef.afterClosed().subscribe(ok=>{
+            console.log("ok");
+        });
+    }
 }

@@ -7,6 +7,16 @@
                 <filter-generator [filterIdTemplate]="'web-apps-list'" [schema]="filterSchema" [model]="filterObject" (submit)="submit($event)" [filterTreeHeight]="filterHeight"></filter-generator>
             </div>
         </div>
-        <table-generator *ngIf="tableConfig && webApps && webApps.length && webApps.length > 0" [config]="tableConfig" [models]="webApps"></table-generator>
+        <div class="filter_line more_function_block">
+            <div class="filter single_block">
+                <div class="filter_block">
+                    <div class="line">
+                        <!--<a href="" (click)="$event.preventDefault();createWebApp()" class="more ng-hide" i18n-title="@@web_app_list_create_new_web_application" title="Create new Web Application"> <span class="glyphicon glyphicon-plus"></span><ng-container i18n="@@ae-list.new_aet">New WebApp</ng-container></a>-->
+                        <input autocomplete="off" [(ngModel)]="search" i18n-placeholder="@@search_dot"  placeholder="Search..."/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table-generator *ngIf="tableConfig && webApps && webApps.length && webApps.length > 0" [config]="tableConfig" [models]="webApps|search:search"></table-generator>
     </div>
 </div>

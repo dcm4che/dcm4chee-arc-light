@@ -42,6 +42,7 @@ import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.compon
 import { CodeSelectorComponent } from './code-selector/code-selector.component';
 import { LanguagePickerComponent } from './language-picker/language-picker.component';
 import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
+import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
 
 
 @Injectable()
@@ -63,6 +64,7 @@ export const WidgetsComponents = [
     EditStudyComponent,
     ModifyUpsComponent,
     CreateAeComponent,
+    CreateWebappComponent,
     ConfirmComponent,
     DeleteRejectedInstancesComponent,
     ProductLabellingComponent,
