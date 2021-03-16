@@ -781,7 +781,7 @@ public class WadoRS {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                     InstanceLocations inst, int[] frameList, int[] attributePath) {
-                wadoRS.writeBulkdata(output, ctx, inst, wadoRS.selectedMediaTypes.get(inst.getSopInstanceUID()), attributePath);
+                wadoRS.writeBulkdata(output, ctx, inst, attributePath);
             }
         },
         RENDER_MULTIPART {
@@ -1282,8 +1282,9 @@ public class WadoRS {
     }
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
-                               MediaType mediaType, int[] attributePath) {
+            int[] attributePath) {
         StreamingOutput entity = new BulkdataOutput(ctx, inst, attributePath);
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
         OutputPart outputPart = output.addPart(entity, mediaType);
         outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL());
     }
