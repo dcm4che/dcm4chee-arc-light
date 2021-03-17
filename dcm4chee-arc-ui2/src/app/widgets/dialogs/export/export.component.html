@@ -24,7 +24,10 @@
         <div class="content" *ngIf="externalInternalAetMode === 'internal' &&  mode ==='single'">
             <p i18n="@@select_the_type_of_the_exporter">Select the type of the exporter:</p>
             <label>
-                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> <ng-container i18n="@@synchronised_dicom_exporter">Synchronised DICOM exporter</ng-container>
+                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> <ng-container i18n="@@synchronised_dicom_exporter">Synchronised DICOM C-STORE exporter</ng-container>
+            </label><br>
+            <label>
+                <input type="radio" name="exportType" value="stow" [(ngModel)]="result.exportType"> <ng-container i18n="@@synchronised_stow_exporter">Synchronised DICOM STOW-RS exporter</ng-container>
             </label><br>
             <label *ngIf="noDicomExporters.length > 0">
                 <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> <ng-container i18n="@@queued_exporter">Queued exporter</ng-container>
@@ -47,7 +50,19 @@
                     <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
                 </mat-select>-->
             </div>
-            <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom'">
+            <div class="dicomBlock" *ngIf="result.exportType == 'stow'">
+                <p i18n="@@select_stow_webapp">Select STOW destination web application:</p>
+                <dcm-drop-down
+                        [options]="stowWebAppsOption"
+                        [(model)]="result.selectedStowWebapp"
+                        [editable]="false"
+                        [showSearchField]="true"
+                        [multiSelectMode]="false"
+                        (modelChange)="result.selectedStowWebapp = $event"
+                        [showStar]="false"
+                ></dcm-drop-down>
+            </div>
+            <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom' && result.exportType != 'stow'">
                 <p i18n="@@select_the_exporter">Select the exporter:</p>
 <!--                <select [(ngModel)]="result.selectedExporter">
                     <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>

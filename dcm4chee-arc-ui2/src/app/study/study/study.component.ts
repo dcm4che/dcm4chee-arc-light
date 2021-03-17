@@ -3903,9 +3903,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                             });
                         }else{
-                            if (result.exportType === 'dicom'){
+                            if (result.exportType === 'dicom') {
                                 id = 'dicom:' + result.selectedAet;
-                            }else{
+                            }
+                            if (result.exportType === 'stow'){
+                                id = 'stowrs:' + result.selectedStowWebapp;
+                            }
+                            else {
                                 id = result.selectedExporter;
                             }
                             // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);

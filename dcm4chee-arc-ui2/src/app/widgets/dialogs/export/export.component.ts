@@ -7,6 +7,7 @@ import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {DropdownList} from "../../../helpers/form/dropdown-list";
 import {SelectDropdown} from "../../../interfaces";
 import {Aet} from "../../../models/aet";
+import {DcmWebApp} from "../../../models/dcm-web-app";
 
 @Component({
     selector: 'app-export',
@@ -16,6 +17,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
 
     private _noDicomExporters;
     private _aes;
+    private _webapps;
     private _dicomPrefixes;
     _ = _;
     private _title;
@@ -31,6 +33,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
         exportType: 'dicom',
         selectedAet: undefined,
         destinationAET: undefined,
+        selectedStowWebapp: undefined,
         selectedExporter: undefined,
         queue:false,
         externalAET:undefined,
@@ -45,6 +48,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
     }
     ngOnInit() {
         this.getAes();
+        this.getStowWebApps();
     }
 
     get subTitle() {
@@ -114,6 +118,14 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
         this._aes = value;
     }
 
+    get webapps() {
+        return this._webapps;
+    }
+
+    set webapps(value) {
+        this._webapps = value;
+    }
+
     get externalInternalAetMode() {
         return this._externalAetMode;
     }
@@ -171,6 +183,39 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
             // vex.dialog.alert("Error loading aes, please reload the page and try again!");
         });
     }
+
+    stowWebAppsOption:SelectDropdown<DcmWebApp>[];
+    getStowWebApps(){
+        let $this = this;
+        this.$http.get(
+            '../webapps?dcmWebServiceClass=STOW_RS'
+        ).subscribe((response) => {
+                $this.webapps = response;
+                this.stowWebAppsOption = this.webapps.map((webapp:DcmWebApp)=>{
+                    return new SelectDropdown<DcmWebApp>(webapp.dcmWebAppName, webapp.dcmWebAppName, webapp.dicomDescription);
+                });
+                let resultTemp = JSON.parse(localStorage.getItem('export_result'));
+                if(resultTemp){
+                    $this._result = resultTemp;
+                }
+                $this._result.selectedStowWebapp = $this._result.selectedStowWebapp || $this.webapps[0].dcmWebAppName;
+
+                if ($this.mainservice.global && !$this.mainservice.global.webapps){
+                    let global = _.cloneDeep($this.mainservice.global);
+                    global.webapps = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.webapps){
+                        $this.mainservice.global.webapps = response;
+                    }else{
+                        $this.mainservice.setGlobal({webapps: response});
+                    }
+                }
+            }, (response) => {
+                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+            });
+    }
+
     validForm(){
         if(this._mode === "reschedule"){
             return true;
@@ -182,7 +227,15 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
             }else{
                 return false;
             }
-        }else{
+        }
+        if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'stow'){
+            if (this._result.selectedStowWebapp){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        else {
             if (this._result && this._result.selectedExporter){
                 return true;
             }else{
