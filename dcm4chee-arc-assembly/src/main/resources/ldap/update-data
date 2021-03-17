@@ -8,3 +8,4 @@
 . update-comp IOCM_WRONG_MWL $@
 . update-comp IOCM_EXPIRED $@
 . update-comp storescp $@
+. update-comp stowrsd $@

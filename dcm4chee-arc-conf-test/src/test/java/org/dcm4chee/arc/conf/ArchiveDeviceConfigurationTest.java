@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
@@ -88,6 +89,7 @@ public class ArchiveDeviceConfigurationTest {
         config.persist(arrDevice, register);
         config.persist(otherDevices[0] = ArchiveDeviceFactory.createOtherDevice(0), register);
         config.persist(ArchiveDeviceFactory.createStoreSCPDevice(), register);
+        config.persist(ArchiveDeviceFactory.createStowRSDevice(), register);
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 1; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++) {
                 config.persist(otherDevices[i] = ArchiveDeviceFactory.createOtherDevice(i), register);
@@ -147,29 +149,24 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterWebAppName("AS_RECEIVED");
         config.unregisterWebAppName("AS_RECEIVED-WADO");
         config.unregisterWebAppName("dcm4chee-arc");
+        config.unregisterWebAppName("stowrsd");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)
             config.unregisterAETitle(aet);
-        try {
-            config.removeDevice("dcm4chee-arc", null);
-        } catch (ConfigurationNotFoundException e) {}
-        try {
-            config.removeDevice("logstash", null);
-        } catch (ConfigurationNotFoundException e) {}
-        try {
-            config.removeDevice("keycloak", null);
-        } catch (ConfigurationNotFoundException e) {}
-        try {
-            config.removeDevice("scheduledstation", null);
-        } catch (ConfigurationNotFoundException e) {}
-        try {
-            config.removeDevice("storescp", null);
-        } catch (ConfigurationNotFoundException e) {}
-        try {
-            config.removeDevice("hl7rcv", null);
-        } catch (ConfigurationNotFoundException e) {}
+        removeDevice("dcm4chee-arc");
+        removeDevice("logstash");
+        removeDevice("keycloak");
+        removeDevice("scheduledstation");
+        removeDevice("storescp");
+        removeDevice("hl7rcv");
+        removeDevice("stowrsd");
         for (String name : ArchiveDeviceFactory.OTHER_DEVICES)
-            try {
-                config.removeDevice(name, null);
-            }  catch (ConfigurationNotFoundException e) {}
+            removeDevice(name);
+    }
+
+    private void removeDevice(String name) throws ConfigurationException {
+        try {
+            config.removeDevice(name, null);
+        } catch (ConfigurationNotFoundException e) {
+        }
     }
 }

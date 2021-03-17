@@ -1,0 +1,30 @@
+version: 1
+
+dn: dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: TRUE
+dicomDeviceName: stowrsd
+objectClass: dicomDevice
+objectClass: dcmDevice
+dicomPrimaryDeviceType: ARCHIVE
+
+dn: cn=http,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomHostname: localhost
+dicomPort: 18080
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: HTTP
+cn: http
+
+dn: dcmWebAppName=stowrsd,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmWebServiceClass: STOW_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmWebAppName: stowrsd
+dcmWebServicePath: /stowrs
+
+dn: dcmWebAppName=stowrsd,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: stowrsd

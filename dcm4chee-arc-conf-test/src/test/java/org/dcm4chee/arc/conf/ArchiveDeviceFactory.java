@@ -1396,6 +1396,20 @@ class ArchiveDeviceFactory {
         return device;
     }
 
+    public static Device createStowRSDevice() {
+        Device device = new Device("stowrsd");
+        Connection http = new Connection("http", "localhost", 18080);
+        http.setProtocol(Connection.Protocol.HTTP);
+        device.addConnection(http);
+        WebApplication webapp = new WebApplication("stowrsd");
+        webapp.setServicePath("/stowrs");
+        webapp.setServiceClasses(WebApplication.ServiceClass.STOW_RS);
+        webapp.addConnection(http);
+        device.addWebApplication(webapp);
+        device.setPrimaryDeviceTypes("ARCHIVE");
+        return device ;
+    }
+
     public static Device createHL7Device(String name, String appName, String host, int port, int tlsPort) {
         Device device = new Device(name);
         HL7DeviceExtension hl7Device = new HL7DeviceExtension();

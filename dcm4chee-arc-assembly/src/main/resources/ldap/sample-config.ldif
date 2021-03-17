@@ -70,6 +70,13 @@ objectClass: dcmDevice
 dicomPrimaryDeviceType: CT
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
+dn: dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: TRUE
+dicomDeviceName: stowrsd
+objectClass: dicomDevice
+objectClass: dcmDevice
+dicomPrimaryDeviceType: ARCHIVE
+
 dn: dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomInstitutionCode: (222.2222, 99DCM4CHEE, "Site B")
@@ -387,6 +394,21 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=mppsscu,cn=Devices,cn=
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: MPPSSCU
 dicomAssociationAcceptor: TRUE
+
+dn: cn=http,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 18080
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: HTTP
+cn: http
+
+dn: dcmWebAppName=stowrsd,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmWebServiceClass: STOW_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmWebAppName: stowrsd
+dcmWebServicePath: /stowrs
 
 dn: cn=dicom,dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
@@ -3158,7 +3180,6 @@ dn: dcmExporterID=WADO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Con
 dcmExporterID: WADO-JSON
 dicomDescription: Export to WADO-JSON
 dcmQueueName: Export2
-dcmProperty: Cache-Control=no-cache
 dcmProperty: Accept=application/json
 dcmProperty: WadoService=/studies/[0]/metadata
 dcmProperty: StorageID=wado-json
@@ -15918,6 +15939,10 @@ dicomAETitle: SCHEDULEDSTATION
 dn: hl7ApplicationName=HL7RCV|DCM4CHEE,cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7UniqueApplicationName
 hl7ApplicationName: HL7RCV|DCM4CHEE
+
+dn: dcmWebAppName=stowrsd,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: stowrsd
 
 dn: dcmWebAppName=DCM4CHEE,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUniqueWebAppName
