@@ -559,7 +559,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if (this.selectedElements && this.selectedElements.postActionElements && this.selectedElements.postActionElements.size > 0 && this.selectedElements.preActionElements && this.selectedElements.preActionElements.size > 0 ) {
             if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
                 this.appService.showError($localize `:@@study.more_than_one_target_selected:More than one target selected!`);
-            } else {
+            }
+            if (this.selectedElements.action == "merge" && this.selectedElements.preActionElements.currentIndexes.length > 1) {
+                this.appService.showError($localize `:@@study.more_than_one_source_patient_selected:More than one source patient selected for merge!`);
+            }
+            else {
                 if (this.selectedElements.preActionElements.currentIndexes.indexOf(this.selectedElements.postActionElements.currentIndexes[0]) > -1) {
                     this.appService.showError($localize `:@@study.target_object_can_not_be_in_clipboard:Target object can not be in the clipboard`);
                 }else{
