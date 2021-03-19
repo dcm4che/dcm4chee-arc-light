@@ -3910,7 +3910,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             if (result.exportType === 'dicom') {
                                 id = 'dicom:' + result.selectedAet;
                             }
-                            if (result.exportType === 'stow'){
+                            else if (result.exportType === 'stow'){
                                 id = 'stowrs:' + result.selectedStowWebapp;
                             }
                             else {
