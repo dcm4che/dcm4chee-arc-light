@@ -23,7 +23,7 @@ export interface RangeObject {
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "code-selector" | "p-calendar" |"multi-select"| "html-select" | "editable-select" |"label"|"label_large"|"dummy"|"combined"|"number"|"size_range_picker";
+export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "code-selector" | "p-calendar" |"multi-select"| "html-select" | "editable-select" |"label"|"label_large"|"dummy" | "combined" | "number" | "size_range_picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
@@ -335,4 +335,13 @@ export type UPSModifyMode = "create"|"edit"|"clone";
 export interface ModifyConfig {
     saveLabel:string;
     titleLabel:string;
+}
+
+export class TimeRange{
+    from:Date;
+    to:Date;
+    constructor(from?:Date, to?:Date){
+        this.from = from;
+        this.to = to;
+    }
 }

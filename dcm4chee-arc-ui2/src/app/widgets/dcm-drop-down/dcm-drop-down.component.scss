@@ -23,6 +23,12 @@
       .edited_input_value{
         border: 0;
         padding-left: 0;
+        height: 30px;
+        border-bottom: 1px solid #ccc;
+        outline: none;
+        &:focus{
+          outline: none;
+        }
       }
     }
     .selected_value{
@@ -31,10 +37,13 @@
     }
     .selected_value.empty_field{
       font-style: italic;
-      color: #444;
+      color: #444444;
     }
     .selected_value:hover, .selected_value *:hover{
       cursor: pointer;
+    }
+    &:focus{
+      outline: none;
     }
   }
   .select{

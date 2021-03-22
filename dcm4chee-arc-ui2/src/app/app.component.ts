@@ -220,6 +220,8 @@ export class AppComponent implements OnInit {
                     console.log("server clock res",res);
                     let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
                     this.timeZone = serverTimeObject.timeZone;
+                    this.mainservice.timeZone = serverTimeObject.timeZone;
+                    this.mainservice.serverTimeWithTimezone = res.serverTimeWithTimezone;
                     this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
                 }
                 if(recall)
@@ -329,7 +331,7 @@ export class AppComponent implements OnInit {
         console.log('dcm4chetest', DCM4CHE.elementName.forTag('00000000'));
 
         this.msg.setMsg({
-            'title': 'Warning',
+            'title': $localize `:@@warning:Warning`,
             'text': $localize `:@@attribute_already_exists:Attribute already exists!`,
             'status': 'warning',
             'timeout': 50000

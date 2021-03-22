@@ -10,16 +10,19 @@ import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {Router} from "@angular/router";
 import {Error} from "tslint/lib/error";
-import {map, switchMap} from "rxjs/operators";
+import {first, map, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
+import {TimeRange} from "./interfaces";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
     private _user: User;
     private userSubject = new Subject<User>();
     private secured = new Subject<boolean>();
+    private serverTimeSubject = new Subject<Date>();
     private securedValue:boolean;
     private _global;
+    extensionsMap;
     subscription: Subscription;
     keycloak;
     constructor(
@@ -36,7 +39,20 @@ export class AppService implements OnInit, OnDestroy{
     get global() {
         return this._global;
     }
-    serverTime:Date;
+
+    private _serverTime:Date;
+
+    get serverTime(): Date {
+        return this._serverTime;
+    }
+
+    set serverTime(value: Date) {
+        this._serverTime = value;
+        this.serverTimeSubject.next(value);
+    }
+
+    timeZone;
+    serverTimeWithTimezone;
     set global(value) {
         this._global = value;
     }
@@ -96,6 +112,12 @@ export class AppService implements OnInit, OnDestroy{
 
     set archiveDevice(value) {
         this._archiveDevice = value;
+        if(!this._deviceName && _.hasIn(value,"dicomDeviceName")){
+            this._deviceName = value.dicomDeviceName;
+        }
+        if(!this._archiveDeviceName && _.hasIn(value,"dicomDeviceName")){
+            this._archiveDeviceName = value.dicomDeviceName;
+        }
     }
     get archiveDeviceName() {
         return this._archiveDeviceName;
@@ -133,6 +155,7 @@ export class AppService implements OnInit, OnDestroy{
             "status":"info"
         })
     }
+
     showMsgSupplementIssuer(result){
         let detail = '';
         if (_.hasIn(result, "result.pids")) {
@@ -239,7 +262,7 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     getUniqueID(){
-        let newDate = new Date(this.serverTime);
+        let newDate = new Date(this._serverTime);
         return `${newDate.getFullYear().toString().substr(-2)}${newDate.getMonth()}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getSeconds()}`;
     }
 
@@ -263,7 +286,26 @@ export class AppService implements OnInit, OnDestroy{
             }))
         }
     }
+    getServerTime():Observable<Date>{
+        if(this._serverTime){
+            return of(this._serverTime);
+        }else{
+            return this.serverTimeSubject.asObservable().pipe(map(serverTime=>new Date(serverTime)),first());
+        }
+    }
 
+    setTimeRange(rangeInMinuts?:number, rangeInHours?:number):Observable<TimeRange>{
+        return this.getServerTime().pipe(map((serverTime:Date)=>{
+            let d = new Date(serverTime);
+            if(rangeInHours){
+                d.setHours(d.getHours() - rangeInHours);
+                return new TimeRange(d, new Date(serverTime));
+            }
+            rangeInMinuts = rangeInMinuts || 15;
+            d.setMinutes(d.getMinutes() - rangeInMinuts);
+            return new TimeRange(d, new Date(serverTime));
+        }));
+    }
     getUiConfig(){
         if(_.hasIn(this.global,"uiConfig")){
             return of(this.global.uiConfig);
@@ -280,24 +322,25 @@ export class AppService implements OnInit, OnDestroy{
             let deviceName;
             let archiveDeviceName;
             return this.$httpClient.get('../devicename')
-                .pipe(switchMap(res => {
-                    deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
-                    archiveDeviceName = _.get(res,"dicomDeviceName");
-                    return this.$httpClient.get('../devices/' + deviceName)
-                }))
-                .pipe(map((res)=>{
-                    try{
-                        let global = _.cloneDeep(this.global) || {};
-                        global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
-                        global["myDevice"] = res;
-                        this.deviceName = deviceName;
-                        this.archiveDeviceName = archiveDeviceName;
-                        this.setGlobal(global);
-                    }catch(e){
-                        console.warn("Permission not found!",e);
-                        this.showError($localize `:@@permission_not_found:Permission not found!`);
-                    }
-                    return res;
+                .pipe(
+                    switchMap(res => {
+                        deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
+                        archiveDeviceName = _.get(res,"dicomDeviceName");
+                        return this.$httpClient.get('../devices/' + deviceName)
+                    }),
+                    map((res)=>{
+                        try{
+                            let global = _.cloneDeep(this.global) || {};
+                            global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
+                            global["myDevice"] = res;
+                            this.deviceName = deviceName;
+                            this.archiveDeviceName = archiveDeviceName;
+                            this.setGlobal(global);
+                        }catch(e){
+                            console.warn("Permission not found!",e);
+                            this.showError($localize `:@@permission_not_found:Permission not found!`);
+                        }
+                        return res;
                 }));
         }
     }

@@ -3656,8 +3656,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"label",
                                 text:$localize `:@@destination_aet:Destination AET`
                             },{
-                                tag:"select",
-                                options:this.applicationEntities.aets,
+                                tag:"editable-select",
+                                options:this.applicationEntities.aes,
                                 filterKey:"destination",
                                 description: $localize `:@@destination_aet:Destination AET`,
                                 placeholder: $localize `:@@destination_aet:Destination AET`
@@ -4304,8 +4304,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.initRjNotes(2);
                     this.getQueueNames();
                 },
-                (res)=> {
-
+                (err)=> {
+                    console.error("Error on getting webApps",err);
+                    this.httpErrorHandler.handleError(err);
                 });
     }
     initExporters(retries) {
