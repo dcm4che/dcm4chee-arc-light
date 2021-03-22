@@ -2389,6 +2389,9 @@ hl7AcceptedMessageType: ORM^O01
 hl7AcceptedMessageType: OMI^O23
 hl7AcceptedMessageType: OMG^O19
 hl7AcceptedMessageType: ORU^R01
+hl7AcceptedMessageType: SIU^S12
+hl7AcceptedMessageType: SIU^S13
+hl7AcceptedMessageType: SIU^S15
 hl7ApplicationName: *
 
 dn: dcmQueueName=Export10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

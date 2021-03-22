@@ -1184,7 +1184,10 @@ class ArchiveDeviceFactory {
             "ORM^O01",
             "OMI^O23",
             "OMG^O19",
-            "ORU^R01"
+            "ORU^R01",
+            "SIU^S12",
+            "SIU^S13",
+            "SIU^S15"
     };
 
     static final String AE_TITLE = "DCM4CHEE";

@@ -1,0 +1,16 @@
+version: 1
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7AcceptedMessageType
+hl7AcceptedMessageType: SIU^S12
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7AcceptedMessageType
+hl7AcceptedMessageType: SIU^S13
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7AcceptedMessageType
+hl7AcceptedMessageType: SIU^S15
