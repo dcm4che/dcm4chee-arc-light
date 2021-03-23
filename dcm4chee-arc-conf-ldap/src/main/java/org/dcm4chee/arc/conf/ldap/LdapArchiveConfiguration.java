@@ -3612,6 +3612,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
                 rule.getIgnoreAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchForIssuerOfPatientID",
+                rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateRetrieveInterval(), null);
@@ -3637,6 +3639,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setIgnoreAssigningAuthorityOfPatientID(
                         LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
                 rule.setAssigningAuthorityOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
+                rule.setPrefetchForAssigningAuthorityOfPatientID(
+                        toIssuer(LdapUtils.stringValue(attrs.get("dcmPrefetchForIssuerOfPatientID"), null)));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateRetrieveInterval(toDuration(attrs.get("dcmDuration"), null));
                 prefetchRules.add(rule);
@@ -4331,6 +4335,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getSuppressDuplicateRetrieveInterval(), rule.getSuppressDuplicateRetrieveInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPrefetchPriority", prev.getPriority(), rule.getPriority(), 4);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchForIssuerOfPatientID",
+                prev.getPrefetchForAssigningAuthorityOfPatientID(),
+                rule.getPrefetchForAssigningAuthorityOfPatientID(),
+                null);
         return mods;
     }
 
@@ -5337,6 +5345,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (int i = 0; i < issuerOfPatientIds.length; i++)
             issuers[i] = new Issuer(issuerOfPatientIds[i]);
         return issuers;
+    }
+
+    private static Issuer toIssuer(String issuerOfPatientID) {
+        return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 
     private Device loadSupplementFromDevice(String supplementDeviceRef) {

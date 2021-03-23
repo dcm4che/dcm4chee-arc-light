@@ -42,7 +42,10 @@
 package org.dcm4chee.arc.prefetch.impl;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -114,7 +117,14 @@ public class PrefetchScheduler {
             Calendar scheduledTime = ScheduleExpression.ceil(now, rule.getSchedules());
             long delay = scheduledTime.getTimeInMillis() - now.getTimeInMillis();
             String cx = hl7Fields.get("PID-3", null);
-            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(new IDWithIssuer(cx));
+            IDWithIssuer idWithIssuer = idWithIssuer(rule, cx);
+            if (idWithIssuer == null) {
+                LOG.info("None of the qualified patient identifier pairs in PID-3 {} match with configured " +
+                         "HL7 Prefetch Rule[name={}, PrefetchForAssigningAuthorityOfPatientID={}]",
+                        cx, rule.getCommonName(), rule.getPrefetchForAssigningAuthorityOfPatientID());
+                return;
+            }
+            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);
             String batchID = rule.getCommonName() + '[' + pid + ']';
             if (rule.getEntitySelectors().length == 0) {
                 prefetch(pid, batchID, new Attributes(0), -1,
@@ -128,6 +138,19 @@ public class PrefetchScheduler {
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
+    }
+
+    private IDWithIssuer idWithIssuer(HL7PrefetchRule rule, String cx) {
+        Issuer prefetchForAssigningAuthorityOfPatientID = rule.getPrefetchForAssigningAuthorityOfPatientID();
+        if (prefetchForAssigningAuthorityOfPatientID == null)
+            return new IDWithIssuer(cx);
+
+        for (String cx1 : cx.split("~")) {
+            IDWithIssuer idWithIssuer = new IDWithIssuer(cx1);
+            if (prefetchForAssigningAuthorityOfPatientID.equals(idWithIssuer.getIssuer()))
+                return idWithIssuer;
+        }
+        return null;
     }
 
     private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,

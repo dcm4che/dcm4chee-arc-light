@@ -76,6 +76,8 @@ public class HL7PrefetchRule {
 
     private Issuer[] assigningAuthorityOfPatientIDs = {};
 
+    private Issuer prefetchForAssigningAuthorityOfPatientID;
+
     private EntitySelector[] entitySelectors = {};
 
     private ScheduleExpression[] schedules = {};
@@ -185,6 +187,14 @@ public class HL7PrefetchRule {
                 : pid;
     }
 
+    public Issuer getPrefetchForAssigningAuthorityOfPatientID() {
+        return prefetchForAssigningAuthorityOfPatientID;
+    }
+
+    public void setPrefetchForAssigningAuthorityOfPatientID(Issuer prefetchForAssigningAuthorityOfPatientID) {
+        this.prefetchForAssigningAuthorityOfPatientID = prefetchForAssigningAuthorityOfPatientID;
+    }
+
     public EntitySelector[] getEntitySelectors() {
         return entitySelectors;
     }
@@ -219,6 +229,7 @@ public class HL7PrefetchRule {
                 ", suppressDups=" + suppressDuplicateRetrieveInterval +
                 ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
                 ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +
+                ", prefetchForAssigningAuthorityOfPatientID=" + prefetchForAssigningAuthorityOfPatientID +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
                 ", schedules=" + Arrays.toString(schedules) +
                 '}';

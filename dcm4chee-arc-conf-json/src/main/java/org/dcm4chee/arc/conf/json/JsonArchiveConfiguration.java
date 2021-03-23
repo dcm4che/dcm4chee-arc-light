@@ -647,6 +647,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmSchedule", rule.getSchedules());
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", rule.getIgnoreAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
+            writer.writeNotNullOrDef("dcmPrefetchForIssuerOfPatientID",
+                    rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateRetrieveInterval(), null);
             writer.writeEnd();
@@ -2528,6 +2530,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmIssuerOfPatientID":
                         rule.setAssigningAuthorityOfPatientIDs(toIssuers(reader.stringArray()));
                         break;
+                    case "dcmPrefetchForIssuerOfPatientID":
+                        rule.setPrefetchForAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
+                        break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateRetrieveInterval(Duration.valueOf(reader.stringValue()));
                         break;
@@ -2697,6 +2702,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (int i = 0; i < issuerOfPatientIds.length; i++)
             issuers[i] = new Issuer(issuerOfPatientIds[i]);
         return issuers;
+    }
+
+    private static Issuer toIssuer(String issuerOfPatientID) {
+        return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 
     private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) {
