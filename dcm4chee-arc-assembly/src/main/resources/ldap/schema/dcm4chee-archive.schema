@@ -3057,13 +3057,13 @@ objectclass ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
   MUST (
     cn $
     dcmQueueName $
-    dcmPrefetchPriority $
     dicomAETitle $
     dcmPrefetchCFindSCP $
     dcmPrefetchCMoveSCP $
     dcmPrefetchCStoreSCP )
   MAY (
     dcmEntitySelector $
+    dcmPrefetchPriority $
     dcmProperty $
     dcmSchedule $
     dcmNullifyIssuerOfPatientID $
