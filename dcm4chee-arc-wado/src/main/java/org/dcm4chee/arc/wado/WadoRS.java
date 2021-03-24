@@ -1330,12 +1330,15 @@ public class WadoRS {
         };
     }
 
-    private void addDirEntries(ZipOutputStream zip, String name, Set<String> added) throws IOException {
+    private static void addDirEntries(ZipOutputStream zip, String name, Set<String> added) throws IOException {
         int endIndex = 0;
         int i;
         while ((i = name.indexOf('/', endIndex)) >= 0) {
-            zip.putNextEntry(new ZipEntry(name.substring(0, endIndex = (i + 1))));
-            zip.closeEntry();
+            String entry = name.substring(0, endIndex = (i + 1));
+            if (added.add(entry)) {
+                zip.putNextEntry(new ZipEntry(entry));
+                zip.closeEntry();
+            }
         }
     }
 
