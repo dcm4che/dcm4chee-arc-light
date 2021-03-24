@@ -26,5 +26,6 @@ dcmWebAppName: stowrsd
 dcmWebServicePath: /stowrs
 
 dn: dcmWebAppName=stowrsd,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmUniqueWebAppName
 dcmWebAppName: stowrsd
