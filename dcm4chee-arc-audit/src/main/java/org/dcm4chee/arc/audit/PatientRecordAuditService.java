@@ -118,7 +118,9 @@ class PatientRecordAuditService {
                 .callingHost(callingHost)
                 .callingUserID(callingUserID)
                 .calledUserID(calledUserID)
-                .outcome(outcome(hl7ConnEvent.getException()));
+                .outcome(outcome(hl7ConnEvent.getException()))
+                .hl7MsgType(msh.getMessageType())
+                .hl7MsgCtrlID(msh.getMessageControlID());
     }
 
     AuditInfoBuilder getPatAuditInfo() {

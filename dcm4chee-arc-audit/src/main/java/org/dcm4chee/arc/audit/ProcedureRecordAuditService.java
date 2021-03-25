@@ -110,7 +110,9 @@ class ProcedureRecordAuditService {
                 .calledUserID(msh.getReceivingApplicationWithFacility())
                 .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
                 .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
-                .outcome(outcome(hl7ConnEvent.getException()));
+                .outcome(outcome(hl7ConnEvent.getException()))
+                .hl7MsgType(msh.getMessageType())
+                .hl7MsgCtrlID(msh.getMessageControlID());
         if (hasPIDSegment())
             infoBuilder
                 .patID(pid.getField(3, null), arcDev)
@@ -133,7 +135,9 @@ class ProcedureRecordAuditService {
                 .outcome(outcome(hl7ConnEvent.getException()))
                 .isOutgoingHL7()
                 .outgoingHL7Sender(sendingApplicationWithFacility)
-                .outgoingHL7Receiver(receivingApplicationWithFacility);
+                .outgoingHL7Receiver(receivingApplicationWithFacility)
+                .hl7MsgType(msh.getMessageType())
+                .hl7MsgCtrlID(msh.getMessageControlID());
         return pid != null ? procRecForward(pid) : infoBuilder.build();
     }
 

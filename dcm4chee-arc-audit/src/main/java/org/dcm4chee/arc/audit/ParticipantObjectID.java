@@ -61,7 +61,7 @@ class ParticipantObjectID {
 
     static ParticipantObjectIdentification patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
         ParticipantObjectIdentificationBuilder patientPOIBuilder = patientPOIBuilder(auditInfo)
-                .detail(hl7ParticipantObjectDetail(reader).toArray(new ParticipantObjectDetail[0]));
+                .detail(hl7ParticipantObjectDetail(reader, auditInfo).toArray(new ParticipantObjectDetail[0]));
 
         String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
         if (patVerStatus != null
@@ -84,16 +84,22 @@ class ParticipantObjectID {
                 .name(auditInfo.getField(AuditInfo.P_NAME));
     }
 
-    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader) {
+    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader, AuditInfo auditInfo) {
         List<ParticipantObjectDetail> detail = new ArrayList<>();
         if (reader.getData().length > 0)
-            detail.add(hl7ParticipantObjectDetail(reader.getData()));
+            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getData()));
         if (reader.getAck().length > 0)
-            detail.add(hl7ParticipantObjectDetail(reader.getAck()));
+            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getAck()));
+        if (auditInfo.getField(AuditInfo.HL7_MSG_TYPE) != null)
+            detail.add(hl7ParticipantObjectDetail(
+                    "HL7 Message Type", auditInfo.getField(AuditInfo.HL7_MSG_TYPE).getBytes()));
+        if (auditInfo.getField(AuditInfo.HL7_MSG_TYPE) != null)
+            detail.add(hl7ParticipantObjectDetail(
+                    "HL7 Message Control ID", auditInfo.getField(AuditInfo.HL7_MSG_CTRL_ID).getBytes()));
         return detail;
     }
 
-    private static ParticipantObjectDetail hl7ParticipantObjectDetail(byte[] val) {
+    private static ParticipantObjectDetail hl7ParticipantObjectDetail(String key, byte[] val) {
         ParticipantObjectDetail detail = new ParticipantObjectDetail();
         detail.setType("HL7v2 Message");
         detail.setValue(val);
@@ -159,7 +165,7 @@ class ParticipantObjectID {
         boolean hasPatient = auditInfo.getField(AuditInfo.P_ID) != null;
         ParticipantObjectIdentification[] studyPatParticipants
                 = new ParticipantObjectIdentification[hasPatient ? 2 : 1];
-        List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
+        List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader, auditInfo);
         participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
                     "ExpirationDate", auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
         participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
