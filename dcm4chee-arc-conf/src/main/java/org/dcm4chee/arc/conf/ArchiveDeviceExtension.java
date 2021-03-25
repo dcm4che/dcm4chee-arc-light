@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.SpecificCharacterSet;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.json.JSONWriter;
@@ -294,6 +291,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int calculateStudySizeFetchSize = 100;
     private volatile boolean calculateQueryAttributes;
     private volatile int supplementIssuerFetchSize = 100;
+    private volatile Issuer auditAssigningAuthorityOfPatientID;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -3006,6 +3004,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.supplementIssuerFetchSize = supplementIssuerFetchSize;
     }
 
+    public Issuer getAuditAssigningAuthorityOfPatientID() {
+        return auditAssigningAuthorityOfPatientID;
+    }
+
+    public void setAuditAssigningAuthorityOfPatientID(Issuer auditAssigningAuthorityOfPatientID) {
+        this.auditAssigningAuthorityOfPatientID = auditAssigningAuthorityOfPatientID;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -3231,6 +3237,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         calculateStudySizeFetchSize = arcdev.calculateStudySizeFetchSize;
         calculateQueryAttributes = arcdev.calculateQueryAttributes;
         supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
+        auditAssigningAuthorityOfPatientID = arcdev.auditAssigningAuthorityOfPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

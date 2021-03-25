@@ -385,6 +385,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmCalculateStudySizeFetchSize", arcDev.getCalculateStudySizeFetchSize(), 100);
         writer.writeNotDef("dcmCalculateQueryAttributes", arcDev.isCalculateQueryAttributes(), false);
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
+                arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1905,6 +1907,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSupplementIssuerFetchSize":
                     arcDev.setSupplementIssuerFetchSize(reader.intValue());
+                    break;
+                case "dcmAuditAssigningAuthorityOfPatientID":
+                    arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

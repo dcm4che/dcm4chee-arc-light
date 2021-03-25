@@ -483,6 +483,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCalculateQueryAttributes", ext.isCalculateQueryAttributes(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSupplementIssuerFetchSize",
                 ext.getSupplementIssuerFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditAssigningAuthorityOfPatientID",
+                ext.getAuditAssigningAuthorityOfPatientID(), null);
     }
 
     @Override
@@ -783,6 +785,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setCalculateStudySizeFetchSize(LdapUtils.intValue(attrs.get("dcmCalculateStudySizeFetchSize"), 100));
         ext.setCalculateQueryAttributes(LdapUtils.booleanValue(attrs.get("dcmCalculateQueryAttributes"), false));
         ext.setSupplementIssuerFetchSize(LdapUtils.intValue(attrs.get("dcmSupplementIssuerFetchSize"), 100));
+        ext.setAuditAssigningAuthorityOfPatientID(
+                toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
     }
 
     @Override
@@ -1349,6 +1353,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isCalculateQueryAttributes(), bb.isCalculateQueryAttributes(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSupplementIssuerFetchSize",
                 aa.getSupplementIssuerFetchSize(), bb.getSupplementIssuerFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditAssigningAuthorityOfPatientID",
+                aa.getAuditAssigningAuthorityOfPatientID(),
+                bb.getAuditAssigningAuthorityOfPatientID(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

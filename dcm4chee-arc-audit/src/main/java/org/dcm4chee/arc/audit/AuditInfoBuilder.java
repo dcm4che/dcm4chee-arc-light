@@ -40,14 +40,13 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.HL7Separator;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.entity.Patient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -55,6 +54,8 @@ import org.dcm4chee.arc.entity.Patient;
  */
 
 class AuditInfoBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(AuditInfoBuilder.class);
+
     final String callingHost;
     final String callingUserID;
     final String calledUserID;
@@ -165,7 +166,7 @@ class AuditInfoBuilder {
             return this;
         }
         Builder patID(String pid, ArchiveDeviceExtension arcDev) {
-            pID = pid == null ? arcDev.auditUnknownPatientID() : toPID(new IDWithIssuer(pid), arcDev);
+            pID = pid == null ? arcDev.auditUnknownPatientID() : toPID(idWithIssuer(arcDev, pid), arcDev);
             return this;
         }
         Builder patName(String patName, ArchiveDeviceExtension arcDev) {
@@ -363,6 +364,20 @@ class AuditInfoBuilder {
         expirationDate = builder.expirationDate;
         queueName = builder.queueName;
         status = builder.status;
+    }
+
+    private static IDWithIssuer idWithIssuer(ArchiveDeviceExtension arcDev, String cx) {
+        Issuer auditAssigningAuthorityOfPatientID = arcDev.getAuditAssigningAuthorityOfPatientID();
+        if (auditAssigningAuthorityOfPatientID != null) {
+            for (String cx1 : cx.split("~")) {
+                IDWithIssuer idWithIssuer = new IDWithIssuer(cx1);
+                if (auditAssigningAuthorityOfPatientID.equals(idWithIssuer.getIssuer()))
+                    return idWithIssuer;
+            }
+            LOG.info("None of the qualified patient identifier pairs in PID-3 {} match with configured " +
+                    "Assigning Authority of Patient ID for audit {}", cx, auditAssigningAuthorityOfPatientID);
+        }
+        return new IDWithIssuer(cx);
     }
 
     private static String toPID(IDWithIssuer pidWithIssuer, ArchiveDeviceExtension arcDev) {

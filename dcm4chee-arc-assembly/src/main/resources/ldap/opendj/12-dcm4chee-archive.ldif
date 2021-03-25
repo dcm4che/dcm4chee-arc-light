@@ -1947,6 +1947,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.399 NAME 'dcmPrefetchForIssuerOfPatient
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.400 NAME 'dcmAuditAssigningAuthorityOfPatientID'
+  DESC 'Assigning Authority of Patient ID in received HL7 message used to search qualified patient identifier in list of identifiers in PID-3. This qualified patient identifier shall be used in the patient details participant object. If absent, by default the first qualified patient identifier in PID-3 shall be used. If none of the qualified patient identifiers in the list match with the configured issuer, archive's server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 shall be used. Format: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2168,6 +2173,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmEncodeAsJSONNumber $
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
+    dcmAuditAssigningAuthorityOfPatientID $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
