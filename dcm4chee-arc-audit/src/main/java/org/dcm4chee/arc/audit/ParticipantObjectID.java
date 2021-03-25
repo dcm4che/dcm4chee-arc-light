@@ -101,7 +101,7 @@ class ParticipantObjectID {
 
     private static ParticipantObjectDetail hl7ParticipantObjectDetail(String key, byte[] val) {
         ParticipantObjectDetail detail = new ParticipantObjectDetail();
-        detail.setType("HL7v2 Message");
+        detail.setType(key);
         detail.setValue(val);
         return detail;
     }
