@@ -98,10 +98,10 @@ class ParticipantObjectID {
                     "MSH-10", auditInfo.getField(AuditInfo.HL7_MSH_10).getBytes()));
         if (auditInfo.getField(AuditInfo.HL7_MSH2_9) != null)
             detail.add(hl7ParticipantObjectDetail(
-                    "MSH2-9", auditInfo.getField(AuditInfo.HL7_MSH2_9).getBytes()));
+                    "MSH-9", auditInfo.getField(AuditInfo.HL7_MSH2_9).getBytes()));
         if (auditInfo.getField(AuditInfo.HL7_MSH2_10) != null)
             detail.add(hl7ParticipantObjectDetail(
-                    "MSH2-10", auditInfo.getField(AuditInfo.HL7_MSH2_10).getBytes()));
+                    "MSH-10", auditInfo.getField(AuditInfo.HL7_MSH2_10).getBytes()));
         return detail;
     }
 
