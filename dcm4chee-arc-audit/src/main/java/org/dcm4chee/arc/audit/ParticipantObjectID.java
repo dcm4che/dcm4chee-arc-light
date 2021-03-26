@@ -40,15 +40,20 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.ParticipantObjectDescriptionBuilder;
+import org.dcm4che3.audit.ParticipantObjectIdentification;
+import org.dcm4che3.audit.ParticipantObjectIdentificationBuilder;
 import org.dcm4che3.audit.ParticipantObjectDetail;
 import org.dcm4che3.audit.SOPClass;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Patient;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,22 +91,22 @@ class ParticipantObjectID {
 
     private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader, AuditInfo auditInfo) {
         List<ParticipantObjectDetail> detail = new ArrayList<>();
-        if (reader.getData().length > 0)
-            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getData()));
-        if (reader.getAck().length > 0)
-            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getAck()));
-        if (auditInfo.getField(AuditInfo.HL7_MSH_9) != null)
-            detail.add(hl7ParticipantObjectDetail(
-                    "MSH-9", auditInfo.getField(AuditInfo.HL7_MSH_9).getBytes()));
-        if (auditInfo.getField(AuditInfo.HL7_MSH_10) != null)
-            detail.add(hl7ParticipantObjectDetail(
-                    "MSH-10", auditInfo.getField(AuditInfo.HL7_MSH_10).getBytes()));
-        if (auditInfo.getField(AuditInfo.HL7_MSH2_9) != null)
-            detail.add(hl7ParticipantObjectDetail(
-                    "MSH-9", auditInfo.getField(AuditInfo.HL7_MSH2_9).getBytes()));
-        if (auditInfo.getField(AuditInfo.HL7_MSH2_10) != null)
-            detail.add(hl7ParticipantObjectDetail(
-                    "MSH-10", auditInfo.getField(AuditInfo.HL7_MSH2_10).getBytes()));
+        byte[] data = reader.getData();
+        byte[] ack = reader.getAck();
+        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+        HL7Segment msh2 = HL7Segment.parseMSH(ack, ack.length, new ParsePosition(0));
+        if (data.length > 0)
+            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", data));
+        if (ack.length > 0)
+            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", ack));
+        if (msh.getMessageType() != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-9", msh.getMessageType().getBytes()));
+        if (msh.getMessageControlID() != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-10", msh.getMessageControlID().getBytes()));
+        if (msh2.getMessageType() != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-9", msh2.getMessageType().getBytes()));
+        if (msh2.getMessageControlID() != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-10", msh2.getMessageControlID().getBytes()));
         return detail;
     }
 

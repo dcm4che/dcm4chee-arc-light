@@ -96,10 +96,6 @@ class AuditInfoBuilder {
     final String expirationDate;
     final String queueName;
     final String status;
-    final String hl7MSH_9;
-    final String hl7MSH_10;
-    final String hl7MSH2_9;
-    final String hl7MSH2_10;
 
     static class Builder {
         private String callingHost;
@@ -142,10 +138,6 @@ class AuditInfoBuilder {
         private String expirationDate;
         private String queueName;
         private String status;
-        private String hl7MSH_9;
-        private String hl7MSH_10;
-        private String hl7MSH2_9;
-        private String hl7MSH2_10;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -326,22 +318,6 @@ class AuditInfoBuilder {
             status = val;
             return this;
         }
-        Builder hl7MSH_9(String val) {
-            hl7MSH_9 = val;
-            return this;
-        }
-        Builder hl7MSH_10(String val) {
-            hl7MSH_10 = val;
-            return this;
-        }
-        Builder hl7MSH2_9(String val) {
-            hl7MSH2_9 = val;
-            return this;
-        }
-        Builder hl7MSH2_10(String val) {
-            hl7MSH2_10 = val;
-            return this;
-        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -388,10 +364,6 @@ class AuditInfoBuilder {
         expirationDate = builder.expirationDate;
         queueName = builder.queueName;
         status = builder.status;
-        hl7MSH_9 = builder.hl7MSH_9;
-        hl7MSH_10 = builder.hl7MSH_10;
-        hl7MSH2_9 = builder.hl7MSH2_9;
-        hl7MSH2_10 = builder.hl7MSH2_10;
     }
 
     private static IDWithIssuer idWithIssuer(ArchiveDeviceExtension arcDev, String cx) {

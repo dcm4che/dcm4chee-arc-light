@@ -97,10 +97,6 @@ class AuditInfo {
     static final int FIND_SCP = 37;
     static final int QUEUE_NAME = 38;
     static final int STATUS = 39;
-    static final int HL7_MSH_9 = 40;
-    static final int HL7_MSH_10 = 41;
-    static final int HL7_MSH2_9 = 42;
-    static final int HL7_MSH2_10 = 43;
 
     private final String[] fields;
 
@@ -145,11 +141,7 @@ class AuditInfo {
                 encode(i.expirationDate),
                 encode(i.findSCP),
                 encode(i.queueName),
-                encode(i.status),
-                encode(i.hl7MSH_9),
-                encode(i.hl7MSH_10),
-                encode(i.hl7MSH2_9),
-                encode(i.hl7MSH2_10)
+                encode(i.status)
         };
     }
 
