@@ -104,6 +104,7 @@ class ProcedureRecordAuditService {
     AuditInfoBuilder getHL7IncomingOrderInfo() {
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
+        HL7Segment msh2 = hl7ConnEvent.getHL7ResponseMessage().msh();
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(hl7ConnEvent.getConnection().getHostname())
                 .callingUserID(msh.getSendingApplicationWithFacility())
@@ -111,8 +112,10 @@ class ProcedureRecordAuditService {
                 .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
                 .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
                 .outcome(outcome(hl7ConnEvent.getException()))
-                .hl7MsgType(msh.getMessageType())
-                .hl7MsgCtrlID(msh.getMessageControlID());
+                .hl7MSH_9(msh.getMessageType())
+                .hl7MSH_10(msh.getMessageControlID())
+                .hl7MSH2_9(msh2.getMessageType())
+                .hl7MSH2_10(msh2.getMessageControlID());
         if (hasPIDSegment())
             infoBuilder
                 .patID(pid.getField(3, null), arcDev)
@@ -124,6 +127,7 @@ class ProcedureRecordAuditService {
         HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
+        HL7Segment msh2 = hl7ConnEvent.getHL7ResponseMessage().msh();
         String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
         String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
         infoBuilder = new AuditInfoBuilder.Builder()
@@ -136,8 +140,10 @@ class ProcedureRecordAuditService {
                 .isOutgoingHL7()
                 .outgoingHL7Sender(sendingApplicationWithFacility)
                 .outgoingHL7Receiver(receivingApplicationWithFacility)
-                .hl7MsgType(msh.getMessageType())
-                .hl7MsgCtrlID(msh.getMessageControlID());
+                .hl7MSH_9(msh.getMessageType())
+                .hl7MSH_10(msh.getMessageControlID())
+                .hl7MSH2_9(msh2.getMessageType())
+                .hl7MSH2_10(msh2.getMessageControlID());
         return pid != null ? procRecForward(pid) : infoBuilder.build();
     }
 

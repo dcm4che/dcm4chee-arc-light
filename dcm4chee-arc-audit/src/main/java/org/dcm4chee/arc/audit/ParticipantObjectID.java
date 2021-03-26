@@ -90,12 +90,18 @@ class ParticipantObjectID {
             detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getData()));
         if (reader.getAck().length > 0)
             detail.add(hl7ParticipantObjectDetail("HL7v2 Message", reader.getAck()));
-        if (auditInfo.getField(AuditInfo.HL7_MSG_TYPE) != null)
+        if (auditInfo.getField(AuditInfo.HL7_MSH_9) != null)
             detail.add(hl7ParticipantObjectDetail(
-                    "HL7 Message Type", auditInfo.getField(AuditInfo.HL7_MSG_TYPE).getBytes()));
-        if (auditInfo.getField(AuditInfo.HL7_MSG_TYPE) != null)
+                    "MSH-9", auditInfo.getField(AuditInfo.HL7_MSH_9).getBytes()));
+        if (auditInfo.getField(AuditInfo.HL7_MSH_10) != null)
             detail.add(hl7ParticipantObjectDetail(
-                    "HL7 Message Control ID", auditInfo.getField(AuditInfo.HL7_MSG_CTRL_ID).getBytes()));
+                    "MSH-10", auditInfo.getField(AuditInfo.HL7_MSH_10).getBytes()));
+        if (auditInfo.getField(AuditInfo.HL7_MSH2_9) != null)
+            detail.add(hl7ParticipantObjectDetail(
+                    "MSH2-9", auditInfo.getField(AuditInfo.HL7_MSH2_9).getBytes()));
+        if (auditInfo.getField(AuditInfo.HL7_MSH2_10) != null)
+            detail.add(hl7ParticipantObjectDetail(
+                    "MSH2-10", auditInfo.getField(AuditInfo.HL7_MSH2_10).getBytes()));
         return detail;
     }
 
