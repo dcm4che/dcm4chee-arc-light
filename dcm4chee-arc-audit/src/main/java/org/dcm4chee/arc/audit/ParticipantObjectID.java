@@ -66,7 +66,7 @@ class ParticipantObjectID {
 
     static ParticipantObjectIdentification patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
         ParticipantObjectIdentificationBuilder patientPOIBuilder = patientPOIBuilder(auditInfo)
-                .detail(hl7ParticipantObjectDetail(reader, auditInfo).toArray(new ParticipantObjectDetail[0]));
+                .detail(hl7ParticipantObjectDetail(reader).toArray(new ParticipantObjectDetail[0]));
 
         String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
         if (patVerStatus != null
@@ -89,25 +89,24 @@ class ParticipantObjectID {
                 .name(auditInfo.getField(AuditInfo.P_NAME));
     }
 
-    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader, AuditInfo auditInfo) {
+    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader) {
         List<ParticipantObjectDetail> detail = new ArrayList<>();
-        byte[] data = reader.getData();
-        byte[] ack = reader.getAck();
-        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
-        HL7Segment msh2 = HL7Segment.parseMSH(ack, ack.length, new ParsePosition(0));
-        if (data.length > 0)
-            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", data));
-        if (ack.length > 0)
-            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", ack));
-        if (msh.getMessageType() != null)
-            detail.add(hl7ParticipantObjectDetail("MSH-9", msh.getMessageType().getBytes()));
-        if (msh.getMessageControlID() != null)
-            detail.add(hl7ParticipantObjectDetail("MSH-10", msh.getMessageControlID().getBytes()));
-        if (msh2.getMessageType() != null)
-            detail.add(hl7ParticipantObjectDetail("MSH-9", msh2.getMessageType().getBytes()));
-        if (msh2.getMessageControlID() != null)
-            detail.add(hl7ParticipantObjectDetail("MSH-10", msh2.getMessageControlID().getBytes()));
+        hl7ParticipantObjectDetail(detail, reader.getData());
+        hl7ParticipantObjectDetail(detail, reader.getAck());
         return detail;
+    }
+
+    private static void hl7ParticipantObjectDetail(List<ParticipantObjectDetail> detail, byte[] data) {
+        if (data.length > 0) {
+            HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+            String messageType = msh.getMessageType();
+            String messageControlID = msh.getMessageControlID();
+            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", data));
+            if (messageType != null)
+                detail.add(hl7ParticipantObjectDetail("MSH-9", messageType.getBytes()));
+            if (messageControlID != null)
+                detail.add(hl7ParticipantObjectDetail("MSH-10", messageControlID.getBytes()));
+        }
     }
 
     private static ParticipantObjectDetail hl7ParticipantObjectDetail(String key, byte[] val) {
@@ -176,7 +175,7 @@ class ParticipantObjectID {
         boolean hasPatient = auditInfo.getField(AuditInfo.P_ID) != null;
         ParticipantObjectIdentification[] studyPatParticipants
                 = new ParticipantObjectIdentification[hasPatient ? 2 : 1];
-        List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader, auditInfo);
+        List<ParticipantObjectDetail> participantObjectDetails = hl7ParticipantObjectDetail(reader);
         participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
                     "ExpirationDate", auditInfo.getField(AuditInfo.EXPIRATION_DATE)));
         participantObjectDetails.add(AuditMessages.createParticipantObjectDetail(
