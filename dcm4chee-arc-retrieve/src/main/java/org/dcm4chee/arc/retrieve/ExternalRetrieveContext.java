@@ -44,6 +44,7 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.jms.Message;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,7 +64,7 @@ public class ExternalRetrieveContext {
     private String deviceName;
     private String queueName;
     private String batchID;
-    private String scheduledTime;
+    private Date scheduledTime;
     private int priority = Message.DEFAULT_PRIORITY;
 
     public ExternalRetrieveContext() {
@@ -140,7 +141,7 @@ public class ExternalRetrieveContext {
         return httpServletRequestInfo;
     }
 
-    public String getScheduledTime() {
+    public Date getScheduledTime() {
         return scheduledTime;
     }
 
@@ -184,7 +185,7 @@ public class ExternalRetrieveContext {
         return this;
     }
 
-    public ExternalRetrieveContext setScheduledTime(String scheduledTime) {
+    public ExternalRetrieveContext setScheduledTime(Date scheduledTime) {
         this.scheduledTime = scheduledTime;
         return this;
     }

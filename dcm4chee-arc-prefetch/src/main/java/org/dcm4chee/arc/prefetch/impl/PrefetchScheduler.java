@@ -52,7 +52,6 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -114,8 +113,7 @@ public class PrefetchScheduler {
             LOG.info("{}: Apply {}", sock, rule);
             Date notRetrievedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateRetrieveInterval().getSeconds() * 1000L);
-            Calendar scheduledTime = ScheduleExpression.ceil(now, rule.getSchedules());
-            long delay = scheduledTime.getTimeInMillis() - now.getTimeInMillis();
+            Date scheduledTime = ScheduleExpression.ceil(now, rule.getSchedules()).getTime();
             String cx = hl7Fields.get("PID-3", null);
             IDWithIssuer idWithIssuer = idWithIssuer(rule, cx);
             if (idWithIssuer == null) {
@@ -128,11 +126,11 @@ public class PrefetchScheduler {
             String batchID = rule.getCommonName() + '[' + pid + ']';
             if (rule.getEntitySelectors().length == 0) {
                 prefetch(pid, batchID, new Attributes(0), -1,
-                        rule, arcdev, notRetrievedAfter, delay);
+                        rule, arcdev, scheduledTime, notRetrievedAfter);
             } else {
                 for (EntitySelector selector : rule.getEntitySelectors()) {
                     prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
-                            rule, arcdev, notRetrievedAfter, delay);
+                            rule, arcdev, scheduledTime, notRetrievedAfter);
                 }
             }
         } catch (Exception e) {
@@ -154,13 +152,13 @@ public class PrefetchScheduler {
     }
 
     private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
-            HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date notRetrievedAfter, long delay)
+            HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date scheduledDate, Date notRetrievedAfter)
             throws Exception {
         Attributes keys = new Attributes(queryKeys.size() + 4);
         keys.addAll(queryKeys);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
-            scheduleRetrieveTasks(keys, rule, batchID, notRetrievedAfter, delay);
+            createRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
             return;
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
@@ -180,20 +178,19 @@ public class PrefetchScheduler {
             } while (matches.size() > numberOfPriors);
         }
         for (Attributes match : matches) {
-            scheduleRetrieveTasks(match, rule, batchID, notRetrievedAfter, delay);
+            createRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
         }
     }
 
-    private void scheduleRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID, Date notRetrievedAfter, long delay)
-            throws QueueSizeLimitExceededException {
+    private void createRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
+            Date scheduledDate, Date notRetrievedAfter) {
         for (String destination : rule.getPrefetchCStoreSCPs()) {
-            scheduleRetrieveTask(keys, rule, batchID, notRetrievedAfter, delay, destination);
+            createRetrieveTask(keys, rule, batchID, scheduledDate, notRetrievedAfter, destination);
         }
     }
 
-    private void scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID, Date notRetrievedAfter, long delay,
-                                      String destination)
-            throws QueueSizeLimitExceededException {
+    private void createRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
+            Date scheduledDate, Date notRetrievedAfter, String destination) {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
                 .setDeviceName(device.getDeviceName())
                 .setQueueName(rule.getQueueName())
@@ -203,7 +200,8 @@ public class PrefetchScheduler {
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
                 .setPriority(rule.getPriority())
+                .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, notRetrievedAfter, delay);
+        retrieveManager.createRetrieveTask(ctx, notRetrievedAfter);
     }
 }

@@ -73,7 +73,6 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,7 +112,7 @@ public class RetrieveManagerEJB {
     private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay,
                                          Attributes keys) throws QueueSizeLimitExceededException {
         String studyUID = keys.getString(Tag.StudyInstanceUID);
-        if (isAlreadyScheduledOrRetrievedAfter(em, ctx, notRetrievedAfter, studyUID))
+        if (isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID))
             return false;
 
         try {
@@ -156,16 +155,18 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private boolean isAlreadyScheduledOrRetrievedAfter(EntityManager em, ExternalRetrieveContext ctx, Date retrievedAfter,
+    private boolean isAlreadyScheduledOrRetrievedAfter(ExternalRetrieveContext ctx, Date retrievedAfter,
                                                        String studyUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
         Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
+        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage, JoinType.LEFT);
 
         List<Predicate> predicates = new ArrayList<>();
-        Predicate statusPredicate = queueMsg.get(QueueMessage_.status)
-                .in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS);
+        Path<QueueMessage.Status> statusPath = queueMsg.get(QueueMessage_.status);
+        Predicate statusPredicate = cb.or(
+                statusPath.isNull(),
+                statusPath.in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
         if (retrievedAfter != null)
             statusPredicate = cb.or(
                     statusPredicate,
@@ -203,13 +204,16 @@ public class RetrieveManagerEJB {
         return false;
     }
 
-    public int createRetrieveTask(ExternalRetrieveContext ctx) {
+    public int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
         int count = 0;
         for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID)) {
-            persist(createRetrieveTask(ctx, null),
-                    studyUID,
-                    scheduledTime(ctx));
-            count++;
+            if (notRetrievedAfter == null
+                    || !isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID)) {
+                persist(createRetrieveTask(ctx, (QueueMessage) null),
+                        studyUID,
+                        ctx.getScheduledTime());
+                count++;
+            }
         }
         return count;
     }
@@ -232,17 +236,6 @@ public class RetrieveManagerEJB {
         task.setBatchID(ctx.getBatchID());
         task.setQueueMessage(queueMessage);
         return task;
-    }
-
-    private Date scheduledTime(ExternalRetrieveContext ctx) {
-        if (ctx.getScheduledTime() != null)
-            try {
-                return new SimpleDateFormat("yyyyMMddhhmmss").parse(ctx.getScheduledTime());
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-            }
-
-        return null;
     }
 
     public void updateRetrieveTask(QueueMessage queueMessage, Attributes cmd) {

@@ -55,6 +55,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +134,7 @@ public class RetrieveRS {
     private String deviceName;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @Inject
@@ -253,7 +255,7 @@ public class RetrieveRS {
         try {
             validate();
             Attributes keys = toKeys(uids);
-            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys));
+            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
         } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -352,7 +354,7 @@ public class RetrieveRS {
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(scheduledTime)
+                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
                 .setKeys(keys);
     }
 

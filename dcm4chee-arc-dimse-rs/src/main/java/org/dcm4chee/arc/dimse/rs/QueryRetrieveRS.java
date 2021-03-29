@@ -117,6 +117,7 @@ public class QueryRetrieveRS {
     private String deviceName;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @QueryParam("dcmQueueName")
@@ -608,7 +609,7 @@ public class QueryRetrieveRS {
     }
 
     private int createRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.createRetrieveTask(ctx);
+        return retrieveManager.createRetrieveTask(ctx, null);
     }
 
     private void logRequest() {
@@ -641,7 +642,7 @@ public class QueryRetrieveRS {
                 .setRemoteAET(movescp)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(scheduledTime)
+                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
                 .setKeys(keys);
     }
 
