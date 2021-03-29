@@ -892,12 +892,17 @@ public class QidoRS {
     }
 
     private void printRecord(CSVPrinter printer, Attributes match, int[] tags) {
-        for (int tag : tags)
-            try {
-                printer.print(match.getString(tag));
-            } catch (IOException e) {
-                LOG.debug("Error printing record for {}", tag);
-            }
+        try {
+            for (int tag : tags)
+                try {
+                    printer.print(match.getString(tag));
+                } catch (IOException e) {
+                    LOG.debug("Error printing record for {}", tag);
+                }
+            printer.println();
+        } catch (IOException e) {
+            LOG.debug("Error printing record for newline");
+        }
     }
 
     private Attributes adjust(Attributes match, Model model, Query query, AttributesCoercion coercion) {
