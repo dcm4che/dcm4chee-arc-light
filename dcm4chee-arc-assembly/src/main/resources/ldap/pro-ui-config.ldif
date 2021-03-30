@@ -54,13 +54,6 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Correct Data Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dcmuiPermission
-dcmuiAction: tab-correct_data->diff
-dcmuiPermissionName: Tab - Correct Data Diff
-dcmAcceptedUserRole: admin
-dcmuiActionParam: accessible
-
 dn: dcmuiPermissionName=Tab - Corrupted Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-correct_data->corrupted_studies
