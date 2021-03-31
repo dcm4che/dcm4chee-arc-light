@@ -283,6 +283,13 @@ public class QidoRS {
 
     @GET
     @NoCache
+    @Path("/mpps")
+    public Response searchForMPPS() {
+        return search("SearchForMPPS", Model.MPPS, null, null, QIDO.MPPS);
+    }
+
+    @GET
+    @NoCache
     @Path("/workitems")
     public Response searchForUPS() {
         return search("SearchForUPS", Model.UPS, null, null, QIDO.UPS);
@@ -354,6 +361,14 @@ public class QidoRS {
     @Produces("application/json")
     public Response countSPS() {
         return count("CountSPS", Model.MWL, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/mpps/count")
+    @Produces("application/json")
+    public Response countMPPS() {
+        return count("CountMPPS", Model.MPPS, null, null);
     }
 
     @GET
@@ -619,6 +634,21 @@ public class QidoRS {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
+            }
+
+            @Override
+            public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
+                return null;
+            }
+
+            @Override
+            public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
+            }
+        },
+        MPPS(null, UID.ModalityPerformedProcedureStepRetrieve) {
+            @Override
+            Query createQuery(QueryService service, QueryContext ctx) {
+                return service.createMPPSQuery(ctx);
             }
 
             @Override

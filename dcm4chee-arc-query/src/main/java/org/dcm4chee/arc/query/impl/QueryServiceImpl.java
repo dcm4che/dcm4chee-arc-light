@@ -190,6 +190,12 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Query createMPPSQuery(QueryContext ctx) {
+        queryEvent.fire(ctx);
+        return new MPPSQuery(ctx, em);
+    }
+
+    @Override
     public Query createUPSQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
         return createUPSWithoutQueryEvent(ctx);

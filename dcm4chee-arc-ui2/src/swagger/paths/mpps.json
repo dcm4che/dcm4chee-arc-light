@@ -57,10 +57,25 @@
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
+          "$ref": "../parameters.json#/accept"
+        },
+        {
           "$ref": "../parameters.json#/filter"
         },
         {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
           "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
         }
       ],
       "responses": {
