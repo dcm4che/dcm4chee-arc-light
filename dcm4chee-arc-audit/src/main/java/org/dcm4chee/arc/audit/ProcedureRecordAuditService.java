@@ -104,6 +104,7 @@ class ProcedureRecordAuditService {
     AuditInfoBuilder getHL7IncomingOrderInfo() {
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
+        HL7Segment msh2 = hl7ConnEvent.getHL7ResponseMessage().msh();
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(hl7ConnEvent.getConnection().getHostname())
                 .callingUserID(msh.getSendingApplicationWithFacility())
@@ -122,6 +123,7 @@ class ProcedureRecordAuditService {
         HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = hl7Message.msh();
+        HL7Segment msh2 = hl7ConnEvent.getHL7ResponseMessage().msh();
         String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
         String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
         infoBuilder = new AuditInfoBuilder.Builder()

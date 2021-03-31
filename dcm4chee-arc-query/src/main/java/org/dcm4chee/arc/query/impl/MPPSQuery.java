@@ -42,16 +42,11 @@
 package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.entity.MPPS;
-import org.dcm4chee.arc.entity.MPPS_;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.query.QueryContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -59,18 +54,13 @@ import javax.persistence.criteria.Root;
  */
 public class MPPSQuery extends AbstractQuery {
 
-    private Join<MPPS, Patient> patient;
-    private Root<MPPS> mpps;
     public MPPSQuery(QueryContext context, EntityManager em) {
         super(context, em);
     }
 
     @Override
     protected CriteriaQuery<Tuple> multiselect() {
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
-        this.mpps = q.from(MPPS.class);
-        this.patient = mpps.join(MPPS_.patient);
-        String viewID = context.getQueryParam().getViewID();
+        //TODO
         return null;
     }
 
@@ -90,11 +80,5 @@ public class MPPSQuery extends AbstractQuery {
     public boolean isOptionalKeysNotSupported() {
         //TODO
         return false;
-    }
-
-    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
-        if (context.getOrderByTags() != null)
-            q.orderBy(builder.orderMPPS(patient, mpps, context.getOrderByTags()));
-        return q;
     }
 }

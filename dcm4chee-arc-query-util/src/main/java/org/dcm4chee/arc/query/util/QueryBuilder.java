@@ -117,12 +117,6 @@ public class QueryBuilder {
         return result;
     }
 
-    public List<Order> orderMPPS(From<MPPS, Patient> patient, Root<MPPS> mpps, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
-        orderByTags.forEach(orderByTag -> orderMPPS(patient, mpps, orderByTag, result));
-        return result;
-    }
-
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -268,30 +262,6 @@ public class QueryBuilder {
                 return result.add(orderByTag.order(cb, ups.get(UPS_.admissionID)));
             case Tag.ProcedureStepState:
                 return result.add(orderByTag.order(cb, ups.get(UPS_.procedureStepState)));
-        }
-        return false;
-    }
-
-    private <Z> boolean orderMPPS(From<MPPS, Patient> patient, From<Z, MPPS> mpps,
-                                  OrderByTag orderByTag, List<Order> result) {
-        if (patient != null && orderPatients(patient, orderByTag, result))
-            return true;
-
-        switch (orderByTag.tag) {
-            case Tag.StudyInstanceUID:
-                return result.add(orderByTag.order(cb, mpps.get(MPPS_.studyInstanceUID)));
-//            case Tag.StudyID:
-//                return result.add(orderByTag.order(cb, study.get(Study_.studyID)));
-//            case Tag.StudyDate:
-//                return result.add(orderByTag.order(cb, study.get(Study_.studyDate)));
-//            case Tag.StudyTime:
-//                return result.add(orderByTag.order(cb, study.get(Study_.studyTime)));
-//            case Tag.ReferringPhysicianName:
-//                return orderPersonName(study, Study_.referringPhysicianName, orderByTag, result);
-//            case Tag.StudyDescription:
-//                return result.add(orderByTag.order(cb, study.get(Study_.studyDescription)));
-            case Tag.AccessionNumber:
-                return result.add(orderByTag.order(cb, mpps.get(MPPS_.accessionNumber)));
         }
         return false;
     }

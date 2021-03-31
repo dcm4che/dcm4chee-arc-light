@@ -98,6 +98,7 @@ class PatientRecordAuditService {
         this.arcDev = arcDev;
         this.hl7ConnEvent = hl7ConnEvent;
         HL7Segment msh = hl7ConnEvent.getHL7Message().msh();
+        HL7Segment msh2 = hl7ConnEvent.getHL7ResponseMessage().msh();
         String callingUserID = msh.getSendingApplicationWithFacility();
         String calledUserID = msh.getReceivingApplicationWithFacility();
         String callingHost = hl7ConnEvent.getConnection() != null
