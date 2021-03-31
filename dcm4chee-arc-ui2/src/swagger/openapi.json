@@ -128,6 +128,10 @@
       "description": "Modality Worklist Management"
     },
     {
+      "name": "MPPS-RS",
+      "description": "Modality Performed Procedure Step Management"
+    },
+    {
       "name": "PAM-RS",
       "description": "Patient Administration Management"
     },
@@ -445,6 +449,12 @@
     },
     "/aets/{aet}/rs/mwlitems/status/{status}": {
       "$ref": "paths/mwlitems.json#/mstatus"
+    },
+    "/aets/{aet}/rs/mpps": {
+      "$ref": "paths/mpps.json#/-"
+    },
+    "/aets/{aet}/rs/mpps/count": {
+      "$ref": "paths/mpps.json#/count"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}": {
       "$ref": "paths/wado.json#/instances"
