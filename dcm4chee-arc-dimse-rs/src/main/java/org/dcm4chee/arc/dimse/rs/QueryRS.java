@@ -312,7 +312,7 @@ public class QueryRS {
         int status = dimseRSP.getCommand().getInt(Tag.Status, -1);
         switch (status) {
             case 0:
-                return Response.ok("[]");
+                return Response.noContent();
             case Status.Pending:
             case Status.PendingWarning:
                 return Response.ok(writeJSON(dimseRSP, localAE));
