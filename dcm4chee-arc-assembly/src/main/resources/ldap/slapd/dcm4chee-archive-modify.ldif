@@ -1952,6 +1952,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.400 NAME 'dcmAuditAssigningAuthority
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.401 NAME 'dcmStoreImplementationVersionName'
+  DESC 'Indicates to include Implementation Version Name (0002,0012) in the File Meta Information of stored DICOM objects; enabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -1960,6 +1965,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MUST (
     dcmFuzzyAlgorithmClass )
   MAY (
+    dcmStoreImplementationVersionName $
     dcmRecordAttributeModification $
     dcmIdentifyPatientByAllAttributes $
     dcmBulkDataDescriptorID $

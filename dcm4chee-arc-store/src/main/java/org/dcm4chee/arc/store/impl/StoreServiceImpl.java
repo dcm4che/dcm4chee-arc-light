@@ -222,6 +222,7 @@ class StoreServiceImpl implements StoreService {
         List<File> bulkDataFiles = Collections.emptyList();
         String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         try (Transcoder transcoder = receiveTranferSyntax != null
                 ? new Transcoder(data, receiveTranferSyntax)
                 : new Transcoder(data)) {
@@ -232,6 +233,7 @@ class StoreServiceImpl implements StoreService {
             transcoder.setConcatenateBulkDataFiles(true);
             transcoder.setBulkDataDirectory(arcAE.getBulkDataSpoolDirectoryFile());
             transcoder.setIncludeFileMetaInformation(true);
+            transcoder.setIncludeImplementationVersionName(arcDev.isStoreImplementationVersionName());
             transcoder.setDeleteBulkDataFiles(false);
             transcoder.transcode(new TranscoderHandler(ctx));
             bulkDataFiles = transcoder.getBulkDataFiles();

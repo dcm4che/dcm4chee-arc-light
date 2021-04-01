@@ -384,6 +384,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getCalculateStudySizePollingInterval(), null);
         writer.writeNotDef("dcmCalculateStudySizeFetchSize", arcDev.getCalculateStudySizeFetchSize(), 100);
         writer.writeNotDef("dcmCalculateQueryAttributes", arcDev.isCalculateQueryAttributes(), false);
+        writer.writeNotDef("dcmStoreImplementationVersionName",
+                arcDev.isStoreImplementationVersionName(), true);
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
@@ -1904,6 +1906,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmCalculateQueryAttributes":
                     arcDev.setCalculateQueryAttributes(reader.booleanValue());
+                    break;
+                case "dcmStoreImplementationVersionName":
+                    arcDev.setStoreImplementationVersionName(reader.booleanValue());
                     break;
                 case "dcmSupplementIssuerFetchSize":
                     arcDev.setSupplementIssuerFetchSize(reader.intValue());
