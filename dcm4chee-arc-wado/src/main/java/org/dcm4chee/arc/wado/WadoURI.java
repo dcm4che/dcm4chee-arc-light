@@ -242,12 +242,12 @@ public class WadoURI {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} with HTTPHeaders[{}] from {}@{}",
+        LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
                 toString(),
-                headers(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+        LOG.debug(" with HTTPHeaders[{}]", headers());
     }
 
     private String headers() {
