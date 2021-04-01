@@ -117,6 +117,13 @@ public class QueryBuilder {
         return result;
     }
 
+    public List<Order> orderMPPS(From<MPPS, Patient> patient, Root<MPPS> mpps, List<OrderByTag> orderByTags) {
+        List<Order> result = new ArrayList<>(orderByTags.size());
+        for (OrderByTag orderByTag : orderByTags)
+            orderMPPS(patient, mpps, orderByTag, result);
+        return result;
+    }
+
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -266,6 +273,20 @@ public class QueryBuilder {
         return false;
     }
 
+    private <Z> boolean orderMPPS(From<MPPS, Patient> patient, From<Z, MPPS> mpps,
+                                  OrderByTag orderByTag, List<Order> result) {
+        if (patient != null && orderPatients(patient, orderByTag, result))
+            return true;
+
+        switch (orderByTag.tag) {
+            case Tag.PerformedProcedureStepStartDate:
+                return result.add(orderByTag.order(cb, mpps.get(MPPS_.performedProcedureStepStartDate)));
+            case Tag.PerformedProcedureStepStartTime:
+                return result.add(orderByTag.order(cb, mpps.get(MPPS_.performedProcedureStepStartTime)));
+        }
+        return false;
+    }
+
     private <Z, X> boolean orderPersonName(
             From<Z, X> entity, SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute,
             OrderByTag orderByTag, List<Order> result) {
@@ -381,6 +402,15 @@ public class QueryBuilder {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
         upsLevelPredicates(predicates, q, ups, keys, queryParam);
+        return predicates;
+    }
+
+    public <T> List<Predicate> mppsPredicates(CriteriaQuery<T> q,
+           From<MPPS, Patient> patient, Root<MPPS> mpps,
+           IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        mppsLevelPredicates(predicates, q, mpps, keys, queryParam);
         return predicates;
     }
 
@@ -833,6 +863,31 @@ public class QueryBuilder {
         anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
         notSubscribedBy(predicates, q, ups, queryParam.getNotSubscribedByAET());
+    }
+
+    private <T> void mppsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+                                        Root<MPPS> mpps, Attributes keys, QueryParam queryParam) {
+        uidsPredicate(predicates, mpps.get(MPPS_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        dateRange(predicates,
+                mpps.get(MPPS_.performedProcedureStepStartDate),
+                mpps.get(MPPS_.performedProcedureStepStartTime),
+                Tag.PerformedProcedureStepStartDate,
+                Tag.PerformedProcedureStepStartDate,
+                Tag.PerformedProcedureStepStartDateAndTime,
+                keys, true);
+        anyOf(predicates, mpps.get(MPPS_.status), MPPS.Status::valueOf,
+                toUpperCase(keys.getStrings(Tag.PerformedProcedureStepStatus)));
+        Attributes ssa = keys.getNestedDataset(Tag.ScheduledStepAttributesSequence);
+        if (ssa != null) {
+            uidsPredicate(predicates, mpps.get(MPPS_.studyInstanceUID), ssa.getStrings(Tag.StudyInstanceUID));
+            String accNo = ssa.getString(Tag.AccessionNumber, "*");
+            if (!isUniversalMatching(accNo)) {
+                Issuer issuer = Issuer.valueOf(ssa.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+                if (issuer == null)
+                    issuer = queryParam.getDefaultIssuerOfAccessionNumber();
+                idWithIssuer(predicates, mpps, MPPS_.accessionNumber, MPPS_.issuerOfAccessionNumber, accNo, issuer);
+            }
+        }
     }
 
     private String getString(Attributes item, int tag, String defVal) {
