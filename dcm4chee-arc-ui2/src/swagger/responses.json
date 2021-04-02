@@ -945,6 +945,42 @@
       }
     }
   },
+  "dcm4chee-arc": {
+    "description": "Backend URL(s) and UI Device Name",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "dcm4chee-arc-urls",
+            "dicomDeviceName",
+            "super-user-role",
+            "management-http-port",
+            "management-https-port"
+          ],
+          "properties": {
+            "dcm4chee-arc-urls": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+            "dicomDeviceName": {
+              "type": "string"
+            },
+            "super-user-role": {
+              "type": "string"
+            },
+            "management-http-port": {
+              "type": "integer"
+            },
+            "management-https-port": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
   "AccessToken": {
     "description": "Access Token",
     "content": {

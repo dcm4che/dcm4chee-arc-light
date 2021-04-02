@@ -89,6 +89,13 @@
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
     <dependencySet>
+      <outputDirectory>deploy</outputDirectory>
+      <includes>
+        <include>org.dcm4che.dcm4chee-arc:dcm4chee-arc-ui2</include>
+      </includes>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
       <outputDirectory>ldap</outputDirectory>
       <outputFileNameMapping>vendor-data.zip</outputFileNameMapping>
       <includes>

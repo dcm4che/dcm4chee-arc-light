@@ -35,6 +35,21 @@
       }
     }
   },
+  "dcm4chee-arc": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "Get Backend URL(s) and  UI Device Name",
+      "operationId": "dcm4chee-arc",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/dcm4chee-arc"
+        }
+      }
+    }
+  },
   "devices": {
     "get": {
       "tags": [

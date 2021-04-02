@@ -470,6 +470,7 @@
       <type>war</type>
       <classifier>${dcm4chee-arc-war-classifier}</classifier>
     </dependency>
+<!--
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-ui2</artifactId>
@@ -477,6 +478,7 @@
       <classifier>${dcm4chee-arc-ui-classifier}</classifier>
       <type>war</type>
     </dependency>
+-->
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-xsl-cda</artifactId>
@@ -517,11 +519,13 @@
               <artifactId>dcm4chee-arc-war</artifactId>
               <contextRoot>dcm4chee-arc</contextRoot>
             </webModule>
+<!--
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-ui2</artifactId>
               <contextRoot>dcm4chee-arc/ui2</contextRoot>
             </webModule>
+-->
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-xsl-cda</artifactId>
@@ -550,7 +554,6 @@
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
         <classifier>${db}</classifier>
         <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
-        <dcm4chee-arc-ui-classifier>unsecure</dcm4chee-arc-ui-classifier>
         <dcm4chee-arc-proxy-classifier>unsecure</dcm4chee-arc-proxy-classifier>
       </properties>
     </profile>
@@ -559,31 +562,13 @@
       <activation>
         <property>
           <name>secure</name>
-          <value>all</value>
         </property>
       </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure</classifier>
         <dcm4chee-arc-war-classifier>secure</dcm4chee-arc-war-classifier>
-        <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
         <dcm4chee-arc-proxy-classifier>secure</dcm4chee-arc-proxy-classifier>
-      </properties>
-    </profile>
-    <profile>
-      <id>secure-ui</id>
-      <activation>
-        <property>
-          <name>secure</name>
-          <value>ui</value>
-        </property>
-      </activation>
-      <properties>
-        <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
-        <classifier>${db}-secure-ui</classifier>
-        <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
-        <dcm4chee-arc-proxy-classifier>unsecure</dcm4chee-arc-proxy-classifier>
-        <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
       </properties>
     </profile>
   </profiles>

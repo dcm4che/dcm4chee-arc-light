@@ -39,7 +39,7 @@
  *
  */
 
-package org.dcm4chee.arc.conf.keycloak;
+package org.dcm4chee.arc.ui2;
 
 import org.jboss.resteasy.annotations.cache.NoCache;
 
@@ -47,20 +47,20 @@ import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import java.util.StringTokenizer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2019
  */
 @RequestScoped
-@Path("keycloak.json")
-public class KeycloakJSON {
+@Path("")
+public class Resource {
     @GET
     @NoCache
+    @Path("keycloak.json")
     @Produces("application/json")
-    public String get() {
+    public String keycloakJSON() {
         String authServerURL = System.getProperty("auth-server-url");
         return authServerURL == null ? "{}" :
                 "{\"realm\":\"" + System.getProperty("realm-name", "dcm4che") +
@@ -68,5 +68,30 @@ public class KeycloakJSON {
                 "\",\"auth-server-url\":\"" + authServerURL +
                 "\",\"ssl-required\":\"" + System.getProperty("ssl-required","external") +
                 "\",\"public-client\":true,\"confidential-port\":0}";
+    }
+
+    @GET
+    @NoCache
+    @Path("dcm4chee-arc")
+    @Produces("application/json")
+    public String dcm4cheeArc() {
+        StringBuilder sb = new StringBuilder(256);
+        StringTokenizer urls = new StringTokenizer(System.getProperty("dcm4chee-arc-urls", "/dcm4chee-arc"), " ");
+        sb.append("{\"dcm4chee-arc-urls\":[\"").append(urls.nextToken());
+        while (urls.hasMoreTokens()) sb.append("\",\"").append(urls.nextToken());
+        sb.append("\"],\"dicomDeviceName\":\"").append(System.getProperty("dcm4chee-arc.DeviceName", "dcm4chee-arc"));
+        sb.append("\",\"super-user-role\":\"").append(System.getProperty("super-user-role", "admin"));
+        sb.append("\",\"management-http-port\":").append(intSystemProperty("jboss.management.http.port", 9990));
+        sb.append(",\"management-https-port\":").append(intSystemProperty("jboss.management.https.port", 9993));
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private static int intSystemProperty(String key, int defVal) {
+        try {
+            return Integer.parseInt(System.getProperty(key));
+        } catch (Exception e) {
+            return defVal;
+        }
     }
 }

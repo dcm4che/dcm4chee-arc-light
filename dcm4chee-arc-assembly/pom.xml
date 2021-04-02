@@ -62,9 +62,16 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-ear</artifactId>
-      <classifier>${classifier}</classifier>
+      <classifier>${ear.classifier}</classifier>
       <version>${project.version}</version>
       <type>ear</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-ui2</artifactId>
+      <classifier>${ui.classifier}</classifier>
+      <version>${project.version}</version>
+      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
@@ -167,6 +174,8 @@
       </activation>
       <properties>
         <classifier>${db}</classifier>
+        <ear.classifier>${db}</ear.classifier>
+        <ui.classifier/>
       </properties>
     </profile>
     <profile>
@@ -179,6 +188,8 @@
       </activation>
       <properties>
         <classifier>${db}-secure</classifier>
+        <ear.classifier>${db}-secure</ear.classifier>
+        <ui.classifier>secure</ui.classifier>
       </properties>
     </profile>
     <profile>
@@ -191,6 +202,8 @@
       </activation>
       <properties>
         <classifier>${db}-secure-ui</classifier>
+        <ear.classifier>${db}</ear.classifier>
+        <ui.classifier>secure</ui.classifier>
       </properties>
     </profile>
   </profiles>

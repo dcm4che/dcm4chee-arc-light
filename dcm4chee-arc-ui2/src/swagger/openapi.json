@@ -735,6 +735,9 @@
     "/ui2/rs/keycloak.json": {
       "$ref": "paths/config.json#/keycloak"
     },
+    "/ui2/rs/dcm4chee-arc": {
+      "$ref": "paths/config.json#/dcm4chee-arc"
+    },
     "/ctrl/start": {
       "$ref": "paths/misc.json#/start"
     },

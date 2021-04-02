@@ -61,11 +61,6 @@
   <dependencies>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf-keycloak</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-lang</artifactId>
       <version>${project.version}</version>
       <type>war</type>
@@ -134,14 +129,13 @@
           <plugin>
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
-              <classifier>unsecure</classifier>
               <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
               <webResources>
                 <resource>
                   <directory>target/webapp</directory>
                 </resource>
               </webResources>
-              <webappDirectory>${project.build.directory}/${project.build.finalName}-unsecure</webappDirectory>
+              <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
             </configuration>
           </plugin>
         </plugins>
