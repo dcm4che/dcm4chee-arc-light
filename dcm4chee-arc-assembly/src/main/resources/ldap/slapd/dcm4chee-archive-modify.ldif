@@ -1957,6 +1957,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.401 NAME 'dcmStoreImplementationVers
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.402 NAME 'dcmPrefetchDateTimeField'
+  DESC 'Delay retrieve of selected Studies to time from referred HL7 TS field in format {SEG}-{Seq#}[.{Comp#}]. Example: TQ1-7 or SCH-11.4. Schedule retrieve of selected Studies immediate if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.403 NAME 'dcmPrefetchInAdvance'
+  DESC 'Schedule retrieve of selected Studies given time span in ISO-8601 duration format PnDTnHnMn.nS in advance to the time from configured dcmPrefetchDateTimeField. Not effective, if dcmPrefetchDateTimeField is absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2207,7 +2217,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ReferredMergedPatientPolicy $
     hl7DicomCharacterSet $
     hl7VeterinaryUsePatientName $
-    hl7PatientArrivalMessageType ))
+    hl7PatientArrivalMessageType ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
@@ -2319,7 +2329,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUReceivingApplication $
-    hl7PSUSendingApplication ))
+    hl7PSUSendingApplication ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL
@@ -2674,6 +2684,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.35 NAME 'hl7PrefetchRule'
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $
     dcmPrefetchForIssuerOfPatientID $
+    dcmPrefetchDateTimeField $
+    dcmPrefetchInAdvance $
     dcmDuration ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.36 NAME 'dcmMetrics'
   DESC 'Metrics'
@@ -2683,7 +2695,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.36 NAME 'dcmMetrics'
   MAY (
     dicomDescription $
     dcmMetricsRetentionPeriod $
-    dcmUnit  ))
+    dcmUnit ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.37 NAME 'dcmUPSOnStore'
   DESC 'UPS on Store'
   SUP top STRUCTURAL
