@@ -232,12 +232,8 @@ public class PrefetchScheduler {
 
         Duration prefetchInAdvance = rule.getPrefetchInAdvance();
         Calendar cal = Calendar.getInstance();
-        if (prefetchInAdvance == null) {
-            cal.setTime(date);
-            return cal;
-        }
-
-        cal.setTime(new Date(date.getTime() - prefetchInAdvance.getSeconds() * 1000L));
+        cal.setTimeInMillis(date.getTime()
+                - (prefetchInAdvance != null ? prefetchInAdvance.getSeconds() * 1000L : 0));
         return cal;
     }
 }
