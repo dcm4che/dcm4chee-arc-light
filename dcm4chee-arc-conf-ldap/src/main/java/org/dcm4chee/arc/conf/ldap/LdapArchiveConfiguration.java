@@ -3632,6 +3632,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateRetrieveInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchDateTimeField",
+                rule.getPrefetchDateTimeField(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchInAdvance",
+                rule.getPrefetchInAdvance(), null);
         return attrs;
     }
 
@@ -3658,6 +3662,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         toIssuer(LdapUtils.stringValue(attrs.get("dcmPrefetchForIssuerOfPatientID"), null)));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateRetrieveInterval(toDuration(attrs.get("dcmDuration"), null));
+                rule.setPrefetchDateTimeField(LdapUtils.stringValue(attrs.get("dcmPrefetchDateTimeField"), null));
+                rule.setPrefetchInAdvance(toDuration(attrs.get("dcmPrefetchInAdvance"), null));
                 prefetchRules.add(rule);
             }
         } finally {
@@ -4354,6 +4360,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getPrefetchForAssigningAuthorityOfPatientID(),
                 rule.getPrefetchForAssigningAuthorityOfPatientID(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchDateTimeField",
+                prev.getPrefetchDateTimeField(), rule.getPrefetchDateTimeField(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchInAdvance",
+                prev.getPrefetchInAdvance(), rule.getPrefetchInAdvance(), null);
         return mods;
     }
 

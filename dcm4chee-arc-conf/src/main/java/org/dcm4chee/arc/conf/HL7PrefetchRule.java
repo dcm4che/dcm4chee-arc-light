@@ -72,6 +72,10 @@ public class HL7PrefetchRule {
 
     private Duration suppressDuplicateRetrieveInterval;
 
+    private String prefetchDateTimeField;
+
+    private Duration prefetchInAdvance;
+
     private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
 
     private Issuer[] assigningAuthorityOfPatientIDs = {};
@@ -211,6 +215,22 @@ public class HL7PrefetchRule {
         this.schedules = schedules;
     }
 
+    public String getPrefetchDateTimeField() {
+        return prefetchDateTimeField;
+    }
+
+    public void setPrefetchDateTimeField(String prefetchDateTimeField) {
+        this.prefetchDateTimeField = prefetchDateTimeField;
+    }
+
+    public Duration getPrefetchInAdvance() {
+        return prefetchInAdvance;
+    }
+
+    public void setPrefetchInAdvance(Duration prefetchInAdvance) {
+        this.prefetchInAdvance = prefetchInAdvance;
+    }
+
     public boolean match(String hostName, HL7Fields hl7Fields) {
         return conditions.match(hostName, hl7Fields);
     }
@@ -232,6 +252,8 @@ public class HL7PrefetchRule {
                 ", prefetchForAssigningAuthorityOfPatientID=" + prefetchForAssigningAuthorityOfPatientID +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
                 ", schedules=" + Arrays.toString(schedules) +
+                ", prefetchDateTimeField=" + prefetchDateTimeField +
+                ", prefetchInAdvance=" + prefetchInAdvance +
                 '}';
     }
 }
