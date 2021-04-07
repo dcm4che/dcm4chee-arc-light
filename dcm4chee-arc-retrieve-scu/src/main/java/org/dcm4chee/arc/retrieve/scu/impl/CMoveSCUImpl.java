@@ -51,6 +51,7 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
@@ -75,6 +76,9 @@ public class CMoveSCUImpl implements CMoveSCU {
     @Inject
     private CStoreForwardSCU storeForwardSCU;
 
+    @Inject
+    private Event<ExternalRetrieveContext> instancesRetrievedEvent;
+
     @Inject @RetrieveStart
     private Event<RetrieveContext> retrieveStart;
 
@@ -89,14 +93,15 @@ public class CMoveSCUImpl implements CMoveSCU {
             Association fwdas = openAssociation(ctx, pc, callingAET, otherCMoveSCP);
             if (otherMoveDest == null) {
                 ctx.setForwardAssociation(fwdas);
-                return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
+                return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas, instancesRetrievedEvent);
             }
             ctx.setFallbackAssociation(fwdas);
             rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
             String cMoveSCPorCallingAET = bindByCMoveSCP(ctx, otherCMoveSCP) ? otherCMoveSCP : callingAET;
             storeForwardSCU.addRetrieveContext(ctx, cMoveSCPorCallingAET);
             fwdas.addAssociationListener(as -> storeForwardSCU.removeRetrieveContext(ctx, cMoveSCPorCallingAET));
-            return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd);
+            return new ForwardRetrieveTask.ForwardCStoreRQ(
+                    ctx, pc, rq, keys, fwdas, instancesRetrievedEvent, retrieveStart, retrieveEnd);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
@@ -115,14 +120,17 @@ public class CMoveSCUImpl implements CMoveSCU {
             Association fwdas = openAssociation(ctx, pc, callingAET, otherCMoveSCP);
             if (otherMoveDest == null) {
                 ctx.setForwardAssociation(fwdas);
-                new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys, fwdas).forwardMoveRQ();
+                new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys, fwdas, instancesRetrievedEvent)
+                        .forwardMoveRQ();
             } else {
                 ctx.setFallbackAssociation(fwdas);
                 rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
                 String cMoveSCPorCallingAET = bindByCMoveSCP(ctx, otherCMoveSCP) ? otherCMoveSCP : callingAET;
                 storeForwardSCU.addRetrieveContext(ctx, cMoveSCPorCallingAET);
                 fwdas.addAssociationListener(as -> storeForwardSCU.removeRetrieveContext(ctx, cMoveSCPorCallingAET));
-                new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveStart, retrieveEnd).forwardMoveRQ();
+                new ForwardRetrieveTask.ForwardCStoreRQ(
+                        ctx, pc, rq, keys, fwdas, instancesRetrievedEvent, retrieveStart, retrieveEnd)
+                        .forwardMoveRQ();
             }
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);

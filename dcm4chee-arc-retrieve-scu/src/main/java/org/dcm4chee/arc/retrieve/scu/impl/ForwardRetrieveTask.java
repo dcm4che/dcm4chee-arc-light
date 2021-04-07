@@ -49,6 +49,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +75,10 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     private final Association rqas;
     private final Association fwdas;
     private final CMoveRSPHandler rspHandler;
+    private final Event<ExternalRetrieveContext> instancesRetrievedEvent;
 
     public ForwardRetrieveTask(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                               Association fwdas) {
+                               Association fwdas, Event<ExternalRetrieveContext> instancesRetrievedEvent) {
         this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
         this.fwdas = fwdas;
@@ -86,6 +88,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         this.msgId = rqCmd.getInt(Tag.MessageID, 0);
         this.cuid = rqCmd.getString(Tag.AffectedSOPClassUID);
         this.rspHandler = new CMoveRSPHandler(msgId);
+        this.instancesRetrievedEvent = instancesRetrievedEvent;
     }
 
     @Override
@@ -160,12 +163,25 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
     }
 
-    protected abstract void onCMoveRSP(Association as, Attributes cmd, Attributes data);
+    protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
+        if (!Status.isPending(cmd.getInt(Tag.Status, -1))) {
+            Device device = ctx.getLocalApplicationEntity().getDevice();
+            ExternalRetrieveContext event = new ExternalRetrieveContext()
+                    .setDeviceName(device.getDeviceName())
+                    .setLocalAET(as.getLocalAET())
+                    .setRemoteAET(as.getRemoteAET())
+                    .setDestinationAET(rqCmd.getString(Tag.MoveDestination))
+                    .setKeys(keys)
+                    .setRemoteHostName(as.getRemoteHostName())
+                    .setResponse(cmd);
+            instancesRetrievedEvent.fire(event);
+        }
+    }
 
     static class BackwardCMoveRSP extends ForwardRetrieveTask {
         public BackwardCMoveRSP(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                                Association fwdas) {
-            super(ctx, pc, rqCmd, keys, fwdas);
+                                Association fwdas, Event<ExternalRetrieveContext> instancesRetrievedEvent) {
+            super(ctx, pc, rqCmd, keys, fwdas, instancesRetrievedEvent);
         }
 
         @Override
@@ -175,6 +191,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
+            super.onCMoveRSP(as, cmd, data);
             writeMoveRSP(cmd, data);
         }
     }
@@ -185,12 +202,13 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         private int warnings;
 
         public UpdateRetrieveCtx(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                                 Association fwdas) {
-            super(ctx, pc, rqCmd, keys, fwdas);
+                                 Association fwdas, Event<ExternalRetrieveContext> instancesRetrievedEvent) {
+            super(ctx, pc, rqCmd, keys, fwdas, instancesRetrievedEvent);
         }
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
+            super.onCMoveRSP(as, cmd, data);
             int completed0 = cmd.getInt(Tag.NumberOfCompletedSuboperations, 0);
             int failed0 = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
             int warnigs0 = cmd.getInt(Tag.NumberOfWarningSuboperations, 0);
@@ -216,8 +234,9 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         private int rspCount;
 
         public ForwardCStoreRQ(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                Association fwdas, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
-            super(ctx, pc, rqCmd, keys, fwdas);
+                Association fwdas, Event<ExternalRetrieveContext> instancesRetrievedEvent,
+                Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
+            super(ctx, pc, rqCmd, keys, fwdas, instancesRetrievedEvent);
             this.pendingRSPInterval = ctx.getArchiveAEExtension().sendPendingCMoveInterval();
             this.retrieveStart = retrieveStart;
             this.retrieveEnd = retrieveEnd;
@@ -241,6 +260,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
+            super.onCMoveRSP(as, cmd, data);
             ctx.setFallbackMoveRSP(cmd, data);
             if (rspCount++ == 0 && Status.isPending(cmd.getInt(Tag.Status, -1))) {
                 startWritePendingRSP();

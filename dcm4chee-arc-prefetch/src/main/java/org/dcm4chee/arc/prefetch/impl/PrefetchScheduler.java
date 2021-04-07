@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.prefetch.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
@@ -49,6 +50,7 @@ import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
@@ -104,16 +106,17 @@ public class PrefetchScheduler {
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         arcHL7App.hl7PrefetchRules()
                 .filter(rule -> rule.match(host, hl7Fields))
-                .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now));
+                .forEach(rule -> prefetch(sock, hl7Fields, rule, arcdev, now, hl7Message));
     }
 
     private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev,
-                          Calendar now) {
+                          Calendar now, UnparsedHL7Message hl7Message) {
         try {
             LOG.info("{}: Apply {}", sock, rule);
             Date notRetrievedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateRetrieveInterval().getSeconds() * 1000L);
-            Date scheduledTime = ScheduleExpression.ceil(now, rule.getSchedules()).getTime();
+            Calendar hl7PrefetchDateTime = hl7PrefetchDateTime(hl7Fields, rule, now, hl7Message);
+            Date scheduledTime = ScheduleExpression.ceil(hl7PrefetchDateTime, rule.getSchedules()).getTime();
             String cx = hl7Fields.get("PID-3", null);
             IDWithIssuer idWithIssuer = idWithIssuer(rule, cx);
             if (idWithIssuer == null) {
@@ -203,5 +206,34 @@ public class PrefetchScheduler {
                 .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
         retrieveManager.createRetrieveTask(ctx, notRetrievedAfter);
+    }
+
+    private Calendar hl7PrefetchDateTime(
+            HL7Fields hl7Fields, HL7PrefetchRule rule, Calendar now, UnparsedHL7Message hl7Message) {
+        String prefetchDateTimeField = rule.getPrefetchDateTimeField();
+        if (prefetchDateTimeField == null)
+            return now;
+
+        String value = hl7Fields.get(prefetchDateTimeField, null);
+        HL7Segment msh = hl7Message.msh();
+        if (value == null || value.length() < 8) {
+            LOG.info("Configured PrefetchDateTimeField {} either absent or imprecise in HL7 message[type={}, controlID={}] : {} ",
+                    prefetchDateTimeField, msh.getMessageType(), msh.getMessageControlID(), value);
+            return now;
+        }
+
+        DatePrecision precision = new DatePrecision();
+        Date date = DateUtils.parseDT(null, value, precision);
+        if (precision.lastField <= 2) {
+            LOG.info("Configured PrefetchDateTimeField {} imprecise in HL7 message[type={}, controlID={}] : {} ",
+                    prefetchDateTimeField, msh.getMessageType(), msh.getMessageControlID(), value);
+            return now;
+        }
+
+        Duration prefetchInAdvance = rule.getPrefetchInAdvance();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(date.getTime()
+                - (prefetchInAdvance != null ? prefetchInAdvance.getSeconds() * 1000L : 0));
+        return cal;
     }
 }

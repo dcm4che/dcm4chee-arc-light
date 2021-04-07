@@ -655,6 +655,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateRetrieveInterval(), null);
+            writer.writeNotNullOrDef("dcmPrefetchDateTimeField", rule.getPrefetchDateTimeField(), null);
+            writer.writeNotNullOrDef("dcmPrefetchInAdvance", rule.getPrefetchInAdvance(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2545,6 +2547,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateRetrieveInterval(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmPrefetchDateTimeField":
+                        rule.setPrefetchDateTimeField(reader.stringValue());
+                        break;
+                    case "dcmPrefetchInAdvance":
+                        rule.setPrefetchInAdvance(Duration.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
