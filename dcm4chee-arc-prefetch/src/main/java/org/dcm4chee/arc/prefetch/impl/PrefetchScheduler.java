@@ -195,7 +195,8 @@ public class PrefetchScheduler {
     private void createRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
             Date scheduledDate, Date notRetrievedAfter, String destination) {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
-                .setDeviceName(device.getDeviceName())
+                .setDeviceName(rule.getPrefetchDeviceName() == null
+                                ? device.getDeviceName() : rule.getPrefetchDeviceName())
                 .setQueueName(rule.getQueueName())
                 .setBatchID(batchID)
                 .setLocalAET(rule.getAETitle())

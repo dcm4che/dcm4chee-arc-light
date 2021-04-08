@@ -3621,6 +3621,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchCMoveSCP",
                 rule.getPrefetchCMoveSCP(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDeviceName", rule.getPrefetchDeviceName(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPrefetchPriority", rule.getPriority(), 4);
@@ -3652,6 +3653,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setPrefetchCFindSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCFindSCP"), null));
                 rule.setPrefetchCMoveSCP(LdapUtils.stringValue(attrs.get("dcmPrefetchCMoveSCP"), null));
                 rule.setPrefetchCStoreSCPs(LdapUtils.stringArray(attrs.get("dcmPrefetchCStoreSCP")));
+                rule.setPrefetchDeviceName(LdapUtils.stringValue(attrs.get("dicomDeviceName"), null));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmPrefetchPriority"), 4));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
@@ -4344,6 +4346,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getPrefetchCMoveSCP(), rule.getPrefetchCMoveSCP(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPrefetchCStoreSCP",
                 prev.getPrefetchCStoreSCPs(), rule.getPrefetchCStoreSCPs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDeviceName",
+                prev.getPrefetchDeviceName(), rule.getPrefetchDeviceName(), null);
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
