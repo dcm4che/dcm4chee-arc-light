@@ -1,0 +1,23 @@
+version: 1
+
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCP
+
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCU

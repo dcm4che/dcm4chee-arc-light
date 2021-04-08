@@ -851,7 +851,8 @@ class ArchiveDeviceFactory {
             UID.SimplifiedAdultEchoSRStorage,
             UID.PatientRadiationDoseSRStorage,
             UID.PlannedImagingAgentAdministrationSRStorage,
-            UID.PerformedImagingAgentAdministrationSRStorage
+            UID.PerformedImagingAgentAdministrationSRStorage,
+            UID.EnhancedXRayRadiationDoseSRStorage
     };
 
     static final String[] SR_TSUIDS = {

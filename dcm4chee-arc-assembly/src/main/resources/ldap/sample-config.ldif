@@ -155,6 +155,7 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.74
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.76
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.75
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.67
@@ -1528,6 +1529,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA Performed Procedure Protocol Storage SCP
 
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCP
+
 dn: cn=Nuclear Medicine Image Storage (Retired) SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.5
 dicomTransferRole: SCP
@@ -2865,6 +2875,9 @@ hl7AcceptedMessageType: ORM^O01
 hl7AcceptedMessageType: OMI^O23
 hl7AcceptedMessageType: OMG^O19
 hl7AcceptedMessageType: ORU^R01
+hl7AcceptedMessageType: SIU^S12
+hl7AcceptedMessageType: SIU^S13
+hl7AcceptedMessageType: SIU^S15
 hl7ApplicationName: *
 
 dn: cn=JPEG 2000 Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -7461,6 +7474,26 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA Performed Procedure Protocol Storage SCU
 
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCP
+
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCU
+
 dn: cn=Nuclear Medicine Image Storage (Retired) SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.5
 dicomTransferRole: SCP
@@ -11608,6 +11641,16 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA Performed Procedure Protocol Storage SCU
 
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCU
+
 dn: cn=Nuclear Medicine Image Storage (Retired) SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.5
 dicomTransferRole: SCU
@@ -14695,6 +14738,16 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA Performed Procedure Protocol Storage SCU
 
+dn: cn=Enhanced X-Ray Radiation Dose SR Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.76
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Enhanced X-Ray Radiation Dose SR Storage SCU
+
 dn: cn=Nuclear Medicine Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.5
 dicomTransferRole: SCU
@@ -16004,4 +16057,3 @@ dcmWebAppName: IOCM_PAT_SAFETY-WADO
 dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUniqueWebAppName
 dcmWebAppName: IOCM_REGULAR_USE-WADO
-
