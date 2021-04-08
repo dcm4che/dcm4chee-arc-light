@@ -1519,6 +1519,7 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.UPS_RS,
                 WebApplication.ServiceClass.UPS_MATCHING,
                 WebApplication.ServiceClass.MWL_RS,
+                WebApplication.ServiceClass.MPPS_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
         device.addWebApplication(webapp);
         if (configType == configType.DOCKER) {
