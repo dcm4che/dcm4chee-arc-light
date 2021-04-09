@@ -89,6 +89,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoCDA2HtmlTemplateURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
+    private String[] ianWebApps = {};
     private Duration ianDelay;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
@@ -535,6 +536,20 @@ public class ArchiveAEExtension extends AEExtension {
         return ianDestinations.length > 0
                 ? ianDestinations
                 : getArchiveDeviceExtension().getIanDestinations();
+    }
+
+    public String[] getIanWebApps() {
+        return ianWebApps;
+    }
+
+    public void setIanWebApps(String[] ianWebApps) {
+        this.ianWebApps = ianWebApps;
+    }
+
+    public String[] ianWebApps() {
+        return ianWebApps.length > 0
+                ? ianWebApps
+                : getArchiveDeviceExtension().getIanWebApps();
     }
 
     public Duration getIanDelay() {
@@ -1676,6 +1691,7 @@ public class ArchiveAEExtension extends AEExtension {
         wadoCDA2HtmlTemplateURI = aeExt.wadoCDA2HtmlTemplateURI;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         ianDestinations = aeExt.ianDestinations;
+        ianWebApps = aeExt.ianWebApps;
         ianDelay = aeExt.ianDelay;
         ianTimeout = aeExt.ianTimeout;
         ianOnTimeout = aeExt.ianOnTimeout;

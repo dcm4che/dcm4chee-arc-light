@@ -1966,6 +1966,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.403 NAME 'dcmPrefetchInAdvance'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.404 NAME 'dcmIANWebApplication'
+  DESC 'IAN-RS Web Application Destination to send IAN N-CREATE attributes.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2038,6 +2042,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmIanDestination $
+    dcmIANWebApplication $
     dcmIanDelay $
     dcmIanTimeout $
     dcmIanOnTimeout $
@@ -2261,6 +2266,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmIanDestination $
+    dcmIANWebApplication $
     dcmIanDelay $
     dcmIanTimeout $
     dcmIanOnTimeout $

@@ -126,6 +126,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
+        writer.writeNotEmpty("dcmIANWebApplication", arcDev.getIanWebApps());
         writer.writeNotNullOrDef("dcmIanDelay", arcDev.getIanDelay(), null);
         writer.writeNotNullOrDef("dcmIanTimeout", arcDev.getIanTimeout(), null);
         writer.writeNotDef("dcmIanOnTimeout", arcDev.isIanOnTimeout(), false);
@@ -1124,6 +1125,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults());
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
+        writer.writeNotEmpty("dcmIANWebApplication", arcAE.getIanWebApps());
         writer.writeNotNullOrDef("dcmIanDelay", arcAE.getIanDelay(), null);
         writer.writeNotNullOrDef("dcmIanTimeout", arcAE.getIanTimeout(), null);
         writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
@@ -1349,6 +1351,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDestination":
                     arcDev.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIANWebApplication":
+                    arcDev.setIanWebApps(reader.stringArray());
                     break;
                 case "dcmIanDelay":
                     arcDev.setIanDelay(Duration.valueOf(reader.stringValue()));
@@ -3610,6 +3615,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDestination":
                     arcAE.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIANWebApplication":
+                    arcAE.setIanWebApps(reader.stringArray());
                     break;
                 case "dcmIanDelay":
                     arcAE.setIanDelay(Duration.valueOf(reader.stringValue()));

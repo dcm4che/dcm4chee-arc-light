@@ -119,6 +119,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String outgoingPatientUpdateTemplateURI;
     private volatile String[] mppsForwardDestinations = {};
     private volatile String[] ianDestinations = {};
+    private volatile String[] ianWebApps = {};
     private volatile Duration ianDelay;
     private volatile Duration ianTimeout;
     private volatile boolean ianOnTimeout;
@@ -775,6 +776,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setIanDestinations(String... ianDestinations) {
         this.ianDestinations = ianDestinations;
+    }
+
+    public String[] getIanWebApps() {
+        return ianWebApps;
+    }
+
+    public void setIanWebApps(String[] ianWebApps) {
+        this.ianWebApps = ianWebApps;
     }
 
     public Duration getIanDelay() {
@@ -3078,6 +3087,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
         ianDestinations = arcdev.ianDestinations;
+        ianWebApps = arcdev.ianWebApps;
         ianDelay = arcdev.ianDelay;
         ianTimeout = arcdev.ianTimeout;
         ianOnTimeout = arcdev.ianOnTimeout;
