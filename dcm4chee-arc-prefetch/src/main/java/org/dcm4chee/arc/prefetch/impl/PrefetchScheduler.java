@@ -171,6 +171,7 @@ public class PrefetchScheduler {
         if (!keys.contains(Tag.StudyDate))
             keys.setNull(Tag.StudyDate, VR.DA);
         keys.setNull(Tag.StudyInstanceUID, VR.UI);
+        keys.setNull(Tag.NumberOfStudyRelatedInstances, VR.IS);
         ApplicationEntity localAE = arcdev.getDevice().getApplicationEntity(rule.getAETitle(), true);
         List<Attributes> matches = findSCU.find(localAE, rule.getPrefetchCFindSCP(),
                 EnumSet.of(QueryOption.DATETIME), Priority.NORMAL, keys);
@@ -181,8 +182,19 @@ public class PrefetchScheduler {
             } while (matches.size() > numberOfPriors);
         }
         for (Attributes match : matches) {
-            createRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
+            if (rule.getDestinationCFindSCP() == null
+                    || !isAvailableAt(match, localAE, rule.getDestinationCFindSCP()))
+                createRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
         }
+    }
+
+    private boolean isAvailableAt(Attributes match, ApplicationEntity localAE, String destinationCFindSCP)
+            throws Exception {
+        List<Attributes> matches = findSCU.findStudy(localAE, destinationCFindSCP, Priority.NORMAL,
+                match.getString(Tag.StudyInstanceUID), Tag.NumberOfStudyRelatedInstances);
+        return !matches.isEmpty()
+                && matches.get(0).getInt(Tag.NumberOfStudyRelatedInstances, 0)
+                    >= match.getInt(Tag.NumberOfStudyRelatedInstances, 0);
     }
 
     private void createRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
