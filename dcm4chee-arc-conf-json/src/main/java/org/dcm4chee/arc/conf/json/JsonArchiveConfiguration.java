@@ -646,6 +646,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmPrefetchCFindSCP", rule.getPrefetchCFindSCP(), null);
             writer.writeNotNullOrDef("dcmPrefetchCMoveSCP", rule.getPrefetchCMoveSCP(), null);
             writer.writeNotEmpty("dcmPrefetchCStoreSCP", rule.getPrefetchCStoreSCPs());
+            writer.writeNotNullOrDef("dcmDestinationCFindSCP", rule.getDestinationCFindSCP(), null);
             writer.writeNotNullOrDef("dicomDeviceName", rule.getPrefetchDeviceName(), null);
             writer.writeNotDef("dcmPrefetchPriority", rule.getPriority(), 4);
             writer.writeNotEmpty("dcmProperty", rule.getConditions().getMap());
@@ -2524,6 +2525,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmPrefetchCStoreSCP":
                         rule.setPrefetchCStoreSCPs(reader.stringArray());
+                        break;
+                    case "dcmDestinationCFindSCP":
+                        rule.setDestinationCFindSCP(reader.stringValue());
                         break;
                     case "dicomDeviceName":
                         rule.setPrefetchDeviceName(reader.stringValue());
