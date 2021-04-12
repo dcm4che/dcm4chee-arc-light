@@ -66,6 +66,8 @@ public class HL7PrefetchRule {
 
     private String[] prefetchCStoreSCPs = {};
 
+    private String destinationCFindSCP;
+
     private String prefetchDeviceName;
 
     private int priority = Message.DEFAULT_PRIORITY;
@@ -141,6 +143,14 @@ public class HL7PrefetchRule {
 
     public void setPrefetchCStoreSCPs(String... prefetchCStoreSCPs) {
         this.prefetchCStoreSCPs = prefetchCStoreSCPs;
+    }
+
+    public String getDestinationCFindSCP() {
+        return destinationCFindSCP;
+    }
+
+    public void setDestinationCFindSCP(String destinationCFindSCP) {
+        this.destinationCFindSCP = destinationCFindSCP;
     }
 
     public HL7Conditions getConditions() {
@@ -254,6 +264,7 @@ public class HL7PrefetchRule {
                 ", findSCP=" + prefetchCFindSCP +
                 ", moveSCP=" + prefetchCMoveSCP +
                 ", storeSCPs=" + Arrays.toString(prefetchCStoreSCPs) +
+                ", destFindSCP=" + destinationCFindSCP +
                 ", prefetchDeviceName=" + prefetchDeviceName +
                 ", conditions=" + conditions +
                 ", priority=" + priority +
