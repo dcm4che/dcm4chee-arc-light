@@ -963,7 +963,8 @@
               "type": "array",
               "items": {
                 "type": "string"
-              },
+              }
+            },
             "dicomDeviceName": {
               "type": "string"
             },
