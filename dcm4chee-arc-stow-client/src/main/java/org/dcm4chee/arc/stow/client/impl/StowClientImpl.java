@@ -99,7 +99,7 @@ public class StowClientImpl implements StowClient {
             ResteasyWebTarget target = client.target(url)
                     .setChunked(Boolean.parseBoolean(props.get("chunked")));
             String authorization = webApp.getKeycloakClientID() != null
-                    ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp)
+                    ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
                     : props.containsKey("bearer-token")
                     ? "Bearer " + props.get("bearer-token")
                     : props.containsKey("basic-auth")
