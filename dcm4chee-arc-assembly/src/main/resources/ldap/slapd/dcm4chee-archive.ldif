@@ -1967,7 +1967,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.403 NAME 'dcmPrefetchInAdvance'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.404 NAME 'dcmDestinationCFindSCP'
-  DESC 'AE Title of C-FIND SCP which is queried for Studies matching the specified Entity Selector.'
+  DESC 'Suppress retrieve of selected Studies from Prefetch C-Move SCP which are (already) available at specified Destination C-FIND SCP with equal or more Number of Study Related Instances as returned by Prefetch C-FIND SCP. Retrieve all selected Studies if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
