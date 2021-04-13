@@ -3379,6 +3379,13 @@
           <context context-type="linenumber">7</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mpps" datatype="html">
+          <source>MPPS</source>
+          <context-group purpose="location">
+            <context context-type="sourcefile">src/app/study/study-tab.component.ts</context>
+            <context context-type="linenumber">8</context>
+          </context-group>
+      </trans-unit>
       <trans-unit id="close_more_block" datatype="html">
         <source>Close More Block<x id="START_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;i&gt;"/><x id="CLOSE_ITALIC_TEXT" ctype="x-i" equiv-text="&lt;/i&gt;"/></source>
         <context-group purpose="location">

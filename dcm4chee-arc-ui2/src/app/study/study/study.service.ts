@@ -267,6 +267,12 @@ export class StudyService {
                             ...Globalvar.MWL_FILTER_SCHEMA(true)
                         ];
                         break;
+                    case "mpps":
+                        return [
+                            ...Globalvar.MPPS_FILTER_SCHEMA(false),
+                            ...Globalvar.MPPS_FILTER_SCHEMA(true)
+                        ];
+                       break;
                     case "uwl":
                         return [
                             ...Globalvar.UWL_FILTER_SCHEMA(false),
@@ -311,6 +317,10 @@ export class StudyService {
                 break;
             case "mwl":
                 schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
+                lineLength = filterMode === "expand" ? 1 : 3;
+                break;
+            case "mpps":
+                schema = Globalvar.MPPS_FILTER_SCHEMA( filterMode === "expand");
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "uwl":
@@ -387,7 +397,7 @@ export class StudyService {
                 tag: "button",
                 id: "submit",
                 text: $localize `:@@SUBMIT:SUBMIT`,
-                description: tab === "diff" ? $localize `:@@study.show_diffs:Show DIFFs` : $localize `:@@query_studies:Query Studies`
+                description: this.getSubmitText(tab)
             });
             if(tab != "diff" && tab != "uwl"){
                 schema.push({
@@ -434,6 +444,22 @@ export class StudyService {
         }
     }
 
+    getSubmitText(tab: DicomMode) {
+        switch (tab) {
+            case "study":
+                return $localize `:@@query_studies:Query Studies`;
+            case "patient":
+                return $localize `:@@query_patients:Query Patients`;
+            case "mwl":
+                return $localize `:@@query_mwl:Query MWL`;
+            case "mpps":
+                return $localize `:@@query_mpps:Query MPPS`;
+            case "uwl":
+                return $localize `:@@query_uwl:Query UWL`;
+            case "diff":
+                return $localize `:@@study.show_diffs:Show DIFFs`;
+        }
+    }
 
     getMWL(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header: HttpHeaders;
@@ -445,6 +471,22 @@ export class StudyService {
 
         return this.$http.get(
             `${this.getDicomURL("mwl", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        )
+    }
+
+    getMPPS(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("mpps", dcmWebApp, responseType)}${params || ''}`,
             header,
             false,
             dcmWebApp
@@ -732,6 +774,9 @@ export class StudyService {
                             break;
                         case "mwl":
                             url += '/mwlitems';
+                            break;
+                        case "mpps":
+                            url += '/mpps';
                             break;
                         case "uwl":
                             url += '/workitems';
@@ -1315,6 +1360,9 @@ export class StudyService {
                                     case "mwl":
                                         e.showMwls = !e.showMwls;
                                         break;
+                                    case "mpps":
+                                        e.showMpps = !e.showMpps;
+                                        break;
                                     case "diff":
                                         e.showDiffs = !e.showDiffs;
                                         break;
@@ -1334,10 +1382,16 @@ export class StudyService {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
                                         msg = "MWLs";
+                                        break;
+                                    case "mpps":
+                                        msg = "MPPSs";
+                                        break;
                                     case "diff":
                                         msg = "DIFFs";
+                                        break;
                                     case "uwl":
                                         msg = "UWLs";
+                                        break;
                                 }
                                 return string[0] + msg;
                             })`Hide ${''}`,
@@ -1345,6 +1399,8 @@ export class StudyService {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
                                         return e.showMwls;
+                                    case "mpps":
+                                        return e.showMpps;
                                     case "diff":
                                         return e.showDiffs;
                                     case "uwl":
@@ -1366,6 +1422,9 @@ export class StudyService {
                                     case "mwl":
                                         e.showMwls = !e.showMwls;
                                         break;
+                                    case "mpps":
+                                        e.showMpps = !e.showMpps;
+                                        break;
                                     case "diff":
                                         e.showDiffs = !e.showDiffs;
                                         break;
@@ -1386,10 +1445,16 @@ export class StudyService {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
                                         msg = "MWLs";
+                                        break;
+                                    case "mpps":
+                                        msg = "MPPSs";
+                                        break;
                                     case "diff":
                                         msg = "DIFFs";
+                                        break;
                                     case "uwl":
                                         msg = "UWLs";
+                                        break;
                                 }
                                 return string[0] + msg;
                             })`Show ${''}`
@@ -1398,6 +1463,8 @@ export class StudyService {
                                 switch (options.studyConfig.tab) {
                                     case "mwl":
                                         return !e.showMwls;
+                                    case "mpps":
+                                        return !e.showMpps;
                                     case "diff":
                                         return !e.showDiffs;
                                     case "uwl":
@@ -1413,10 +1480,16 @@ export class StudyService {
                         switch (options.studyConfig.tab) {
                             case "mwl":
                                 msg = "MWLs";
+                                break;
+                            case "mpps":
+                                msg = "MPPSs";
+                                break;
                             case "diff":
                                 msg = "DIFFs";
+                                break;
                             case "uwl":
                                 msg = "UWLs";
+                                break;
                         }
                         return string[0] + msg;
                     })`Toggle ${''}`,
@@ -2723,6 +2796,115 @@ export class StudyService {
                     header: $localize `:@@study.ss_aet:SS AET`,
                     pathToValue: "00400100.Value[0].00400001.Value",
                     headerDescription: $localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`,
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%"
+                })
+            ],
+            mpps:[
+                new TableSchemaElement({
+                    type: "index",
+                    header: '',
+                    pathToValue: '',
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "actions",
+                    header: "",
+                    actions: [
+                        {
+                            icon: {
+                                tag: 'span',
+                                cssClass: 'glyphicon glyphicon-th-list',
+                                text: ''
+                            },
+                            click: (e) => {
+                                console.log("e", e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title: $localize `:@@study.show_attributes:Show attributes`
+                        }
+                    ],
+                    headerDescription: $localize `:@@actions:Actions`,
+                    pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.pps_id:PPS ID`,
+                    pathToValue: "00400253.Value[0]",
+                    headerDescription: $localize `:@@study.performed_procedure_step_id:Performed Procedure Step ID`,
+                    widthWeight: 2,
+                    calculatedWidth: "20%",
+                    cssClass:"border-left"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study_instance_uid:Study Instance UID`,
+                    pathToValue: "00400270.Value[0].0020000D.Value[0]",
+                    headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.pps_start_date:PPS Start Date`,
+                    pathToValue: "00400244.Value[0]",
+                    headerDescription: $localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.pps_start_time:PPS Start Time`,
+                    pathToValue: "00400245.Value[0]",
+                    headerDescription: $localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.pps_end_date:PPS End Date`,
+                    pathToValue: "00400250.Value[0]",
+                    headerDescription: $localize `:@@study.performed_procedure_step_end_date:Performed Procedure Step End Date`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.pps_end_time:PPS End Time`,
+                    pathToValue: "00400251.Value[0]",
+                    headerDescription: $localize `:@@study.performed_procedure_step_end_time:Performed Procedure Step End Time`,
+                    widthWeight: 1,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@accession_number:Accession Number`,
+                    pathToValue: "00400270.Value[0].00080050.Value[0]",
+                    headerDescription: $localize `:@@accession_number:Accession Number`,
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
+                    pathToValue: "00400270.Value[0].00401001.Value[0]",
+                    headerDescription: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
+                    widthWeight: 2,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header:  $localize `:@@study.sps_desc:SPS Description`,
+                    pathToValue: "00400270.Value[0].00400007.Value[0]",
+                    headerDescription: $localize `:@@study.scheduled_procedure_step_description:Scheduled Procedure Step Description`,
+                    widthWeight: 3,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@study.ss_aet:PS AET`,
+                    pathToValue: "00400241.Value[0]",
+                    headerDescription: $localize `:@@performed_station_ae_title:Performed Station AE Title`,
                     widthWeight: 1.5,
                     calculatedWidth: "20%"
                 })

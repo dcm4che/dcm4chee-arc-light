@@ -149,7 +149,7 @@ export interface FilterSchemaElement {
 
 
 
-export type DicomMode = "study" | "patient" | "mwl" | "uwl" | "diff" | "export";
+export type DicomMode = "study" | "patient" | "mwl" | "mpps" | "uwl" | "diff" | "export";
 export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
 export type AccessLocation = "internal" | "external";
 export type PaginationDirection = "prev" | "next";

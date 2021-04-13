@@ -472,6 +472,67 @@
             </div>
         </div>
         <!--uwl 2:END;-->
+        <!--mpps 2:-->
+        <div *ngIf="patient.showMpps" class="study_main_block">
+            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let mpps of patient.mpps;let i = index">
+                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mpps'" [ngClass]="{'selected':mpps.selected}">
+                    <div class="td"
+                         *ngFor="let mpps_table of tableSchema.mpps"
+                         [ngClass]="[config?.cssTdClass || '', mpps_table.type || '']"
+                         [ngStyle]="{width: mpps_table.calculatedWidth}"
+                         [ngSwitch]="mpps_table.type"
+                         (mouseenter)="active_td = mpps_table.elementId"
+                         tooltip="{{ mpps_table.type === 'value'
+                                        ? _.get(mpps.attrs, mpps_table.pathToValue)
+                                        : (mpps_table.type === 'pipe'
+                                            ? (mpps.attrs | dynamicPipe:mpps_table.pipe):'')}}"
+                    >
+                        <ng-container *ngSwitchCase="'index'">{{mpps.offset + 1}}</ng-container>
+                        <ng-container *ngSwitchCase="'actions'">
+                            <ng-container *ngFor="let action of mpps_table.actions">
+                                <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
+                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                </a>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'actions-menu'">
+                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                            <mat-menu #menu="matMenu" class="mpps_action_buttons" (click)="$event.stopPropagation()">
+                                <ng-container *ngFor="let action of mpps_table.menu.actions">
+                                    <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
+                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                    </a>
+                                </ng-container>
+                            </mat-menu>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">{{mpps.attrs | dynamicPipe:mpps_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'value'">{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}</ng-container>
+                    </div>
+                    <attribute-list *ngIf="mpps.showAttributes" [attrs]="mpps.attrs"></attribute-list>
+                </div>
+            </div>
+            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
+                <div class="instance_block table_item">
+                    <div class="td td_with_centered_child">
+                        <div class="centered_child">
+                            <button
+                                    title="Preview page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'prev')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                            <button
+                                    title="Next page of studies"
+                                    class="transparent_button"
+                                    (click)="paginationClick(patient, 'study', 'next')"
+                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--mpps 2:END;-->
         <!--diff 2:-->
         <div *ngIf="patient.showDiffs" class="study_main_block">
             <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let diff of patient.diffs;let i = index">

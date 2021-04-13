@@ -9,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
             <li [permission]="{id:'tab-study-mwl',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/study/mwl" routerLinkActive="active" i18n="@@mwl">MWL</a></li>
             <li [permission]="{id:'tab-study-uwl',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/study/uwl" routerLinkActive="active" i18n="@@uwl">UWL</a></li>
             <li [permission]="{id:'tab-study-diff',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/study/diff" routerLinkActive="active" i18n="@@navigation.tab.diffs">DIFFs</a></li>
+            <li [permission]="{id:'tab-study-mpps',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/study/mpps" routerLinkActive="active" i18n="@@mpps">MPPS</a></li>
         </ul>
     `
 })

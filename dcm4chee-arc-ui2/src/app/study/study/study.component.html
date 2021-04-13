@@ -16,7 +16,11 @@
           </div>
         </ng-container>
   </div>
-      <div class="filter_line more_function_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl') || (studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl'))) || (studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl')))">
+      <div class="filter_line more_function_block" *ngIf="(studyConfig && (studyConfig.tab != 'mwl' && studyConfig.tab != 'mpps'))
+                        || (studyWebService && studyWebService.selectedWebService
+                            && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))
+                        || (studyWebService && studyWebService.selectedWebService
+                            && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))">
         <div class="filter single_block">
           <div class="filter_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl')">
             <div class="line">
@@ -36,7 +40,7 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff')))"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff'))"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
@@ -48,7 +52,7 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl'))"
+                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down

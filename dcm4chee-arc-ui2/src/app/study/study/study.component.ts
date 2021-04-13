@@ -57,6 +57,7 @@ import {UploadDicomComponent} from "../../widgets/dialogs/upload-dicom/upload-di
 import {SelectionActionElement} from "./selection-action-element.models";
 import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-transferring-overview/study-transferring-overview.component";
 import {MwlDicom} from "../../models/mwl-dicom";
+import {MppsDicom} from "../../models/mpps-dicom";
 import {ChangeDetectorRef} from "@angular/core";
 import {Observable} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
@@ -222,6 +223,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         "study":false,
         "patient":false,
         "mwl":false,
+        "mpps":false,
         "uwl":false,
         "diff":false,
         "export":false
@@ -295,6 +297,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     case "mwl":
                         this.currentWebAppClass = "MWL_RS";
                         break;
+                    case "mpps":
+                        this.currentWebAppClass = "MPPS_RS";
+                        break;
                     case "uwl":
                         this.currentWebAppClass = "UPS_RS";
                         break;
@@ -366,7 +371,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             "patient": $localize `:@@patients:Patients`,
             "mwl": $localize `:@@mwl:MWL`,
             "uwl": $localize `:@@uwl:UWL`,
-            "diff": $localize `:@@study.difference:Difference`
+            "diff": $localize `:@@study.difference:Difference`,
+            "mpps": $localize `:@@mpps:MPPS`
         }[tab] || $localize `:@@studies:Studies`;
     };
 
@@ -1772,6 +1778,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "mwl":
                 this.getMWL(filterModel);
                 break;
+            case "mpps":
+                this.getMPPS(filterModel);
+                break;
             case "uwl":
                 this.getUWL(filterModel);
                 break;
@@ -2034,6 +2043,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return this.service.getUWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "mwl":
                 return this.service.getMWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
+            case "mpps":
+                return this.service.getMPPS(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "patient":
                 return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             default:
@@ -2095,6 +2106,60 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         );
     };
+
+    getMPPS(filterModel){
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+        if(this.studyConfig.tab === "mpps" && !_.hasIn(filterModel,"includefield")){
+            filterModel["includefield"] = "all";
+        }
+        this.service.getMPPS(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
+                this.patients = [];
+                this.patients = [];
+                this._filter.filterModel.offset = filterModel.offset;
+                if (res){
+                    this.setTopToTableHeader();
+                    let patient: PatientDicom;
+                    let mpps: MppsDicom;
+                    let patAttrs;
+                    let tags = this.patientAttributes.dcmTag;
+                    res.forEach((mppsAttrs, index) => {
+                        patAttrs = {};
+                        this.service.extractAttrs(mppsAttrs, tags, patAttrs);
+                        if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            patient = new PatientDicom(patAttrs, [], false, true, 0,
+                                undefined, false, undefined, false, undefined, false,
+                                [], true);
+                            this.patients.push(patient);
+                        }
+                        mpps = new MppsDicom(
+                            mppsAttrs,
+                            patient,
+                            this._filter.filterModel.offset + index
+                        );
+                        patient.mpps.push(mpps);
+                    });
+
+                    if (this.more == (res.length > this._filter.filterModel.limit)) {
+                        patient.mpps.pop();
+                        if (patient.mpps.length === 0) {
+                            this.patients.pop();
+                        }
+                    }
+                    console.log("patient",this.patients);
+                } else {
+                    this.appService.showMsg($localize `:@@study.no_matching_mpps:No matching Modality Performed Procedure Step entries found!`);
+                }
+                this.cfpLoadingBar.complete();
+            },
+            (err) => {
+                j4care.log("Something went wrong on search", err);
+                this.cfpLoadingBar.complete();
+                this.httpErrorHandler.handleError(err);
+            }
+        );
+    };
+
     getUWL(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";

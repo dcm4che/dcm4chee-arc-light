@@ -40,6 +40,7 @@ export class DicomStudiesTableComponent implements OnInit {
         value.series = j4care.calculateWidthOfTable(value.series);
         value.instance = j4care.calculateWidthOfTable(value.instance);
         value.mwl = j4care.calculateWidthOfTable(value.mwl);
+        value.mpps = j4care.calculateWidthOfTable(value.mpps);
         value.uwl = j4care.calculateWidthOfTable(value.uwl);
         value.diff = j4care.calculateWidthOfTable(value.diff);
         this._tableSchema = value;

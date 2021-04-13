@@ -11,6 +11,7 @@ export interface DicomTableSchema{
     series:TableSchemaElement[];
     instance:TableSchemaElement[];
     mwl?:TableSchemaElement[];
+    mpps?:TableSchemaElement[];
     uwl?:TableSchemaElement[];
     diff?:TableSchemaElement[];
 }

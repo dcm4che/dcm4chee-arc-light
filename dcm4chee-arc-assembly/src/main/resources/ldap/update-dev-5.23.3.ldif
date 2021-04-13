@@ -9,3 +9,13 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 changetype: modify
 add: dcmWadoSupportedSRClasses
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.76
+
+dn: dcmuiPermissionName=Tab - Study - Mpps,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Mpps
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-mpps

@@ -130,19 +130,19 @@ export class Globalvar {
             }
         ]
     }
-    public static get ORDERBY(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'diff'),title:string}>{
+    public static get ORDERBY(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'mpps'|'diff'),title:string}>{
         return [
             {
                 value: 'PatientName',
                 label: $localize `:@@orderby.patient_alph:<label class="order_label">Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@globalvar.query_patients:Query Patients`
+                title:$localize `:@@query_patients:Query Patients`
             },
             {
                 value: '-PatientName',
                 label: $localize `:@@orderby.patient:name_desc:<label class="order_label">Patient</label><span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@globalvar.query_patients:Query Patients`
+                title:$localize `:@@query_patients:Query Patients`
             },
             {
 
@@ -185,60 +185,96 @@ export class Globalvar {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby.mwl_asc:<label class="order_label">MWL</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby.mwl_desc:<label class="order_label">MWL</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby.mwl_alph_asc:<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby.mwl_desc_asc:<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby.mwl_alph_desc:<label class="order_label">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: $localize `:@@orderby.mlw_namedsc_date_dsc:<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
+                label: $localize `:@@orderby.mwl_namedsc_date_dsc:<label class="order_label">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: '',
                 label: $localize `:@@orderby.diff:<label class="order_label">Diff </label><i class="material-icons">compare_arrows</i>`,
                 mode: 'diff',
                 title:$localize `:@@globalvar.make_diff_between_two_archives:Make diff between two archives`
+            },
+            {
+                value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_asc:<label class="order_label">MPPS</label></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_desc:<label class="order_label">MPPS</label><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_alph_asc:<label class="order_label">MPPS</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: '-PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_desc_asc:<label class="order_label">MPPS</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_alph_desc:<label class="order_label">MPPS</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: '-PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby.mpps_namedsc_date_dsc:<label class="order_label">MPPS</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
             }
         ];
 
     }
-    public static get ORDERBY_NEW(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'diff'),title:string}>{
+    public static get ORDERBY_NEW(): Array<{value:string,label:any,mode:('patient'|'study'|'mwl'|'mpps'|'diff'),title:string}>{
         return [
             {
                 value: 'PatientName',
                 label: $localize `:@@orderby_new.order_a_z:<label class="order_label">Order A-Z</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@globalvar.query_patients:Query Patients`
+                title:$localize `:@@query_patients:Query Patients`
             },
             {
                 value: '-PatientName',
                 label: $localize `:@@orderby_new.z_a:<label class="order_label">Z-A</label><span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@globalvar.query_patients:Query Patients`
+                title:$localize `:@@query_patients:Query Patients`
             },
             {
 
@@ -281,37 +317,73 @@ export class Globalvar {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
             },
             {
                 value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@globalvar.query_mwl:Query MWL`
+                title:$localize `:@@query_mwl:Query MWL`
+            },
+            {
+                value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: '-PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: 'PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
+            },
+            {
+                value: '-PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
+                label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
+                mode: 'mpps',
+                title:$localize `:@@query_mpps:Query MPPS`
             }
         ];
 
@@ -795,6 +867,9 @@ export class Globalvar {
             "/study/mwl":{
                 permissionsAction:"tab-study-mwl"
             },
+            "/study/mpps":{
+                permissionsAction:"tab-study-mpps"
+            },
             "/study/uwl":{
                 permissionsAction:"tab-study-uwl"
             },
@@ -986,6 +1061,116 @@ export class Globalvar {
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                     description:$localize `:@@sps_start_time:SPS Start Time`,
                     placeholder:$localize `:@@scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`
+                }
+            ]
+        }
+    }
+
+    static MPPS_FILTER_SCHEMA(hidden?):FilterSchema{
+        if(hidden){
+            return [
+
+            ]
+        }else{
+            return [
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientName",
+                    placeholder:$localize `:@@patient_family_name:Patient family name`,
+                    description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
+                }, {
+                    tag:"checkbox",
+                    filterKey:"fuzzymatching",
+                    text:$localize `:@@fuzzy_matching:Fuzzy Matching`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"PatientID",
+                    description:$localize `:@@patient_id:Patient ID`,
+                    placeholder:$localize `:@@patient_id:Patient ID`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"IssuerOfPatientID",
+                    description:$localize `:@@issuer_of_patient:Issuer of Patient`,
+                    placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                }, {
+                    tag:"select",
+                    options:[
+                        new SelectDropdown("F",$localize `:@@female:Female`),
+                        new SelectDropdown("M",$localize `:@@male:Male`),
+                        new SelectDropdown("O",$localize `:@@other:Other`)
+                    ],
+                    showStar:true,
+                    filterKey:"PatientSex",
+                    description:$localize `:@@patients_sex:Patient's Sex`,
+                    placeholder:$localize `:@@patients_sex:Patient's Sex`
+                }, {
+                    tag:"p-calendar",
+                    filterKey:"PatientBirthDate",
+                    description:$localize `:@@birth_date:Birth Date`
+                }, {
+                    tag: "select",
+                    options: [
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                    ],
+                    showStar: true,
+                    filterKey: "patientVerificationStatus",
+                    description: $localize `:@@verification_status:Verification Status`,
+                    placeholder: $localize `:@@verification_status:Verification Status`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledStepAttributesSequence.AccessionNumber",
+                    description:$localize `:@@accession_number:Accession number`,
+                    placeholder:$localize `:@@accession_number:Accession number`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledStepAttributesSequence.IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                    description:$localize `:@@issuer_of_accession_number:Issuer of accession number`,
+                    placeholder:$localize `:@@issuer_of_accession_number:Issuer of accession number`
+                },{
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ScheduledStepAttributesSequence.StudyInstanceUID",
+                    description:$localize `:@@study_instance_uid:Study Instance UID`,
+                    placeholder:$localize `:@@study_instance_uid:Study Instance UID`
+                }, {
+                    tag:"input",
+                    type:"number",
+                    filterKey:"limit",
+                    description:$localize `:@@limit:Limit`,
+                    placeholder:$localize `:@@limit_of_mpps:Limit of MPPS`
+                },{
+                    tag:"select",
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStatus",
+                    options:[
+                        new SelectDropdown("IN PROGRESS",$localize `:@@IN_PROGRESS:IN PROGRESS`),
+                        new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
+                    ],
+                    showStar:true,
+                    description:$localize `:@@pps_status:Performed Procedure Step Status`,
+                    placeholder:$localize `:@@pps_status:Performed Procedure Step Status`
+                }, {
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"PerformedProcedureStepStartDate",
+                    description:$localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
+                    placeholder:$localize `:@@study.pps_start_date:PPS Start Date`,
+                    onlyDate:true
+                }, {
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"PerformedProcedureStepStartTime",
+                    description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
+                    placeholder:$localize `:@@study.pps_start_time:PPS Start Time`,
                 }
             ]
         }
