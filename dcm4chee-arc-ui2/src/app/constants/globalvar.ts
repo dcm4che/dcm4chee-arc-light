@@ -1263,13 +1263,13 @@ export class Globalvar {
                     filterKey:"00100021",
                     description:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
                     placeholder:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
-                },{
-                    tag:"range-picker",
-                    type:"text",
-                    filterKey:"00100030",
-                    onlyDate:true,
-                    description:$localize `:@@patients_birth_date:Patient's Birth Date`
-                },{
+                },
+                {
+                    tag:"p-calendar",
+                    filterKey:"PatientBirthDate",
+                    description:$localize `:@@birth_date:Birth Date`
+                },
+                {
                     tag:"select",
                     options:[
                         new SelectDropdown("F",$localize `:@@f:F`),
