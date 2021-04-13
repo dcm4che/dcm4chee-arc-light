@@ -79,6 +79,15 @@ public class MPPS {
 
     public enum Status {
         IN_PROGRESS, COMPLETED, DISCONTINUED;
+
+        public static Status fromString(String s) {
+            return Status.valueOf(s.replace(' ', '_'));
+        }
+
+        @Override
+        public String toString() {
+            return name().replace('_', ' ');
+        }
     }
 
     public static final String FIND_BY_PATIENT = "MPPS.findByPatient";
