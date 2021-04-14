@@ -184,10 +184,18 @@ public class QueryRS {
 
     @GET
     @NoCache
-    @Path("/patients/count")
+    @Path("/mwlitems")
+    @Produces("application/dicom+json,application/json")
+    public void searchForSPSJSON(@Suspended AsyncResponse ar) {
+        search(ar, Level.MWL, null, null, QIDO.MWL, false);
+    }
+
+    @GET
+    @NoCache
+    @Path("/mwlitems/count")
     @Produces("application/json")
-    public void countPatients(@Suspended AsyncResponse ar) {
-        search(ar, Level.PATIENT, null, null, QIDO.PATIENT, true);
+    public void countSPS(@Suspended AsyncResponse ar) {
+        search(ar, Level.MWL, null, null, QIDO.MWL, true);
     }
 
     @GET
@@ -254,6 +262,10 @@ public class QueryRS {
                 if (queryAttributes.isIncludeAll()) {
                     ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                     switch (level) {
+                        case MWL:
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.MWL).getSelection(false));
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
+                            break;
                         case IMAGE:
                             queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection(false));
                             break;
@@ -268,7 +280,8 @@ public class QueryRS {
                     keys.remove(Tag.TimezoneOffsetFromUTC);
                 }
             }
-            keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
+            if (level != Level.MWL)
+                keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
             if (studyInstanceUID != null)
                 keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
             if (seriesInstanceUID != null)
@@ -287,7 +300,7 @@ public class QueryRS {
             as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
             DimseRSP dimseRSP = findSCU.query(as, priority(), findSCU.coerceCFindRQ(as, keys),
                     !count && limit != null ? offset() + limit() : 0,
-                    1, splitStudyDateRange());
+                    1, level != Level.MWL ? splitStudyDateRange() : null);
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP, localAE)).build());
         } catch (IllegalStateException| ConfigurationException e) {
@@ -357,7 +370,8 @@ public class QueryRS {
         PATIENT(UID.PatientRootQueryRetrieveInformationModelFind),
         STUDY(UID.StudyRootQueryRetrieveInformationModelFind),
         SERIES(UID.StudyRootQueryRetrieveInformationModelFind),
-        IMAGE(UID.StudyRootQueryRetrieveInformationModelFind);
+        IMAGE(UID.StudyRootQueryRetrieveInformationModelFind),
+        MWL(UID.ModalityPerformedProcedureStep);
         final String cuid;
 
         Level(String cuid) {
