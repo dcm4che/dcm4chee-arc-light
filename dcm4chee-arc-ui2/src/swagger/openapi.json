@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.23.0"
+    "version": "5.23.3"
   },
   "servers": [
     {
@@ -545,6 +545,12 @@
     },
     "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{field}": {
       "$ref": "paths/iocm.json#/diff.studies.csv"
+    },
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems": {
+      "$ref": "paths/find.json#/mwlitems"
+    },
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems/count": {
+      "$ref": "paths/find.json#/mwlitems.count"
     },
     "/devices": {
       "$ref": "paths/config.json#/devices"

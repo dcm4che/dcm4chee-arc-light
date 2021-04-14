@@ -71,6 +71,15 @@
       "type": "string"
     }
   },
+  "mwlSCPPathParam": {
+    "name": "mwlscp",
+    "in": "path",
+    "description": "AE Title of MWL SCP",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "ianSCPPathParam": {
     "name": "ianscp",
     "in": "path",

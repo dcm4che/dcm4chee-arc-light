@@ -242,19 +242,7 @@
           "$ref": "../parameters.json#/filter"
         },
         {
-          "$ref": "../parameters.json#/includefield"
-        },
-        {
           "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/SplitStudyDateRange"
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
@@ -400,19 +388,7 @@
           "$ref": "../parameters.json#/filter"
         },
         {
-          "$ref": "../parameters.json#/includefield"
-        },
-        {
           "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/SplitStudyDateRange"
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
@@ -564,19 +540,10 @@
           "$ref": "../parameters.json#/filter"
         },
         {
-          "$ref": "../parameters.json#/includefield"
-        },
-        {
           "$ref": "../parameters.json#/fuzzymatching"
         },
         {
           "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/SplitStudyDateRange"
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
@@ -615,6 +582,107 @@
         },
         "502": {
           "description": "Connection Refused or Query of C-FIND SCP failed."
+        }
+      }
+    }
+  },
+  "mwlitems": {
+    "get": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Search for Scheduled Procedure Steps on MWL SCP",
+      "operationId": "SearchForSPSonMWLSCP",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/mwlSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/limit"
+        },
+        {
+          "$ref": "../parameters.json#/offset"
+        },
+        {
+          "$ref": "../parameters.json#/includedefaults"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsJSON"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or MWL SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection Refused or Query of MWL SCP failed."
+        }
+      }
+    }
+  },
+  "mwlitems.count": {
+    "get": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Count Scheduled Procedure Steps on MWL SCP",
+      "operationId": "CountSPSonMWLSCP",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/mwlSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "The search completed successfully, but there were zero results."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or MWL SCP with the specified Title."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection Refused or Query of MWL SCP failed."
         }
       }
     }
