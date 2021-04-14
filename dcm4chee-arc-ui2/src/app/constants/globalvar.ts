@@ -989,6 +989,15 @@ export class Globalvar {
                     description:$localize `:@@issuer_of_accession_number:Issuer of accession number`,
                     placeholder:$localize `:@@issuer_of_accession_number:Issuer of accession number`
                 },{
+                    tag:"select",
+                    filterKey:"includefield",
+                    options:[
+                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    ],
+                    description:$localize `:@@include_field:Include field`,
+                    placeholder:$localize `:@@include_field:Include field`,
+                },{
                     tag:"input",
                     type:"text",
                     filterKey:"AdmissionID",
@@ -1171,6 +1180,15 @@ export class Globalvar {
                     filterKey:"PerformedProcedureStepStartTime",
                     description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
                     placeholder:$localize `:@@study.pps_start_time:PPS Start Time`,
+                },{
+                    tag:"select",
+                    filterKey:"includefield",
+                    options:[
+                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    ],
+                    description:$localize `:@@include_field:Include field`,
+                    placeholder:$localize `:@@include_field:Include field`,
                 }
             ]
         }
@@ -1280,6 +1298,16 @@ export class Globalvar {
                     filterKey:"00100040",
                     description:$localize `:@@patients_sex:Patient's Sex`,
                     placeholder:$localize `:@@patients_sex:Patient's Sex`
+                },
+                {
+                    tag:"select",
+                    filterKey:"includefield",
+                    options:[
+                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    ],
+                    description:$localize `:@@include_field:Include field`,
+                    placeholder:$localize `:@@include_field:Include field`,
                 },
                 {
                     tag:"input",
@@ -2011,6 +2039,15 @@ export class Globalvar {
                     filterKey: "patientVerificationStatus",
                     description: $localize `:@@verification_status:Verification Status`,
                     placeholder: $localize `:@@verification_status:Verification Status`
+                },{
+                    tag:"select",
+                    filterKey:"includefield",
+                    options:[
+                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    ],
+                    description:$localize `:@@include_field:Include field`,
+                    placeholder:$localize `:@@include_field:Include field`,
                 }
             ]
         }
