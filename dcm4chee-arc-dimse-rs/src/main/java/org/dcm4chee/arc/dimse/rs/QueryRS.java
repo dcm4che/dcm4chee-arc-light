@@ -371,7 +371,7 @@ public class QueryRS {
         STUDY(UID.StudyRootQueryRetrieveInformationModelFind),
         SERIES(UID.StudyRootQueryRetrieveInformationModelFind),
         IMAGE(UID.StudyRootQueryRetrieveInformationModelFind),
-        MWL(UID.ModalityPerformedProcedureStep);
+        MWL(UID.ModalityWorklistInformationModelFind);
         final String cuid;
 
         Level(String cuid) {
