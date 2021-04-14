@@ -4,6 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {AppService} from "../../../app.service";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -33,7 +34,7 @@ export class UploadVendorComponent implements OnInit {
                 token = response.token;
             }
             let xmlHttpRequest = new XMLHttpRequest();
-            xmlHttpRequest.open('PUT', `../devices/${this._deviceName}/vendordata`, true);
+            xmlHttpRequest.open('PUT', `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this._deviceName}/vendordata`, true);
             xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
             if(!this.mainservice.global.notSecure) {
                 xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);

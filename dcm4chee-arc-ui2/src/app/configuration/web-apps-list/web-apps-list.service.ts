@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {FilterSchema, LocalLanguageObject, SelectDropdown} from "../../interfaces";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import * as _ from "lodash-es";
@@ -10,20 +10,21 @@ import {j4care} from "../../helpers/j4care.service";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {map} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
+import {AppService} from "../../app.service";
 
 
 @Injectable()
-export class WebAppsListService {
+export class WebAppsListService{
 
-    webAppsUrl = `../webapps`;
     constructor(
         private $http:J4careHttpService,
         private devicesService:DevicesService,
-        private aeListService:AeListService
+        private aeListService:AeListService,
+        private appService:AppService
     ) { }
 
     getWebApps(filter?:any){
-        return this.$http.get(`${this.webAppsUrl}/${j4care.param(filter)}`);
+        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}webapps/${j4care.param(filter)}`);
     }
 
     getServiceClasses = () => {

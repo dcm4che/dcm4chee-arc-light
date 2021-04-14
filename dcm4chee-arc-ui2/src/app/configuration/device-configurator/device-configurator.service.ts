@@ -227,7 +227,7 @@ export class DeviceConfiguratorService{
         console.log('this.device', this.device);
     }
     getDevice(devicename:string){
-        return this.$http.get('../devices/' + devicename)
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${devicename}`)
     }
     getSchema(schema){
         const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
@@ -363,7 +363,7 @@ export class DeviceConfiguratorService{
     updateDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
             this.saveLanguageDataToLocalStorageOnSave();
-            return this.$http.put('../devices/' + this.device.dicomDeviceName, this.device)
+            return this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this.device.dicomDeviceName}`, this.device)
                 //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
@@ -386,7 +386,7 @@ export class DeviceConfiguratorService{
 
     createDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
-            return this.$http.post('../devices/' + this.device.dicomDeviceName, this.device)
+            return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this.device.dicomDeviceName}`, this.device)
                 //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
@@ -716,7 +716,7 @@ export class DeviceConfiguratorService{
                                 deviceName: device.dicomDeviceName,
                                 description: m.description,
                                 order: (5 + newOrderSuffix),
-                                downloadUrl: `../devices/${device.dicomDeviceName}/vendordata`,
+                                downloadUrl: `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device.dicomDeviceName}/vendordata`,
                                 show: (this.defaultOpenBlock === 'attr')
                             });
                         }else{

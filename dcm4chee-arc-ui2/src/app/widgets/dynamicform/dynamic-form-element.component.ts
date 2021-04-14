@@ -98,11 +98,11 @@ export class DynamicFormElementComponent implements OnDestroy{
         if(!this.readOnlyMode) {
             let $this = this;
             this.confirm({
-                content: 'Are you sure you want to delete the vendor data of this device?'
+                content: $localize `:@@are_you_sure_you_want_to_delete_vendor:Are you sure you want to delete the vendor data of this device?`
             }).subscribe(result => {
                 if (result) {
                     console.log($localize `:@@dynamic-form-element.delete_file_form_device:delete file form device`, deviceName);
-                    $this.$http.delete(`../devices/${deviceName}/vendordata`).subscribe((res) => {
+                    $this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${deviceName}/vendordata`).subscribe((res) => {
                         console.log($localize `:@@dynamic-form-element.deleted_successfully:deleted successfully`);
                         /*                    var globalForm = $this.formcomp.getForm();
                                             var valueObject = globalForm.value;
@@ -200,7 +200,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         if(!this.readOnlyMode) {
             let $this = this;
             this.confirm({
-                content: 'Are you sure you want to remove this extension and all of its child objects?'
+                content: $localize `:@@are_you_sure_you_want_to_remove_extension:Are you sure you want to remove this extension and all of its child objects?`
             }).subscribe(result => {
                 if (result) {
                     $this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
@@ -249,7 +249,7 @@ export class DynamicFormElementComponent implements OnDestroy{
             let $this = this;
             let globalForm = this.formcomp.getForm();
             this.confirm({
-                content: 'Are you sure you want remove this part from device?'
+                content: $localize `:@@are_youe_sure_you_wat_to_remove_part:Are you sure you want to remove this part from device?`
             }).subscribe(ok => {
                 if(ok){
                     let toRemoveIndex;

@@ -123,7 +123,7 @@ export class CreateAeComponent implements OnInit{
                 $this.setReferencesFromDevice();
             }else{
                 $this.cfpLoadingBar.start();
-                $this.$http.get('../devices/' + this.selectedDevice)
+                $this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this.selectedDevice}`)
 
                     .subscribe((response) => {
                         $this.selctedDeviceObject = response;

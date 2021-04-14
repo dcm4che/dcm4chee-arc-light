@@ -8,6 +8,7 @@ import {DropdownList} from "../../../helpers/form/dropdown-list";
 import {SelectDropdown} from "../../../interfaces";
 import {Aet} from "../../../models/aet";
 import {DcmWebApp} from "../../../models/dcm-web-app";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
     selector: 'app-export',
@@ -153,7 +154,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
     getAes(){
         let $this = this;
         this.$http.get(
-            '../aes'
+            `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
         )
         // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
@@ -188,7 +189,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
     getStowWebApps(){
         let $this = this;
         this.$http.get(
-            '../webapps?dcmWebServiceClass=STOW_RS'
+            `${j4care.addLastSlash(this.mainservice.baseUrl)}webapps?dcmWebServiceClass=STOW_RS`
         ).subscribe((response) => {
                 $this.webapps = response;
                 this.stowWebAppsOption = this.webapps.map((webapp:DcmWebApp)=>{

@@ -124,7 +124,7 @@ export class AeListComponent implements OnInit{
     searchAes(e?){
         this.cfpLoadingBar.start();
         let $this = this;
-        this.$http.get(`../aes${j4care.param(this.filter)}`)
+        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}aes${j4care.param(this.filter)}`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
@@ -161,11 +161,11 @@ export class AeListComponent implements OnInit{
             });
         });
         let parameters: any = {
-            content: 'Select one AET:',
+            content: $localize `:@@select_one_aet:Select one AET:`,
             select: select,
             result: {select: this.aets[0].dicomAETitle},
             bodytext: 'Remote AET: <b>' + ae + '</b>',
-            saveButton: 'ECHO',
+            saveButton: $localize `:@@ECHO:ECHO`,
             cssClass: 'echodialog'
         };
         let $this = this;
@@ -193,11 +193,11 @@ export class AeListComponent implements OnInit{
     };
     deleteAE(device, ae){
         let parameters: any = {
-            content: `Are you sure you want to delete from <b>${device}</b> the AE: <b>${ae}</b>?`,
+            content: $localize `:@@are_you_sure_you_want_to_delete_from_device_aet:Are you sure you want to delete from <b>${device}</b> the AE: <b>${ae}</b>?`,
             input: {
                 name: 'deletedevice',
                 type: 'checkbox',
-                checkboxtext: 'Delete also the device <b>' + device + '</b>'
+                checkboxtext: $localize `:@@delete_also_the_device:Delete also the device <b>${device}</b>`
             },
             result: {input: false},
             saveButton: $localize `:@@DELETE:DELETE`,
@@ -209,10 +209,10 @@ export class AeListComponent implements OnInit{
             if (result){
                 console.log('in clearae', result);
                 if (result.input === true){
-                    $this.$http.delete('../devices/' + device).subscribe((res) => {
+                    $this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`).subscribe((res) => {
                             console.log('res', res);
                             $this.mainservice.showMsg($localize `:@@device_deleted_successfully:Device deleted successfully!`);
-                            $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
+                            $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
                                 $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 $this.searchAes();
                             }, (error) => {
@@ -224,7 +224,7 @@ export class AeListComponent implements OnInit{
                             $this.httpErrorHandler.handleError(err);
                         });
                 }else{
-                    $this.$http.get('../devices/' + device)
+                    $this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`)
                         // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
                             (res) => {
@@ -240,11 +240,11 @@ export class AeListComponent implements OnInit{
                                 });
                                 console.log('equal', _.isEqual(res, deviceObject));
                                 console.log('deviceObj', deviceObject);
-                                $this.$http.put('../devices/' + device, deviceObject)
+                                $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`, deviceObject)
                                     .subscribe((resdev) => {
                                             console.log('resdev', resdev);
                                             $this.mainservice.showMsg($localize `:@@ae_removed_from_device_successfully:Ae removed from device successfully!`);
-                                            $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
+                                            $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
                                                 $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                                 $this.searchAes();
                                             });
@@ -314,13 +314,13 @@ export class AeListComponent implements OnInit{
                         if (!re.newaetmodel.dicomDeviceName || re.newaetmodel.dicomDeviceName === ''){
                             re.newaetmodel.dicomDeviceName = re.newaetmodel.dicomNetworkAE[0].dicomAETitle.toLowerCase();
                         }
-                        $this.$http.post('../devices/' + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
+                        $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.newaetmodel.dicomDeviceName}`, re.newaetmodel, headers)
                             .subscribe( (devre) => {
                                     $this.mainservice.showMsg($localize `:@@device_with_the_aet_created_successfully:Device with the AET created successfully!`);
                                     if(re.selectedForAcceptedCallingAET && re.selectedForAcceptedCallingAET.length > 0){
                                         this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
                                     }else{
-                                        $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
+                                        $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}, headers).subscribe((res) => {
                                             $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                         });
                                     }
@@ -335,10 +335,10 @@ export class AeListComponent implements OnInit{
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
                         re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
-                        $this.$http.put('../devices/' + re.device.dicomDeviceName, re.device)
+                        $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.device.dicomDeviceName}`, re.device)
                             .subscribe((putresponse) => {
                                 $this.mainservice.showMsg($localize `:@@aet_added_to_device_successfully:Aet added to device successfully!`);
-                                $this.$http.post('../ctrl/reload', {}).subscribe((res) => {
+                                $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
                                     $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 });
                                 $this.searchAes();
@@ -404,7 +404,7 @@ export class AeListComponent implements OnInit{
                 });
                 this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
                     this.mainservice.showMsg($localize `:@@ae-list.set_as_accepted_aet:${newAet.dicomAETitle}:@@newAet: was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}:@@aets:`);
-                    this.$http.post('../ctrl/reload', {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
+                    this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
                         this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });
                 },err=>{

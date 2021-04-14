@@ -3,16 +3,18 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {FilterSchema, MetricsDescriptors, SelectDropdown} from "../../interfaces";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class MetricsService {
     url = {
-        METRICS_DESCRIPTORS: `../metrics`,
-        METRICS: (name) => `../metrics/${name}`
+        METRICS_DESCRIPTORS: `${j4care.addLastSlash(this.appService.baseUrl)}metrics`,
+        METRICS: (name) => `${j4care.addLastSlash(this.appService.baseUrl)}metrics/${name}`
     };
 
     constructor(
-        private $http:J4careHttpService
+        private $http:J4careHttpService,
+        private appService:AppService
     ) { }
 
     getMetricsDescriptors = ()=>this.$http.get(this.url.METRICS_DESCRIPTORS);

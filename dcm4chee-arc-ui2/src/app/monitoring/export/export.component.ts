@@ -300,9 +300,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(filter['scheduledTime']) {
                         clonedFilters['scheduledTime'] = filter['scheduledTime'];
                     }
-                    return `../aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
+                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
                 }else{
-                    return `../aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
                 }
             }
         };
@@ -719,7 +719,7 @@ export class ExportComponent implements OnInit, OnDestroy {
 
     initExporters(retries) {
         let $this = this;
-        this.$http.get('../export')
+        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}export`)
 
             .subscribe(
                 (res) => {

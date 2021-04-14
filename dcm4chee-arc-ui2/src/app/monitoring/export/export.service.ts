@@ -15,7 +15,7 @@ export class ExportService {
     }
 
     search(filters, offset, batch) {
-        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`);;
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`);;
     };
 
     getCount(filters) {
@@ -23,8 +23,7 @@ export class ExportService {
         delete filterClone.offset;
         delete filterClone.limit;
         delete filterClone.orderby;
-        return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.paramWithoutLimit(filterClone)))
-            ;
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/count?${this.mainservice.param(this.paramWithoutLimit(filterClone))}`);
     };
     paramWithoutLimit(filters){
         let clonedFilters = this.queryParams(filters,undefined);
@@ -54,35 +53,35 @@ export class ExportService {
         return clonedFilters;
     }
     cancel(pk){
-        return this.$http.post('../monitor/export/' + pk + '/cancel', {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/cancel`, {});
     }
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/export/cancel${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/cancel${urlParam}`, {}, this.header)
             ;
     }
     delete(pk){
-        return this.$http.delete('../monitor/export/' + pk);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}`);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../monitor/export${urlParam}`, this.header)
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export${urlParam}`, this.header)
             ;
     }
     reschedule(pk, exporterID, filter?){
         filter = filter || "";
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID + urlParam, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/reschedule/${exporterID + urlParam}`, {});
     }
 
     rescheduleAll(filter, exporterID){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         let exporter = exporterID? `/${exporterID}`:'';
-        return this.$http.post(`../monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
             ;
     }
     downloadCsv(filter){
@@ -90,7 +89,7 @@ export class ExportService {
         urlParam = urlParam?`?${urlParam}`:'';
         // let header = new Headers({ 'Content-Type': 'text/csv' });
         let header = new HttpHeaders({ 'Accept': 'text/csv' });
-        return this.$http.get(`/dcm4chee-arc/monitor/export${urlParam}`, header)
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}/monitor/export${urlParam}`, header)
     }
     getDevices(){
         return this.deviceService.getDevices()

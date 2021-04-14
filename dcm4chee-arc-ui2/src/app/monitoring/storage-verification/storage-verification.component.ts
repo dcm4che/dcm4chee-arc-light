@@ -70,7 +70,6 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       private aeListService:AeListService,
       private httpErrorHandler:HttpErrorHandler,
       private service:StorageVerificationService,
-      private $http:J4careHttpService,
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,

@@ -74,7 +74,6 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
       private appComponent:AppComponent,
-      private $http:J4careHttpService,
       private route: ActivatedRoute,
       public aeListService:AeListService,
       public service:RetrieveMonitoringService,
@@ -386,9 +385,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     if(filter['scheduledTime']) {
                         clonedFilters['scheduledTime'] = filter['scheduledTime'];
                     }
-                    return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
+                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
                 }else{
-                    return `../aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
+                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
                 }
             }
         };

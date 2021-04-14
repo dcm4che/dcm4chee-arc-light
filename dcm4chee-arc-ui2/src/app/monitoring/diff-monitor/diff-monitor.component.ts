@@ -70,7 +70,6 @@ export class DiffMonitorComponent implements OnInit {
         private cfpLoadingBar: LoadingBarService,
         private aeListService:AeListService,
         private httpErrorHandler:HttpErrorHandler,
-        private $http:J4careHttpService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public dialogConfig: MatDialogConfig,
@@ -451,10 +450,10 @@ export class DiffMonitorComponent implements OnInit {
                 delete filterClone['limit'];
                 if(!this.mainservice.global.notSecure){
                     // WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
-                    j4care.downloadFile(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"diff.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"diff.csv")
                 }else{
                     // WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
-                    j4care.downloadFile(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"diff.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"diff.csv")
                 }
             });
         })
@@ -559,7 +558,7 @@ export class DiffMonitorComponent implements OnInit {
                 if(filter['priority']) clonedFilters['priority'] = filter['priority'];
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
 
-                return `../aets/${filter.LocalAET}/dimse/${filter.PrimaryAET}/diff/${filter.SecondaryAET}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.PrimaryAET}/diff/${filter.SecondaryAET}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{

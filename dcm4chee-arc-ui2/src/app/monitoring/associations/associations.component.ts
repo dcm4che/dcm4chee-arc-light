@@ -76,7 +76,7 @@ export class AssociationsComponent implements OnDestroy{
             });
         }catch (e) {
             console.groupCollapsed("associations.component timeCalculator(data)");
-            console.log("this.appservices.serverTime=",this.appservices.serverTime);
+            console.log("this.appService.serverTime=",this.appservices.serverTime);
             console.log("data=",data);
             console.error(e);
             console.groupEnd();
@@ -85,7 +85,7 @@ export class AssociationsComponent implements OnDestroy{
     }
     abort(serialnr){
         this.cfpLoadingBar.start();
-        this.$http.delete('/dcm4chee-arc/monitor/associations/' + serialnr).subscribe(res => {
+        this.$http.delete(`${j4care.addLastSlash(this.appservices.baseUrl)}monitor/associations/${serialnr}`).subscribe(res => {
             this.cfpLoadingBar.complete();
             this.refresh();
         },(err)=>{
@@ -108,7 +108,7 @@ export class AssociationsComponent implements OnDestroy{
         this.cfpLoadingBar.start();
         // this.myValue = 10;
         // this.cfpLoadingBar.progress = this.cfpLoadingBar.progress + 10;
-        this.$http.get('/dcm4chee-arc/monitor/associations')
+        this.$http.get(`${j4care.addLastSlash(this.appservices.baseUrl)}monitor/associations`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe(res => {
                 if (res && res[0] && res[0] != ''){
@@ -134,7 +134,7 @@ export class AssociationsComponent implements OnDestroy{
     monitor(){
         // cfpLoadingBar.start();
         this.stopLoop = false;
-        this.$http.get('/dcm4chee-arc/monitor/associations')
+        this.$http.get(`${j4care.addLastSlash(this.appservices.baseUrl)}monitor/associations`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe(res => {
                 let data = res;
@@ -155,7 +155,7 @@ export class AssociationsComponent implements OnDestroy{
                 clearInterval(associationLoop);
             }else{
                 if(!this.pause){
-                    $that.$http.get('/dcm4chee-arc/monitor/associations')
+                    $that.$http.get(`${j4care.addLastSlash(this.appservices.baseUrl)}monitor/associations`)
                         // .map((res) => res.json())
                         .subscribe(
                             (res) => {

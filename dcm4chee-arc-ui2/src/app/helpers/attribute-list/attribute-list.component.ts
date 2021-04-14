@@ -8,6 +8,7 @@ import {J4careHttpService} from "../j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 import {StudyService} from "../../study/study/study.service";
+import {j4care} from "../j4care.service";
 declare var DCM4CHE: any;
 
 @Component({
@@ -41,7 +42,7 @@ export class AttributeListComponent implements OnInit {
             this.cfpLoadingBar.start();
             let url = "";
             if(this.aet){
-                url = '../aets/' +
+                url = `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/` +
                     this.aet +
                     '/rs/studies/' +
                     this.studyuid +

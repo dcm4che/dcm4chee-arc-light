@@ -532,10 +532,10 @@ export class StudyService {
         if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskPK") && _.get(filterModel,"taskPK") != "")){
             if(_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != ""){
                 batchID = _.get(filterModel,"batchID");
-                url = `../monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
+                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
             }else{
                 taskPK = _.get(filterModel,"taskPK");
-                url = `../monitor/diff/${taskPK}/studies${j4care.param(filterModel)}`
+                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskPK}/studies${j4care.param(filterModel)}`
             }
             delete filterModel["batchID"];
             delete filterModel["taskPK"];
@@ -548,7 +548,7 @@ export class StudyService {
         }else{
             return this.getWebAppFromWebServiceClassAndSelectedWebApp(studyWebService, "DCM4CHEE_ARC_AET_DIFF", "DCM4CHEE_ARC_AET_DIFF")
                 .pipe(map(webApp=>{
-                        return `${j4care.getUrlFromDcmWebApplication(webApp)}`;
+                        return `${j4care.getUrlFromDcmWebApplication(webApp, this.appService.baseUrl)}`;
                 })).pipe(switchMap(url=>{
                 return this.$http.get(
                     `${url}${j4care.param(filterModel) || ''}`,
@@ -766,7 +766,7 @@ export class StudyService {
         console.log("object", dcmWebApp);
         if(dcmWebApp){
             try {
-                let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
+                let url = j4care.getUrlFromDcmWebApplication(dcmWebApp, this.appService.baseUrl);
                 if(url){
                     switch (mode) {
                         case "patient":
@@ -818,7 +818,7 @@ export class StudyService {
         let arg = arguments;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "WADO_URI", "WADO_URI").pipe(map(webApp=>{
             let i,
-                url = `${j4care.getUrlFromDcmWebApplication(webApp)}?requestType=WADO`;
+                url = `${j4care.getUrlFromDcmWebApplication(webApp, this.appService.baseUrl)}?requestType=WADO`;
             for (i = 1; i < arg.length; i++) {
                 _.forEach(arg[i], (value, key) => {
                     url += '&' + key.replace(/^(_){1}(\w*)/, (match, p1, p2) => {
@@ -843,8 +843,8 @@ export class StudyService {
     private diffUrl(callingAet: Aet, firstExternalAet?: Aet, secondExternalAet?: Aet, baseUrl?: string) {
 
         return `${
-        baseUrl || '..'
-            }/aets/${
+        baseUrl ? j4care.addLastSlash(baseUrl) : j4care.addLastSlash(this.appService.baseUrl)
+            }aets/${
             callingAet.dicomAETitle
             }/dimse/${
             firstExternalAet.dicomAETitle
@@ -862,7 +862,7 @@ export class StudyService {
 
     getAttributeFilter(entity?: string, baseUrl?: string) {
         return this.$http.get(
-            `${baseUrl || '..'}/attribute-filter/${entity || "Patient"}`
+            `${baseUrl ? j4care.addLastSlash(baseUrl): j4care.addLastSlash(this.appService.baseUrl)}attribute-filter/${entity || "Patient"}`
         )
         .pipe(map(res => {
             if ((!entity || entity === "Patient") && res["dcmTag"]) {
@@ -873,7 +873,7 @@ export class StudyService {
         }));
     }
 
-    getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl || '..'}/attribute-set/DIFF_RS`);
+    getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl ? j4care.addLastSlash(baseUrl): j4care.addLastSlash(this.appService.baseUrl)}attribute-set/DIFF_RS`);
 
     getAets = () => this.aeListService.getAets();
 
@@ -887,10 +887,10 @@ export class StudyService {
     }
 
     queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
-        return this.$http.get(`${url || '..'}/pdq/${PDQServiceID}/patients/${patientID}`);
+        return this.$http.get(`${url ? j4care.addLastSlash(url) : j4care.addLastSlash(this.appService.baseUrl)}pdq/${PDQServiceID}/patients/${patientID}`);
     }
     queryNationalPatientRegister(patientID){
-        return this.$http.get(`../xroad/RR441/${patientID}`)
+        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}xroad/RR441/${patientID}`)
     }
 
     extractAttrs(attrs, tags, extracted) {
@@ -3913,12 +3913,12 @@ export class StudyService {
         return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`, {})
     }
 
-    getExporters = () => this.$http.get('../export');
+    getExporters = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}export`);
 
     deleteStudy = (studyInstanceUID: string, dcmWebApp: DcmWebApp, param) =>
         this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}${j4care.param(param)}`);
 
-    deleteRejectedInstances = (reject, params) => this.$http.delete(`../reject/${reject}${j4care.param(params)}`);
+    deleteRejectedInstances = (reject, params) => this.$http.delete(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${reject}${j4care.param(params)}`);
 
     rejectRestoreMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, rejectionCode: string) {
         return forkJoin(multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel != "patient")).map((element: SelectedDetailObject) => {
@@ -4071,9 +4071,9 @@ export class StudyService {
         }
     };
 
-    getQueueNames = () => this.$http.get('../queue');
+    getQueueNames = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
 
-    getRejectNotes = (params?: any) => this.$http.get(`../reject/${j4care.param(params)}`);
+    getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
 

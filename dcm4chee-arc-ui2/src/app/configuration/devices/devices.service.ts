@@ -8,6 +8,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dial
 import {HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
 import { loadTranslations } from '@angular/localize';
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class DevicesService {
@@ -17,7 +18,8 @@ export class DevicesService {
     constructor(
         private $http:J4careHttpService,
         public dialog: MatDialog,
-        public config: MatDialogConfig
+        public config: MatDialogConfig,
+        private appService: AppService
     ) { }
 
     removeEmptyFieldsFromExporter(exporter){
@@ -56,19 +58,19 @@ export class DevicesService {
         }
     }
     createDevice(deviceName, object){
-        return  this.$http.post(`../devices/${deviceName}`, object, this.headers)
+        return  this.$http.post(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${deviceName}`, object, this.headers)
     }
     saveDeviceChanges(deviceName, object){
-        return  this.$http.put(`../devices/${deviceName}`, object, this.headers)
+        return  this.$http.put(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${deviceName}`, object, this.headers)
     }
     getDevices(){
        return this.$http.get(
-            '../devices'
+            `${j4care.addLastSlash(this.appService.baseUrl)}devices`
         );
     }
     getDevice(deviceName){
        return this.$http.get(
-            `../devices/${deviceName}`
+            `${j4care.addLastSlash(this.appService.baseUrl)}devices/${deviceName}`
         );
     }
     generateNewTitle(oldTitle, nodes, titleName){
@@ -147,7 +149,7 @@ export class DevicesService {
                         [
                             {
                                 tag:"label",
-                                text:"Device"
+                                text:$localize `:@@device:Device`
                             },
                             {
                                 tag:"select",
@@ -165,7 +167,7 @@ export class DevicesService {
                         newDeviceName:''
                     }
                 },
-                saveButton: 'SUBMIT'
+                saveButton: $localize `:@@SUBMIT:SUBMIT`
             };
             if(addScheduleTime){
                 schema.form_schema[0].push([

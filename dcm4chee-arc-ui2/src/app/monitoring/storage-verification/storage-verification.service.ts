@@ -46,7 +46,7 @@ export class StorageVerificationService {
       ];
     }
     getSorageVerifications(filter, batch){
-      return this.$http.get(`../monitor/stgver${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
+      return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
           ;
     }
     getSorageVerificationsCount(filter) {
@@ -54,8 +54,7 @@ export class StorageVerificationService {
       delete filterClone.offset;
       delete filterClone.limit;
       delete filterClone.orderby;
-      return this.$http.get('../monitor/stgver/count' + '?' + this.mainservice.param(filterClone))
-          ;
+      return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/count?${this.mainservice.param(filterClone)}`);
     };
     getTableSchema($this, action){
       return [
@@ -378,34 +377,34 @@ export class StorageVerificationService {
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/stgver/cancel${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/cancel${urlParam}`, {}, this.header)
             ;
     }
-    cancel = (pk) => this.$http.post(`../monitor/stgver/${pk}/cancel`, {});
+    cancel = (pk) => this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}/cancel`, {});
 
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/stgver/reschedule${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/reschedule${urlParam}`, {}, this.header)
             ;
     }
     reschedule(pk, filters?){
         let urlParam = this.mainservice.param(filters);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/stgver/${pk}/reschedule${urlParam}`, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}/reschedule${urlParam}`, {});
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../monitor/stgver${urlParam}`, this.header)
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver${urlParam}`, this.header)
             ;
     }
 
-    delete = (pk)=> this.$http.delete('../monitor/stgver/' + pk);
+    delete = (pk)=> this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}`);
 
     getDevices = ()=> this.deviceService.getDevices();
 
-    scheduleStorageVerification  = (param, aet) => this.$http.post(`../aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
+    scheduleStorageVerification  = (param, aet) => this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
 
     getUniqueID = () => this.mainservice.getUniqueID();
 }

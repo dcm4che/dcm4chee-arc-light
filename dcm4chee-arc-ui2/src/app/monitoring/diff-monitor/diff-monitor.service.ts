@@ -418,42 +418,42 @@ export class DiffMonitorService {
     getDiffTask(filters, batchGrouped){
         let urlParam = this.mainservice.param(filters);
         urlParam = urlParam?`?${urlParam}`:'';
-        let url = `../monitor/diff${urlParam}`;
+        let url = `${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff${urlParam}`;
         if(batchGrouped)
-            url = `../monitor/diff/batch${urlParam}`;
+            url = `${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/batch${urlParam}`;
         return this.$http.get(url)
 
     }
     getDiffTasksCount(filters){
         let urlParam = this.mainservice.param(filters);
         urlParam = urlParam?`?${urlParam}`:'';
-        let url = `../monitor/diff/count${urlParam}`;
+        let url = `${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/count${urlParam}`;
         return this.$http.get(url)
     }
 
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/diff/cancel${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/cancel${urlParam}`, {}, this.header)
     }
     cancel(pk){
-        return this.$http.post(`../monitor/diff/${pk}/cancel`, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${pk}/cancel`, {});
     }
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/diff/reschedule${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/reschedule${urlParam}`, {}, this.header)
     }
     reschedule(pk, data){
-        return this.$http.post(`../monitor/diff/${pk}/reschedule`, data);
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${pk}/reschedule`, data);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../monitor/diff${urlParam}`, this.header)
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff${urlParam}`, this.header)
     }
     delete(pk){
-        return this.$http.delete('../monitor/diff/' + pk);
+        return this.$http.delete('${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/' + pk);
     }
 
 }

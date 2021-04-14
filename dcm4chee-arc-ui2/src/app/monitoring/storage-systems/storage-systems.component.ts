@@ -317,7 +317,7 @@ export class StorageSystemsComponent implements OnInit {
         });
     }
     getAets(){
-        this.$http.get('../aets')
+        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}aets`)
 
             .subscribe((response) => {
                 this.aets = j4care.extendAetObjectWithAlias(response);

@@ -16,15 +16,19 @@ import {TimeRange} from "./interfaces";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
+
     private _user: User;
     private userSubject = new Subject<User>();
     private secured = new Subject<boolean>();
     private serverTimeSubject = new Subject<Date>();
     private securedValue:boolean;
     private _global;
+
+    private _baseUrl:string = '../';
     extensionsMap;
     subscription: Subscription;
     keycloak;
+    private _dcm4cheeArcConfig;
     constructor(
         public $httpClient:HttpClient,
         private router: Router
@@ -49,6 +53,14 @@ export class AppService implements OnInit, OnDestroy{
     set serverTime(value: Date) {
         this._serverTime = value;
         this.serverTimeSubject.next(value);
+    }
+
+    get baseUrl(): string {
+        return this._baseUrl;
+    }
+
+    set baseUrl(value: string) {
+        this._baseUrl = value;
     }
 
     timeZone;
@@ -76,6 +88,13 @@ export class AppService implements OnInit, OnDestroy{
     setSecured(state:boolean){
         this.securedValue = state;
         this.secured.next(state);
+    }
+    get dcm4cheeArcConfig() {
+        return this._dcm4cheeArcConfig;
+    }
+
+    set dcm4cheeArcConfig(value) {
+        this._dcm4cheeArcConfig = value;
     }
 
     private _isRole = function(role){
@@ -239,7 +258,7 @@ export class AppService implements OnInit, OnDestroy{
     }
     param(filter){
         try{
-            let filterMaped = Object.keys(filter).map((key) => {
+            let filterMapped = Object.keys(filter).map((key) => {
                 if(_.isArray(filter[key])){
                         let multiParameter = [];
                         filter[key].forEach(p=>{
@@ -253,7 +272,7 @@ export class AppService implements OnInit, OnDestroy{
                     }
                 }
             });
-            let filterCleared = _.compact(filterMaped);
+            let filterCleared = _.compact(filterMapped);
             return filterCleared.join('&');
         }catch (e) {
             return "";
@@ -321,12 +340,12 @@ export class AppService implements OnInit, OnDestroy{
         }else{
             let deviceName;
             let archiveDeviceName;
-            return this.$httpClient.get('../devicename')
+            return this.getDcm4cheeArc()
                 .pipe(
                     switchMap(res => {
                         deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
                         archiveDeviceName = _.get(res,"dicomDeviceName");
-                        return this.$httpClient.get('../devices/' + deviceName)
+                        return this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`)
                     }),
                     map((res)=>{
                         try{
@@ -374,5 +393,23 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
 
+    getDcm4cheeArc(){
+        if(this._dcm4cheeArcConfig){
+            return of(this._dcm4cheeArcConfig);
+        }else{
+            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(map(dcm4cheeArc=>{
+                this._dcm4cheeArcConfig = dcm4cheeArc;
+                return dcm4cheeArc;
+            }));
+        }
+    }
+
+
+    testUrl(url){
+
+        this.$httpClient.get(url).subscribe(res=>{
+            console.log("res",res);
+        });
+    }
 }
 

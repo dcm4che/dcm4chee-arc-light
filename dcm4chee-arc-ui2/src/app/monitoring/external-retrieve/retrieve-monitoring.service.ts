@@ -18,7 +18,7 @@ export class RetrieveMonitoringService {
 
     getExternalRetrieveEntries(filter, offset, batch){
         filter.offset = (offset && offset != '') ? offset : 0;
-        return this.$http.get(`../monitor/retrieve${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
             ;
     };
     getCount(filter) {
@@ -26,39 +26,37 @@ export class RetrieveMonitoringService {
             delete filterClone.offset;
             delete filterClone.limit;
             delete filterClone.orderby;
-        return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
-            ;
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/count?${this.mainservice.param(filterClone)}`);
     };
     getExporters(){
-      return this.$http.get('../export')
-          ;
+      return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}export`);
     }
     delete(pk){
-        return this.$http.delete('../monitor/retrieve/' + pk);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}`);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../monitor/retrieve${urlParam}`, this.header)
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve${urlParam}`, this.header)
             ;
     }
     reschedule(pk, data){
-        return this.$http.post(`../monitor/retrieve/${pk}/reschedule${j4care.param(data)}`, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}/reschedule${j4care.param(data)}`, {});
     }
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/retrieve/reschedule${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/reschedule${urlParam}`, {}, this.header)
             ;
     }
     cancel(pk){
-        return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}/cancel`, {});
     }
 
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/retrieve/cancel${urlParam}`, {}, this.header)
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/cancel${urlParam}`, {}, this.header)
             ;
     }
     downloadCsv(filter){
@@ -66,7 +64,7 @@ export class RetrieveMonitoringService {
         urlParam = urlParam?`?${urlParam}`:'';
         // let header = new Headers({ 'Content-Type': 'text/csv' });
         let header = new HttpHeaders({ 'Accept': 'text/csv' });
-        return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve${urlParam}`, header)
     }
 
     statusValues(){
@@ -265,7 +263,7 @@ export class RetrieveMonitoringService {
     ];
     }
     getQueueNames(){
-        return this.$http.get('../queue');
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue`);
     }
     getDevices(){
         return this.deviceService.getDevices()

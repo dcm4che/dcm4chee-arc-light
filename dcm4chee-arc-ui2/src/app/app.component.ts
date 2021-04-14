@@ -105,6 +105,15 @@ export class AppComponent implements OnInit {
         },err=>{
             this.httpErrorHandler.handleError(err);
         });*/
+        this.mainservice.getDcm4cheeArc().subscribe(res=>{
+            if(_.hasIn(res, "dcm4chee-arc-urls[0]")){
+                this.mainservice.baseUrl = _.get(res, "dcm4chee-arc-urls[0]");
+            }
+            console.log("baseUrl=",this.mainservice.baseUrl);
+        },err=>{
+            console.log("Error on /dcm4chee-arc/ui2/rs/dcm4chee-arc",err);
+        });
+
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);
             this.init();
@@ -326,9 +335,10 @@ export class AppComponent implements OnInit {
         this.mainservice.createPatient({});
     }
 
+    testurl = "";
     onClick() {
         // this.dcm4che.elementName.forTag()
-        console.log('dcm4chetest', DCM4CHE.elementName.forTag('00000000'));
+/*        console.log('dcm4chetest', DCM4CHE.elementName.forTag('00000000'));
 
         this.msg.setMsg({
             'title': $localize `:@@warning:Warning`,
@@ -342,7 +352,8 @@ export class AppComponent implements OnInit {
                 'text': $localize `:@@app.info_message:Info message!`,
                 'status': 'info'
             });
-        }, 500);
+        }, 500);*/
+        this.mainservice.testUrl(this.testurl);
     }
     productLabelling(){
         // this.scrollToDialog();
@@ -427,6 +438,7 @@ export class AppComponent implements OnInit {
             this.mainservice.updateGlobal("PDQs",pdqs);
         })
     }
+
 
 }
 

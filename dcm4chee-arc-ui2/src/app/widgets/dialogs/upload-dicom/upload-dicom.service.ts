@@ -49,7 +49,7 @@ export class UploadDicomService {
             xhr.send(formData);
         });
     }
-    getUrlFromWebApp(webApp){
+/*    getUrlFromWebApp(webApp){
         try{
             let networkConnectionKey = "dicomNetworkConnection";
             if(!_.hasIn(webApp, networkConnectionKey) && _.hasIn(webApp, "dicomNetworkConnectionReference")){
@@ -63,5 +63,5 @@ export class UploadDicomService {
         }catch (e){
             return null;
         }
-    }
+    }*/
 }

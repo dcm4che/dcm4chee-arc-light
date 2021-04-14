@@ -1341,7 +1341,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let accessionNumber = _.get(model, "00080050.Value.0");
             let patientName = _.get(model, "00100010.Value[0].Alphabetic");
             let dcmWebServicePath = this.studyWebService.selectedWebService.dcmWebServicePath;
-            let qidoBaseURL = j4care.getUrlFromDcmWebApplication(this.studyWebService.selectedWebService, true);
+            let qidoBaseURL = j4care.getUrlFromDcmWebApplication(this.studyWebService.selectedWebService,this.appService.baseUrl, true);
             let replaceDoubleBraces = (url, result) => {
                 return url.replace(/{{(currentDateTime-)?(.+?)}}/g, (match, g1, g2) => {
                     if(g1){
@@ -3907,7 +3907,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ).subscribe(webApp=>{
                         if(webApp){
                              urlRest = `${
-                                    j4care.getUrlFromDcmWebApplication(webApp)
+                                    j4care.getUrlFromDcmWebApplication(webApp, this.appService.baseUrl)
                                 }/studies/export/dicom:${
                                     result.selectedAet
                                 }?${

@@ -27,7 +27,7 @@ export class StorageCommitmentService {
         }
     ];
     search(filters, offset) {
-        return this.$http.get('../stgcmt' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}stgcmt?${this.mainservice.param(this.queryParams(filters, offset))}`);
     };
     queryParams(filters, offset) {
 /*                var params = {
@@ -51,19 +51,14 @@ export class StorageCommitmentService {
             status: status,
             updatedBefore: before
         });
-        return this.$http.delete('../stgcmt' + '?' + urlParam);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}stgcmt?${urlParam}`);
     };
-    // cancel(pk){
-    //     return this.$http.post("../monitor/export/"+pk+"/cancel",{});
-    // }
-    delete(pk){
-        return this.$http.delete('../stgcmt/' + pk);
-    }
-    // reschedule(pk, exporterID){
-    //     return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});
-    // }
 
-    getExporters = () => this.$http.get('../export');
+    delete(pk){
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}stgcmt/${pk}`);
+    }
+
+    getExporters = () => this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}export`);
 
     getFiltersSchema(exporters){
         return [

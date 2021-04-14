@@ -123,7 +123,7 @@ export class UploadDicomComponent implements OnInit{
                             // url = this.service.getUrlFromWebApp(this.selectedWebApp);
                             url = this.studyService.getDicomURL("study",this.selectedWebApp);
                         }else{
-                            url = `../aets/${$this._selectedAe}/rs/studies`;
+                            url = `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${$this._selectedAe}/rs/studies`;
                         }
                         xmlHttpRequest.open('POST', url, true);
                         let dashes = '--';
@@ -209,7 +209,7 @@ export class UploadDicomComponent implements OnInit{
         this._aes = value;
     }
     getWebApps(){
-        this.studieService.getWebApps().subscribe((res)=>{
+        this.studyService.getWebApps().subscribe((res)=>{
             this.webApps = res;
             this.webApps.forEach((webApp:DcmWebApp)=>{
                if(webApp.dicomAETitle === this._selectedAe || (this.selectedWebApp && this.selectedWebApp.dcmWebAppName === webApp.dcmWebAppName))

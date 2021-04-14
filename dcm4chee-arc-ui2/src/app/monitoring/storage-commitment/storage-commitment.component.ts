@@ -36,7 +36,6 @@ export class StorageCommitmentComponent implements OnInit {
     _ = _;
     filterSchema = [];
     constructor(
-        public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
         public  service: StorageCommitmentService,

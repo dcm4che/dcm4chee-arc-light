@@ -26,7 +26,7 @@ export class J4careHttpService{
     get(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         let httpParameters;
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
-            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
+            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
             httpParameters = {
                 url:(doNotEncode ? url : encodeURI(url)),
                 doNotEncode:doNotEncode,
@@ -62,7 +62,7 @@ export class J4careHttpService{
     }
     head(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
-            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
+            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
             return this.dcmWebAppRequest.apply(this,['head', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
@@ -73,7 +73,7 @@ export class J4careHttpService{
     }
     post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
-            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
+            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
             return this.dcmWebAppRequest.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
@@ -84,7 +84,7 @@ export class J4careHttpService{
     }
     put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
-            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
+            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
             return this.dcmWebAppRequest.apply(this,['put', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, data:data}]);
         }else{
             if(dcmWebApp){
@@ -95,7 +95,7 @@ export class J4careHttpService{
     }
     delete(url:string,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
-            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp);
+            url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
             return this.dcmWebAppRequest.apply(this,['delete', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
         }else{
             if(dcmWebApp){
@@ -105,7 +105,7 @@ export class J4careHttpService{
         }
     }
     private getUrlFromDcmWebAppAndParams(dcmWebApp:DcmWebApp, params:any){
-        let url = j4care.getUrlFromDcmWebApplication(dcmWebApp);
+        let url = j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
         if(params)
             return `${url}?${j4care.objToUrlParams(params)}`;
         return url;

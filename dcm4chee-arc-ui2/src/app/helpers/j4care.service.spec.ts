@@ -386,7 +386,8 @@ describe('j4care', () => {
                             "/dicomNetworkConnection/1"
                         ]
                     }
-                )
+                ),
+                undefined
             )
         ).toEqual(`${window.location.origin}/dcm4chee-arc/aets/DCM4CHEE/rs`);
 
@@ -417,7 +418,8 @@ describe('j4care', () => {
                             })
                         ]
                     }
-                )
+                ),
+                undefined
             )
         ).toEqual(`http://127.0.0.1:2575/dcm4chee-arc/aets/DCM4CHEE/rs`);
 

@@ -17,13 +17,11 @@ export class QueuesService{
 
     search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
 
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
-            ;
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)));
     };
 
     getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
-            ;
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)));
     };
 
     cancel(queueName, msgId) {
@@ -33,8 +31,7 @@ export class QueuesService{
     cancelAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../queue/${queueName}/cancel${urlParam}`, {}, this.header)
-            ;
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue/${queueName}/cancel${urlParam}`, {}, this.header);
     }
 
     reschedule(queueName, msgId, filter) {
@@ -43,8 +40,7 @@ export class QueuesService{
     rescheduleAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../queue/${queueName}/reschedule${urlParam}`, {}, this.header)
-            ;
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue/${queueName}/reschedule${urlParam}`, {}, this.header);
     }
     delete(queueName, msgId) {
         return this.$http.delete(this.url2(queueName, msgId));
@@ -52,11 +48,10 @@ export class QueuesService{
     deleteAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../queue/${queueName}${urlParam}`, this.header)
-            ;
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue/${queueName}${urlParam}`, this.header);
     }
     url(queueName) {
-        return '../queue/' + queueName;
+        return `${j4care.addLastSlash(this.mainservice.baseUrl)}queue/${queueName}`;
     }
     url2(queueName, msgId) {
         return this.url(queueName) + '/' + msgId;

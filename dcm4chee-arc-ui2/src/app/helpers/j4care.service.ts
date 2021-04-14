@@ -1177,12 +1177,12 @@ export class j4care {
     /*
     * Return the whole url from passed DcmWebApp
     * */
-    static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp, withoutServicePath?:boolean):string{
+    static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp, baseUrl:string, withoutServicePath?:boolean):string{
         try{
             if(withoutServicePath){
                 return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}`;
             }
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}${dcmWebApp.dcmWebServicePath}`;
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || baseUrl || ''}${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
         }
@@ -1210,11 +1210,11 @@ export class j4care {
             if(selectedConnection && _.hasIn(selectedConnection,"dicomHostname") && _.hasIn(selectedConnection, "dicomPort")){
                 return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
             }else{
-                return window.location.origin;
+                return "";
             }
         }catch (e) {
             this.log("Something went wrong on getting base url from a dicom network connections",e);
-            return window.location.origin;
+            return "";
         }
     }
 
@@ -1413,6 +1413,13 @@ export class j4care {
             }
         }catch (e) {
             return "";
+        }
+    }
+    static addLastSlash(url){
+        if(_.last(url) != "/"){
+            return `${url}/`;
+        }else{
+            return url;
         }
     }
 }

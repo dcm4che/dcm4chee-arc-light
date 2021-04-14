@@ -3,22 +3,24 @@ import {DevicesService} from "../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash-es';
+import {AppService} from "../../app.service";
 @Injectable()
 export class AeListService {
 
     constructor(
       private $http:J4careHttpService,
-      private devicesService:DevicesService
+      private devicesService:DevicesService,
+      private appService:AppService
     ) { }
 
     getAes(filters?){
       return this.$http.get(
-          '../aes'
+          `${j4care.addLastSlash(this.appService.baseUrl)}aes`
       )
     }
     getAets(){
        return this.$http.get(
-            '../aets'
+            `${j4care.addLastSlash(this.appService.baseUrl)}aets`
         )
     }
     getDevices(){
@@ -26,7 +28,7 @@ export class AeListService {
     }
     echoAe(callingAet, externalAet,data){
         return  this.$http.post(
-            `../aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
+            `${j4care.addLastSlash(this.appService.baseUrl)}aets/${callingAet}/dimse/${externalAet}${j4care.getUrlParams(data)}`,
             {}
         )
     }

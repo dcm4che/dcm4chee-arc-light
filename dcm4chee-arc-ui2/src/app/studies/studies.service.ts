@@ -50,14 +50,14 @@ export class StudiesService {
     }
 
 
-    getTodayDate() {
+/*    getTodayDate() {
         let todayDate = new Date();
         return this.datePipe.transform(todayDate, 'yyyyMMdd');
     }
     getWindow(){
         return window;
-    }
-    getAes(user, aes){
+    }*/
+/*    getAes(user, aes){
         if (!user || !user.user || user.roles.length === 0){
             return aes;
         }else{
@@ -93,8 +93,8 @@ export class StudiesService {
                 this.mainservice.showError($localize `:@@no_aets_found:No AETs found, please use the device-configurator or the LDAP-Browser to configure one!`);
             }
         }
-    }
-    getMsgFromResponse(res,defaultMsg = null){
+    }*/
+/*    getMsgFromResponse(res,defaultMsg = null){
         let msg;
         let endMsg = '';
         try{
@@ -129,9 +129,9 @@ export class StudiesService {
     _config = function(params) {
         // return '?' + decodeURIComponent(jQuery.param(params,true));
         return '?' + this.mainservice.param(params);
-    };
+    };*/
 
-    replaceKeyInJson(object, key, key2){
+/*    replaceKeyInJson(object, key, key2){
         let $this = this;
         _.forEach(object, function(m, k){
             if (m[key]){
@@ -151,8 +151,8 @@ export class StudiesService {
             }
         });
         return object;
-    };
-    initEmptyValue(object){
+    };*/
+/*    initEmptyValue(object){
         // console.log(".", object);
         let $this = this;
         _.forEach(object, function(m, k){
@@ -170,13 +170,13 @@ export class StudiesService {
             }
         });
         return object;
-    };
+    };*/
 
 /*    setExpiredDate(aet,studyUID, expiredDate){
         let url = `../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
         return this.$http.put(url,{});
     }*/
-
+/*
     getPrepareParameterForExpiriationDialog(study, exporters, infinit){
         let expiredDate:Date;
         let yearRange = "1800:2100";
@@ -300,7 +300,7 @@ export class StudiesService {
             saveButton: $localize `:@@SAVE:SAVE`
         };
     }
-    setExpiredDate(aet,studyUID, expiredDate, exporter, params?:any){
+/!*    setExpiredDate(aet,studyUID, expiredDate, exporter, params?:any){
         let localParams = "";
         if(exporter){
             localParams = `?ExporterID=${exporter}`
@@ -313,7 +313,7 @@ export class StudiesService {
             }
         }
         return this.$http.put(`../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}${localParams}`,{})
-    }
+    }*!/
 
     queryPatients = function(url, params) {
         return this.$http.get(
@@ -461,9 +461,9 @@ export class StudiesService {
             }
         });
         return dropdown;
-    };
+    };*/
 
-    clearPatientObject(object){
+/*    clearPatientObject(object){
         let $this = this;
         _.forEach(object, function(m, i){
             if (typeof(m) === 'object' && i != 'vr'){
@@ -475,8 +475,8 @@ export class StudiesService {
                 }
             }
         });
-    };
-    convertStringToNumber(object){
+    };*/
+/*    convertStringToNumber(object){
         let $this = this;
         _.forEach(object, function(m, i){
             if (typeof(m) === 'object' && i != 'vr'){
@@ -496,8 +496,8 @@ export class StudiesService {
                 }
             }
         });
-    };
-    clearSelection(patients){
+    };*/
+/*    clearSelection(patients){
         _.forEach(patients, function(patient, i){
             patient.selected = false;
             if (patient.studies){
@@ -516,8 +516,8 @@ export class StudiesService {
                 });
             }
         });
-    };
-    MergeRecursive(clipboard, selected) {
+    };*/
+/*    MergeRecursive(clipboard, selected) {
         _.forEach(selected, function(study, studykey){
             clipboard[studykey] = clipboard[studykey] || selected[studykey];
             if (clipboard[studykey]){
@@ -553,14 +553,14 @@ export class StudiesService {
                 }
             }
         });
-    }
+    }*/
     /*
     * Removing the element from clipboard, called from delete button on the clipboard or on copy-move dialog
     * @modus: what kind of object is the object that should be removed
     * @keys: the indexes where the object is in clipboard
     * @clipboard: the clipboard object
     * */
-    removeClipboardElement(modus, keys, clipboard){
+/*    removeClipboardElement(modus, keys, clipboard){
         switch (modus) {
             case 'patient':
                 delete clipboard['patients'][keys.patientkey];
@@ -577,9 +577,9 @@ export class StudiesService {
                 break;
             default:
         }
-        /*
+        /!*
         * Check if there are any patient in the clipboard anymore
-        * */
+        * *!/
         let haspatient = false;
         _.forEach(clipboard.otherObjects, (m, i) => {
             if (i != '' && (!m || _.size(m) === 0)){
@@ -587,11 +587,11 @@ export class StudiesService {
             }
         });
 clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
-    }
+    }*/
     /*
     * return patientid - combination of patient id, issuer
     * */
-    getPatientId(patient){
+/*    getPatientId(patient){
         console.log('patient', patient);
         let obj;
         if (_.hasIn(patient, '[0]')){
@@ -648,8 +648,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             _.set(endObject,'["00100024"].Value[0]["00400033"].Value[0]', changedPatientObject["00100024"].Value[0]["00400033"].Value[0]);
         }
         return endObject;
-    }
-    changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
+    }*/
+/*    changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
         let url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
         let headers = new HttpHeaders({ 'Content-Type': 'application/dicom+json' });
         let object;
@@ -667,15 +667,15 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             ,
             successMsg:$localize `:@@studies.patient_id_changed_successfully:Patient ID changed successfully!`
         };
-    }
-    getHl7ApplicationNameFormAETtitle(aet, aes){
+    }*/
+/*    getHl7ApplicationNameFormAETtitle(aet, aes){
         for(let i = 0; i < aes.length; i++){
             if(aet === aes[i].dicomAETitle){
                 return aes[i].hl7ApplicationName;
             }
         };
-    }
-    changePatientID(oldPatientID, newPatientID, patientData, aet, sendingHl7App, receivingHl7App, accesMode){
+    }*/
+/*    changePatientID(oldPatientID, newPatientID, patientData, aet, sendingHl7App, receivingHl7App, accesMode){
         if(oldPatientID === newPatientID){
             return of(null);
         }else{
@@ -693,8 +693,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 );
             }
         }
-    }
-
+    }*/
+/*
     createPatient(patientData, aet, sendingHl7App, receivingHl7App,accesMode){
         let url;
         if(accesMode === 'external'){
@@ -711,8 +711,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             patientData,
              new HttpHeaders({ 'Content-Type': 'application/dicom+json' })
         );
-    }
-    modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode, queue?){
+    }*/
+ /*   modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode, queue?){
         let url;
         if(externalInternalAetMode === 'external'){
             if(!internalAppName || !externalAppName){
@@ -745,10 +745,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 oldPatientID = this.getPatientId(toSavePatientObject);
             }
             if(externalInternalAetMode === 'internal'){
-                /*if(modifyMode === 'edit'){
+                /!*if(modifyMode === 'edit'){
                     url = url + (oldPatientID || patient.attrs['00100020'].Value[0]);
                 }else{
-                }*/
+                }*!/
                     url = url + encodeURIComponent((oldPatientID || patient.attrs['00100020'].Value[0]));
                     // url = url + `P-00000001^^^tes%2Fbasd`;
             }
@@ -804,11 +804,11 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return null;
             }
         }
-    }
-    getWebApps(){
+    }*/
+/*    getWebApps(){
         return this.$http.get('../webapps?dcmWebServiceClass=STOW_RS')
-    }
-    isTargetInClipboard(target, clipboard){
+    }*/
+/*    isTargetInClipboard(target, clipboard){
         let contains = false;
         _.forEach(clipboard.otherObjects, (m, i) => {
             if (_.hasIn(target, ['otherObjects', i]) && _.isEqual(m, target.otherObjects[i])){
@@ -871,5 +871,5 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return res;
             });
         }
-    }
+    }*/
 }

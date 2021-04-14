@@ -47,15 +47,15 @@ export class PermissionService {
             return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
     }
     getConfig(response){
-        let deviceName;
+            let deviceName;
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
-            return this.$http.get('../devicename')
+            return this.mainservice.getDcm4cheeArc()
                 .pipe(
                     switchMap((res:any) => {
                         deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                         archiveDeviceName = res.dicomDeviceName;
-                        return this.$http.get('../devices/' + deviceName)
+                        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${deviceName}`)
                     }),
                     map((res:any)=>{
                         try{
@@ -81,6 +81,16 @@ export class PermissionService {
             return response.call(this);
     }
     getConfigWithUser(response){
+///dcm4chee-arc/ui2/rs/dcm4chee-arc
+/*        this.$http.get("http://shefki-lifebook:18080/dcm4chee-arc/ui2/rs/dcm4chee-arc").subscribe(res=>{
+            console.log("get dcm4chee-arc",res);
+        },err=> {
+        });
+        this.$http.get("http://shefki-lifebook:8080/dcm4chee-arc/devicename").subscribe(res=>{
+            console.log("get devicename",res);
+        },err=> {
+        })*/
+
         let deviceName;
         let archiveDeviceName;
         let userInfo:UserInfo;
@@ -89,7 +99,7 @@ export class PermissionService {
                 map(user=>{
                     userInfo = user; //Extracting userInfo from KeyCloak
                 }),
-                switchMap(res => this.$http.get('../devicename')),
+                switchMap(res => this.mainservice.getDcm4cheeArc()),
                 map(deviceNameResponse=>{
                     if(userInfo){
                         const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
@@ -109,7 +119,7 @@ export class PermissionService {
                 switchMap((res:any) => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
                     archiveDeviceName = res.dicomDeviceName;
-                    return this.$http.get('../devices/' + deviceName);
+                    return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${deviceName}`);
                 }),
                 map((res:any)=>{
                     try{

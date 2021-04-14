@@ -454,7 +454,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     initQuery() {
         let $this = this;
         this.cfpLoadingBar.start();
-        this.$http.get('../queue')
+        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 $this.getDevices();

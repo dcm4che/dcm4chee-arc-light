@@ -139,7 +139,7 @@ export class DevicesComponent implements OnInit{
         this.cfpLoadingBar.start();
         let $this = this;
         this.$http.get(
-            `../devices${j4care.param(this.filter)}`
+            `${j4care.addLastSlash(this.mainservice.baseUrl)}devices${j4care.param(this.filter)}`
         )
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
@@ -176,7 +176,7 @@ export class DevicesComponent implements OnInit{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('../devices/' + device.dicomDeviceName).subscribe((res) => {
+                    $this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device.dicomDeviceName}`).subscribe((res) => {
                         $this.mainservice.showMsg($localize `:@@device_deleted_successfully:Device deleted successfully!`);
                         $this.getDevices();
                         $this.cfpLoadingBar.complete();
@@ -293,9 +293,9 @@ export class DevicesComponent implements OnInit{
                     i = (<any>_.get(re.device,Globalvar.EXPORTER_CONFIG_PATH)).length;
                 }
                 this.deviceConfigurator.addChangesToDevice(re.exporter,`${Globalvar.EXPORTER_CONFIG_PATH}[${i}]`,re.device);
-                $this.$http.put('../devices/' + re.device.dicomDeviceName,re.device, headers).subscribe(res => {
+                $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.device.dicomDeviceName}`,re.device, headers).subscribe(res => {
                     $this.mainservice.showMsg($localize `:@@devices.exporter_description_appended:The new exporter description appended successfully to the device: ${re.device.dicomDeviceName}:@@dicomDeviceName:`);
-                    $this.$http.post('../ctrl/reload', {}, headers).subscribe((res) => {
+                    $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}, headers).subscribe((res) => {
                         $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });
                 }, (err) => {
@@ -310,7 +310,7 @@ export class DevicesComponent implements OnInit{
             this.aes = this.mainservice.global.aes;
         }else{
             this.$http.get(
-                '../aes'
+                `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
                 // './assets/dummydata/aes.json'
             )
                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})

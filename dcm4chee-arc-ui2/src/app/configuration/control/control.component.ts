@@ -24,7 +24,7 @@ export class ControlComponent implements OnInit{
     tableSchema;
     constructor(
         public $http:J4careHttpService,
-        public appservices: AppService,
+        public appService: AppService,
         private cfpLoadingBar: LoadingBarService,
         private service: ControlService,
         private devicesService:DevicesService,
@@ -35,7 +35,7 @@ export class ControlComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.appservices,"global.notSecure") && this.appservices.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.appService,"global.notSecure") && this.appService.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -56,7 +56,7 @@ export class ControlComponent implements OnInit{
         Object.keys(this.devices).forEach((device)=>{
             this.service.fetchStatus(this.devices[device].dcmuiDeviceURL).subscribe(res=>{
                 this.devices[device].status = res.status;
-                this.appservices.showMsg( $localize `:@@control.status_refetched:Status of ${this.devices[device].dcmuiDeviceURLName}:@@dcmuiDeviceURLName: was successfully refetched!`);
+                this.appService.showMsg( $localize `:@@control.status_refetched:Status of ${this.devices[device].dcmuiDeviceURLName}:@@dcmuiDeviceURLName: was successfully refetched!`);
             },err=>{
                 console.error("Status not fetchable",err);
                 this.httpErrorHandler.handleError(err);
@@ -67,7 +67,7 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.startArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatus();
-            this.appservices.showMsg($localize `:@@control.archive_started:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: started successfully`);
+            this.appService.showMsg($localize `:@@control.archive_started:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: started successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -78,7 +78,7 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.stopArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatus();
-            this.appservices.showMsg($localize`:@@control.archive_stopped:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: stopped successfully`);
+            this.appService.showMsg($localize`:@@control.archive_stopped:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: stopped successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -88,7 +88,7 @@ export class ControlComponent implements OnInit{
     reload(object) {
         this.cfpLoadingBar.start();
         this.service.reloadArchive().subscribe((res) => {
-            this.appservices.showMsg($localize `:@@control.archive_reloaded:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: reloaded successfully`);
+            this.appService.showMsg($localize `:@@control.archive_reloaded:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: reloaded successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();

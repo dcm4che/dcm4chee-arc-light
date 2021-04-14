@@ -109,7 +109,6 @@ export class KeycloakService {
     }
 
     setUserInfo(user){
-        console.log("*******in set userINFo",user);
         this.userInfo = user;
         this.setUserSource.next(user);
     }

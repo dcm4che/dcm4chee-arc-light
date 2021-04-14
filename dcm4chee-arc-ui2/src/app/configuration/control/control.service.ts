@@ -9,13 +9,13 @@ export class ControlService {
 
     constructor(
         private $http:J4careHttpService,
-        private appservices:AppService
+        private appService:AppService
     ) { }
 
-    fetchStatus = (url?) => this.$http.get(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/status`);
-    startArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/start`, {});
-    stopArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/stop`, {});
-    reloadArchive = (url?) => this.$http.post(`${this.removeSlashOnTheEndOfUrl(url) || ''}/dcm4chee-arc/ctrl/reload`, {});
+    fetchStatus = (url?) => this.$http.get(this.getUrl(url, "status"));
+    startArchive = (url?) => this.$http.post(this.getUrl(url, "start"), {});
+    stopArchive = (url?) => this.$http.post(this.getUrl(url, "stop"), {});
+    reloadArchive = (url?) => this.$http.post(this.getUrl(url, "reload"), {});
 
 
     removeSlashOnTheEndOfUrl(url:string){
@@ -23,6 +23,14 @@ export class ControlService {
             return url.slice(0, -1);
         }
         return url;
+    }
+
+    getUrl(url, mode){
+        if(url){
+            return `${this.removeSlashOnTheEndOfUrl(url)}/dcm4chee-arc/ctrl/${mode}`;
+        }else{
+            return `${j4care.addLastSlash(this.appService.baseUrl)}ctrl/${mode}`;
+        }
     }
     getTableSchema(){
         return [
@@ -77,24 +85,24 @@ export class ControlService {
     getMyArchivesFromConfig($this, allDevices, callBack){
         let devices = {};
         try{
-            let config = this.appservices.global.uiConfig.dcmuiDeviceClusterObject.filter(cluster=>{
+            let config = this.appService.global.uiConfig.dcmuiDeviceClusterObject.filter(cluster=>{
                 let check = false;
                 cluster.dcmuiDeviceClusterDevices.forEach(device=>{
-                    if(device === this.appservices.archiveDeviceName || device.dcmuiDeviceURLName === this.appservices.archiveDeviceName)
+                    if(device === this.appService.archiveDeviceName || device.dcmuiDeviceURLName === this.appService.archiveDeviceName)
                         check = true;
                 });
                 return check;
             })[0];
             config.dcmuiDeviceClusterDevices.forEach((deviceName,i)=>{
-                this.appservices.global.uiConfig.dcmuiDeviceURLObject.forEach(deviceObject=>{
+                this.appService.global.uiConfig.dcmuiDeviceURLObject.forEach(deviceObject=>{
                     if(deviceObject.dcmuiDeviceURLName === deviceName || deviceObject.dcmuiDeviceURLName === deviceName.dcmuiDeviceURLName){
                         devices[deviceObject.dcmuiDeviceURLName] = deviceObject;
                     }
                 });
             });
         }catch (e) {
-            if($this.appservices && ($this.appservices.archiveDeviceName || _.hasIn($this.appservices,"archiveDevice.dicomDeviceName"))){
-                const deviceName = $this.appservices.archiveDeviceName || _.get($this.appservices,"archiveDevice.dicomDeviceName");
+            if($this.appService && ($this.appService.archiveDeviceName || _.hasIn($this.appService,"archiveDevice.dicomDeviceName"))){
+                const deviceName = $this.appService.archiveDeviceName || _.get($this.appService,"archiveDevice.dicomDeviceName");
                 devices[deviceName] = {
                     dcmuiDeviceURLName:deviceName
                 }

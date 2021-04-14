@@ -4,18 +4,20 @@ import {j4care} from "../../../helpers/j4care.service";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
 import {LocalLanguageObject} from "../../../interfaces";
 import * as _ from 'lodash-es';
+import {AppService} from "../../../app.service";
 
 @Injectable()
 export class CreateExporterService {
 
     constructor(
         private $http:J4careHttpService,
-        private deviceConfiguratorService:DeviceConfiguratorService
+        private deviceConfiguratorService:DeviceConfiguratorService,
+        private appService:AppService
     ) { }
 
     getDevice = (deviceName) => this.deviceConfiguratorService.getDevice(deviceName);
 
-    getQueue = () => this.$http.get('../queue');
+    getQueue = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
 
     getExporterDescriptorSchema = () => {
         const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));

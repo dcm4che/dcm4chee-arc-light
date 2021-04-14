@@ -41,7 +41,7 @@ export class StorageSystemsService {
         }
     ];
     search(filters, offset) {
-        return this.$http.get('../storage' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}storage?${this.mainservice.param(this.queryParams(filters, offset))}`);
     };
     queryParams(filters, offset) {
         filters.offset = (offset && offset != '') ? offset : 0;
@@ -58,10 +58,10 @@ export class StorageSystemsService {
             status: status,
             updatedBefore: before
         });
-        return this.$http.delete('../stgcmt' + '?' + urlParam);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}stgcmt?${urlParam}`);
     };
     delete(pk){
-        return this.$http.delete('../stgcmt/' + pk);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}stgcmt/'${pk}`);
     }
 
     getFiltersSchema(aets){
