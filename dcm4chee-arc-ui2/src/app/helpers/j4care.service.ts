@@ -1180,9 +1180,9 @@ export class j4care {
     static getUrlFromDcmWebApplication(dcmWebApp:DcmWebApp, baseUrl:string, withoutServicePath?:boolean):string{
         try{
             if(withoutServicePath){
-                return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || ''}`;
+                return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || ''}`;
             }
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnectionReference || dcmWebApp.dicomNetworkConnection) || baseUrl === "../" ? '': baseUrl }${dcmWebApp.dcmWebServicePath}`;
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || baseUrl === "../" ? '': baseUrl }${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
         }
