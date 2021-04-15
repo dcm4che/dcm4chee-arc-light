@@ -1182,7 +1182,10 @@ export class j4care {
             if(withoutServicePath){
                 return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || ''}`;
             }
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || baseUrl === "../" ? '': baseUrl }${dcmWebApp.dcmWebServicePath}`;
+            console.log("1",this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference));
+            console.log("2",(this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)));
+            console.log("3",`${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`)
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
         }
