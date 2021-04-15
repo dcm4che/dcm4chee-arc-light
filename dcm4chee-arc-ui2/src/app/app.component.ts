@@ -113,6 +113,9 @@ export class AppComponent implements OnInit {
         },err=>{
             console.log("Error on /dcm4chee-arc/ui2/rs/dcm4chee-arc",err);
         });
+        //this.mainservice.baseUrl = "http://shefki-lifebook:8080/dcm4chee-arc";
+
+
 
         if(j4care.hasSet(KeycloakService,"keycloakAuth.token")){
             this.mainservice.updateGlobal("notSecure",false);

@@ -74,7 +74,11 @@ export class AppService implements OnInit, OnDestroy{
         this.userSubject.next(user);
     }
     getUser():Observable<User>{
-        return this.userSubject.asObservable();
+        if(this._user){
+            return of(this._user);
+        }else{
+            return this.userSubject.asObservable();
+        }
     }
 
     isSecure(){
@@ -398,6 +402,9 @@ export class AppService implements OnInit, OnDestroy{
             return of(this._dcm4cheeArcConfig);
         }else{
             return this.$httpClient.get("./rs/dcm4chee-arc").pipe(map(dcm4cheeArc=>{
+                if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
+                    this.baseUrl = _.get(dcm4cheeArc, "dcm4chee-arc-urls[0]");
+                }
                 this._dcm4cheeArcConfig = dcm4cheeArc;
                 return dcm4cheeArc;
             }));
