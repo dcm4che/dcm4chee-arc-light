@@ -315,7 +315,7 @@ public class QueryRS {
         Attributes spsMatchingKeys = ((Sequence) matchingKeys.remove(Tag.ScheduledProcedureStepSequence))
                                         .remove(0);
         Attributes spsReturnKeys = new Attributes(spsMatchingKeys);
-        for (int tag : SEQUENCE.SPS.includetags)
+        for (int tag : SPS)
             if (!spsMatchingKeys.contains(tag))
                 spsReturnKeys.setNull(tag, DICT.vrOf(tag));
         matchingKeys.ensureSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsReturnKeys);
@@ -323,18 +323,13 @@ public class QueryRS {
 
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
-    enum SEQUENCE {
-        SPS(
+    int[] SPS = new int[] {
             Tag.Modality,
             Tag.AnatomicalOrientationType,
-            Tag.ReferencedDefinedProtocolSequence,
-            Tag.ReferencedPerformedProtocolSequence,
             Tag.RequestedContrastAgent,
             Tag.ScheduledStationAETitle,
             Tag.ScheduledProcedureStepStartDate,
             Tag.ScheduledProcedureStepStartTime,
-            Tag.ScheduledProcedureStepEndDate,
-            Tag.ScheduledProcedureStepEndTime,
             Tag.ScheduledPerformingPhysicianName,
             Tag.ScheduledProcedureStepDescription,
             Tag.ScheduledProtocolCodeSequence,
@@ -342,17 +337,8 @@ public class QueryRS {
             Tag.ScheduledStationName,
             Tag.ScheduledProcedureStepLocation,
             Tag.PreMedication,
-            Tag.ScheduledProcedureStepStatus,
-            Tag.ScheduledPerformingPhysicianIdentificationSequence,
-            Tag.CommentsOnTheScheduledProcedureStep
-        );
-
-        public final int[] includetags;
-
-        SEQUENCE(int... includetags) {
-            this.includetags = includetags;
-        }
-    }
+            Tag.ScheduledProcedureStepStatus
+    };
 
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",
