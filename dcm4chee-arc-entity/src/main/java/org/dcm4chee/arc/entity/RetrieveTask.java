@@ -487,6 +487,7 @@ public class RetrieveTask {
         return "RetrieveTask[pk=" + pk
                 + ", RetrieveAET=" + remoteAET
                 + ", DestinationAET=" + destinationAET
+                + ", ScheduledTime=" + scheduledTime
                 + "]";
     }
 }

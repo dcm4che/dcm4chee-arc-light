@@ -198,7 +198,13 @@ public class RetrieveManagerEJB {
                 .getResultStream()
                 .iterator();
         if (iterator.hasNext()) {
-            LOG.info("Previous {} found - suppress duplicate retrieve", iterator.next());
+            iterator.forEachRemaining(retrieveTask1 -> {
+                if (retrieveTask1.getQueueMessage() == null && ctx.getScheduledTime().before(retrieveTask1.getScheduledTime())) {
+                    LOG.info("Previous {} found - Update scheduled time to {}", retrieveTask1, ctx.getScheduledTime());
+                    retrieveTask1.setScheduledTime(ctx.getScheduledTime());
+                } else
+                    LOG.info("Previous {} found - suppress duplicate retrieve", retrieveTask1);
+            });
             return true;
         }
         return false;
