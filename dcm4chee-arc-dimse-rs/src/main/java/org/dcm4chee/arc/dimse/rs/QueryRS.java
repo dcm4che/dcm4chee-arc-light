@@ -40,17 +40,11 @@ package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -258,6 +252,7 @@ public class QueryRS {
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             Attributes keys = queryAttributes.getQueryKeys();
             if (!count) {
+                addSPSSeqReturnKeys(level, keys);
                 queryAttributes.addReturnTags(qido.includetags);
                 if (queryAttributes.isIncludeAll()) {
                     ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -310,6 +305,52 @@ public class QueryRS {
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void addSPSSeqReturnKeys(Level level, Attributes matchingKeys) {
+        if (level != Level.MWL || !matchingKeys.contains(Tag.ScheduledProcedureStepSequence))
+            return;
+
+        Attributes spsMatchingKeys = ((Sequence) matchingKeys.remove(Tag.ScheduledProcedureStepSequence))
+                                        .remove(0);
+        Attributes spsReturnKeys = new Attributes(spsMatchingKeys);
+        for (int tag : SEQUENCE.SPS.includetags)
+            if (!spsMatchingKeys.contains(tag))
+                spsReturnKeys.setNull(tag, DICT.vrOf(tag));
+        matchingKeys.ensureSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsReturnKeys);
+    }
+
+    private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
+
+    enum SEQUENCE {
+        SPS(
+            Tag.Modality,
+            Tag.AnatomicalOrientationType,
+            Tag.ReferencedDefinedProtocolSequence,
+            Tag.ReferencedPerformedProtocolSequence,
+            Tag.RequestedContrastAgent,
+            Tag.ScheduledStationAETitle,
+            Tag.ScheduledProcedureStepStartDate,
+            Tag.ScheduledProcedureStepStartTime,
+            Tag.ScheduledProcedureStepEndDate,
+            Tag.ScheduledProcedureStepEndTime,
+            Tag.ScheduledPerformingPhysicianName,
+            Tag.ScheduledProcedureStepDescription,
+            Tag.ScheduledProtocolCodeSequence,
+            Tag.ScheduledProcedureStepID,
+            Tag.ScheduledStationName,
+            Tag.ScheduledProcedureStepLocation,
+            Tag.PreMedication,
+            Tag.ScheduledProcedureStepStatus,
+            Tag.ScheduledPerformingPhysicianIdentificationSequence,
+            Tag.CommentsOnTheScheduledProcedureStep
+        );
+
+        public final int[] includetags;
+
+        SEQUENCE(int... includetags) {
+            this.includetags = includetags;
         }
     }
 
