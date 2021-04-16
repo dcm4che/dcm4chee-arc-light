@@ -317,6 +317,12 @@ export class RangePickerComponent implements OnInit {
         
         this.filterChanged();
     }
+    onTimeSet(timeModel, event){
+        console.log("event",event);
+        console.log("fromTimeModel",this.fromTimeModel);
+        console.log("this[timeModel]=",this[timeModel]);
+        this[timeModel] = event;
+    }
     hardClear(){
         this.model = "";
         this.clear();

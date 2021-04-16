@@ -55,6 +55,7 @@ export class TimePickerComponent implements OnInit {
             this.hh = resultArray[0][1] || resultArray[0][4] || "00";
             this.mm = resultArray[0][2] || resultArray[0][5] || "00";
             this.ss = resultArray[0][3] || "00";
+            this.onValueSet.emit(`${this.hh}:${this.mm}:${this.ss}`);
         }else{
             this.validString = false;
         }

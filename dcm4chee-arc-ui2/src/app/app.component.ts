@@ -191,6 +191,7 @@ export class AppComponent implements OnInit {
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
                     this.timeZone = serverTimeObject.timeZone;
+                    this.mainservice.timeZone = this.timeZone;
                     worker.postMessage({
                         serverTime:new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2)
                     });
