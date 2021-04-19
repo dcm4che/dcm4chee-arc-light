@@ -5312,6 +5312,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLSCP",
+                coercion.getMergeMWLSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLMatchingKey",
                 coercion.getMergeMWLMatchingKey(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
@@ -5353,6 +5355,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
                 coercion.setMergeMWLTemplateURI(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
+                coercion.setMergeMWLSCP(
+                        LdapUtils.stringValue(attrs.get("dcmMergeMWLSCP"), null));
                 coercion.setMergeMWLMatchingKey(
                         LdapUtils.enumValue(MergeMWLMatchingKey.class,
                         attrs.get("dcmMergeMWLMatchingKey"), null));
@@ -5419,6 +5423,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLTemplateURI",
                 prev.getMergeMWLTemplateURI(),
                 coercion.getMergeMWLTemplateURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLSCP",
+                prev.getMergeMWLSCP(),
+                coercion.getMergeMWLSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLMatchingKey",
                 prev.getMergeMWLMatchingKey(),
                 coercion.getMergeMWLMatchingKey(), null);

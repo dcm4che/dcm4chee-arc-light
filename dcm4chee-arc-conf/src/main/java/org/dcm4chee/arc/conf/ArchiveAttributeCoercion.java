@@ -70,6 +70,7 @@ public class ArchiveAttributeCoercion {
     private String leadingCFindSCP;
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
+    private String mergeMWLSCP;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private boolean trimISO2022CharacterSet;
     private UseCallingAETitleAsCoercion.Type useCallingAETitleAs;
@@ -221,6 +222,14 @@ public class ArchiveAttributeCoercion {
     public ArchiveAttributeCoercion setMergeMWLTemplateURI(String mergeMWLTemplateURI) {
         this.mergeMWLTemplateURI = mergeMWLTemplateURI;
         return this;
+    }
+
+    public String getMergeMWLSCP() {
+        return mergeMWLSCP;
+    }
+
+    public void setMergeMWLSCP(String mergeMWLSCP) {
+        this.mergeMWLSCP = mergeMWLSCP;
     }
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
@@ -427,6 +436,7 @@ public class ArchiveAttributeCoercion {
                 + ", leadingCFindSCP=" + leadingCFindSCP
                 + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
+                + ", mergeMWLSCP=" + mergeMWLSCP
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet
                 + ", useCallingAETitleAs=" + useCallingAETitleAs
