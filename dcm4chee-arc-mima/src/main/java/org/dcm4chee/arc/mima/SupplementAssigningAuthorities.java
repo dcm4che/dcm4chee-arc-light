@@ -234,7 +234,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         Attributes item = new Attributes(attrs.bigEndian(), 3);
         String localNamespaceEntityID = issuer.getLocalNamespaceEntityID();
         if (localNamespaceEntityID != null)
-            item.setString(Tag.LocalNamespaceEntityID, VR.LO, localNamespaceEntityID);
+            item.setString(Tag.LocalNamespaceEntityID, VR.UT, localNamespaceEntityID);
         String universalEntityID = issuer.getUniversalEntityID();
         if (universalEntityID != null) {
             item.setString(Tag.UniversalEntityID, VR.UT, universalEntityID);
