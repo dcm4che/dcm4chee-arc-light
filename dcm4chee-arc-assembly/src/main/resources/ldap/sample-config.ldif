@@ -3138,7 +3138,6 @@ dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: UPS_RS
 dcmWebServiceClass: MWL_RS
-dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 dcmWebServiceClass: UPS_MATCHING
