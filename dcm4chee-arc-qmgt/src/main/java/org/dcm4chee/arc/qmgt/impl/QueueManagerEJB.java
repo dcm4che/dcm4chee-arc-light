@@ -40,13 +40,15 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import javax.persistence.criteria.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -467,6 +469,8 @@ public class QueueManagerEJB {
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
+        entity.setProcessingStartTime(null);
+        entity.setProcessingEndTime(null);
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
         updateTaskDeviceName(entity);
     }
