@@ -228,8 +228,9 @@ public class ArchiveAttributeCoercion {
         return mergeMWLSCP;
     }
 
-    public void setMergeMWLSCP(String mergeMWLSCP) {
+    public ArchiveAttributeCoercion setMergeMWLSCP(String mergeMWLSCP) {
         this.mergeMWLSCP = mergeMWLSCP;
+        return this;
     }
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
