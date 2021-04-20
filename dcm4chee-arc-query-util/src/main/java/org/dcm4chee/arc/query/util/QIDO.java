@@ -38,7 +38,9 @@
 
 package org.dcm4chee.arc.query.util;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4chee.arc.conf.AttributesBuilder;
 
 import java.util.Arrays;
 
@@ -116,7 +118,29 @@ public enum QIDO {
         Tag.RequestedProcedurePriority,
         Tag.PatientTransportArrangements,
         Tag.ConfidentialityConstraintOnPatientDataDescription
-    ),
+    ) {
+        @Override
+        public void addReturnTags(QueryAttributes queryAttributes) {
+            queryAttributes.addReturnTags(includetags);
+            Attributes spsKeys = queryAttributes.getQueryKeys().getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            if (spsKeys != null && !spsKeys.isEmpty())
+                AttributesBuilder.setNullIfAbsent(spsKeys,
+                        Tag.Modality,
+                        Tag.AnatomicalOrientationType,
+                        Tag.RequestedContrastAgent,
+                        Tag.ScheduledStationAETitle,
+                        Tag.ScheduledProcedureStepStartDate,
+                        Tag.ScheduledProcedureStepStartTime,
+                        Tag.ScheduledPerformingPhysicianName,
+                        Tag.ScheduledProcedureStepDescription,
+                        Tag.ScheduledProtocolCodeSequence,
+                        Tag.ScheduledProcedureStepID,
+                        Tag.ScheduledStationName,
+                        Tag.ScheduledProcedureStepLocation,
+                        Tag.PreMedication
+                );
+        }
+    },
     MPPS(
         Tag.SOPClassUID,
         Tag.SOPInstanceUID,
@@ -204,5 +228,9 @@ public enum QIDO {
         }
         Arrays.sort(dest);
         return dest;
+    }
+
+    public void addReturnTags(QueryAttributes queryAttributes) {
+        queryAttributes.addReturnTags(includetags);
     }
 }

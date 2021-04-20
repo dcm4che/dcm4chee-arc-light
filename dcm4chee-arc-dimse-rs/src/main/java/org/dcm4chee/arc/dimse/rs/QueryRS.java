@@ -252,8 +252,7 @@ public class QueryRS {
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             Attributes keys = queryAttributes.getQueryKeys();
             if (!count) {
-                addSPSSeqReturnKeys(level, keys);
-                queryAttributes.addReturnTags(qido.includetags);
+                qido.addReturnTags(queryAttributes);
                 if (queryAttributes.isIncludeAll()) {
                     ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                     switch (level) {
@@ -307,38 +306,6 @@ public class QueryRS {
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
-
-    private void addSPSSeqReturnKeys(Level level, Attributes matchingKeys) {
-        if (level != Level.MWL || !matchingKeys.contains(Tag.ScheduledProcedureStepSequence))
-            return;
-
-        Attributes spsMatchingKeys = ((Sequence) matchingKeys.remove(Tag.ScheduledProcedureStepSequence))
-                                        .remove(0);
-        Attributes spsReturnKeys = new Attributes(spsMatchingKeys);
-        for (int tag : SPS)
-            if (!spsMatchingKeys.contains(tag))
-                spsReturnKeys.setNull(tag, DICT.vrOf(tag));
-        matchingKeys.ensureSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsReturnKeys);
-    }
-
-    private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
-
-    int[] SPS = new int[] {
-            Tag.Modality,
-            Tag.AnatomicalOrientationType,
-            Tag.RequestedContrastAgent,
-            Tag.ScheduledStationAETitle,
-            Tag.ScheduledProcedureStepStartDate,
-            Tag.ScheduledProcedureStepStartTime,
-            Tag.ScheduledPerformingPhysicianName,
-            Tag.ScheduledProcedureStepDescription,
-            Tag.ScheduledProtocolCodeSequence,
-            Tag.ScheduledProcedureStepID,
-            Tag.ScheduledStationName,
-            Tag.ScheduledProcedureStepLocation,
-            Tag.PreMedication,
-            Tag.ScheduledProcedureStepStatus
-    };
 
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",

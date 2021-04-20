@@ -75,13 +75,23 @@ public class AttributesBuilder {
             if (!item.contains(PrivateTag.PrivateCreator, tag))
                 item.setNull(PrivateTag.PrivateCreator, tag, ElementDictionary.vrOf(tag, PrivateTag.PrivateCreator));
         } else {
-            if (!item.contains(tag)) {
-                VR vr = DICT.vrOf(tag);
-                if (vr == VR.SQ)
-                    item.newSequence(tag, 1).add(new Attributes(0));
-                else
-                    item.setNull(tag, vr);
-            }
+            setNullIfAbsent(item, tag);
+        }
+    }
+
+    public static void setNullIfAbsent(Attributes item, int... tags) {
+        for (int tag : tags) {
+            setNullIfAbsent(item, tag);
+        }
+    }
+
+    public static void setNullIfAbsent(Attributes item, int tag) {
+        if (!item.contains(tag)) {
+            VR vr = DICT.vrOf(tag);
+            if (vr == VR.SQ)
+                item.newSequence(tag, 1).add(new Attributes(0));
+            else
+                item.setNull(tag, vr);
         }
     }
 

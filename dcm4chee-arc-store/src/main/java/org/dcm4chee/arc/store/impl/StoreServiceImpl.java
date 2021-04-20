@@ -605,13 +605,22 @@ class StoreServiceImpl implements StoreService {
             return null;
 
         MergeMWLQueryParam queryParam =
-                MergeMWLQueryParam.valueOf(mergeMWLMatchingKey, ctx.getAttributes());
+                MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), mergeMWLMatchingKey, ctx.getAttributes());
 
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)
             return entry.value();
 
-        List<Attributes> mwlItems = ejb.queryMWL(ctx, queryParam);
+        List<Attributes> mwlItems;
+        if (queryParam.mwlSCP == null) {
+            mwlItems = ejb.queryMWL(ctx, queryParam);
+        } else
+            try {
+                mwlItems = findMWL(ctx, queryParam);
+            } catch (Exception e) {
+                LOG.warn("{}: Failed to query MWL: {}", ctx.getStoreSession(), queryParam.mwlSCP, e);
+                return null;
+            }
         if (mwlItems == null) {
             mergeMWLCache.put(queryParam, null);
             return null;
@@ -636,6 +645,56 @@ class StoreServiceImpl implements StoreService {
         }
         mergeMWLCache.put(queryParam, result);
         return result;
+    }
+
+    private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam) throws Exception {
+        StoreSession session = ctx.getStoreSession();
+        Attributes keys = new Attributes();
+        AttributesBuilder.setNullIfAbsent(keys,
+                Tag.AccessionNumber,
+                Tag.IssuerOfAccessionNumberSequence,
+                Tag.ReferencedStudySequence,
+                Tag.ReferringPhysicianName,
+                Tag.PatientID,
+                Tag.IssuerOfPatientID,
+                Tag.IssuerOfPatientIDQualifiersSequence,
+                Tag.PatientBirthDate,
+                Tag.PatientSex,
+                Tag.PatientSize,
+                Tag.PatientWeight,
+                Tag.PatientSexNeutered,
+                Tag.StudyInstanceUID,
+                Tag.RequestingPhysicianIdentificationSequence,
+                Tag.RequestingPhysician,
+                Tag.RequestingService,
+                Tag.RequestingServiceCodeSequence,
+                Tag.RequestedProcedureDescription,
+                Tag.RequestedProcedureCodeSequence,
+                Tag.AdmissionID,
+                Tag.IssuerOfAdmissionIDSequence,
+                Tag.ScheduledProcedureStepSequence,
+                Tag.RequestedProcedureID,
+                Tag.ReasonForTheRequestedProcedure,
+                Tag.ReasonForRequestedProcedureCodeSequence);
+        if (queryParam.accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, queryParam.accessionNumber);
+        if (queryParam.studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, queryParam.studyIUID);
+        if (queryParam.spsID != null) {
+            Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            AttributesBuilder.setNullIfAbsent(sps,
+                    Tag.ScheduledPerformingPhysicianName,
+                    Tag.ScheduledProcedureStepDescription,
+                    Tag.ScheduledProtocolCodeSequence);
+            sps.setString(Tag.ScheduledProcedureStepID, VR.SH, queryParam.spsID);
+        }
+        LOG.info("{}: Query for MWL Items with {}", session, queryParam);
+        List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam.mwlSCP,
+                EnumSet.noneOf(QueryOption.class), Priority.NORMAL, keys);
+        if (matches.isEmpty()) {
+            LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
+            return null;
+        }
+        LOG.info("{}: Found {} matching MWL Items", ctx.getStoreSession(), matches.size());
+        return matches;
     }
 
     private final class TranscoderHandler implements Transcoder.Handler {

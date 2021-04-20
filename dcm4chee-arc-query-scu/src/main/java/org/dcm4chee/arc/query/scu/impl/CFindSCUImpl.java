@@ -116,8 +116,18 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind,
-                queryOptions);
+        return find(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind, queryOptions, priority, keys);
+    }
+
+    @Override
+    public List<Attributes> findMWLItems(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
+            int priority, Attributes keys) throws Exception {
+        return find(localAE, calledAET, UID.ModalityWorklistInformationModelFind, queryOptions, priority, keys);
+    }
+
+    private List<Attributes> find(ApplicationEntity localAE, String calledAET, String cuid,
+            EnumSet<QueryOption> queryOptions, int priority, Attributes keys) throws Exception {
+        Association as = openAssociation(localAE, calledAET, cuid, queryOptions);
         try {
             return find(as, priority, keys);
         } finally {

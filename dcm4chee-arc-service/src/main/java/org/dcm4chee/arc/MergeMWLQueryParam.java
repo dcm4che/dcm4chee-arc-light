@@ -51,17 +51,19 @@ import java.util.Objects;
  * @since Nov 2016
  */
 public class MergeMWLQueryParam {
+    public final String mwlSCP;
     public final String accessionNumber;
     public final String studyIUID;
     public final String spsID;
 
-    private MergeMWLQueryParam(String accessionNumber, String studyIUID, String spsID) {
+    private MergeMWLQueryParam(String mwlSCP, String accessionNumber, String studyIUID, String spsID) {
+        this.mwlSCP = mwlSCP;
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;
         this.spsID = spsID;
     }
 
-    public static MergeMWLQueryParam valueOf(MergeMWLMatchingKey matchingKey, Attributes attrs) {
+    public static MergeMWLQueryParam valueOf(String mwlSCP, MergeMWLMatchingKey matchingKey, Attributes attrs) {
         String accessionNumber = null;
         String studyIUID = null;
         String spsID = null;
@@ -78,7 +80,7 @@ public class MergeMWLQueryParam {
                 studyIUID = attrs.getString(Tag.StudyInstanceUID);
                 break;
         }
-        return new MergeMWLQueryParam(accessionNumber, studyIUID, spsID);
+        return new MergeMWLQueryParam(mwlSCP, accessionNumber, studyIUID, spsID);
     }
 
     @Override
@@ -86,20 +88,22 @@ public class MergeMWLQueryParam {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MergeMWLQueryParam that = (MergeMWLQueryParam) o;
-        return Objects.equals(accessionNumber, that.accessionNumber) &&
+        return Objects.equals(mwlSCP, that.mwlSCP) &&
+                Objects.equals(accessionNumber, that.accessionNumber) &&
                 Objects.equals(studyIUID, that.studyIUID) &&
                 Objects.equals(spsID, that.spsID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accessionNumber, studyIUID, spsID);
+        return Objects.hash(mwlSCP, accessionNumber, studyIUID, spsID);
     }
 
     @Override
     public String toString() {
         return "MergeMWLQueryParam{" +
-                "accessionNumber='" + accessionNumber +
+                "mwlSCP='" + mwlSCP +
+                "', accessionNumber='" + accessionNumber +
                 "', studyIUID='" + studyIUID +
                 "', spsID='" + spsID +
                 "'}";
