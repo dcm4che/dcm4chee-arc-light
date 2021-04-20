@@ -25,6 +25,7 @@ import {LanguageConfig, LanguageObject, LocalLanguageObject} from "./interfaces"
 import {AppRequestsService} from "./app-requests.service";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
+const worker = new Worker('./server-time.worker', { type: 'module' });
 
 @Component({
   selector: 'app-root',
@@ -163,10 +164,21 @@ export class AppComponent implements OnInit {
         });*/
         this.initGetPDQServices();
         this.startTime();
+        document.addEventListener("visibilitychange", () => {
+            if(document.visibilityState === "visible"){
+                this.startTime();
+            }else{
+                if(worker){
+                    worker.postMessage({
+                        serverTime:this.currentServerTime,
+                        idle:document.hidden
+                    });
+                }
+            }
+        });
     }
     startTime(){
         if (typeof Worker !== 'undefined') {
-            const worker = new Worker('./server-time.worker', { type: 'module' });
             worker.onmessage = ({data}) => {
                 try{
                     this.currentServerTime = new Date(data.serverTime);
@@ -183,7 +195,9 @@ export class AppComponent implements OnInit {
         }else{
             console.log("worker not available");
         }
+
     }
+
     refreshTime(worker){
         let currentBrowserTime = new Date().getTime();
         this.appRequests.getServerTime()
@@ -193,7 +207,8 @@ export class AppComponent implements OnInit {
                     this.timeZone = serverTimeObject.timeZone;
                     this.mainservice.timeZone = this.timeZone;
                     worker.postMessage({
-                        serverTime:new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2)
+                        serverTime:new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2),
+                        idle:document.hidden
                     });
                     this.hideExtendedClock();
                 }
