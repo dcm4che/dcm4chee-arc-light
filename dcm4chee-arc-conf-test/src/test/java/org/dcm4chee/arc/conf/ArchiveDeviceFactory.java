@@ -1393,7 +1393,7 @@ class ArchiveDeviceFactory {
         Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
         ApplicationEntity ae = device.getApplicationEntity("STORESCP");
         addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
-        String[][] CUIDS = { IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS };
+        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
         for (int i = 0; i < CUIDS.length; i++) {
             addTCs(ae, null, SCP, CUIDS[i], OTHER_TSUIDS);
         }
