@@ -390,24 +390,6 @@
                     <attribute-list *ngIf="mwl.showAttributes" [attrs]="mwl.attrs"></attribute-list>
                 </div>
             </div>
-            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
-                <div class="instance_block table_item">
-                    <div class="td td_with_centered_child">
-                        <div class="centered_child">
-                            <button
-                                    title="Preview page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'prev')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                            <button
-                                    title="Next page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'next')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <!--mwl 2:END;-->
         <!--uwl 2:-->
@@ -452,24 +434,6 @@
                     <attribute-list *ngIf="uwl.showAttributes" [attrs]="uwl.attrs"></attribute-list>
                 </div>
             </div>
-            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
-                <div class="instance_block table_item">
-                    <div class="td td_with_centered_child">
-                        <div class="centered_child">
-                            <button
-                                    title="Preview page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'prev')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                            <button
-                                    title="Next page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'next')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <!--uwl 2:END;-->
         <!--mpps 2:-->
@@ -511,24 +475,6 @@
                         <ng-container *ngSwitchCase="'value'">{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
                     <attribute-list *ngIf="mpps.showAttributes" [attrs]="mpps.attrs"></attribute-list>
-                </div>
-            </div>
-            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
-                <div class="instance_block table_item">
-                    <div class="td td_with_centered_child">
-                        <div class="centered_child">
-                            <button
-                                    title="Preview page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'prev')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                            <button
-                                    title="Next page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'next')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

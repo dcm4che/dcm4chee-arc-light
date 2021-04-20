@@ -66,6 +66,7 @@ import {filter, map, switchMap} from "rxjs/operators";
 import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
 import {Subscriber} from "rxjs/index";
 import {Device} from "../../models/device";
+import {environment} from "../../../environments/environment";
 declare var DCM4CHE: any;
 
 
@@ -298,7 +299,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.currentWebAppClass = "MWL_RS";
                         break;
                     case "mpps":
-                        this.currentWebAppClass = "MPPS_RS";
+                        this.currentWebAppClass = "DCM4CHEE_ARC_AET";
                         break;
                     case "uwl":
                         this.currentWebAppClass = "UPS_RS";
@@ -2140,7 +2141,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         patient.mpps.push(mpps);
                     });
 
-                    if (this.more == (res.length > this._filter.filterModel.limit)) {
+                    if (this.more = (res.length > this._filter.filterModel.limit)) {
                         patient.mpps.pop();
                         if (patient.mpps.length === 0) {
                             this.patients.pop();
