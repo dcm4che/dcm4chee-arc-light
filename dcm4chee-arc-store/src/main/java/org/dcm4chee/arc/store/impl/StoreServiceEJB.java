@@ -105,6 +105,8 @@ public class StoreServiceEJB {
     private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
     private static final String IGNORE_PREVIOUS_REJECTED = IGNORE + " previous rejected by {}";
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
+    private static final String IGNORE_DUPLICATE_IMPORT =
+            "{}: Ignore duplicate imported Instance[studyUID={},seriesUID={},objectUID={}]";
     private static final String REVOKE_REJECTION =
             "{}: Revoke rejection of Instance[studyUID={},seriesUID={},objectUID={}] by {}";
     private static final String MISSING_REJECTION_NOTE_CONFIGURATION =
@@ -166,6 +168,10 @@ public class StoreServiceEJB {
         if (prevInstance != null) {
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
+            if (isDuplicateImport(ctx, prevInstance)) {
+                logInfo(IGNORE_DUPLICATE_IMPORT, ctx);
+                return result;
+            }
             String callingAET = session.getCallingAET();
             if (callingAET != null && callingAET.equals(prevInstance.getExternalRetrieveAET())) {
                 if (containsDicomFile(prevInstance.getLocations())) {
@@ -317,6 +323,22 @@ public class StoreServiceEJB {
             }
         }
         return result;
+    }
+
+    private static boolean isDuplicateImport(StoreContext ctx, Instance prevInstance) {
+        return ctx.getWriteContext(Location.ObjectType.DICOM_FILE) == null
+                && contains(prevInstance.getLocations(), ctx.getReadContext());
+    }
+
+    private static boolean contains(Collection<Location> locations, ReadContext readContext) {
+        String storageID = readContext.getStorage().getStorageDescriptor().getStorageID();
+        String storagePath = readContext.getStoragePath();
+        for (Location location : locations) {
+            if (storageID.equals(location.getStorageID())
+                    && storagePath.equals(location.getStoragePath()))
+                return true;
+        }
+        return false;
     }
 
     private static DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {
