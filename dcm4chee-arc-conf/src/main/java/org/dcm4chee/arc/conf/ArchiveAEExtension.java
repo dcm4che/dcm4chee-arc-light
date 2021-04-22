@@ -82,6 +82,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
+    private Boolean wadoIgnorePresentationLUTShape;
     private String wadoThumbnailViewPort;
     private String wadoZIPEntryNameFormat;
     private String wadoSR2HtmlTemplateURI;
@@ -437,6 +438,20 @@ public class ArchiveAEExtension extends AEExtension {
         return sendPendingCMoveInterval != null
                 ? sendPendingCMoveInterval
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
+    }
+
+    public Boolean getWadoIgnorePresentationLUTShape() {
+        return wadoIgnorePresentationLUTShape;
+    }
+
+    public void setWadoIgnorePresentationLUTShape(Boolean wadoIgnorePresentationLUTShape) {
+        this.wadoIgnorePresentationLUTShape = wadoIgnorePresentationLUTShape;
+    }
+
+    public boolean isWadoIgnorePresentationLUTShape() {
+        return wadoIgnorePresentationLUTShape != null
+                ? wadoIgnorePresentationLUTShape
+                : getArchiveDeviceExtension().isWadoIgnorePresentationLUTShape();
     }
 
     public String getWadoThumbnailViewPort() {
@@ -1669,6 +1684,7 @@ public class ArchiveAEExtension extends AEExtension {
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
+        wadoIgnorePresentationLUTShape = aeExt.wadoIgnorePresentationLUTShape;
         wadoThumbnailViewPort = aeExt.wadoThumbnailViewPort;
         wadoZIPEntryNameFormat = aeExt.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;

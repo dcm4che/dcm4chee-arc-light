@@ -1644,6 +1644,7 @@ public class WadoRS {
                     attrs.getInt(Tag.Rows, 1),
                     attrs.getInt(Tag.Columns, 1)));
         }
+        readParam.setIgnorePresentationLUTShape(ctx.getArchiveAEExtension().isWadoIgnorePresentationLUTShape());
         return new RenderedImageOutput(ctx, inst, readParam, rows, columns, mimeType, imageQuality,
                 iccProfile(mimeType), frame);
     }

@@ -440,6 +440,7 @@ public class WadoURI {
         if (presentationUID != null)
             readParam.setPresentationState(retrievePresentationState());
 
+        readParam.setIgnorePresentationLUTShape(ctx.getArchiveAEExtension().isWadoIgnorePresentationLUTShape());
         return new RenderedImageOutput(ctx, inst, readParam, parseInt(rows), parseInt(columns), mimeType, imageQuality,
                 iccProfile(mimeType), frame);
     }

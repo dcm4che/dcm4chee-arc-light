@@ -1977,6 +1977,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.405 NAME 'dcmMergeMWLSCP'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.406 NAME 'dcmWadoIgnorePresentationLUTShape'
+  DESC 'Indicates to ignore (2050,0020) Presentation LUT Shape, but prioritize value of (0028,0004) Photometric Interpretation to determine if minimum sample value is intended to be displayed as white (=MONCHROME1) or as black (=MONCHROME2) on retrieve of rendered DICOM images by WADO-RS or WADO-URI services; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2042,6 +2047,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmWadoCDA2HtmlTemplateURI $
+    dcmWadoIgnorePresentationLUTShape $
     dcmWadoThumbnailViewport $
     dcmWadoZIPEntryNameFormat $
     dcmQueryFetchSize $
@@ -2266,6 +2272,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmWadoCDA2HtmlTemplateURI $
+    dcmWadoIgnorePresentationLUTShape $
     dcmWadoThumbnailViewport $
     dcmWadoZIPEntryNameFormat $
     dcmQueryMaxNumberOfResults $
