@@ -389,6 +389,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
+        writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1209,6 +1210,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getUserIdentityNegotiationRole(), null);
         writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
                 arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
+        writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1920,6 +1922,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditAssigningAuthorityOfPatientID":
                     arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
+                    break;
+                case "dcmWadoIgnorePresentationLUTShape":
+                    arcDev.setWadoIgnorePresentationLUTShape(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3832,6 +3837,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUserIdentityNegotiationKeycloakClientID":
                     arcAE.setUserIdentityNegotiationKeycloakClientID(reader.stringValue());
+                    break;
+                case "dcmWadoIgnorePresentationLUTShape":
+                    arcAE.setWadoIgnorePresentationLUTShape(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
