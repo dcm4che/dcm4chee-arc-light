@@ -438,7 +438,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         ctx.setObjectType(null);
         if (!calculateMatches(ctx))
-            return null;
+            return Collections.EMPTY_LIST;
         Collection<InstanceLocations> matches = ctx.getMatches();
         Iterator<InstanceLocations> matchesIter = matches.iterator();
         while (matchesIter.hasNext()) {
