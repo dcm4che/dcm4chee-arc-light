@@ -70,8 +70,8 @@ public interface CFindSCU {
     List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception;
 
-    List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam,
-            EnumSet<QueryOption> queryOptions, int priority) throws Exception;
+    List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam, int priority)
+            throws Exception;
 
     List<Attributes> findMWLItems(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception;

@@ -118,8 +118,8 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam,
-            EnumSet<QueryOption> queryOptions, int priority) throws Exception {
+    public List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam, int priority)
+            throws Exception {
         Attributes keys = new Attributes();
         AttributesBuilder.setNullIfAbsent(keys,
                 Tag.AccessionNumber,

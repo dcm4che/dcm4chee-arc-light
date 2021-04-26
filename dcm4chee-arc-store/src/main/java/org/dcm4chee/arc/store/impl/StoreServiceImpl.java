@@ -650,8 +650,7 @@ class StoreServiceImpl implements StoreService {
     private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam) throws Exception {
         StoreSession session = ctx.getStoreSession();
         LOG.info("{}: Query for MWL Items with {}", session, queryParam);
-        List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam,
-                EnumSet.noneOf(QueryOption.class), Priority.NORMAL);
+        List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam, Priority.NORMAL);
         if (matches.isEmpty()) {
             LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
             return null;
