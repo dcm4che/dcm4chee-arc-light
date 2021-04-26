@@ -851,8 +851,11 @@ public class IocmRS {
             ctx.setPatient(mwl.getPatient());
             ctx.setSourceInstanceRefs(instanceRefs);
 
+            String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
-                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null)
+                    HttpServletRequestInfo.valueOf(request),
+                    arcAE.getApplicationEntity(),
+                    changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle())
                     .withObjectStorageID(rejectionNoteObjectStorageID());
 
             restoreInstances(session, instanceRefs);

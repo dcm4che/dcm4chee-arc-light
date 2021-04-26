@@ -490,6 +490,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
                 ext.isWadoIgnorePresentationLUTShape(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
+                ext.getChangeRequesterAET(), null);
     }
 
     @Override
@@ -795,6 +797,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditAssigningAuthorityOfPatientID(
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
         ext.setWadoIgnorePresentationLUTShape(LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), false));
+        ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
     }
 
     @Override
@@ -1371,6 +1374,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isWadoIgnorePresentationLUTShape(),
                 bb.isWadoIgnorePresentationLUTShape(),
                 false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeRequesterAET",
+                aa.getChangeRequesterAET(), bb.getChangeRequesterAET(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1667,6 +1672,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUserIdentityNegotiationKeycloakClientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
                 ext.getWadoIgnorePresentationLUTShape(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
+                ext.getChangeRequesterAET(), null);
     }
 
     @Override
@@ -1811,6 +1818,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
         ext.setWadoIgnorePresentationLUTShape(
                 LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), null));
+        ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
     }
 
     @Override
@@ -2044,6 +2052,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
                 aa.getWadoIgnorePresentationLUTShape(),
                 bb.getWadoIgnorePresentationLUTShape(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeRequesterAET",
+                aa.getChangeRequesterAET(),
+                bb.getChangeRequesterAET(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

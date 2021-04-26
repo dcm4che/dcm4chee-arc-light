@@ -1982,6 +1982,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.406 NAME 'dcmWadoIgnorePresentationL
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.407 NAME 'dcmChangeRequesterAET'
+  DESC 'Indicates change requester AET in rejections triggered by archive.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2208,6 +2213,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
     dcmAuditAssigningAuthorityOfPatientID $
+    dcmChangeRequesterAET $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -2333,6 +2339,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
     dcmEncodeAsJSONNumber $
+    dcmChangeRequesterAET $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $

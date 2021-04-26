@@ -390,6 +390,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
+        writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1211,6 +1212,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
                 arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
         writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
+        writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
@@ -1925,6 +1927,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoIgnorePresentationLUTShape":
                     arcDev.setWadoIgnorePresentationLUTShape(reader.booleanValue());
+                    break;
+                case "dcmChangeRequesterAET":
+                    arcDev.setChangeRequesterAET(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3840,6 +3845,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoIgnorePresentationLUTShape":
                     arcAE.setWadoIgnorePresentationLUTShape(reader.booleanValue());
+                    break;
+                case "dcmChangeRequesterAET":
+                    arcAE.setChangeRequesterAET(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

@@ -286,6 +286,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean restrictRetrieveSilently;
     private volatile boolean stowQuicktime2MP4;
     private volatile boolean identifyPatientByAllAttributes;
+    private volatile String changeRequesterAET;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
     private volatile Duration studySizeDelay;
     private volatile Duration calculateStudySizePollingInterval;
@@ -3030,6 +3031,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditAssigningAuthorityOfPatientID = auditAssigningAuthorityOfPatientID;
     }
 
+    public String getChangeRequesterAET() {
+        return changeRequesterAET;
+    }
+
+    public void setChangeRequesterAET(String changeRequesterAET) {
+        this.changeRequesterAET = changeRequesterAET;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -3258,6 +3267,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeImplementationVersionName = arcdev.storeImplementationVersionName;
         supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
         auditAssigningAuthorityOfPatientID = arcdev.auditAssigningAuthorityOfPatientID;
+        changeRequesterAET = arcdev.changeRequesterAET;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

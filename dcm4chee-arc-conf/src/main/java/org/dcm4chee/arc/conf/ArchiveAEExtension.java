@@ -155,6 +155,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean retrieveTaskWarningOnNoMatch;
     private Boolean retrieveTaskWarningOnWarnings;
     private Boolean stowQuicktime2MP4;
+    private String changeRequesterAET;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
@@ -1661,6 +1662,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowQuicktime2MP4();
     }
 
+    public String changeRequesterAET() {
+        return changeRequesterAET != null
+                ? changeRequesterAET
+                : getArchiveDeviceExtension().getChangeRequesterAET();
+    }
+
+    public String getChangeRequesterAET() {
+        return changeRequesterAET;
+    }
+
+    public void setChangeRequesterAET(String changeRequesterAET) {
+        this.changeRequesterAET = changeRequesterAET;
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1759,6 +1774,7 @@ public class ArchiveAEExtension extends AEExtension {
         retrieveTaskWarningOnWarnings = aeExt.retrieveTaskWarningOnWarnings;
         stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
+        changeRequesterAET = aeExt.changeRequesterAET;
         encodeAsJSONNumber.clear();
         encodeAsJSONNumber.addAll(aeExt.encodeAsJSONNumber);
         acceptedMoveDestinations.clear();
