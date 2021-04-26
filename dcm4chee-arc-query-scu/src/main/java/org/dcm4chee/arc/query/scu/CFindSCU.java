@@ -47,7 +47,9 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -67,6 +69,9 @@ public interface CFindSCU {
 
     List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception;
+
+    List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam,
+            EnumSet<QueryOption> queryOptions, int priority) throws Exception;
 
     List<Attributes> findMWLItems(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception;

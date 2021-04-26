@@ -649,46 +649,9 @@ class StoreServiceImpl implements StoreService {
 
     private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam) throws Exception {
         StoreSession session = ctx.getStoreSession();
-        Attributes keys = new Attributes();
-        AttributesBuilder.setNullIfAbsent(keys,
-                Tag.AccessionNumber,
-                Tag.IssuerOfAccessionNumberSequence,
-                Tag.ReferencedStudySequence,
-                Tag.ReferringPhysicianName,
-                Tag.PatientID,
-                Tag.IssuerOfPatientID,
-                Tag.IssuerOfPatientIDQualifiersSequence,
-                Tag.PatientBirthDate,
-                Tag.PatientSex,
-                Tag.PatientSize,
-                Tag.PatientWeight,
-                Tag.PatientSexNeutered,
-                Tag.StudyInstanceUID,
-                Tag.RequestingPhysicianIdentificationSequence,
-                Tag.RequestingPhysician,
-                Tag.RequestingService,
-                Tag.RequestingServiceCodeSequence,
-                Tag.RequestedProcedureDescription,
-                Tag.RequestedProcedureCodeSequence,
-                Tag.AdmissionID,
-                Tag.IssuerOfAdmissionIDSequence,
-                Tag.ScheduledProcedureStepSequence,
-                Tag.RequestedProcedureID,
-                Tag.ReasonForTheRequestedProcedure,
-                Tag.ReasonForRequestedProcedureCodeSequence);
-        if (queryParam.accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, queryParam.accessionNumber);
-        if (queryParam.studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, queryParam.studyIUID);
-        if (queryParam.spsID != null) {
-            Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            AttributesBuilder.setNullIfAbsent(sps,
-                    Tag.ScheduledPerformingPhysicianName,
-                    Tag.ScheduledProcedureStepDescription,
-                    Tag.ScheduledProtocolCodeSequence);
-            sps.setString(Tag.ScheduledProcedureStepID, VR.SH, queryParam.spsID);
-        }
         LOG.info("{}: Query for MWL Items with {}", session, queryParam);
-        List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam.mwlSCP,
-                EnumSet.noneOf(QueryOption.class), Priority.NORMAL, keys);
+        List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam,
+                EnumSet.noneOf(QueryOption.class), Priority.NORMAL);
         if (matches.isEmpty()) {
             LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
             return null;

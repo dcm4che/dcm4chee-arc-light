@@ -51,10 +51,8 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.UseCallingAETitleAsCoercion;
+import org.dcm4chee.arc.MergeMWLQueryParam;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
@@ -117,6 +115,49 @@ public class CFindSCUImpl implements CFindSCU {
     public List<Attributes> find(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions,
             int priority, Attributes keys) throws Exception {
         return find(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFind, queryOptions, priority, keys);
+    }
+
+    @Override
+    public List<Attributes> findMWLItems(ApplicationEntity localAE, MergeMWLQueryParam queryParam,
+            EnumSet<QueryOption> queryOptions, int priority) throws Exception {
+        Attributes keys = new Attributes();
+        AttributesBuilder.setNullIfAbsent(keys,
+                Tag.AccessionNumber,
+                Tag.IssuerOfAccessionNumberSequence,
+                Tag.ReferencedStudySequence,
+                Tag.ReferringPhysicianName,
+                Tag.PatientID,
+                Tag.IssuerOfPatientID,
+                Tag.IssuerOfPatientIDQualifiersSequence,
+                Tag.PatientBirthDate,
+                Tag.PatientSex,
+                Tag.PatientSize,
+                Tag.PatientWeight,
+                Tag.PatientSexNeutered,
+                Tag.StudyInstanceUID,
+                Tag.RequestingPhysicianIdentificationSequence,
+                Tag.RequestingPhysician,
+                Tag.RequestingService,
+                Tag.RequestingServiceCodeSequence,
+                Tag.RequestedProcedureDescription,
+                Tag.RequestedProcedureCodeSequence,
+                Tag.AdmissionID,
+                Tag.IssuerOfAdmissionIDSequence,
+                Tag.ScheduledProcedureStepSequence,
+                Tag.RequestedProcedureID,
+                Tag.ReasonForTheRequestedProcedure,
+                Tag.ReasonForRequestedProcedureCodeSequence);
+        if (queryParam.accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, queryParam.accessionNumber);
+        if (queryParam.studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, queryParam.studyIUID);
+        if (queryParam.spsID != null) {
+            Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            AttributesBuilder.setNullIfAbsent(sps,
+                    Tag.ScheduledPerformingPhysicianName,
+                    Tag.ScheduledProcedureStepDescription,
+                    Tag.ScheduledProtocolCodeSequence);
+            sps.setString(Tag.ScheduledProcedureStepID, VR.SH, queryParam.spsID);
+        }
+        return findMWLItems(localAE, queryParam.mwlSCP, EnumSet.noneOf(QueryOption.class), priority, keys);
     }
 
     @Override
