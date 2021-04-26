@@ -1006,8 +1006,11 @@ public class IocmRS {
         try {
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
             Attributes instanceRefs = parseSOPInstanceReferences(in);
+            String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
-                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), null);
+                    HttpServletRequestInfo.valueOf(request),
+                    arcAE.getApplicationEntity(),
+                    changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle());
             if (rjNote != null)
                 session.withObjectStorageID(rejectionNoteObjectStorageID());
 

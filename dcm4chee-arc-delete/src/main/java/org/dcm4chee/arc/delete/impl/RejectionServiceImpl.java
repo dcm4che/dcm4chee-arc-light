@@ -128,7 +128,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     @Override
     public int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
                       HttpServletRequestInfo httpRequest) throws Exception {
-        StoreSession storeSession = storeService.newStoreSession(httpRequest, ae, null);
+        String changeRequesterAET = ae.getAEExtension(ArchiveAEExtension.class).changeRequesterAET();
+        StoreSession storeSession = storeService.newStoreSession(httpRequest, ae,
+                changeRequesterAET != null ? changeRequesterAET : ae.getAETitle());
         String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
         storeSession.withObjectStorageID(rejectionNoteObjectStorageID);
         storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null);
