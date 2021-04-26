@@ -508,7 +508,7 @@ public class QueryBuilder {
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         accessControl(predicates, study, queryParam.getAccessControlIDs());
-        uidsPredicate(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
+        anyOf(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
         anyOf(predicates, study.get(Study_.studyID), keys.getStrings(Tag.StudyID), false);
         dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
@@ -594,7 +594,7 @@ public class QueryBuilder {
 
     private <T, Z> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             From<Z, Series> series, Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID));
+        anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         anyOf(predicates, series.get(Series_.modality),
                 toUpperCase(keys.getStrings(Tag.Modality)), false);
@@ -664,8 +664,8 @@ public class QueryBuilder {
             Path<Study> study, Path<Series> series, Root<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
-        uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
-        uidsPredicate(predicates, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID));
+        anyOf(predicates, instance.get(Instance_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID), false);
+        anyOf(predicates, instance.get(Instance_.sopClassUID), keys.getStrings(Tag.SOPClassUID), false);
         numberPredicate(predicates, instance.get(Instance_.instanceNumber), keys.getString(Tag.InstanceNumber, "*"));
         anyOf(predicates, instance.get(Instance_.verificationFlag),
                 toUpperCase(keys.getStrings(Tag.VerificationFlag)), false);
@@ -723,7 +723,7 @@ public class QueryBuilder {
 
     private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID));
+        anyOf(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
         anyOf(predicates, mwlItem.get(MWLItem_.requestedProcedureID),
                 keys.getStrings(Tag.RequestedProcedureID), false);
         String accNo = keys.getString(Tag.AccessionNumber, "*");
@@ -816,7 +816,7 @@ public class QueryBuilder {
 
     private <T> void upsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             Root<UPS> ups, Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, ups.get(UPS_.upsInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        anyOf(predicates, ups.get(UPS_.upsInstanceUID), keys.getStrings(Tag.SOPInstanceUID), false);
         anyOf(predicates, ups.get(UPS_.upsPriority), UPSPriority::valueOf,
                 toUpperCase(keys.getStrings(Tag.ScheduledProcedureStepPriority)));
         dateRange(predicates, ups.get(UPS_.updatedTime),
@@ -857,9 +857,11 @@ public class QueryBuilder {
                 predicates.add(cb.equal(ups.get(UPS_.admissionID), admissionID));
         }
         upsRequestAttributes(predicates, q, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
-        uidsPredicate(predicates, ups.get(UPS_.replacedSOPInstanceUID),
-                getString(keys.getNestedDataset(Tag.ReplacedProcedureStepSequence),
-                        Tag.ReferencedSOPInstanceUID, "*"));
+        Attributes replacedProcedureStep = keys.getNestedDataset(Tag.ReplacedProcedureStepSequence);
+        if (replacedProcedureStep != null) {
+            anyOf(predicates, ups.get(UPS_.replacedSOPInstanceUID),
+                    replacedProcedureStep.getStrings(Tag.ReferencedSOPInstanceUID), false);
+        }
         anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
         notSubscribedBy(predicates, q, ups, queryParam.getNotSubscribedByAET());
@@ -867,7 +869,7 @@ public class QueryBuilder {
 
     private <T> void mppsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
                                         Root<MPPS> mpps, Attributes keys, QueryParam queryParam) {
-        uidsPredicate(predicates, mpps.get(MPPS_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID));
+        anyOf(predicates, mpps.get(MPPS_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID), true);
         dateRange(predicates,
                 mpps.get(MPPS_.performedProcedureStepStartDate),
                 mpps.get(MPPS_.performedProcedureStepStartTime),
@@ -879,7 +881,7 @@ public class QueryBuilder {
                 toUpperCase(keys.getStrings(Tag.PerformedProcedureStepStatus)));
         Attributes ssa = keys.getNestedDataset(Tag.ScheduledStepAttributesSequence);
         if (ssa != null) {
-            uidsPredicate(predicates, mpps.get(MPPS_.studyInstanceUID), ssa.getStrings(Tag.StudyInstanceUID));
+            anyOf(predicates, mpps.get(MPPS_.studyInstanceUID), ssa.getStrings(Tag.StudyInstanceUID), false);
             String accNo = ssa.getString(Tag.AccessionNumber, "*");
             if (!isUniversalMatching(accNo)) {
                 Issuer issuer = Issuer.valueOf(ssa.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
@@ -888,10 +890,6 @@ public class QueryBuilder {
                 idWithIssuer(predicates, mpps, MPPS_.accessionNumber, MPPS_.issuerOfAccessionNumber, accNo, issuer);
             }
         }
-    }
-
-    private String getString(Attributes item, int tag, String defVal) {
-        return item != null ? item.getString(tag, defVal) : defVal;
     }
 
     public <T> void hideRejectedInstance(List<Predicate> predicates, CriteriaQuery<T> q,
@@ -1062,7 +1060,7 @@ public class QueryBuilder {
         Root<Series> series = sq.from(Series.class);
         List<Predicate> y = new ArrayList<>();
         anyOf(y, series.get(Series_.modality), toUpperCase(modalitiesInStudy), false);
-        uidsPredicate(y, series.get(Series_.sopClassUID), keys.getStrings(Tag.SOPClassesInStudy));
+        anyOf(y, series.get(Series_.sopClassUID), keys.getStrings(Tag.SOPClassesInStudy), false);
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             anyOf(y, series.get(Series_.institutionName),
                     keys.getStrings(Tag.InstitutionName), true);
@@ -1185,8 +1183,8 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestedProcedureID),
                 item.getStrings(Tag.RequestedProcedureID), false);
-        uidsPredicate(requestPredicates, request.get(SeriesRequestAttributes_.studyInstanceUID),
-                item.getStrings(Tag.StudyInstanceUID));
+        anyOf(requestPredicates, request.get(SeriesRequestAttributes_.studyInstanceUID),
+                item.getStrings(Tag.StudyInstanceUID), false);
         anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.scheduledProcedureStepID),
                 item.getStrings(Tag.ScheduledProcedureStepID), false);
@@ -1222,8 +1220,8 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestedProcedureID),
                 item.getStrings(Tag.RequestedProcedureID), false);
-        uidsPredicate(requestPredicates, request.get(UPSRequest_.studyInstanceUID),
-                item.getStrings(Tag.StudyInstanceUID));
+        anyOf(requestPredicates, request.get(UPSRequest_.studyInstanceUID),
+                item.getStrings(Tag.StudyInstanceUID), false);
         if (!requestPredicates.isEmpty())
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
     }
