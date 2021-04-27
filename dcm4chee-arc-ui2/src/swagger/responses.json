@@ -115,7 +115,7 @@
         "schema": {
           "type": "object",
           "required": [
-            "faield"
+            "failed"
           ],
           "properties": {
             "failed": {
@@ -181,6 +181,33 @@
               "type": "integer"
             },
             "warning": {
+              "type": "integer"
+            },
+            "failed": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "syncMWL": {
+    "description": "Synced Scheduled Procedure Steps",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "consistent": {
+              "type": "integer"
+            },
+            "created": {
+              "type": "integer"
+            },
+            "updated": {
               "type": "integer"
             },
             "failed": {

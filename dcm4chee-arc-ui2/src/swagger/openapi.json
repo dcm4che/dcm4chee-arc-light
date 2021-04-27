@@ -450,6 +450,9 @@
     "/aets/{aet}/rs/mwlitems/status/{status}": {
       "$ref": "paths/mwlitems.json#/mstatus"
     },
+    "/aets/{aet}/rs/mwlitems/query:{mwlscp}": {
+      "$ref": "paths/mwlitems.json#/rsync"
+    },
     "/aets/{aet}/rs/mpps": {
       "$ref": "paths/mpps.json#/-"
     },
