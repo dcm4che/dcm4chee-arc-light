@@ -73,6 +73,7 @@ public class QueryParam {
     private String externalRetrieveAETNot;
     private String subscriberAET;
     private String notSubscribedByAET;
+    private String calledAET;
     private Patient.VerificationStatus patientVerificationStatus;
     private ExpirationState[] expirationState;
     private String expirationDate;
@@ -89,10 +90,15 @@ public class QueryParam {
         this.arcAE = arcAE;
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
+        this.calledAET = arcAE.getApplicationEntity().getAETitle();
     }
 
-    public String getAETitle() {
-        return arcAE.getApplicationEntity().getAETitle();
+    public void setCalledAET(String calledAET) {
+        this.calledAET = calledAET;
+    }
+
+    public String getCalledAET() {
+        return calledAET;
     }
 
     public String[] getAccessControlIDs() {

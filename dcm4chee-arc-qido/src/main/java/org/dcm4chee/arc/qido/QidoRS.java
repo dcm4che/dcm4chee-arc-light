@@ -543,6 +543,7 @@ public class QidoRS {
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
                                          String seriesInstanceUID, Model model, ApplicationEntity ae) {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
+        queryParam.setCalledAET(aet);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setAllOfModalitiesInStudy(Boolean.parseBoolean(allOfModalitiesInStudy));

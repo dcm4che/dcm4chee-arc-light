@@ -134,6 +134,7 @@ class QueryServiceImpl implements QueryService {
         QueryParam queryParam = new QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(queryOpts.contains(QueryOption.DATETIME));
         queryParam.setFuzzySemanticMatching(queryOpts.contains(QueryOption.FUZZY));
+        queryParam.setCalledAET(as.getCalledAET());
         return new QueryContextImpl(ae, queryParam, this).find(as, sopClassUID);
     }
 
