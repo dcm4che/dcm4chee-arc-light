@@ -768,6 +768,24 @@
       "default": false
     }
   },
+  "mwlrsyncdelete": {
+    "name": "delete",
+    "in": "query",
+    "description": "If true, delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "filterbyscu": {
+    "name": "filterbyscu",
+    "in": "query",
+    "description": "If true, apply specified filter on matches returned by external MWL SCP.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "filter": {
     "name": "filter",
     "in": "query",

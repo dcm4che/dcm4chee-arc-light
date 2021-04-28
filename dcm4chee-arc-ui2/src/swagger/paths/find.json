@@ -686,5 +686,66 @@
         }
       }
     }
+  },
+  "mwlitems.rsync": {
+    "post": {
+      "tags": [
+        "MWL-RS"
+      ],
+      "summary": "Sync matching Scheduled Procedure Steps from external MWL SCP",
+      "operationId": "SyncMatchingSPS",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/mwlSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/filterbyscu"
+        },
+        {
+          "$ref": "../parameters.json#/includefield"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/mwlrsyncdelete"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successfully synced all matching Scheduled Procedure Steps from MWL SCP",
+          "$ref": "../responses.json#/rsyncMWLResult"
+        },
+        "202": {
+          "description": "Some matching Scheduled Procedure Steps from MWL SCP were synced, but failures exist for others.",
+          "$ref": "../responses.json#/rsyncMWLResult"
+        },
+        "204": {
+          "description": "No matching Scheduled Procedure Steps returned from MWL SCP."
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Archive AE or MWL SCP with the specified Title."
+        },
+        "409": {
+          "description": "Sync of all matching Scheduled Procedure Steps from MWL SCP failed.",
+          "$ref": "../responses.json#/rsyncMWLResult"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Connection Refused or Query of MWL SCP failed."
+        }
+      }
+    }
   }
 }

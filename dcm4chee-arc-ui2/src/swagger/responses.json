@@ -194,20 +194,26 @@
       }
     }
   },
-  "syncMWL": {
+  "rsyncMWLResult": {
     "description": "Synced Scheduled Procedure Steps",
     "content": {
       "application/json": {
         "schema": {
           "type": "object",
+          "required": [
+            "count"
+          ],
           "properties": {
-            "consistent": {
+            "count": {
               "type": "integer"
             },
             "created": {
               "type": "integer"
             },
             "updated": {
+              "type": "integer"
+            },
+            "deleted": {
               "type": "integer"
             },
             "failed": {

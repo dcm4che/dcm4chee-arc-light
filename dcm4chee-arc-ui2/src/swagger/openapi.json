@@ -450,9 +450,6 @@
     "/aets/{aet}/rs/mwlitems/status/{status}": {
       "$ref": "paths/mwlitems.json#/mstatus"
     },
-    "/aets/{aet}/rs/mwlitems/query:{mwlscp}": {
-      "$ref": "paths/mwlitems.json#/rsync"
-    },
     "/aets/{aet}/rs/mpps": {
       "$ref": "paths/mpps.json#/-"
     },
@@ -554,6 +551,9 @@
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/count": {
       "$ref": "paths/find.json#/mwlitems.count"
+    },
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems/rsync": {
+      "$ref": "paths/find.json#/mwlitems.rsync"
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/mwlitems.json#/linkInstancesWithExternalMWL"
