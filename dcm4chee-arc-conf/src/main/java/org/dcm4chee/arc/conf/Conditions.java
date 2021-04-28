@@ -258,7 +258,7 @@ public class Conditions {
 
     private enum ValuePredicate implements Predicate<String> {
         PATIENT_ID_EST {
-            final Pattern PATTERN = Pattern.compile("[1-6]\\d\\d(0\\d|1[0-2])(0[1-9]|[12]\\d|3[01])\\d\\d\\d\\d");
+            final Pattern PATTERN = Pattern.compile("[1-6]\\d\\d(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d\\d\\d\\d");
 
             @Override
             public boolean test(String s) {
