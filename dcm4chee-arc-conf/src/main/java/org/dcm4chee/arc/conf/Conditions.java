@@ -48,6 +48,7 @@ import org.dcm4che3.util.TagUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -127,29 +128,29 @@ public class Conditions {
                 tagPath = tagPath.substring(0, tagPath.length()-1);
             int valPos = 0;
             if (tagPath.endsWith("]")) {
-                String[] tagPathWithValPos = tagPath.split("\\[");
+                String[] tagPathWithValPos = StringUtils.split(tagPath,'[');
                 tagPath = tagPathWithValPos[0];
                 valPos = Integer.parseInt(tagPathWithValPos[1].substring(0, tagPathWithValPos[1].length() - 1));
             }
             switch (tagPath) {
                 case RECEIVING_APPLICATION_ENTITY_TITLE:
-                    if (ne ? (receivingAET != null && ((Pattern) codeMatcherOrPattern).matcher(receivingAET).matches())
-                           : (receivingAET == null || !((Pattern) codeMatcherOrPattern).matcher(receivingAET).matches()))
+                    if (ne ? (receivingAET != null && test(codeMatcherOrPattern, receivingAET))
+                           : (receivingAET == null || !test(codeMatcherOrPattern, receivingAET)))
                         return false;
                     break;
                 case RECEIVING_HOSTNAME:
-                    if (ne ? (receivingHost != null && ((Pattern) codeMatcherOrPattern).matcher(receivingHost).matches())
-                            : (receivingHost == null || !((Pattern) codeMatcherOrPattern).matcher(receivingHost).matches()))
+                    if (ne ? (receivingHost != null && test(codeMatcherOrPattern, receivingHost))
+                            : (receivingHost == null || !test(codeMatcherOrPattern, receivingHost)))
                         return false;
                     break;
                 case SENDING_APPLICATION_ENTITY_TITLE:
-                    if (ne ? (sendingAET != null && ((Pattern) codeMatcherOrPattern).matcher(sendingAET).matches())
-                           : (sendingAET == null || !((Pattern) codeMatcherOrPattern).matcher(sendingAET).matches()))
+                    if (ne ? (sendingAET != null && test(codeMatcherOrPattern, sendingAET))
+                           : (sendingAET == null || !test(codeMatcherOrPattern, sendingAET)))
                         return false;
                     break;
                 case SENDING_HOSTNAME:
-                    if (ne ? (sendingHost != null && ((Pattern) codeMatcherOrPattern).matcher(sendingHost).matches())
-                           : (sendingHost == null || !((Pattern) codeMatcherOrPattern).matcher(sendingHost).matches()))
+                    if (ne ? (sendingHost != null && test(codeMatcherOrPattern, sendingHost))
+                           : (sendingHost == null || !test(codeMatcherOrPattern, sendingHost)))
                         return false;
                     break;
                 default:
@@ -175,23 +176,36 @@ public class Conditions {
             String[] ss = attrs.getStrings(tagPath[level]);
             if (ss != null && ss.length >= 1) {
                 if (valPos > 0) {
-                    if (valPos > ss.length || (ss[valPos - 1] != null && ((Pattern)(codeMatcherOrPattern)).matcher(ss[valPos - 1]).matches()))
+                    if (valPos > ss.length || (ss[valPos - 1] != null && test(codeMatcherOrPattern, ss[valPos - 1])))
                         return !ne;
                 } else
                     for (String s : ss)
-                        if (s != null &&  ((Pattern)(codeMatcherOrPattern)).matcher(s).matches())
+                        if (s != null && test(codeMatcherOrPattern, s))
                             return !ne;
             }
         }
         return ne;
     }
 
+    private static boolean test(Object predicateOrPattern, String s) {
+        return (predicateOrPattern instanceof Pattern)
+                ? ((Pattern) (predicateOrPattern)).matcher(s).matches()
+                : ((Predicate<String>) (predicateOrPattern)).test(s);
+    }
+
     private static Object toCodeMatcherOrPattern(String value) {
-        try {
-            return new CodeMatcher(value);
-        } catch (IllegalArgumentException e) {
-            return Pattern.compile(value);
+        if (!value.isEmpty()) {
+            try {
+                switch (value.charAt(0)) {
+                    case '(':
+                        return new CodeMatcher(value);
+                    case '§':
+                        return ValuePredicate.valueOf(value.substring(1));
+                }
+            } catch (IllegalArgumentException ignore) {
+            }
         }
+        return Pattern.compile(value);
     }
 
     @Override
@@ -207,7 +221,7 @@ public class Conditions {
         return toString().equals(obj.toString());
     }
 
-    public static class CodeMatcher {
+    private static class CodeMatcher {
         private final String value;
         private final Code[] codes;
 
@@ -239,6 +253,40 @@ public class Conditions {
                     return true;
             }
             return false;
+        }
+    }
+
+    private enum ValuePredicate implements Predicate<String> {
+        PATIENT_ID_EST {
+            final Pattern PATTERN = Pattern.compile("[1-6]\\d\\d(0\\d|1[0-2])(0[1-9]|[12]\\d|3[01])\\d\\d\\d\\d");
+
+            @Override
+            public boolean test(String s) {
+                return PATTERN.matcher(s).matches() && verifyChecksum(s.toCharArray());
+            }
+
+            private boolean verifyChecksum(char[] chars) {
+                int checksum = checksum(chars, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1);
+                if (checksum == 10) {
+                    checksum = checksum(chars, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3);
+                    if (checksum == 10)
+                        checksum = 0;
+                }
+                return chars[10] - '0' == checksum;
+            }
+
+            private int checksum(char[] chars, int... weights) {
+                int sum = 0;
+                for (int i = 0; i < 10; i++) {
+                    sum += (chars[i] - '0') * weights[i];
+                }
+                return sum % 11;
+            }
+        };
+
+        @Override
+        public String toString() {
+            return '§' + name();
         }
     }
 }
