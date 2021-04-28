@@ -202,9 +202,11 @@ public class PatientServiceEJB {
                 return;
         }
 
-        PatientID patientID = pat.getPatientID();
-        updateIssuer(patientID, ctx.getPatientID().getIssuer());
-        em.merge(patientID);
+        if (ctx.getPatientID().getIssuer() != null) {
+            PatientID patientID = pat.getPatientID();
+            patientID.setIssuer(issuerService.mergeOrCreate(ctx.getPatientID().getIssuer()));
+            em.merge(patientID);
+        }
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
                 ? attrs.addOriginalAttributes(
