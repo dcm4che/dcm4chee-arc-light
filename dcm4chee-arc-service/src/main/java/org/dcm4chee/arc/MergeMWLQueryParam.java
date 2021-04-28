@@ -56,7 +56,7 @@ public class MergeMWLQueryParam {
     public final String studyIUID;
     public final String spsID;
 
-    private MergeMWLQueryParam(String mwlSCP, String accessionNumber, String studyIUID, String spsID) {
+    public MergeMWLQueryParam(String mwlSCP, String accessionNumber, String studyIUID, String spsID) {
         this.mwlSCP = mwlSCP;
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;

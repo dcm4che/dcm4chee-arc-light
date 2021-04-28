@@ -40,7 +40,11 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -54,11 +58,10 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.rs.client.RSForward;
-import org.dcm4chee.arc.store.InstanceLocations;
-import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -68,19 +71,16 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonException;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.function.IntFunction;
 
 /**
@@ -115,6 +115,12 @@ public class IocmRS {
 
     @Inject
     private ProcedureService procedureService;
+
+    @Inject
+    private CFindSCU cFindSCU;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @PathParam("AETitle")
     private String aet;
@@ -203,15 +209,12 @@ public class IocmRS {
                                               @PathParam("codingSchemeDesignator") String designator,
                                               InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        RejectionNote rjNote = toRejectionNote(codeValue, designator);
         try {
-            RejectionNote rjNote = toRejectionNote(codeValue, designator);
-            Attributes instanceRefs = parseSOPInstanceReferences(in);
-
             ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSpsID(spsID);
-
             MWLItem mwl = procedureService.findMWLItem(ctx);
             if (mwl == null)
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
@@ -219,8 +222,6 @@ public class IocmRS {
 
             ctx.setAttributes(mwl.getAttributes());
             ctx.setPatient(mwl.getPatient());
-            ctx.setSourceInstanceRefs(instanceRefs);
-
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
@@ -228,31 +229,15 @@ public class IocmRS {
                     changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle())
                     .withObjectStorageID(rejectionNoteObjectStorageID());
 
-            restoreInstances(session, instanceRefs);
-            Collection<InstanceLocations> instanceLocations = toInstanceLocations(studyUID, instanceRefs, session);
-            if (instanceLocations.isEmpty())
-                return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
-
-
-            final Attributes result;
-            if (studyUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
-                procedureService.updateStudySeriesAttributes(ctx);
-                result = getResult(instanceLocations);
-            } else {
-                Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
-                moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-                session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
-                session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
-                session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
-                result = storeService.copyInstances(
-                        session, instanceLocations, instAttrs(mwl), Attributes.UpdatePolicy.OVERWRITE);
-                rejectInstances(instanceRefs, rjNote, session, result);
-            }
-            return toResponse(result);
+            Attributes result = IocmUtils.linkInstancesWithMWL(
+                    session, retrieveService, procedureService, ctx, queryService, rjNote, instAttrs(mwl), in);
+            return result == null
+                    ? errResponse("No Instances found.", Response.Status.NOT_FOUND)
+                    : toResponse(result);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (DicomServiceException e) {
-            return errResponse(IocmRS::rejectFailed, e);
+        } catch (IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -275,20 +260,6 @@ public class IocmRS {
                 }
         };
         return Response.status(status(result)).entity(entity).build();
-    }
-
-    private Attributes getResult(Collection<InstanceLocations> instanceLocations) {
-        Attributes result = new Attributes();
-        Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, instanceLocations.size());
-        instanceLocations.forEach(instanceLocation -> populateResult(refSOPSeq, instanceLocation));
-        return result;
-    }
-
-    private void populateResult(Sequence refSOPSeq, InstanceLocations instanceLocation) {
-        Attributes refSOP = new Attributes(2);
-        refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instanceLocation.getSopClassUID());
-        refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instanceLocation.getSopInstanceUID());
-        refSOPSeq.add(refSOP);
     }
 
     public void validate() {
@@ -356,9 +327,8 @@ public class IocmRS {
 
     private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        RejectionNote rjNote = toRejectionNote(codeValue, designator);
         try {
-            RejectionNote rjNote = toRejectionNote(codeValue, designator);
-            Attributes instanceRefs = parseSOPInstanceReferences(in);
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
@@ -367,53 +337,19 @@ public class IocmRS {
             if (rjNote != null)
                 session.withObjectStorageID(rejectionNoteObjectStorageID());
 
-            restoreInstances(session, instanceRefs);
-            Collection<InstanceLocations> instances = toInstanceLocations(studyUID, instanceRefs, session);
-            if (instances.isEmpty())
-                return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
-
-            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
-            moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-            session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
-            session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
-            session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
-            Attributes result = storeService.copyInstances(
-                    session, instances, coerceAttrs, Attributes.UpdatePolicy.MERGE);
-            if (rjNote != null)
-                rejectInstances(instanceRefs, rjNote, session, result);
-
-            return toResponse(result);
+            Attributes result = IocmUtils.copyMove(
+                                        session, retrieveService, queryService, studyUID, coerceAttrs, rjNote, in);
+            return result == null
+                    ? errResponse("No Instances found.", Response.Status.NOT_FOUND)
+                    : toResponse(result);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (DicomServiceException e) {
             return errResponse(IocmRS::rejectFailed, e);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-    }
-
-    private Collection<InstanceLocations> toInstanceLocations(
-            String studyUID, Attributes instanceRefs, StoreSession session) {
-        try {
-            return retrieveService.queryInstances(session, instanceRefs, studyUID);
-        } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-    }
-
-    private void restoreInstances(StoreSession session, Attributes sopInstanceRefs) {
-        try {
-            String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
-            Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-            if (seq == null || seq.isEmpty())
-                storeService.restoreInstances(session, studyUID, null, null);
-            else for (Attributes item : seq)
-                storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null);
-        } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -432,211 +368,12 @@ public class IocmRS {
         return rjNote;
     }
 
-    private void rejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result)
-            throws IOException {
-        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        removeFailedInstanceRefs(refSeriesSeq, failedIUIDs(result));
-        if (!refSeriesSeq.isEmpty())
-            reject(session, instanceRefs, rjNote);
-    }
-
-    private Set<String> failedIUIDs(Attributes result) {
-        Sequence failedSOPSeq = result.getSequence(Tag.FailedSOPSequence);
-        if (failedSOPSeq == null || failedSOPSeq.isEmpty())
-            return Collections.emptySet();
-
-        Set<String> failedIUIDs = new HashSet<>(failedSOPSeq.size() * 4 / 3 + 1);
-        failedSOPSeq.forEach(failedSOPRef -> failedIUIDs.add(failedSOPRef.getString(Tag.ReferencedSOPInstanceUID)));
-        return failedIUIDs;
-    }
-
-    private void removeFailedInstanceRefs(Sequence refSeriesSeq, Set<String> failedIUIDs) {
-        if (failedIUIDs.isEmpty())
-            return;
-
-        for (Iterator<Attributes> refSeriesIter = refSeriesSeq.iterator(); refSeriesIter.hasNext();) {
-            Sequence refSOPSeq = refSeriesIter.next().getSequence(Tag.ReferencedSOPSequence);
-            removeFailedRefSOPs(refSOPSeq, failedIUIDs);
-            if (refSOPSeq.isEmpty())
-                refSeriesIter.remove();
-        }
-    }
-
-    private void removeFailedRefSOPs(Sequence refSOPSeq, Set<String> failedIUIDs) {
-        for (Iterator<Attributes> refSopIter = refSOPSeq.iterator(); refSopIter.hasNext();)
-            if (failedIUIDs.contains(refSopIter.next().getString(Tag.ReferencedSOPInstanceUID)))
-                refSopIter.remove();
-    }
-
     private Response.Status status(Attributes result) {
         return result.getSequence(Tag.ReferencedSOPSequence).isEmpty()
                 ? Response.Status.CONFLICT
                 : result.getSequence(Tag.FailedSOPSequence) == null
                     || result.getSequence(Tag.FailedSOPSequence).isEmpty()
                     ? Response.Status.OK : Response.Status.ACCEPTED;
-    }
-
-    private void reject(StoreSession session, Attributes instanceRefs, RejectionNote rjNote) throws IOException {
-        StoreContext koctx = storeService.newStoreContext(session);
-        Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
-        koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-        koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-        koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        storeService.store(koctx, ko);
-    }
-
-    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
-                                          ApplicationEntity ae) {
-        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
-        Attributes refStudy = new Attributes(2);
-        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
-        refStudy.setString(Tag.StudyInstanceUID, VR.UI, sourceStudyUID);
-        HashMap<String, Sequence> seriesMap = new HashMap<>();
-        instances.forEach(instance -> {
-            Attributes iAttr = instance.getAttributes();
-            String seriesIUID = iAttr.getString(Tag.SeriesInstanceUID);
-            Sequence refSOPSeq = seriesMap.get(seriesIUID);
-            if (refSOPSeq == null) {
-                Attributes refSeries = new Attributes(4);
-                refSeries.setString(Tag.RetrieveAETitle, VR.AE, ae.getAETitle());
-                refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
-                refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
-                seriesMap.put(seriesIUID, refSOPSeq);
-                refSeriesSeq.add(refSeries);
-            }
-            Attributes refSOP = new Attributes(2);
-            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instance.getSopClassUID());
-            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instance.getSopInstanceUID());
-            refSOPSeq.add(refSOP);
-        });
-        return refStudy;
-    }
-
-    private void moveSequence(Attributes src, int tag, Attributes dest) {
-        Sequence srcSeq = src.getSequence(tag);
-        int size = srcSeq.size();
-        Sequence destSeq = dest.newSequence(tag, size);
-        for (int i = 0; i < size; i++)
-            destSeq.add(srcSeq.remove(0));
-    }
-
-
-    private void expect(JsonParser parser, JsonParser.Event expected) {
-        JsonParser.Event next = parser.next();
-        if (next != expected)
-            throw new WebApplicationException(
-                    errResponse("Unexpected " + next, Response.Status.BAD_REQUEST));
-    }
-
-    private Attributes parseSOPInstanceReferences(InputStream in) {
-        Attributes attrs = new Attributes(2);
-        try {
-            JsonParser parser = Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8));
-            expect(parser, JsonParser.Event.START_OBJECT);
-            while (parser.next() == JsonParser.Event.KEY_NAME) {
-                switch (parser.getString()) {
-                    case "StudyInstanceUID":
-                        expect(parser, JsonParser.Event.VALUE_STRING);
-                        attrs.setString(Tag.StudyInstanceUID, VR.UI, parser.getString());
-                        break;
-                    case "ReferencedSeriesSequence":
-                        parseReferencedSeriesSequence(parser,
-                                attrs.newSequence(Tag.ReferencedSeriesSequence, 10));
-                        break;
-                    default:
-                        throw new WebApplicationException(
-                                errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
-                }
-            }
-        } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
-        } catch (NoSuchElementException e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-
-        if (!attrs.contains(Tag.StudyInstanceUID))
-            throw new WebApplicationException(
-                    errResponse("Missing StudyInstanceUID", Response.Status.BAD_REQUEST));
-
-        return attrs;
-    }
-
-    private void parseReferencedSeriesSequence(JsonParser parser, Sequence seq) {
-        expect(parser, JsonParser.Event.START_ARRAY);
-        while (parser.next() == JsonParser.Event.START_OBJECT)
-            seq.add(parseReferencedSeries(parser));
-    }
-
-    private Attributes parseReferencedSeries(JsonParser parser) {
-        Attributes attrs = new Attributes(2);
-        try {
-            while (parser.next() == JsonParser.Event.KEY_NAME) {
-                switch (parser.getString()) {
-                    case "SeriesInstanceUID":
-                        expect(parser, JsonParser.Event.VALUE_STRING);
-                        attrs.setString(Tag.SeriesInstanceUID, VR.UI, parser.getString());
-                        break;
-                    case "ReferencedSOPSequence":
-                        parseReferencedSOPSequence(parser,
-                                attrs.newSequence(Tag.ReferencedSOPSequence, 10));
-                        break;
-                    default:
-                        throw new WebApplicationException(
-                                errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
-                }
-            }
-        } catch (JsonException | NoSuchElementException e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-
-        if (!attrs.contains(Tag.SeriesInstanceUID))
-            throw new WebApplicationException(
-                    errResponse("Missing SeriesInstanceUID", Response.Status.BAD_REQUEST));
-
-        return attrs;
-    }
-
-    private void parseReferencedSOPSequence(JsonParser parser, Sequence seq) {
-        expect(parser, JsonParser.Event.START_ARRAY);
-        while (parser.next() == JsonParser.Event.START_OBJECT)
-            seq.add(parseReferencedSOP(parser));
-    }
-
-    private Attributes parseReferencedSOP(JsonParser parser) {
-        Attributes attrs = new Attributes(2);
-        try {
-            while (parser.next() == JsonParser.Event.KEY_NAME) {
-                switch (parser.getString()) {
-                    case "ReferencedSOPClassUID":
-                        expect(parser, JsonParser.Event.VALUE_STRING);
-                        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, parser.getString());
-                        break;
-                    case "ReferencedSOPInstanceUID":
-                        expect(parser, JsonParser.Event.VALUE_STRING);
-                        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, parser.getString());
-                        break;
-                    default:
-                        throw new WebApplicationException(
-                                errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
-                }
-            }
-        } catch (JsonException | NoSuchElementException e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-
-        if (!attrs.contains(Tag.ReferencedSOPClassUID))
-            throw new WebApplicationException(
-                    errResponse("Missing ReferencedSOPClassUID", Response.Status.BAD_REQUEST));
-
-        if (!attrs.contains(Tag.ReferencedSOPInstanceUID))
-            throw new WebApplicationException(
-                    errResponse("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST));
-
-        return attrs;
     }
 
     private String rejectionNoteObjectStorageID() {

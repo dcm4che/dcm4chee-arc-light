@@ -126,6 +126,7 @@ public class CFindSCUImpl implements CFindSCU {
                 Tag.IssuerOfAccessionNumberSequence,
                 Tag.ReferencedStudySequence,
                 Tag.ReferringPhysicianName,
+                Tag.PatientName,
                 Tag.PatientID,
                 Tag.IssuerOfPatientID,
                 Tag.IssuerOfPatientIDQualifiersSequence,
