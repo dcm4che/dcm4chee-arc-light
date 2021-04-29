@@ -39,7 +39,7 @@
     </xsl:call-template>
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00401003'"/>
-      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
       <xsl:with-param name="val">
         <xsl:call-template name="procedurePriority">
           <xsl:with-param name="priority" select="field[7]/component[5]/text()"/>
@@ -62,7 +62,7 @@
   <xsl:template match="TQ1[1]">
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00401003'"/>
-      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
       <xsl:with-param name="val">
         <xsl:call-template name="procedurePriority">
           <xsl:with-param name="priority" select="field[9]/text()"/>
