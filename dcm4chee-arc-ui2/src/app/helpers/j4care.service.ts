@@ -756,7 +756,7 @@ export class j4care {
         try{
             let filterMaped = Object.keys(filter).map((key) => {
                 if (filter[key] || filter[key] === false || filter[key] === 0){
-                    return key + '=' + filter[key];
+                    return key + '=' + filter[key].trim();
                 }
             });
             let filterCleared = _.compact(filterMaped);
