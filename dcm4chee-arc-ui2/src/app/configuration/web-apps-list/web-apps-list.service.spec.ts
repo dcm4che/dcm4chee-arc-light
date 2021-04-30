@@ -16,6 +16,7 @@ describe('WebAppsListService', () => {
           { provide: J4careHttpService, useClass: MyServiceDependencyStub },
           { provide: DevicesService, useClass: MyServiceDependencyStub },
           { provide: AeListService, useClass: MyServiceDependencyStub },
+          { provide: AppService, useClass: MyServiceDependencyStub },
       ]
     });
   });

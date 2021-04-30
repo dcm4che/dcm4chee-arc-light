@@ -364,7 +364,7 @@ describe('j4care', () => {
             j4care.getBaseUrlFromDicomNetworkConnection(
                 []
             )
-        ).toEqual(window.location.origin);
+        ).toEqual("");
     });
 
     it("Should return whole URL from DcmWebApp",()=>{
@@ -387,9 +387,9 @@ describe('j4care', () => {
                         ]
                     }
                 ),
-                undefined
+                ""
             )
-        ).toEqual(`${window.location.origin}/dcm4chee-arc/aets/DCM4CHEE/rs`);
+        ).toEqual(`/dcm4chee-arc/aets/DCM4CHEE/rs`);
 
         expect(
             j4care.getUrlFromDcmWebApplication(
@@ -606,5 +606,29 @@ describe('j4care', () => {
         expect(
             j4care.extractLanguageDataFromString(undefined)
         ).toEqual(undefined);
+    })
+
+    fit("Should trim the filter object",()=>{
+        expect(j4care.trimFilterObject({
+            "test":" selam",
+            "testkey2": " selam ",
+            "testkey3": " selam alejkum ",
+            "testdeep": {
+                "key1": " selam ",
+                "key2": 0,
+                "key3": false,
+                "key4": " test*"
+            }
+        })).toEqual({
+            "test":"selam",
+            "testkey2": "selam",
+            "testkey3": "selam alejkum",
+            "testdeep": {
+                "key1": "selam",
+                "key2": 0,
+                "key3": false,
+                "key4": "test*"
+            }
+        });
     })
 });

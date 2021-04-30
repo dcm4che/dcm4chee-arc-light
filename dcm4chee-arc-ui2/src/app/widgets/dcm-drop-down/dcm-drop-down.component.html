@@ -12,7 +12,7 @@
         <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
         <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
       </ng-container>
-        <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable" title="{{description || placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
+        <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
       <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
     </div>
     <span class="glyphicon glyphicon-triangle-bottom"></span>

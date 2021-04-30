@@ -749,6 +749,17 @@ export class j4care {
         return obj;
     };
 
+    static trimFilterObject(object){
+        Object.keys(object).forEach(key=>{
+            if(typeof object[key] === "string"){
+                object[key] = object[key].trim();
+            }else{
+                object[key] = this.trimFilterObject(object[key]);
+            }
+        });
+        return object;
+    }
+
     static getUrlParams(params){
         return this.param(params);
     };

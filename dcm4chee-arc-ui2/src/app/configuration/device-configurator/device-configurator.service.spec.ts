@@ -319,7 +319,7 @@ describe("DeviceConfiguratorService",()=> {
        expect(service.getPreviousPathPart("properties.dicomNetworkConnection.items.properties.dcmNetworkConnection")).toEqual("properties.dicomNetworkConnection");
     });
 
-    fit("Should extract the whole array path from specific array path",()=>{
+    it("Should extract the whole array path from specific array path",()=>{
         expect(service.extractArraysPathFromSpecific("dcmDevice.dcmWebApp[1]")).toEqual("dcmDevice.dcmWebApp");
         expect(service.extractArraysPathFromSpecific("test.properties.test2[2].dcmDevice.dcmWebApp[1]")).toEqual("test.properties.test2[2].dcmDevice.dcmWebApp");
     });
