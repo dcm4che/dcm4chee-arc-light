@@ -608,7 +608,7 @@ describe('j4care', () => {
         ).toEqual(undefined);
     })
 
-    fit("Should trim the filter object",()=>{
+    it("Should trim the filter object",()=>{
         expect(j4care.trimFilterObject({
             "test":" selam",
             "testkey2": " selam ",
