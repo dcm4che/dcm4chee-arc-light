@@ -200,6 +200,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String template;
 
+    @QueryParam("requested")
+    @Pattern(regexp = "true|false")
+    private String requested;
+
     private char csvDelimiter = ',';
 
     @Override
@@ -558,6 +562,7 @@ public class QidoRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);
         queryParam.setStudySizeRange(studySizeInKB);
+        queryParam.setRequested(requested);
         if (storageID != null)
             queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));

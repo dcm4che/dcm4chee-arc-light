@@ -1061,6 +1061,7 @@ public class QueryBuilder {
         List<Predicate> y = new ArrayList<>();
         anyOf(y, series.get(Series_.modality), toUpperCase(modalitiesInStudy), false);
         anyOf(y, series.get(Series_.sopClassUID), keys.getStrings(Tag.SOPClassesInStudy), false);
+        requestedOrUnscheduled(y, series, queryParam);
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             anyOf(y, series.get(Series_.institutionName),
                     keys.getStrings(Tag.InstitutionName), true);
@@ -1161,6 +1162,7 @@ public class QueryBuilder {
         if (isUniversalMatching(item))
             return;
 
+        requestedOrUnscheduled(predicates, series, queryParam);
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
         From<Z, Series> sqSeries = correlate(sq, series);
         Join<Series, SeriesRequestAttributes> request = sqSeries.join(Series_.requestAttributes);
@@ -1191,6 +1193,17 @@ public class QueryBuilder {
         if (!requestPredicates.isEmpty()) {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
+    }
+
+    private <T, Z> void requestedOrUnscheduled(List<Predicate> predicates, From<Z, Series> series, QueryParam queryParam) {
+        String requested = queryParam.getRequested();
+        if (requested == null)
+            return;
+
+        if (Boolean.parseBoolean(requested))
+            predicates.add(cb.isNotEmpty(series.get(Series_.requestAttributes)));
+        else
+            predicates.add(cb.isEmpty(series.get(Series_.requestAttributes)));
     }
 
     private <T, Z> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, UPS> ups,

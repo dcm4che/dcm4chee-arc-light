@@ -175,6 +175,7 @@ public class QueryAttributes {
                 case "sourceOfPreviousValues":
                 case "csvPatientID":
                 case "test":
+                case "requested":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,

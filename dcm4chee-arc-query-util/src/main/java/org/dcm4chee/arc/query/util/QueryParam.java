@@ -81,6 +81,7 @@ public class QueryParam {
     private long minStudySize;
     private long maxStudySize;
     private boolean withoutIssuer;
+    private String requested;
 
     public QueryParam(ApplicationEntity ae) {
         this(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -308,5 +309,13 @@ public class QueryParam {
 
     public void setWithoutIssuer(boolean withoutIssuer) {
         this.withoutIssuer = withoutIssuer;
+    }
+
+    public String getRequested() {
+        return requested;
+    }
+
+    public void setRequested(String requested) {
+        this.requested = requested;
     }
 }

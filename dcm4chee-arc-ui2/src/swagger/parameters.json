@@ -1086,6 +1086,14 @@
       "type": "boolean"
     }
   },
+  "requested": {
+    "name": "requested",
+    "in": "query",
+    "description": "return Studies/Series/Instances with(requested=true)/without(requested=false) non-empty Request Attributes Sequence of Series",
+    "schema": {
+      "type": "Boolean"
+    }
+  },
   "newDeviceName": {
     "name": "newDeviceName",
     "in": "query",

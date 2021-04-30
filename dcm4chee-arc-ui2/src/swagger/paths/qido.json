@@ -96,6 +96,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -264,6 +267,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -382,6 +388,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -506,6 +515,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -627,6 +639,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -745,6 +760,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -845,6 +863,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -945,6 +966,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -1042,6 +1066,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -1145,6 +1172,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -1245,6 +1275,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -1342,6 +1375,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
@@ -1439,6 +1475,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/requested"
         }
       ],
       "responses": {
