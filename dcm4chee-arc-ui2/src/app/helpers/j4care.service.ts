@@ -767,12 +767,14 @@ export class j4care {
         try{
             let filterMaped = Object.keys(filter).map((key) => {
                 if (filter[key] || filter[key] === false || filter[key] === 0){
-                    return key + '=' + filter[key].trim();
+                    console.log("trimmed",filter[key]);
+                    return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
                 }
             });
             let filterCleared = _.compact(filterMaped);
             return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
         }catch (e) {
+            console.error(e);
             return "";
         }
     }
