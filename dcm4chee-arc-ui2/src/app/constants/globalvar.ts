@@ -1612,6 +1612,17 @@ export class Globalvar {
                     filterKey:"storageExported",
                     text:$localize `:@@storage_exported:Storage Exported`,
                     description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
+                },
+                {
+                    tag:"select",
+                    filterKey:"requested",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
+                        new SelectDropdown("true", $localize `:@@requested:Requested`)
+                    ],
+                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
                 }
             ];
         }
