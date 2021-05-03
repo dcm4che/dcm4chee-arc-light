@@ -8,7 +8,7 @@ export class PersonNamePipe implements PipeTransform {
   transform(attrs: any, tags?: any): any {
       function valueOf(attrs, tag) {
           try {
-              return attrs[tag].Value[0].Alphabetic;
+              return attrs[tag].Value[0].Alphabetic || false;
           } catch (e) {
               return false;
           }
