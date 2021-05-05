@@ -1204,6 +1204,7 @@ class ArchiveDeviceFactory {
     static final String CORRECT_VR = "${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
+    static final String MERGE_MWL_STUDY = "${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
@@ -1444,7 +1445,7 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createArchiveDevice(String name, ConfigType configType, Device arrDevice, 
+    public static Device createArchiveDevice(String name, ConfigType configType, Device arrDevice,
                                              Device scheduledStation, Device storescu, Device mppsscu)  {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
@@ -1863,6 +1864,15 @@ class ArchiveDeviceFactory {
                 "Sample Study Attribute Set",
                 null,
                 QIDO_STUDY_ATTRS));
+
+        ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                .setCommonName("Merge MWL Study")
+                .setDIMSE(Dimse.C_STORE_RQ)
+                .setRole(SCU)
+                .setSendingAETitle("MERGE_MWL_STUDY")
+                .setMergeMWLMatchingKey(MergeMWLMatchingKey.AccessionNumber)
+                .setMergeMWLTemplateURI(MERGE_MWL_STUDY)
+                .setNoKeywords(true));
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,

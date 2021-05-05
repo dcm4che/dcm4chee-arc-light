@@ -3124,6 +3124,16 @@ dcmEntity: Patient
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: SUPPLEMENT
 
+dn: cn=Merge MWL Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCU
+dcmMergeMWLMatchingKey: AccessionNumber
+dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl
+dcmProperty: SendingApplicationEntityTitle=MERGE_MWL_STUDY
+objectClass: dcmArchiveAttributeCoercion
+dcmNoKeywords: TRUE
+cn: Merge MWL Study
+
 dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ
