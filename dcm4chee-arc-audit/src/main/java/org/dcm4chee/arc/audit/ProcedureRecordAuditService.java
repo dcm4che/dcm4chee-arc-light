@@ -54,10 +54,9 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 
 /**
@@ -158,10 +157,10 @@ class ProcedureRecordAuditService {
     }
 
     private AuditInfoBuilder procUpdatedByWeb() {
-        HttpServletRequest req  = procCtx.getHttpRequest();
+        HttpServletRequestInfo req  = procCtx.getHttpRequest();
         return infoBuilder
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                .calledUserID(req.getRequestURI())
+                .callingUserID(req.requesterUserID)
+                .calledUserID(req.requestURI)
                 .build();
     }
 

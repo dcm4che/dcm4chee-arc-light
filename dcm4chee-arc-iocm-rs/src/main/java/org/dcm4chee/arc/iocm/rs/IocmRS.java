@@ -211,7 +211,8 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         try {
-            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ProcedureContext ctx = procedureService.createProcedureContext()
+                    .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSpsID(spsID);

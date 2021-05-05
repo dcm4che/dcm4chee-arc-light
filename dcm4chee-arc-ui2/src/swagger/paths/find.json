@@ -687,19 +687,22 @@
       }
     }
   },
-  "mwlitems.rsync": {
+  "mwlitems.import": {
     "post": {
       "tags": [
         "MWL-RS"
       ],
-      "summary": "Sync matching Scheduled Procedure Steps from external MWL SCP",
-      "operationId": "SyncMatchingSPS",
+      "summary": "Import matching Scheduled Procedure Steps from external MWL SCP",
+      "operationId": "ImportMatchingSPS",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
           "$ref": "../parameters.json#/mwlSCPPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/destinationPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"
@@ -714,7 +717,10 @@
           "$ref": "../parameters.json#/fuzzymatching"
         },
         {
-          "$ref": "../parameters.json#/mwlrsyncdelete"
+          "$ref": "../parameters.json#/mwlimportdelete"
+        },
+        {
+          "$ref": "../parameters.json#/mwlimporttest"
         }
       ],
       "responses": {
@@ -725,9 +731,6 @@
         "202": {
           "description": "Some matching Scheduled Procedure Steps from MWL SCP were synced, but failures exist for others.",
           "$ref": "../responses.json#/rsyncMWLResult"
-        },
-        "204": {
-          "description": "No matching Scheduled Procedure Steps returned from MWL SCP."
         },
         "400": {
           "description": "There was a problem with the request."

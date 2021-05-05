@@ -768,10 +768,19 @@
       "default": false
     }
   },
-  "mwlrsyncdelete": {
+  "mwlimportdelete": {
     "name": "delete",
     "in": "query",
     "description": "If true, delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "mwlimporttest": {
+    "name": "test",
+    "in": "query",
+    "description": "If true, test import from external MWL SCP  without performing the operation",
     "schema": {
       "type": "boolean",
       "default": false

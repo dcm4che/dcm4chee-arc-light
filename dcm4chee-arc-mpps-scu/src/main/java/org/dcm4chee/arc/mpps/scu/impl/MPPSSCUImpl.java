@@ -167,7 +167,7 @@ class MPPSSCUImpl implements MPPSSCU {
 
     private ProcedureContext createProcedureCtx(
             String sopInstanceUID, String status, Association as, Dimse dimse, Attributes procAttrs) {
-        ProcedureContext pCtx = procService.createProcedureContextAssociation(as);
+        ProcedureContext pCtx = procService.createProcedureContext().setAssociation(as);
         pCtx.setAttributes(procAttrs);
         pCtx.setMppsUID(sopInstanceUID);
         pCtx.setStatus(status);

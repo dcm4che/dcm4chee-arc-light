@@ -552,8 +552,8 @@
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/count": {
       "$ref": "paths/find.json#/mwlitems.count"
     },
-    "/aets/{aet}/dimse/{mwlscp}/mwlitems/rsync": {
-      "$ref": "paths/find.json#/mwlitems.rsync"
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems/import/{destination}": {
+      "$ref": "paths/find.json#/mwlitems.import"
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/mwlitems.json#/linkInstancesWithExternalMWL"

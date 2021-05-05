@@ -56,6 +56,7 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -143,7 +144,9 @@ public class MwlRS {
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
-            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ProcedureContext ctx = procedureService.createProcedureContext()
+                    .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
+            ctx.setLocalAET(aet);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
@@ -168,7 +171,8 @@ public class MwlRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ProcedureContext ctx = procedureService.createProcedureContext()
+                    .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setStudyInstanceUID(studyIUID);
             ctx.setSpsID(spsID);
             procedureService.deleteProcedure(ctx);
@@ -195,7 +199,8 @@ public class MwlRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+            ProcedureContext ctx = procedureService.createProcedureContext()
+                    .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setStudyInstanceUID(studyIUID);
             ctx.setSpsID(spsID);
             ctx.setSpsStatus(SPSStatus.valueOf(spsStatus));

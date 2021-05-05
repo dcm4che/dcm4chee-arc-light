@@ -99,7 +99,8 @@ public class IocmDimseRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
+        ProcedureContext ctx = procedureService.createProcedureContext()
+                .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
         ctx.setArchiveAEExtension(arcAE);
         ctx.setStudyInstanceUID(studyUID);
         ctx.setSpsID(spsID);

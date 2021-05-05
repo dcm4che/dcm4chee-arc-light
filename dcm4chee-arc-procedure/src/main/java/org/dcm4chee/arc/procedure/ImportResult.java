@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,45 +35,30 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.procedure;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.entity.MWLItem;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.query.util.QueryParam;
-
 import java.util.List;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Apr 2021
  */
-public interface ProcedureService {
-    ProcedureContext createProcedureContext();
+public class ImportResult {
+    public final int count;
+    public final int created;
+    public final int updated;
+    public final int deleted;
+    public final List<Exception> exceptions;
 
-    void updateProcedure(ProcedureContext ctx);
-
-    void deleteProcedure(ProcedureContext ctx);
-
-    void updateStudySeriesAttributes(ProcedureContext ctx);
-
-    List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
-
-    void updateMWLStatus(ProcedureContext ctx);
-
-    void updateMWLStatus(ProcedureContext ctx, SPSStatus from);
-
-    int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize);
-
-    MWLItem findMWLItem(ProcedureContext ctx);
-
-    ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET, int priority,
-            QueryAttributes queryAttributes, boolean fuzzymatching, boolean filterbyscu, boolean delete, boolean simulate)
-            throws Exception;
+    public ImportResult(int count, int created, int updated, int deleted, List<Exception> exceptions) {
+        this.count = count;
+        this.created = created;
+        this.updated = updated;
+        this.deleted = deleted;
+        this.exceptions = exceptions;
+    }
 }

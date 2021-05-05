@@ -67,6 +67,11 @@ import java.util.*;
         query = "select mwl from MWLItem mwl " +
                 "where mwl.patient = ?1"),
 @NamedQuery(
+        name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID,
+        query = "select mwl from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1 " +
+                "and mwl.scheduledProcedureStepID = ?2"),
+@NamedQuery(
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER,
         query = "select mwl from MWLItem mwl " +
                 "join fetch mwl.attributesBlob " +
@@ -122,6 +127,7 @@ public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID_EAGER = "MWLItem.findByStudyIUIDEager";
     public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
+    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSIDr";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID_EAGER = "MWLItem.findByStudyUIDAndSPSIDEager";
     public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
@@ -136,6 +142,19 @@ public class MWLItem {
         public IDs(String scheduledProcedureStepID, String studyInstanceUID) {
             this.scheduledProcedureStepID = scheduledProcedureStepID;
             this.studyInstanceUID = studyInstanceUID;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            IDs iDs = (IDs) o;
+            return scheduledProcedureStepID.equals(iDs.scheduledProcedureStepID) && studyInstanceUID.equals(iDs.studyInstanceUID);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(scheduledProcedureStepID, studyInstanceUID);
         }
     }
 

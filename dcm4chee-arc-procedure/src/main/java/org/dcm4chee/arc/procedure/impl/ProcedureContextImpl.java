@@ -50,9 +50,9 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,9 +63,9 @@ import java.util.Set;
  * @since Jun 2016
  */
 public class ProcedureContextImpl implements ProcedureContext {
-    private final HttpServletRequest httpRequest;
-    private final Socket socket;
-    private final UnparsedHL7Message hl7msg;
+    private HttpServletRequestInfo httpRequest;
+    private Socket socket;
+    private UnparsedHL7Message hl7msg;
     private Patient patient;
     private String studyInstanceUID;
     private Attributes attributes;
@@ -79,21 +79,38 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
     private ArchiveHL7ApplicationExtension arcHL7App;
     private ArchiveAEExtension arcAE;
+    private String localAET;
     private String mppsUID;
     private String status;
 
-    ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
-                         UnparsedHL7Message hl7msg) {
+    @Override
+    public ProcedureContext setHttpServletRequest(HttpServletRequestInfo httpRequest) {
         this.httpRequest = httpRequest;
-        this.socket = socket;
+        return this;
+    }
+
+    @Override
+    public ProcedureContext setAssociation(Association as) {
         this.as = as;
+        return setSocket(as.getSocket());
+    }
+
+    @Override
+    public ProcedureContext setSocket(Socket socket) {
+        this.socket = socket;
+        return this;
+    }
+
+    @Override
+    public ProcedureContext setHL7Message(UnparsedHL7Message hl7msg) {
         this.hl7msg = hl7msg;
+        return this;
     }
 
     @Override
     public String toString() {
         return httpRequest != null
-                ? httpRequest.getRemoteAddr()
+                ? httpRequest.requesterHost
                 : as != null ? as.toString() : socket.toString();
     }
 
@@ -108,7 +125,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
+    public HttpServletRequestInfo getHttpRequest() {
         return httpRequest;
     }
 
@@ -119,7 +136,7 @@ public class ProcedureContextImpl implements ProcedureContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : ReverseDNS.hostNameOf(socket.getInetAddress());
+        return httpRequest != null ? httpRequest.requesterHost : ReverseDNS.hostNameOf(socket.getInetAddress());
     }
 
     @Override
@@ -217,6 +234,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy) {
         this.attributeUpdatePolicy = updatePolicy;
+    }
+
+    @Override
+    public String getLocalAET() {
+        return localAET;
+    }
+
+    @Override
+    public void setLocalAET(String localAET) {
+        this.localAET = localAET;
     }
 
     @Override

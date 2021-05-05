@@ -143,6 +143,8 @@ public class QueryAttributes {
                 case "fuzzymatching":
                 case "retrievefailed":
                 case "compressionfailed":
+                case "delete":
+                case "filterbyscu":
                 case "patientVerificationStatus":
                 case "metadataUpdateFailed":
                 case "storageVerificationFailed":

@@ -47,8 +47,9 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
+import java.net.Socket;
 import java.util.Set;
 
 /**
@@ -57,7 +58,7 @@ import java.util.Set;
  * @since Jun 2016
  */
 public interface ProcedureContext {
-    HttpServletRequest getHttpRequest();
+    HttpServletRequestInfo getHttpRequest();
 
     UnparsedHL7Message getUnparsedHL7Message();
 
@@ -68,6 +69,14 @@ public interface ProcedureContext {
     Attributes getAttributes();
 
     void setAttributes(Attributes attrs);
+
+    ProcedureContext setHttpServletRequest(HttpServletRequestInfo httpRequest);
+
+    ProcedureContext setAssociation(Association as);
+
+    ProcedureContext setSocket(Socket socket);
+
+    ProcedureContext setHL7Message(UnparsedHL7Message hl7msg);
 
     Patient getPatient();
 
@@ -106,6 +115,10 @@ public interface ProcedureContext {
     Attributes.UpdatePolicy getAttributeUpdatePolicy();
 
     void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
+
+    String getLocalAET();
+
+    void setLocalAET(String localAET);
 
     ArchiveAEExtension getArchiveAEExtension();
 
