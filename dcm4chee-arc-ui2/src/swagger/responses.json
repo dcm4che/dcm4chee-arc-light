@@ -205,7 +205,7 @@
           ],
           "properties": {
             "count": {
-              "name": "Number of matches",
+              "name": "Number of matching Scheduled Procedure Steps",
               "type": "integer"
             },
             "created": {
