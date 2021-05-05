@@ -725,12 +725,12 @@
       ],
       "responses": {
         "200": {
-          "description": "Successfully synced all matching Scheduled Procedure Steps from MWL SCP",
-          "$ref": "../responses.json#/rsyncMWLResult"
+          "description": "Successfully imported all matching Scheduled Procedure Steps from MWL SCP",
+          "$ref": "../responses.json#/importMWLResult"
         },
         "202": {
-          "description": "Some matching Scheduled Procedure Steps from MWL SCP were synced, but failures exist for others.",
-          "$ref": "../responses.json#/rsyncMWLResult"
+          "description": "Some matching Scheduled Procedure Steps from MWL SCP were imported, but failures exist for others.",
+          "$ref": "../responses.json#/importMWLResult"
         },
         "400": {
           "description": "There was a problem with the request."
@@ -739,8 +739,8 @@
           "description": "There is no Archive AE or MWL SCP with the specified Title."
         },
         "409": {
-          "description": "Sync of all matching Scheduled Procedure Steps from MWL SCP failed.",
-          "$ref": "../responses.json#/rsyncMWLResult"
+          "description": "Import of all matching Scheduled Procedure Steps from MWL SCP failed.",
+          "$ref": "../responses.json#/importMWLResult"
         },
         "500": {
           "description": "Internal Server Error."

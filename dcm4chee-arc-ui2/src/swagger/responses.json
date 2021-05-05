@@ -194,8 +194,8 @@
       }
     }
   },
-  "rsyncMWLResult": {
-    "description": "Synced Scheduled Procedure Steps",
+  "importMWLResult": {
+    "description": "Imported Scheduled Procedure Steps",
     "content": {
       "application/json": {
         "schema": {
@@ -205,21 +205,27 @@
           ],
           "properties": {
             "count": {
+              "name": "Number of matches",
               "type": "integer"
             },
             "created": {
+              "name": "Number of created Scheduled Procedure Steps",
               "type": "integer"
             },
             "updated": {
+              "name": "Number of updated Scheduled Procedure Steps",
               "type": "integer"
             },
             "deleted": {
+              "name": "Number of deleted Scheduled Procedure Steps",
               "type": "integer"
             },
             "failed": {
+              "name": "Number of failures to create/update/delete Scheduled Procedure Steps",
               "type": "integer"
             },
             "error": {
+              "name": "Error message",
               "type": "string"
             }
           }
