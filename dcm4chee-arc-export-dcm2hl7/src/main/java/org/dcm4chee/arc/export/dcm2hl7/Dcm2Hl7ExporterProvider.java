@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,35 +35,42 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.hl7;
+package org.dcm4chee.arc.export.dcm2hl7;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2016
+ * @author Vrinda Nayak (vrinda.nayak@j4care.com)
+ * @since May 2021
  */
-public interface HL7Sender {
-    String QUEUE_NAME = "HL7Send";
+@ApplicationScoped
+@Named("hl7")
+public class Dcm2Hl7ExporterProvider implements ExporterProvider  {
 
-    void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
-                         HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException, QueueSizeLimitExceededException;
+    @Inject
+    private Device device;
 
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
-            throws Exception;
+    @Inject
+    private RetrieveService retrieveService;
 
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   UnparsedHL7Message hl7msg)
-            throws Exception;
+    @Inject
+    private HL7Sender hl7Sender;
+
+    @Override
+    public Exporter getExporter(ExporterDescriptor descriptor) {
+        return new Dcm2Hl7Exporter(descriptor, hl7Sender, device, retrieveService);
+    }
 }

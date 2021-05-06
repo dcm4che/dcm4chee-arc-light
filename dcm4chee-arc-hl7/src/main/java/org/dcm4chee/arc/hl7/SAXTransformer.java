@@ -66,7 +66,7 @@ import java.io.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2015
  */
-class SAXTransformer {
+public class SAXTransformer {
 
     private SAXTransformer() {}
 

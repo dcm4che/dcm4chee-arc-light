@@ -173,6 +173,12 @@ public class HL7SenderImpl implements HL7Sender {
     public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
                                           String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception {
+        return sendMessage(sender, receivingApplication, receivingFacility, hl7msg);
+    }
+
+    @Override
+    public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
+                                          UnparsedHL7Message hl7msg) throws Exception {
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try (HL7Connection conn = sender.open(receiver)) {
             conn.writeMessage(hl7msg);

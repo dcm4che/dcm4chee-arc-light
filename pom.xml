@@ -515,6 +515,7 @@
     <module>dcm4chee-arc-event</module>
     <module>dcm4chee-arc-export</module>
     <module>dcm4chee-arc-export-curve2pr</module>
+    <module>dcm4chee-arc-export-dcm2hl7</module>
     <module>dcm4chee-arc-export-dicom</module>
     <module>dcm4chee-arc-export-impax-report</module>
     <module>dcm4chee-arc-export-mgt</module>
