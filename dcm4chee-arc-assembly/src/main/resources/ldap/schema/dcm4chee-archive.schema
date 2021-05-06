@@ -2384,6 +2384,41 @@ attributetype ( 1.2.40.0.13.1.15.110.3.407 NAME 'dcmChangeRequesterAET'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.408 NAME 'dcmMWLImportInterval'
+  DESC 'Interval for import of Scheduled Procedure Steps from external MWL SCPs in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.409 NAME 'dcmMWLImportID'
+  DESC 'ID of MWL Import Rule'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.410 NAME 'dcmMWLImportNotOlder'
+  DESC 'Restrict import of Scheduled Procedure Steps from an external MWL SCP to Scheduled Procedure Steps scheduled later in the past than the specified Time interval in ISO-8601 duration format PnDTnHnMn.nS; if absent, import all Scheduled Procedure Steps which are scheduled in the past.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.411 NAME 'dcmMWLImportFilterBySCU'
+  DESC 'Indicates to apply specified filter on matches returned by external MWL SCP; disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.412 NAME 'dcmMWLImportDeleteNotFound'
+  DESC 'Indicates to delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP; disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.413 NAME 'dcmIncludeField'
+  DESC 'Attributes in format (all|{AttributeTagOrKeyword}|{SequenceTagOrKeyword.AttributeTagOrKeyword}) requested from the external C-FIND SCP additional to attributes required to be supported by C-FIND SCPs according DICOM.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2424,6 +2459,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPurgeInstanceRecordsFetchSize $
     dcmMWLPollingInterval $
     dcmMWLFetchSize $
+    dcmMWLImportInterval $
     dcmDeleteMWLDelay $
     dcmDeleteUPSPollingInterval $
     dcmDeleteUPSFetchSize $
@@ -3316,4 +3352,20 @@ objectclass ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
     dicomIssuerOfAdmissionID $
     dcmURI $
     dcmNoKeywords $
+    dcmProperty ) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.43 NAME 'dcmMWLImport'
+  DESC 'MWL Import Rule'
+  SUP top STRUCTURAL
+  MUST (
+    dcmMWLImportID $
+    dicomAETitle $
+    dcmMergeMWLSCP $
+    dcmDestinationAE )
+  MAY (
+    dcmDuration $
+    dcmMWLImportNotOlder $
+    dcmMWLImportFilterBySCU $
+    dcmMWLImportDeleteNotFound $
+    dcmIncludeField $
     dcmProperty ) )

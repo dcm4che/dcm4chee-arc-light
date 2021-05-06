@@ -167,6 +167,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStgCmtCompletedDelay;
     private volatile Duration mwlPollingInterval;
     private volatile int mwlFetchSize = 100;
+    private volatile Duration mwlImportInterval;
     private volatile String[] deleteMWLDelay = {};
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
@@ -328,6 +329,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
+    private final List<MWLImport> mwlImportList = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
@@ -2179,6 +2181,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return mwlIdleTimeoutList;
     }
 
+    public void removeMWLImport(MWLImport mWLImport) {
+        mwlImportList.remove(mWLImport);
+    }
+
+    public void clearMWLImports() {
+        mwlImportList.clear();
+    }
+
+    public void addMWLImport(MWLImport mWLImport) {
+        mwlImportList.add(mWLImport);
+    }
+
+    public List<MWLImport> getMWLImports() {
+        return mwlImportList;
+    }
+
     public RejectionNote getRejectionNote(String rjNoteID) {
         return rejectionNoteMap.get(rjNoteID);
     }
@@ -2967,6 +2985,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.mwlFetchSize = mwlFetchSize;
     }
 
+    public Duration getMWLImportInterval() {
+        return mwlImportInterval;
+    }
+
+    public void setMWLImportInterval(Duration mwlImportInterval) {
+        this.mwlImportInterval = mwlImportInterval;
+    }
+
     public String[] getDeleteMWLDelay() {
         return deleteMWLDelay;
     }
@@ -3259,6 +3285,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         mwlPollingInterval = arcdev.mwlPollingInterval;
         mwlFetchSize = arcdev.mwlFetchSize;
+        mwlImportInterval = arcdev.mwlImportInterval;
         deleteMWLDelay = arcdev.deleteMWLDelay;
         studySizeDelay = arcdev.studySizeDelay;
         calculateStudySizePollingInterval = arcdev.calculateStudySizePollingInterval;
@@ -3324,6 +3351,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         mwlIdleTimeoutList.clear();
         mwlIdleTimeoutList.addAll(arcdev.mwlIdleTimeoutList);
+        mwlImportList.clear();
+        mwlImportList.addAll(arcdev.mwlImportList);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
         xRoadProperties.clear();
