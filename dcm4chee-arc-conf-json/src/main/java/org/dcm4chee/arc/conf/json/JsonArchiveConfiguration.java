@@ -419,6 +419,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeUPSProcessingRules(writer, arcDev.listUPSProcessingRules());
         writeUPSOnUPSCompletedList(writer, arcDev.listUPSOnUPSCompleted());
         writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
+        writeMWLImportRule(writer, arcDev.getMWLImports());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
         writer.writeEnd();
     }
@@ -690,6 +691,25 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmStoreAccessControlID", acr.getStoreAccessControlID(), null);
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", acr.getConditions().getMap());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeMWLImportRule(JsonWriter writer, Collection<MWLImport> mwlImportList) {
+        writer.writeStartArray("dcmMWLImport");
+        for (MWLImport mwlImport : mwlImportList) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmMWLImportID", mwlImport.getMWLImportID(), null);
+            writer.writeNotNullOrDef("dicomAETitle", mwlImport.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmMergeMWLSCP", mwlImport.getMWLSCP(), null);
+            writer.writeNotNullOrDef("dcmDestinationAE", mwlImport.getDestinationAE(), null);
+            writer.writeNotNullOrDef("dcmDuration", mwlImport.getPrefetchBefore(), null);
+            writer.writeNotNullOrDef("dcmMWLImportNotOlder", mwlImport.getNotOlderThan(), null);
+            writer.writeNotDef("dcmMWLImportFilterBySCU", mwlImport.isFilterBySCU(), false);
+            writer.writeNotDef("dcmMWLImportDeleteNotFound", mwlImport.isDeleteNotFound(), false);
+            writer.writeNotEmpty("dcmIncludeField", mwlImport.getIncludeFields());
+            writer.writeNotEmpty("dcmProperty", mwlImport.getFilter());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2017,6 +2037,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMWLIdleTimeout":
                     loadMWLIdleTimeout(arcDev.getMWLIdleTimeouts(), reader);
+                    break;
+                case "dcmMWLImport":
+                    loadMWLImport(arcDev.getMWLImports(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -3532,6 +3555,54 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             mwlIdleTimeouts.add(mwlIdleTimeout);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadMWLImport(Collection<MWLImport> mwlImports, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            MWLImport mwlImport = new MWLImport();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmMWLImportID":
+                        mwlImport.setMWLImportID(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        mwlImport.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmMergeMWLSCP":
+                        mwlImport.setMWLSCP(reader.stringValue());
+                        break;
+                    case "dcmDestinationAE":
+                        mwlImport.setDestinationAE(reader.stringValue());
+                        break;
+                    case "dcmDuration":
+                        mwlImport.setPrefetchBefore(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmMWLImportNotOlder":
+                        mwlImport.setNotOlderThan(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmMWLImportFilterBySCU":
+                        mwlImport.setFilterBySCU(reader.booleanValue());
+                        break;
+                    case "dcmMWLImportDeleteNotFound":
+                        mwlImport.setDeleteNotFound(reader.booleanValue());
+                        break;
+                    case "dcmIncludeField":
+                        mwlImport.setIncludeFields(reader.stringArray());
+                        break;
+                    case "dcmProperty":
+                        mwlImport.setFilter(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            mwlImports.add(mwlImport);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

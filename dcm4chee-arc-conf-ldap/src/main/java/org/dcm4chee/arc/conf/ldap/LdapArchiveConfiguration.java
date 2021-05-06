@@ -1416,6 +1416,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeUPSOnHL7List(diffs, arcDev.listUPSOnHL7(), deviceDN, config);
         storeUPSOnUPSCompletedList(diffs, arcDev.listUPSOnUPSCompleted(), deviceDN);
         storeMWLIdleTimeouts(diffs, arcDev.getMWLIdleTimeouts(), deviceDN);
+        storeMWLImports(diffs, arcDev.getMWLImports(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1454,6 +1455,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
         loadUPSOnUPSCompletedList(arcdev.listUPSOnUPSCompleted(), deviceDN);
         loadMWLIdleTimeouts(arcdev.getMWLIdleTimeouts(), deviceDN);
+        loadMWLImports(arcdev.getMWLImports(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -1502,6 +1504,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeUPSProcessingRules(diffs, aa, bb, deviceDN);
         mergeUPSOnUPSCompletedList(diffs, aa.listUPSOnUPSCompleted(), bb.listUPSOnUPSCompleted(), deviceDN);
         mergeMWLIdleTimeouts(diffs, aa.getMWLIdleTimeouts(), bb.getMWLIdleTimeouts(), deviceDN);
+        mergeMWLImports(diffs, aa.getMWLImports(), bb.getMWLImports(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
     }
 
@@ -2956,6 +2959,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeMWLImports(ConfigurationChanges diffs, Collection<MWLImport> mwlImports, String parentDN)
+            throws NamingException {
+        for (MWLImport rule : mwlImports) {
+            String dn = LdapUtils.dnOf("dcmMWLImportID", rule.getMWLImportID(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+        }
+    }
+
     private void storeUPSOnStoreList(
             ConfigurationChanges diffs, Collection<UPSOnStore> upsOnStoreList, String parentDN) throws NamingException {
         for (UPSOnStore upsOnStore : upsOnStoreList) {
@@ -3020,6 +3033,21 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLStatusOnIdle", mwlIdleTimeout.getStatusOnIdle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", mwlIdleTimeout.getIdleTimeout(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", mwlIdleTimeout.getScheduledStationAETitles());
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, MWLImport rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmMWLImport");
+        attrs.put("dcmMWLImportID", rule.getMWLImportID());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", rule.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLSCP", rule.getMWLSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE", rule.getDestinationAE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", rule.getPrefetchBefore(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLImportNotOlder", rule.getNotOlderThan(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLImportFilterBySCU", rule.isFilterBySCU(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLImportDeleteNotFound", rule.isDeleteNotFound(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIncludeField", rule.getIncludeFields());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getFilter());
         return attrs;
     }
 
@@ -3304,6 +3332,29 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 mwlIdleTimeout.setIdleTimeout(toDuration(attrs.get("dcmDuration"), null));
                 mwlIdleTimeout.setScheduledStationAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
                 mwlIdleTimeouts.add(mwlIdleTimeout);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadMWLImports(Collection<MWLImport> mwlImports, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmMWLImport)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                MWLImport rule = new MWLImport(LdapUtils.stringValue(attrs.get("dcmMWLImportID"), null));
+                rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                rule.setMWLSCP(LdapUtils.stringValue(attrs.get("dcmMergeMWLSCP"), null));
+                rule.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
+                rule.setPrefetchBefore(toDuration(attrs.get("dcmDuration"), null));
+                rule.setNotOlderThan(toDuration(attrs.get("dcmMWLImportNotOlder"), null));
+                rule.setFilterBySCU(LdapUtils.booleanValue(attrs.get("dcmMWLImportFilterBySCU"), false));
+                rule.setDeleteNotFound(LdapUtils.booleanValue(attrs.get("dcmMWLImportDeleteNotFound"), false));
+                rule.setIncludeFields(LdapUtils.stringArray(attrs.get("dcmIncludeField")));
+                rule.setFilter(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                mwlImports.add(rule);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3777,6 +3828,36 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeMWLImports(ConfigurationChanges diffs, Collection<MWLImport> prevMWLImports,
+                                      Collection<MWLImport> mwlImports, String parentDN)
+            throws NamingException {
+        for (MWLImport prevMWLImport : prevMWLImports) {
+            String mwlImportID = prevMWLImport.getMWLImportID();
+            if (findMWLImportByID(mwlImports, mwlImportID) == null) {
+                String dn = LdapUtils.dnOf("dcmMWLImportID", mwlImportID, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (MWLImport mwlImport : mwlImports) {
+            String mwlImportID = mwlImport.getMWLImportID();
+            String dn = LdapUtils.dnOf("dcmMWLImportID", mwlImportID, parentDN);
+            MWLImport prevMWLImport = findMWLImportByID(prevMWLImports, mwlImportID);
+            if (prevMWLImport == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                mwlImport, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevMWLImport, mwlImport, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private void mergeUPSOnStoreList(
             ConfigurationChanges diffs, Collection<UPSOnStore> prevUPSOnStoreList, Collection<UPSOnStore> upsOnStoreList,
             String parentDN)
@@ -3927,6 +4008,28 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getIdleTimeout(), mwlIdleTimeout.getIdleTimeout(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAETitle",
                 prev.getScheduledStationAETitles(), mwlIdleTimeout.getScheduledStationAETitles());
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, MWLImport prev,
+                                              MWLImport mwlImport, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
+                prev.getAETitle(), mwlImport.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLSCP",
+                prev.getMWLSCP(), mwlImport.getMWLSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
+                prev.getDestinationAE(), mwlImport.getDestinationAE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", 
+                prev.getPrefetchBefore(), mwlImport.getPrefetchBefore(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLImportNotOlder",
+                prev.getNotOlderThan(), mwlImport.getNotOlderThan(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMWLImportFilterBySCU",
+                prev.isFilterBySCU(), mwlImport.isFilterBySCU(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMWLImportDeleteNotFound",
+                prev.isDeleteNotFound(), mwlImport.isDeleteNotFound(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIncludeField",
+                prev.getIncludeFields(), mwlImport.getIncludeFields());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getFilter(), mwlImport.getFilter());
         return mods;
     }
 
@@ -4183,6 +4286,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeouts)
             if (mwlIdleTimeout.getCommonName().equals(cn))
                 return mwlIdleTimeout;
+        return null;
+    }
+
+    private MWLImport findMWLImportByID(Collection<MWLImport> mwlImports, String mwlImportID) {
+        for (MWLImport mwlImport : mwlImports)
+            if (mwlImport.getMWLImportID().equals(mwlImportID))
+                return mwlImport;
         return null;
     }
 
