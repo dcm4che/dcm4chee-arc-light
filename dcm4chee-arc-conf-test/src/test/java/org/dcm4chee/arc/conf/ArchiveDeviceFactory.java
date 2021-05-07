@@ -1865,15 +1865,6 @@ class ArchiveDeviceFactory {
                 null,
                 QIDO_STUDY_ATTRS));
 
-        ext.addAttributeCoercion(new ArchiveAttributeCoercion()
-                .setCommonName("Merge MWL Study")
-                .setDIMSE(Dimse.C_STORE_RQ)
-                .setRole(SCU)
-                .setSendingAETitle("MERGE_MWL_STUDY")
-                .setMergeMWLMatchingKey(MergeMWLMatchingKey.AccessionNumber)
-                .setMergeMWLTemplateURI(MERGE_MWL_STUDY)
-                .setNoKeywords(true));
-
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
                 REJECTED_FOR_QUALITY_REASONS,
@@ -2058,6 +2049,15 @@ class ArchiveDeviceFactory {
                     .setSendingAETitle("MERGE_MWL")
                     .setMergeMWLMatchingKey(MergeMWLMatchingKey.StudyInstanceUID)
                     .setMergeMWLTemplateURI(MERGE_MWL)
+                    .setNoKeywords(true));
+
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Merge MWL Study")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCU)
+                    .setSendingAETitle("MERGE_MWL_STUDY")
+                    .setMergeMWLMatchingKey(MergeMWLMatchingKey.AccessionNumber)
+                    .setMergeMWLTemplateURI(MERGE_MWL_STUDY)
                     .setNoKeywords(true));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
