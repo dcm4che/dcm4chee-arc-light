@@ -42,23 +42,23 @@ package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.DateRange;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.procedure.ImportResult;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
-import org.dcm4chee.arc.procedure.ImportResult;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
-import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,32 +104,22 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET, int priority,
-            QueryAttributes queryAttributes, boolean fuzzymatching, boolean filterbyscu, boolean delete,
-            boolean simulate)
+    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
+            int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
+            boolean delete, boolean simulate)
             throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(mwlscu, true);
         if (localAE == null || !localAE.isInstalled())
             throw new ConfigurationNotFoundException("No such Application Entity: " + mwlscu);
 
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        AttributeFilter patAttrFilter = arcdev.getAttributeFilter(Entity.Patient);
-        AttributeFilter mwlAttrFilter = arcdev.getAttributeFilter(Entity.MWL);
-        Attributes matchingKeys = new Attributes(queryAttributes.getQueryKeys());
-        QIDO.MWL.addReturnTags(queryAttributes);
-        if (queryAttributes.isIncludeAll()) {
-            queryAttributes.addReturnTags(mwlAttrFilter.getSelection(false));
-            queryAttributes.addReturnTags(patAttrFilter.getSelection(false));
-        }
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (fuzzymatching) queryOptions.add(QueryOption.FUZZY);
-        List<Attributes> mwlItems = findSCU.findMWLItems(localAE, mwlscp, queryOptions, priority,
-                queryAttributes.getQueryKeys());
+        List<Attributes> mwlItems = findSCU.findMWLItems(localAE, mwlscp, queryOptions, priority, keys);
         if (filterbyscu)
-            mwlItems.removeIf(item -> !item.matches(matchingKeys, false, false));
+            mwlItems.removeIf(item -> !item.matches(filter, false, false));
 
         Set<MWLItem.IDs> toDelete = delete
-                ? ejb.findMWLItemIDs(localAE, destAET, matchingKeys, fuzzymatching)
+                ? ejb.findMWLItemIDs(localAE, destAET, filter, fuzzymatching)
                 : Collections.emptySet();
 
         int created = 0;
@@ -185,6 +175,58 @@ public class ProcedureServiceImpl implements ProcedureService {
             }
         }
         return new ImportResult(mwlItems.size(), created, updated, toDelete.size(), exceptions);
+    }
+
+    @Override
+    public ImportResult importMWL(MWLImport rule) throws Exception {
+        Attributes filter = toFilter(rule);
+        return importMWL(null, rule.getAETitle(), rule.getMWLSCP(), rule.getDestinationAE(), Priority.NORMAL,
+                filter, toKeys(rule, filter), false, rule.isFilterBySCU(), rule.isDeleteNotFound(), false);
+    }
+
+    private static Attributes toFilter(MWLImport rule) {
+        Attributes keys = new Attributes();
+        DateRange range = toDateRange(rule.getNotOlderThan(), rule.getPrefetchBefore());
+        if (range != null) {
+            Attributes item = new Attributes();
+            item.setDateRange(Tag.ScheduledProcedureStepStartDateAndTime, range);
+            keys.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(item);
+        }
+        AttributesBuilder builder = new AttributesBuilder(keys);
+        for (Map.Entry<String, String> entry : rule.getFilter().entrySet()) {
+            builder.setString(TagUtils.parseTagPath(entry.getKey()), entry.getValue());
+        }
+        return keys;
+    }
+
+    private static DateRange toDateRange(Duration notOlderThan, Duration prefetchBefore) {
+        if (notOlderThan == null && prefetchBefore == null) return null;
+        long now = System.currentTimeMillis();
+        return new DateRange(
+                notOlderThan != null ? new Date(now - notOlderThan.getSeconds() * 1000) : null,
+                prefetchBefore != null ? new Date(now + prefetchBefore.getSeconds() * 1000) : null);
+    }
+
+    private Attributes toKeys(MWLImport rule, Attributes filter) {
+        Attributes keys = new Attributes(filter);
+        AttributesBuilder builder = new AttributesBuilder(keys);
+        String[] includeFields = rule.getIncludeFields();
+        if (StringUtils.contains(includeFields, "all")) {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            AttributesBuilder.setNullIfAbsent(keys,
+                    arcdev.getAttributeFilter(Entity.MWL).getSelection(false));
+            AttributesBuilder.setNullIfAbsent(keys,
+                    arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
+        } else {
+            for (String tagPath : includeFields) {
+                builder.setNullIfAbsent(TagUtils.parseTagPath(tagPath));
+            }
+            AttributesBuilder.setNullIfAbsent(keys, QIDO.MWL.includetags);
+            Attributes spsKeys = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            if (spsKeys != null && !spsKeys.isEmpty())
+                AttributesBuilder.setNullIfAbsent(spsKeys, QIDO.MWL_SPS.includetags);
+        }
+        return keys;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,49 +35,60 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.procedure;
+package org.dcm4chee.arc.procedure.impl;
 
-import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.Scheduler;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.MWLImport;
-import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.entity.MWLItem;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.util.QueryAttributes;
-import org.dcm4chee.arc.query.util.QueryParam;
+import org.dcm4chee.arc.procedure.ProcedureService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since May 2021
  */
-public interface ProcedureService {
-    ProcedureContext createProcedureContext();
+@ApplicationScoped
+public class MWLImporter extends Scheduler {
 
-    void updateProcedure(ProcedureContext ctx);
+    private static final Logger LOG = LoggerFactory.getLogger(MWLScheduler.class);
 
-    void deleteProcedure(ProcedureContext ctx);
+    @Inject
+    private ProcedureService service;
 
-    void updateStudySeriesAttributes(ProcedureContext ctx);
+    protected MWLImporter() {
+        super(Mode.scheduleAtFixedRate);
+    }
 
-    List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
+    @Override
+    protected Logger log() {
+        return LOG;
+    }
 
-    void updateMWLStatus(ProcedureContext ctx);
+    @Override
+    protected Duration getPollingInterval() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return !arcDev.getMWLImports().isEmpty() ? arcDev.getMWLImportInterval() : null;
+    }
 
-    void updateMWLStatus(ProcedureContext ctx, SPSStatus from);
+    @Override
+    protected void execute() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        for (MWLImport mwlImport : arcDev.getMWLImports()) {
+            try {
+                service.importMWL(mwlImport);
+            } catch (Exception e) {
+                LOG.info("Failed to process {}\n", mwlImport, e);
+            }
+        }
 
-    int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize);
-
-    MWLItem findMWLItem(ProcedureContext ctx);
-
-    ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
-            int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
-            boolean delete, boolean simulate)
-            throws Exception;
-
-    ImportResult importMWL(MWLImport rule) throws Exception;
+    }
 }

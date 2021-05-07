@@ -111,7 +111,9 @@ public class ProcedureContextImpl implements ProcedureContext {
     public String toString() {
         return httpRequest != null
                 ? httpRequest.requesterHost
-                : as != null ? as.toString() : socket.toString();
+                : as != null ? as.toString()
+                : socket != null ? socket.toString()
+                : localAET;
     }
 
     @Override

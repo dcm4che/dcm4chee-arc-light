@@ -447,6 +447,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLPollingInterval",
                 ext.getMWLPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLFetchSize", ext.getMWLFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLImportInterval",
+                ext.getMWLImportInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteMWLDelay", ext.getDeleteMWLDelay());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSProcessingPollingInterval",
                 ext.getUPSProcessingPollingInterval(), null);
@@ -767,6 +769,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
         ext.setMWLPollingInterval(toDuration(attrs.get("dcmMWLPollingInterval"), null));
         ext.setMWLFetchSize(LdapUtils.intValue(attrs.get("dcmMWLFetchSize"), 100));
+        ext.setMWLImportInterval(toDuration(attrs.get("dcmMWLImportInterval"), null));
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
         ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
@@ -1313,6 +1316,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMWLFetchSize(),
                 bb.getMWLFetchSize(),
                 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLImportInterval",
+                aa.getMWLImportInterval(),
+                bb.getMWLImportInterval(),
+                null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteMWLDelay", aa.getDeleteMWLDelay(), bb.getDeleteMWLDelay());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSProcessingPollingInterval",
                 aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);

@@ -1993,7 +1993,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.408 NAME 'dcmMWLImportInterval'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.409 NAME 'dcmMWLImportID'
-  DESC 'ID of MWL Import Rule'
+  DESC 'ID of MWL Import'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -2918,7 +2918,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.42 NAME 'dcmUPSOnUPSCompleted'
     dcmNoKeywords $
     dcmProperty ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.43 NAME 'dcmMWLImport'
-  DESC 'MWL Import Rule'
+  DESC 'MWL Import'
   SUP top STRUCTURAL
   MUST (
     dcmMWLImportID $

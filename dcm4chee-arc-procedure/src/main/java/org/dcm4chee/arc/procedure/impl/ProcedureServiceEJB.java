@@ -138,6 +138,7 @@ public class ProcedureServiceEJB {
         mwlItem.setInstitutionCode(findOrCreateCode(mwlAttrs, Tag.InstitutionCodeSequence));
         mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(mwlAttrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        LOG.info("{}: Update {}", ctx, mwlItem);
     }
 
     private void updateProcedureForWeb(ProcedureContext ctx) {

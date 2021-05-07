@@ -124,21 +124,7 @@ public enum QIDO {
             queryAttributes.addReturnTags(includetags);
             Attributes spsKeys = queryAttributes.getQueryKeys().getNestedDataset(Tag.ScheduledProcedureStepSequence);
             if (spsKeys != null && !spsKeys.isEmpty())
-                AttributesBuilder.setNullIfAbsent(spsKeys,
-                        Tag.Modality,
-                        Tag.AnatomicalOrientationType,
-                        Tag.RequestedContrastAgent,
-                        Tag.ScheduledStationAETitle,
-                        Tag.ScheduledProcedureStepStartDate,
-                        Tag.ScheduledProcedureStepStartTime,
-                        Tag.ScheduledPerformingPhysicianName,
-                        Tag.ScheduledProcedureStepDescription,
-                        Tag.ScheduledProtocolCodeSequence,
-                        Tag.ScheduledProcedureStepID,
-                        Tag.ScheduledStationName,
-                        Tag.ScheduledProcedureStepLocation,
-                        Tag.PreMedication
-                );
+                AttributesBuilder.setNullIfAbsent(spsKeys, MWL_SPS.includetags);
         }
     },
     MPPS(
@@ -207,7 +193,22 @@ public enum QIDO {
     ),
     STUDY_SERIES(catAndSort(STUDY.includetags, SERIES.includetags)),
     STUDY_SERIES_INSTANCE(catAndSort(STUDY.includetags, SERIES.includetags, INSTANCE.includetags)),
-    SERIES_INSTANCE(catAndSort(SERIES.includetags, INSTANCE.includetags));
+    SERIES_INSTANCE(catAndSort(SERIES.includetags, INSTANCE.includetags)),
+    MWL_SPS(
+        Tag.Modality,
+        Tag.AnatomicalOrientationType,
+        Tag.RequestedContrastAgent,
+        Tag.ScheduledStationAETitle,
+        Tag.ScheduledProcedureStepStartDate,
+        Tag.ScheduledProcedureStepStartTime,
+        Tag.ScheduledPerformingPhysicianName,
+        Tag.ScheduledProcedureStepDescription,
+        Tag.ScheduledProtocolCodeSequence,
+        Tag.ScheduledProcedureStepID,
+        Tag.ScheduledStationName,
+        Tag.ScheduledProcedureStepLocation,
+        Tag.PreMedication
+    );
 
     public final int[] includetags;
 

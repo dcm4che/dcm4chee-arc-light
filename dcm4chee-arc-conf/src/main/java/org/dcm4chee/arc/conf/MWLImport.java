@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.util.TagUtils;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,6 +107,9 @@ public class MWLImport {
     }
 
     public void setIncludeFields(String... includeFields) {
+        for (String tagPath : includeFields) {
+            if (!"all".equals(tagPath)) TagUtils.parseTagPath(tagPath);
+        }
         this.includeFields = includeFields;
     }
 
@@ -140,12 +145,13 @@ public class MWLImport {
         this.deleteNotFound = deleteNotFound;
     }
 
-    public void setFilter(String name, String value) {
-        filter.put(name, value);
+    public void setFilter(String tagPath, String value) {
+        TagUtils.parseTagPath(tagPath);
+        filter.put(tagPath, value);
     }
 
-    public String getFilter(String name, String defValue) {
-        String value = filter.get(name);
+    public String getFilter(String tagPath, String defValue) {
+        String value = filter.get(tagPath);
         return value != null ? value : defValue;
     }
 
@@ -154,12 +160,19 @@ public class MWLImport {
     }
 
     public void setFilter(String[] ss) {
+        HashMap<String,String> backup = new HashMap<>(filter);
         filter.clear();
-        for (String s : ss) {
-            int index = s.indexOf('=');
-            if (index < 0)
-                throw new IllegalArgumentException("Filter in incorrect format : " + s);
-            setFilter(s.substring(0, index), s.substring(index+1));
+        try {
+            for (String s : ss) {
+                int index = s.indexOf('=');
+                if (index < 0)
+                    throw new IllegalArgumentException("Filter in incorrect format : " + s);
+                setFilter(s.substring(0, index), s.substring(index+1));
+            }
+        } catch (IllegalArgumentException e) {
+            filter.clear();
+            filter.putAll(backup);
+            throw e;
         }
     }
 

@@ -39,11 +39,16 @@
 package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.procedure.ImportResult;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
@@ -105,6 +110,9 @@ public class MWLImportRS {
     private String priority;
 
     @Inject
+    private Device device;
+
+    @Inject
     private ProcedureService procedureService;
 
     private QueryAttributes queryAttributes;
@@ -130,9 +138,18 @@ public class MWLImportRS {
     @Produces("application/json")
     public Response mwlImport(@PathParam("destination") String destAET) {
         try {
+            Attributes filter = new Attributes(queryAttributes.getQueryKeys());
+            QIDO.MWL.addReturnTags(queryAttributes);
+            if (queryAttributes.isIncludeAll()) {
+                ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                queryAttributes.addReturnTags(
+                        arcdev.getAttributeFilter(Entity.MWL).getSelection(false));
+                queryAttributes.addReturnTags(
+                        arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
+            }
             ImportResult result = procedureService.importMWL(
                     HttpServletRequestInfo.valueOf(request),
-                    aet, mwlscp, destAET, priority(), queryAttributes,
+                    aet, mwlscp, destAET, priority(), filter, queryAttributes.getQueryKeys(),
                     Boolean.parseBoolean(fuzzymatching),
                     Boolean.parseBoolean(filterbyscu),
                     Boolean.parseBoolean(delete),
