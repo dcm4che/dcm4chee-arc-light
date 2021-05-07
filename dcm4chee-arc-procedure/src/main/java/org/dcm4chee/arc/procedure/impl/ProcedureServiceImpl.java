@@ -135,9 +135,8 @@ public class ProcedureServiceImpl implements ProcedureService {
             ctx.setAttributes(mwlItem);
             ctx.setSpsID(spsID.scheduledProcedureStepID);
             ctx.setLocalAET(destAET);
-            PatientMgtContext patCtx = null;
             try {
-                patCtx = ejb.createOrUpdateMWLItem(ctx, simulate);
+                ejb.createOrUpdateMWLItem(ctx, simulate);
                 String eventActionCode = ctx.getEventActionCode();
                 if (eventActionCode != null) {
                     if (eventActionCode.equals(AuditMessages.EventActionCode.Create)) {
@@ -152,10 +151,9 @@ public class ProcedureServiceImpl implements ProcedureService {
 
             } finally {
                 if (!simulate) {
-                    if (patCtx != null && patCtx.getEventActionCode() != null) {
-                        patientEvent.fire(patCtx);
+                    if (ctx.getEventActionCode() != null) {
+                        procedureEvent.fire(ctx);
                     }
-                    procedureEvent.fire(ctx);
                 }
             }
         }

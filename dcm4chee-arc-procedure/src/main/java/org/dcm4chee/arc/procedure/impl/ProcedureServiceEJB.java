@@ -434,7 +434,7 @@ public class ProcedureServiceEJB {
         }
     }
 
-    public PatientMgtContext createOrUpdateMWLItem(ProcedureContext ctx, boolean simulate) {
+    public void createOrUpdateMWLItem(ProcedureContext ctx, boolean simulate) {
         Attributes attrs = ctx.getAttributes();
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest());
         patMgtCtx.setAttributes(attrs);
@@ -453,18 +453,14 @@ public class ProcedureServiceEJB {
                 if (!simulate) {
                     updateMWL(ctx, mwlItem);
                 }
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }
         } else {
             if (!simulate) {
                 if (ctx.getPatient() == null) {
                     ctx.setPatient(patientService.createPatient(patMgtCtx));
-                    patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Create);
                 }
                 createMWL(ctx);
             }
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         }
-        return patMgtCtx;
     }
 }
