@@ -82,6 +82,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Patient.VerificationStatus patientVerificationStatus = Patient.VerificationStatus.UNVERIFIED;
     private String pdqServiceURI;
     private ArchiveAEExtension arcAE;
+    private String localAET;
+    private String sourceMwlScp;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -112,7 +114,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
                     ? httpServletRequestInfo.requesterHost
                     : socket != null
                         ? socket.toString()
-                        : "PatientMgtContext";
+                        : localAET != null ? localAET : "PatientMgtContext";
     }
 
     @Override
@@ -283,5 +285,25 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public HL7Application getHL7Application() {
         return hl7app;
+    }
+
+    @Override
+    public String getLocalAET() {
+        return localAET;
+    }
+
+    @Override
+    public void setLocalAET(String localAET) {
+        this.localAET = localAET;
+    }
+
+    @Override
+    public String getSourceMwlScp() {
+        return sourceMwlScp;
+    }
+
+    @Override
+    public void setSourceMwlScp(String sourceMwlScp) {
+        this.sourceMwlScp = sourceMwlScp;
     }
 }

@@ -40,6 +40,8 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.SPSStatus;
@@ -333,6 +335,16 @@ class AuditUtils {
                     : operation == QueueMessageOperation.RescheduleTasks
                         ? RESCHD_TSK : DELETE_TSK;
         }
+    }
+
+    static String findScpHost(String findScp, IApplicationEntityCache aeCache) {
+        String findScpHost = null;
+        try {
+            findScpHost = aeCache.findApplicationEntity(findScp).getConnections().get(0).getHostname();
+        } catch (ConfigurationException e) {
+            LOG.info("Exception caught on getting hostname for C-FINDSCP {} : {}", findScp, e.getMessage());
+        }
+        return findScpHost;
     }
 
     static AuditMessages.EventTypeCode errorEventTypeCode(String errorCode) {

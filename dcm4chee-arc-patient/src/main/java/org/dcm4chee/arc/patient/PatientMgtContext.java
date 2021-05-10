@@ -120,4 +120,12 @@ public interface PatientMgtContext {
     void setArchiveAEExtension(ArchiveAEExtension arcAE);
 
     HL7Application getHL7Application();
+
+    String getLocalAET();
+
+    void setLocalAET(String localAET);
+
+    String getSourceMwlScp();
+
+    void setSourceMwlScp(String sourceMwlScp);
 }

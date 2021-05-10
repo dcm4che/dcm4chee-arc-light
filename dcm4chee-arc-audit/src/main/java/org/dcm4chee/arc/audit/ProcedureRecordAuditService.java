@@ -43,6 +43,7 @@ import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
@@ -65,7 +66,6 @@ import java.nio.file.Path;
  * @since Oct 2018
  */
 class ProcedureRecordAuditService {
-
     private ArchiveDeviceExtension arcDev;
     private ProcedureContext procCtx;
     private HL7ConnectionEvent hl7ConnEvent;
@@ -76,7 +76,6 @@ class ProcedureRecordAuditService {
         procCtx = ctx;
         Patient patient = procCtx.getPatient();
         infoBuilder = new AuditInfoBuilder.Builder()
-                .callingHost(procCtx.getRemoteHostName())
                 .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
                 .pIDAndName(patient != null ? patient.getAttributes() : ctx.getAttributes(), arcDev)
                 .mppsUID(procCtx.getMppsUID())
@@ -97,7 +96,8 @@ class ProcedureRecordAuditService {
                 ? procUpdatedByWeb()
                 : procCtx.getAssociation() != null
                     ? procUpdatedByMPPS()
-                    : procUpdatedByHL7();
+                    : procCtx.getUnparsedHL7Message() != null
+                        ? procUpdatedByHL7() : procUpdatedByMWLImport();
     }
 
     AuditInfoBuilder getHL7IncomingOrderInfo() {
@@ -144,6 +144,7 @@ class ProcedureRecordAuditService {
         Association as = procCtx.getAssociation();
         return infoBuilder
                 .callingUserID(as.getCallingAET())
+                .callingHost(procCtx.getRemoteHostName())
                 .calledUserID(as.getCalledAET())
                 .build();
     }
@@ -152,16 +153,32 @@ class ProcedureRecordAuditService {
         UnparsedHL7Message msg = procCtx.getUnparsedHL7Message();
         return infoBuilder
                 .callingUserID(msg.msh().getSendingApplicationWithFacility())
+                .callingHost(procCtx.getRemoteHostName())
                 .calledUserID(msg.msh().getReceivingApplicationWithFacility())
                 .build();
     }
 
     private AuditInfoBuilder procUpdatedByWeb() {
+        if (procCtx.getSourceMwlScp() != null)
+            return procUpdatedByMWLImport();
+
         HttpServletRequestInfo req  = procCtx.getHttpRequest();
         return infoBuilder
                 .callingUserID(req.requesterUserID)
+                .callingHost(procCtx.getRemoteHostName())
                 .calledUserID(req.requestURI)
                 .build();
+    }
+
+    private AuditInfoBuilder procUpdatedByMWLImport() {
+        HttpServletRequestInfo req  = procCtx.getHttpRequest();
+        AuditInfoBuilder.Builder auditInfoBuilder = infoBuilder
+                .findSCP(procCtx.getSourceMwlScp())
+                .destUserID(procCtx.getLocalAET());
+        if (req != null)
+            auditInfoBuilder.callingUserID(req.requesterUserID).callingHost(procCtx.getRemoteHostName());
+
+        return auditInfoBuilder.build();
     }
 
     private AuditInfoBuilder orderProcessed() {
@@ -188,30 +205,57 @@ class ProcedureRecordAuditService {
         return e != null ? e.getMessage() : null;
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static AuditMessage auditMsg(
+            AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, IApplicationEntityCache aeCache) {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(auditLogger, auditInfo),
+                activeParticipants(auditLogger, auditInfo, aeCache),
                 ParticipantObjectID.studyPatParticipants(auditInfo, reader, auditLogger));
     }
 
-    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditInfo auditInfo) {
+    private static ActiveParticipant[] activeParticipants(
+            AuditLogger auditLogger, AuditInfo auditInfo, IApplicationEntityCache aeCache) {
         ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+
+        String findScp = auditInfo.getField(AuditInfo.FIND_SCP);
+        if (findScp != null) {
+            activeParticipants[0] = new ActiveParticipantBuilder(findScp, AuditUtils.findScpHost(findScp, aeCache))
+                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
+                                    .build();
+            ActiveParticipantBuilder destination = new ActiveParticipantBuilder(
+                                                    auditInfo.getField(AuditInfo.DEST_USER_ID),
+                                                    getLocalHostName(auditLogger))
+                                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
+                                                    .altUserID(AuditLogger.processID());
+            if (callingUserID != null) {
+                activeParticipants[1] = destination.build();
+                activeParticipants[2] = new ActiveParticipantBuilder(callingUserID, callingHost)
+                        .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                        .isRequester().build();
+            } else
+                activeParticipants[1] = destination.isRequester().build();
+
+            return activeParticipants;
+        }
+
         String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode calledUserIDTypeCode = userIDTypeCode(calledUserID);
         boolean isHL7Forward = auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null;
-        ActiveParticipantBuilder callingUserParticipant = callingUserParticipant(auditInfo, calledUserIDTypeCode);
+        ActiveParticipantBuilder callingUserParticipant = new ActiveParticipantBuilder(callingUserID, callingHost)
+                .userIDTypeCode(AuditService.remoteUserIDTypeCode(
+                        calledUserIDTypeCode, callingUserID));
+
         activeParticipants[0] = isHL7Forward
-                ? callingUserParticipant.build()
-                : callingUserParticipant.isRequester().build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                calledUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(calledUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .build();
+                                ? callingUserParticipant.build()
+                                : callingUserParticipant.isRequester().build();
+        activeParticipants[1] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(auditLogger))
+                                    .userIDTypeCode(calledUserIDTypeCode)
+                                    .altUserID(AuditLogger.processID())
+                                    .build();
         if (isHL7Forward)
             activeParticipants[2] = new ActiveParticipantBuilder(
                     auditLogger.getDevice().getDeviceName(),
@@ -221,13 +265,6 @@ class ProcedureRecordAuditService {
                     .isRequester()
                     .build();
         return activeParticipants;
-    }
-
-    private static ActiveParticipantBuilder callingUserParticipant(
-            AuditInfo auditInfo, AuditMessages.UserIDTypeCode archiveUserIDTypeCode) {
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        return new ActiveParticipantBuilder(callingUserID, auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID));
     }
 
     private static String getLocalHostName(AuditLogger auditLogger) {

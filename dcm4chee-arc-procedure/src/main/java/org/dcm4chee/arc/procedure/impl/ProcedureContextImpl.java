@@ -80,6 +80,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private ArchiveHL7ApplicationExtension arcHL7App;
     private ArchiveAEExtension arcAE;
     private String localAET;
+    private String sourceMwlScp;
     private String mppsUID;
     private String status;
 
@@ -246,6 +247,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setLocalAET(String localAET) {
         this.localAET = localAET;
+    }
+
+    @Override
+    public String getSourceMwlScp() {
+        return sourceMwlScp;
+    }
+
+    @Override
+    public void setSourceMwlScp(String sourceMwlScp) {
+        this.sourceMwlScp = sourceMwlScp;
     }
 
     @Override

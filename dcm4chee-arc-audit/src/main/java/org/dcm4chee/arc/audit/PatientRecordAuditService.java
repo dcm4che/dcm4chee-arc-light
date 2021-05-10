@@ -44,6 +44,7 @@ import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
@@ -80,18 +81,22 @@ class PatientRecordAuditService {
         String callingUserID = httpRequest != null
                 ? httpRequest.requesterUserID
                 : association != null
-                    ? association.getCallingAET() : arcDev.getDevice().getDeviceName();
+                    ? association.getCallingAET()
+                    : ctx.getSourceMwlScp() != null ? ctx.getSourceMwlScp() : arcDev.getDevice().getDeviceName();
         String calledUserID = httpRequest != null
                 ? httpRequest.requestURI
                 : association != null
-                    ? association.getCalledAET() : null;
+                    ? association.getCalledAET()
+                    : ctx.getLocalAET() != null ? ctx.getLocalAET() : null;
         infoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
                 .callingUserID(callingUserID)
                 .calledUserID(calledUserID)
                 .outcome(outcome(ctx.getException()))
                 .patVerificationStatus(ctx.getPatientVerificationStatus())
-                .pdqServiceURI(ctx.getPDQServiceURI());
+                .pdqServiceURI(ctx.getPDQServiceURI())
+                .findSCP(ctx.getSourceMwlScp())
+                .destUserID(ctx.getLocalAET());
     }
 
     PatientRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
@@ -176,7 +181,7 @@ class PatientRecordAuditService {
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
-                                 IHL7ApplicationCache hl7AppCache) throws ConfigurationException {
+                                 IHL7ApplicationCache hl7AppCache, IApplicationEntityCache aeCache) throws ConfigurationException {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         ActiveParticipant[] activeParticipants = auditInfo.getField(AuditInfo.PDQ_SERVICE_URI) != null
@@ -185,7 +190,7 @@ class PatientRecordAuditService {
                     ? new ActiveParticipant[]{schedulerTriggered(auditLogger, auditInfo).build()}
                     : auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null
                         ? outgoingActiveParticipants(auditLogger, eventType, auditInfo, hl7AppCache)
-                        : incomingActiveParticipants(auditLogger, eventType, auditInfo);
+                        : incomingActiveParticipants(auditLogger, eventType, auditInfo, aeCache);
 
         return AuditMessages.createMessage(
                 EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
@@ -240,26 +245,48 @@ class PatientRecordAuditService {
     }
 
     private static ActiveParticipant[] incomingActiveParticipants(
-            AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
+            AuditLogger auditLogger, AuditUtils.EventType et, AuditInfo auditInfo, IApplicationEntityCache aeCache) {
+        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
 
-        activeParticipants[0] = new ActiveParticipantBuilder(
+        ActiveParticipantBuilder calledUser = new ActiveParticipantBuilder(
                 archiveUserID,
                 getLocalHostName(auditLogger))
                 .userIDTypeCode(archiveUserIDTypeCode)
                 .altUserID(AuditLogger.processID())
-                .roleIDCode(et.destination)
-                .build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
+                .roleIDCode(et.destination);
+        ActiveParticipantBuilder callingUser = new ActiveParticipantBuilder(
                 callingUserID,
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester()
-                .roleIDCode(et.source)
-                .build();
+                .roleIDCode(et.source);
+
+        String findScp = auditInfo.getField(AuditInfo.FIND_SCP);
+        if (findScp == null) {
+            activeParticipants[0] = calledUser.build();
+            activeParticipants[1] = callingUser.isRequester().build();
+        } else {
+            if (callingUserID.equals(findScp)) {
+                activeParticipants[0] = callingUser.build();
+                activeParticipants[1] = calledUser.isRequester().build();
+            }
+            else {
+                activeParticipants[0] = callingUser.isRequester().build();
+                activeParticipants[1] = new ActiveParticipantBuilder(
+                                        auditInfo.getField(AuditInfo.DEST_USER_ID),
+                                        getLocalHostName(auditLogger))
+                                        .userIDTypeCode(archiveUserIDTypeCode)
+                                        .altUserID(AuditLogger.processID())
+                                        .roleIDCode(et.destination).build();
+                activeParticipants[2] = new ActiveParticipantBuilder(findScp, AuditUtils.findScpHost(findScp, aeCache))
+                                        .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
+                                        .roleIDCode(et.source)
+                                        .build();
+            }
+        }
+
         return activeParticipants;
     }
 

@@ -135,6 +135,7 @@ public class ProcedureServiceImpl implements ProcedureService {
             ctx.setAttributes(mwlItem);
             ctx.setSpsID(spsID.scheduledProcedureStepID);
             ctx.setLocalAET(destAET);
+            ctx.setSourceMwlScp(mwlscp);
             try {
                 ejb.createOrUpdateMWLItem(ctx, simulate);
                 String eventActionCode = ctx.getEventActionCode();

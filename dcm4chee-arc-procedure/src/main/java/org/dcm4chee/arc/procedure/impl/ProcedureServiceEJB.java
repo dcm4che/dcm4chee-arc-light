@@ -439,6 +439,8 @@ public class ProcedureServiceEJB {
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest());
         patMgtCtx.setAttributes(attrs);
         patMgtCtx.setPatientID(IDWithIssuer.pidOf(attrs));
+        patMgtCtx.setLocalAET(ctx.getLocalAET());
+        patMgtCtx.setSourceMwlScp(ctx.getSourceMwlScp());
         ctx.setPatient(patientService.findPatient(patMgtCtx));
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         MWLItem mwlItem = findMWLItem(ctx);

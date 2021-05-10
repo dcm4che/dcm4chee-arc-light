@@ -810,7 +810,7 @@ public class AuditService {
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
             throws Exception {
         emitAuditMessage(
-                PatientRecordAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache),
+                PatientRecordAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache, aeCache),
                 auditLogger);
     }
 
@@ -855,7 +855,7 @@ public class AuditService {
     private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
             throws Exception {
         emitAuditMessage(
-                ProcedureRecordAuditService.auditMsg(auditLogger, path, eventType),
+                ProcedureRecordAuditService.auditMsg(auditLogger, path, eventType, aeCache),
                 auditLogger);
     }
 

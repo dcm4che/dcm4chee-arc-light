@@ -120,6 +120,10 @@ public interface ProcedureContext {
 
     void setLocalAET(String localAET);
 
+    String getSourceMwlScp();
+
+    void setSourceMwlScp(String sourceMwlScp);
+
     ArchiveAEExtension getArchiveAEExtension();
 
     void setArchiveAEExtension(ArchiveAEExtension arcAE);
