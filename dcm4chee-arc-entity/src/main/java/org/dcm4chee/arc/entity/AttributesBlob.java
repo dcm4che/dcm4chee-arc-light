@@ -49,6 +49,7 @@ import javax.persistence.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Umberto Cappellini <umberto.cappellini@agfa.com>
@@ -125,7 +126,15 @@ public class AttributesBlob {
             dis.readAttributes(result, -1, -1);
             return result;
         } catch (IOException e) {
-            throw new BlobCorruptedException(e);
+            return blobCorruptedHandler.apply(b, result, e);
         }
+    }
+
+    private static volatile BlobCorruptedHandler blobCorruptedHandler = (b1, result1, ex) -> {
+        throw new BlobCorruptedException(ex);
+    };
+
+    public static void setBlobCorruptedHandler(BlobCorruptedHandler blobCorruptedHandler) {
+        AttributesBlob.blobCorruptedHandler = Objects.requireNonNull(blobCorruptedHandler);
     }
 }

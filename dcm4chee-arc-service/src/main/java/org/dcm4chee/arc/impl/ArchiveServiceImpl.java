@@ -43,6 +43,7 @@ package org.dcm4chee.arc.impl;
 import org.dcm4che3.conf.api.*;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.conf.ldap.LdapUtils;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.AssociationHandler;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
@@ -53,6 +54,7 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.*;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
@@ -72,7 +74,14 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Properties;
 
@@ -160,6 +169,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     @PostConstruct
     public void init() {
         try {
+            AttributesBlob.setBlobCorruptedHandler(ArchiveServiceImpl::BlobCorruptedHandler);
             device.setConnectionMonitor(connectionEventSource);
             device.setAssociationMonitor(associationEventSource);
             device.setExecutor(executor);
@@ -188,6 +198,23 @@ public class ArchiveServiceImpl implements ArchiveService {
             destroy();
             throw new RuntimeException(e);
         }
+    }
+
+    private static Attributes BlobCorruptedHandler(byte[] bytes, Attributes result, IOException e) {
+        LOG.warn("Failed to decode Attributes BLOB:\n", e);
+        Path dir = Paths.get(System.getProperty("jboss.server.log.dir"),
+                new SimpleDateFormat("'corrupted-blobs'-YYYY-MM-dd").format(new Date()));
+        try {
+            Files.createDirectories(dir);
+            Path file = Files.createTempFile(dir, "blob-", ".bin");
+            try (OutputStream out = Files.newOutputStream(file)) {
+                out.write(bytes);
+            }
+            LOG.info("Log corrupted Attributes BLOB to {}", file);
+        } catch (IOException e2) {
+            LOG.warn("Failed to log corrupted Attributes BLOB\n", e2);
+        }
+        return result;
     }
 
     @PreDestroy
