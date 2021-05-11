@@ -569,15 +569,9 @@ public class QueryBuilder {
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
-            if (issuer != null)
-                idWithIssuer(predicates,
-                        study,
-                        Study_.admissionID,
-                        Study_.issuerOfAdmissionID,
-                        admissionID,
-                        issuer);
-            else
-                predicates.add(cb.equal(study.get(Study_.admissionID), admissionID));
+            if (issuer == null)
+                issuer = queryParam.getDefaultIssuerOfAdmissionID();
+            idWithIssuer(predicates, study, Study_.admissionID, Study_.issuerOfAdmissionID, admissionID, issuer);
         }
         return predicates;
     }
@@ -759,15 +753,9 @@ public class QueryBuilder {
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
-            if (issuer != null)
-                idWithIssuer(predicates,
-                        mwlItem,
-                        MWLItem_.admissionID,
-                        MWLItem_.issuerOfAdmissionID,
-                        admissionID,
-                        issuer);
-            else
-                predicates.add(cb.equal(mwlItem.get(MWLItem_.admissionID), admissionID));
+            if (issuer == null)
+                issuer = queryParam.getDefaultIssuerOfAdmissionID();
+            idWithIssuer(predicates, mwlItem, MWLItem_.admissionID, MWLItem_.issuerOfAdmissionID, admissionID, issuer);
         }
         anyOf(predicates, mwlItem.get(MWLItem_.institutionName),
                 keys.getStrings(Tag.InstitutionName), true);
@@ -851,10 +839,9 @@ public class QueryBuilder {
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
-            if (issuer != null)
-              idWithIssuer(predicates, ups, UPS_.admissionID, UPS_.issuerOfAdmissionID, admissionID, issuer);
-            else
-                predicates.add(cb.equal(ups.get(UPS_.admissionID), admissionID));
+            if (issuer == null)
+                issuer = queryParam.getDefaultIssuerOfAdmissionID();
+            idWithIssuer(predicates, ups, UPS_.admissionID, UPS_.issuerOfAdmissionID, admissionID, issuer);
         }
         upsRequestAttributes(predicates, q, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
         Attributes replacedProcedureStep = keys.getNestedDataset(Tag.ReplacedProcedureStepSequence);
@@ -937,8 +924,7 @@ public class QueryBuilder {
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
         if (!isUniversalMatching(entityID))
-            predicates.add(cb.or(issuerPath.get(IssuerEntity_.localNamespaceEntityID).isNull(),
-                    cb.equal(issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID)));
+            wildCardIssuer(predicates, issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID);
         if (!isUniversalMatching(entityUID))
             predicates.add(cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
                     cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
@@ -1004,6 +990,19 @@ public class QueryBuilder {
             predicates.add(cb.like(path, pattern, '!'));
         } else {
             predicates.add(cb.equal(path, value));
+        }
+        return true;
+    }
+
+    private boolean wildCardIssuer(List<Predicate> predicates, Expression<String> path, String value) {
+        if (containsWildcard(value)) {
+            String pattern = toLikePattern(value);
+            if (pattern.equals("%"))
+                return false;
+
+            predicates.add(cb.or(path.isNull(), cb.like(path, pattern, '!')));
+        } else {
+            predicates.add(cb.or(path.isNull(), cb.equal(path, value)));
         }
         return true;
     }

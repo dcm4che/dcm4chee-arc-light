@@ -138,6 +138,10 @@ public class QueryParam {
         return null;
     }
 
+    public Issuer getDefaultIssuerOfAdmissionID() {
+        return null;
+    }
+
     public boolean isCombinedDatetimeMatching() {
         return combinedDatetimeMatching;
     }
