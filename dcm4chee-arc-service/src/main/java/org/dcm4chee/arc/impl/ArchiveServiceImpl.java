@@ -210,7 +210,7 @@ public class ArchiveServiceImpl implements ArchiveService {
             try (OutputStream out = Files.newOutputStream(file)) {
                 out.write(bytes);
             }
-            LOG.info("Log corrupted Attributes BLOB to {}", file);
+            LOG.info("Store corrupted Attributes BLOB to {}", file);
         } catch (IOException e2) {
             LOG.warn("Failed to log corrupted Attributes BLOB\n", e2);
         }
