@@ -2594,17 +2594,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return (studyConfig && studyConfig.tab === "patient")
             }else{
                  if(studyConfig && studyConfig.tab === "mwl"){
-                     // switch(option.value) {
-                     //     case "import_matching_sps_to_archive":
-                     //         return !internal || !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
-                     //     case "change_sps_status_on_matching":
-                     //         return internal && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
-                     // }
-                     return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
-                     // return (option.value === "import_matching_sps_to_archive"
-                     //                && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
-                     //            || (option.value === "change_sps_status_on_matching"
-                     //                && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
+                     return (option.value === "import_matching_sps_to_archive"
+                                    && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
+                                || (option.value === "change_sps_status_on_matching"
+                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
@@ -2637,6 +2630,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
+
     actionsSelectionsFilterPipe(value, args){
         console.log("args",args);
         let internal = args[0];
