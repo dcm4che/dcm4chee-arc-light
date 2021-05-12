@@ -192,6 +192,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
+            new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
             new SelectDropdown("schedule_storage_commit_for_matching",$localize `:@@schedule_storage_commit_for_matching:Schedule Storage Commitment for matching`),
             new SelectDropdown("instance_availability_notification_for_matching",$localize `:@@instance_availability_notification_for_matching:Instance Availability Notification for matching`),
         ],
@@ -336,7 +337,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },1);
         });
         this.moreFunctionConfig.options.filter(option=>{
-            if(option.value === "retrieve_multiple"){
+            if(option.value === "retrieve_multiple" || option.value === "import_matching_sps_to_archive"){
                 return !this.internal;
             }else{
                 return true;
@@ -452,6 +453,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
                break;
+            case "import_matching_sps_to_archive":
+                this.importMatchingSPS();
+                break;
         }
         setTimeout(()=>{
             this.moreFunctionConfig.model = undefined;
@@ -1176,6 +1180,106 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         }, (err) => {
             console.log('error', err);
+        });
+    }
+
+    importMatchingSPS() {
+        this.confirm({
+            content: $localize `:@@mwl.import_matching_sps:Import matching Scheduled Procedure Steps to archive`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@destination_aet:Destination AET`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName == this.appService.archiveDeviceName),
+                            filterKey:"destination",
+                            description:$localize `:@@destination_aet:Destination AET`,
+                            placeholder:$localize `:@@destination_aet:Destination AET`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@mwl.filter_by_scu:Filter By SCU`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "filterbyscu",
+                            description:$localize `:@@mwl.filter_by_scu_desc:Apply specified filter on matches returned by external MWL SCP`,
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@title.delete:Delete`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "delete",
+                            description:$localize `:@@mwl.delete_desc:Delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP`,
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@mwl.test:Test`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "test",
+                            description:$localize `:@@mwl.test_desc:Only test import from external MWL SCP without performing the operation`,
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@IMPORT:IMPORT`
+        }).subscribe((ok)=>{
+            if(ok && _.hasIn(ok, "schema_model.destination")){
+                this.service.importMatchingSPS(this.studyWebService.selectedWebService,
+                                                ok.schema_model.destination,
+                                                this.createStudyFilterParams(true,true))
+                            .subscribe(res => {
+                                console.log("res",res);
+                                this.cfpLoadingBar.complete();
+                                let count = _.get(res, "res.count"); //result always has count
+                                let created = _.hasIn(res, "res.created") ? _.get(res, "res.created") : '';
+                                let updated = _.hasIn(res, "res.updated") ? _.get(res, "res.updated") : '';
+                                let deleted = _.hasIn(res, "res.deleted") ? _.get(res, "res.deleted") : '';
+                                let failures = _.hasIn(res, "res.failures") ? _.get(res, "res.failures") : '';
+                                let error = _.hasIn(res, "res.error") ? _.get(res, "res.error") : '';
+
+                                let msg = `Count: ` + count;
+                                if (created != '')
+                                    msg = msg + `<br>\nCreated: ` + created;
+                                if (updated != '')
+                                    msg = msg + `<br>\nUpdated: ` + updated;
+                                if (deleted != '')
+                                    msg = msg + `<br>\nDeleted: ` + deleted;
+                                if (failures != '')
+                                    msg = msg + `<br>\nFailures: ` + failures;
+                                if (error != '')
+                                    msg = msg + `<br>\nError: ` + error;
+                                if (failures  != '' || error != '') {
+                                    if (count != '' || created  != '' || updated  != '' || deleted  != '')
+                                        this.appService.showWarning(msg);
+                                    else
+                                        this.appService.showError(msg);
+                                } else
+                                    this.appService.showMsg(msg);
+                            }, err => {
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
+                            });
+            }
         });
     }
 
@@ -2488,9 +2592,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(option.value === "create_patient" ||  option.value === "supplement_issuer"){
                 return (studyConfig && studyConfig.tab === "patient")
             }else{
-                if(studyConfig && studyConfig.tab === "mwl"){
-                    return option.value === "change_sps_status_on_matching";
-                }else{
+                 if(studyConfig && studyConfig.tab === "mwl"){
+                     // switch(option.value) {
+                     //     case "import_matching_sps_to_archive":
+                     //         return !internal || !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+                     //     case "change_sps_status_on_matching":
+                     //         return internal && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+                     // }
+                     return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
+                 }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
                             return option.value === "create_ups";
@@ -2509,6 +2619,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "reject_multiple":
                                     return studyConfig && studyConfig.tab === "study";
                                 case "change_sps_status_on_matching":
+                                case "import_matching_sps_to_archive":
                                     return false;
                             }
                         }

@@ -3447,6 +3447,10 @@ export class StudyService {
         return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/status/${status}${j4care.param(filters)}`,{});
     }
 
+    importMatchingSPS(dcmWebApp:DcmWebApp, destination:string, filters:any){
+        return this.$http.post(`${this.getDicomURL("mwl",dcmWebApp)}/import/${destination}${j4care.param(filters)}`,{});
+    }
+
     modifyUWL(uwl, deviceWebservice: StudyWebService, header: HttpHeaders) {
         const url = this.getModifyMWLUrl(deviceWebservice);
         if (url) {
