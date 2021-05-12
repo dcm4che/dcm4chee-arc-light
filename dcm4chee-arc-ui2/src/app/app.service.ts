@@ -179,37 +179,44 @@ export class AppService implements OnInit, OnDestroy{
         })
     }
 
-    showMsgSupplementIssuer(result){
+    showMsgSupplementIssuer(res){
+        console.log(res);
         let detail = '';
-        if (_.hasIn(result, "result.pids")) {
-            let successfulPIDs = _.get(result, "error.pids");
-            detail += "pids:" + "<br>\n";
-            _.forEach(successfulPIDs, (pid, count) => {
-                detail += "pid:" + pid.pid + "<br>\n";
+        let successful = _.hasIn(res, "pids") ? _.get(res, "pids") : '';
+        let ambiguous = _.hasIn(res, "ambiguous") ? _.get(res, "ambiguous") : '';
+        let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
+        let tooManyDuplicates = _.hasIn(res, "tooManyDuplicates") ? _.get(res, "tooManyDuplicates") : '';
+        if (successful != '') {
+            detail = detail + `PIDs: ` + `<br>\n`;
+            _.forEach(successful, pid => {
+                detail = detail + `- PID: ` + pid + `<br>\n`;
             })
         }
-        if (_.hasIn(result, "result.ambiguous")) {
-            let ambiguousPIDs = _.get(result, "result.ambiguous");
-            detail += "ambiguous:" + "<br>\n";
-            _.forEach(ambiguousPIDs, (pid, count) => {
-                detail += "pid:" + pid.pid + ", count:" + pid.count + "<br>\n";
+        if (ambiguous != '') {
+            detail = detail + `Ambiguous: ` + `<br>\n`;
+            _.forEach(ambiguous, ambiguousPID => {
+                detail = detail + `PID: ` + _.get(ambiguousPID, "pid") + `, Count: ` + ambiguousPID.count + `<br>\n`;
             })
         }
-        if (_.hasIn(result, "result.failures")) {
-            let failedPIDs = _.get(result, "result.failures");
-            detail += "failures:" + "<br>\n";
-            _.forEach(failedPIDs, (pid, errorMessage) => {
-                detail += "pid:" + pid.pid + ", errorMessage:" + pid.errorMessage + "<br>\n";
+        if (failures  != '') {
+            detail = detail + `Failures: ` + `<br>\n`;
+            _.forEach(failures, (pid, errorMessage) => {
+                detail += `PID: ` + pid + `, Error: ` + errorMessage + `<br>\n`;
             })
+        }
+        if (tooManyDuplicates != '') {
+            detail = detail + `Too many duplicates for: ` + tooManyDuplicates;
         }
 
-        this.setMessageSource.next({
-            'title':$localize `:@@info:Info`,
-            'text':$localize`:@@supplement_issuer_executed:Supplement issuer executed<br>\n`,
-            'status':'info',
-            'detail': detail
-        })
+        if (failures  != '' || ambiguous != '' || tooManyDuplicates != '') {
+            if (successful != '')
+                this.showWarning(detail);
+            else
+                this.showError(detail);
+        } else
+            this.showMsg(detail);
     }
+
     showWarning(msg:string){
         this.setMessageSource.next({
             "title":$localize `:@@warning:Warning`,

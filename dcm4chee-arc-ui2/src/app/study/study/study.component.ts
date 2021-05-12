@@ -2807,11 +2807,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@supplement_issuer_test_only:Test only, without actually supplementing`
+                            text: $localize`:@@test:Test`
                         },
                         {
                             tag: "checkbox",
-                            filterKey: "testSupplement"
+                            filterKey: "testSupplement",
+                            description:$localize `:@@supplement_issuer_test_only:Only test, without actually supplementing`,
                         }
                     ]
                 ]
@@ -2831,7 +2832,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.appService.showMsgSupplementIssuer(res);
                 }, err => {
                     this.cfpLoadingBar.complete();
-                    this.httpErrorHandler.handleError(err);
+                    this.appService.showMsgSupplementIssuer(err.error);
                 });
 
             }
