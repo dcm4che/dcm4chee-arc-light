@@ -2620,6 +2620,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     return studyConfig && studyConfig.tab === "study";
                                 case "change_sps_status_on_matching":
                                 case "import_matching_sps_to_archive":
+                                case "create_ups":
                                     return false;
                             }
                         }
