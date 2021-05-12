@@ -1250,12 +1250,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             .subscribe(res => {
                                 console.log("res",res);
                                 this.cfpLoadingBar.complete();
-                                let count = _.get(res, "res.count"); //result always has count
-                                let created = _.hasIn(res, "res.created") ? _.get(res, "res.created") : '';
-                                let updated = _.hasIn(res, "res.updated") ? _.get(res, "res.updated") : '';
-                                let deleted = _.hasIn(res, "res.deleted") ? _.get(res, "res.deleted") : '';
-                                let failures = _.hasIn(res, "res.failures") ? _.get(res, "res.failures") : '';
-                                let error = _.hasIn(res, "res.error") ? _.get(res, "res.error") : '';
+                                let count = _.get(res, "count");
+                                let created = _.hasIn(res, "created") ? _.get(res, "created") : '';
+                                let updated = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
+                                let deleted = _.hasIn(res, "deleted") ? _.get(res, "deleted") : '';
+                                let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
+                                let error = _.hasIn(res, "error") ? _.get(res, "error") : '';
 
                                 let msg = `Count: ` + count;
                                 if (created != '')
@@ -2599,7 +2599,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                      //     case "change_sps_status_on_matching":
                      //         return internal && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                      // }
-                     return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
+                     //return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
+                     return (option.value === "import_matching_sps_to_archive"
+                                    && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
+                                || (option.value === "change_sps_status_on_matching"
+                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
