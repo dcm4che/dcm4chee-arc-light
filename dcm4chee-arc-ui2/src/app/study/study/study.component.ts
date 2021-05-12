@@ -1228,7 +1228,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@mwl.test:Test`
+                            text: $localize`:@@test:Test`
                         },
                         {
                             tag: "checkbox",
@@ -2584,6 +2584,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
+
     moreFunctionFilterPipe = (value, args) => {
         let internal = args[0];
         let studyConfig = args[1];
@@ -2599,11 +2600,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                      //     case "change_sps_status_on_matching":
                      //         return internal && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                      // }
-                     //return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
-                     return (option.value === "import_matching_sps_to_archive"
-                                    && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
-                                || (option.value === "change_sps_status_on_matching"
-                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
+                     return option.value === "import_matching_sps_to_archive" || option.value === "change_sps_status_on_matching";
+                     // return (option.value === "import_matching_sps_to_archive"
+                     //                && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
+                     //            || (option.value === "change_sps_status_on_matching"
+                     //                && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
