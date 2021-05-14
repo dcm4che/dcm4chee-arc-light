@@ -129,6 +129,15 @@ public class StudyMgtRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
+    public void validate() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                toString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+        new QueryAttributes(uriInfo, null);
+    }
+
     @DELETE
     @Path("/studies/{StudyUID}")
     public void deleteStudy(
