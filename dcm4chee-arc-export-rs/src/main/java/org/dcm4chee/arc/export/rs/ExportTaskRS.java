@@ -324,7 +324,12 @@ public class ExportTaskRS {
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices(newExporter, status)
-                    : rescheduleTasks(newExporter, newDeviceName != null ? null : devName, status));
+                    : rescheduleTasks(newExporter,
+                                    newDeviceName != null
+                                        ? deviceName == null
+                                            ? null : deviceName
+                                        : devName,
+                                    status));
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
