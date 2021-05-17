@@ -52,22 +52,28 @@ import java.util.Objects;
  */
 public class MergeMWLQueryParam {
     public final String mwlSCP;
+    public final String patientID;
     public final String accessionNumber;
     public final String studyIUID;
     public final String spsID;
 
-    public MergeMWLQueryParam(String mwlSCP, String accessionNumber, String studyIUID, String spsID) {
+    public MergeMWLQueryParam(String mwlSCP, String patientID, String accessionNumber, String studyIUID, String spsID) {
         this.mwlSCP = mwlSCP;
+        this.patientID = patientID;
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;
         this.spsID = spsID;
     }
 
     public static MergeMWLQueryParam valueOf(String mwlSCP, MergeMWLMatchingKey matchingKey, Attributes attrs) {
+        String patientID = null;
         String accessionNumber = null;
         String studyIUID = null;
         String spsID = null;
         switch (matchingKey) {
+            case PatientID:
+                patientID = attrs.getString(Tag.PatientID);
+                break;
             case AccessionNumber:
                 accessionNumber = attrs.getString(Tag.AccessionNumber);
                 if (accessionNumber == null)
@@ -80,7 +86,7 @@ public class MergeMWLQueryParam {
                 studyIUID = attrs.getString(Tag.StudyInstanceUID);
                 break;
         }
-        return new MergeMWLQueryParam(mwlSCP, accessionNumber, studyIUID, spsID);
+        return new MergeMWLQueryParam(mwlSCP, patientID, accessionNumber, studyIUID, spsID);
     }
 
     @Override
@@ -89,6 +95,7 @@ public class MergeMWLQueryParam {
         if (o == null || getClass() != o.getClass()) return false;
         MergeMWLQueryParam that = (MergeMWLQueryParam) o;
         return Objects.equals(mwlSCP, that.mwlSCP) &&
+                Objects.equals(patientID, that.patientID) &&
                 Objects.equals(accessionNumber, that.accessionNumber) &&
                 Objects.equals(studyIUID, that.studyIUID) &&
                 Objects.equals(spsID, that.spsID);
@@ -96,13 +103,14 @@ public class MergeMWLQueryParam {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mwlSCP, accessionNumber, studyIUID, spsID);
+        return Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID);
     }
 
     @Override
     public String toString() {
         return "MergeMWLQueryParam{" +
                 "mwlSCP='" + mwlSCP +
+                "', patientID='" + patientID +
                 "', accessionNumber='" + accessionNumber +
                 "', studyIUID='" + studyIUID +
                 "', spsID='" + spsID +

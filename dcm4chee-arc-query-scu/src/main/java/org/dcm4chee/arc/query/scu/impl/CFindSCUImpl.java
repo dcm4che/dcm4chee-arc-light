@@ -148,6 +148,7 @@ public class CFindSCUImpl implements CFindSCU {
                 Tag.RequestedProcedureID,
                 Tag.ReasonForTheRequestedProcedure,
                 Tag.ReasonForRequestedProcedureCodeSequence);
+        if (queryParam.patientID != null) keys.setString(Tag.PatientID, VR.LO, queryParam.patientID);
         if (queryParam.accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, queryParam.accessionNumber);
         if (queryParam.studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, queryParam.studyIUID);
         if (queryParam.spsID != null) {

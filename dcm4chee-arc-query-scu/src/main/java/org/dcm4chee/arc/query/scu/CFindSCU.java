@@ -49,7 +49,6 @@ import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
 
 import java.util.EnumSet;
 import java.util.List;

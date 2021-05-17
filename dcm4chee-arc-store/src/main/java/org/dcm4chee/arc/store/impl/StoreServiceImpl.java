@@ -629,6 +629,7 @@ class StoreServiceImpl implements StoreService {
         Sequence reqAttrsSeq = null;
         try {
             Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(tplURI));
+            Collections.sort(mwlItems, Comparator.comparing(StoreServiceImpl::startDateTime).reversed());
             for (Attributes mwlItem : mwlItems) {
                 Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, rule.isNoKeywords());
                 if (reqAttrsSeq == null) {
@@ -645,6 +646,14 @@ class StoreServiceImpl implements StoreService {
         }
         mergeMWLCache.put(queryParam, result);
         return result;
+    }
+
+    private static Date startDateTime(Attributes mwlItem) {
+        Attributes item;
+        Date date;
+        return (item = mwlItem.getNestedDataset(Tag.ScheduledProcedureStepSequence)) != null
+                && (date = item.getDate(Tag.ScheduledProcedureStepStartDateAndTime)) != null
+                ? date : new Date(0);
     }
 
     private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam) throws Exception {
