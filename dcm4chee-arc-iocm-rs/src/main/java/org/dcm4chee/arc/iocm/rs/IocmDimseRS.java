@@ -108,7 +108,7 @@ public class IocmDimseRS {
             aeCache.findApplicationEntity(mwlscp);
             List<Attributes> mwlItems = cFindSCU.findMWLItems(
                     arcAE.getApplicationEntity(),
-                    new MergeMWLQueryParam(mwlscp, null, studyUID, spsID),
+                    new MergeMWLQueryParam(mwlscp, null, null, studyUID, spsID),
                     Priority.NORMAL);
             if (mwlItems.isEmpty())
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
