@@ -8,5 +8,6 @@ package org.dcm4chee.arc.event;
 public enum QueueMessageOperation {
     CancelTasks,
     RescheduleTasks,
-    DeleteTasks
+    DeleteTasks,
+    MarkTasksForScheduling
 }

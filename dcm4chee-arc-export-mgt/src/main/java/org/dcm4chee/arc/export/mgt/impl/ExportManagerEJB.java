@@ -421,6 +421,25 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
+    public void markForExportTask(
+            Long pk, String deviceName, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
+            Date scheduledTime) {
+        ExportTask task = em.find(ExportTask.class, pk);
+        if (task == null)
+            return;
+
+        LOG.info("Mark {} for export", task);
+        task.setExporterID(exporter.getExporterID());
+        task.setDeviceName(deviceName);
+        task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
+        if (task.getQueueMessage() == null)
+            return;
+
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), null, false);
+        task.setQueueMessage(null);
+    }
+
+    @Override
     public List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam) {
         return em.createQuery(
                 select(ExportTask_.deviceName, exportTaskQueryParam).distinct(true))

@@ -657,6 +657,12 @@
     "/monitor/export/reschedule/{newExporterID}": {
       "$ref": "paths/monitor.json#/exportRescheduleExporter"
     },
+    "/monitor/export/mark4export": {
+      "$ref": "paths/monitor.json#/mark4Export"
+    },
+    "/monitor/export/mark4export/{newExporterID}": {
+      "$ref": "paths/monitor.json#/mark4ExportOnExporter"
+    },
     "/monitor/export/batch": {
       "$ref": "paths/monitor.json#/exportBatch"
     },
@@ -680,6 +686,9 @@
     },
     "/monitor/retrieve/reschedule": {
       "$ref": "paths/monitor.json#/retrieveReschedule"
+    },
+    "/monitor/retrieve/mark4retrieve": {
+      "$ref": "paths/monitor.json#/mark4retrieve"
     },
     "/monitor/retrieve/batch": {
       "$ref": "paths/monitor.json#/retrieveBatch"

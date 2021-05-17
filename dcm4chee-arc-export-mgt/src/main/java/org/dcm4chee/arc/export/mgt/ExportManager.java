@@ -103,6 +103,9 @@ public interface ExportManager {
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                               QueueMessageEvent queueEvent, Date scheduledTime);
 
+    void markForExportTask(Long pk, String deviceName, ExporterDescriptor exporter,
+                         HttpServletRequestInfo httpServletRequestInfo, Date scheduledTime);
+
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);

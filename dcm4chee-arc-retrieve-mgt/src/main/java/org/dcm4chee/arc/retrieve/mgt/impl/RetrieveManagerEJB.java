@@ -337,6 +337,23 @@ public class RetrieveManagerEJB {
         }
     }
 
+    public void markTaskForRetrieve(Long pk, String devName, String newQueueName, Date scheduledTime) {
+        RetrieveTask task = em.find(RetrieveTask.class, pk);
+        if (task == null)
+            return;
+
+        LOG.info("Mark {} for retrieve", task);
+        task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
+        task.setDeviceName(devName);
+        if (newQueueName != null)
+            task.setQueueName(newQueueName);
+        if (task.getQueueMessage() == null)
+            return;
+
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), null, false);
+        task.setQueueMessage(null);
+    }
+
     private Attributes toKeys(RetrieveTask task) {
         int n = task.getSOPInstanceUID() != null ? 3 : task.getSeriesInstanceUID() != null ? 2 : 1;
         Attributes keys = new Attributes(n + 1);

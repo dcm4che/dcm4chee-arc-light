@@ -530,6 +530,116 @@
       }
     }
   },
+  "mark4Export": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Mark Tasks for Export to original Exporter",
+      "operationId": "markTasks4Export",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDs"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
+        },
+        {
+          "$ref": "../parameters.json#/queueMsgStatus"
+        },
+        {
+          "$ref": "../parameters.json#/createdTime"
+        },
+        {
+          "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Missing status or Validation for one of the query parameters failed."
+        },
+        "403": {
+          "description": "Cannot mark tasks for export with status TO SCHEDULE."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "mark4ExportOnExporter": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Mark Tasks for Export to potential different Exporter",
+      "operationId": "markTasks4ExportToExporter",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/newExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDs"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
+        },
+        {
+          "$ref": "../parameters.json#/queueMsgStatus"
+        },
+        {
+          "$ref": "../parameters.json#/createdTime"
+        },
+        {
+          "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "Missing status or Validation for one of the query parameters failed."
+        },
+        "403": {
+          "description": "Cannot mark tasks for export with status TO SCHEDULE."
+        },
+        "404": {
+          "description": "New Exporter configuration not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
   "exportBatch": {
     "get": {
       "tags": [
@@ -961,6 +1071,79 @@
         },
         "400": {
           "description": "Missing status or Validation for one of the query parameters failed."
+        },
+        "404": {
+          "description": "New queue configuration not found"
+        },
+        "409": {
+          "$ref": "../responses.json#/failed"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "mark4retrieve": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Mark Tasks for Retrieve",
+      "operationId": "markTasksForRetrieve",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
+        },
+        {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
+        },
+        {
+          "$ref": "../parameters.json#/destination"
+        },
+        {
+          "$ref": "../parameters.json#/dcmQueueName"
+        },
+        {
+          "$ref": "../parameters.json#/newQueueName"
+        },
+        {
+          "$ref": "../parameters.json#/queueMsgStatus"
+        },
+        {
+          "$ref": "../parameters.json#/createdTime"
+        },
+        {
+          "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "202": {
+          "$ref": "../responses.json#/accepted"
+        },
+        "400": {
+          "description": "Missing status or Validation for one of the query parameters failed."
+        },
+        "403": {
+          "description": "Cannot mark tasks for retrieve with status TO SCHEDULE"
         },
         "404": {
           "description": "New queue configuration not found"
