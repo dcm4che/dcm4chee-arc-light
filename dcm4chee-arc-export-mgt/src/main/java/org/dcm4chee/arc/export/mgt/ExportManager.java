@@ -104,7 +104,7 @@ public interface ExportManager {
                               QueueMessageEvent queueEvent, Date scheduledTime);
 
     void markForExportTask(Long pk, String deviceName, ExporterDescriptor exporter,
-                         HttpServletRequestInfo httpServletRequestInfo, Date scheduledTime);
+                         HttpServletRequestInfo httpServletRequestInfo, QueueMessageEvent queueEvent, Date scheduledTime);
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 

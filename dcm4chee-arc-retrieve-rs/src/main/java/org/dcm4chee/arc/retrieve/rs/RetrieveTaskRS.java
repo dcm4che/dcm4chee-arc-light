@@ -326,6 +326,38 @@ public class RetrieveTaskRS {
         }
     }
 
+    @POST
+    @Path("{taskPK}/mark4retrieve")
+    public Response markTaskForRetrieve(@PathParam("taskPK") long pk) {
+        logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        try {
+            Tuple tuple = mgr.findDeviceNameAndLocalAETByPk(pk);
+            String taskDeviceName;
+            if ((taskDeviceName = (String) tuple.get(0)) == null)
+                return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
+
+            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
+                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
+
+            if (newDeviceName != null)
+                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
+
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
+            mgr.markTaskForRetrieve(pk, devName, newQueueName, queueEvent, scheduledTime());
+            return Response.noContent().build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (ConfigurationException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
+    }
+
     private Date scheduledTime() {
         if (scheduledTime != null)
             try {
@@ -518,7 +550,7 @@ public class RetrieveTaskRS {
                     String localAET = (String) tuple.get(1);
                     try {
                         if (validateTaskAssociationInitiator(localAET, deviceCache.findDevice(devName))) {
-                            mgr.markTaskForRetrieve(retrieveTaskPk, devName, newQueueName, scheduledTime);
+                            mgr.markTaskForRetrieve(retrieveTaskPk, devName, newQueueName, null, scheduledTime);
                             count++;
                         }
                     } catch (ConfigurationException e) {
@@ -570,7 +602,7 @@ public class RetrieveTaskRS {
             do {
                 List<Long> retrieveTaskPks = mgr.listRetrieveTaskPks(
                         queueTaskQueryParam, retrieveTaskQueryParam, markTasksForRetrieveFetchSize);
-                retrieveTaskPks.forEach(pk -> mgr.markTaskForRetrieve(pk, devName, newQueueName, scheduledTime));
+                retrieveTaskPks.forEach(pk -> mgr.markTaskForRetrieve(pk, devName, newQueueName, null, scheduledTime));
 
                 markedForRetrieve += retrieveTaskPks.size();
             } while (markedForRetrieve >= markTasksForRetrieveFetchSize);

@@ -426,6 +426,40 @@
       }
     }
   },
+  "exportTaskMark4Export": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Mark Task for Export to potential different Exporter",
+      "operationId": "mark4ExportTask",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/taskPkPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such task or Exporter configuration not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
   "exportReschedule": {
     "post": {
       "tags": [
@@ -984,6 +1018,43 @@
       ],
       "summary": "Reschedule Retrieve Task",
       "operationId": "rescheduleRetrieveTask",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/taskPkPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/newQueueName"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such task"
+        },
+        "409": {
+          "description": "Validation of task referring an Archive AE failed. Configuration not available on new device."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "retrieveTaskMark4Retrieve": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Mark Task for Retrieve",
+      "operationId": "mark4RetrieveTask",
       "parameters": [
         {
           "$ref": "../parameters.json#/taskPkPathParam"

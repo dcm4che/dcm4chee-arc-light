@@ -283,6 +283,31 @@ public class ExportTaskRS {
         }
     }
 
+    @POST
+    @Path("{taskPK}/mark4export/{ExporterID}")
+    public Response markTaskForExport(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
+        logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.MarkTasksForScheduling);
+        try {
+            String taskDeviceName;
+            if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
+                return errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
+
+            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
+            mgr.markForExportTask(
+                    pk, devName, exporter(exporterID), HttpServletRequestInfo.valueOf(request), queueEvent, scheduledTime());
+            return Response.noContent().build();
+        } catch (IllegalStateException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
+    }
+
+
     private Date scheduledTime() {
         if (scheduledTime != null)
             try {
@@ -461,6 +486,7 @@ public class ExportTaskRS {
                         mgr.markForExportTask(pk, devName,
                                 newExporter != null ? newExporter : exporter((String) exportTask.get(1)),
                                 httpServletRequestInfo,
+                                null,
                                 scheduledTime);
                     } catch (Exception e) {
                         LOG.warn("Failed to mark task [pk={}] for export \n", pk, e);

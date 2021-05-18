@@ -423,7 +423,7 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public void markForExportTask(
             Long pk, String deviceName, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-            Date scheduledTime) {
+            QueueMessageEvent queueEvent, Date scheduledTime) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return;
@@ -435,7 +435,7 @@ public class ExportManagerEJB implements ExportManager {
         if (task.getQueueMessage() == null)
             return;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), null, false);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
         task.setQueueMessage(null);
     }
 

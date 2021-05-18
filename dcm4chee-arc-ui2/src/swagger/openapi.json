@@ -651,6 +651,9 @@
     "/monitor/export/{taskPK}/reschedule/{exporterID}": {
       "$ref": "paths/monitor.json#/exportTaskReschedule"
     },
+    "/monitor/export/{taskPK}/mark4export/{exporterID}": {
+      "$ref": "paths/monitor.json#/exportTaskMark4Export"
+    },
     "/monitor/export/reschedule": {
       "$ref": "paths/monitor.json#/exportReschedule"
     },
@@ -683,6 +686,9 @@
     },
     "/monitor/retrieve/{taskPK}/reschedule": {
       "$ref": "paths/monitor.json#/retrieveTaskReschedule"
+    },
+    "/monitor/retrieve/{taskPK}/mark4retrieve": {
+      "$ref": "paths/monitor.json#/retrieveTaskMark4Retrieve"
     },
     "/monitor/retrieve/reschedule": {
       "$ref": "paths/monitor.json#/retrieveReschedule"

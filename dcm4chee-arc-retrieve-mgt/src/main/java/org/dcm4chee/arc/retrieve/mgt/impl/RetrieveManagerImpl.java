@@ -186,8 +186,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void markTaskForRetrieve(Long pk, String devName, String newQueueName, Date scheduledTime) {
-        ejb.markTaskForRetrieve(pk, devName, newQueueName, scheduledTime);
+    public void markTaskForRetrieve(
+            Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+        ejb.markTaskForRetrieve(pk, devName, newQueueName, queueEvent, scheduledTime);
     }
 
     @Override

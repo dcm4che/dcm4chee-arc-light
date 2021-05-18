@@ -337,7 +337,8 @@ public class RetrieveManagerEJB {
         }
     }
 
-    public void markTaskForRetrieve(Long pk, String devName, String newQueueName, Date scheduledTime) {
+    public void markTaskForRetrieve(
+            Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return;
@@ -350,7 +351,7 @@ public class RetrieveManagerEJB {
         if (task.getQueueMessage() == null)
             return;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), null, false);
+        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
         task.setQueueMessage(null);
     }
 
