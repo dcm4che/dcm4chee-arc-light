@@ -801,7 +801,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(_.hasIn(ok, "schema_model.selectedExporter")){
                         id = ok.schema_model.selectedExporter;
                     }
-                    this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                    this.service.mark4export(match.properties.pk, id || match.properties.ExporterID, filter)
                         .subscribe(
                             (res) => {
                                 this.cfpLoadingBar.complete();
