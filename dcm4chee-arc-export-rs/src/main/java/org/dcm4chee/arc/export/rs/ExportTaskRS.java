@@ -121,7 +121,7 @@ public class ExportTaskRS {
     private String deviceName;
 
     @QueryParam("newDeviceName")
-    private String newDeviceName;
+    private List<String> newDeviceName;
 
     @QueryParam("ExporterID")
     private List<String> exporterIDs;
@@ -263,7 +263,7 @@ public class ExportTaskRS {
             if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
                 return errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
 
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
+            String devName = !newDeviceName.isEmpty() ? newDeviceName.get(0) : taskDeviceName;
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
@@ -293,7 +293,7 @@ public class ExportTaskRS {
             if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
                 return errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
 
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
+            String devName = !newDeviceName.isEmpty() ? newDeviceName.get(0) : taskDeviceName;
             mgr.markForExportTask(
                     pk, devName, exporter(exporterID), HttpServletRequestInfo.valueOf(request), queueEvent, scheduledTime());
             return Response.noContent().build();
@@ -343,14 +343,14 @@ public class ExportTaskRS {
             if (newExporterID != null)
                 newExporter = exporter(newExporterID);
 
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
+            String devName = !newDeviceName.isEmpty() ? newDeviceName.get(0) : deviceName;
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices(newExporter, status)
                     : rescheduleTasks(newExporter,
-                                       newDeviceName != null
+                                       !newDeviceName.isEmpty()
                                         ? deviceName == null
                                             ? null : deviceName
                                         : devName,
@@ -433,16 +433,22 @@ public class ExportTaskRS {
         if (status == QueueMessage.Status.TO_SCHEDULE)
             return errResponse("Cannot mark tasks for export with status: " + status, Response.Status.FORBIDDEN);
 
+        List<String> newDeviceNames = newDeviceName.stream()
+                                        .flatMap(newDeviceName -> Stream.of(StringUtils.split(newDeviceName, ',')))
+                                        .collect(Collectors.toList());
+        if (newDeviceNames.size() > 1)
+            return distributeMarkForExport(newExporterID, status, newDeviceNames);
+
         try {
             ExporterDescriptor newExporter = null;
             if (newExporterID != null)
                 newExporter = exporter(newExporterID);
 
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
+            String devName = !newDeviceNames.isEmpty() ? newDeviceNames.get(0) : deviceName;
             return count(devName == null
                     ? mark4ExportOnDistinctDevices(newExporter, status)
                     : mark4ExportTasks(newExporter,
-                        exportTaskQueryParam(newDeviceName != null
+                        exportTaskQueryParam(!newDeviceNames.isEmpty()
                             ? deviceName == null
                                 ? null : deviceName
                             : devName,
@@ -454,6 +460,56 @@ public class ExportTaskRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response distributeMarkForExport(String newExporterID, QueueMessage.Status status, List<String> newDeviceNames) {
+        if (deviceName == null)
+            return errResponse("Missing query parameter: deviceName", Response.Status.BAD_REQUEST);
+
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.MarkTasksForScheduling);
+        int markedForExport = 0;
+        try {
+            int count;
+            int markForExportTasksFetchSize = queueTasksFetchSize();
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+            Date scheduledTime = scheduledTime();
+            int distributeCount = newDeviceNames.size();
+            do {
+                List<Tuple> exportTasks = mgr.exportTaskPksAndExporterIDs(
+                                                queueTaskQueryParam(status),
+                                                exportTaskQueryParam(deviceName, updatedTime),
+                                                markForExportTasksFetchSize);
+                count = exportTasks.size();
+                Iterator<Tuple> iterator = exportTasks.iterator();
+                while (iterator.hasNext()) {
+                    int index = markedForExport % distributeCount;
+                    newDeviceNames.add(0, newDeviceNames.remove(index));
+                    String newDevName = newDeviceNames.get(0);
+
+                    Tuple exportTask = iterator.next();
+                    long pk = (long) exportTask.get(0);
+                    try {
+                        mgr.markForExportTask(pk, newDevName,
+                                exporterOnDevice(newDevName,
+                                        newExporterID != null ? newExporterID : (String) exportTask.get(1)),
+                                httpServletRequestInfo,
+                                null,
+                                scheduledTime);
+                        markedForExport++;
+                    } catch (Exception e) {
+                        LOG.warn("Failed to mark task [pk={}] for export \n", pk, e);
+                    }
+                    iterator.remove();
+                }
+            } while (count >= markForExportTasksFetchSize);
+            queueEvent.setCount(markedForExport);
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            throw e;
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
+        return count(markedForExport);
     }
 
     private int mark4ExportOnDistinctDevices(ExporterDescriptor newExporter, QueueMessage.Status status) {
@@ -682,6 +738,15 @@ public class ExportTaskRS {
 
     private ExporterDescriptor exporter(String exporterID) {
         return arcDev().getExporterDescriptorNotNull(exporterID);
+    }
+
+    private ExporterDescriptor exporterOnDevice(String deviceName, String exporterID) throws ConfigurationException {
+        if (deviceName.equals(device.getDeviceName()))
+            return exporter(exporterID);
+
+        return deviceCache.findDevice(deviceName)
+                .getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getExporterDescriptorNotNull(exporterID);
     }
 
     private void logRequest() {

@@ -576,7 +576,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -605,7 +605,7 @@
           "$ref": "../responses.json#/countResults"
         },
         "400": {
-          "description": "Missing status or Validation for one of the query parameters failed."
+          "description": "Missing status or dicom device name or Validation for one of the query parameters failed."
         },
         "403": {
           "description": "Cannot mark tasks for export with status TO SCHEDULE."
@@ -631,7 +631,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -660,7 +660,7 @@
           "$ref": "../responses.json#/countResults"
         },
         "400": {
-          "description": "Missing status or Validation for one of the query parameters failed."
+          "description": "Missing status or dicom device name or Validation for one of the query parameters failed."
         },
         "403": {
           "description": "Cannot mark tasks for export with status TO SCHEDULE."
