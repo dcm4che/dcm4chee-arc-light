@@ -428,7 +428,7 @@ public class ExportManagerEJB implements ExportManager {
         if (task == null)
             return;
 
-        LOG.info("Mark {} for export", task);
+        LOG.info("Mark {} for export on device {} with exporter {}", task, deviceName, exporter);
         task.setExporterID(exporter.getExporterID());
         task.setDeviceName(deviceName);
         task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());

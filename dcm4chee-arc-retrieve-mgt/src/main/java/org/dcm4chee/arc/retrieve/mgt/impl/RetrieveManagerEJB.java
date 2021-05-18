@@ -343,7 +343,7 @@ public class RetrieveManagerEJB {
         if (task == null)
             return;
 
-        LOG.info("Mark {} for retrieve", task);
+        LOG.info("Mark {} for retrieve on device {}", task, devName);
         task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
         task.setDeviceName(devName);
         if (newQueueName != null)
