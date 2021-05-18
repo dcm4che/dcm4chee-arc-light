@@ -704,11 +704,9 @@ p-calendar{
     background-repeat:no-repeat;
     height:20px;
     width:25px;
-    background-position: center center;
-    //float: left;
-    &:hover{
-      background-image: url("assets/img/mark_export_black.png");
-    }
+    background-position: center bottom;
+    background-color: transparent;
+    background-size: 72%;
   }
 }
 .checkbox_button{
