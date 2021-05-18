@@ -57,6 +57,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             value:"reschedule",
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
+            value:"mark4retrieve",
+            label:$localize `:@@mark4retrieve_all_matching_tasks:Mark all matching tasks for retrieve`
+        },{
             value:"delete",
             label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
         }
@@ -454,6 +457,40 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         );
 
                     break;
+                case "mark4retrieve":
+                    this.deviceService.selectParameters((res)=>{
+                            if(res){
+                                let filter = Object.assign({},this.filterObject);
+                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                }
+                                if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                    filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                }
+                                if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
+                                    filter["newQueueName"] = res.schema_model.newQueueName;
+                                }
+                                this.service.mark4retrieveAll(filter).subscribe((res)=>{
+                                    this.cfpLoadingBar.complete();
+                                    if(_.hasIn(res,"count")){
+                                        this.mainservice.showMsg($localize `:@@tasks_marked_for_retrieve_param:${res.count}:@@count: tasks marked for retrieve successfully!`);
+                                    }else{
+                                        this.mainservice.showMsg($localize `:@@tasks_marked_for_retrieve:Tasks marked for retrieve successfully!`);
+                                    }
+                                }, (err) => {
+                                    this.cfpLoadingBar.complete();
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                            }
+                        },
+                        this.devices,
+                        true,
+                        true,
+                        this.queueNames,
+                        $localize `:@@mark4retrieve_all_matching_tasks:Mark all matching tasks for retrieve`
+                    );
+
+                    break;
                 case "delete":
                         this.confirm({
                             content: text
@@ -583,6 +620,41 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 $this.getTasks(match.offset||0);
                                 $this.cfpLoadingBar.complete();
                                 this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
+                            },
+                            (err) => {
+                                $this.cfpLoadingBar.complete();
+                                $this.httpErrorHandler.handleError(err);
+                            });
+                }
+            },
+            this.devices,
+            true,
+            true,
+            this.queueNames
+        );
+    };
+    mark4retrieve(match) {
+        let $this = this;
+        this.deviceService.selectParameters((res)=>{
+                if(res){
+                    let filter = {};
+                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                    }
+
+                    if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
+                        filter["newQueueName"] = res.schema_model.newQueueName;
+                    }
+                    $this.cfpLoadingBar.start();
+                    this.service.mark4retrieve(match.properties.pk, filter)
+                        .subscribe(
+                            (res) => {
+                                $this.getTasks(match.offset||0);
+                                $this.cfpLoadingBar.complete();
+                                this.mainservice.showMsg($localize `:@@task_marked_for_retrieve:Task marked for retrieve successfully!`)
                             },
                             (err) => {
                                 $this.cfpLoadingBar.complete();

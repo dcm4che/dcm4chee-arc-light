@@ -101,6 +101,9 @@
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" i18n-title="@@title.reschedule_selected" title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('mark4export')" href="" i18n-title="@@title.mark4export_selected" title="Mark selected for export">
+                            <span class="custom_icon mark_export_black"></span>
+                        </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" i18n-title="@@title.delete_selected" title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
@@ -152,6 +155,9 @@
                         </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href="" i18n-title="@@title.reschedule" title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
+                        </a>
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" *ngIf="(match.properties.status && match.properties.status != 'TO SCHEDULE')" (click)="$event.preventDefault();mark4export(match)" href="" i18n-title="@@title.mark4export" title="Mark for export">
+                            <span class="custom_icon mark_export_black"></span>
                         </a>
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href="" i18n-title="@@title.delete" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>

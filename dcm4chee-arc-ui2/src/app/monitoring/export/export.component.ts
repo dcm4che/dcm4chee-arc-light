@@ -58,6 +58,9 @@ export class ExportComponent implements OnInit, OnDestroy {
             value:"reschedule",
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
+            value:"mark4export",
+            label:$localize `:@@mark4export_all_matching_tasks:Mark all matching tasks for export`
+        },{
             value:"delete",
             label:$localize `:@@edelete_all_matching_tasks:Delete all matching tasks`
         }
@@ -457,6 +460,32 @@ export class ExportComponent implements OnInit, OnDestroy {
                     this.allAction = undefined;
                 });
                 break;
+            case "mark4export":
+                this.mark4exportDialog((ok)=>{
+                    if (ok) {
+                        this.cfpLoadingBar.start();
+                        if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                            filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                        }
+                        if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                            filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                        }
+                        this.service.mark4exportAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
+                            this.cfpLoadingBar.complete();
+                            if(_.hasIn(res,"count")){
+                                this.mainservice.showMsg($localize `:@@tasks_marked_for_export_param:${res.count}:@@count: tasks marked for export successfully!`);
+                            }else{
+                                this.mainservice.showMsg($localize `:@@tasks_marked_for_export:Tasks marked for export successfully!`);
+                            }
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
             case "delete":
                 this.confirm({
                     content: text
@@ -511,6 +540,19 @@ export class ExportComponent implements OnInit, OnDestroy {
                 callBack.call(this, ok);
         });
     }
+    mark4exportDialog(callBack:Function,  schema_model?:any, title?:string, text?:string){
+        this.confirm({
+            content: title || $localize `:@@export.task_mark4export:Mark task for export`,
+            doNotSave:true,
+            form_schema: this.service.getDialogSchemaMark4Export(this.exporters, this.devices, text),
+            result: {
+                schema_model: schema_model || {}
+            },
+            saveButton: $localize `:@@SUBMIT:SUBMIT`
+        }).subscribe((ok)=>{
+            callBack.call(this, ok);
+        });
+    }
     executeAll(mode){
         if(mode === "reschedule"){
             this.rescheduleDialog((ok)=>{
@@ -553,7 +595,48 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.allAction = undefined;
             });
             ////
-        }else{
+        } else if(mode === "mark4export"){
+            this.mark4exportDialog((ok)=>{
+                if (ok) {
+                    this.cfpLoadingBar.start();
+                    let filter  = {};
+                    let id;
+                    if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                    }
+                    if(_.hasIn(ok, "schema_model.selectedExporter")){
+                        id = ok.schema_model.selectedExporter;
+                    }
+                    this.matches.forEach((match, i)=>{
+                        if(match.checked){
+                            this.service.mark4export(match.properties.pk, id || match.properties.ExporterID, filter)
+                                .subscribe(
+                                    (res) => {
+                                        this.mainservice.showMsg($localize `:@@task_marked_for_export_param:Task ${match.properties.pk}:@@taskid: marked for export successfully!`);
+                                        if(this.matches.length === i+1){
+                                            this.cfpLoadingBar.complete();
+                                        }
+                                    },
+                                    (err) => {
+                                        this.httpErrorHandler.handleError(err);
+                                        if(this.matches.length === i+1){
+                                            this.cfpLoadingBar.complete();
+                                        }
+                                    });
+                        }
+                        if(this.matches.length === i+1){
+                            this.cfpLoadingBar.complete();
+                        }
+                    });
+                }
+                this.allAction = "";
+                this.allAction = undefined;
+            });
+            ////
+        } else {
             this.confirm({
                 content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
             }).subscribe(result => {
@@ -701,6 +784,46 @@ export class ExportComponent implements OnInit, OnDestroy {
         },
         undefined,
         $localize `:@@export.change_the_exporter_id_only_if_you_want:Change the Exporter Id only if you want to reschedule to another exporter!`
+        );
+    };
+    mark4export(match) {
+        this.mark4exportDialog((ok)=>{
+                if (ok) {
+                    this.cfpLoadingBar.start();
+                    let filter  = {};
+                    let id;
+                    if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                    }
+                    if(_.hasIn(ok, "schema_model.selectedExporter")){
+                        id = ok.schema_model.selectedExporter;
+                    }
+                    this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                        .subscribe(
+                            (res) => {
+                                this.cfpLoadingBar.complete();
+                                if(_.hasIn(res,"count")){
+                                    this.mainservice.showMsg($localize `:@@tasks_marked_for_export_param:${res.count}:@@count: tasks marked for export successfully!`);
+                                }else{
+                                    this.mainservice.showMsg($localize `:@@task_marked_for_export:Task marked for export successfully!`);
+
+                                }
+                            },
+                            (err) => {
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
+                            });
+
+                }
+            },
+            {
+                selectedExporter: match.properties.ExporterID
+            },
+            undefined,
+            $localize `:@@export.change_the_exporter_id_only_if_you_want_mark4export:Change the Exporter Id only if you want to mark for export to another exporter!`
         );
     };
 

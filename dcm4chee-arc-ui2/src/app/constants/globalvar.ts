@@ -704,13 +704,14 @@ export class Globalvar {
         switch (action){
             case 'cancel':
                 return $localize `:@@cancel:cancel`;
-                break;
             case 'reschedule':
                 return $localize `:@@reschedule:reschedule`;
-                break;
+            case 'mark4export':
+                return $localize `:@@mark4export:mark for export`;
+            case 'mark4retrieve':
+                return $localize `:@@mark4retrieve:mark for retrieve`;
             case 'delete':
                 return $localize `:@@delete:delete`;
-                break;
         }
         return '';
     }

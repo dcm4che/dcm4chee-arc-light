@@ -76,12 +76,25 @@ export class ExportService {
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/reschedule/${exporterID + urlParam}`, {});
     }
+    mark4export(pk, exporterID, filter?){
+        filter = filter || "";
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/mark4export/${exporterID + urlParam}`, {});
+    }
 
     rescheduleAll(filter, exporterID){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         let exporter = exporterID? `/${exporterID}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
+            ;
+    }
+    mark4exportAll(filter, exporterID){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        let exporter = exporterID? `/${exporterID}`:'';
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/mark4export${exporter}${urlParam}`, {}, this.header)
             ;
     }
     downloadCsv(filter){
@@ -159,6 +172,73 @@ export class ExportService {
                     {
                         tag:"label_large",
                         text:$localize `:@@export.select_device_if_you_want_to_reschedule:Select device if you want to reschedule to an other device:`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@device:Device`
+                    },
+                    {
+                        tag:"select",
+                        options:devices.map(device=>{
+                            return {
+                                text:device.dicomDeviceName,
+                                value:device.dicomDeviceName
+                            }
+                        }),
+                        showStar:true,
+                        filterKey:"newDeviceName",
+                        description:$localize `:@@device:Device`,
+                        placeholder:$localize `:@@device:Device`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@scheduled_time:Scheduled Time`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:$localize `:@@scheduled_time:Scheduled Time`
+                    }
+                ]
+            ]
+        ]
+    }
+    getDialogSchemaMark4Export(exporters, devices, text?){
+        return [
+            [
+                [
+                    {
+                        tag:"label_large",
+                        text:text || $localize `:@@export.change_exporter_text_mark4export:Change the exporter for all tasks to be marked for export. To mark for export with the original exporters associated with the tasks, leave blank:`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@exporter_id:Exporter ID`,
+                    },
+                    {
+                        tag:"select",
+                        options:exporters.map(exporter=>{
+                            return {
+                                text:exporter.description,
+                                value:exporter.id
+                            }
+                        }),
+                        filterKey:"selectedExporter",
+                        description:$localize `:@@exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@exporter_id:Exporter ID`
+                    }
+                ],
+                [
+                    {
+                        tag:"label_large",
+                        text:$localize `:@@export.select_device_if_you_want_to_mark_for_export:Select device if you want to mark for export to another device:`
                     }
                 ],
                 [
