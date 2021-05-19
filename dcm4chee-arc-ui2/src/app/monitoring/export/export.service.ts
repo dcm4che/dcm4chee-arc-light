@@ -275,6 +275,73 @@ export class ExportService {
             ]
         ]
     }
+    getDialogSchemaMark4ExportMultipleDevices(exporters, devices, text?){
+        return [
+            [
+                [
+                    {
+                        tag:"label_large",
+                        text:text || $localize `:@@export.change_exporter_text_mark4export:Change the exporter for all tasks to be marked for export. To mark for export with the original exporters associated with the tasks, leave blank:`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@exporter_id:Exporter ID`,
+                    },
+                    {
+                        tag:"select",
+                        options:exporters.map(exporter=>{
+                            return {
+                                text:exporter.description,
+                                value:exporter.id
+                            }
+                        }),
+                        filterKey:"selectedExporter",
+                        description:$localize `:@@exporter_id:Exporter ID`,
+                        placeholder:$localize `:@@exporter_id:Exporter ID`
+                    }
+                ],
+                [
+                    {
+                        tag:"label_large",
+                        text:$localize `:@@export.select_device_if_you_want_to_mark_for_export:Select device if you want to mark for export to another device:`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@device:Device`
+                    },
+                    {
+                        tag:"multi-select",
+                        options:devices.map(device=>{
+                            return {
+                                text:device.dicomDeviceName,
+                                value:device.dicomDeviceName
+                            }
+                        }),
+                        showStar:true,
+                        filterKey:"newDeviceName",
+                        description:$localize `:@@device:Device`,
+                        placeholder:$localize `:@@device:Device`
+                    }
+                ],
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@scheduled_time:Scheduled Time`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:$localize `:@@scheduled_time:Scheduled Time`
+                    }
+                ]
+            ]
+        ]
+    }
     getFilterSchema(exporters, devices, countText){
         return [
             [

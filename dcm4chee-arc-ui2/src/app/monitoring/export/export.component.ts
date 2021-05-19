@@ -461,7 +461,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 });
                 break;
             case "mark4export":
-                this.mark4exportDialog((ok)=>{
+                this.mark4exportMultipleDevicesDialog((ok)=>{
                     if (ok) {
                         this.cfpLoadingBar.start();
                         if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
@@ -545,6 +545,19 @@ export class ExportComponent implements OnInit, OnDestroy {
             content: title || $localize `:@@export.task_mark4export:Mark task for export`,
             doNotSave:true,
             form_schema: this.service.getDialogSchemaMark4Export(this.exporters, this.devices, text),
+            result: {
+                schema_model: schema_model || {}
+            },
+            saveButton: $localize `:@@SUBMIT:SUBMIT`
+        }).subscribe((ok)=>{
+            callBack.call(this, ok);
+        });
+    }
+    mark4exportMultipleDevicesDialog(callBack:Function,  schema_model?:any, title?:string, text?:string){
+        this.confirm({
+            content: title || $localize `:@@export.task_mark4export:Mark task for export`,
+            doNotSave:true,
+            form_schema: this.service.getDialogSchemaMark4ExportMultipleDevices(this.exporters, this.devices, text),
             result: {
                 schema_model: schema_model || {}
             },
