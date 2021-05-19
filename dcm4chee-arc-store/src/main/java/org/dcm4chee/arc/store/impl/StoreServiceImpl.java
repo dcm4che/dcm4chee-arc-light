@@ -616,7 +616,7 @@ class StoreServiceImpl implements StoreService {
             mwlItems = ejb.queryMWL(ctx, queryParam);
         } else
             try {
-                mwlItems = findMWL(ctx, queryParam);
+                mwlItems = findMWL(ctx, queryParam, rule.isFilterBySCU());
             } catch (Exception e) {
                 LOG.warn("{}: Failed to query MWL: {}", ctx.getStoreSession(), queryParam.mwlSCP, e);
                 return null;
@@ -656,10 +656,12 @@ class StoreServiceImpl implements StoreService {
                 ? date : new Date(0);
     }
 
-    private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam) throws Exception {
+    private List<Attributes> findMWL(StoreContext ctx, MergeMWLQueryParam queryParam, boolean filterbyscu) throws Exception {
         StoreSession session = ctx.getStoreSession();
         LOG.info("{}: Query for MWL Items with {}", session, queryParam);
         List<Attributes> matches = cfindscu.findMWLItems(session.getLocalApplicationEntity(), queryParam, Priority.NORMAL);
+        if (filterbyscu)
+            matches.removeIf(item -> !item.matches(queryParam.setMatchingKeys(new Attributes()), false, false));
         if (matches.isEmpty()) {
             LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
             return null;

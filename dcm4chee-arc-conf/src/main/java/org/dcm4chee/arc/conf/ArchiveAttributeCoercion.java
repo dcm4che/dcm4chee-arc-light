@@ -71,6 +71,7 @@ public class ArchiveAttributeCoercion {
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private String mergeMWLSCP;
+    private boolean filterBySCU;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private boolean trimISO2022CharacterSet;
     private UseCallingAETitleAsCoercion.Type useCallingAETitleAs;
@@ -231,6 +232,14 @@ public class ArchiveAttributeCoercion {
     public ArchiveAttributeCoercion setMergeMWLSCP(String mergeMWLSCP) {
         this.mergeMWLSCP = mergeMWLSCP;
         return this;
+    }
+
+    public boolean isFilterBySCU() {
+        return filterBySCU;
+    }
+
+    public void setFilterBySCU(boolean filterBySCU) {
+        this.filterBySCU = filterBySCU;
     }
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {

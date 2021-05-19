@@ -42,6 +42,8 @@ package org.dcm4chee.arc;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.conf.AttributesBuilder;
 import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
 
 import java.util.Objects;
@@ -73,7 +75,6 @@ public class MergeMWLQueryParam {
         switch (matchingKey) {
             case PatientID:
                 patientID = attrs.getString(Tag.PatientID);
-                break;
             case AccessionNumber:
                 accessionNumber = attrs.getString(Tag.AccessionNumber);
                 if (accessionNumber == null)
@@ -87,6 +88,21 @@ public class MergeMWLQueryParam {
                 break;
         }
         return new MergeMWLQueryParam(mwlSCP, patientID, accessionNumber, studyIUID, spsID);
+    }
+
+    public Attributes setMatchingKeys(Attributes keys) {
+        if (patientID != null) keys.setString(Tag.PatientID, VR.LO, patientID);
+        if (accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, accessionNumber);
+        if (studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        if (spsID != null) {
+            Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            AttributesBuilder.setNullIfAbsent(sps,
+                    Tag.ScheduledPerformingPhysicianName,
+                    Tag.ScheduledProcedureStepDescription,
+                    Tag.ScheduledProtocolCodeSequence);
+            sps.setString(Tag.ScheduledProcedureStepID, VR.SH, spsID);
+        }
+        return keys;
     }
 
     @Override

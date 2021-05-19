@@ -148,17 +148,7 @@ public class CFindSCUImpl implements CFindSCU {
                 Tag.RequestedProcedureID,
                 Tag.ReasonForTheRequestedProcedure,
                 Tag.ReasonForRequestedProcedureCodeSequence);
-        if (queryParam.patientID != null) keys.setString(Tag.PatientID, VR.LO, queryParam.patientID);
-        if (queryParam.accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, queryParam.accessionNumber);
-        if (queryParam.studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, queryParam.studyIUID);
-        if (queryParam.spsID != null) {
-            Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            AttributesBuilder.setNullIfAbsent(sps,
-                    Tag.ScheduledPerformingPhysicianName,
-                    Tag.ScheduledProcedureStepDescription,
-                    Tag.ScheduledProtocolCodeSequence);
-            sps.setString(Tag.ScheduledProcedureStepID, VR.SH, queryParam.spsID);
-        }
+        queryParam.setMatchingKeys(keys);
         return findMWLItems(localAE, queryParam.mwlSCP, EnumSet.noneOf(QueryOption.class), priority, keys);
     }
 

@@ -2541,6 +2541,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLMatchingKey $
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
+    dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $
     dcmTag $
     dcmAttributeUpdatePolicy $
