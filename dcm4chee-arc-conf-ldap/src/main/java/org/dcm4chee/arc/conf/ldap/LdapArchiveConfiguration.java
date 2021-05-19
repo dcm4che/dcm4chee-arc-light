@@ -5459,6 +5459,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.getMergeMWLSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLMatchingKey",
                 coercion.getMergeMWLMatchingKey(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLImportFilterBySCU", coercion.isFilterBySCU(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
@@ -5503,6 +5504,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setMergeMWLMatchingKey(
                         LdapUtils.enumValue(MergeMWLMatchingKey.class,
                         attrs.get("dcmMergeMWLMatchingKey"), null));
+                coercion.setFilterBySCU(LdapUtils.booleanValue(attrs.get("dcmMWLImportFilterBySCU"), false));
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
@@ -5572,6 +5574,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLMatchingKey",
                 prev.getMergeMWLMatchingKey(),
                 coercion.getMergeMWLMatchingKey(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMWLImportFilterBySCU",
+                prev.isFilterBySCU(), coercion.isFilterBySCU(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeUpdatePolicy",
                 prev.getAttributeUpdatePolicy(),
                 coercion.getAttributeUpdatePolicy(),
