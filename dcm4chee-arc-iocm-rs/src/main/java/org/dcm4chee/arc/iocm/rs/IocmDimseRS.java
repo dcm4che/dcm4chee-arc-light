@@ -113,8 +113,12 @@ public class IocmDimseRS {
             if (mwlItems.isEmpty())
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
                         Response.Status.NOT_FOUND);
-            ctx.setAttributes(mwlItems.get(0));
+            if (mwlItems.size() > 1)
+                return errResponse(mwlscp + " returned multiple MWLItems for [studyUID=" + studyUID + ", spsID=" + spsID + "]",
+                        Response.Status.CONFLICT);
 
+            Attributes mwlAttrs = mwlItems.get(0);
+            ctx.setAttributes(mwlAttrs);
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
@@ -123,7 +127,7 @@ public class IocmDimseRS {
                     .withObjectStorageID(rejectionNoteObjectStorageID());
 
             Attributes result = IocmUtils.linkInstancesWithMWL(
-                    session, retrieveService, procedureService, ctx, queryService, rjNote, instAttrs(mwlItems.get(0)), in);
+                    session, retrieveService, procedureService, ctx, queryService, rjNote, instAttrs(mwlAttrs), in);
             return result == null
                     ? errResponse("No Instances found.", Response.Status.NOT_FOUND)
                     : toResponse(result);

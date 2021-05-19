@@ -356,7 +356,7 @@
           "description": "No such Application Entity, Study, MWL Item or Rejection Note or No such instance(s) found for rejection."
         },
         "409": {
-          "description": "Link Instances with MWLItem failed for all or Conflicting patient ID or attributes are not allowed.",
+          "description": "Multiple MWL items returned by MWL SCP or Link Instances with MWLItem failed for all or Conflicting patient ID or attributes are not allowed.",
           "content": {
             "application/json": {
               "schema": {
