@@ -309,7 +309,7 @@ public class WadoExporter extends AbstractExporter {
         }
 
         private enum HeaderField {
-            Accept, Cache_Control;
+            Accept, Accept_Encoding, Cache_Control;
 
             @Override
             public String toString() {
