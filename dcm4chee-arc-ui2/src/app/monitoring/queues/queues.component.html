@@ -57,14 +57,16 @@
                 </th>
                 <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
-                        <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.cancel_selected" title="Cancel selected">
+                        <div class="table-small-button shadow">
+                            <input type="checkbox" (change)="checkAll($event)">
+                        </div>
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.cancel_selected" title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title="@@title.reschedule_selected" title="Reschedule selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title="@@title.reschedule_selected" title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href=""  i18n-title="@@title.delete_selected" title="Delete selected">
+                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('delete')" href=""  i18n-title="@@title.delete_selected" title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </div>
@@ -85,17 +87,19 @@
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-                        <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
+                        <div class="table-small-button shadow">
+                            <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
+                        </div>
+                        <a class="table-small-button shadow" (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.cancel" title="Cancel">
+                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.cancel" title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title="@@title.reschedule" title="Reschedule">
+                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title="@@title.reschedule" title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
+                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

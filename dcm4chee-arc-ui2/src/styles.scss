@@ -702,11 +702,16 @@ p-calendar{
   &.mark_export_black{
     background-image: url("assets/img/mark_export_black.png");
     background-repeat:no-repeat;
-    height:20px;
+    height:15px;
     width:25px;
-    background-position: center bottom;
-    background-color: transparent;
-    background-size: 72%;
+    background-position: center;
+  }
+  &.mark_export_white{
+    background-image: url("assets/img/mark_export_white.png");
+    background-repeat:no-repeat;
+    height:15px;
+    width:25px;
+    background-position: center;
   }
 }
 .checkbox_button{
@@ -721,6 +726,23 @@ p-calendar{
       background-color: rgb(46, 65, 80);
     }
   }
+}
+.table-small-button{
+  display: inline-block;
+  float: left;
+  margin-right: 2px;
+  width: 20px;
+  text-align: center;
+  height: 20px;
+/*  &.shadow{
+    -webkit-box-shadow:  3px 3px 12px 0px #00000042;
+    -moz-box-shadow:  3px 3px 12px 0px #00000042;
+    box-shadow:  3px 3px 12px 0px #00000042;
+  }
+  &:hover, &:hover>*{
+    background: #161d23;
+    color: white;
+  }*/
 }
 .csv_button{
   background:rgba(6, 29, 47, 0.84);
