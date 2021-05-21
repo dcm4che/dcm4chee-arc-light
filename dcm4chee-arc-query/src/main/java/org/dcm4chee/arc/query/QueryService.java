@@ -60,7 +60,10 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -147,4 +150,6 @@ public interface QueryService {
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
     CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
+
+    Date getLastModified(String studyUID, String seriesUID);
 }

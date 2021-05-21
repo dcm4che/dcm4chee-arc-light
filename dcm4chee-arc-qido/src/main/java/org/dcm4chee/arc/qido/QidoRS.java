@@ -114,6 +114,9 @@ public class QidoRS {
     @Inject
     private Device device;
 
+    @Inject
+    private QueryService queryService;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -223,7 +226,7 @@ public class QidoRS {
     @Path("/patients")
     public Response searchForPatients() {
         return search("SearchForPatients", Model.PATIENT,
-                null, null, QIDO.PATIENT);
+                null, null, QIDO.PATIENT, null);
     }
 
     @GET
@@ -231,7 +234,7 @@ public class QidoRS {
     @Path("/studies")
     public Response searchForStudies() {
         return search("SearchForStudies", Model.STUDY,
-                null, null, QIDO.STUDY);
+                null, null, QIDO.STUDY, null);
     }
 
     @GET
@@ -239,16 +242,15 @@ public class QidoRS {
     @Path("/series")
     public Response searchForSeries() {
         return search("SearchForSeries", Model.SERIES,
-                null, null, QIDO.STUDY_SERIES);
+                null, null, QIDO.STUDY_SERIES, null);
     }
 
     @GET
-    @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
     public Response searchForSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudySeries", Model.SERIES,
-                studyInstanceUID, null, QIDO.SERIES);
+                studyInstanceUID, null, QIDO.SERIES, queryLastModified());
     }
 
     @GET
@@ -256,47 +258,48 @@ public class QidoRS {
     @Path("/instances")
     public Response searchForInstances() {
         return search("SearchForInstances", Model.INSTANCE,
-                null, null, QIDO.STUDY_SERIES_INSTANCE);
+                null, null, QIDO.STUDY_SERIES_INSTANCE, null);
     }
 
     @GET
-    @NoCache
     @Path("/studies/{StudyInstanceUID}/instances")
     public Response searchForInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, QIDO.SERIES_INSTANCE);
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE, queryLastModified());
     }
 
     @GET
-    @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     public Response searchForInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE);
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, queryLastModified());
     }
 
     @GET
     @NoCache
     @Path("/mwlitems")
     public Response searchForSPS() {
-        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL);
+        return search("SearchForSPS", Model.MWL, null,
+                null, QIDO.MWL, null);
     }
 
     @GET
     @NoCache
     @Path("/mpps")
     public Response searchForMPPS() {
-        return search("SearchForMPPS", Model.MPPS, null, null, QIDO.MPPS);
+        return search("SearchForMPPS", Model.MPPS, null,
+                null, QIDO.MPPS, null);
     }
 
     @GET
     @NoCache
     @Path("/workitems")
     public Response searchForUPS() {
-        return search("SearchForUPS", Model.UPS, null, null, QIDO.UPS);
+        return search("SearchForUPS", Model.UPS, null,
+                null, QIDO.UPS, null);
     }
 
     @GET
@@ -426,7 +429,36 @@ public class QidoRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getAttributeSet(AttributeSet.Type.QIDO_RS);
     }
 
-    private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido) {
+    private void check2() {
+
+    }
+
+    private boolean queryLastModified() {
+        Set<String> keys = uriInfo.getQueryParameters(false).keySet();
+        boolean queryLastModified = true;
+        for (String key : keys) {
+            switch (key) {
+                case "includefield":
+                case "includedefaults":
+                case "access_token":
+                case "accept":
+                case "limit":
+                case "offset":
+                case "orderby":
+                    queryLastModified = true;
+                    break;
+                default:
+                    queryLastModified = false;
+                    break;
+            }
+            if (!queryLastModified)
+                break;
+        }
+        return queryLastModified;
+    }
+
+    private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
+                            Boolean queryLastModified) {
         ApplicationEntity ae = getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
             validateWebApp();
@@ -472,6 +504,7 @@ public class QidoRS {
                 if (remaining > 0)
                     builder.header("Warning", warning(remaining));
 
+                lastModified(queryLastModified, studyInstanceUID, seriesInstanceUID, builder);
                 return builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
                         .type(output.type())
@@ -480,6 +513,23 @@ public class QidoRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void lastModified(Boolean queryLastModified, String studyUID, String seriesUID, Response.ResponseBuilder builder) {
+        if (queryLastModified == null)
+            return;
+
+        Date lastModified = lastModified(queryLastModified, studyUID, seriesUID);
+        if (lastModified == null)
+            builder.header("Cache-Control", "no-cache");
+        else {
+            builder.lastModified(lastModified);
+            builder.tag(String.valueOf(lastModified.hashCode()));
+        }
+    }
+
+    private Date lastModified(Boolean queryLastModified, String studyUID, String seriesUID) {
+        return queryLastModified ? queryService.getLastModified(studyUID, seriesUID) : null;
     }
 
     private boolean includeDefaults() {
