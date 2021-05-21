@@ -71,7 +71,7 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dicomAETitle", ext.getAETitle(), null);
-        writer.writeNotNullOrDef("dcmRecordAttributeModification", ext.getRecordAttributeModification(), null);
+        writer.writeNotNull("dcmRecordAttributeModification", ext.getRecordAttributeModification());
         writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder", ext.getHL7ScheduledProtocolCodeInOrder(), null);
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
