@@ -435,7 +435,6 @@ public class QidoRS {
 
     private boolean queryLastModified() {
         Set<String> keys = uriInfo.getQueryParameters(false).keySet();
-        boolean queryLastModified = true;
         for (String key : keys) {
             switch (key) {
                 case "includefield":
@@ -445,16 +444,12 @@ public class QidoRS {
                 case "limit":
                 case "offset":
                 case "orderby":
-                    queryLastModified = true;
-                    break;
+                    continue;
                 default:
-                    queryLastModified = false;
-                    break;
+                    return false;
             }
-            if (!queryLastModified)
-                break;
         }
-        return queryLastModified;
+        return true;
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
