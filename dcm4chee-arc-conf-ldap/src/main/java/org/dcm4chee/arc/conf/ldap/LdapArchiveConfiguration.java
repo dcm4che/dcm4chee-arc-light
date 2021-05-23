@@ -177,6 +177,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getQueryMaxNumberOfResults(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoMaxNumberOfResults",
                 ext.getQidoMaxNumberOfResults(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoETag", ext.isQidoETag(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
@@ -561,6 +562,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQueryFetchSize(LdapUtils.intValue(attrs.get("dcmQueryFetchSize"), 100));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), 0));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
+        ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), false));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
@@ -947,6 +949,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(),  0);
         LdapUtils.storeDiff(ldapObj, mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(),  0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQidoETag", aa.isQidoETag(), bb.isQidoETag(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
@@ -1570,6 +1573,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoCDA2HtmlTemplateURI(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQidoETag", ext.getQidoETag(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
@@ -1727,6 +1731,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoCDA2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoCDA2HtmlTemplateURI"), null));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), null));
+        ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), null));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
@@ -1913,6 +1918,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQidoETag", aa.getQidoETag(), bb.getQidoETag(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination",

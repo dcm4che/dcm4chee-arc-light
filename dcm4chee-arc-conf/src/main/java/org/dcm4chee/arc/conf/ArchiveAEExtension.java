@@ -108,6 +108,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String alternativeCMoveSCP;
     private Integer queryMaxNumberOfResults;
     private Integer qidoMaxNumberOfResults;
+    private Boolean qidoETag;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String storePermissionServiceURL;
     private String storePermissionServiceResponse;
@@ -796,6 +797,20 @@ public class ArchiveAEExtension extends AEExtension {
         return qidoMaxNumberOfResults != null
                 ? qidoMaxNumberOfResults
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
+    }
+
+    public Boolean getQidoETag() {
+        return qidoETag;
+    }
+
+    public void setQidoETag(Boolean qidoETag) {
+        this.qidoETag = qidoETag;
+    }
+
+    public boolean qidoETag() {
+        return qidoETag != null
+                ? qidoETag
+                : getArchiveDeviceExtension().isQidoETag();
     }
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {

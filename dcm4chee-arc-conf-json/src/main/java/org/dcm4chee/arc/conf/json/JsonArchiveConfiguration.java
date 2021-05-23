@@ -124,6 +124,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
         writer.writeNotDef("dcmQueryMaxNumberOfResults", arcDev.getQueryMaxNumberOfResults(), 0);
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
+        writer.writeNotDef("dcmQidoETag", arcDev.isQidoETag(), false);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
         writer.writeNotNullOrDef("dcmIanDelay", arcDev.getIanDelay(), null);
@@ -1148,6 +1149,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoCDA2HtmlTemplateURI", arcAE.getWadoCDA2HtmlTemplateURI(), null);
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
         writer.writeNotNull("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults());
+        writer.writeNotNull("dcmQidoETag", arcAE.getQidoETag());
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
         writer.writeNotNullOrDef("dcmIanDelay", arcAE.getIanDelay(), null);
@@ -1371,6 +1373,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQidoMaxNumberOfResults":
                     arcDev.setQidoMaxNumberOfResults(reader.intValue());
+                    break;
+                case "dcmQidoETag":
+                    arcDev.setQidoETag(reader.booleanValue());
                     break;
                 case "dcmFwdMppsDestination":
                     arcDev.setMppsForwardDestinations(reader.stringArray());
@@ -3701,6 +3706,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQidoMaxNumberOfResults":
                     arcAE.setQidoMaxNumberOfResults(reader.intValue());
+                    break;
+                case "dcmQidoETag":
+                    arcAE.setQidoETag(reader.booleanValue());
                     break;
                 case "dcmFwdMppsDestination":
                     arcAE.setMppsForwardDestinations(reader.stringArray());

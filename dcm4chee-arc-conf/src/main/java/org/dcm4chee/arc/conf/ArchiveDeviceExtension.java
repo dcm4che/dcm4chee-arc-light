@@ -107,6 +107,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int queryFetchSize = 100;
     private volatile int queryMaxNumberOfResults = 0;
     private volatile int qidoMaxNumberOfResults = 0;
+    private volatile boolean qidoETag = false;
     private volatile boolean wadoIgnorePresentationLUTShape = false;
     private volatile String wadoThumbnailViewPort = WADO_THUMBNAIL_VIEWPORT;
     private volatile String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
@@ -955,6 +956,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setQidoMaxNumberOfResults(int qidoMaxNumberOfResults) {
         this.qidoMaxNumberOfResults = qidoMaxNumberOfResults;
+    }
+
+    public boolean isQidoETag() {
+        return qidoETag;
+    }
+
+    public void setQidoETag(boolean qidoETag) {
+        this.qidoETag = qidoETag;
     }
 
     public int getExportTaskFetchSize() {
@@ -3119,6 +3128,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queryFetchSize = arcdev.queryFetchSize;
         queryMaxNumberOfResults = arcdev.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
+        qidoETag = arcdev.qidoETag;
         queryRetrieveViewMap.clear();
         queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);
         mppsForwardDestinations = arcdev.mppsForwardDestinations;

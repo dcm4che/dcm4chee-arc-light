@@ -109,13 +109,13 @@ public class QidoRS {
     private UriInfo uriInfo;
 
     @Context
+    private Request req;
+
+    @Context
     private HttpHeaders headers;
 
     @Inject
     private Device device;
-
-    @Inject
-    private QueryService queryService;
 
     @PathParam("AETitle")
     private String aet;
@@ -226,7 +226,7 @@ public class QidoRS {
     @Path("/patients")
     public Response searchForPatients() {
         return search("SearchForPatients", Model.PATIENT,
-                null, null, QIDO.PATIENT, null);
+                null, null, QIDO.PATIENT, false);
     }
 
     @GET
@@ -234,7 +234,7 @@ public class QidoRS {
     @Path("/studies")
     public Response searchForStudies() {
         return search("SearchForStudies", Model.STUDY,
-                null, null, QIDO.STUDY, null);
+                null, null, QIDO.STUDY, false);
     }
 
     @GET
@@ -242,7 +242,7 @@ public class QidoRS {
     @Path("/series")
     public Response searchForSeries() {
         return search("SearchForSeries", Model.SERIES,
-                null, null, QIDO.STUDY_SERIES, null);
+                null, null, QIDO.STUDY_SERIES, false);
     }
 
     @GET
@@ -250,7 +250,7 @@ public class QidoRS {
     public Response searchForSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudySeries", Model.SERIES,
-                studyInstanceUID, null, QIDO.SERIES, queryLastModified());
+                studyInstanceUID, null, QIDO.SERIES, true);
     }
 
     @GET
@@ -258,7 +258,7 @@ public class QidoRS {
     @Path("/instances")
     public Response searchForInstances() {
         return search("SearchForInstances", Model.INSTANCE,
-                null, null, QIDO.STUDY_SERIES_INSTANCE, null);
+                null, null, QIDO.STUDY_SERIES_INSTANCE, false);
     }
 
     @GET
@@ -266,7 +266,7 @@ public class QidoRS {
     public Response searchForInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, QIDO.SERIES_INSTANCE, queryLastModified());
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE, true);
     }
 
     @GET
@@ -275,7 +275,7 @@ public class QidoRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, queryLastModified());
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true);
     }
 
     @GET
@@ -283,7 +283,7 @@ public class QidoRS {
     @Path("/mwlitems")
     public Response searchForSPS() {
         return search("SearchForSPS", Model.MWL, null,
-                null, QIDO.MWL, null);
+                null, QIDO.MWL, false);
     }
 
     @GET
@@ -291,7 +291,7 @@ public class QidoRS {
     @Path("/mpps")
     public Response searchForMPPS() {
         return search("SearchForMPPS", Model.MPPS, null,
-                null, QIDO.MPPS, null);
+                null, QIDO.MPPS, false);
     }
 
     @GET
@@ -299,7 +299,7 @@ public class QidoRS {
     @Path("/workitems")
     public Response searchForUPS() {
         return search("SearchForUPS", Model.UPS, null,
-                null, QIDO.UPS, null);
+                null, QIDO.UPS, false);
     }
 
     @GET
@@ -429,38 +429,33 @@ public class QidoRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getAttributeSet(AttributeSet.Type.QIDO_RS);
     }
 
-    private void check2() {
-
-    }
-
-    private boolean queryLastModified() {
-        Set<String> keys = uriInfo.getQueryParameters(false).keySet();
-        for (String key : keys) {
-            switch (key) {
-                case "includefield":
-                case "includedefaults":
-                case "access_token":
-                case "accept":
-                case "limit":
-                case "offset":
-                case "orderby":
-                    continue;
-                default:
-                    return false;
-            }
-        }
-        return true;
+    private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
+        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
-                            Boolean queryLastModified) {
+                            boolean evaluatePreConditions) {
         ApplicationEntity ae = getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
             validateWebApp();
         Output output = selectMediaType();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
+
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
+            if (evaluatePreConditions && (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
+                                            || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
+                                            || request.getHeader(HttpHeaders.IF_MATCH) != null
+                                            || request.getHeader(HttpHeaders.IF_NONE_MATCH) != null)) {
+                Date lastModified = service.getLastModified(ctx.getQueryKeys());
+                if (lastModified == null)
+                    return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
+
+                Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
+                if (respBuilder != null)
+                    return respBuilder.build();
+            }
+
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
@@ -499,7 +494,7 @@ public class QidoRS {
                 if (remaining > 0)
                     builder.header("Warning", warning(remaining));
 
-                lastModified(queryLastModified, studyInstanceUID, seriesInstanceUID, builder);
+                lastModified(evaluatePreConditions, ctx, builder);
                 return builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
                         .type(output.type())
@@ -510,21 +505,16 @@ public class QidoRS {
         }
     }
 
-    private void lastModified(Boolean queryLastModified, String studyUID, String seriesUID, Response.ResponseBuilder builder) {
-        if (queryLastModified == null)
-            return;
-
-        Date lastModified = lastModified(queryLastModified, studyUID, seriesUID);
+    private void lastModified(boolean evaluatePreConditions, QueryContext ctx, Response.ResponseBuilder builder) {
+        Date lastModified = evaluatePreConditions && ctx.getArchiveAEExtension().qidoETag()
+                            ? service.getLastModified(ctx.getQueryKeys())
+                            : null;
         if (lastModified == null)
             builder.header("Cache-Control", "no-cache");
         else {
             builder.lastModified(lastModified);
             builder.tag(String.valueOf(lastModified.hashCode()));
         }
-    }
-
-    private Date lastModified(Boolean queryLastModified, String studyUID, String seriesUID) {
-        return queryLastModified ? queryService.getLastModified(studyUID, seriesUID) : null;
     }
 
     private boolean includeDefaults() {
