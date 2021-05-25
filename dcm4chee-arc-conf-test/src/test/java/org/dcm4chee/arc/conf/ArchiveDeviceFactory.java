@@ -1228,8 +1228,11 @@ class ArchiveDeviceFactory {
     static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
     static final String WADO_JPEG_PATH_FORMAT = "{0020000D}/{0020000E}/{00080018}/{00081160}.jpeg";
     static final String WADO_JSON_STORAGE_ID = "wado-json";
+    static final String QIDO_JSON_STORAGE_ID = "qido-json";
     static final String WADO_JSON_STORAGE_URI = "${jboss.server.data.url}/wado/";
+    static final String QIDO_JSON_STORAGE_URI = "${jboss.server.data.url}/qido/";
     static final String WADO_JSON_PATH_FORMAT = "{0020000D}.json";
+    static final String QIDO_JSON_PATH_FORMAT = "{0020000D}-{0020000E}.json";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.valueOf("PT5S");
     static final Duration DIFF_TASK_UPDATE_INTERVAL = Duration.valueOf("PT10S");
@@ -1249,13 +1252,16 @@ class ArchiveDeviceFactory {
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
     static final String WADO_JPEG_EXPORTER_ID = "WADO-JPEG";
     static final String WADO_JSON_EXPORTER_ID = "WADO-JSON";
+    static final String QIDO_JSON_EXPORTER_ID = "QIDO-JSON";
     static final String WADO_JPEG_EXPORTER_DESC = "Export to WADO-JPEG";
     static final String WADO_JSON_EXPORTER_DESC = "Export to WADO-JSON";
+    static final String QIDO_JSON_EXPORTER_DESC = "Export to QIDO-JSON";
     static final URI WADO_EXPORT_URI = URI.create("wado:DCM4CHEE-WADO");
     static final String WADO_JPEG_EXPORT_SERVICE = "?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]";
     static final String WADO_CACHE_CONTROL = "no-cache";
     static final URI WADO_JSON_EXPORT_URL = URI.create("wado:DCM4CHEE");
     static final String WADO_JSON_EXPORT_SERVICE = "/studies/[0]/metadata";
+    static final String QIDO_JSON_EXPORT_SERVICE = "/studies/[0]/series/[1]/instances";
     static final String WADO_JSON_ACCEPT = "application/json";
     static final String XDSI_EXPORTER_ID = "XDS-I";
     static final String XDSI_EXPORTER_DESC = "XDS-I Provide and Register";
@@ -1922,6 +1928,12 @@ class ArchiveDeviceFactory {
             wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(wadoJsonStorageDescriptor);
 
+            StorageDescriptor qidoJsonStorageDescriptor = new StorageDescriptor(QIDO_JSON_STORAGE_ID);
+            qidoJsonStorageDescriptor.setStorageURIStr(QIDO_JSON_STORAGE_URI);
+            qidoJsonStorageDescriptor.setProperty("pathFormat", QIDO_JSON_PATH_FORMAT);
+            qidoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            ext.addStorageDescriptor(qidoJsonStorageDescriptor);
+
             StorageDescriptor nearlineStorageDescriptor = new StorageDescriptor(NEARLINE_STORAGE_ID);
             nearlineStorageDescriptor.setStorageURIStr(NEARLINE_STORAGE_URI);
             nearlineStorageDescriptor.setProperty("pathFormat", NEARLINE_PATH_FORMAT);
@@ -1979,6 +1991,16 @@ class ArchiveDeviceFactory {
             wadoJsonExportDescriptor.setProperty("StorageID", WADO_JSON_STORAGE_ID);
             ext.addExporterDescriptor(wadoJsonExportDescriptor);
 
+            ExporterDescriptor qidoJsonExportDescriptor = new ExporterDescriptor(QIDO_JSON_EXPORTER_ID);
+            qidoJsonExportDescriptor.setDescription(QIDO_JSON_EXPORTER_DESC);
+            qidoJsonExportDescriptor.setExportURI(WADO_JSON_EXPORT_URL);
+            qidoJsonExportDescriptor.setQueueName("Export2");
+            qidoJsonExportDescriptor.setAETitle(AE_TITLE);
+            qidoJsonExportDescriptor.setProperty("QidoService", QIDO_JSON_EXPORT_SERVICE);
+            qidoJsonExportDescriptor.setProperty("Accept", WADO_JSON_ACCEPT);
+            qidoJsonExportDescriptor.setProperty("StorageID", QIDO_JSON_STORAGE_ID);
+            ext.addExporterDescriptor(qidoJsonExportDescriptor);
+
             ExportRule wadoJpegExportRule = new ExportRule("Forward to WADO-JPEG");
             wadoJpegExportRule.getConditions().setSendingAETitle("WADO_JPEG");
             wadoJpegExportRule.setEntity(Entity.Series);
@@ -1992,6 +2014,13 @@ class ArchiveDeviceFactory {
             wadoJsonExportRule.setExportDelay(Duration.valueOf("PT1M"));
             wadoJsonExportRule.setExporterIDs(WADO_JSON_EXPORTER_ID);
             ext.addExportRule(wadoJsonExportRule);
+
+            ExportRule qidoJsonExportRule = new ExportRule("Forward to QIDO-JSON");
+            qidoJsonExportRule.getConditions().setSendingAETitle("QIDO_JSON");
+            qidoJsonExportRule.setEntity(Entity.Series);
+            qidoJsonExportRule.setExportDelay(Duration.valueOf("PT1M"));
+            qidoJsonExportRule.setExporterIDs(QIDO_JSON_EXPORTER_ID);
+            ext.addExportRule(qidoJsonExportRule);
 
             ExporterDescriptor xdsiExportDescriptor = new ExporterDescriptor(XDSI_EXPORTER_ID);
             xdsiExportDescriptor.setDescription(XDSI_EXPORTER_DESC);

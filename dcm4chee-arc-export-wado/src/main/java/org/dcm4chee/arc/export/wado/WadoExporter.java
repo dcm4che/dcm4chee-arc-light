@@ -89,8 +89,8 @@ public class WadoExporter extends AbstractExporter {
     private final AccessTokenRequestor accessTokenRequestor;
     private final Device device;
     private final IWebApplicationCache webApplicationCache;
-    private final EnumMap<Entity,List<WadoRequest>> wadoRequests = new EnumMap<>(Entity.class);
-    private WebApplication wadoWebApp;
+    private final EnumMap<Entity,List<QueryRetrieveRequest>> queryRetrieveRequests = new EnumMap<>(Entity.class);
+    private WebApplication queryRetrieveWebApp;
 
     public WadoExporter(
             ExporterDescriptor descriptor, QueryService queryService, StorageFactory storageFactory,
@@ -101,45 +101,58 @@ public class WadoExporter extends AbstractExporter {
         this.accessTokenRequestor = accessTokenRequestor;
         this.device = device;
         this.webApplicationCache = webApplicationCache;
-        addWadoRequest();
+        addQueryRetrieveRequest();
     }
 
     private String token() {
-        if (wadoWebApp.getKeycloakClient() == null)
+        if (queryRetrieveWebApp.getKeycloakClient() == null)
             return null;
 
         String token = null;
         try {
-            token = accessTokenRequestor.getAccessToken2(wadoWebApp).getToken();
+            token = accessTokenRequestor.getAccessToken2(queryRetrieveWebApp).getToken();
             LOG.debug("Access token retrieved for Web Application[name={}, {}] is {}",
-                    wadoWebApp.getApplicationName(), wadoWebApp.getKeycloakClient(), token);
+                    queryRetrieveWebApp.getApplicationName(), queryRetrieveWebApp.getKeycloakClient(), token);
         } catch (Exception e) {
             LOG.info("Failed to get access token for Web Application[name={}, KeycloakClientID={}] \n",
-                    wadoWebApp.getApplicationName(), wadoWebApp.getKeycloakClient(), e);
+                    queryRetrieveWebApp.getApplicationName(), queryRetrieveWebApp.getKeycloakClient(), e);
         }
         return token;
     }
 
-    private void addWadoRequest() {
+    private void addQueryRetrieveRequest() {
+        String uriSchemeSpecificPart = descriptor.getExportURI().getSchemeSpecificPart();
+        String queryRetrieveService = null;
         try {
-            wadoWebApp = webApplicationCache.findWebApplication(descriptor.getExportURI().getSchemeSpecificPart());
-            if (!wadoWebApp.containsServiceClass(WebApplication.ServiceClass.WADO_URI)
-                    && !wadoWebApp.containsServiceClass(WebApplication.ServiceClass.WADO_RS)) {
-                LOG.info("WADO web application does not contain any WADO service classes {}", wadoWebApp);
+            queryRetrieveWebApp = webApplicationCache.findWebApplication(uriSchemeSpecificPart);
+            if (descriptor.getProperties().containsKey("WadoService")) {
+                if (!queryRetrieveWebApp.containsServiceClass(WebApplication.ServiceClass.WADO_URI)
+                        && !queryRetrieveWebApp.containsServiceClass(WebApplication.ServiceClass.WADO_RS)) {
+                    LOG.info("{} web application does not contain any WADO service classes", queryRetrieveWebApp);
+                    return;
+                }
+                queryRetrieveService = descriptor.getProperties().get("WadoService");
+            } else if (descriptor.getProperties().containsKey("QidoService")) {
+                if (!queryRetrieveWebApp.containsServiceClass(WebApplication.ServiceClass.QIDO_RS)) {
+                    LOG.info("{} web application does not contain any QIDO service classes", queryRetrieveWebApp);
+                    return;
+                }
+                queryRetrieveService = descriptor.getProperties().get("QidoService");
+            }
+            
+            if (queryRetrieveService == null) {
+                LOG.info("{} web application does not contain WADO / QIDO service to be invoked", queryRetrieveWebApp);
                 return;
             }
-            String wadoService = descriptor.getProperty("WadoService", null);
-            if (wadoService == null) {
-                LOG.info("WADO web application does not contain WADO service to be invoked {}", wadoWebApp);
-                return;
-            }
-            String targetURI = wadoWebApp.getServiceURL() + wadoService;
+            
+            String targetURI = queryRetrieveWebApp.getServiceURL() + queryRetrieveService;
             MessageFormat format = new MessageFormat(targetURI.replace('[', '{').replace(']', '}'));
             Entity entity = Entity.values()[format.getFormats().length];
-            List<WadoRequest> list = wadoRequests.computeIfAbsent(entity, k -> new ArrayList<>(2));
-            list.add(new WadoRequest(format, token(), device, descriptor));
+            List<QueryRetrieveRequest> list = queryRetrieveRequests.computeIfAbsent(entity, k -> new ArrayList<>(2));
+            list.add(new QueryRetrieveRequest(format, token(), device, descriptor));
         } catch (ConfigurationException e) {
-            LOG.info("Failed to find Web Application for WADO request invocation : {}", e.getMessage());
+            LOG.info("Failed to find Web Application for request invocation for {} : {}",
+                    uriSchemeSpecificPart, e.getMessage());
         }
     }
 
@@ -151,11 +164,11 @@ public class WadoExporter extends AbstractExporter {
         Exception ex = null;
         HashMap<String, Storage> storageMap = new HashMap<>();
         try {
-            for (Map.Entry<Entity, List<WadoRequest>> entry : wadoRequests.entrySet()) {
+            for (Map.Entry<Entity, List<QueryRetrieveRequest>> entry : queryRetrieveRequests.entrySet()) {
                 for (Object[] params : entry.getKey().queryParams(exportContext, queryService)) {
-                    for (WadoRequest wadoRequest : entry.getValue()) {
+                    for (QueryRetrieveRequest queryRetrieveRequest : entry.getValue()) {
                         try {
-                            if (invoke(wadoRequest, params, buffer, storageMap))
+                            if (invoke(queryRetrieveRequest, params, buffer, storageMap))
                                 count++;
                         } catch (Exception e) {
                             failed++;
@@ -172,28 +185,28 @@ public class WadoExporter extends AbstractExporter {
         String exporterID = exportContext.getExporter().getExporterDescriptor().getExporterID();
         if (failed == 0) {
             return new Outcome(QueueMessage.Status.COMPLETED,
-                    "Fetched " + count + " objects by WADO Exporter " + exporterID);
+                    "Query retrieved " + count + " objects by Exporter " + exporterID);
         }
         if (count > 0) {
             return new Outcome(QueueMessage.Status.WARNING,
-                    "Fetched " + count + " objects by WADO Exporter " + exporterID
+                    "Query retrieved " + count + " objects by Exporter " + exporterID
                             + ", failed: " + failed + " - " + ex.getMessage());
         }
         throw ex;
     }
 
-    private boolean invoke(WadoRequest wadoRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
+    private boolean invoke(QueryRetrieveRequest queryRetrieveRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
             throws Exception {
-        Invocation.Builder request = wadoRequest.openConnection(params, accessTokenRequestor);
+        Invocation.Builder request = queryRetrieveRequest.openConnection(params, accessTokenRequestor);
         Response response = request.get();
         int responseStatus = response.getStatus();
         if (responseStatus == Response.Status.NOT_FOUND.getStatusCode()
                 || responseStatus == Response.Status.UNAUTHORIZED.getStatusCode()) {
-            LOG.info("Invocation of WADO request {} failed with status {}", wadoRequest.getTargetURL(), responseStatus);
+            LOG.info("Invocation of request {} failed with status {}", queryRetrieveRequest.getTargetURL(), responseStatus);
             return false;
         }
         try (InputStream in = response.readEntity(InputStream.class);
-             OutputStream out = getOutputStream(wadoRequest.storageDescriptor, params, storageMap)) {
+             OutputStream out = getOutputStream(queryRetrieveRequest.storageDescriptor, params, storageMap)) {
             StreamUtils.copy(in, out, buffer);
         }
         return true;
@@ -286,7 +299,7 @@ public class WadoExporter extends AbstractExporter {
         abstract List<Object[]> queryParams(ExportContext ctx, QueryService queryService);
     }
 
-    private static class WadoRequest {
+    private static class QueryRetrieveRequest {
         final MessageFormat format;
         final EnumMap<HeaderField,String> headerFields;
         final StorageDescriptor storageDescriptor;
@@ -297,7 +310,7 @@ public class WadoExporter extends AbstractExporter {
         final Device device;
         String targetURL;
 
-        WadoRequest(MessageFormat format, String token, Device device, ExporterDescriptor exporterDescriptor) {
+        QueryRetrieveRequest(MessageFormat format, String token, Device device, ExporterDescriptor exporterDescriptor) {
             this.format = format;
             this.exporterDescriptor = exporterDescriptor;
             this.device = device;
@@ -329,7 +342,7 @@ public class WadoExporter extends AbstractExporter {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             StorageDescriptor storageDescriptor = arcDev.getStorageDescriptor(storageID);
             if (storageDescriptor == null)
-                LOG.warn("WADO Exporter {} refers not configured StorageID={} - cannot store fetched objects",
+                LOG.warn("Exporter {} refers not configured StorageID={} - cannot store fetched objects",
                         exporterDescriptor.getExporterID(), storageID);
             return storageDescriptor;
         }

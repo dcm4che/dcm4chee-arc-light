@@ -3649,6 +3649,13 @@ hl7OrderControlStatus: NW_IP
 hl7OrderControlStatus: XO_SC
 objectClass: hl7OrderSPSStatus
 
+dn: dcmStorageID=qido-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmProperty: pathFormat={0020000D}-{0020000E}.json
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: qido-json
+dcmURI: ${jboss.server.data.url}/qido/
+
 dn: dcmStorageID=wado-jpeg,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: pathFormat={0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
 dcmProperty: checkMountFile=NO_MOUNT
@@ -3677,6 +3684,14 @@ objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
+
+dn: cn=Forward to QIDO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: QIDO-JSON
+dcmDuration: PT1M
+dcmEntity: Series
+dcmProperty: SendingApplicationEntityTitle=QIDO_JSON
+objectClass: dcmExportRule
+cn: Forward to QIDO-JSON
 
 dn: cn=Forward to WADO-JPEG,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: WADO-JPEG
@@ -3709,6 +3724,17 @@ dcmProperty: SendingApplicationEntityTitle=STORESCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
+
+dn: dcmExporterID=QIDO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: QIDO-JSON
+dicomDescription: Export to QIDO-JSON
+dcmQueueName: Export2
+dcmProperty: QidoService=/studies/[0]/series/[1]/instances
+dcmProperty: Accept=application/json
+dcmProperty: StorageID=qido-json
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: wado:DCM4CHEE
 
 dn: dcmExporterID=WADO-JPEG,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: WADO-JPEG
