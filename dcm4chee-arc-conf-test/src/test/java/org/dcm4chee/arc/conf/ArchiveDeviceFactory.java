@@ -2010,7 +2010,7 @@ class ArchiveDeviceFactory {
 
             ExportRule wadoJsonExportRule = new ExportRule("Forward to WADO-JSON");
             wadoJsonExportRule.getConditions().setSendingAETitle("WADO_JSON");
-            wadoJsonExportRule.setEntity(Entity.Series);
+            wadoJsonExportRule.setEntity(Entity.Study);
             wadoJsonExportRule.setExportDelay(Duration.valueOf("PT1M"));
             wadoJsonExportRule.setExporterIDs(WADO_JSON_EXPORTER_ID);
             ext.addExportRule(wadoJsonExportRule);
