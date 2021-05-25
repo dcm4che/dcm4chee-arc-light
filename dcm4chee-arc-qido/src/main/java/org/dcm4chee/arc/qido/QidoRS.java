@@ -443,11 +443,12 @@ public class QidoRS {
 
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
+            Date lastModified = null;
             if (evaluatePreConditions && (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
                                             || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
                                             || request.getHeader(HttpHeaders.IF_MATCH) != null
                                             || request.getHeader(HttpHeaders.IF_NONE_MATCH) != null)) {
-                Date lastModified = service.getLastModified(ctx.getQueryKeys());
+                lastModified = service.getLastModified(ctx.getQueryKeys());
                 if (lastModified == null)
                     return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
 
@@ -494,7 +495,7 @@ public class QidoRS {
                 if (remaining > 0)
                     builder.header("Warning", warning(remaining));
 
-                lastModified(evaluatePreConditions, ctx, builder);
+                lastModified(lastModified, evaluatePreConditions, ctx, builder);
                 return builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
                         .type(output.type())
@@ -505,15 +506,18 @@ public class QidoRS {
         }
     }
 
-    private void lastModified(boolean evaluatePreConditions, QueryContext ctx, Response.ResponseBuilder builder) {
-        Date lastModified = evaluatePreConditions && ctx.getArchiveAEExtension().qidoETag()
-                            ? service.getLastModified(ctx.getQueryKeys())
-                            : null;
-        if (lastModified == null)
+    private void lastModified(
+            Date lastModified, boolean evaluatePreConditions, QueryContext ctx, Response.ResponseBuilder builder) {
+        Date lastModified1 = lastModified != null
+                            ? lastModified
+                            : evaluatePreConditions && ctx.getArchiveAEExtension().qidoETag()
+                                ? service.getLastModified(ctx.getQueryKeys())
+                                : null;
+        if (lastModified1 == null)
             builder.header("Cache-Control", "no-cache");
         else {
-            builder.lastModified(lastModified);
-            builder.tag(String.valueOf(lastModified.hashCode()));
+            builder.lastModified(lastModified1);
+            builder.tag(String.valueOf(lastModified1.hashCode()));
         }
     }
 
