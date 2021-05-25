@@ -3704,7 +3704,7 @@ cn: Forward to WADO-JPEG
 dn: cn=Forward to WADO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: WADO-JSON
 dcmDuration: PT1M
-dcmEntity: Study
+dcmEntity: Series
 dcmProperty: SendingApplicationEntityTitle=WADO_JSON
 objectClass: dcmExportRule
 cn: Forward to WADO-JSON
@@ -3752,7 +3752,7 @@ dcmExporterID: WADO-JSON
 dicomDescription: Export to WADO-JSON
 dcmQueueName: Export2
 dcmProperty: Accept=application/json
-dcmProperty: WadoService=/studies/[0]/metadata
+dcmProperty: WadoService=/studies/[0]/series/[1]/metadata
 dcmProperty: StorageID=wado-json
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE

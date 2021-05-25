@@ -1260,7 +1260,7 @@ class ArchiveDeviceFactory {
     static final String WADO_JPEG_EXPORT_SERVICE = "?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]";
     static final String WADO_CACHE_CONTROL = "no-cache";
     static final URI WADO_JSON_EXPORT_URL = URI.create("wado:DCM4CHEE");
-    static final String WADO_JSON_EXPORT_SERVICE = "/studies/[0]/metadata";
+    static final String WADO_JSON_EXPORT_SERVICE = "/studies/[0]/series/[1]/metadata";
     static final String QIDO_JSON_EXPORT_SERVICE = "/studies/[0]/series/[1]/instances";
     static final String WADO_JSON_ACCEPT = "application/json";
     static final String XDSI_EXPORTER_ID = "XDS-I";
@@ -2010,7 +2010,7 @@ class ArchiveDeviceFactory {
 
             ExportRule wadoJsonExportRule = new ExportRule("Forward to WADO-JSON");
             wadoJsonExportRule.getConditions().setSendingAETitle("WADO_JSON");
-            wadoJsonExportRule.setEntity(Entity.Study);
+            wadoJsonExportRule.setEntity(Entity.Series);
             wadoJsonExportRule.setExportDelay(Duration.valueOf("PT1M"));
             wadoJsonExportRule.setExporterIDs(WADO_JSON_EXPORTER_ID);
             ext.addExportRule(wadoJsonExportRule);
