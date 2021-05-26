@@ -642,8 +642,8 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Date getLastModified(Attributes queryKeys) {
-        List<Object[]> dates = queryLastModified(queryKeys);
+    public Date getLastModified(String studyUID, String seriesUID) {
+        List<Object[]> dates = queryLastModified(studyUID, seriesUID);
         Date lastModified = null;
         for (Object[] objs : dates) {
             for (Object obj : objs) {
@@ -655,14 +655,13 @@ class QueryServiceImpl implements QueryService {
         return lastModified;
     }
 
-    private List<Object[]> queryLastModified(Attributes queryKeys) {
-        String seriesIUID = queryKeys.getString(Tag.SeriesInstanceUID);
+    private List<Object[]> queryLastModified(String studyIUID, String seriesIUID) {
         return (seriesIUID != null
                 ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
-                    .setParameter(1, queryKeys.getString(Tag.StudyInstanceUID))
+                    .setParameter(1, studyIUID)
                     .setParameter(2, seriesIUID)
                 : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
-                    .setParameter(1, queryKeys.getString(Tag.StudyInstanceUID)))
+                    .setParameter(1, studyIUID))
                 .getResultList();
     }
 }

@@ -434,37 +434,36 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
-                            boolean evaluatePreConditions) {
+                            boolean etag) {
         ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (aet.equals(ae.getAETitle()))
             validateWebApp();
         Output output = selectMediaType();
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
-
         try {
-            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             Date lastModified = null;
-            if (evaluatePreConditions && (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
-                                            || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
-                                            || request.getHeader(HttpHeaders.IF_MATCH) != null
-                                            || request.getHeader(HttpHeaders.IF_NONE_MATCH) != null)) {
-                lastModified = service.getLastModified(ctx.getQueryKeys());
+            if (etag && arcAE.qidoETag()) {
+                lastModified = service.getLastModified(studyInstanceUID, seriesInstanceUID);
                 if (lastModified == null)
                     return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
 
-                Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
-                if (respBuilder != null)
-                    return respBuilder.build();
+                if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
+                    || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
+                    || request.getHeader(HttpHeaders.IF_MATCH) != null
+                    || request.getHeader(HttpHeaders.IF_NONE_MATCH) != null) {
+                    Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
+                    if (respBuilder != null)
+                        return respBuilder.build();
+                }
             }
-
+            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
                     : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
                     ? queryAttrs.getReturnKeys(qido.includetags)
                     : queryAttrs.getQueryKeys());
             ctx.setReturnPrivate(queryAttrs.isIncludePrivate());
-            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-            ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
             if (output == Output.CSV) {
                 model.setIncludeAll(queryAttrs.isIncludeAll());
                 model.setReturnKeys(ctx.getReturnKeys());
@@ -487,7 +486,8 @@ public class QidoRS {
 
                     remaining = numResults - maxResults;
                 }
-                query.executeQuery(arcdev.getQueryFetchSize(), offsetInt, remaining > 0 ? maxResults : limitInt);
+                int fetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
+                query.executeQuery(fetchSize, offsetInt, remaining > 0 ? maxResults : limitInt);
                 if (!query.hasMoreMatches())
                     return Response.noContent().build();
 
@@ -495,7 +495,12 @@ public class QidoRS {
                 if (remaining > 0)
                     builder.header("Warning", warning(remaining));
 
-                lastModified(lastModified, evaluatePreConditions, ctx, builder);
+                if (lastModified != null) {
+                    builder.lastModified(lastModified);
+                    builder.tag(String.valueOf(lastModified.hashCode()));
+                } else {
+                    builder.header("Cache-Control", "no-cache");
+                }
                 return builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
                         .type(output.type())
@@ -503,21 +508,6 @@ public class QidoRS {
             }
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private void lastModified(
-            Date lastModified, boolean evaluatePreConditions, QueryContext ctx, Response.ResponseBuilder builder) {
-        Date lastModified1 = lastModified != null
-                            ? lastModified
-                            : evaluatePreConditions && ctx.getArchiveAEExtension().qidoETag()
-                                ? service.getLastModified(ctx.getQueryKeys())
-                                : null;
-        if (lastModified1 == null)
-            builder.header("Cache-Control", "no-cache");
-        else {
-            builder.lastModified(lastModified1);
-            builder.tag(String.valueOf(lastModified1.hashCode()));
         }
     }
 
