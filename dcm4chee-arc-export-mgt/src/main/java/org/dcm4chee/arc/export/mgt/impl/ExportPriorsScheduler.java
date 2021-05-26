@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -176,7 +177,14 @@ public class ExportPriorsScheduler {
             Date notExportedAfter = new Date(
                     now.getTimeInMillis() - rule.getSuppressDuplicateExportInterval().getSeconds() * 1000L);
             String cx = hl7Fields.get("PID-3", null);
-            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(new IDWithIssuer(cx));
+            IDWithIssuer idWithIssuer = idWithIssuer(rule, cx);
+            if (idWithIssuer == null) {
+                LOG.info("None of the qualified patient identifier pairs in PID-3 {} match with configured " +
+                                "HL7 Export Rule[name={}, PrefetchForAssigningAuthorityOfPatientID={}]",
+                        cx, rule.getCommonName(), rule.getPrefetchForAssigningAuthorityOfPatientID());
+                return;
+            }
+            IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);
             String batchID = rule.getCommonName() + '[' + pid + ']';
             Map<String, List<ExporterDescriptor>> exporterByAET = Stream.of(rule.getExporterIDs())
                     .map(arcdev::getExporterDescriptorNotNull)
@@ -198,6 +206,19 @@ public class ExportPriorsScheduler {
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
+    }
+
+    private IDWithIssuer idWithIssuer(HL7ExportRule rule, String cx) {
+        Issuer prefetchForAssigningAuthorityOfPatientID = rule.getPrefetchForAssigningAuthorityOfPatientID();
+        if (prefetchForAssigningAuthorityOfPatientID == null)
+            return new IDWithIssuer(cx);
+
+        for (String cx1 : cx.split("~")) {
+            IDWithIssuer idWithIssuer = new IDWithIssuer(cx1);
+            if (prefetchForAssigningAuthorityOfPatientID.equals(idWithIssuer.getIssuer()))
+                return idWithIssuer;
+        }
+        return null;
     }
 
     private void export(IDWithIssuer pid, String receivedStudyUID, String batchID, Attributes queryKeys,

@@ -2698,6 +2698,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.32 NAME 'hl7ExportRule'
     dcmProperty $
     dcmNullifyIssuerOfPatientID $
     dcmIssuerOfPatientID $
+    dcmPrefetchForIssuerOfPatientID $
     dcmDuration ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.33 NAME 'hl7StudyRetentionPolicy'
   DESC 'Study Retention Policy'

@@ -3661,6 +3661,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
                 rule.getIgnoreAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchForIssuerOfPatientID",
+                rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateExportInterval(), null);
@@ -3680,6 +3682,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setIgnoreAssigningAuthorityOfPatientID(
                         LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
                 rule.setAssigningAuthorityOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
+                rule.setPrefetchForAssigningAuthorityOfPatientID(
+                        toIssuer(LdapUtils.stringValue(attrs.get("dcmPrefetchForIssuerOfPatientID"), null)));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
                 prefetchRules.add(rule);
@@ -4437,6 +4441,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getIgnoreAssigningAuthorityOfPatientID(), rule.getIgnoreAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID",
                 prev.getAssigningAuthorityOfPatientIDs(), rule.getAssigningAuthorityOfPatientIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchForIssuerOfPatientID",
+                prev.getPrefetchForAssigningAuthorityOfPatientID(),
+                rule.getPrefetchForAssigningAuthorityOfPatientID(),
+                null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmEntitySelector",
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",

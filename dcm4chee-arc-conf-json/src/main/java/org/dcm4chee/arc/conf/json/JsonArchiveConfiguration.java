@@ -634,6 +634,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", rule.getConditions().getMap());
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", rule.getIgnoreAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
+            writer.writeNotNullOrDef("dcmPrefetchForIssuerOfPatientID",
+                    rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
             writer.writeEnd();
@@ -2530,6 +2532,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmIssuerOfPatientID":
                         rule.setAssigningAuthorityOfPatientIDs(toIssuers(reader.stringArray()));
+                        break;
+                    case "dcmPrefetchForIssuerOfPatientID":
+                        rule.setPrefetchForAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));

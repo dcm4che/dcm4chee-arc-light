@@ -48,6 +48,7 @@ import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2018
  */
 public class HL7ExportRule {
@@ -64,6 +65,8 @@ public class HL7ExportRule {
     private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
 
     private Issuer[] assigningAuthorityOfPatientIDs = {};
+
+    private Issuer prefetchForAssigningAuthorityOfPatientID;
 
     private EntitySelector[] entitySelectors = {};
 
@@ -133,6 +136,14 @@ public class HL7ExportRule {
                 : pid;
     }
 
+    public Issuer getPrefetchForAssigningAuthorityOfPatientID() {
+        return prefetchForAssigningAuthorityOfPatientID;
+    }
+
+    public void setPrefetchForAssigningAuthorityOfPatientID(Issuer prefetchForAssigningAuthorityOfPatientID) {
+        this.prefetchForAssigningAuthorityOfPatientID = prefetchForAssigningAuthorityOfPatientID;
+    }
+
     public EntitySelector[] getEntitySelectors() {
         return entitySelectors;
     }
@@ -150,6 +161,7 @@ public class HL7ExportRule {
                 ", suppressDups=" + suppressDuplicateExportInterval +
                 ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
                 ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +
+                ", prefetchForAssigningAuthorityOfPatientID=" + prefetchForAssigningAuthorityOfPatientID +
                 ", entitySelectors=" + Arrays.toString(entitySelectors) +
                 '}';
     }
