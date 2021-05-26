@@ -40,12 +40,14 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
-import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapUtils;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Issuer;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -63,7 +65,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import javax.naming.directory.Attributes;
 import java.net.URI;
 import java.time.Period;
 import java.util.*;
@@ -1405,6 +1406,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeExporterDescriptors(diffs, deviceDN, arcDev);
         storeExportRules(diffs, arcDev.getExportRules(), deviceDN);
         storePrefetchRules(diffs, arcDev.getExportPriorsRules(), deviceDN);
+        storeMPPSForwardRules(diffs, arcDev.getMPPSForwardRules(), deviceDN);
         storeHL7ExportRules(diffs, arcDev.getHL7ExportRules(), deviceDN, config);
         storeHL7PrefetchRules(diffs, arcDev.getHL7PrefetchRules(), deviceDN, config);
         storeCompressionRules(diffs, arcDev.getCompressionRules(), deviceDN);
@@ -1444,6 +1446,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadPrefetchRules(arcdev.getExportPriorsRules(), deviceDN);
+        loadMPPSForwardRules(arcdev.getMPPSForwardRules(), deviceDN);
         loadHL7ExportRules(arcdev.getHL7ExportRules(), deviceDN, config);
         loadHL7PrefetchRules(arcdev.getHL7PrefetchRules(), deviceDN, config);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
@@ -1491,6 +1494,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportDescriptors(diffs, aa, bb, deviceDN);
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergePrefetchRules(diffs, aa.getExportPriorsRules(), bb.getExportPriorsRules(), deviceDN);
+        mergeMPPSForwardRules(diffs, aa.getMPPSForwardRules(), bb.getMPPSForwardRules(), deviceDN);
         mergeHL7ExportRules(diffs, aa.getHL7ExportRules(), bb.getHL7ExportRules(), deviceDN,
                 getDicomConfiguration());
         mergeHL7PrefetchRules(diffs, aa.getHL7PrefetchRules(), bb.getHL7PrefetchRules(), deviceDN,
@@ -2085,6 +2089,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         storeExportRules(diffs, aeExt.getExportRules(), aeDN);
         storePrefetchRules(diffs, aeExt.getExportPriorsRules(), aeDN);
+        storeMPPSForwardRules(diffs, aeExt.getMPPSForwardRules(), aeDN);
         storeCompressionRules(diffs, aeExt.getCompressionRules(), aeDN);
         storeStoreAccessControlIDRules(diffs, aeExt.getStoreAccessControlIDRules(), aeDN);
         storeAttributeCoercions(diffs, aeExt.getAttributeCoercions(), aeDN);
@@ -2102,6 +2107,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         loadExportRules(aeExt.getExportRules(), aeDN);
         loadPrefetchRules(aeExt.getExportPriorsRules(), aeDN);
+        loadMPPSForwardRules(aeExt.getMPPSForwardRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, ae.getDevice());
@@ -2126,6 +2132,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), aeDN);
         mergePrefetchRules(diffs, aa.getExportPriorsRules(), bb.getExportPriorsRules(), aeDN);
+        mergeMPPSForwardRules(diffs, aa.getMPPSForwardRules(), bb.getMPPSForwardRules(), aeDN);
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
@@ -2962,6 +2969,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeMPPSForwardRules(ConfigurationChanges diffs, Collection<MPPSForwardRule> mppsFwdRules, String parentDN)
+            throws NamingException {
+        for (MPPSForwardRule rule : mppsFwdRules) {
+            String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+        }
+    }
+
     private void storeMWLIdleTimeouts(ConfigurationChanges diffs, Collection<MWLIdleTimeout> mwlIdleTimeouts, String parentDN)
             throws NamingException {
         for (MWLIdleTimeout mwlIdleTimeout : mwlIdleTimeouts) {
@@ -3036,6 +3053,15 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportReoccurredInstances",
                 rule.getExportReoccurredInstances(), ExportReoccurredInstances.REPLACE);
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, MPPSForwardRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmMPPSForwardRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", rule.getDestinations());
         return attrs;
     }
 
@@ -3327,6 +3353,23 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 ExportReoccurredInstances.REPLACE));
                 rule.setExporterDeviceName(LdapUtils.stringValue(attrs.get("dicomDeviceName"), null));
                 exportRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadMPPSForwardRules(Collection<MPPSForwardRule> mppsFwdRules, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmMPPSForwardRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                MPPSForwardRule rule = new MPPSForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rule.setDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
+                mppsFwdRules.add(rule);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -3815,6 +3858,36 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeMPPSForwardRules(
+            ConfigurationChanges diffs, Collection<MPPSForwardRule> prevRules, Collection<MPPSForwardRule> rules, String parentDN)
+            throws NamingException {
+        for (MPPSForwardRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findMPPSForwardRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (MPPSForwardRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            MPPSForwardRule prevRule = findMPPSForwardRuleByCN(prevRules, cn);
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private void mergeMWLIdleTimeouts(ConfigurationChanges diffs, Collection<MWLIdleTimeout> prevMWLIdleTimeouts,
                                       Collection<MWLIdleTimeout> mwlIdleTimeouts, String parentDN)
             throws NamingException {
@@ -4012,6 +4085,15 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getExportReoccurredInstances(), rule.getExportReoccurredInstances(), ExportReoccurredInstances.REPLACE);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomDeviceName",
                 prev.getExporterDeviceName(), rule.getExporterDeviceName(), null);
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
+                                              MPPSForwardRule prev, MPPSForwardRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination", prev.getDestinations(), rule.getDestinations());
         return mods;
     }
 
@@ -4294,6 +4376,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private ExportRule findExportRuleByCN(Collection<ExportRule> rules, String cn) {
         for (ExportRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
+    }
+
+    private MPPSForwardRule findMPPSForwardRuleByCN(Collection<MPPSForwardRule> rules, String cn) {
+        for (MPPSForwardRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;

@@ -401,6 +401,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
         writeExportPrefetchRules(writer, arcDev.getExportPriorsRules());
+        writeMPPSForwardRule(writer, arcDev.getMPPSForwardRules());
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
@@ -620,6 +621,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
             writer.writeNotNullOrDef("dcmExportReoccurredInstances", rule.getExportReoccurredInstances(),
                     ExportReoccurredInstances.REPLACE);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeMPPSForwardRule(JsonWriter writer, Collection<MPPSForwardRule> mppsForwardRuleList) {
+        writer.writeStartArray("dcmMPPSForwardRule");
+        for (MPPSForwardRule mppsFwdRule : mppsForwardRuleList) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", mppsFwdRule.getCommonName(), null);
+            writer.writeNotEmpty("dcmFwdMppsDestination", mppsFwdRule.getDestinations());
+            writer.writeNotEmpty("dcmProperty", mppsFwdRule.getConditions().getMap());
+            writer.writeNotEmpty("dcmSchedule", mppsFwdRule.getSchedules());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1241,6 +1255,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
+        writeMPPSForwardRule(writer, arcAE.getMPPSForwardRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -1987,6 +2002,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmExportPriorsRule":
                     loadExportPriorsRules(arcDev.getExportPriorsRules(), reader);
                     break;
+                case "dcmMPPSForwardRule":
+                    loadMPPSForwardRule(arcDev.getMPPSForwardRules(), reader);
+                    break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcDev.getCompressionRules(), reader);
                     break;
@@ -2503,6 +2521,36 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(rule);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadMPPSForwardRule(Collection<MPPSForwardRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            MPPSForwardRule mppsFwdRule = new MPPSForwardRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        mppsFwdRule.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmFwdMppsDestination":
+                        mppsFwdRule.setDestinations(reader.stringArray());
+                        break;
+                    case "dcmProperty":
+                        mppsFwdRule.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmSchedule":
+                        mppsFwdRule.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(mppsFwdRule);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -3946,6 +3994,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmExportPriorsRule":
                     loadExportPriorsRules(arcAE.getExportPriorsRules(), reader);
+                    break;
+                case "dcmMPPSForwardRule":
+                    loadMPPSForwardRule(arcAE.getMPPSForwardRules(), reader);
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcAE.getCompressionRules(), reader);
