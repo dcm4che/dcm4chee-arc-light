@@ -318,6 +318,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<UPSProcessingRule> upsProcessingRuleList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final List<MPPSForwardRule> mppsForwardRule = new ArrayList<>();
     private final List<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final List<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
     private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
@@ -1996,6 +1997,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Collection<ExportPriorsRule> getExportPriorsRules() {
         return exportPriorsRules;
+    }
+
+    public void removeMPPSForwardRule(MPPSForwardRule rule) {
+        mppsForwardRule.remove(rule);
+    }
+
+    public void clearMPPSForwardRules() {
+        mppsForwardRule.clear();
+    }
+
+    public void addMPPSForwardRule(MPPSForwardRule rule) {
+        mppsForwardRule.add(rule);
+    }
+
+    public Collection<MPPSForwardRule> getMPPSForwardRules() {
+        return mppsForwardRule;
     }
 
     public void removeHL7ExportRule(HL7ExportRule rule) {

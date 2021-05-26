@@ -165,6 +165,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
+    private final List<MPPSForwardRule> mppsForwardRule = new ArrayList<>();
     private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final List<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -1015,6 +1016,22 @@ public class ArchiveAEExtension extends AEExtension {
         return exportPriorsRules;
     }
 
+    public void removeMPPSForwardRule(MPPSForwardRule rule) {
+        mppsForwardRule.remove(rule);
+    }
+
+    public void clearMPPSForwardRules() {
+        mppsForwardRule.clear();
+    }
+
+    public void addMPPSForwardRule(MPPSForwardRule rule) {
+        mppsForwardRule.add(rule);
+    }
+
+    public Collection<MPPSForwardRule> getMPPSForwardRules() {
+        return mppsForwardRule;
+    }
+
     public void removeRSForwardRule(RSForwardRule rule) {
         rsForwardRules.remove(rule);
     }
@@ -1800,6 +1817,8 @@ public class ArchiveAEExtension extends AEExtension {
         upsOnUPSCompletedList.addAll(aeExt.upsOnUPSCompletedList);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
+        mppsForwardRule.clear();
+        mppsForwardRule.addAll(aeExt.mppsForwardRule);
         exportPriorsRules.clear();
         exportPriorsRules.addAll(aeExt.exportPriorsRules);
         rsForwardRules.clear();
@@ -1820,6 +1839,10 @@ public class ArchiveAEExtension extends AEExtension {
 
     public Stream<ExportRule> exportRules() {
         return Stream.concat(exportRules.stream(), getArchiveDeviceExtension().getExportRules().stream());
+    }
+
+    public Stream<MPPSForwardRule> mppsForwardRule() {
+        return Stream.concat(mppsForwardRule.stream(), getArchiveDeviceExtension().getMPPSForwardRules().stream());
     }
 
     public Stream<UPSOnStore> upsOnStoreStream() {

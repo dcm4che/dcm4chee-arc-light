@@ -2940,3 +2940,12 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.43 NAME 'dcmMWLImport'
     dcmMWLImportDeleteNotFound $
     dcmIncludeField $
     dcmProperty ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.44 NAME 'dcmMPPSForwardRule'
+  DESC 'MPPS Forward Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmFwdMppsDestination)
+  MAY (
+    dcmProperty $
+    dcmSchedule ) )
