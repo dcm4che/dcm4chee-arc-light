@@ -49,6 +49,9 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ExportPriorsRule;
+import org.dcm4chee.arc.conf.MPPSForwardRule;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -67,6 +70,12 @@ import javax.inject.Inject;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -97,10 +106,26 @@ class MPPSSCUImpl implements MPPSSCU {
         if (ctx.getException() != null)
             return;
 
-        for (String remoteAET : ctx.getArchiveAEExtension().mppsForwardDestinations()) {
-            Attributes ssAttrs = ctx.getMPPS().getAttributes().getNestedDataset(Tag.ScheduledStepAttributesSequence);
-            Patient patient = ctx.getMPPS().getPatient();
-            IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(patient.getAttributes());
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        Calendar now = Calendar.getInstance();
+        Attributes mppsAttrs = ctx.getMPPS().getAttributes();
+        Set<String> remoteAETs = arcAE.mppsForwardRule()
+                .filter(rule -> rule.match(now,
+                        ctx.getRemoteHostName(),
+                        ctx.getCallingAET(),
+                        ctx.getLocalHostName(),
+                        ctx.getCalledAET(),
+                        mppsAttrs))
+                .map(MPPSForwardRule::getDestinations)
+                .flatMap(Stream::of)
+                .collect(Collectors.toSet());
+        for (String remoteAET : arcAE.mppsForwardDestinations()) {
+            remoteAETs.add(remoteAET);
+        }
+        Attributes ssAttrs = mppsAttrs.getNestedDataset(Tag.ScheduledStepAttributesSequence);
+        Attributes patAttrs = ctx.getMPPS().getPatient().getAttributes();
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(patAttrs);
+        for (String remoteAET : remoteAETs) {
             try {
                 ObjectMessage msg = queueManager.createObjectMessage(ctx.getAttributes());
                 msg.setStringProperty("LocalAET", ctx.getLocalApplicationEntity().getAETitle());
@@ -110,7 +135,7 @@ class MPPSSCUImpl implements MPPSSCU {
                 msg.setStringProperty("AccessionNumber", ssAttrs.getString(Tag.AccessionNumber));
                 msg.setStringProperty("StudyInstanceUID", ssAttrs.getString(Tag.StudyInstanceUID));
                 msg.setStringProperty("PatientID", idWithIssuer != null ? idWithIssuer.toString() : null);
-                msg.setStringProperty("PatientName", patient.getAttributes().getString(Tag.PatientName));
+                msg.setStringProperty("PatientName", patAttrs.getString(Tag.PatientName));
                 queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",

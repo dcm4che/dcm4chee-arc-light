@@ -41,6 +41,11 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
+
+import java.util.Calendar;
+import java.util.function.Predicate;
+
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since May 2021
@@ -90,5 +95,12 @@ public class MPPSForwardRule {
 
     public void setDestinations(String... destinations) {
         this.destinations = destinations;
+    }
+
+    public boolean match(Calendar now,
+            String sendingHost, String sendingAET, String receivingHost, String receivingAET,
+            Attributes attrs) {
+        return ScheduleExpression.emptyOrAnyContains(now, schedules)
+                && conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 }

@@ -1817,10 +1817,10 @@ public class ArchiveAEExtension extends AEExtension {
         upsOnUPSCompletedList.addAll(aeExt.upsOnUPSCompletedList);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
-        mppsForwardRule.clear();
-        mppsForwardRule.addAll(aeExt.mppsForwardRule);
         exportPriorsRules.clear();
         exportPriorsRules.addAll(aeExt.exportPriorsRules);
+        mppsForwardRule.clear();
+        mppsForwardRule.addAll(aeExt.mppsForwardRule);
         rsForwardRules.clear();
         rsForwardRules.addAll(aeExt.rsForwardRules);
         compressionRules.clear();

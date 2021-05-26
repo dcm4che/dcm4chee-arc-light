@@ -3352,6 +3352,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportRules.addAll(arcdev.exportRules);
         exportPriorsRules.clear();
         exportPriorsRules.addAll(arcdev.exportPriorsRules);
+        mppsForwardRule.clear();
+        mppsForwardRule.addAll(arcdev.mppsForwardRule);
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcdev.hl7ExportRules);
         hl7PrefetchRules.clear();
