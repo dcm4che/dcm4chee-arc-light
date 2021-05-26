@@ -44,15 +44,12 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 
 import java.util.Calendar;
-import java.util.function.Predicate;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since May 2021
  */
 public class MPPSForwardRule {
-    public static final MPPSForwardRule[] EMPTY = {};
-
     private String commonName;
     private ScheduleExpression[] schedules = {};
     private Conditions conditions = new Conditions();
