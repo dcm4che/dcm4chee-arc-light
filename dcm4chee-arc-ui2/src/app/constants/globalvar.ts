@@ -2060,6 +2060,11 @@ export class Globalvar {
                     ],
                     description:$localize `:@@include_field:Include field`,
                     placeholder:$localize `:@@include_field:Include field`,
+                }, {
+                    tag:"checkbox",
+                    filterKey:"merged",
+                    text:$localize `:@@merged_patients:Merged Patients`,
+                    description:$localize `:@@merged_patients_tooltip:Indicates to return merged patients`
                 }
             ]
         }
