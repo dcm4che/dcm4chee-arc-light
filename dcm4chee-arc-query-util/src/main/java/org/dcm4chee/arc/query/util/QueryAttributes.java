@@ -178,6 +178,7 @@ public class QueryAttributes {
                 case "csvPatientID":
                 case "test":
                 case "requested":
+                case "merged":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,

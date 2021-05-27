@@ -69,6 +69,7 @@ public class QueryParam {
     private boolean metadataUpdateFailed;
     private boolean compressionfailed;
     private boolean template;
+    private boolean merged;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private String subscriberAET;
@@ -244,6 +245,14 @@ public class QueryParam {
 
     public void setPatientVerificationStatus(Patient.VerificationStatus patientVerificationStatus) {
         this.patientVerificationStatus = patientVerificationStatus;
+    }
+
+    public boolean isMerged() {
+        return merged;
+    }
+
+    public void setMerged(boolean merged) {
+        this.merged = merged;
     }
 
     public String getExpirationDate() {

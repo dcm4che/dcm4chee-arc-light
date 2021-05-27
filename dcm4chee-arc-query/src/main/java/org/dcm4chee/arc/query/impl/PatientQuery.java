@@ -62,6 +62,7 @@ class PatientQuery extends AbstractQuery {
 
     private Root<Patient> patient;
     private Path<byte[]> patientAttrBlob;
+    private static Path<byte[]> dominantPatientAttrBlob;
 
     PatientQuery(QueryContext context, EntityManager em) {
         super(context, em);
@@ -71,15 +72,24 @@ class PatientQuery extends AbstractQuery {
     protected CriteriaQuery<Tuple> multiselect() {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         this.patient = q.from(Patient.class);
-        return order(restrict(q, patient)).multiselect(
-                patient.get(Patient_.pk),
-                patient.get(Patient_.numberOfStudies),
-                patient.get(Patient_.createdTime),
-                patient.get(Patient_.updatedTime),
-                patient.get(Patient_.verificationTime),
-                patient.get(Patient_.verificationStatus),
-                patient.get(Patient_.failedVerifications),
-                patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        return order(restrict(q, patient)).multiselect(selections());
+    }
+
+    private <T> Selection<T> [] selections() {
+        boolean merged = context.getQueryParam().isMerged();
+        Selection[] selections = new Selection[merged ? 9 : 8];
+        selections[0] = patient.get(Patient_.pk);
+        selections[1] = patient.get(Patient_.numberOfStudies);
+        selections[2] = patient.get(Patient_.createdTime);
+        selections[3] = patient.get(Patient_.updatedTime);
+        selections[4] = patient.get(Patient_.verificationTime);
+        selections[5] = patient.get(Patient_.verificationStatus);
+        selections[6] = patient.get(Patient_.failedVerifications);
+        selections[7] = patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes);
+        if (merged)
+            selections[8] = dominantPatientAttrBlob = patient.join(Patient_.mergedWith).join(Patient_.attributesBlob)
+                                                             .get(AttributesBlob_.encodedAttributes);
+        return selections;
     }
 
     @Override
@@ -136,6 +146,9 @@ class PatientQuery extends AbstractQuery {
         if (failures > 0) {
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedVerificationsOfPatient, VR.US, failures);
         }
+        if (context.getQueryParam().isMerged())
+            attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.DominantPatientSequence, 1)
+                    .add(AttributesBlob.decodeAttributes(results.get(dominantPatientAttrBlob), null));
     }
 
     @Override

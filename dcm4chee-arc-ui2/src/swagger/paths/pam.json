@@ -39,6 +39,9 @@
         },
         {
           "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/merged"
         }
       ],
       "responses": {
@@ -105,6 +108,9 @@
         },
         {
           "$ref": "../parameters.json#/onlyWithStudies"
+        },
+        {
+          "$ref": "../parameters.json#/merged"
         }
       ],
       "responses": {

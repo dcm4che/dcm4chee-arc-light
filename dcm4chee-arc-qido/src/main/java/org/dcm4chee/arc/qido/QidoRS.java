@@ -166,6 +166,10 @@ public class QidoRS {
     @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
     private String patientVerificationStatus;
 
+    @QueryParam("merged")
+    @Pattern(regexp = "true|false")
+    private String merged;
+
     @QueryParam("accept")
     private List<String> accept;
 
@@ -587,6 +591,7 @@ public class QidoRS {
         queryParam.setMetadataUpdateFailed(Boolean.parseBoolean(metadataUpdateFailed));
         queryParam.setCompressionFailed(Boolean.parseBoolean(compressionfailed));
         queryParam.setTemplate(Boolean.parseBoolean(template));
+        queryParam.setMerged(Boolean.parseBoolean(merged));
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         queryParam.setExpirationDate(expirationDate);

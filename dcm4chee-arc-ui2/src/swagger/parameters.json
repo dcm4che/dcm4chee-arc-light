@@ -920,6 +920,15 @@
       "$ref": "schemas.json#/patientVerificationStatus"
     }
   },
+  "merged": {
+    "name": "merged",
+    "in": "query",
+    "description": "Indicates to return merged Patients",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "incomplete": {
     "name": "incomplete",
     "in": "query",

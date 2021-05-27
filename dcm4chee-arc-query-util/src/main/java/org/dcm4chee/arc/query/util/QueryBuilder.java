@@ -421,7 +421,10 @@ public class QueryBuilder {
             return;
 
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
-            predicates.add(patient.get(Patient_.mergedWith).isNull());
+            if (queryParam.isMerged())
+                predicates.add(patient.get(Patient_.mergedWith).isNotNull());
+            else
+                predicates.add(patient.get(Patient_.mergedWith).isNull());
             if (queryParam.isOnlyWithStudies())
                 predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
