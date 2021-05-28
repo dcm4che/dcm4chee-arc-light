@@ -190,7 +190,7 @@
       "$ref": "paths/pam.json#/patient.issuer"
     },
     "/aets/{aet}/rs/patients/{patientID}/unmerge": {
-      "$ref": "paths/pam.json#/patients.unmerge"
+      "$ref": "paths/pam.json#/patient.unmerge"
     },
     "/aets/{aet}/rs/studies": {
       "$ref": "paths/qido.json#/studies"
