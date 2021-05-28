@@ -236,6 +236,7 @@ dcmuiPermissionName: Action - Studies - Patient
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: edit
 dcmuiActionParam: delete
+dcmuiActionParam: unmerge
 
 
 dn: dcmuiPermissionName=Action - Studies - Series(1),dcmuiConfigName=default

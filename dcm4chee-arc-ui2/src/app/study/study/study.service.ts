@@ -677,6 +677,10 @@ export class StudyService {
         return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`, undefined, true);
     }
 
+    unmergePatient(dcmWebApp: DcmWebApp, patientId:string){
+        return this.$http.post(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}/unmerge`, undefined, true);
+    }
+
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
         return this.$http.delete(`${this.getDicomURL("mwl", dcmWebApp, responseType)}/${studyInstanceUID}/${scheduledProcedureStepID}`);
     }
@@ -1304,6 +1308,28 @@ export class StudyService {
                                 },
                                 showIf: (e, config) => {
                                     return _.hasIn(options,"selectedWebService.IID_PATIENT_URL");
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'lock_open'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "unmerge_patient"
+                                    }, e);
+                                },
+                                title: $localize `:@@unmerge_this_patient:Unmerge this Patient`,
+                                permission: {
+                                    id: 'action-studies-patient',
+                                    param: 'unmerge'
+                                },
+                                showIf: (e, config) => {
+                                    return (_.hasIn(e,'attrs.77771015'))
+                                        && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 }
                             }
                         ]

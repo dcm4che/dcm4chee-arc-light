@@ -797,6 +797,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
             }
+            if(id.action === "unmerge_patient"){
+                this.unmergePatient(model);
+            }
             if(id.action === "pdq_patient"){
                 this.queryNationalPatientRegister(model);
             }
@@ -1038,6 +1041,32 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         (err) => {
                             $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
+            });
+        }
+    };
+    unmergePatient(patient){
+        const patientId = this.service.getPatientId(patient.attrs);
+        if (!patientId || patientId === ""){
+            this.appService.showError($localize `:@@unmerge_with_empty_id_not_allowed:Cannot unmerge patient with empty Patient ID!`);
+            this.cfpLoadingBar.complete();
+        }else{
+            let $this = this;
+            this.confirm({
+                content: $localize `:@@unmerge_patient_ask_confirmation:Are you sure you want to unmerge this patient?`
+            }).subscribe(result => {
+                if (result){
+                    $this.cfpLoadingBar.start();
+                    this.service.unmergePatient(this.studyWebService.selectedWebService, patientId).subscribe(
+                        (response) => {
+                            $this.appService.showMsg($localize `:@@unmerged_patient_successfully:Patient unmerged successfully!`);
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.httpErrorHandler.handleError(err);
                             $this.cfpLoadingBar.complete();
                         }
                     );
