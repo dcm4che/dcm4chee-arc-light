@@ -331,6 +331,28 @@ public class PamRS {
     }
 
     @POST
+    @Path("/patients/{PatientID}/unmerge")
+    public Response unmergePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        try {
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            patMgtCtx.setArchiveAEExtension(arcAE);
+            patMgtCtx.setPatientID(patientID);
+            patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
+            if (!patientService.unmergePatient(patMgtCtx))
+                return errResponse("Patient with patient ID " + patientID + " not found.",
+                                    Response.Status.NOT_FOUND);
+
+            rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (NonUniquePatientException | PatientUnmergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
     @Path("/patients/issuer/{issuer}")
     public Response supplementIssuer(
             @PathParam("issuer") AttributesFormat issuer,

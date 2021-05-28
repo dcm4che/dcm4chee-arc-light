@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,38 +35,24 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.patient;
+
+import javax.ejb.ApplicationException;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Nov 2016
+ * @since May 2021
  */
-public enum RSOperation {
-    CreatePatient,
-    UpdatePatient,
-    DeletePatient,
-    ChangePatientID,
-    ChangePatientID2,
-    MergePatient,
-    MergePatient2,
-    UnmergePatient,
-    UpdateStudy,
-    DeleteStudy,
-    ReimportStudy,
-    RejectStudy,
-    RejectSeries,
-    RejectInstance,
-    ApplyRetentionPolicy,
-    UpdateStudyExpirationDate,
-    UpdateSeriesExpirationDate,
-    CreateMWL,
-    UpdateMWL,
-    DeleteMWL,
-    UpdateStudyAccessControlID,
-    MoveStudyToPatient,
-    SupplementIssuer
+@ApplicationException(rollback = true)
+public class PatientUnmergedException extends RuntimeException {
+    public PatientUnmergedException() {
+        super();
+    }
+
+    public PatientUnmergedException(String message) {
+        super(message);
+    }
 }

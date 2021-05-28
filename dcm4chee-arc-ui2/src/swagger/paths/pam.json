@@ -278,6 +278,37 @@
       }
     }
   },
+  "patient.unmerge": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Unmerge Patient",
+      "operationId": "UnmergePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Non unique Patient ID or Patient is not merged"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "patient.issuer": {
     "post": {
       "tags": [

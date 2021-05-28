@@ -189,6 +189,9 @@
     "/aets/{aet}/rs/patients/issuer/{issuer}": {
       "$ref": "paths/pam.json#/patient.issuer"
     },
+    "/aets/{aet}/rs/patients/{patientID}/unmerge": {
+      "$ref": "paths/pam.json#/patients.unmerge"
+    },
     "/aets/{aet}/rs/studies": {
       "$ref": "paths/qido.json#/studies"
     },

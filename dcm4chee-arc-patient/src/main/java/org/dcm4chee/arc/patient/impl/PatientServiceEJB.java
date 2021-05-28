@@ -179,6 +179,27 @@ public class PatientServiceEJB {
         return pat;
     }
 
+    public boolean unmergePatient(PatientMgtContext ctx)
+            throws NonUniquePatientException, PatientUnmergedException {
+        IDWithIssuer pid = ctx.getPatientID();
+        List<Patient> list = findPatients(pid);
+        if (list.isEmpty())
+            return false;
+
+        if (list.size() > 1)
+            throw new NonUniquePatientException("Multiple Patients with ID : " + pid);
+
+        Patient pat = list.get(0);
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith == null)
+            throw new PatientUnmergedException("Patient is not merged : " + pid);
+
+        ctx.setAttributes(pat.getAttributes());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
+        pat.setMergedWith(null);
+        return true;
+    }
+
     private void updatePatient(Patient pat, PatientMgtContext ctx) {
         if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED) {
             pat.setVerificationStatus(ctx.getPatientVerificationStatus());

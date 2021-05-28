@@ -84,6 +84,9 @@ public interface PatientService {
     Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException;
 
+    boolean unmergePatient(PatientMgtContext ctx)
+            throws NonUniquePatientException, PatientUnmergedException;
+
     Patient findPatient(PatientMgtContext ctx);
 
     void deletePatient(PatientMgtContext ctx);

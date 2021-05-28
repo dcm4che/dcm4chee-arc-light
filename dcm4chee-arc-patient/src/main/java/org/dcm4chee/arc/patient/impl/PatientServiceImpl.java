@@ -160,6 +160,19 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public boolean unmergePatient(PatientMgtContext ctx) throws NonUniquePatientException, PatientUnmergedException {
+        try {
+            return ejb.unmergePatient(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
+        }
+    }
+
+    @Override
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
         if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHL7TrackChangedPatientID()) {
