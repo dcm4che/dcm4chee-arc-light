@@ -168,6 +168,7 @@ public class UpdateSPSMatchingRS {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setCalledAET(aet);
         return queryParam;
     }
 
