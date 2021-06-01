@@ -191,6 +191,7 @@ public class MWLScheduler extends Scheduler {
                 device.getApplicationEntity(mwlIdleTimeout.getAETitle(), true));
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(false);
+        queryParam.setCalledAET(mwlIdleTimeout.getAETitle());
         return queryParam;
     }
 }
