@@ -511,6 +511,9 @@ public class DeletionServiceEJB {
                 continue;
 
             if (countSeriesOfStudy(study) == 0) {
+                if (study.getRejectionState() == RejectionState.NONE)
+                    study.getPatient().decrementNumberOfStudies();
+
                 em.remove(study);
                 if (ctx != null && ctx.isDeletePatientOnDeleteLastStudy()
                         && countStudiesOfPatient(study.getPatient()) == 0) {
