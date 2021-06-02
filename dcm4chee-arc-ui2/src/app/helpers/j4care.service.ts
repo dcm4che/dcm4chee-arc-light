@@ -246,16 +246,18 @@ export class j4care {
         const aliasPath = "dcmNetworkAE.dcmOtherAETitle";
         let aetExtended = [];
         aet.forEach((a)=>{
-            aetExtended.push(a)
+            aetExtended.push(a);
             if(_.hasIn(a,aliasPath)){
                 try{
                     (<string[]>_.get(a,aliasPath)).forEach(alias=>{
-                        aetExtended.push({
-                            dicomAETitle:alias
-                        })
+                        if(aetExtended.filter((a:Aet)=>a.dicomAETitle === alias).length < 1){
+                            aetExtended.push({
+                                dicomAETitle:alias
+                            })
+                        }
                     });
                 }catch (e) {
-                    this.log("Trying to get aliasis from same path",e);
+                    this.log("Trying to get aliases from same path",e);
                 }
             }
         });
