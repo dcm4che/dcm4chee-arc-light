@@ -100,4 +100,9 @@
             <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
         </exclusions>
     </sub-deployment>
+    <sub-deployment name="dcm4chee-arc-service-${project.version}.jar">
+        <exclusions>
+            <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>
+        </exclusions>
+    </sub-deployment>
 </jboss-deployment-structure>
