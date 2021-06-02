@@ -82,7 +82,7 @@
     <repository>
       <id>www.dcm4che.org</id>
       <name>dcm4che Repository</name>
-      <url>http://maven.dcm4che.org</url>
+      <url>https://www.dcm4che.org/maven2</url>
     </repository>
     <repository>
       <id>jboss-ga-repository</id>
