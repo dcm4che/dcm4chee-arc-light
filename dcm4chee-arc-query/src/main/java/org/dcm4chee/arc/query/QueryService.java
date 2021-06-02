@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.ExportTask;
@@ -119,6 +120,9 @@ public interface QueryService {
     Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                   String[] retrieveAETs, String retrieveLocationUID,
                                   Code conceptNameCode, int seriesNumber, int instanceNumber, Collection<Attributes> seriesAttrs);
+
+    Attributes createUPSInfo(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID,
+                             ExporterDescriptor exporterDescriptor);
 
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);

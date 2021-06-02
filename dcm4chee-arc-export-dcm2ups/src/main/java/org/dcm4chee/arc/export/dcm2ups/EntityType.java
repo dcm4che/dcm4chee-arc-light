@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,40 +41,55 @@
 
 package org.dcm4chee.arc.export.dcm2ups;
 
-import org.dcm4che3.conf.api.IWebApplicationCache;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.exporter.Exporter;
-import org.dcm4chee.arc.exporter.ExporterProvider;
-import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
-import org.dcm4chee.arc.query.QueryService;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.ws.rs.MediaTypes;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.transform.stream.StreamResult;
 
 /**
- * @author Vrinda Nayak (vrinda.nayak@j4care.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2021
  */
-@ApplicationScoped
-@Named("ups")
-public class Dcm2UpsExporterProvider implements ExporterProvider  {
+enum EntityType {
+    DICOM_JSON(MediaTypes.APPLICATION_DICOM_JSON_TYPE) {
+        @Override
+        Entity<StreamingOutput> entity(final Attributes upsAttrs) {
+            return Entity.entity(out -> {
+                        JsonGenerator gen = Json.createGenerator(out);
+                        new JSONWriter(gen).write(upsAttrs);
+                        gen.flush();
+                    }, MediaTypes.APPLICATION_DICOM_JSON_TYPE);
+        }
+    },
+    DICOM_XML(MediaTypes.APPLICATION_DICOM_XML_TYPE) {
+        @Override
+        Entity<StreamingOutput> entity(final Attributes upsAttrs) {
+            return Entity.entity(out -> {
+                try {
+                    SAXTransformer.getSAXWriter(new StreamResult(out)).write(upsAttrs);
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+            }, MediaTypes.APPLICATION_DICOM_XML_TYPE);
+        }
+    };
 
-    @Inject
-    private Device device;
-
-    @Inject
-    private QueryService queryService;
-
-    @Inject
-    private IWebApplicationCache webAppCache;
-
-    @Inject
-    private AccessTokenRequestor accessTokenRequestor;
-
-    @Override
-    public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new Dcm2UpsExporter(descriptor, device, queryService, webAppCache, accessTokenRequestor);
+    final MediaType type;
+    EntityType(MediaType type) {
+        this.type = type;
     }
+
+    static EntityType valueOf(MediaType type) {
+        return MediaTypes.APPLICATION_DICOM_XML_TYPE.isCompatible(type) ? DICOM_XML : DICOM_JSON;
+    }
+
+    abstract Entity<StreamingOutput> entity(final Attributes upsAttrs);
 }

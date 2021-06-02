@@ -276,6 +276,27 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Attributes createUPSInfo(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID,
+                                    ExporterDescriptor exporterDescriptor) {
+        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
+        Attributes attrs = getStudyAttributes(studyIUID);
+        if (attrs == null)
+            return null;
+
+        Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.UPS,
+                studyIUID, sopIUID, qrView,
+                null,
+                exporterDescriptor.getRetrieveAETitles(),
+                exporterDescriptor.getRetrieveLocationUID(),
+                exporterDescriptor.getInstanceAvailability(),
+                seriesIUID);
+        if (sopInstanceRefs != null)
+            attrs.addAll(sopInstanceRefs);
+        return attrs;
+    }
+
+    @Override
     public Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, sopIUID, qrView,

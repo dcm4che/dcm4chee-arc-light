@@ -41,9 +41,11 @@
 package org.dcm4chee.arc.query.impl;
 
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -52,7 +54,6 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.hibernate.annotations.QueryHints;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -61,8 +62,6 @@ import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -330,7 +329,7 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT }
+    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, String seriesIUID, String objectUID, QueryRetrieveView qrView,
@@ -409,7 +408,7 @@ public class QueryServiceEJB {
                     seriesAttrs.add(getSeriesAttributes(seriesPk));
             }
             Attributes refSOP = new Attributes(4);
-            if (type == SOPInstanceRefsType.IAN) {
+            if (type == SOPInstanceRefsType.IAN || type == SOPInstanceRefsType.UPS) {
                 refSOP.setString(Tag.RetrieveAETitle, VR.AE, StringUtils.maskNull(
                         retrieveAETs, StringUtils.split(tuple.get(instance.get(Instance_.retrieveAETs)), '\\')));
                 refSOP.setString(Tag.InstanceAvailability, VR.CS,
