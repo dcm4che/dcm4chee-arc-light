@@ -21,6 +21,7 @@ import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
 import {User} from "../models/user";
+import {Aet} from "../models/aet";
 declare const bigInt:Function;
 
 @Injectable()
