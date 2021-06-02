@@ -117,7 +117,7 @@ public class ArchiveAssociationHandler extends AssociationHandler {
                                 userIdentityRQ.getUsername(), kc, arcAE.userIdentityNegotiationRole());
                 }
             } catch (Exception e) {
-                LOG.info("{}: validation of {} failed:\n{}", as, userIdentityRQ, e);
+                LOG.info("{}: validation of {} failed:\n", as, userIdentityRQ, e);
                 return false;
             }
         return optional;
@@ -157,7 +157,7 @@ public class ArchiveAssociationHandler extends AssociationHandler {
                 LOG.info("{}: Calling AE not configured", as);
             }
         } catch (ConfigurationException e) {
-            LOG.warn("{}: Failed to lookup configuration for Calling AE:\\n{}", as, e);
+            LOG.warn("{}: Failed to lookup configuration for Calling AE:\n", as, e);
         }
         return false;
     }

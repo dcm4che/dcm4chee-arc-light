@@ -160,7 +160,7 @@ public class AccessTokenRequestor {
         TokenManager tokenManager = tmp.keycloak.tokenManager();
         JWSInput jws = new JWSInput(tokenManager.getAccessToken().getToken());
         AccessToken token = jws.readJsonContent(AccessToken.class);
-        return token.getRealmAccess().isUserInRole(role);
+        return role == null || token.getRealmAccess().isUserInRole(role);
     }
 
     private Keycloak toKeycloak(KeycloakClient kc) throws Exception {
