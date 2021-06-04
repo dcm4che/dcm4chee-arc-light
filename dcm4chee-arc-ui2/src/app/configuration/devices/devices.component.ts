@@ -217,62 +217,69 @@ export class DevicesComponent implements OnInit{
                     $this.cfpLoadingBar.complete();
                 }else{
                     $this.$http.get(
-                        '../devices/' + devicename.dicomDeviceName
+                        `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${devicename.dicomDeviceName}`
                     )
                     // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                    .subscribe(
-                        (device) => {
-                            console.log('response', device);
-                            $this.service.changeAetOnClone(device,$this.aes);
-                            $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
-                            $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
-                            console.log('device afterchange', device);
-                            device.dicomDeviceName = parameters.result.input;
-                            this.service.createDevice(parameters.result.input, device)
-                            // $this.$http.post('../devices/' + parameters.result.input, device, headers)
-                                .subscribe(res => {
-                                        console.log('res succes', res);
-                                        $this.cfpLoadingBar.complete();
-                                        $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
-                                        $this.getDevices();
-                                        $this.$http.get(
-                                            '../aes'
-                                            // './assets/dummydata/aes.json'
-                                        )
-                                            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                                            .subscribe((response) => {
-                                                $this.aes = response;
-                                                if ($this.mainservice.global && !$this.mainservice.global.aes){
-                                                    let global = _.cloneDeep($this.mainservice.global);
-                                                    global.aes = response;
-                                                    $this.mainservice.setGlobal(global);
-                                                }else{
-                                                    if ($this.mainservice.global && $this.mainservice.global.aes){
-                                                        $this.mainservice.global.aes = response;
+                        .subscribe(
+                            (device) => {
+                                console.log('response', device);
+                                $this.service.changeAetOnClone(device,$this.aes);
+                                $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
+                                $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
+                                console.log('device afterchange', device);
+                                device.dicomDeviceName = parameters.result.input;
+                                this.service.createDevice(parameters.result.input, device).subscribe(res => {
+                                            console.log('res succes', res);
+                                            $this.cfpLoadingBar.complete();
+                                            $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
+                                            $this.cloneVendorData(devicename.dicomDeviceName, parameters.result.input);
+                                            $this.service.getAes().subscribe((response) => {
+                                                    $this.aes = response;
+                                                    if ($this.mainservice.global && !$this.mainservice.global.aes){
+                                                        let global = _.cloneDeep($this.mainservice.global);
+                                                        global.aes = response;
+                                                        $this.mainservice.setGlobal(global);
                                                     }else{
-                                                        $this.mainservice.setGlobal({aes: response});
+                                                        if ($this.mainservice.global && $this.mainservice.global.aes){
+                                                            $this.mainservice.global.aes = response;
+                                                        }else{
+                                                            $this.mainservice.setGlobal({aes: response});
+                                                        }
                                                     }
-                                                }
-                                            }, (response) => {
-                                                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
-                                            });
-                                        $this.getWebApps(0);
-                                    },
-                                    err => {
-                                        console.log('error');
-                                        $this.cfpLoadingBar.complete();
-                                        $this.httpErrorHandler.handleError(err);
-                                    });
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
+                                                }, (response) => {
+                                                    // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+                                                });
+                                            $this.cfpLoadingBar.complete();
+                                            $this.getWebApps(0);
+                                        },
+                                        err => {
+                                            console.log('error');
+                                            $this.cfpLoadingBar.complete();
+                                            $this.httpErrorHandler.handleError(err);
+                                        });
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                                $this.cfpLoadingBar.complete();
+                            }
+                        );
                 }
             }
         });
     };
+    cloneVendorData(oldDeviceName, newDeviceName){
+        this.cfpLoadingBar.start();
+        this.service.cloneVendorData(oldDeviceName, newDeviceName).subscribe(res=>{
+            this.cfpLoadingBar.complete();
+            this.mainservice.showMsg($localize `:@@vendor_data_cloned_successfully:Vendor data cloned successfully`);
+            this.getDevices();
+        },err=>{
+            this.cfpLoadingBar.complete();
+            this.mainservice.showError($localize `:@@error_on_cloning_vendor_data:Error on cloning vendor data!`);
+            j4care.log("Error on cloning vendordata",err);
+            this.getDevices();
+        });
+    }
     createExporter(){
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(CreateExporterComponent, {
@@ -309,12 +316,7 @@ export class DevicesComponent implements OnInit{
         if ($this.mainservice.global && $this.mainservice.global.aes) {
             this.aes = this.mainservice.global.aes;
         }else{
-            this.$http.get(
-                `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
-                // './assets/dummydata/aes.json'
-            )
-                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                .subscribe((response) => {
+            this.service.getAes().subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
                         let global = _.cloneDeep($this.mainservice.global);

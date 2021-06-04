@@ -9,6 +9,8 @@ import {HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
 import { loadTranslations } from '@angular/localize';
 import {AppService} from "../../app.service";
+import {map, switchMap} from "rxjs/operators";
+import {AeListService} from "../ae-list/ae-list.service";
 
 @Injectable()
 export class DevicesService {
@@ -72,6 +74,14 @@ export class DevicesService {
        return this.$http.get(
             `${j4care.addLastSlash(this.appService.baseUrl)}devices/${deviceName}`
         );
+    }
+    cloneVendorData(oldDeviceName, newDeviceName){
+        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${oldDeviceName.trim()}/vendordata`,{
+            responseType: "blob"
+        }).pipe(switchMap((vendorData:Blob)=>this.$http.put(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${newDeviceName.trim()}/vendordata`, vendorData)));
+    }
+    getAes(){
+        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}aes`);
     }
     generateNewTitle(oldTitle, nodes, titleName){
         let newTitle;
