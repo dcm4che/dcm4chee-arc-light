@@ -133,7 +133,7 @@ class ImportReportService extends DefaultHL7Service {
             throw new ConfigurationException("No AE Title associated with HL7 Application: "
                     + hl7App.getApplicationName());
         }
-        ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet);
+        ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet, true);
         if (ae == null)
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
