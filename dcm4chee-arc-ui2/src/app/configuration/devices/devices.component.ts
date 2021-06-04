@@ -228,20 +228,12 @@ export class DevicesComponent implements OnInit{
                                 $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
                                 console.log('device afterchange', device);
                                 device.dicomDeviceName = parameters.result.input;
-                                this.service.createDevice(parameters.result.input, device)
-                                // $this.$http.post('../devices/' + parameters.result.input, device, headers)
-                                    .subscribe(res => {
+                                this.service.createDevice(parameters.result.input, device).subscribe(res => {
                                             console.log('res succes', res);
                                             $this.cfpLoadingBar.complete();
                                             $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
                                             $this.cloneVendorData(devicename.dicomDeviceName, parameters.result.input);
-                                            $this.getDevices();
-                                            $this.$http.get(
-                                                `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
-                                                // './assets/dummydata/aes.json'
-                                            )
-                                            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                                                .subscribe((response) => {
+                                            $this.service.getAes().subscribe((response) => {
                                                     $this.aes = response;
                                                     if ($this.mainservice.global && !$this.mainservice.global.aes){
                                                         let global = _.cloneDeep($this.mainservice.global);
@@ -276,15 +268,16 @@ export class DevicesComponent implements OnInit{
         });
     };
     cloneVendorData(oldDeviceName, newDeviceName){
-        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${oldDeviceName.trim()}/vendordata`,                {
-            responseType: "blob"
-        }).subscribe((vendordata:Blob)=>{
-            console.log("Blob",vendordata);
-            this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${newDeviceName.trim()}/vendordata`, vendordata).subscribe(res=>{
-                console.log("res",res);
-            },err=>{
-                this.httpErrorHandler.handleError(err);
-            });
+        this.cfpLoadingBar.start();
+        this.service.cloneVendorData(oldDeviceName, newDeviceName).subscribe(res=>{
+            this.cfpLoadingBar.complete();
+            this.mainservice.showMsg($localize `:@@vendor_data_cloned_successfully:Vendor data cloned successfully`);
+            this.getDevices();
+        },err=>{
+            this.cfpLoadingBar.complete();
+            this.mainservice.showError($localize `:@@error_on_cloning_vendor_data:Error on cloning vendor data!`);
+            j4care.log("Error on cloning vendordata",err);
+            this.getDevices();
         });
     }
     createExporter(){
@@ -323,12 +316,7 @@ export class DevicesComponent implements OnInit{
         if ($this.mainservice.global && $this.mainservice.global.aes) {
             this.aes = this.mainservice.global.aes;
         }else{
-            this.$http.get(
-                `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
-                // './assets/dummydata/aes.json'
-            )
-                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                .subscribe((response) => {
+            this.service.getAes().subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
                         let global = _.cloneDeep($this.mainservice.global);
