@@ -156,11 +156,12 @@ public class AccessTokenRequestor {
     }
 
     public boolean verifyUsernamePasscode(KeycloakClient kc, String role) throws Exception {
-        CachedKeycloak tmp = toCachedKeycloakClient(kc);
-        TokenManager tokenManager = tmp.keycloak.tokenManager();
-        JWSInput jws = new JWSInput(tokenManager.getAccessToken().getToken());
-        AccessToken token = jws.readJsonContent(AccessToken.class);
-        return role == null || token.getRealmAccess().isUserInRole(role);
+        try (Keycloak keycloak = toKeycloak(kc)) {
+            TokenManager tokenManager = keycloak.tokenManager();
+            JWSInput jws = new JWSInput(tokenManager.getAccessToken().getToken());
+            AccessToken token = jws.readJsonContent(AccessToken.class);
+            return role == null || token.getRealmAccess().isUserInRole(role);
+        }
     }
 
     private Keycloak toKeycloak(KeycloakClient kc) throws Exception {
