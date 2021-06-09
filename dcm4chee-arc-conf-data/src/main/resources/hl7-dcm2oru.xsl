@@ -41,8 +41,6 @@
                 <xsl:with-param name="tag" select="'00080016'"/>
             </xsl:call-template>
             <xsl:call-template name="desc"/>
-            <!-- Findings/History/Conclusion from ContentSequence remaining to be implemented -->
-            <!-- Findings/Recommendations/Conclusion as per RAD-128 remaining to be implemented -->
         </hl7>
     </xsl:template>
 
@@ -406,12 +404,18 @@
                     <xsl:with-param name="setID" select="'6'"/>
                     <xsl:with-param name="prefix" select="'Series Description : '"/>
                 </xsl:call-template>
+                <xsl:call-template name="optional-obx">
+                    <xsl:with-param name="prev-set-id" select="'6'"/>
+                </xsl:call-template>
             </xsl:when>
             <xsl:when test="$studyDesc and $studyDesc != '' and not($seriesDesc)">
                 <xsl:call-template name="OBX-finding">
                     <xsl:with-param name="desc" select="$studyDesc"/>
                     <xsl:with-param name="setID" select="'5'"/>
                     <xsl:with-param name="prefix" select="'Study Description : '"/>
+                </xsl:call-template>
+                <xsl:call-template name="optional-obx">
+                    <xsl:with-param name="prev-set-id" select="'5'"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$seriesDesc and $seriesDesc != '' and not($studyDesc)">
@@ -420,8 +424,15 @@
                     <xsl:with-param name="setID" select="'5'"/>
                     <xsl:with-param name="prefix" select="'Series Description : '"/>
                 </xsl:call-template>
+                <xsl:call-template name="optional-obx">
+                    <xsl:with-param name="prev-set-id" select="'5'"/>
+                </xsl:call-template>
             </xsl:when>
-            <xsl:otherwise/>
+            <xsl:otherwise>
+                <xsl:call-template name="optional-obx">
+                    <xsl:with-param name="prev-set-id" select="'4'"/>
+                </xsl:call-template>
+            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 
@@ -450,6 +461,63 @@
                 <xsl:value-of select="concat($prefix, $desc)"/>
             </field>
         </OBX>
+    </xsl:template>
+
+    <xsl:template name="optional-obx">
+        <xsl:param name="prev-set-id"/>
+        <xsl:for-each select="DicomAttribute[@tag='0040A730']/Item">
+            <xsl:variable name="nestedContentSqitem" select="DicomAttribute[@tag='0040A730']/Item"/>
+            <xsl:if test="$nestedContentSqitem != ''">
+                <xsl:variable name="conceptNameCodeSqItem" select="$nestedContentSqitem/DicomAttribute[@tag='0040A043']/Item"/>
+                <xsl:variable name="textValue" select="$nestedContentSqitem/DicomAttribute[@tag='0040A160']/Value"/>
+                <xsl:variable name="conceptCodeSqItem" select="$nestedContentSqitem/DicomAttribute[@tag='0040A168']/Item"/>
+                <xsl:if test="$textValue != '' or $conceptCodeSqItem != ''">
+                    <OBX>
+                        <field>
+                            <xsl:value-of select="$prev-set-id + (position() - 4)"/>
+                        </field>
+                        <field>
+                            <xsl:choose>
+                                <xsl:when test="$textValue">
+                                    <xsl:value-of select="'TX'"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="'CE'"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </field>
+                        <field>
+                            <xsl:value-of select="$conceptNameCodeSqItem/DicomAttribute[@tag='00080100']/Value"/>
+                            <component>
+                                <xsl:value-of select="$conceptNameCodeSqItem/DicomAttribute[@tag='00080102']/Value"/>
+                            </component>
+                            <component>
+                                <xsl:value-of select="$conceptNameCodeSqItem/DicomAttribute[@tag='00080104']/Value"/>
+                            </component>
+                        </field>
+                        <field>
+                            <xsl:value-of select="'1'"/>
+                        </field>
+                        <field>
+                            <xsl:choose>
+                                <xsl:when test="$textValue">
+                                    <xsl:value-of select="$textValue"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="$conceptCodeSqItem/DicomAttribute[@tag='00080100']/Value"/>
+                                    <component>
+                                        <xsl:value-of select="$conceptCodeSqItem/DicomAttribute[@tag='00080102']/Value"/>
+                                    </component>
+                                    <component>
+                                        <xsl:value-of select="$conceptCodeSqItem/DicomAttribute[@tag='00080104']/Value"/>
+                                    </component>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </field>
+                    </OBX>
+                </xsl:if>
+            </xsl:if>
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="idWithIssuer">
