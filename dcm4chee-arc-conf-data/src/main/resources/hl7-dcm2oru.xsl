@@ -581,6 +581,7 @@
             <xsl:when test="$hasOperator">
                 <xsl:call-template name="name">
                     <xsl:with-param name="tag" select="'00081070'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$operatorIDCode">
@@ -591,6 +592,7 @@
             <xsl:when test="$hasPerformingPhysician">
                 <xsl:call-template name="name">
                     <xsl:with-param name="tag" select="'00081050'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$performingPhysicianIDCode">
