@@ -118,17 +118,9 @@ public class HL7SenderImpl implements HL7Sender {
         HL7Segment msh = msg.msh();
         int field23Len = msh.getField(2, "").length() + msh.getField(3, "").length() + 2;
         int field45Len = msh.getField(4, "").length() + msh.getField(5, "").length() + 2;
-        String[] ss = HL7Segment.split(dest, '|');
         try {
-            scheduleMessage(
-                    msh.getField(4, ""),
-                    msh.getField(5, ""),
-                    ss[0],
-                    ss.length > 1 ? ss[1] : "",
-                    msh.getField(8, ""),
-                    msh.getField(9, ""),
-                    replaceField2345(msg.data(), dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len),
-                    null);
+            byte[] data = replaceField2345(msg.data(), dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len);
+            scheduleMessage(null, data);
         } catch (Exception e) {
             LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
         }
@@ -153,36 +145,23 @@ public class HL7SenderImpl implements HL7Sender {
             throws ConfigurationException, QueueSizeLimitExceededException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(hl7msg);
-            msg.setStringProperty("SendingApplication", sendingApplication);
-            msg.setStringProperty("SendingFacility", sendingFacility);
-            msg.setStringProperty("ReceivingApplication", receivingApplication);
-            msg.setStringProperty("ReceivingFacility", receivingFacility);
-            msg.setStringProperty("MessageType", messageType);
-            msg.setStringProperty("MessageControlID", messageControlID);
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
+        scheduleMessage(null, hl7msg);
     }
 
     @Override
     public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
                                           String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception {
-        return sendMessage(sender, receivingApplication, receivingFacility, hl7msg);
+        HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
+        return sendMessage(sender, receiver, hl7msg);
     }
 
     @Override
-    public UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                          UnparsedHL7Message hl7msg) throws Exception {
-        HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
+    public UnparsedHL7Message sendMessage(HL7Application sender, HL7Application receiver, UnparsedHL7Message hl7Msg)
+            throws Exception {
         try (HL7Connection conn = sender.open(receiver)) {
-            conn.writeMessage(hl7msg);
-            UnparsedHL7Message rsp = conn.readMessage(hl7msg);
+            conn.writeMessage(hl7Msg);
+            UnparsedHL7Message rsp = conn.readMessage(hl7Msg);
             if (rsp == null)
                 throw new IOException("TCP connection dropped while waiting for response");
 
@@ -199,6 +178,26 @@ public class HL7SenderImpl implements HL7Sender {
             throw new ConfigurationNotFoundException(
                     "Sending HL7 Application not configured : " + sendingAppWithFacility);
         return sender;
+    }
+
+    @Override
+    public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
+        UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
+        HL7Segment msh = hl7Msg.msh();
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(data);
+            msg.setStringProperty("SendingApplication", msh.getField(2, ""));
+            msg.setStringProperty("SendingFacility", msh.getField(3, ""));
+            msg.setStringProperty("ReceivingApplication", msh.getField(4, ""));
+            msg.setStringProperty("ReceivingFacility", msh.getField(5, ""));
+            msg.setStringProperty("MessageType", msh.getField(9, ""));
+            msg.setStringProperty("MessageControlID", msh.getField(10, ""));
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.copyTo(msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
+        } catch (JMSException e) {
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+        }
     }
 
 }

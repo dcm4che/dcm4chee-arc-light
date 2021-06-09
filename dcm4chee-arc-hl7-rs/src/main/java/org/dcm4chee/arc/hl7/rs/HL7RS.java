@@ -40,7 +40,8 @@
 
 package org.dcm4chee.arc.hl7.rs;
 
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -52,7 +53,10 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.hl7.ArchiveHL7Message;
+import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -88,10 +92,13 @@ public class HL7RS {
     private Device device;
 
     @Inject
+    private IHL7ApplicationCache hl7AppCache;
+
+    @Inject
     private PatientService patientService;
 
     @Inject
-    private RESTfulHL7Sender rsHL7Sender;
+    private HL7Sender hl7Sender;
 
     @Context
     private HttpServletRequest request;
@@ -151,8 +158,7 @@ public class HL7RS {
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(
-                HttpServletRequestInfo.valueOf(request));
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         ctx.setAttributes(attrs);
         return ctx;
     }
@@ -196,35 +202,39 @@ public class HL7RS {
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
         try {
-            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
-            ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+            HL7Application sender = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
+                                    .getHL7Application(appName, true);
+            if (sender == null)
+                return errResponse("Sending HL7 Application not configured : " + appName, Response.Status.NOT_FOUND);
+
+            HL7Application receiver = hl7AppCache.findHL7Application(externalAppName);
+            String outgoingPatientUpdateTemplateURI = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                                                            .getOutgoingPatientUpdateTemplateURI();
+            byte[] data = HL7SenderUtils.data(sender,
+                                            receiver,
+                                            ctx.getAttributes(),
+                                            ctx.getPreviousAttributes(),
+                                            msgType,
+                                            outgoingPatientUpdateTemplateURI);
             if (queue) {
-                rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);
+                hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);
                 return Response.accepted().build();
             }
             else {
-                HL7Application sender = getSendingHl7Application();
-                UnparsedHL7Message rsp = rsHL7Sender.sendHL7Message(
-                                            httpServletRequestInfo, msgType, ctx, sender, externalAppName);
+                ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
+                hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
+                UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
                 return response(HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet()));
             }
         } catch (ConnectException e) {
             return errResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT);
         } catch (IOException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
-        } catch (ConfigurationNotFoundException e) {
+        } catch (ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private HL7Application getSendingHl7Application() throws ConfigurationNotFoundException {
-        HL7DeviceExtension hl7Dev = device.getDeviceExtensionNotNull(HL7DeviceExtension.class);
-        HL7Application sender = hl7Dev.getHL7Application(appName, true);
-        if (sender == null)
-            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + appName);
-        return sender;
     }
 
     private void logRequest() {

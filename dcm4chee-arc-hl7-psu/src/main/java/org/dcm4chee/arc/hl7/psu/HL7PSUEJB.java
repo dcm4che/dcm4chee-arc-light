@@ -40,17 +40,16 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.HL7PSUMessageType;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,24 +224,10 @@ public class HL7PSUEJB {
         for (String receivingApp : hl7PSUReceivingApplications) {
             msg.setReceivingApplicationWithFacility(receivingApp);
             try {
-                scheduleMessage(msg.getHL7Message(), hl7cs);
+                hl7Sender.scheduleMessage(null, msg.getHL7Message().getBytes(hl7cs));
             } catch (Exception e) {
                 LOG.warn("Failed to schedule HL7 Procedure Status Update to {}:\n", receivingApp, e);
             }
         }
-    }
-
-    private void scheduleMessage(HL7Message hl7Message, String hl7cs)
-            throws ConfigurationException, QueueSizeLimitExceededException {
-        HL7Segment msh = hl7Message.get(0);
-        hl7Sender.scheduleMessage(
-                msh.getField(2, ""),
-                msh.getField(3, ""),
-                msh.getField(4, ""),
-                msh.getField(5, ""),
-                msh.getField(8, ""),
-                msh.getField(9, ""),
-                hl7Message.getBytes(hl7cs),
-                null);
     }
 }

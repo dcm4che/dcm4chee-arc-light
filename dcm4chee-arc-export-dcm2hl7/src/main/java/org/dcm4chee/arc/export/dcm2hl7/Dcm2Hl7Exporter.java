@@ -41,7 +41,8 @@
 
 package org.dcm4chee.arc.export.dcm2hl7;
 
-import org.dcm4che3.data.Attributes;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
@@ -54,31 +55,30 @@ import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.hl7.SAXTransformer;
+import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-
-import java.util.Date;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2021
  */
 public class Dcm2Hl7Exporter extends AbstractExporter {
-
     private final String msh3456;
     private final HL7Sender hl7Sender;
     private final Device device;
     private final RetrieveService retrieveService;
+    private final IHL7ApplicationCache hl7AppCache;
 
-    public Dcm2Hl7Exporter(ExporterDescriptor descriptor, HL7Sender hl7Sender,
-                           Device device, RetrieveService retrieveService) {
+    public Dcm2Hl7Exporter(ExporterDescriptor descriptor, HL7Sender hl7Sender, Device device,
+                           RetrieveService retrieveService, IHL7ApplicationCache hl7AppCache) {
         super(descriptor);
         this.msh3456 = descriptor.getExportURI().getSchemeSpecificPart();
         this.hl7Sender = hl7Sender;
         this.device = device;
         this.retrieveService = retrieveService;
+        this.hl7AppCache = hl7AppCache;
     }
 
     @Override
@@ -89,29 +89,51 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
                     "Sending and/or Receiving application and facility not specified");
 
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
-                                    .getHL7Application(appFacility[0] + '|' + appFacility[1], true);
+                .getHL7Application(appFacility[0] + '|' + appFacility[1], true);
         if (sender == null)
             return new Outcome(QueueMessage.Status.WARNING,
                     "Sending HL7 Application not configured : " + appFacility[0] + '|' + appFacility[1]);
 
+        HL7Application receiver;
+        try {
+            receiver = hl7AppCache.findHL7Application(appFacility[2] + '|' + appFacility[3]);
+        } catch (ConfigurationException e) {
+            return new Outcome(QueueMessage.Status.WARNING,
+                    "Unknown Receiving HL7 Application : " + appFacility[2] + '|' + appFacility[3]);
+        }
+
+        return scheduleMessage(exportContext, sender, receiver);
+    }
+
+    private Outcome scheduleMessage(ExportContext exportContext, HL7Application sender, HL7Application receiver)
+            throws Exception {
         String xslStylesheetURI = descriptor.getProperties().get("XSLStylesheetURI");
         if (xslStylesheetURI == null)
             return new Outcome(QueueMessage.Status.WARNING,
                     "Missing XSL stylesheet to convert DICOM attributes to HL7 message");
 
+        String msgType = descriptor.getProperties().get("MessageType");
+        if (msgType == null)
+            return new Outcome(QueueMessage.Status.WARNING, "Missing HL7 message type");
+
         RetrieveContext ctx = retrieveService.newRetrieveContext(
-                                exportContext.getAETitle(),
-                                exportContext.getStudyInstanceUID(),
-                                exportContext.getSeriesInstanceUID(),
-                                exportContext.getSopInstanceUID());
+                                                exportContext.getAETitle(),
+                                                exportContext.getStudyInstanceUID(),
+                                                exportContext.getSeriesInstanceUID(),
+                                                exportContext.getSopInstanceUID());
         ctx.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
         if (!retrieveService.calculateMatches(ctx))
             return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 
-        HL7Message hl7MsgRsp = parseRsp(sendHL7Message(sender, ctx, xslStylesheetURI, appFacility));
-        return new Outcome(hl7MsgRsp.getSegment("MSA").getField(1, "AA").equals("AA")
-                           ? QueueMessage.Status.COMPLETED : QueueMessage.Status.FAILED,
-                           hl7MsgRsp.toString());
+        ArchiveHL7Message hl7Msg = hl7Message(sender, receiver, ctx, msgType, xslStylesheetURI);
+        HL7Message hl7MsgRsp = parseRsp(hl7Sender.sendMessage(sender, receiver, hl7Msg));
+        return new Outcome(statusOf(hl7MsgRsp), hl7MsgRsp.toString());
+    }
+
+    private QueueMessage.Status statusOf(HL7Message hl7MsgRsp) {
+        return hl7MsgRsp.getSegment("MSA").getField(1, "AA").equals("AA")
+                ? QueueMessage.Status.COMPLETED
+                : QueueMessage.Status.FAILED;
     }
 
     private HL7Message parseRsp(UnparsedHL7Message hl7MsgRsp) {
@@ -120,23 +142,16 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
         return HL7Message.parse(hl7MsgRsp.unescapeXdddd(), charset);
     }
 
-    private UnparsedHL7Message sendHL7Message(
-            HL7Application sender, RetrieveContext ctx, String xslStylesheetURI, String[] appFacility)
-            throws Exception {
-        Attributes attrs = ctx.getMatches().get(0).getAttributes();
-        byte[] data = SAXTransformer.transform(
-                attrs, sender.getHL7SendingCharacterSet(), xslStylesheetURI, tr -> {
-                    tr.setParameter("sendingApplication", appFacility[0]);
-                    tr.setParameter("sendingFacility", appFacility[1]);
-                    tr.setParameter("receivingApplication", appFacility[2]);
-                    tr.setParameter("receivingFacility", appFacility[3]);
-                    tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
-                    tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());
-                    tr.setParameter("charset", sender.getHL7SendingCharacterSet());
-                });
-
+    private ArchiveHL7Message hl7Message(HL7Application sender, HL7Application receiver, RetrieveContext ctx,
+                                     String msgType, String uri) throws Exception {
+        byte[] data = HL7SenderUtils.data(sender,
+                                        receiver,
+                                        ctx.getMatches().get(0).getAttributes(),
+                                        null,
+                                        msgType,
+                                        uri);
         ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
         hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
-        return hl7Sender.sendMessage(sender, appFacility[2], appFacility[3], hl7Msg);
+        return hl7Msg;
     }
 }

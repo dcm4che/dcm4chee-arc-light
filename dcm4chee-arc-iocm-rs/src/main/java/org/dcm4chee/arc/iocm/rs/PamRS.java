@@ -41,21 +41,27 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AllowDeletePatient;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
+import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
@@ -66,6 +72,7 @@ import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -81,6 +88,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.*;
 import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
@@ -102,6 +110,9 @@ public class PamRS {
     private Device device;
 
     @Inject
+    private IHL7ApplicationCache hl7AppCache;
+
+    @Inject
     private IDService idService;
 
     @Inject
@@ -114,7 +125,7 @@ public class PamRS {
     private DeletionService deletionService;
 
     @Inject
-    private RESTfulHL7Sender rsHL7Sender;
+    private HL7Sender hl7Sender;
 
     @Inject
     private QueryService queryService;
@@ -193,7 +204,7 @@ public class PamRS {
             }
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
-            rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
+            notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
             return "{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}";
         } catch (NonUniquePatientException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
@@ -264,7 +275,7 @@ public class PamRS {
                 return;
 
             rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
-            rsHL7Sender.sendHL7Message(msgType, ctx);
+            notifyHL7Receivers(msgType, ctx);
         } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
                 | CircularPatientMergeException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
@@ -561,7 +572,7 @@ public class PamRS {
         LOG.info("Prior patient ID {} and target patient ID {}", patMgtCtx.getPreviousPatientID(),
                 patMgtCtx.getPatientID());
         patientService.mergePatient(patMgtCtx);
-        rsHL7Sender.sendHL7Message("ADT^A40^ADT_A39", patMgtCtx);
+        notifyHL7Receivers("ADT^A40^ADT_A39", patMgtCtx);
     }
 
     @POST
@@ -577,7 +588,7 @@ public class PamRS {
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
             patientService.changePatientID(ctx);
-            rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
+            notifyHL7Receivers("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
         } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
                 | CircularPatientMergeException e) {
@@ -691,5 +702,39 @@ public class PamRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    public void notifyHL7Receivers(String msgType, PatientMgtContext ctx) throws Exception {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String sendingAppFacility = arcDev.getHL7ADTSendingApplication();
+        if (sendingAppFacility == null)
+            return;
+
+        HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class).getHL7Application(sendingAppFacility);
+        if (sender == null) {
+            LOG.info("Sending HL7 Application not configured : {}", sendingAppFacility);
+            return;
+        }
+
+        for (String receivingAppFacility : arcDev.getHL7ADTReceivingApplication()) {
+            try {
+                HL7Application receiver = hl7AppCache.findHL7Application(receivingAppFacility);
+                byte[] data = HL7SenderUtils.data(sender,
+                                                receiver,
+                                                ctx.getAttributes(),
+                                                ctx.getPreviousAttributes(),
+                                                msgType,
+                                                arcDev.getOutgoingPatientUpdateTemplateURI());
+                hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);
+            } catch (ConfigurationException e) {
+                LOG.info("Unknown HL7 receiving application and facility {} to send message type {}",
+                        receivingAppFacility, msgType);
+            } catch (TransformerConfigurationException | UnsupportedEncodingException | SAXException e) {
+                LOG.info("Failed in stylesheet {} transformation for message type {} \n",
+                        arcDev.getOutgoingPatientUpdateTemplateURI(), msgType, e);
+            } catch (Exception e) {
+                LOG.info("Failed to notify HL7 receiver {} for message type {} \n", receivingAppFacility, msgType, e);
+            }
+        }
     }
 }

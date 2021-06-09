@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.export.dcm2hl7;
 
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
@@ -69,8 +70,11 @@ public class Dcm2Hl7ExporterProvider implements ExporterProvider  {
     @Inject
     private HL7Sender hl7Sender;
 
+    @Inject
+    private IHL7ApplicationCache hl7AppCache;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new Dcm2Hl7Exporter(descriptor, hl7Sender, device, retrieveService);
+        return new Dcm2Hl7Exporter(descriptor, hl7Sender, device, retrieveService, hl7AppCache);
     }
 }

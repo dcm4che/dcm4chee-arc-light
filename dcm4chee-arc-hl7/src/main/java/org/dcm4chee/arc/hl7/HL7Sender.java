@@ -63,7 +63,8 @@ public interface HL7Sender {
                                    String messageType, String messageControlID, UnparsedHL7Message hl7msg)
             throws Exception;
 
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   UnparsedHL7Message hl7msg)
+    void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data);
+
+    UnparsedHL7Message sendMessage(HL7Application sender, HL7Application receiver, UnparsedHL7Message hl7msg)
             throws Exception;
 }
