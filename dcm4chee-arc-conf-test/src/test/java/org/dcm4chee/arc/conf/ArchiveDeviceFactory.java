@@ -1231,7 +1231,7 @@ class ArchiveDeviceFactory {
     static final String QIDO_JSON_STORAGE_ID = "qido-json";
     static final String WADO_JSON_STORAGE_URI = "${jboss.server.data.url}/wado/";
     static final String QIDO_JSON_STORAGE_URI = "${jboss.server.data.url}/qido/";
-    static final String WADO_JSON_PATH_FORMAT = "{0020000D}.json";
+    static final String WADO_JSON_PATH_FORMAT = "{0020000D}-{0020000E}.json";
     static final String QIDO_JSON_PATH_FORMAT = "{0020000D}-{0020000E}.json";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.valueOf("PT5S");

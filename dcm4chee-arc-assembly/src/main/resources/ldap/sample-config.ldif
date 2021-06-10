@@ -3664,7 +3664,7 @@ dcmStorageID: wado-jpeg
 dcmURI: ${jboss.server.data.url}/wado/
 
 dn: dcmStorageID=wado-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={0020000D}.json
+dcmProperty: pathFormat={0020000D}-{0020000E}.json
 dcmProperty: checkMountFile=NO_MOUNT
 objectClass: dcmStorage
 dcmStorageID: wado-json
