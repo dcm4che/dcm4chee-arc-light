@@ -1311,9 +1311,9 @@ export class StudyService {
                                 }
                             }, {
                                 icon: {
-                                    tag: 'i',
-                                    cssClass: 'material-icons',
-                                    text: 'lock_open'
+                                    tag: 'span',
+                                    cssClass: `custom_icon unmerge_black`,
+                                    text: ''
                                 },
                                 click: (e) => {
                                     actions.call($this, {
