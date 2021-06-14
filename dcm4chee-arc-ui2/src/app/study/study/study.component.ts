@@ -2877,7 +2877,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 saveLabel: $localize `:@@CREATE:CREATE`,
                 titleLabel: $localize `:@@create_new_ups:Create new UPS Workitem`
             },
-            $localize `:@@ups_workitem_created_successfully:UPS Workitem created successfully`
+            $localize `:@@ups_workitem_created_successfully:UPS Workitem created successfully at `
         )
     }
     cloneUPS(workitem){
@@ -2888,7 +2888,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 saveLabel: $localize `:@@CLONE:CLONE`,
                 titleLabel: $localize `:@@clone_ups_workitem:Clone UPS Workitem`
             },
-            $localize `:@@ups_workitem_cloned_successfully:UPS Workitem cloned successfully`
+            $localize `:@@ups_workitem_cloned_successfully:UPS Workitem cloned successfully at `
         )
     }
     editUPS(workitem){
@@ -2903,7 +2903,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         )
     }
 
-    modifyUPS(workitem, mode:UPSModifyMode,config:ModifyConfig, successfullMessage:string){
+    modifyUPS(workitem, mode:UPSModifyMode,config:ModifyConfig, msg:string){
         let originalWorkitemObject;
         this.service.getUPSIod(mode).subscribe(iod=>{
             if(mode === "edit" || mode === "clone"){
@@ -2944,27 +2944,31 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             if(_.hasIn(object,"attrs.00404005")){
                                 delete object.attrs["00404005"];
                             }
-                            successfullMessage = $localize `:@@ups_template_created_successfully:UPS template created successfully!`;
+                            msg = $localize `:@@ups_template_created_successfully:UPS template created successfully at `;
                         }
-                        this.service.modifyUPS(undefined,object.attrs,this.studyWebService, template).subscribe(res=>{
-                            this.appService.showMsg(successfullMessage);
-                        },err=>{
-                            if(!template){
-                                workitem = undefined;
-                            }
-                            this.httpErrorHandler.handleError(err);
-                        });
+                        this.service.modifyUPS(undefined,object.attrs,this.studyWebService, msg, mode, template).subscribe(res=>{
+                            this.appService.showMsg(msg);
+                        }
+                        // ,err=>{
+                        //     if(!template){
+                        //         workitem = undefined;
+                        //     }
+                        //     this.httpErrorHandler.handleError(err);
+                        // }
+                        );
                     };
                     if(ok.templateParameter && (ok.templateParameter === "no_template" || ok.templateParameter === "template_too")){
                         if(mode === "create" || mode === "clone"){
                             createUPS();
                         }else{
-                            this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService).subscribe(res=>{
-                                this.appService.showMsg(successfullMessage);
-                            },err=>{
-                                _.assign(workitem, originalWorkitemObject);
-                                this.httpErrorHandler.handleError(err);
-                            });
+                            this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService, msg, mode).subscribe(res=>{
+                                this.appService.showMsg(msg);
+                            }
+                            // ,err=>{
+                            //     _.assign(workitem, originalWorkitemObject);
+                            //     this.httpErrorHandler.handleError(err);
+                            // }
+                            );
                         }
                         if(ok.templateParameter === "template_too"){
                             createUPS(true);
