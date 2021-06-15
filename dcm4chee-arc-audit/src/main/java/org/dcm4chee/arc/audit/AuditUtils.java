@@ -410,7 +410,7 @@ class AuditUtils {
                 errorEventTypeCode = AuditMessages.EventTypeCode.C409;
                 break;
             default:
-                LOG.warn("Unknown DICOM error code");
+                LOG.info("Unknown DICOM error code {}", errorCode);
         }
 
         return errorEventTypeCode;
