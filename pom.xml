@@ -198,13 +198,13 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-db2</artifactId>
-        <version>db2jcc4</version>
+        <version>11.5.5.0</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-firebird</artifactId>
-        <version>4.0.1.java11</version>
+        <version>4.0.3.java11</version>
         <type>zip</type>
       </dependency>
       <dependency>
@@ -216,25 +216,25 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-mysql</artifactId>
-        <version>8.0.22</version>
+        <version>8.0.25</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-oracle</artifactId>
-        <version>19.8.0.0</version>
+        <version>21.1.0.0</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-psql</artifactId>
-        <version>42.2.18</version>
+        <version>42.2.21</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-sqlserver</artifactId>
-        <version>8.4.1.jre11</version>
+        <version>9.2.1.jre11</version>
         <type>zip</type>
       </dependency>
     </dependencies>
