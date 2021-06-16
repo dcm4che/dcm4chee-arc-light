@@ -74,7 +74,7 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -139,7 +139,7 @@ public class QueueManagerRS {
     private String batchID;
 
     @QueryParam("JMSMessageID")
-    private String jmsMessageID;
+    private Long jmsMessageID;
 
     @QueryParam("orderby")
     @DefaultValue("-updatedTime")
@@ -183,7 +183,7 @@ public class QueueManagerRS {
 
     @POST
     @Path("{msgId}/cancel")
-    public Response cancelProcessing(@PathParam("msgId") String msgId) {
+    public Response cancelProcessing(@PathParam("msgId") long msgId) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -226,14 +226,14 @@ public class QueueManagerRS {
 
     @POST
     @Path("{msgId}/reschedule")
-    public Response rescheduleMessage(@PathParam("msgId") String msgId) {
+    public Response rescheduleMessage(@PathParam("msgId") long msgPK) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Tuple tuple = mgr.findDeviceNameAndMsgPropsByMsgID(msgId);
+            Tuple tuple = mgr.findDeviceNameAndMsgPropsByMsgID(msgPK);
             String taskDeviceName;
             if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Queue Message: " + msgId, Response.Status.NOT_FOUND);
+                return errResponse("No such Queue Message: " + msgPK, Response.Status.NOT_FOUND);
 
             if (rescheduleValidQueueMsg())
                 validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
@@ -242,7 +242,7 @@ public class QueueManagerRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            mgr.rescheduleTask(msgId, null, queueEvent);
+            mgr.rescheduleTask(msgPK, null, queueEvent, new Date());
             return Response.noContent().build();
         } catch (ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
@@ -291,11 +291,12 @@ public class QueueManagerRS {
             if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
+            Date scheduledTime = new Date();
             return rescheduleValidQueueMsg()
-                    ? rescheduleValidMessages(taskQueryParam(null))
+                    ? rescheduleValidMessages(taskQueryParam(null), scheduledTime)
                     : count(devName == null
-                        ? rescheduleOnDistinctDevices()
-                        : rescheduleMessages(taskQueryParam(newDeviceName != null ? null : devName)));
+                        ? rescheduleOnDistinctDevices(scheduledTime)
+                        : rescheduleMessages(taskQueryParam(newDeviceName != null ? null : devName), scheduledTime));
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -303,27 +304,27 @@ public class QueueManagerRS {
         }
     }
 
-    private int rescheduleOnDistinctDevices() throws Exception {
+    private int rescheduleOnDistinctDevices(Date scheduledTime) throws Exception {
         List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(taskQueryParam(null));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleMessages(taskQueryParam(devName))
+                    ? rescheduleMessages(taskQueryParam(devName), scheduledTime)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
-    private int rescheduleMessages(TaskQueryParam queueTaskQueryParam) {
+    private int rescheduleMessages(TaskQueryParam queueTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count;
             int rescheduleTaskFetchSize = queueTasksFetchSize();
             int rescheduled = 0;
             do {
-                List<String> queueMsgIDs = mgr.listQueueMsgIDs(queueTaskQueryParam, rescheduleTaskFetchSize);
-                queueMsgIDs.forEach(queueMsgID -> mgr.rescheduleTask(queueMsgID, queueName, null));
-                count = queueMsgIDs.size();
+                List<Long> queueMsgPKs = mgr.listQueueMsgIDs(queueTaskQueryParam, rescheduleTaskFetchSize);
+                queueMsgPKs.forEach(queueMsgID -> mgr.rescheduleTask(queueMsgID, queueName, null, scheduledTime));
+                count = queueMsgPKs.size();
                 rescheduled += count;
             } while (count >= rescheduleTaskFetchSize);
             queueEvent.setCount(rescheduled);
@@ -338,7 +339,7 @@ public class QueueManagerRS {
         }
     }
 
-    private Response rescheduleValidMessages(TaskQueryParam queueTaskQueryParam) {
+    private Response rescheduleValidMessages(TaskQueryParam queueTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         int rescheduled = 0;
         int failed = 0;
@@ -348,15 +349,15 @@ public class QueueManagerRS {
             do {
                 List<Tuple> queueMsgTuples = mgr.listQueueMsgIDAndMsgProps(queueTaskQueryParam, rescheduleTaskFetchSize);
                 for (Tuple tuple : queueMsgTuples) {
-                    String msgId = (String) tuple.get(0);
+                    Long msgPK = (Long) tuple.get(0);
                     try {
                         if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            mgr.rescheduleTask(msgId, queueName, null);
+                            mgr.rescheduleTask(msgPK, queueName, null, scheduledTime);
                             count++;
                         }
                     } catch (ConfigurationException e) {
                         LOG.info("Validation of association initiator failed for Queue Message {} of queue {} : {}",
-                                msgId, queueName, e.getMessage());
+                                msgPK, queueName, e.getMessage());
                         failed++;
                     }
                 }
@@ -385,7 +386,7 @@ public class QueueManagerRS {
 
     @DELETE
     @Path("{msgId}")
-    public Response deleteMessage(@PathParam("msgId") String msgId) {
+    public Response deleteMessage(@PathParam("msgId") long msgId) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {
@@ -423,7 +424,7 @@ public class QueueManagerRS {
         }
     }
 
-    private Response rsp(boolean result, String msgID) {
+    private Response rsp(boolean result, Long msgID) {
         return result
                 ? Response.noContent().build()
                 : errResponse("No such Queue Message : " + msgID, Response.Status.NOT_FOUND);
@@ -458,15 +459,15 @@ public class QueueManagerRS {
         return count;
     }
 
-    private StreamingOutput toEntity(Iterator<QueueMessage> msgs) {
+    private StreamingOutput toEntity(List<QueueMessage> msgs) {
         return out -> {
                 Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
                 int count = 0;
                 w.write('[');
-                while (msgs.hasNext()) {
+                for (QueueMessage msg : msgs) {
                     if (count++ > 0)
                         w.write(',');
-                    msgs.next().writeAsJSON(w);
+                    msg.writeAsJSON(w);
                 }
                 w.write(']');
                 w.flush();

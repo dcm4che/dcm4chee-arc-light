@@ -61,10 +61,10 @@ public class DicomExporter extends AbstractExporter {
     private final RetrieveService retrieveService;
     private final CStoreSCU storeSCU;
     private final String destAET;
-    private final Map<String, RetrieveTask> retrieveTaskMap;
+    private final Map<Long, RetrieveTask> retrieveTaskMap;
 
     protected DicomExporter(ExporterDescriptor descriptor, RetrieveService retrieveService,
-                            CStoreSCU storeSCU, Map<String, RetrieveTask> retrieveTaskMap) {
+                            CStoreSCU storeSCU, Map<Long, RetrieveTask> retrieveTaskMap) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
@@ -98,9 +98,9 @@ public class DicomExporter extends AbstractExporter {
                     .findFirst()
                     .ifPresent(retrieveContext::setCallingAET);
         }
-        String messageID = exportContext.getMessageID();
+        Long taskPk = exportContext.getTaskPK();
         RetrieveTask retrieveTask = storeSCU.newRetrieveTaskSTORE(retrieveContext);
-        retrieveTaskMap.put(messageID, retrieveTask);
+        retrieveTaskMap.put(taskPk, retrieveTask);
         try {
             retrieveTask.run();
             return new Outcome(
@@ -113,7 +113,7 @@ public class DicomExporter extends AbstractExporter {
                             : QueueMessage.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destAET));
         } finally {
-            retrieveTaskMap.remove(messageID);
+            retrieveTaskMap.remove(taskPk);
         }
     }
 }

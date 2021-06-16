@@ -51,7 +51,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -64,15 +63,15 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,9 +93,7 @@ public class RetrieveManagerEJB {
     @Inject
     private Device device;
 
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
-                                    Date notRetrievedAfter, long delay)
-            throws QueueSizeLimitExceededException {
+    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay) {
         int count = 0;
         Attributes keys = ctx.getKeys();
         String[] studyUIDs = keys.getStrings(Tag.StudyInstanceUID);
@@ -110,49 +107,50 @@ public class RetrieveManagerEJB {
     }
 
     private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay,
-                                         Attributes keys) throws QueueSizeLimitExceededException {
+                                         Attributes keys) {
         String studyUID = keys.getString(Tag.StudyInstanceUID);
         if (isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID))
             return false;
 
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(keys);
-            msg.setStringProperty("LocalAET", ctx.getLocalAET());
-            msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
-            msg.setStringProperty("FindSCP", ctx.getFindSCP());
-            msg.setIntProperty("Priority", priority);
-            msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
-            msg.setStringProperty("StudyInstanceUID", studyUID);
-            HttpServletRequestInfo.copyTo(ctx.getHttpServletRequestInfo(), msg);
-            QueueMessage queueMessage = queueManager.scheduleMessage(ctx.getQueueName(), msg,
-                    ctx.getPriority(), ctx.getBatchID(), delay);
-            persist(createRetrieveTask(ctx, queueMessage),
-                    studyUID,
-                    new Date(System.currentTimeMillis() + delay));
-            return true;
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", ctx.getLocalAET());
+            gen.write("RemoteAET", ctx.getRemoteAET());
+            gen.write("FindSCP", ctx.getFindSCP());
+            gen.write("Priority", priority);
+            gen.write("DestinationAET", ctx.getDestinationAET());
+            gen.write("StudyInstanceUID", studyUID);
+            if (ctx.getHttpServletRequestInfo() != null)
+                ctx.getHttpServletRequestInfo().writeTo(gen);
+            gen.writeEnd();
         }
+        Date scheduledTime = new Date(System.currentTimeMillis() + delay);
+        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
+                ctx.getQueueName(), scheduledTime, sw.toString(), keys, ctx.getBatchID());
+        persist(createRetrieveTask(ctx, queueMessage), studyUID, scheduledTime);
+        return true;
     }
 
     public void scheduleRetrieveTask(RetrieveTask retrieveTask, HttpServletRequest request) {
         LOG.info("Schedule {}", retrieveTask);
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(toKeys(retrieveTask));
-            msg.setStringProperty("LocalAET", retrieveTask.getLocalAET());
-            msg.setStringProperty("RemoteAET", retrieveTask.getRemoteAET());
-            msg.setIntProperty("Priority", 0);
-            msg.setStringProperty("DestinationAET", retrieveTask.getDestinationAET());
-            msg.setStringProperty("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", retrieveTask.getLocalAET());
+            gen.write("RemoteAET", retrieveTask.getRemoteAET());
+            gen.write("Priority", 0);
+            gen.write("DestinationAET", retrieveTask.getDestinationAET());
+            gen.write("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
             if (request != null)
-                HttpServletRequestInfo.copyTo(HttpServletRequestInfo.valueOf(request), msg);
-            QueueMessage queueMessage = queueManager.scheduleMessage(retrieveTask.getQueueName(), msg,
-                    Message.DEFAULT_PRIORITY, retrieveTask.getBatchID(), 0L);
-            retrieveTask.setQueueMessage(queueMessage);
-            retrieveTask.setScheduledTime(new Date());
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+                HttpServletRequestInfo.valueOf(request).writeTo(gen);
+            gen.writeEnd();
         }
+        Date scheduledTime = new Date();
+        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
+                retrieveTask.getQueueName(), scheduledTime, sw.toString(), toKeys(retrieveTask), retrieveTask.getBatchID());
+        retrieveTask.setQueueMessage(queueMessage);
+        retrieveTask.setScheduledTime(scheduledTime);
     }
 
     private boolean isAlreadyScheduledOrRetrievedAfter(ExternalRetrieveContext ctx, Date retrievedAfter,
@@ -277,7 +275,7 @@ public class RetrieveManagerEJB {
         if (queueMsg == null)
             em.remove(task);
         else
-            queueManager.deleteTask(queueMsg.getMessageID(), queueEvent);
+            queueManager.deleteTask(queueMsg.getPk(), queueEvent);
 
         LOG.info("Delete {}", task);
         return true;
@@ -292,7 +290,7 @@ public class RetrieveManagerEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -322,7 +320,7 @@ public class RetrieveManagerEJB {
     private void rescheduleAtScheduledTime(RetrieveTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
         task.setScheduledTime(scheduledTime);
         if (task.getQueueMessage() != null) {
-            queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
+            queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
             task.setQueueMessage(null);
         }
     }
@@ -333,7 +331,7 @@ public class RetrieveManagerEJB {
         else {
             LOG.info("Reschedule {}", task);
             task.setScheduledTime(new Date());
-            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), task.getQueueName(), queueEvent);
+            queueManager.rescheduleTask(task.getQueueMessage().getPk(), task.getQueueName(), queueEvent, new Date());
         }
     }
 
@@ -351,7 +349,7 @@ public class RetrieveManagerEJB {
         if (task.getQueueMessage() == null)
             return;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
+        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
         task.setQueueMessage(null);
     }
 
@@ -655,15 +653,15 @@ public class RetrieveManagerEJB {
     private int deleteReferencedTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
         From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
         List<Predicate> predicates = new MatchTask(cb).retrievePredicates(
                 queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        List<String> referencedQueueMsgIDs = em.createQuery(
-                q.select(queueMsg.get(QueueMessage_.messageID)))
+        List<Long> referencedQueueMsgIDs = em.createQuery(
+                q.select(queueMsg.get(QueueMessage_.pk)))
                 .setMaxResults(deleteTasksFetchSize)
                 .getResultList();
 
@@ -691,12 +689,7 @@ public class RetrieveManagerEJB {
 
     public boolean scheduleRetrieveTask(Long pk) {
         RetrieveTask retrieveTask = em.find(RetrieveTask.class, pk);
-        try {
-            scheduleRetrieveTask(retrieveTask, null);
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.info(e.getLocalizedMessage() + " - retry to schedule Retrieve Tasks");
-            return false;
-        }
+        scheduleRetrieveTask(retrieveTask, null);
         return true;
     }
 }

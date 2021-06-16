@@ -49,7 +49,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.persistence.Tuple;
@@ -81,8 +80,7 @@ public interface StgCmtManager {
     boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
     boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
-                               String batchID)
-            throws QueueSizeLimitExceededException;
+                               String batchID);
 
     Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
@@ -93,16 +91,16 @@ public interface StgCmtManager {
 
     Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 
-    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime);
 
-    void rescheduleStgVerTask(String stgVerTaskQueueMsgId);
+    void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, Date scheduledTime);
 
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    List<String> listStgVerTaskQueueMsgIDs(
+    List<Long> listStgVerQueueMsgPKs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
 
-    List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
+    List<Tuple> listStgVerTaskPKAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
 
     boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);

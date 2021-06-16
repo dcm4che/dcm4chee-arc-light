@@ -71,7 +71,7 @@ public class StowExporterProvider implements ExporterProvider {
     @Inject
     private StowClient stowClient;
 
-    private final Map<String, StowTask> stowTaskMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Long, StowTask> stowTaskMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
@@ -79,7 +79,7 @@ public class StowExporterProvider implements ExporterProvider {
     }
 
     public void cancelStowTask(@Observes MessageCanceled event) {
-        StowTask stowTask = stowTaskMap.get(event.getMessageID());
+        StowTask stowTask = stowTaskMap.get(event.queueMessage.getPk());
         if (stowTask != null)
             stowTask.cancel();
     }

@@ -50,29 +50,24 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class ExportManagerMDB implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportManagerMDB.class);
-
-    @Inject
-    private QueueManager queueManager;
+@ApplicationScoped
+@Named("EXPORTER")
+public class ExportTaskProcessor implements TaskProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskProcessor.class);
 
     @Inject
     private ExporterFactory exporterFactory;
@@ -84,18 +79,7 @@ public class ExportManagerMDB implements MessageListener {
     private Event<ExportContext> exportEvent;
 
     @Override
-    public void onMessage(Message msg) {
-        String msgID;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-            return;
-        }
-        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
-        if (queueMessage == null)
-            return;
-
+    public Outcome process(QueueMessage queueMessage) throws Exception {
         Outcome outcome;
         ExportContext exportContext = null;
         try {
@@ -104,29 +88,28 @@ public class ExportManagerMDB implements MessageListener {
                     .getExporterDescriptorNotNull(exportTask.getExporterID());
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
             exportContext = exporter.createExportContext();
-            exportContext.setMessageID(msgID);
+            exportContext.setTaskPK(queueMessage.getPk());
             exportContext.setBatchID(queueMessage.getBatchID());
             exportContext.setStudyInstanceUID(exportTask.getStudyInstanceUID());
             exportContext.setSeriesInstanceUID(StringUtils.nullify(exportTask.getSeriesInstanceUID(), "*"));
             exportContext.setSopInstanceUID(StringUtils.nullify(exportTask.getSopInstanceUID(), "*"));
             exportContext.setAETitle(exporterDesc.getAETitle());
-            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
+            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(queueMessage.readMessageProperties()));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (exportContext != null)
                 exportContext.setException(e);
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-            return;
+            LOG.warn("Failed to process {}", queueMessage, e);
+            throw e;
         } finally {
             if (exportContext != null)
                 try {
                     exportEvent.fire(exportContext);
                 } catch (Exception e) {
-                    LOG.warn("Failed on firing export context {}", msg, e);
+                    LOG.warn("Failed on firing export context {}", queueMessage, e);
                 }
         }
-        queueManager.onProcessingSuccessful(msgID, outcome);
+        return outcome;
     }
 }

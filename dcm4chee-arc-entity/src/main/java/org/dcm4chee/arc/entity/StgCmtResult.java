@@ -106,7 +106,7 @@ public class StgCmtResult {
     private String exporterID;
 
     @Column(name = "msg_id")
-    private String messageID;
+    private Long messageID;
 
     @Column(name = "batch_id", updatable = false)
     private String batchID;
@@ -165,12 +165,12 @@ public class StgCmtResult {
         this.exporterID = exporterID;
     }
 
-    public String getMessageID() {
+    public Long getMessageID() {
         return messageID;
     }
 
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
+    public void setMessageID(Long messagePK) {
+        this.messageID = messagePK;
     }
 
     public String getBatchID() {

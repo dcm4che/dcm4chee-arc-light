@@ -39,7 +39,6 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -50,15 +49,12 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.ObjectMessage;
 import javax.persistence.Tuple;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,16 +73,15 @@ public class QueueManagerImpl implements QueueManager {
     @Inject
     private QueueManagerEJB ejb;
 
-    @Override
-    public ObjectMessage createObjectMessage(Serializable object) {
-        return ejb.createObjectMessage(object);
-    }
+    @Inject
+    private TaskScheduler scheduler;
 
     @Override
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID,
-                                        long delay)
-            throws QueueSizeLimitExceededException {
-        return ejb.scheduleMessage(queueName, message, priority, batchID, delay);
+    public QueueMessage scheduleMessage(String deviceName, String queueName, Date scheduledTime,
+                                        String messageProperties, Serializable messageBody, String batchID) {
+        QueueMessage queueMessage = ejb.scheduleMessage(deviceName, queueName, scheduledTime, messageProperties, messageBody, batchID);
+        scheduler.process(queueName, scheduledTime);
+        return queueMessage;
     }
 
     @Override
@@ -95,42 +90,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public QueueMessage onProcessingStart(String msgId) {
-        try {
-            return ejb.onProcessingStart(msgId);
-        } catch (Throwable e) {
-            logDBUpdateFailed("onProcessingStart", msgId, e);
-            return null;
-        }
-    }
-
-    @Override
-    public QueueMessage onProcessingSuccessful(String msgId, Outcome outcome) {
-        try {
-            return ejb.onProcessingSuccessful(msgId, outcome);
-        } catch (Throwable e) {
-            logDBUpdateFailed("onProcessingSuccessful", msgId, e);
-            return null;
-        }
-    }
-
-    @Override
-    public QueueMessage onProcessingFailed(String msgId, Throwable e) {
-        try {
-            return ejb.onProcessingFailed(msgId, e);
-        } catch (Throwable e1) {
-            logDBUpdateFailed("onProcessingFailed", msgId, e1);
-            return null;
-        }
-    }
-
-    private static void logDBUpdateFailed(String method, String msgId, Throwable e) {
-        LOG.error("Failed to update status of Task[id={}] in DB {}:\n", msgId, method, e);
-    }
-
-    @Override
-    public boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelTask(msgId, queueEvent);
+    public boolean cancelTask(Long msgID, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelTask(msgID, queueEvent);
     }
 
     @Override
@@ -159,17 +120,18 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        ejb.rescheduleTask(msgId, queueName, queueEvent);
+    public void rescheduleTask(Long msgID, String queueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+        ejb.rescheduleTask(msgID, queueName, queueEvent, scheduledTime);
+        scheduler.process(queueName, scheduledTime);
     }
 
     @Override
-    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
+    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent) {
         return ejb.deleteTask(msgId, queueEvent);
     }
 
     @Override
-    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
+    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
         return ejb.deleteTask(msgId, queueEvent, deleteAssociated);
     }
 
@@ -184,7 +146,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit) {
+    public List<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit) {
         return ejb.listQueueMessages(taskQueryParam, offset, limit);
     }
 
@@ -194,7 +156,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
+    public List<Long> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit) {
         return ejb.getQueueMsgIDs(queueTaskQueryParam, limit);
     }
 
@@ -204,7 +166,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public Tuple findDeviceNameAndMsgPropsByMsgID(String msgID) {
+    public Tuple findDeviceNameAndMsgPropsByMsgID(Long msgID) {
         return ejb.findDeviceNameAndMsgPropsByMsgID(msgID);
     }
 
@@ -221,32 +183,7 @@ public class QueueManagerImpl implements QueueManager {
     private void retryInProcessTasks() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (QueueDescriptor queueDescriptor : arcDev.getQueueDescriptors()) {
-            retryInProcessTasks(queueDescriptor, arcDev);
-        }
-    }
-
-    private void retryInProcessTasks(QueueDescriptor queueDescriptor, ArchiveDeviceExtension arcDev) {
-        int retries = arcDev.getStoreUpdateDBMaxRetries();
-        for (;;) {
-            try {
-                ejb.retryInProcessTasks(queueDescriptor);
-                break;
-            } catch (EJBException e) {
-                if (retries-- > 0) {
-                    LOG.info("Failed to update IN PROCESS Tasks in Queue {} caused by {} - retry",
-                            queueDescriptor.getQueueName(), DicomServiceException.initialCauseOf(e));
-                } else {
-                    LOG.warn("Failed to update IN PROCESS Tasks in Queue {}:\n",
-                            queueDescriptor.getQueueName(), e);
-                    break;
-                }
-            }
-            try {
-                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
-            } catch (InterruptedException e) {
-                LOG.info("{}: Failed to delay retry to update IN PROCESS Tasks in Queue {}:\n",
-                        queueDescriptor.getQueueName(), e);
-            }
+            ejb.retryInProcessTasks(queueDescriptor);
         }
     }
 }

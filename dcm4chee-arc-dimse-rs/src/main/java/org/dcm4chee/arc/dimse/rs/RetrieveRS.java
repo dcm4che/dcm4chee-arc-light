@@ -51,7 +51,6 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -273,12 +272,8 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        try {
-            retrieveManager.scheduleRetrieveTask(
-                    priority(), createExtRetrieveCtx(destAET, keys), null, 0L);
-        } catch (QueueSizeLimitExceededException e) {
-            return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
-        }
+        retrieveManager.scheduleRetrieveTask(
+                priority(), createExtRetrieveCtx(destAET, keys), null, 0L);
         return Response.accepted().build();
     }
 

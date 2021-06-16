@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,9 +154,6 @@ class ExportCSV {
                     status = Response.Status.NO_CONTENT;
                 }
 
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;

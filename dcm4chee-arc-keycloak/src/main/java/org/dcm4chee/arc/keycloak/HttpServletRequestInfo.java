@@ -41,9 +41,8 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
+import javax.json.JsonObject;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -85,32 +84,20 @@ public class HttpServletRequestInfo {
         return new HttpServletRequestInfo(request);
     }
 
-    public static HttpServletRequestInfo valueOf(Message msg) {
-        try {
-            return msg.propertyExists("RequestURI")
-                    ? new HttpServletRequestInfo(
-                        msg.getStringProperty("RequesterUserID"),
-                        msg.getStringProperty("RequesterHostName"),
-                        msg.getStringProperty("RequestURI"))
-                    : null;
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
+    public static HttpServletRequestInfo valueOf(JsonObject jsonObject) {
+        return jsonObject.getJsonString("RequestURI") != null
+                ? new HttpServletRequestInfo(
+                    jsonObject.getString("RequesterUserID"),
+                    jsonObject.getString("RequesterHostName"),
+                    jsonObject.getString("RequestURI"))
+                : null;
+
     }
 
-    public void copyTo(Message msg) {
-        try {
-            msg.setStringProperty("RequesterUserID", requesterUserID);
-            msg.setStringProperty( "RequesterHostName", requesterHost);
-            msg.setStringProperty( "RequestURI", requestURI);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
-    }
-
-    public static void copyTo(HttpServletRequestInfo requestInfo, Message msg) {
-        if (requestInfo != null)
-            requestInfo.copyTo(msg);
+    public void writeTo(JsonGenerator gen) {
+        gen.write("RequesterUserID", requesterUserID);
+        gen.write("RequesterHostName", requesterHost);
+        gen.write("RequestURI", requestURI);
     }
 
     private static String hostOfURI(String requestURI) {

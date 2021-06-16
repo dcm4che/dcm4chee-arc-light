@@ -63,10 +63,10 @@ public class StowExporter extends AbstractExporter {
     private final RetrieveService retrieveService;
     private final StowClient stowClient;
     private final String destWebAppName;
-    private final Map<String, StowTask> stowTaskMap;
+    private final Map<Long, StowTask> stowTaskMap;
 
     public StowExporter(ExporterDescriptor descriptor, RetrieveService retrieveService, StowClient stowClient,
-            Map<String, StowTask> stowTaskMap) {
+            Map<Long, StowTask> stowTaskMap) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.stowClient = stowClient;
@@ -90,9 +90,9 @@ public class StowExporter extends AbstractExporter {
             return new Outcome(QueueMessage.Status.WARNING,
                     "Destination webapp " + destWebAppName + " is not configured for STOW_RS web service");
 
-        String messageID = exportContext.getMessageID();
+        Long taskPK = exportContext.getTaskPK();
         StowTask stowTask = stowClient.newStowTask(retrieveContext);
-        stowTaskMap.put(messageID, stowTask);
+        stowTaskMap.put(taskPK, stowTask);
         try {
             stowTask.run();
             return new Outcome(
@@ -105,7 +105,7 @@ public class StowExporter extends AbstractExporter {
                             : QueueMessage.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destWebAppName));
         } finally {
-            stowTaskMap.remove(messageID);
+            stowTaskMap.remove(taskPK);
         }
     }
 }

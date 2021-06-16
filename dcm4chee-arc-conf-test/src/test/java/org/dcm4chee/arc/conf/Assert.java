@@ -71,7 +71,7 @@ class Assert {
         assertNotNull(actual);
         assertArrayEquals(expected.getObjectStorageIDs(), actual.getObjectStorageIDs());
         assertEquals(expected.getStoreAccessControlID(), actual.getStoreAccessControlID());
-//        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs()); //assert failing here
+        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
@@ -163,7 +163,7 @@ class Assert {
             QueueDescriptor expectedQD = expected.getQueueDescriptor(qd.getQueueName());
             QueueDescriptor actualQD = actual.getQueueDescriptor(qd.getQueueName());
             assertEquals(expectedQD.getQueueName(), actualQD.getQueueName());
-            assertEquals(expectedQD.getJndiName(), actualQD.getJndiName());
+            assertEquals(expectedQD.getTaskProcessorName(), actualQD.getTaskProcessorName());
             assertEquals(expectedQD.getDescription(), actualQD.getDescription());
             assertEquals(expectedQD.getMaxRetries(), actualQD.getMaxRetries());
             assertEquals(expectedQD.getRetryDelay(), actualQD.getRetryDelay());

@@ -43,12 +43,10 @@ package org.dcm4chee.arc.entity;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.ObjectMessage;
 import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonParser;
 import javax.persistence.*;
 import java.io.*;
 import java.text.DateFormat;
@@ -61,36 +59,36 @@ import java.util.*;
  * @since Sep 2015
  */
 @Entity
-@Table(name = "queue_msg", uniqueConstraints = @UniqueConstraint(columnNames = "msg_id"),
+@Table(name = "queue_msg",
     indexes = {
         @Index(columnList = "device_name"),
         @Index(columnList = "queue_name"),
         @Index(columnList = "msg_status"),
         @Index(columnList = "created_time"),
         @Index(columnList = "updated_time"),
+        @Index(columnList = "scheduled_time"),
         @Index(columnList = "batch_id")
 })
 @NamedQueries({
-        @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
-                query = "select o from QueueMessage o where o.messageID=?1"),
+        @NamedQuery(name = QueueMessage.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
+                query = "select o.pk from QueueMessage o where o.deviceName=?1 and o.queueName=?2 and o.status=?3 " +
+                        "and o.scheduledTime < current_timestamp order by o.scheduledTime"),
         @NamedQuery(name = QueueMessage.FIND_DEVICE_BY_BATCH_ID,
                 query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName"),
         @NamedQuery(name = QueueMessage.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
                 query = "select count(o) from QueueMessage o where o.deviceName=?1 and o.queueName=?2 and o.status=?3"),
         @NamedQuery(name = QueueMessage.COUNT_BY_BATCH_ID_AND_STATUS,
                 query = "select count(o) from QueueMessage o where o.batchID=?1 and o.status=?2"),
-        @NamedQuery(name = QueueMessage.FIND_BY_STATUS_AND_QUEUE_NAME,
-                query = "select o from QueueMessage o where o.status=?1 and o.queueName=?2"),
         @NamedQuery(name = QueueMessage.UPDATE_STATUS,
-                query = "update QueueMessage o set o.status = ?1 where o.status=?2 and o.queueName=?3")
+                query = "update QueueMessage o set o.status = ?1 where o.status=?2 and o.queueName=?3 and o.deviceName=?4")
 })
 public class QueueMessage {
 
-    public static final String FIND_BY_MSG_ID = "QueueMessage.FindByMsgId";
+    public static final String FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS =
+            "QueueMessage.FindScheduledByDeviceAndQueueNameAndStatus";
     public static final String FIND_DEVICE_BY_BATCH_ID = "QueueMessage.FindDeviceByBatchId";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByDeviceAndQueueNameAndStatus";
     public static final String COUNT_BY_BATCH_ID_AND_STATUS = "QueueMessage.CountByBatchIdAndStatus";
-    public static final String FIND_BY_STATUS_AND_QUEUE_NAME = "QueueMessage.FindByStatusAndQueueName";
     public static final String UPDATE_STATUS = "QueueMessage.UpdateStatus";
 
     public enum Status {
@@ -134,18 +132,9 @@ public class QueueMessage {
     private String queueName;
 
     @Basic(optional = false)
-    @Column(name = "priority")
-    private int priority;
-
-    @Basic(optional = false)
-    @Column(name = "msg_id")
-    private String messageID;
-
-    @Basic(optional = false)
     @Column(name = "msg_props", length = 4000)
     private String messageProperties;
 
-    @Basic(optional = false)
     @Column(name = "msg_body", updatable = false)
     private byte[] messageBody;
 
@@ -191,24 +180,6 @@ public class QueueMessage {
     @OneToOne(mappedBy = "queueMessage")
     private StorageVerificationTask storageVerificationTask;
 
-    public QueueMessage() {
-    }
-
-    public QueueMessage(String deviceName, String queueName, ObjectMessage msg, long delay) {
-        try {
-            this.deviceName = deviceName;
-            this.queueName = queueName;
-            this.messageID = msg.getJMSMessageID();
-            this.priority = msg.getJMSPriority();
-            this.scheduledTime = new Date(System.currentTimeMillis() + delay);
-            this.messageProperties = propertiesOf(msg);
-            this.messageBody = serialize(msg.getObject());
-            this.status = Status.SCHEDULED;
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
-    }
-
     public long getPk() {
         return pk;
     }
@@ -219,10 +190,6 @@ public class QueueMessage {
 
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
-    }
-
-    public int getPriority() {
-        return priority;
     }
 
     public Status getStatus() {
@@ -277,14 +244,6 @@ public class QueueMessage {
         this.queueName = queueName;
     }
 
-    public String getMessageID() {
-        return messageID;
-    }
-
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
-    }
-
     public Date getScheduledTime() {
         return scheduledTime;
     }
@@ -325,12 +284,51 @@ public class QueueMessage {
         this.batchID = batchID;
     }
 
+    public String getMessageProperties() {
+        return messageProperties;
+    }
+
+    public JsonObject readMessageProperties() {
+        try (JsonReader r = Json.createReader(new StringReader(messageProperties))) {
+            return r.readObject();
+        }
+    }
+
+    public void setMessageProperties(String messageProperties) {
+        this.messageProperties = messageProperties;
+    }
+
+    public Serializable getMessageBody() {
+        if (messageBody == null) return null;
+        ByteArrayInputStream bais = new ByteArrayInputStream(messageBody);
+        try (ObjectInputStream ois = new ObjectInputStream(bais)) {
+            return (Serializable) ois.readObject();
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected Exception", e);
+        }
+    }
+
+    public void setMessageBody(Serializable obj) {
+        if (obj == null) {
+            messageBody = null;
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+            try {
+                try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+                    oos.writeObject(obj);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Unexpected Exception", e);
+            }
+            messageBody = baos.toByteArray();
+        }
+    }
+
     public void writeAsJSON(Writer out) throws IOException {
         JsonGenerator gen = Json.createGenerator(out);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        writer.writeNotNullOrDef("priority", priority, 0);
         writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
         writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
         writeStatusAsJSONTo(writer, df);
@@ -343,7 +341,7 @@ public class QueueMessage {
 
     public void writeStatusAsJSONTo(JsonWriter writer, DateFormat df) {
         writer.writeNotNullOrDef("queue", queueName, null);
-        writer.writeNotNullOrDef("JMSMessageID", messageID, null);
+        writer.writeNotNullOrDef("JMSMessageID", pk, null);
         writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
         writer.writeNotNullOrDef("status", status.toString(), null);
         writer.writeNotNullOrDef("batchID", batchID, null);
@@ -355,83 +353,6 @@ public class QueueMessage {
             writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
         writer.writeNotNullOrDef("errorMessage", errorMessage, null);
         writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
-    }
-
-    private String propertiesOf(ObjectMessage msg) throws JMSException {
-        StringBuilder sb = new StringBuilder(512);
-        Enumeration<String> names = msg.getPropertyNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            if (!name.startsWith("JMS")) {
-                Object o = msg.getObjectProperty(name);
-                sb.append('"').append(name).append('"').append(':');
-                if (o instanceof String)
-                    sb.append('"').append(((String) o).replace("\"", "\\\"")).append('"');
-                else
-                    sb.append(o);
-                if (names.hasMoreElements()) sb.append(',');
-            }
-        }
-        return sb.toString();
-    }
-
-    public ObjectMessage initProperties(ObjectMessage msg) {
-        try {
-            int len = messageProperties.length();
-            char[] buf = new char[len + 2];
-            buf[0] = '{';
-            messageProperties.getChars(0, len, buf, 1);
-            buf[len+1] = '}';
-            try (JsonParser parser = Json.createParser(new CharArrayReader(buf))) {
-                parser.next();
-                while (parser.next() == JsonParser.Event.KEY_NAME) {
-                    String key = parser.getString();
-                    switch (parser.next()) {
-                        case VALUE_STRING:
-                            msg.setStringProperty(key, parser.getString());
-                            break;
-                        case VALUE_NUMBER:
-                            msg.setIntProperty(key, parser.getInt());
-                            break;
-                        case VALUE_FALSE:
-                            msg.setBooleanProperty(key, false);
-                            break;
-                        case VALUE_TRUE:
-                            msg.setBooleanProperty(key, true);
-                            break;
-                        case VALUE_NULL:
-                            msg.setStringProperty(key, null);
-                            break;
-                        default:
-                            throw new IllegalStateException(messageProperties);
-                    }
-                }
-            }
-            return msg;
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
-    }
-
-    public Serializable getMessageBody() {
-        ByteArrayInputStream bais = new ByteArrayInputStream(messageBody);
-        try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-            return (Serializable) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected Exception", e);
-        }
-    }
-
-    private byte[] serialize(Serializable obj) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-        try {
-            try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                oos.writeObject(obj);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Unexpected Exception", e);
-        }
-        return baos.toByteArray();
     }
 
     @PrePersist
@@ -457,9 +378,4 @@ public class QueueMessage {
         }
         return w.toString();
     }
-
-    public static JMSRuntimeException toJMSRuntimeException(JMSException e) {
-        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-    }
-
 }

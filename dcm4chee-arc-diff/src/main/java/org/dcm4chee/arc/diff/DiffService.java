@@ -48,6 +48,7 @@ import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.persistence.Tuple;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,9 +62,9 @@ public interface DiffService {
 
     DiffSCU createDiffSCU(DiffContext ctx);
 
-    void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
+    void scheduleDiffTask(DiffContext ctx);
 
-    void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException;
+    void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs);
 
     Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
@@ -83,9 +84,9 @@ public interface DiffService {
 
     long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
-    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime);
 
-    void rescheduleDiffTask(String diffTaskQueueMsgId);
+    void rescheduleDiffTaskByMsgID(Long msgId, Date scheduledTime);
 
     Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 
@@ -95,7 +96,7 @@ public interface DiffService {
 
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 
-    List<String> listDiffTaskQueueMsgIDs(
+    List<Long> listDiffTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
 
     List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(

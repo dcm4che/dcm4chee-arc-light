@@ -43,6 +43,7 @@ package org.dcm4chee.arc.ian.scu.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -51,21 +52,16 @@ import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.ian.scu.IANSCU;
-import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -75,13 +71,15 @@ import java.util.List;
  */
 @Stateless
 public class IANEJB {
-    private static final Logger LOG = LoggerFactory.getLogger(IANEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
     private QueueManager queueManager;
+
+    @Inject
+    private Device device;
 
     public enum Action { CREATED, UPDATED}
     public static class IanTaskAction {
@@ -144,23 +142,23 @@ public class IANEJB {
                 .getResultList();
     }
 
-    public void scheduleIANTask(IanTask task, Attributes attrs) throws QueueSizeLimitExceededException {
+    public void scheduleIANTask(IanTask task, Attributes attrs) {
         for (String remoteAET : task.getIanDestinations())
             scheduleMessage(task.getCallingAET(), attrs, remoteAET);
         removeIANTask(task);
     }
 
-    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(attrs);
-            msg.setStringProperty("LocalAET", callingAET);
-            msg.setStringProperty("RemoteAET", remoteAET);
-            msg.setStringProperty("SOPInstanceUID", UIDUtils.createUID());
-            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", callingAET);
+            gen.write("RemoteAET", remoteAET);
+            gen.write("SOPInstanceUID", UIDUtils.createUID());
+            gen.writeEnd();
         }
+        queueManager.scheduleMessage(device.getDeviceName(),
+                IANSCU.QUEUE_NAME, new Date(), sw.toString(), attrs, null);
     }
 
     public void removeIANTask(IanTask task) {

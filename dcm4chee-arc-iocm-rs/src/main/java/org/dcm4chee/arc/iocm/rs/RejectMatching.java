@@ -55,7 +55,6 @@ import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -263,9 +262,6 @@ class RejectMatching {
                     rejectMatching(aet, rjNoteCode, match, qrLevel, httpRequestInfo);
                     count++;
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
@@ -320,9 +316,6 @@ class RejectMatching {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
@@ -382,8 +375,7 @@ class RejectMatching {
     }
 
     private void rejectMatching(String aet, Code rjNoteCode, Attributes match, QueryRetrieveLevel2 qrlevel,
-                                HttpServletRequestInfo httpRequestInfo)
-            throws QueueSizeLimitExceededException {
+                                HttpServletRequestInfo httpRequestInfo) {
         rejectionService.scheduleReject(aet,
                 match.getString(Tag.StudyInstanceUID),
                 qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,

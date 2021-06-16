@@ -72,7 +72,7 @@ class QueueMessageAuditService {
                 .calledUserID(req.getRequestURI())
                 .outcome(outcome(queueMsgEvent.getException()))
                 .queueMsg(toString(queueMsg))
-                .taskPOID(queueMsg.getMessageID())
+                .taskPOID(Long.toString(queueMsg.getPk()))
                 .build();
     }
 

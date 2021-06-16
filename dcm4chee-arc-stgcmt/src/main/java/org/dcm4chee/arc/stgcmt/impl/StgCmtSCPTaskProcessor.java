@@ -40,65 +40,72 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.stgcmt.StgCmtSCU;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgCmtSCP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 2016
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Sep 2015
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class StgCmtSCUMDB implements MessageListener {
+@ApplicationScoped
+@Named("STGCMT_SCP")
+public class StgCmtSCPTaskProcessor implements TaskProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCUMDB.class);
-
-    @Inject
-    private QueueManager queueManager;
+    private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCPTaskProcessor.class);
 
     @Inject
-    private StgCmtSCU stgCmtSCU;
+    private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
+
+    @Inject
+    private Event<StgCmtContext> stgCmtEvent;
+
+    @Inject
+    private StgCmtSCP stgCmtSCP;
+
+    @Inject
+    private StgCmtManager stgCmtMgr;
 
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
-        if (queueMessage == null)
-            return;
-        try {
-            Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Outcome outcome = stgCmtSCU.sendNAction(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
-                    msg.getStringProperty("StudyInstanceUID"),
-                    msg.getStringProperty("SeriesInstanceUID"),
-                    msg.getStringProperty("SOPInstanceUID"),
-                    msg.getStringProperty("ExporterID"),
-                    msg.getStringProperty("MessageID"),
-                    queueMessage.getBatchID(),
-                    actionInfo);
-            queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        String localAET = jsonObject.getString("LocalAET");
+        ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
+        ApplicationEntity remoteAE = aeCache.findApplicationEntity(jsonObject.getString("RemoteAET"));
+        Attributes actionInfo = (Attributes) queueMessage.getMessageBody();
+        StgCmtContext ctx = new StgCmtContext(localAE, localAET)
+                .setRemoteAE(remoteAE)
+                .setTransactionUID(actionInfo.getString(Tag.TransactionUID));
+        stgCmtMgr.calculateResult(ctx, actionInfo.getSequence(Tag.ReferencedSOPSequence));
+        stgCmtEvent.fire(ctx);
+        return stgCmtSCP.sendNEventReport(localAET, remoteAE, removeExtendedEventInfo(ctx.getEventInfo()));
     }
 
+    private Attributes removeExtendedEventInfo(Attributes eventInfo) {
+        eventInfo.remove(Tag.StudyInstanceUID);
+        eventInfo.remove(Tag.PatientName);
+        eventInfo.remove(Tag.PatientID);
+        eventInfo.remove(Tag.IssuerOfPatientID);
+        return eventInfo;
+    }
 }

@@ -1,6 +1,6 @@
 package org.dcm4chee.arc.conf;
 
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -12,20 +12,20 @@ public class QueueDescriptor {
     public static final Duration DEFAULT_RETRY_DELAY = Duration.valueOf("PT1M");
 
     private String queueName;
-    private String jndiName;
     private String description;
+    private TaskProcessorName taskProcessorName;
+    private int maxTasksParallel = 1;
     private int maxRetries = 0;
     private Duration retryDelay = DEFAULT_RETRY_DELAY;
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
-    private boolean retryInProcessOnStartup;
     private Duration purgeQueueMessageCompletedDelay;
     private Duration purgeQueueMessageFailedDelay;
     private Duration purgeQueueMessageWarningDelay;
     private Duration purgeQueueMessageCanceledDelay;
-    private int maxQueueSize = 0;
     private ScheduleExpression[] schedules = {};
+    private boolean installed = true;
 
     public QueueDescriptor(String queueName) {
         setQueueName(queueName);
@@ -42,20 +42,28 @@ public class QueueDescriptor {
         this.queueName = queueName;
     }
 
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public TaskProcessorName getTaskProcessorName() {
+        return taskProcessorName;
+    }
+
+    public void setTaskProcessorName(TaskProcessorName taskProcessorName) {
+        this.taskProcessorName = taskProcessorName;
+    }
+
+    public int getMaxTasksParallel() {
+        return maxTasksParallel;
+    }
+
+    public void setMaxTasksParallel(int maxTasksParallel) {
+        this.maxTasksParallel = maxTasksParallel;
     }
 
     public int getMaxRetries() {
@@ -109,14 +117,6 @@ public class QueueDescriptor {
         this.retryOnWarning = retryOnWarning;
     }
 
-    public boolean isRetryInProcessOnStartup() {
-        return retryInProcessOnStartup;
-    }
-
-    public void setRetryInProcessOnStartup(boolean retryInProcessOnStartup) {
-        this.retryInProcessOnStartup = retryInProcessOnStartup;
-    }
-
     public Duration getPurgeQueueMessageCompletedDelay() {
         return purgeQueueMessageCompletedDelay;
     }
@@ -149,19 +149,24 @@ public class QueueDescriptor {
         this.purgeQueueMessageCanceledDelay = purgeQueueMessageCanceledDelay;
     }
 
-    public int getMaxQueueSize() {
-        return maxQueueSize;
-    }
-
-    public void setMaxQueueSize(int maxQueueSize) {
-        this.maxQueueSize = maxQueueSize;
-    }
-
     public ScheduleExpression[] getSchedules() {
         return schedules;
     }
 
     public void setSchedules(ScheduleExpression[] schedules) {
         this.schedules = schedules;
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
+    }
+
+    @Override
+    public String toString() {
+        return "Queue{" + queueName + '}';
     }
 }

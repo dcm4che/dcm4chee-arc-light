@@ -50,16 +50,14 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ExportPriorsRule;
 import org.dcm4chee.arc.conf.MPPSForwardRule;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.mpps.MPPSContext;
+import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,13 +65,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,16 +125,21 @@ class MPPSSCUImpl implements MPPSSCU {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(patAttrs);
         for (String remoteAET : remoteAETs) {
             try {
-                ObjectMessage msg = queueManager.createObjectMessage(ctx.getAttributes());
-                msg.setStringProperty("LocalAET", ctx.getLocalApplicationEntity().getAETitle());
-                msg.setStringProperty("RemoteAET", remoteAET);
-                msg.setStringProperty("DIMSE", ctx.getDimse().name());
-                msg.setStringProperty("SOPInstanceUID", ctx.getSopInstanceUID());
-                msg.setStringProperty("AccessionNumber", ssAttrs.getString(Tag.AccessionNumber));
-                msg.setStringProperty("StudyInstanceUID", ssAttrs.getString(Tag.StudyInstanceUID));
-                msg.setStringProperty("PatientID", idWithIssuer != null ? idWithIssuer.toString() : null);
-                msg.setStringProperty("PatientName", patAttrs.getString(Tag.PatientName));
-                queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
+                StringWriter sw = new StringWriter();
+                try (JsonGenerator gen = Json.createGenerator(sw)) {
+                    gen.writeStartObject();
+                    gen.write("LocalAET", ctx.getLocalApplicationEntity().getAETitle());
+                    gen.write("RemoteAET", remoteAET);
+                    gen.write("DIMSE", ctx.getDimse().name());
+                    gen.write("SOPInstanceUID", ctx.getSopInstanceUID());
+                    gen.write("AccessionNumber", ssAttrs.getString(Tag.AccessionNumber));
+                    gen.write("StudyInstanceUID", ssAttrs.getString(Tag.StudyInstanceUID));
+                    gen.write("PatientID", idWithIssuer != null ? idWithIssuer.toString() : null);
+                    gen.write("PatientName", patAttrs.getString(Tag.PatientName));
+                    gen.writeEnd();
+                }
+                queueManager.scheduleMessage(device.getDeviceName(),
+                        QUEUE_NAME, new Date(), sw.toString(), ctx.getAttributes(), null);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",
                         ctx.getDimse(), ctx.getSopInstanceUID(), remoteAET, e);

@@ -57,18 +57,17 @@ import org.dcm4chee.arc.conf.HL7ForwardRule;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Date;
 import java.util.stream.Stream;
 
 /**
@@ -142,7 +141,7 @@ public class HL7SenderImpl implements HL7Sender {
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                                 String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
                                 HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException, QueueSizeLimitExceededException {
+            throws ConfigurationException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         scheduleMessage(null, hl7msg);
@@ -184,20 +183,21 @@ public class HL7SenderImpl implements HL7Sender {
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(data);
-            msg.setStringProperty("SendingApplication", msh.getField(2, ""));
-            msg.setStringProperty("SendingFacility", msh.getField(3, ""));
-            msg.setStringProperty("ReceivingApplication", msh.getField(4, ""));
-            msg.setStringProperty("ReceivingFacility", msh.getField(5, ""));
-            msg.setStringProperty("MessageType", msh.getField(9, ""));
-            msg.setStringProperty("MessageControlID", msh.getField(10, ""));
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("SendingApplication", msh.getField(2, ""));
+            gen.write("SendingFacility", msh.getField(3, ""));
+            gen.write("ReceivingApplication", msh.getField(4, ""));
+            gen.write("ReceivingFacility", msh.getField(5, ""));
+            gen.write("MessageType", msh.getField(9, ""));
+            gen.write("MessageControlID", msh.getField(10, ""));
             if (httpServletRequestInfo != null)
-                httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
         }
+        queueManager.scheduleMessage(device.getDeviceName(), QUEUE_NAME, new Date(),
+                sw.toString(), data, null);
     }
 
 }

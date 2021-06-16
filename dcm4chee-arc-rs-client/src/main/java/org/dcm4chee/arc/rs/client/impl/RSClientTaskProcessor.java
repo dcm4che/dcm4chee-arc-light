@@ -40,61 +40,39 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.rs.client.RSClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class RSClientMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RSClientMDB.class);
+@ApplicationScoped
+@Named("REST_CLIENT")
+public class RSClientTaskProcessor implements TaskProcessor {
 
     @Inject
     private RSClient rsClient;
 
-    @Inject
-    private QueueManager queueManager;
-
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        if (queueManager.onProcessingStart(msgID) == null)
-            return;
-        try {
-            byte[] content = (byte[]) ((ObjectMessage) msg).getObject();
-            Outcome outcome = rsClient.request(
-                    msg.getStringProperty("RSOperation"),
-                    msg.getStringProperty("RequestURI"),
-                    msg.getStringProperty("RequestQueryString"),
-                    msg.getStringProperty("WebApplicationName"),
-                    msg.getStringProperty("PatientID"),
-                    Boolean.valueOf(msg.getStringProperty("TLSAllowAnyHostname")),
-                    Boolean.valueOf(msg.getStringProperty("TLSDisableTrustManager")),
-                    content);
-            queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        return rsClient.request(
+                jsonObject.getString("RSOperation"),
+                jsonObject.getString("RequestURI"),
+                jsonObject.getString("RequestQueryString"),
+                jsonObject.getString("WebApplicationName"),
+                jsonObject.getString("PatientID"),
+                jsonObject.getBoolean("TLSAllowAnyHostname"),
+                jsonObject.getBoolean("TLSDisableTrustManager"),
+                (byte[]) queueMessage.getMessageBody());
     }
 }

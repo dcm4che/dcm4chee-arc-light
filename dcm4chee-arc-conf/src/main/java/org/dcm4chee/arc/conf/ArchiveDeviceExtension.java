@@ -95,6 +95,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration deleteUPSCanceledDelay;
     private volatile Duration upsProcessingPollingInterval;
     private volatile int upsProcessingFetchSize = 100;
+    private volatile Duration taskProcessingPollingInterval;
+    private volatile int taskProcessingFetchSize = 100;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
     private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
@@ -601,6 +603,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUPSProcessingFetchSize(int upsProcessingFetchSize) {
         this.upsProcessingFetchSize = upsProcessingFetchSize;
+    }
+
+    public Duration getTaskProcessingPollingInterval() {
+        return taskProcessingPollingInterval;
+    }
+
+    public void setTaskProcessingPollingInterval(Duration taskProcessingPollingInterval) {
+        this.taskProcessingPollingInterval = taskProcessingPollingInterval;
+    }
+
+    public int getTaskProcessingFetchSize() {
+        return taskProcessingFetchSize;
+    }
+
+    public void setTaskProcessingFetchSize(int taskProcessingFetchSize) {
+        this.taskProcessingFetchSize = taskProcessingFetchSize;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -3117,6 +3135,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
         upsProcessingPollingInterval = arcdev.upsProcessingPollingInterval;
         upsProcessingFetchSize = arcdev.upsProcessingFetchSize;
+        taskProcessingPollingInterval = arcdev.taskProcessingPollingInterval;
+        taskProcessingFetchSize = arcdev.taskProcessingFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;

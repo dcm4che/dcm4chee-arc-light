@@ -57,7 +57,6 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -69,12 +68,12 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -182,8 +181,7 @@ public class ExportManagerEJB implements ExportManager {
         if (queueMessage != null) {
             if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED) {
                 queueMessage.setStatus(QueueMessage.Status.CANCELED);
-                LOG.info("Cancel processing of Task[id={}] at Queue {}",
-                        queueMessage.getMessageID(), queueMessage.getQueueName());
+                LOG.info("Cancel processing {}", queueMessage);
             }
             task.setQueueMessage(null);
         }
@@ -220,19 +218,13 @@ public class ExportManagerEJB implements ExportManager {
         ExportTask exportTask = em.find(ExportTask.class, pk);
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-        try {
-            scheduleExportTask(exportTask, exporter, null, null);
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.info(e.getLocalizedMessage() + " - retry to schedule Export Tasks");
-            return false;
-        }
+        scheduleExportTask(exportTask, exporter, null, null);
         return true;
     }
 
     @Override
     public void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUIDs)
-            throws QueueSizeLimitExceededException {
+                                   HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUIDs) {
         for (String studyUID : studyUIDs) {
             ExportTask task = createExportTask(
                     device.getDeviceName(),
@@ -278,17 +270,12 @@ public class ExportManagerEJB implements ExportManager {
                 "*",
                 batchID,
                 new Date());
-        try {
-            scheduleExportTask(task, exporter, null, batchID);
-        } catch (QueueSizeLimitExceededException e) {
-            throw new RuntimeException(e);
-        }
+        scheduleExportTask(task, exporter, null, batchID);
         return true;
     }
 
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
-                                    HttpServletRequestInfo httpServletRequestInfo, String batchID)
-            throws QueueSizeLimitExceededException {
+                                    HttpServletRequestInfo httpServletRequestInfo, String batchID) {
         ApplicationEntity ae = device.getApplicationEntity(exporter.getAETitle(), true);
         if (ae == null) {
             LOG.warn("Failed to schedule {}: no such Archive AE Title - {}", exportTask, exporter.getAETitle());
@@ -297,10 +284,12 @@ public class ExportManagerEJB implements ExportManager {
         }
         LOG.info("Schedule {}", exportTask);
         QueueMessage queueMessage = queueManager.scheduleMessage(
+                device.getDeviceName(),
                 exporter.getQueueName(),
-                createMessage(exportTask, httpServletRequestInfo),
-                exporter.getPriority(),
-                batchID, 0L);
+                new Date(),
+                toJSON(exportTask, httpServletRequestInfo),
+                exportTask.getPk(),
+                batchID);
         exportTask.setQueueMessage(queueMessage);
         Attributes attrs = queryService.queryExportTaskInfo(exportTask, ae);
         if (attrs == null) {
@@ -311,23 +300,23 @@ public class ExportManagerEJB implements ExportManager {
         exportTask.setNumberOfInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1));
     }
 
-    private ObjectMessage createMessage(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
-        ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
-        try {
-            msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
+    private String toJSON(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("StudyInstanceUID", exportTask.getStudyInstanceUID());
             if (!exportTask.getSeriesInstanceUID().equals("*")) {
-                msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
+                gen.write("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
                 if (!exportTask.getSopInstanceUID().equals("*")) {
-                    msg.setStringProperty("SOPInstanceUID", exportTask.getSopInstanceUID());
+                    gen.write("SOPInstanceUID", exportTask.getSopInstanceUID());
                 }
             }
-            msg.setStringProperty("ExporterID", exportTask.getExporterID());
+            gen.write("ExporterID", exportTask.getExporterID());
             if (httpServletRequestInfo != null)
-                httpServletRequestInfo.copyTo(msg);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
         }
-        return msg;
+        return sw.toString();
     }
 
     @Override
@@ -340,7 +329,7 @@ public class ExportManagerEJB implements ExportManager {
         if (queueMsg == null)
             em.remove(task);
         else
-            queueManager.deleteTask(queueMsg.getMessageID(), queueEvent);
+            queueManager.deleteTask(queueMsg.getPk(), queueEvent);
 
         LOG.info("Delete {}", task);
         return true;
@@ -356,7 +345,7 @@ public class ExportManagerEJB implements ExportManager {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -405,7 +394,7 @@ public class ExportManagerEJB implements ExportManager {
     private void rescheduleAtScheduledTime(ExportTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
         task.setScheduledTime(scheduledTime);
         if (task.getQueueMessage() != null) {
-            queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
+            queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
             task.setQueueMessage(null);
         }
     }
@@ -415,7 +404,7 @@ public class ExportManagerEJB implements ExportManager {
         if (task.getQueueMessage() == null)
             scheduleExportTask(task, exporter, httpServletRequestInfo, task.getBatchID());
         else {
-            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
+            queueManager.rescheduleTask(task.getQueueMessage().getPk(), exporter.getQueueName(), queueEvent, new Date());
             LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         }
     }
@@ -435,7 +424,7 @@ public class ExportManagerEJB implements ExportManager {
         if (task.getQueueMessage() == null)
             return;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent, false);
+        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
         task.setQueueMessage(null);
     }
 
@@ -696,8 +685,8 @@ public class ExportManagerEJB implements ExportManager {
 
     private int deleteReferencedTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = em.createQuery(
-                select(QueueMessage_.messageID, queueTaskQueryParam, exportTaskQueryParam))
+        List<Long> referencedQueueMsgIDs = em.createQuery(
+                select(QueueMessage_.pk, queueTaskQueryParam, exportTaskQueryParam))
                 .setMaxResults(deleteTasksFetchSize)
                 .getResultList();
 
@@ -717,10 +706,10 @@ public class ExportManagerEJB implements ExportManager {
         return q.select(exportTask.get(attribute));
     }
 
-    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
+    private CriteriaQuery<Long> select(SingularAttribute<QueueMessage, Long> attribute,
                                          TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);
         From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
         List<Predicate> predicates = new MatchTask(cb).exportPredicates(

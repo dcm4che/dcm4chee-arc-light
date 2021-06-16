@@ -215,7 +215,6 @@ public class PrefetchScheduler {
                 .setFindSCP(rule.getPrefetchCFindSCP())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
-                .setPriority(rule.getPriority())
                 .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
         retrieveManager.createRetrieveTask(ctx, notRetrievedAfter);

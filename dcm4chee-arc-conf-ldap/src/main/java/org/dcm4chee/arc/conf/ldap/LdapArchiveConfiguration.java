@@ -456,6 +456,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSProcessingFetchSize",
                 ext.getUPSProcessingFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTaskProcessingPollingInterval",
+                ext.getTaskProcessingPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmTaskProcessingFetchSize",
+                ext.getTaskProcessingFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
                 ext.getFallbackWadoURIWebApplication(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
@@ -776,6 +780,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
         ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
+        ext.setTaskProcessingPollingInterval(toDuration(attrs.get("dcmTaskProcessingPollingInterval"), null));
+        ext.setTaskProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmTaskProcessingFetchSize"), 100));
         ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
         ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
         ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(
@@ -1329,6 +1335,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSProcessingFetchSize",
                 aa.getUPSProcessingFetchSize(), bb.getUPSProcessingFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTaskProcessingPollingInterval",
+                aa.getTaskProcessingPollingInterval(), bb.getTaskProcessingPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTaskProcessingFetchSize",
+                aa.getTaskProcessingFetchSize(), bb.getTaskProcessingFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
                 aa.getFallbackWadoURIWebApplication(),
                 bb.getFallbackWadoURIWebApplication(),
@@ -2636,8 +2646,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, QueueDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueue");
         attrs.put("dcmQueueName", descriptor.getQueueName());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmJndiName", descriptor.getJndiName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", descriptor.getDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTaskProcessorName", descriptor.getTaskProcessorName(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxTasksParallel", descriptor.getMaxTasksParallel(), 1);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", descriptor.getMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
                 descriptor.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
@@ -2652,10 +2663,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getPurgeQueueMessageWarningDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCanceledDelay",
                 descriptor.getPurgeQueueMessageCanceledDelay(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxQueueSize", descriptor.getMaxQueueSize(), 0);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryInProcessOnStartup",
-                descriptor.isRetryInProcessOnStartup(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dicomInstalled", descriptor.isInstalled(), true);
         return attrs;
     }
 
@@ -2667,7 +2676,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 QueueDescriptor desc = new QueueDescriptor(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
-                desc.setJndiName(LdapUtils.stringValue(attrs.get("dcmJndiName"), null));
+                desc.setTaskProcessorName(
+                        LdapUtils.enumValue(TaskProcessorName.class, attrs.get("dcmTaskProcessorName"), null));
+                desc.setMaxTasksParallel(LdapUtils.intValue(attrs.get("dcmMaxTasksParallel"), 1));
                 desc.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 desc.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), QueueDescriptor.DEFAULT_RETRY_DELAY));
                 desc.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
@@ -2681,10 +2692,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         toDuration(attrs.get("dcmPurgeQueueMessageWarningDelay"), null));
                 desc.setPurgeQueueMessageCanceledDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageCanceledDelay"), null));
-                desc.setMaxQueueSize(LdapUtils.intValue(attrs.get("dcmMaxQueueSize"), 0));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
-                desc.setRetryInProcessOnStartup(
-                        LdapUtils.booleanValue(attrs.get("dcmRetryInProcessOnStartup"), false));
+                desc.setInstalled(LdapUtils.booleanValue(attrs.get("dicomInstalled"), true));
                 arcdev.addQueueDescriptor(desc);
             }
         } finally {
@@ -2726,7 +2735,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               List<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
                 prev.getDescription(), desc.getDescription(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTaskProcessorName",
+                prev.getTaskProcessorName(), desc.getTaskProcessorName(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxTasksParallel",
+                prev.getMaxTasksParallel(), desc.getMaxTasksParallel(), 1);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
                 prev.getRetryDelay(), desc.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
@@ -2743,10 +2755,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getPurgeQueueMessageWarningDelay(), desc.getPurgeQueueMessageWarningDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCanceledDelay",
                 prev.getPurgeQueueMessageCanceledDelay(), desc.getPurgeQueueMessageCanceledDelay(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxQueueSize", prev.getMaxQueueSize(), desc.getMaxQueueSize(), 0);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
-        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryInProcessOnStartup",
-                prev.isRetryInProcessOnStartup(), desc.isRetryInProcessOnStartup(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dicomInstalled", prev.isInstalled(), desc.isInstalled(), true);
         return mods;
     }
 
@@ -2866,7 +2876,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", descriptor.getProperties());
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPriority", descriptor.getPriority(), 4);
         LdapUtils.storeNotDef(ldapObj, attrs,
                 "dcmRejectForDataRetentionExpiry", descriptor.isRejectForDataRetentionExpiry(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportAsSourceAE", descriptor.isExportAsSourceAE(), false);
@@ -2897,7 +2906,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setExportAsSourceAE(LdapUtils.booleanValue(attrs.get("dcmExportAsSourceAE"), false));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
-                desc.setPriority(LdapUtils.intValue(attrs.get("dcmExportPriority"), 4));
                 arcdev.addExporterDescriptor(desc);
             }
         } finally {
@@ -2952,7 +2960,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
-        LdapUtils.storeDiff(ldapObj, mods, "dcmExportPriority", prev.getPriority(), desc.getPriority(), 4);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectForDataRetentionExpiry",
                 prev.isRejectForDataRetentionExpiry(), desc.isRejectForDataRetentionExpiry(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportAsSourceAE",
@@ -3763,7 +3770,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDeviceName", rule.getPrefetchDeviceName(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPrefetchPriority", rule.getPriority(), 4);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID",
                 rule.getIgnoreAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", rule.getAssigningAuthorityOfPatientIDs());
@@ -3794,7 +3800,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setPrefetchCStoreSCPs(LdapUtils.stringArray(attrs.get("dcmPrefetchCStoreSCP")));
                 rule.setDestinationCFindSCP(LdapUtils.stringValue(attrs.get("dcmDestinationCFindSCP"), null));
                 rule.setPrefetchDeviceName(LdapUtils.stringValue(attrs.get("dicomDeviceName"), null));
-                rule.setPriority(LdapUtils.intValue(attrs.get("dcmPrefetchPriority"), 4));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 rule.setIgnoreAssigningAuthorityOfPatientID(
@@ -4610,7 +4615,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getSuppressDuplicateRetrieveInterval(), rule.getSuppressDuplicateRetrieveInterval(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmPrefetchPriority", prev.getPriority(), rule.getPriority(), 4);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchForIssuerOfPatientID",
                 prev.getPrefetchForAssigningAuthorityOfPatientID(),
                 rule.getPrefetchForAssigningAuthorityOfPatientID(),

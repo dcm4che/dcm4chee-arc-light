@@ -231,9 +231,9 @@ public class AuditService {
                     null,
                     QueueMessageAuditService.queueMsgAuditInfo(queueMsgEvent));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Queue Message Event for [QueueOperation={}] of [QueueMsgID={}] "
+            LOG.warn("Failed to spool Queue Message Event for [QueueOperation={}] of [TaskPK={}] "
                             + "triggered by [User={}]\n",
-                    queueMsgEvent.getOperation(), queueMsgEvent.getQueueMsg().getMessageID(), callingUser, e);
+                    queueMsgEvent.getOperation(), queueMsgEvent.getQueueMsg().getPk(), callingUser, e);
         }
     }
 

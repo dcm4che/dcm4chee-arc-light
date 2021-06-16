@@ -48,7 +48,6 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.ian.scu.impl.IANEJB;
 import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -296,16 +295,10 @@ public class IANScheduler extends Scheduler {
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         if (descriptor.getIanDestinations().length != 0
                 && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
-            try {
-                scheduleIAN(ctx, descriptor);
-            } catch (QueueSizeLimitExceededException e) {
-                LOG.warn(e.getMessage()
-                        + " - no IAN triggered for Export to "
-                        + descriptor.getExporterID());
-            }
+            scheduleIAN(ctx, descriptor);
     }
 
-    public void scheduleIAN(ExportContext ctx, ExporterDescriptor descriptor) throws QueueSizeLimitExceededException {
+    public void scheduleIAN(ExportContext ctx, ExporterDescriptor descriptor) {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         Attributes ian = queryService.createIAN(ae, ctx.getStudyInstanceUID(), null,
                 null, descriptor.getRetrieveAETitles(),
@@ -316,8 +309,7 @@ public class IANScheduler extends Scheduler {
                 ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET);
     }
 
-    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID)
-            throws QueueSizeLimitExceededException {
+    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID) {
         Attributes ian = queryService.createIAN(ae, studyUID, new String[]{ seriesUID }, null,
                 null, null, null);
         if (ian != null)

@@ -49,7 +49,6 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
@@ -57,13 +56,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonWriter;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.Response;
+import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -87,6 +88,9 @@ public class RSClientImpl implements RSClient {
     @Inject
     private IWebApplicationCache iWebAppCache;
 
+    @Inject
+    private Device device;
+
     @Override
     public void scheduleRequest(
             RSOperation rsOp,
@@ -96,21 +100,20 @@ public class RSClientImpl implements RSClient {
             String patientID,
             byte[] content,
             boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(content);
-            msg.setStringProperty("RSOperation", rsOp.name());
-            msg.setStringProperty("RequestURI", requestURI);
-            msg.setStringProperty("RequestQueryString", requestQueryStr);
-            msg.setStringProperty("WebApplicationName", webAppName);
-            msg.setStringProperty("PatientID", patientID);
-            msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
-            msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+            boolean tlsDisableTrustManager) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("RSOperation", rsOp.name());
+            gen.write("RequestURI", requestURI);
+            gen.write("RequestQueryString", requestQueryStr);
+            gen.write("WebApplicationName", webAppName);
+            gen.write("PatientID", patientID);
+            gen.write("TLSAllowAnyHostname", tlsAllowAnyHostName);
+            gen.write("TLSDisableTrustManager", tlsDisableTrustManager);
+            gen.writeEnd();
         }
+        queueManager.scheduleMessage(device.getDeviceName(), QUEUE_NAME, new Date(), sw.toString(), content, null);
     }
 
     @Override

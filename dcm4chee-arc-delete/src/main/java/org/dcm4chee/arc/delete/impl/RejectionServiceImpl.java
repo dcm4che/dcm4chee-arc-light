@@ -54,7 +54,6 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -153,15 +152,13 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
 
     @Override
     public void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-                               HttpServletRequestInfo httpRequest, String batchID)
-            throws QueueSizeLimitExceededException {
+                               HttpServletRequestInfo httpRequest, String batchID) {
         ejb.scheduleRejection(aet, studyIUID, seriesIUID, sopIUID, code, httpRequest, batchID);
     }
 
     @Override
     public void scheduleStudyRejectTasks(
-            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequest, String batchID)
-            throws QueueSizeLimitExceededException {
+            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequest, String batchID) {
         ejb.scheduleStudyRejectTasks(aet, studyUIDs, code, httpRequest, batchID);
     }
 

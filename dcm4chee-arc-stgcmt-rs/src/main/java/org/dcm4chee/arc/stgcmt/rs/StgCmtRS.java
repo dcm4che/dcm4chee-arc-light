@@ -94,7 +94,7 @@ public class StgCmtRS {
     private String batchID;
 
     @QueryParam("JMSMessageID")
-    private String msgID;
+    private Long msgID;
 
     @QueryParam("updatedBefore")
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")

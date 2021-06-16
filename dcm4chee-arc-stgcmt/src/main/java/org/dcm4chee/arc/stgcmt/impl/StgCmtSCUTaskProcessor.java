@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * Portions created by the Initial Developer are Copyright (C) 2016-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,32 +38,43 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.hl7;
+package org.dcm4chee.arc.stgcmt.impl;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
+import org.dcm4chee.arc.stgcmt.StgCmtSCU;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2016
+ * @since Sep 2016
  */
-public interface HL7Sender {
-    String QUEUE_NAME = "HL7Send";
+@ApplicationScoped
+@Named("STGCMT_SCU")
+public class StgCmtSCUTaskProcessor implements TaskProcessor {
 
-    void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
-                         HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException;
+    @Inject
+    private StgCmtSCU stgCmtSCU;
 
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
-            throws Exception;
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        Attributes actionInfo = (Attributes) queueMessage.getMessageBody();
+        return stgCmtSCU.sendNAction(
+                jsonObject.getString("LocalAET"),
+                jsonObject.getString("RemoteAET"),
+                jsonObject.getString("StudyInstanceUID"),
+                jsonObject.getString("SeriesInstanceUID"),
+                jsonObject.getString("SOPInstanceUID"),
+                jsonObject.getString("ExporterID"),
+                queueMessage.getPk(),
+                queueMessage.getBatchID(),
+                actionInfo);
+    }
 
-    void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data);
-
-    UnparsedHL7Message sendMessage(HL7Application sender, HL7Application receiver, UnparsedHL7Message hl7msg)
-            throws Exception;
 }

@@ -44,7 +44,6 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
 
-import javax.jms.Message;
 import java.util.Arrays;
 
 /**
@@ -69,8 +68,6 @@ public class HL7PrefetchRule {
     private String destinationCFindSCP;
 
     private String prefetchDeviceName;
-
-    private int priority = Message.DEFAULT_PRIORITY;
 
     private HL7Conditions conditions = new HL7Conditions();
 
@@ -177,17 +174,6 @@ public class HL7PrefetchRule {
         this.prefetchDeviceName = prefetchDeviceName;
     }
 
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        if (priority < 0 || priority > 9)
-            throw new IllegalArgumentException("JMS Priority Level for processing the HL7 Prefetch Retrieve Task should be between 0 (lowest) to 9 (highest).");
-
-        this.priority = priority;
-    }
-
     public NullifyIssuer getIgnoreAssigningAuthorityOfPatientID() {
         return ignoreAssigningAuthorityOfPatientID;
     }
@@ -267,7 +253,6 @@ public class HL7PrefetchRule {
                 ", destFindSCP=" + destinationCFindSCP +
                 ", prefetchDeviceName=" + prefetchDeviceName +
                 ", conditions=" + conditions +
-                ", priority=" + priority +
                 ", suppressDups=" + suppressDuplicateRetrieveInterval +
                 ", ignoreAssigningAuthorityOfPatientID=" + ignoreAssigningAuthorityOfPatientID +
                 ", issuerOfPatientIDs=" + Arrays.toString(assigningAuthorityOfPatientIDs) +

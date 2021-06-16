@@ -43,16 +43,18 @@ package org.dcm4chee.arc.diff.impl;
 
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.criteria.Expression;
 import javax.persistence.Tuple;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -61,14 +63,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,29 +88,32 @@ public class DiffServiceEJB {
     @Inject
     private QueueManager queueManager;
 
-    public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
+    @Inject
+    private Device device;
+
+    public void scheduleDiffTask(DiffContext ctx) {
         scheduleDiffTask(ctx, ctx.getQueryString());
     }
 
-    private void scheduleDiffTask(DiffContext ctx, String queryString) throws QueueSizeLimitExceededException{
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(0);
-            msg.setStringProperty("LocalAET", ctx.getLocalAE().getAETitle());
-            msg.setStringProperty("PrimaryAET", ctx.getPrimaryAE().getAETitle());
-            msg.setStringProperty("SecondaryAET", ctx.getSecondaryAE().getAETitle());
-            msg.setIntProperty("Priority", ctx.priority());
-            msg.setStringProperty("QueryString", queryString);
+    private void scheduleDiffTask(DiffContext ctx, String queryString) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", ctx.getLocalAE().getAETitle());
+            gen.write("PrimaryAET", ctx.getPrimaryAE().getAETitle());
+            gen.write("SecondaryAET", ctx.getSecondaryAE().getAETitle());
+            gen.write("Priority", ctx.priority());
+            gen.write("QueryString", queryString);
             if (ctx.getHttpServletRequestInfo() != null)
-                ctx.getHttpServletRequestInfo().copyTo(msg);
-            QueueMessage queueMessage = queueManager.scheduleMessage(DiffService.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, ctx.getBatchID(), 0L);
-            createDiffTask(ctx, queueMessage, queryString);
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+                ctx.getHttpServletRequestInfo().writeTo(gen);
+            gen.writeEnd();
         }
+        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
+                DiffService.QUEUE_NAME, new Date(), sw.toString(), 0, ctx.getBatchID());
+        createDiffTask(ctx, queueMessage, queryString);
     }
 
-    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException {
+    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) {
         studyUIDs.forEach(studyUID -> scheduleDiffTask(ctx, ctx.getQueryString() + studyUID));
     }
 
@@ -158,31 +161,31 @@ public class DiffServiceEJB {
         if (task == null)
             return false;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
+        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }
 
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = em.createQuery(
-                select(QueueMessage_.messageID, queueTaskQueryParam, diffTaskQueryParam))
+        List<Long> referencedQueueMsgPKs = em.createQuery(
+                select(Long.class, QueueMessage_.pk, queueTaskQueryParam, diffTaskQueryParam))
                 .setMaxResults(deleteTasksFetchSize)
                 .getResultList();
 
-        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-        return referencedQueueMsgIDs.size();
+        referencedQueueMsgPKs.forEach(taskPK -> queueManager.deleteTask(taskPK, null));
+        return referencedQueueMsgPKs.size();
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return em.createQuery(
-                select(QueueMessage_.deviceName, queueTaskQueryParam, diffTaskQueryParam).distinct(true))
+                select(String.class, QueueMessage_.deviceName, queueTaskQueryParam, diffTaskQueryParam).distinct(true))
                 .getResultList();
     }
 
-    public List<String> listDiffTaskQueueMsgIDs(
+    public List<Long> listDiffTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return em.createQuery(select(QueueMessage_.messageID, queueTaskQueryParam, diffTaskQueryParam))
+        return em.createQuery(select(Long.class, QueueMessage_.pk, queueTaskQueryParam, diffTaskQueryParam))
                 .setMaxResults(limit)
                 .getResultList();
     }
@@ -199,16 +202,16 @@ public class DiffServiceEJB {
             q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(
                 q.multiselect(
-                        queueMsg.get(QueueMessage_.messageID),
+                        queueMsg.get(QueueMessage_.pk),
                         queueMsg.get(QueueMessage_.messageProperties)))
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
+    private <T> CriteriaQuery<T> select(Class<T> claszz, SingularAttribute<QueueMessage, T> attribute,
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
+        CriteriaQuery<T> q = cb.createQuery(claszz);
         Root<DiffTask> diffTask = q.from(DiffTask.class);
         From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
         List<Predicate> predicates = new MatchTask(cb).diffPredicates(
@@ -233,7 +236,7 @@ public class DiffServiceEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -242,17 +245,17 @@ public class DiffServiceEJB {
         return queueManager.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
     }
 
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        rescheduleDiffTask(task.getQueueMessage().getMessageID(), queueEvent);
+        queueManager.rescheduleTask(task.getQueueMessage().getPk(), DiffService.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
-    public void rescheduleDiffTask(String msgId, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent);
+    public void rescheduleDiffTaskByMsgID(Long msgId, QueueMessageEvent queueEvent, Date scheduledTime) {
+        queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
     public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {

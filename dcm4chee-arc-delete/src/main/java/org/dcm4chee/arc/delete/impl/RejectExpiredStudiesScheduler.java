@@ -48,7 +48,6 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,18 +163,14 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        try {
-            if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
-                exportManager.scheduleExportTask(
-                        series.getSeriesInstanceUID(),
-                        null,
-                        exporter,
-                        null,
-                        null,
-                        series.getStudy().getStudyInstanceUID());
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.warn(e.getMessage());
-        }
+        if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
+            exportManager.scheduleExportTask(
+                    series.getSeriesInstanceUID(),
+                    null,
+                    exporter,
+                    null,
+                    null,
+                    series.getStudy().getStudyInstanceUID());
     }
 
     private void processExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
@@ -215,18 +210,14 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        try {
-            if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
-                exportManager.scheduleExportTask(
-                        null,
-                        null,
-                        exporter,
-                        null,
-                        null,
-                        study.getStudyInstanceUID());
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.warn(e.getMessage());
-        }
+        if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
+            exportManager.scheduleExportTask(
+                    null,
+                    null,
+                    exporter,
+                    null,
+                    null,
+                    study.getStudyInstanceUID());
     }
 
     private ApplicationEntity getApplicationEntity(String aet) {

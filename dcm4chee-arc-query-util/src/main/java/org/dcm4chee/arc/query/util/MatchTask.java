@@ -167,7 +167,7 @@ public class MatchTask {
         if (taskQueryParam.getBatchID() != null)
             predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), taskQueryParam.getBatchID()));
         if (taskQueryParam.getJmsMessageID() != null)
-            predicates.add(cb.equal(queueMsg.get(QueueMessage_.messageID), taskQueryParam.getJmsMessageID()));
+            predicates.add(cb.equal(queueMsg.get(QueueMessage_.pk), taskQueryParam.getJmsMessageID()));
         if (taskQueryParam.getCreatedTime() != null)
             queryBuilder.dateRange(predicates, queueMsg.get(QueueMessage_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)

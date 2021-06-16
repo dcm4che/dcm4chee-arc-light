@@ -78,6 +78,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -262,7 +263,8 @@ public class StgVerTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            stgCmtMgr.rescheduleStgVerTask(pk, queueEvent);
+            Date scheduledTime = new Date();
+            stgCmtMgr.rescheduleStgVerTask(pk, queueEvent, scheduledTime);
             return Response.noContent().build();
         } catch (ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
@@ -301,13 +303,14 @@ public class StgVerTaskRS {
                 return rsClient.forward(request, devName, "");
 
             TaskQueryParam stgVerTaskQueryParam = stgVerTaskQueryParam(updatedTime);
+            Date scheduledTime = new Date();
             return newDeviceName != null
-                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), stgVerTaskQueryParam)
+                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), stgVerTaskQueryParam, scheduledTime)
                     : count(devName == null
-                        ? rescheduleOnDistinctDevices(stgVerTaskQueryParam, status)
+                        ? rescheduleOnDistinctDevices(stgVerTaskQueryParam, status, scheduledTime)
                         : rescheduleTasks(
                             queueTaskQueryParam(devName, status),
-                            stgVerTaskQueryParam));
+                            stgVerTaskQueryParam, scheduledTime));
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -315,7 +318,7 @@ public class StgVerTaskRS {
         }
     }
 
-    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam, QueueMessage.Status status) throws Exception {
+    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam, QueueMessage.Status status, Date scheduledTime) throws Exception {
         List<String> distinctDeviceNames = stgCmtMgr.listDistinctDeviceNames(
                                                         queueTaskQueryParam(null, status), stgVerTaskQueryParam);
         int count = 0;
@@ -323,23 +326,23 @@ public class StgVerTaskRS {
             count += devName.equals(device.getDeviceName())
                     ? rescheduleTasks(
                             queueTaskQueryParam(devName, status),
-                            stgVerTaskQueryParam)
+                            stgVerTaskQueryParam, scheduledTime)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
     }
 
-    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerTaskQueueMsgIDs(
+                List<Long> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerQueueMsgPKs(
                                                                 queueTaskQueryParam,
                                                                 stgVerTaskQueryParam,
                                                                 rescheduleTasksFetchSize);
-                stgVerTaskQueueMsgIDs.forEach(stgVerTaskQueueMsgID -> stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgID));
+                stgVerTaskQueueMsgIDs.forEach(stgVerTaskQueueMsgID -> stgCmtMgr.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgID, scheduledTime));
                 count = stgVerTaskQueueMsgIDs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
@@ -354,7 +357,7 @@ public class StgVerTaskRS {
         }
     }
 
-    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         int rescheduled = 0;
         int failed = 0;
@@ -362,13 +365,13 @@ public class StgVerTaskRS {
             int count = 0;
             int rescheduleTaskFetchSize = queueTasksFetchSize();
             do {
-                List<Tuple> stgVerTaskTuples = stgCmtMgr.listStgVerTaskQueueMsgIDAndMsgProps(
+                List<Tuple> stgVerTaskTuples = stgCmtMgr.listStgVerTaskPKAndMsgProps(
                         queueTaskQueryParam, stgVerTaskQueryParam, rescheduleTaskFetchSize);
                 for (Tuple tuple : stgVerTaskTuples) {
-                    String stgVerTaskQueueMsgId = (String) tuple.get(0);
+                    Long stgVerTaskQueueMsgId = (Long) tuple.get(0);
                     try {
                         if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            stgCmtMgr.rescheduleStgVerTask(stgVerTaskQueueMsgId);
+                            stgCmtMgr.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgId, scheduledTime);
                             count++;
                         }
                     } catch (ConfigurationException e) {
@@ -483,7 +486,7 @@ public class StgVerTaskRS {
                 try {
                     task.printRecord(printer);
                 } catch (IOException e) {
-                    LOG.warn("{}", e);
+                    LOG.warn("{}", e, e);
                 }
             }
         };

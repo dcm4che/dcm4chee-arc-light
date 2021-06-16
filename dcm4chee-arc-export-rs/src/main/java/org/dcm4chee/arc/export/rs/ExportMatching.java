@@ -51,7 +51,6 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -261,9 +260,6 @@ class ExportMatching {
                     scheduleExportTask(exporter, match, qrLevel);
                     count++;
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
@@ -345,8 +341,7 @@ class ExportMatching {
         return s != null ? Boolean.valueOf(s) : null;
     }
 
-    private void scheduleExportTask(ExporterDescriptor exporter, Attributes match, QueryRetrieveLevel2 qrlevel)
-            throws QueueSizeLimitExceededException {
+    private void scheduleExportTask(ExporterDescriptor exporter, Attributes match, QueryRetrieveLevel2 qrlevel) {
         exportManager.scheduleExportTask(
                 qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
                 qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null,

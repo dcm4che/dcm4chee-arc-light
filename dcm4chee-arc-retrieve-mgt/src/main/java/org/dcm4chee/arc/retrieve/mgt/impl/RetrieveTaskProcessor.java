@@ -43,68 +43,38 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2017
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class RetrieveManagerMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RetrieveManagerMDB.class);
+@ApplicationScoped
+@Named("MOVE_SCU")
+public class RetrieveTaskProcessor implements TaskProcessor {
 
     @Inject
     private RetrieveManager retrieveManager;
 
-    @Inject
-    private QueueManager queueManager;
-
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
-        if (queueMessage == null)
-            return;
-
-        try {
-            Attributes keys = (Attributes) ((ObjectMessage) msg).getObject();
-            Outcome outcome = retrieveManager.cmove(
-                    msg.getIntProperty("Priority"),
-                    toExternalRetrieveContext(msg, queueMessage.getRetrieveTask(), keys),
-                    queueMessage);
-            queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
-    }
-
-    private ExternalRetrieveContext toExternalRetrieveContext(Message msg, RetrieveTask task, Attributes keys)
-            throws JMSException {
-        return new ExternalRetrieveContext()
-                .setLocalAET(task.getLocalAET())
-                .setFindSCP(msg.getStringProperty("FindSCP"))
-                .setRemoteAET(task.getRemoteAET())
-                .setDestinationAET(task.getDestinationAET())
-                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg))
-                .setKeys(keys);
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        RetrieveTask task = queueMessage.getRetrieveTask();
+        return retrieveManager.cmove(
+                jsonObject.getInt("Priority"),
+                new ExternalRetrieveContext()
+                        .setLocalAET(task.getLocalAET())
+                        .setRemoteAET(task.getRemoteAET())
+                        .setDestinationAET(task.getDestinationAET())
+                        .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(jsonObject))
+                        .setKeys((Attributes) queueMessage.getMessageBody()),
+                queueMessage);
     }
 }

@@ -52,7 +52,6 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -446,9 +445,6 @@ public class QueryRetrieveRS {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed.";
                     status = Response.Status.NO_CONTENT;
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
@@ -554,9 +550,6 @@ public class QueryRetrieveRS {
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
                 errorStatus = Response.Status.NOT_FOUND;
-                warning = e.getMessage();
-            } catch (QueueSizeLimitExceededException e) {
-                errorStatus = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();

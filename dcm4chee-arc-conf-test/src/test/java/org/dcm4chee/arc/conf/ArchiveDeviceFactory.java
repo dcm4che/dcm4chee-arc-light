@@ -195,38 +195,38 @@ class ArchiveDeviceFactory {
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
-        newQueueDescriptor("MPPSSCU", "MPPS Forward Tasks"),
-        newQueueDescriptor("IANSCU", "IAN Tasks"),
-        newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks"),
-        newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks"),
-        newQueueDescriptor("StgVerTasks", "Storage Verification Tasks"),
-        newQueueDescriptor("Export1", "Dicom Export Tasks"),
-        newQueueDescriptor("Export2", "WADO Export Tasks"),
-        newQueueDescriptor("Export3", "XDS-I Export Tasks"),
-        newQueueDescriptor("Export4", "Export4"),
-        newQueueDescriptor("Export5", "Nearline Storage Export Tasks"),
-        newQueueDescriptor("Export6", "Export6"),
-        newQueueDescriptor("Export7", "Export7"),
-        newQueueDescriptor("Export8", "Export8"),
-        newQueueDescriptor("Export9", "Export9"),
-        newQueueDescriptor("Export10", "Export10"),
-        newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
-        newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
-        newQueueDescriptor("Retrieve1", "Dicom Retrieve Tasks 1"),
-        newQueueDescriptor("Retrieve2", "Dicom Retrieve Tasks 2"),
-        newQueueDescriptor("Retrieve3", "Dicom Retrieve Tasks 3"),
-        newQueueDescriptor("Retrieve4", "Dicom Retrieve Tasks 4"),
-        newQueueDescriptor("Retrieve5", "Dicom Retrieve Tasks 5"),
-        newQueueDescriptor("Retrieve6", "Dicom Retrieve Tasks 6"),
-        newQueueDescriptor("Retrieve7", "Dicom Retrieve Tasks 7"),
-        newQueueDescriptor("Retrieve8", "Dicom Retrieve Tasks 8"),
-        newQueueDescriptor("Retrieve9", "Dicom Retrieve Tasks 9"),
-        newQueueDescriptor("Retrieve10", "Dicom Retrieve Tasks 10"),
-        newQueueDescriptor("Retrieve11", "Dicom Retrieve Tasks 11"),
-        newQueueDescriptor("Retrieve12", "Dicom Retrieve Tasks 12"),
-        newQueueDescriptor("Retrieve13", "Dicom Retrieve Tasks 13"),
-        newQueueDescriptor("DiffTasks", "Diff Tasks"),
-        newQueueDescriptor("Rejection", "Rejection Tasks")
+        newQueueDescriptor("MPPSSCU", "MPPS Forward Tasks", TaskProcessorName.MPPS_SCU, true),
+        newQueueDescriptor("IANSCU", "IAN Tasks", TaskProcessorName.IAN_SCU, true),
+        newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks", TaskProcessorName.STGCMT_SCP, true),
+        newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks", TaskProcessorName.STGCMT_SCU, true),
+        newQueueDescriptor("StgVerTasks", "Storage Verification Tasks", TaskProcessorName.STG_VERIFIER, true),
+        newQueueDescriptor("Export1", "Dicom Export Tasks", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export2", "WADO Export Tasks", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export3", "XDS-I Export Tasks", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export4", "Export4", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export5", "Nearline Storage Export Tasks", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export6", "Export6", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export7", "Export7", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export8", "Export8", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export9", "Export9", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("Export10", "Export10", TaskProcessorName.EXPORTER, false),
+        newQueueDescriptor("HL7Send", "HL7 Forward Tasks", TaskProcessorName.HL7_SENDER, true),
+        newQueueDescriptor("RSClient", "RESTful Forward Tasks", TaskProcessorName.REST_CLIENT, true),
+        newQueueDescriptor("Retrieve1", "Dicom Retrieve Tasks 1", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve2", "Dicom Retrieve Tasks 2", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve3", "Dicom Retrieve Tasks 3", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve4", "Dicom Retrieve Tasks 4", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve5", "Dicom Retrieve Tasks 5", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve6", "Dicom Retrieve Tasks 6", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve7", "Dicom Retrieve Tasks 7", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve8", "Dicom Retrieve Tasks 8", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve9", "Dicom Retrieve Tasks 9", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve10", "Dicom Retrieve Tasks 10", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve11", "Dicom Retrieve Tasks 11", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve12", "Dicom Retrieve Tasks 12", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("Retrieve13", "Dicom Retrieve Tasks 13", TaskProcessorName.MOVE_SCU, false),
+        newQueueDescriptor("DiffTasks", "Diff Tasks", TaskProcessorName.DIFF_SCU, true),
+        newQueueDescriptor("Rejection", "Rejection Tasks", TaskProcessorName.REJECT_SCU, true)
     };
 
     static final MetricsDescriptor[] METRICS_DESCRIPTORS = {
@@ -247,15 +247,17 @@ class ArchiveDeviceFactory {
             newHL7OrderSPSStatus("COMPLETED", "XO_CM", "SC_CM", "SC_A")
     };
 
-    private static QueueDescriptor newQueueDescriptor(String name, String description) {
+    private static QueueDescriptor newQueueDescriptor(
+            String name, String description, TaskProcessorName taskProcessorName, boolean installed) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
-        desc.setJndiName("jms/queue/" + name);
+        desc.setTaskProcessorName(taskProcessorName);
         desc.setMaxRetries(10);
         desc.setRetryDelay(Duration.valueOf("PT30S"));
         desc.setRetryDelayMultiplier(200);
         desc.setMaxRetryDelay(Duration.valueOf("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.valueOf("P1D"));
+        desc.setInstalled(installed);
         return desc;
     }
 
@@ -1302,6 +1304,7 @@ class ArchiveDeviceFactory {
             null,
             "Radiology");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration TASK_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration UPS_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration DELETE_UPS_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P7D");
@@ -1773,6 +1776,8 @@ class ArchiveDeviceFactory {
         ext.setStudySizeDelay(CALCULATE_STUDY_SIZE_DELAY);
         ext.setCalculateStudySizePollingInterval(CALCULATE_STUDY_SIZE_POLLING_INTERVAL);
         ext.setCalculateQueryAttributes(true);
+
+        ext.setTaskProcessingPollingInterval(TASK_PROCESSING_POLLING_INTERVAL);
 
         ext.setUPSProcessingPollingInterval(UPS_PROCESSING_POLLING_INTERVAL);
         ext.setDeleteUPSPollingInterval(DELETE_UPS_POLLING_INTERVAL);

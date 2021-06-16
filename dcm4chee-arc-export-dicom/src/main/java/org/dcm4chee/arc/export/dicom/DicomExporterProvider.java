@@ -68,7 +68,7 @@ public class DicomExporterProvider implements ExporterProvider {
     @Inject
     private CStoreSCU storeSCU;
 
-    private final Map<String, RetrieveTask> retrieveTaskMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Long, RetrieveTask> retrieveTaskMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
@@ -76,7 +76,7 @@ public class DicomExporterProvider implements ExporterProvider {
     }
 
     public void cancelRetrieveTask(@Observes MessageCanceled event) {
-        RetrieveTask retrieveTask = retrieveTaskMap.get(event.getMessageID());
+        RetrieveTask retrieveTask = retrieveTaskMap.get(event.queueMessage.getPk());
         if (retrieveTask != null)
             retrieveTask.onCancelRQ(null);
     }

@@ -60,7 +60,6 @@ import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
@@ -292,9 +291,6 @@ public class DiffRS {
         } catch (ConfigurationException e) {
             warning = e.getMessage();
             status = Response.Status.NOT_FOUND;
-        } catch (QueueSizeLimitExceededException e) {
-            status = Response.Status.SERVICE_UNAVAILABLE;
-            warning = e.getMessage();
         } catch (Exception e) {
             warning = e.getMessage();
             status = Response.Status.INTERNAL_SERVER_ERROR;

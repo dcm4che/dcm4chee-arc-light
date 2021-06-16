@@ -151,13 +151,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.25 NAME 'dcmFwdMppsDestination'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.26 NAME 'dcmQueueName'
-  DESC 'JMS Queue Name'
+  DESC 'Task Queue Name'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.27 NAME 'dcmJndiName'
-  DESC 'JNDI Name'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1128,7 +1128,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.189 NAME 'hl7UseNullValue'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.190 NAME 'dcmMaxQueueSize'
-  DESC 'Maximal number of scheduled tasks in the queue. If the number of scheduled tasks reaches the limit, an attempt to schedule another tasks will fail. 0 = no limitation.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1139,7 +1139,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.191 NAME 'dcmNullifyTag'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.192 NAME 'dcmExportPriority'
-  DESC 'JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest). 4 if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1971,7 +1971,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.338 NAME 'dcmRestrictRetrieveSilently'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup'
-  DESC 'Indicates to retry tasks left in status IN PROCESS on system start-up; false if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -2325,7 +2325,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.397 NAME 'hl7ImportReportMissingStudyIUID
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.398 NAME 'dcmPrefetchPriority'
-  DESC 'JMS Priority Level of scheduled retrieve tasks from 0 (lowest) to 9 (highest). 4 if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -2423,6 +2423,30 @@ attributetype ( 1.2.40.0.13.1.15.110.3.414 NAME 'dcmQidoETag'
   DESC 'Indicates to return Last-Modified and ETag for Search Series or Instances of a Study; disabled if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.415 NAME 'dcmTaskProcessingPollingInterval'
+  DESC 'Polling Interval for scheduled Tasks ready for processing in ISO-8601 duration format PnDTnHnMnS. If absent, Tasks will not get processed.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.416 NAME 'dcmTaskProcessingFetchSize'
+  DESC 'Limit result set of DB query for scheduled Tasks ready for processing; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskProcessorName'
+  DESC 'Name of Task Processor associated with the Queue. Enumerated values: EXPORTER, MOVE_SCU, MPPS_SCU, IAN_SCU, STGCMT_SCP, STGCMT_SCU, STG_VERIFIER, HL7_SENDER, REST_CLIENT, REJECT_SCU, DIFF_SCU.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.418 NAME 'dcmMaxTasksParallel'
+  DESC 'Maximal number of tasks processed in parallel; 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2524,6 +2548,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDiffStudiesIncludefieldAll $
     dcmUPSProcessingPollingInterval $
     dcmUPSProcessingFetchSize $
+    dcmTaskProcessingPollingInterval $
+    dcmTaskProcessingFetchSize $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
     dcmRetrieveTaskPollingInterval $
@@ -2874,13 +2900,14 @@ objectclass ( 1.2.40.0.13.1.15.110.4.13 NAME 'dcmQueryRetrieveView'
     dcmHideNotRejectedInstances ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
-  DESC 'Managed JMS Queue'
+  DESC 'Task Queue'
   SUP top STRUCTURAL
   MUST (
-    dcmQueueName $
-    dcmJndiName)
+    dcmQueueName )
   MAY (
     dicomDescription $
+    dcmTaskProcessorName $
+    dcmMaxTasksParallel $
     dcmMaxRetries $
     dcmRetryDelay $
     dcmMaxRetryDelay $
@@ -2892,6 +2919,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmPurgeQueueMessageWarningDelay $
     dcmPurgeQueueMessageCanceledDelay $
     dcmSchedule $
+    dicomInstalled $
+    dcmJndiName $
     dcmMaxQueueSize ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'

@@ -49,7 +49,6 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
@@ -155,8 +154,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
-            Date notRetrievedAfter, long delay) throws QueueSizeLimitExceededException {
+    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay) {
         return ejb.scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay);
     }
 

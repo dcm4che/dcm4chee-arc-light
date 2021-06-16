@@ -57,7 +57,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.*;
@@ -202,8 +201,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Override
     public boolean scheduleStgVerTask(
-            StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
-            throws QueueSizeLimitExceededException {
+            StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID) {
         return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
     }
 
@@ -223,13 +221,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleStgVerTask(pk, queueEvent);
+    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+        ejb.rescheduleStgVerTask(pk, queueEvent, scheduledTime);
     }
 
     @Override
-    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId) {
-        ejb.rescheduleStgVerTask(stgVerTaskQueueMsgId, null);
+    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, Date scheduledTime) {
+        ejb.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgPK, null, scheduledTime);
     }
 
     @Override
@@ -238,15 +236,15 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<String> listStgVerTaskQueueMsgIDs(
+    public List<Long> listStgVerQueueMsgPKs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
+        return ejb.listStgVerTaskPKs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
     }
 
     @Override
-    public List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
+    public List<Tuple> listStgVerTaskPKAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, stgVerTaskQueryParam, limit);
+        return ejb.listStgVerTaskPKAndMsgProps(queueTaskQueryParam, stgVerTaskQueryParam, limit);
     }
 
     @Override

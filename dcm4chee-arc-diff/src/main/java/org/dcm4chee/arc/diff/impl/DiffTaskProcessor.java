@@ -39,65 +39,32 @@
  *
  */
 
-package org.dcm4chee.arc.delete.impl;
+package org.dcm4chee.arc.diff.impl;
 
-import org.dcm4che3.data.Code;
-import org.dcm4chee.arc.delete.RejectionService;
+import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2019
+ * @since Mar 2018
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class RejectionServiceMDB implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(RejectionServiceMDB.class);
-
+@ApplicationScoped
+@Named("DIFF_SCU")
+public class DiffTaskProcessor implements TaskProcessor {
     @Inject
-    private QueueManager queueManager;
-
-    @Inject
-    private RejectionService service;
+    private DiffService diffService;
 
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
-        if (queueMessage == null)
-            return;
-
-        try {
-            String aet = msg.getStringProperty("LocalAET");
-            String studyIUID = msg.getStringProperty("StudyInstanceUID");
-            String seriesIUID = msg.getStringProperty("SeriesInstanceUID");
-            String sopIUID = msg.getStringProperty("SOPInstanceUID");
-            String code = msg.getStringProperty("Code");
-            int count = service.reject(aet, studyIUID, seriesIUID, sopIUID, new Code(code),
-                    HttpServletRequestInfo.valueOf(msg));
-            queueManager.onProcessingSuccessful(msgID, count > 0
-                    ? new Outcome(QueueMessage.Status.COMPLETED, count + " instances rejected.")
-                    : new Outcome(QueueMessage.Status.WARNING,
-                    "No instances of Study[UID=" + studyIUID + "] found for rejection."));
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        return diffService.executeDiffTask(queueMessage.getDiffTask(), HttpServletRequestInfo.valueOf(jsonObject));
     }
 }

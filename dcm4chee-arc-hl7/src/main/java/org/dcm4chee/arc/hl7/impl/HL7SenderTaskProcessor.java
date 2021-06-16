@@ -53,27 +53,21 @@ import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2016
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class HL7SenderMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HL7SenderMDB.class);
+@ApplicationScoped
+@Named("HL7_SENDER")
+public class HL7SenderTaskProcessor implements TaskProcessor {
 
     @Inject
     private Device device;
@@ -84,36 +78,21 @@ public class HL7SenderMDB implements MessageListener {
     @Inject
     private HL7Sender hl7Sender;
 
-    @Inject
-    private QueueManager queueManager;
-
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        if (queueManager.onProcessingStart(msgID) == null)
-            return;
-        try {
-            ArchiveHL7Message hl7Msg = new ArchiveHL7Message((byte[]) ((ObjectMessage) msg).getObject());
-            HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
-                    .getHL7Application(msg.getStringProperty("SendingApplication")
-                                    + '|'
-                                    + msg.getStringProperty("SendingFacility"),
-                            true);
-            HL7Application receiver = hl7AppCache.findHL7Application(msg.getStringProperty("ReceivingApplication")
-                                    + '|'
-                                    + msg.getStringProperty("ReceivingFacility"));
-            hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
-            UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
-            queueManager.onProcessingSuccessful(msgID, toOutcome(rsp.data(), sender));
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+        ArchiveHL7Message hl7Msg = new ArchiveHL7Message((byte[]) queueMessage.getMessageBody());
+        HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(jsonObject.getString("SendingApplication")
+                                + '|'
+                                + jsonObject.getString("SendingFacility"),
+                        true);
+        HL7Application receiver = hl7AppCache.findHL7Application(jsonObject.getString("ReceivingApplication")
+                                + '|'
+                                + jsonObject.getString("ReceivingFacility"));
+        hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(jsonObject));
+        UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
+        return toOutcome(rsp.data(), sender);
     }
 
     private Outcome toOutcome(byte[] rsp, HL7Application sender) {

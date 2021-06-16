@@ -72,7 +72,7 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class DiffServiceImpl implements DiffService {
 
-    private Map<String,DiffSCU> diffSCUMap = Collections.synchronizedMap(new HashMap<>());;
+    private Map<Long,DiffSCU> diffSCUMap = Collections.synchronizedMap(new HashMap<>());;
 
     @Inject
     private Device device;
@@ -92,12 +92,12 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
+    public void scheduleDiffTask(DiffContext ctx) {
         ejb.scheduleDiffTask(ctx);
     }
 
     @Override
-    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException {
+    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) {
         ejb.scheduleDiffTasks(ctx, studyUIDs);
     }
 
@@ -105,10 +105,10 @@ public class DiffServiceImpl implements DiffService {
     public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
         ejb.resetDiffTask(diffTask);
-        String messageID = diffTask.getQueueMessage().getMessageID();
+        Long taskPK = diffTask.getQueueMessage().getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
-            diffSCUMap.put(messageID, diffSCU);
+            diffSCUMap.put(taskPK, diffSCU);
             diffSCU.init();
             Attributes diff;
             updateDiffTask = updateDiffTask(diffTask, diffSCU);
@@ -117,7 +117,7 @@ public class DiffServiceImpl implements DiffService {
             ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         } finally {
-            diffSCUMap.remove(messageID);
+            diffSCUMap.remove(taskPK);
             if (updateDiffTask != null)
                 updateDiffTask.cancel(false);
         }
@@ -134,7 +134,7 @@ public class DiffServiceImpl implements DiffService {
     }
 
     public void cancelDiffTask(@Observes MessageCanceled event) {
-        DiffSCU diffSCU = diffSCUMap.get(event.getMessageID());
+        DiffSCU diffSCU = diffSCUMap.get(event.queueMessage.getPk());
         if (diffSCU != null)
             diffSCU.cancel();
     }
@@ -186,13 +186,13 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleDiffTask(pk, queueEvent);
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+        ejb.rescheduleDiffTask(pk, queueEvent, scheduledTime);
     }
 
     @Override
-    public void rescheduleDiffTask(String diffTaskQueueMsgId) {
-        ejb.rescheduleDiffTask(diffTaskQueueMsgId, null);
+    public void rescheduleDiffTaskByMsgID(Long msgId, Date scheduledTime) {
+        ejb.rescheduleDiffTaskByMsgID(msgId, null, scheduledTime);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<String> listDiffTaskQueueMsgIDs(
+    public List<Long> listDiffTaskQueueMsgIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
         return ejb.listDiffTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
     }

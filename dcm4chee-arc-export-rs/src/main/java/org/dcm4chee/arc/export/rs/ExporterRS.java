@@ -49,7 +49,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -170,12 +169,8 @@ public class ExporterRS {
             if (exporter == null) {
                 return errResponse("No such Exporter: " + exporterID, Response.Status.NOT_FOUND);
             }
-            try {
-                exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
-                        HttpServletRequestInfo.valueOf(request), batchID, studyUID);
-            } catch (QueueSizeLimitExceededException e) {
-                return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
-            }
+            exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
+                    HttpServletRequestInfo.valueOf(request), batchID, studyUID);
             return Response.accepted().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

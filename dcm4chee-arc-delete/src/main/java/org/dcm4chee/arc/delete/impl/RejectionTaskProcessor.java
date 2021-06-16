@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2019
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,35 +35,47 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.hl7;
+package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.data.Code;
+import org.dcm4chee.arc.delete.RejectionService;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2016
+ * @since Jan 2019
  */
-public interface HL7Sender {
-    String QUEUE_NAME = "HL7Send";
+@ApplicationScoped
+@Named("REJECT_SCU")
+public class RejectionTaskProcessor implements TaskProcessor {
+    @Inject
+    private RejectionService service;
 
-    void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
-                         HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException;
-
-    UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
-                                   String messageType, String messageControlID, UnparsedHL7Message hl7msg)
-            throws Exception;
-
-    void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data);
-
-    UnparsedHL7Message sendMessage(HL7Application sender, HL7Application receiver, UnparsedHL7Message hl7msg)
-            throws Exception;
+    @Override
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+            JsonObject jsonObject = queueMessage.readMessageProperties();
+            String aet = jsonObject.getString("LocalAET");
+            String studyIUID = jsonObject.getString("StudyInstanceUID");
+            String seriesIUID = jsonObject.getString("SeriesInstanceUID");
+            String sopIUID = jsonObject.getString("SOPInstanceUID");
+            String code = jsonObject.getString("Code");
+            int count = service.reject(aet, studyIUID, seriesIUID, sopIUID, new Code(code),
+                    HttpServletRequestInfo.valueOf(jsonObject));
+            return count > 0
+                    ? new Outcome(QueueMessage.Status.COMPLETED, count + " instances rejected.")
+                    : new Outcome(QueueMessage.Status.WARNING,
+                    "No instances of Study[UID=" + studyIUID + "] found for rejection.");
+    }
 }

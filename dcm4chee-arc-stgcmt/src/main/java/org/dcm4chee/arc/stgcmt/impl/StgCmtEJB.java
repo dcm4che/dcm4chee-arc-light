@@ -53,7 +53,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -66,12 +65,12 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -231,32 +230,41 @@ public class StgCmtEJB {
         return em.createQuery(q).executeUpdate();
     }
 
-    public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
-                                      String batchID) throws QueueSizeLimitExceededException {
+    public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask,
+                                       HttpServletRequestInfo httpServletRequestInfo,
+                                       String batchID) {
         if (isAlreadyScheduled(storageVerificationTask))
             return false;
 
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(0);
-            msg.setStringProperty("LocalAET", storageVerificationTask.getLocalAET());
-            msg.setStringProperty("StudyInstanceUID", storageVerificationTask.getStudyInstanceUID());
-            if (storageVerificationTask.getSeriesInstanceUID() != null) {
-                msg.setStringProperty("SeriesInstanceUID", storageVerificationTask.getSeriesInstanceUID());
-                if (storageVerificationTask.getSOPInstanceUID() != null) {
-                    msg.setStringProperty("SOPInstanceUID", storageVerificationTask.getSOPInstanceUID());
+        QueueMessage queueMessage = queueManager.scheduleMessage(
+                device.getDeviceName(),
+                StgCmtManager.QUEUE_NAME,
+                new Date(),
+                toJSON(storageVerificationTask, httpServletRequestInfo),
+                0,
+                batchID);
+        storageVerificationTask.setQueueMessage(queueMessage);
+        em.persist(storageVerificationTask);
+        return true;
+    }
+
+    private String toJSON(StorageVerificationTask task, HttpServletRequestInfo httpServletRequestInfo) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", task.getLocalAET());
+            gen.write("StudyInstanceUID", task.getStudyInstanceUID());
+            if (!task.getSeriesInstanceUID().equals("*")) {
+                gen.write("SeriesInstanceUID", task.getSeriesInstanceUID());
+                if (!task.getSOPInstanceUID().equals("*")) {
+                    gen.write("SOPInstanceUID", task.getSOPInstanceUID());
                 }
             }
-            if (httpServletRequestInfo != null) {
-                httpServletRequestInfo.copyTo(msg);
-            }
-            QueueMessage queueMessage = queueManager.scheduleMessage(StgCmtManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY, batchID, 0L);
-            storageVerificationTask.setQueueMessage(queueMessage);
-            em.persist(storageVerificationTask);
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
         }
-        return true;
+        return sw.toString();
     }
 
     private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
@@ -335,7 +343,7 @@ public class StgCmtEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -356,33 +364,33 @@ public class StgCmtEJB {
         return em.createQuery(tupleQuery).getSingleResult();
     }
 
-    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
         StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        rescheduleStgVerTask(task.getQueueMessage().getMessageID(), queueEvent);
+        rescheduleStgVerTaskByQueueMsgPK(task.getQueueMessage().getPk(), queueEvent, scheduledTime);
     }
 
-    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId, QueueMessageEvent queueEvent) {
-        queueManager.rescheduleTask(stgVerTaskQueueMsgId, StgCmtManager.QUEUE_NAME, queueEvent);
+    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, QueueMessageEvent queueEvent, Date scheduledTime) {
+        queueManager.rescheduleTask(stgVerTaskQueueMsgPK, StgCmtManager.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         return em.createQuery(
-                select(QueueMessage_.deviceName, queueTaskQueryParam, stgVerTaskQueryParam).distinct(true))
+                select(String.class, QueueMessage_.deviceName, queueTaskQueryParam, stgVerTaskQueryParam).distinct(true))
                 .getResultList();
     }
 
-    public List<String> listStgVerTaskQueueMsgIDs(
+    public List<Long> listStgVerTaskPKs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return em.createQuery(select(QueueMessage_.messageID, queueTaskQueryParam, stgVerTaskQueryParam))
+        return em.createQuery(select(Long.class, QueueMessage_.pk, queueTaskQueryParam, stgVerTaskQueryParam))
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    public List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
+    public List<Tuple> listStgVerTaskPKAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
@@ -394,7 +402,7 @@ public class StgCmtEJB {
             q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(
                 q.multiselect(
-                    queueMsg.get(QueueMessage_.messageID),
+                    queueMsg.get(QueueMessage_.pk),
                     queueMsg.get(QueueMessage_.messageProperties)))
                 .setMaxResults(limit)
                 .getResultList();
@@ -405,7 +413,7 @@ public class StgCmtEJB {
         if (task == null)
             return false;
 
-        queueManager.deleteTask(task.getQueueMessage().getMessageID(), queueEvent);
+        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent);
         LOG.info("Delete {}", task);
         return true;
     }
@@ -589,10 +597,10 @@ public class StgCmtEJB {
         }
     }
 
-    private CriteriaQuery<String> select(SingularAttribute<QueueMessage, String> attribute,
+    private <T> CriteriaQuery<T> select(Class<T> clazz, SingularAttribute<QueueMessage, T> attribute,
                                          TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
+        CriteriaQuery<T> q = cb.createQuery(clazz);
         Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
         From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
         List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
@@ -604,8 +612,8 @@ public class StgCmtEJB {
 
     public int deleteTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
-        List<String> referencedQueueMsgIDs = em.createQuery(
-                select(QueueMessage_.messageID, queueTaskQueryParam, stgVerTaskQueryParam))
+        List<Long> referencedQueueMsgIDs = em.createQuery(
+                select(Long.class, QueueMessage_.pk, queueTaskQueryParam, stgVerTaskQueryParam))
                 .setMaxResults(deleteTasksFetchSize)
                 .getResultList();
 

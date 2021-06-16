@@ -44,67 +44,45 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Dimse;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
+import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2015
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class MPPSMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MPPSMDB.class);
+@ApplicationScoped
+@Named("MPPS_SCU")
+public class MPPSTaskProcessor implements TaskProcessor {
 
     @Inject
     private MPPSSCU mppsSCU;
 
-    @Inject
-    private QueueManager queueManager;
-
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        if (queueManager.onProcessingStart(msgID) == null)
-            return;
-        try {
-            Attributes attrs = (Attributes) ((ObjectMessage) msg).getObject();
-            Outcome outcome = mppsSCU.forwardMPPS(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
-                    Dimse.valueOf(msg.getStringProperty("DIMSE")),
-                    msg.getStringProperty("SOPInstanceUID"),
-                    attrs,
-                    procAttrs(msg));
-            queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.readMessageProperties();
+            return mppsSCU.forwardMPPS(
+                    jsonObject.getString("LocalAET"),
+                    jsonObject.getString("RemoteAET"),
+                    Dimse.valueOf(jsonObject.getString("DIMSE")),
+                    jsonObject.getString("SOPInstanceUID"),
+                    (Attributes) queueMessage.getMessageBody(),
+                    procAttrs(jsonObject));
     }
 
-    private Attributes procAttrs(Message msg) throws JMSException {
+    private Attributes procAttrs(JsonObject jsonObject) {
         Attributes procAttrs = new Attributes(4);
-        procAttrs.setString(Tag.AccessionNumber, VR.SH, msg.getStringProperty("AccessionNumber"));
-        procAttrs.setString(Tag.StudyInstanceUID, VR.UI, msg.getStringProperty("StudyInstanceUID"));
-        procAttrs.setString(Tag.PatientName, VR.PN, msg.getStringProperty("PatientName"));
-        procAttrs.setString(Tag.PatientID, VR.LO, msg.getStringProperty("PatientID"));
+        procAttrs.setString(Tag.AccessionNumber, VR.SH, jsonObject.getString("AccessionNumber"));
+        procAttrs.setString(Tag.StudyInstanceUID, VR.UI, jsonObject.getString("StudyInstanceUID"));
+        procAttrs.setString(Tag.PatientName, VR.PN, jsonObject.getString("PatientName"));
+        procAttrs.setString(Tag.PatientID, VR.LO, jsonObject.getString("PatientID"));
         return procAttrs;
     }
 }

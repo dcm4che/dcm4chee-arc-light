@@ -52,6 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -312,7 +313,7 @@ public class DiffTask {
             "comparefield",
             "createdTime",
             "updatedTime",
-            "JMSMessageID",
+            "taskPK",
             "queue",
             "dicomDeviceName",
             "status",
@@ -341,7 +342,7 @@ public class DiffTask {
                 compareFields,
                 df.format(createdTime),
                 df.format(updatedTime),
-                queueMessage.getMessageID(),
+                queueMessage.getPk(),
                 queueMessage.getQueueName(),
                 queueMessage.getDeviceName(),
                 queueMessage.getStatus().toString(),

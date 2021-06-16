@@ -43,7 +43,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.jms.Message;
 import java.util.Date;
 
 /**
@@ -65,7 +64,6 @@ public class ExternalRetrieveContext {
     private String queueName;
     private String batchID;
     private Date scheduledTime;
-    private int priority = Message.DEFAULT_PRIORITY;
 
     public ExternalRetrieveContext() {
     }
@@ -222,15 +220,6 @@ public class ExternalRetrieveContext {
         return response != null ? response.getInt(Tag.NumberOfCompletedSuboperations, 0) : 0;
     }
 
-    public int getPriority() {
-        return priority;
-    }
-
-    public ExternalRetrieveContext setPriority(int priority) {
-        this.priority = priority;
-        return this;
-    }
-
     @Override
     public String toString() {
         return "ExternalRetrieveContext[" + getRequesterUserID() + '@' + getRequesterHostName()
@@ -238,7 +227,6 @@ public class ExternalRetrieveContext {
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET
-                + ", priority=" + priority
                 + ", studyUID=" + getStudyInstanceUID()
                 + ", status=" + TagUtils.shortToHexString(getStatus())
                 + ", completed=" + completed()

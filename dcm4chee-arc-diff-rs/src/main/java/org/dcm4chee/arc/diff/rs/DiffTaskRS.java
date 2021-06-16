@@ -84,6 +84,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -304,7 +305,8 @@ public class DiffTaskRS {
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
 
-            diffService.rescheduleDiffTask(pk, queueEvent);
+            Date scheduledTime = new Date();
+            diffService.rescheduleDiffTask(pk, queueEvent, scheduledTime);
             return Response.noContent().build();
         } catch (ConfigurationException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
@@ -343,13 +345,14 @@ public class DiffTaskRS {
                 return rsClient.forward(request, devName, "");
 
             TaskQueryParam diffTaskQueryParam = diffTaskQueryParam(updatedTime);
+            Date scheduledTime = new Date();
             return newDeviceName != null
-                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), diffTaskQueryParam)
+                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), diffTaskQueryParam, scheduledTime)
                     : count(devName == null
-                        ? rescheduleOnDistinctDevices(diffTaskQueryParam, status)
+                        ? rescheduleOnDistinctDevices(diffTaskQueryParam, status, scheduledTime)
                         : rescheduleTasks(
                                 queueTaskQueryParam(devName, status),
-                                diffTaskQueryParam));
+                                diffTaskQueryParam, scheduledTime));
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -357,7 +360,7 @@ public class DiffTaskRS {
         }
     }
 
-    private int rescheduleOnDistinctDevices(TaskQueryParam diffTaskQueryParam, QueueMessage.Status status) throws Exception {
+    private int rescheduleOnDistinctDevices(TaskQueryParam diffTaskQueryParam, QueueMessage.Status status, Date scheduledTime) throws Exception {
         List<String> distinctDeviceNames = diffService.listDistinctDeviceNames(
                                                         queueTaskQueryParam(null, status), diffTaskQueryParam);
         int count = 0;
@@ -365,25 +368,25 @@ public class DiffTaskRS {
             count += devName.equals(device.getDeviceName())
                     ? rescheduleTasks(
                         queueTaskQueryParam(devName, status),
-                        diffTaskQueryParam)
+                        diffTaskQueryParam, scheduledTime)
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
     }
 
-    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
             int rescheduleTasksFetchSize = queueTasksFetchSize();
             do {
-                List<String> diffTaskQueueMsgIDs = diffService.listDiffTaskQueueMsgIDs(
+                List<Long> diffTaskQueueMsgPKs = diffService.listDiffTaskQueueMsgIDs(
                                                                 queueTaskQueryParam,
                                                                 diffTaskQueryParam,
                                                                 rescheduleTasksFetchSize);
-                diffTaskQueueMsgIDs.forEach(diffTaskQueueMsgID -> diffService.rescheduleDiffTask(diffTaskQueueMsgID));
-                count = diffTaskQueueMsgIDs.size();
+                diffTaskQueueMsgPKs.forEach(pk -> diffService.rescheduleDiffTaskByMsgID(pk, scheduledTime));
+                count = diffTaskQueueMsgPKs.size();
                 rescheduled += count;
             } while (count >= rescheduleTasksFetchSize);
             LOG.info("Rescheduled {} Diff tasks on device {}", rescheduled, device.getDeviceName());
@@ -397,7 +400,7 @@ public class DiffTaskRS {
         }
     }
 
-    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         int rescheduled = 0;
         int failed = 0;
@@ -408,15 +411,15 @@ public class DiffTaskRS {
                 List<Tuple> diffTaskTuples = diffService.listDiffTaskQueueMsgIDAndMsgProps(
                         queueTaskQueryParam, diffTaskQueryParam, rescheduleTaskFetchSize);
                 for (Tuple tuple : diffTaskTuples) {
-                    String diffTaskQueueMsgId = (String) tuple.get(0);
+                    Long queueMessagePK = (Long) tuple.get(0);
                     try {
                         if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            diffService.rescheduleDiffTask(diffTaskQueueMsgId);
+                            diffService.rescheduleDiffTaskByMsgID(queueMessagePK, scheduledTime);
                             count++;
                         }
                     } catch (ConfigurationException e) {
                         LOG.info("Validation of association initiator failed for Diff Task queue message id {} : {}",
-                                diffTaskQueueMsgId, e.getMessage());
+                                queueMessagePK, e.getMessage());
                         failed++;
                     }
                 }

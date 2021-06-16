@@ -61,8 +61,7 @@ public interface RetrieveManager {
 
     int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
-    int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter,
-                             long delay) throws QueueSizeLimitExceededException;
+    int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay);
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 

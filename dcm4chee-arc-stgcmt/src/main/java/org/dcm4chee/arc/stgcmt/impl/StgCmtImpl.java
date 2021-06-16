@@ -62,7 +62,6 @@ import org.dcm4chee.arc.exporter.DefaultExportContext;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
@@ -74,10 +73,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -130,18 +130,11 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
         if (stgCmtSCPAETitle != null && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
-            try {
-                scheduleStorageCommit(ctx, descriptor);
-            } catch (QueueSizeLimitExceededException e) {
-                LOG.warn(e.getMessage()
-                        + " - no Storage Commitment triggered for Export to "
-                        + descriptor.getExporterID());
-            }
-    }
+            scheduleStorageCommit(ctx, descriptor);
+     }
 
     @Override
-    public void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
-            throws QueueSizeLimitExceededException {
+    public void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor) {
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
         if (stgCmtSCPAETitle != null) {
             ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
@@ -152,8 +145,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     @Override
     public void scheduleStorageCommit(
-            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel)
-            throws QueueSizeLimitExceededException {
+            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel) {
         ExportContext ctx = createExportContext(localAET, match, batchID, qrLevel);
         ApplicationEntity ae = device.getApplicationEntity(localAET, true);
         Attributes actionInfo = createActionInfo(ctx, ae);
@@ -193,9 +185,6 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             scheduleNEventReport(localAET, remoteAET, actionInfo);
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.ProcessingFailure, "Unknown Calling AET: " + remoteAET);
-        } catch (QueueSizeLimitExceededException e) {
-            throw new DicomServiceException(Status.ResourceLimitation,
-                    "Maximum number of pending Storage Commitment requests reached");
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e.getMessage());
         }
@@ -216,41 +205,40 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
-                                 ExportContext ctx, String exporterID)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(actionInfo);
-            msg.setStringProperty("LocalAET", localAET);
-            msg.setStringProperty("RemoteAET", remoteAET);
-            msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
-            msg.setStringProperty("SeriesInstanceUID", ctx.getSeriesInstanceUID());
-            msg.setStringProperty("SOPInstanceUID", ctx.getSopInstanceUID());
-            msg.setStringProperty("ExporterID", exporterID);
-            msg.setStringProperty("MessageID", ctx.getMessageID());
-            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, ctx.getBatchID(), 0L);
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+                                 ExportContext ctx, String exporterID) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", localAET);
+            gen.write("RemoteAET", remoteAET);
+            gen.write("StudyInstanceUID", ctx.getStudyInstanceUID());
+            gen.write("SeriesInstanceUID", ctx.getSeriesInstanceUID());
+            gen.write("SOPInstanceUID", ctx.getSopInstanceUID());
+            gen.write("ExporterID", exporterID);
+            gen.writeEnd();
         }
+        queueManager.scheduleMessage(device.getDeviceName(), StgCmtSCU.QUEUE_NAME, new Date(),
+                sw.toString(), actionInfo, ctx.getBatchID());
     }
 
-    private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(eventInfo);
-            msg.setStringProperty("LocalAET", localAET);
-            msg.setStringProperty("RemoteAET", remoteAET);
-            queueManager.scheduleMessage(StgCmtSCP.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw QueueMessage.toJMSRuntimeException(e);
+    private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", localAET);
+            gen.write("RemoteAET", remoteAET);
+            gen.writeEnd();
         }
+        queueManager.scheduleMessage(device.getDeviceName(), StgCmtSCP.QUEUE_NAME, new Date(),
+                sw.toString(), eventInfo, null);
     }
 
     @Override
     public Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            String sopInstanceUID, String exporterID, Long taskPK, String batchID, Attributes actionInfo)
             throws Exception  {
             DimseRSP dimseRSP = sendNActionRQ(localAET, remoteAET, studyInstanceUID, seriesInstanceUID, sopInstanceUID,
-                    exporterID, messageID, batchID, actionInfo);
+                    exporterID, taskPK, batchID, actionInfo);
             Attributes cmd = dimseRSP.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status != Status.Success) {
@@ -264,7 +252,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     @Override
     public DimseRSP sendNActionRQ(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            String sopInstanceUID, String exporterID, Long taskPK, String batchID, Attributes actionInfo)
             throws Exception  {
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
@@ -277,7 +265,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             result.setSeriesInstanceUID(seriesInstanceUID);
             result.setSopInstanceUID(sopInstanceUID);
             result.setExporterID(exporterID);
-            result.setMessageID(messageID);
+            result.setMessageID(taskPK);
             result.setBatchID(batchID);
             result.setDeviceName(device.getDeviceName());
             ejb.persistStgCmtResult(result);

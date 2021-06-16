@@ -58,7 +58,7 @@ public class TaskQueryParam {
     private QueueMessage.Status status;
     private StgCmtResult.Status stgCmtStatus;
     private String batchID;
-    private String jmsMessageID;
+    private Long jmsMessageID;
     private String createdTime;
     private String updatedTime;
     private Date updatedBefore;
@@ -107,11 +107,11 @@ public class TaskQueryParam {
         this.batchID = batchID;
     }
 
-    public String getJmsMessageID() {
+    public Long getJmsMessageID() {
         return jmsMessageID;
     }
 
-    public void setJmsMessageID(String jmsMessageID) {
+    public void setJmsMessageID(Long jmsMessageID) {
         this.jmsMessageID = jmsMessageID;
     }
 

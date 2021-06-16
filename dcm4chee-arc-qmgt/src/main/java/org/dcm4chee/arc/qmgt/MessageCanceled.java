@@ -1,18 +1,16 @@
 package org.dcm4chee.arc.qmgt;
 
+import org.dcm4chee.arc.entity.QueueMessage;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
 public class MessageCanceled {
 
-    private final String messageID;
+    public final QueueMessage queueMessage;
 
-    public MessageCanceled(String messageID) {
-        this.messageID = messageID;
-    }
-
-    public String getMessageID() {
-        return messageID;
+    public MessageCanceled(QueueMessage queueMessage) {
+        this.queueMessage = queueMessage;
     }
 }

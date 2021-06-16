@@ -44,10 +44,9 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
-import javax.jms.ObjectMessage;
 import javax.persistence.Tuple;
 import java.io.Serializable;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,20 +55,12 @@ import java.util.List;
  * @since Sep 2015
  */
 public interface QueueManager {
-    ObjectMessage createObjectMessage(Serializable object);
-
-    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority, String batchID, long delay)
-            throws QueueSizeLimitExceededException;
+    QueueMessage scheduleMessage(String deviceName, String queueName, Date scheduledTime,
+                                 String messageProperties, Serializable messageBody, String batchID);
 
     long countScheduledMessagesOnThisDevice(String queueName);
 
-    QueueMessage onProcessingStart(String msgId);
-
-    QueueMessage onProcessingSuccessful(String msgId, Outcome outcome);
-
-    QueueMessage onProcessingFailed(String msgId, Throwable e);
-
-    boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+    boolean cancelTask(Long msgID, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelTasks(TaskQueryParam queueTaskQueryParam);
 
@@ -81,23 +72,23 @@ public interface QueueManager {
 
     long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
+    void rescheduleTask(Long msgID, String queueName, QueueMessageEvent queueEvent, Date scheduledTime);
 
-    boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
+    boolean deleteTask(Long msgID, QueueMessageEvent queueEvent);
 
-    boolean deleteTask(String msgId, QueueMessageEvent queueEvent, boolean deleteAssociated);
+    boolean deleteTask(Long msgID, QueueMessageEvent queueEvent, boolean deleteAssociated);
 
     int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
 
-    Iterator<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit);
+    List<QueueMessage> listQueueMessages(TaskQueryParam taskQueryParam, int offset, int limit);
 
     long countTasks(TaskQueryParam taskQueryParam);
 
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam);
 
-    List<String> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit);
+    List<Long> listQueueMsgIDs(TaskQueryParam queueTaskQueryParam, int limit);
 
     List<Tuple> listQueueMsgIDAndMsgProps(TaskQueryParam queueTaskQueryParam, int limit);
 
-    Tuple findDeviceNameAndMsgPropsByMsgID(String msgID);
+    Tuple findDeviceNameAndMsgPropsByMsgID(Long msgID);
 }

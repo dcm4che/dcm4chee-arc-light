@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,62 +35,37 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.ian.scu.impl;
+package org.dcm4chee.arc.stgcmt.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.ian.scu.IANSCU;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.qmgt.TaskProcessor;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Apr 2016
+ * @since Jul 2018
  */
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class IANMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(IANMDB.class);
-
-    @Inject
-    private IANSCU ianSCU;
+@ApplicationScoped
+@Named("STG_VERIFIER")
+public class StgVerTaskProcessor implements TaskProcessor {
 
     @Inject
-    private QueueManager queueManager;
+    private StgCmtManager stgCmtMgr;
 
     @Override
-    public void onMessage(Message msg) {
-        String msgID = null;
-        try {
-            msgID = msg.getJMSMessageID();
-        } catch (JMSException e) {
-            LOG.error("Failed to process {}", msg, e);
-        }
-        if (queueManager.onProcessingStart(msgID) == null)
-            return;
-        try {
-            Attributes attrs = (Attributes) ((ObjectMessage) msg).getObject();
-            Outcome outcome = ianSCU.sendIAN(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
-                    msg.getStringProperty("SOPInstanceUID"),
-                    attrs);
-            queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Throwable e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
-        }
+    public Outcome process(QueueMessage queueMessage) throws Exception {
+        return stgCmtMgr.executeStgVerTask(
+                queueMessage.getStorageVerificationTask(),
+                HttpServletRequestInfo.valueOf(queueMessage.readMessageProperties()));
     }
 }
