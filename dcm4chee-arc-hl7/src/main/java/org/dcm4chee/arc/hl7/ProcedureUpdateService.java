@@ -185,7 +185,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
             if (sps.getString(Tag.ScheduledProcedureStepStatus).contains("_")) {
                 spsItems.remove();
-                LOG.warn("MWL item will not created/updated; no Scheduled Procedure Step Status configured with ORC-1_ORC-5 : {}",
+                LOG.warn("MWL item will not be created/updated; no Scheduled Procedure Step Status configured with ORC-1_ORC-5 : {}",
                         spsStatus);
                 throw new HL7Exception(
                         new ERRSegment(msh)
