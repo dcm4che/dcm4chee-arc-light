@@ -83,23 +83,25 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) throws Exception {
-        String[] appFacility = msh3456.split("_");
-        if (appFacility.length != 4)
+        String[] appFacility = msh3456.split(":");
+        if (appFacility.length != 2)
             return new Outcome(QueueMessage.Status.WARNING,
                     "Sending and/or Receiving application and facility not specified");
 
+        String sendingAppFacility = appFacility[0].replace('/', '|');
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(appFacility[0] + '|' + appFacility[1], true);
+                .getHL7Application(sendingAppFacility, true);
         if (sender == null)
             return new Outcome(QueueMessage.Status.WARNING,
-                    "Sending HL7 Application not configured : " + appFacility[0] + '|' + appFacility[1]);
+                    "Sending HL7 Application not configured : " + sendingAppFacility);
 
+        String receivingAppFacility = appFacility[1].replace('/', '|');
         HL7Application receiver;
         try {
-            receiver = hl7AppCache.findHL7Application(appFacility[2] + '|' + appFacility[3]);
+            receiver = hl7AppCache.findHL7Application(receivingAppFacility);
         } catch (ConfigurationException e) {
             return new Outcome(QueueMessage.Status.WARNING,
-                    "Unknown Receiving HL7 Application : " + appFacility[2] + '|' + appFacility[3]);
+                    "Unknown Receiving HL7 Application : " + receivingAppFacility);
         }
 
         return scheduleMessage(exportContext, sender, receiver);
