@@ -104,14 +104,19 @@ public class StudySizeScheduler extends Scheduler {
                     studySizeFetchSize = arcDev.getCalculateStudySizeFetchSize());
             for (Tuple studyTuple : studies) {
                 Long studyPk = studyTuple.get(0, Long.class);
-                long studySize = querySizeEJB.claimAndCalculateStudySize(studyPk);
-                if (studySize > 0L) {
-                    if (arcDev.isCalculateQueryAttributes())
-                        queryAttrsEJB.calculateStudyQueryAttributes(studyPk);
-                    calculated++;
-                    studySizeEvent.fire(new StudySizeEvent(
-                            studyTuple.get(1, String.class),
-                            studyTuple.get(2, PatientID.class).getIDWithIssuer()));
+                try {
+                    long studySize = querySizeEJB.claimAndCalculateStudySize(studyPk);
+                    if (studySize > 0L) {
+                        if (arcDev.isCalculateQueryAttributes())
+                            queryAttrsEJB.calculateStudyQueryAttributes(studyPk);
+                        calculated++;
+                        studySizeEvent.fire(new StudySizeEvent(
+                                studyTuple.get(1, String.class),
+                                studyTuple.get(2, PatientID.class).getIDWithIssuer()));
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to update DB with calculated size or query attributes for Study[pk={}]:{}",
+                            studyPk, System.lineSeparator(), e);
                 }
             }
         } while (studies.size() == studySizeFetchSize && getPollingInterval() != null);

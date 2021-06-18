@@ -261,16 +261,6 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - More Function,dcmuiConfigName=def
- ault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4
- che,dc=org
-objectClass: dcmuiPermission
-dcmuiAction: action-studies-more_function
-dcmuiPermissionName: Action - Studies - More Function
-dcmAcceptedUserRole: local-admin
-dcmuiActionParam: visible
-
-
 dn: dcmuiPermissionName=Tab - Monitoring Storage Systems,dcmuiConfigName=def
  ault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4
  che,dc=org

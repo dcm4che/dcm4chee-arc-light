@@ -68,7 +68,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME,
                 query = "select o.pk from ExportTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
-                        "and o.queueMessage is null"),
+                        "and o.queueMessage is null order by o.scheduledTime"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.queueMessage is null"),

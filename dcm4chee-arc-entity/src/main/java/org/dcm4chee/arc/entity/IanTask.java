@@ -55,7 +55,8 @@ import java.util.Date;
                         "where o.mpps is not null and o.deviceName=?1 and o.pk>?2 " +
                         "order by o.pk"),
         @NamedQuery(name = IanTask.FIND_SCHEDULED_BY_DEVICE_NAME,
-                query = "select o from IanTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
+                query = "select o from IanTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
+                        "order by o.scheduledTime"),
         @NamedQuery(name = IanTask.FIND_BY_STUDY_IUID,
                 query = "select o from IanTask o where o.studyInstanceUID=?1"),
 
