@@ -59,7 +59,8 @@ import java.util.Date;
                 query = "select o from HL7PSUTask o " +
                         "left join fetch o.mpps mpps " +
                         "left join fetch mpps.attributesBlob " +
-                        "where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
+                        "where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
+                        "order by o.scheduledTime"),
         @NamedQuery(name = HL7PSUTask.FIND_BY_STUDY_IUID,
                 query = "select o from HL7PSUTask o where o.studyInstanceUID=?1"),
 
