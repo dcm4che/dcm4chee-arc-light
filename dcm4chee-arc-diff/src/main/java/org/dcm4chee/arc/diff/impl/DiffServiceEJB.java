@@ -50,6 +50,9 @@ import javax.persistence.Tuple;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -90,45 +93,6 @@ public class DiffServiceEJB {
 
     @Inject
     private Device device;
-
-    public void scheduleDiffTask(DiffContext ctx) {
-        scheduleDiffTask(ctx, ctx.getQueryString());
-    }
-
-    private void scheduleDiffTask(DiffContext ctx, String queryString) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", ctx.getLocalAE().getAETitle());
-            gen.write("PrimaryAET", ctx.getPrimaryAE().getAETitle());
-            gen.write("SecondaryAET", ctx.getSecondaryAE().getAETitle());
-            gen.write("Priority", ctx.priority());
-            gen.write("QueryString", queryString);
-            if (ctx.getHttpServletRequestInfo() != null)
-                ctx.getHttpServletRequestInfo().writeTo(gen);
-            gen.writeEnd();
-        }
-        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
-                DiffService.QUEUE_NAME, new Date(), sw.toString(), 0, ctx.getBatchID());
-        createDiffTask(ctx, queueMessage, queryString);
-    }
-
-    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) {
-        studyUIDs.forEach(studyUID -> scheduleDiffTask(ctx, ctx.getQueryString() + studyUID));
-    }
-
-    private void createDiffTask(DiffContext ctx, QueueMessage queueMessage, String queryString) {
-        DiffTask task = new DiffTask();
-        task.setLocalAET(ctx.getLocalAE().getAETitle());
-        task.setPrimaryAET(ctx.getPrimaryAE().getAETitle());
-        task.setSecondaryAET(ctx.getSecondaryAE().getAETitle());
-        task.setQueryString(queryString);
-        task.setCheckMissing(ctx.isCheckMissing());
-        task.setCheckDifferent(ctx.isCheckDifferent());
-        task.setCompareFields(ctx.getCompareFields());
-        task.setQueueMessage(queueMessage);
-        em.persist(task);
-    }
 
     public void resetDiffTask(Task diffTask) {
         diffTask = em.find(Task.class, diffTask.getPk());

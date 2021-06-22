@@ -55,13 +55,16 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.DefaultExportContext;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
@@ -91,7 +94,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtImpl.class);
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -206,6 +209,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
                                  ExportContext ctx, String exporterID) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STGCMT_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -217,11 +222,19 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             gen.write("ExporterID", exporterID);
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(), StgCmtSCU.QUEUE_NAME, new Date(),
-                sw.toString(), actionInfo, ctx.getBatchID());
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setPayload(actionInfo);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.schedule(task, queueDesc);
     }
 
     private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STGCMT_SCP);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -229,8 +242,14 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             gen.write("RemoteAET", remoteAET);
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(), StgCmtSCP.QUEUE_NAME, new Date(),
-                sw.toString(), eventInfo, null);
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setPayload(eventInfo);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.schedule(task, queueDesc);
     }
 
     @Override

@@ -50,5 +50,5 @@ import org.dcm4chee.arc.entity.Task;
  * @since Jun 2021
  */
 public interface TaskManager {
-    void schedule(Task entity, QueueDescriptor queueDesc);
+    void schedule(Task task, QueueDescriptor queueDesc);
 }

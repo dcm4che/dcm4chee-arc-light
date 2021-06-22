@@ -47,8 +47,11 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -59,7 +62,10 @@ import org.dcm4chee.arc.query.util.TaskQueryParam;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.Tuple;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -86,6 +92,9 @@ public class DiffServiceImpl implements DiffService {
     @Inject
     private DiffServiceEJB ejb;
 
+    @Inject
+    private TaskManager taskManager;
+
     @Override
     public DiffSCU createDiffSCU(DiffContext ctx) {
         return new DiffSCUImpl(ctx, findSCU);
@@ -93,12 +102,12 @@ public class DiffServiceImpl implements DiffService {
 
     @Override
     public void scheduleDiffTask(DiffContext ctx) {
-        ejb.scheduleDiffTask(ctx);
+        scheduleDiffTask(ctx, ctx.getQueryString());
     }
 
     @Override
     public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) {
-        ejb.scheduleDiffTasks(ctx, studyUIDs);
+        studyUIDs.forEach(studyUID -> scheduleDiffTask(ctx, ctx.getQueryString() + studyUID));
     }
 
     @Override
@@ -121,6 +130,38 @@ public class DiffServiceImpl implements DiffService {
             if (updateDiffTask != null)
                 updateDiffTask.cancel(false);
         }
+    }
+
+    private void scheduleDiffTask(DiffContext ctx, String queryString) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.DIFF_SCU);
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", ctx.getLocalAE().getAETitle());
+            gen.write("PrimaryAET", ctx.getPrimaryAE().getAETitle());
+            gen.write("SecondaryAET", ctx.getSecondaryAE().getAETitle());
+            gen.write("Priority", ctx.priority());
+            gen.write("QueryString", queryString);
+            if (ctx.getHttpServletRequestInfo() != null)
+                ctx.getHttpServletRequestInfo().writeTo(gen);
+            gen.writeEnd();
+        }
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setBatchID(ctx.getBatchID());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setLocalAET(ctx.getLocalAE().getAETitle());
+        task.setPrimaryAET(ctx.getPrimaryAE().getAETitle());
+        task.setSecondaryAET(ctx.getSecondaryAE().getAETitle());
+        task.setQueryString(queryString);
+        task.setCheckMissing(ctx.isCheckMissing());
+        task.setCheckDifferent(ctx.isCheckDifferent());
+        task.setCompareFields(ctx.getCompareFields());
+        taskManager.schedule(task, queueDesc);
     }
 
     private ScheduledFuture<?> updateDiffTask(Task diffTask, DiffSCU diffSCU) {

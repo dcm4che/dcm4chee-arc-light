@@ -51,12 +51,11 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7Fields;
-import org.dcm4chee.arc.conf.HL7ForwardRule;
+import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,7 @@ public class HL7SenderImpl implements HL7Sender {
     private IHL7ApplicationCache hl7AppCache;
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
         if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
@@ -181,6 +180,8 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.HL7_SENDER);
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
         StringWriter sw = new StringWriter();
@@ -196,8 +197,14 @@ public class HL7SenderImpl implements HL7Sender {
                 httpServletRequestInfo.writeTo(gen);
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(), QUEUE_NAME, new Date(),
-                sw.toString(), data, null);
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setPayload(data);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.schedule(task, queueDesc);
     }
 
 }

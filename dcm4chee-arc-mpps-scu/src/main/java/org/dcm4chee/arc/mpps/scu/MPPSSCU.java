@@ -49,8 +49,6 @@ import org.dcm4chee.arc.qmgt.Outcome;
  * @since Sep 2015
  */
 public interface MPPSSCU {
-    String QUEUE_NAME = "MPPSSCU";
-
     Outcome forwardMPPS(String localAET, String remoteAET, Dimse dimse, String sopInstanceUID, Attributes attrs,
                         Attributes procAttrs)
             throws Exception;

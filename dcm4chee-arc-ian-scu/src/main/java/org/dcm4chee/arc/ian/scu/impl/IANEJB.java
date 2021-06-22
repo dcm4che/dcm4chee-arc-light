@@ -45,14 +45,10 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.IanTask;
-import org.dcm4chee.arc.entity.MPPS;
-import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.ian.scu.IANSCU;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -76,7 +72,7 @@ public class IANEJB {
     private EntityManager em;
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -149,6 +145,8 @@ public class IANEJB {
     }
 
     public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.IAN_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -157,8 +155,14 @@ public class IANEJB {
             gen.write("SOPInstanceUID", UIDUtils.createUID());
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(),
-                IANSCU.QUEUE_NAME, new Date(), sw.toString(), attrs, null);
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setPayload(attrs);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.schedule(task, queueDesc);
     }
 
     public void removeIANTask(IanTask task) {

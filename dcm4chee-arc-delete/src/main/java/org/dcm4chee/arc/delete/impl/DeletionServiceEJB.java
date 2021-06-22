@@ -46,17 +46,13 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.RetentionPeriod;
-import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.delete.RejectionService;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 import org.slf4j.Logger;
@@ -110,7 +106,7 @@ public class DeletionServiceEJB {
     private QueryService queryService;
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -733,6 +729,8 @@ public class DeletionServiceEJB {
 
     public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                                   HttpServletRequestInfo httpRequest, String batchID) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.REJECT_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -745,7 +743,13 @@ public class DeletionServiceEJB {
                 httpRequest.writeTo(gen);
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(), RejectionService.QUEUE_NAME, new Date(),
-                sw.toString(), null, batchID);
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(batchID);
+        taskManager.schedule(task, queueDesc);
     }
 }

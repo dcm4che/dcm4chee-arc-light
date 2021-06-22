@@ -52,8 +52,6 @@ import javax.ws.rs.core.Response;
  * @since Nov 2016
  */
 public interface RSClient {
-    String QUEUE_NAME = "RSClient";
-
     void scheduleRequest(
             RSOperation rsOp,
             String requestURI,

@@ -49,15 +49,14 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.MPPSForwardRule;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,7 @@ class MPPSSCUImpl implements MPPSSCU {
     private static final Logger LOG = LoggerFactory.getLogger(MPPSSCUImpl.class);
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -104,6 +103,8 @@ class MPPSSCUImpl implements MPPSSCU {
         if (ctx.getException() != null)
             return;
 
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.MPPS_SCU);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Calendar now = Calendar.getInstance();
         Attributes mppsAttrs = ctx.getMPPS().getAttributes();
@@ -138,8 +139,14 @@ class MPPSSCUImpl implements MPPSSCU {
                     gen.write("PatientName", patAttrs.getString(Tag.PatientName));
                     gen.writeEnd();
                 }
-                queueManager.scheduleMessage(device.getDeviceName(),
-                        QUEUE_NAME, new Date(), sw.toString(), ctx.getAttributes(), null);
+                Task task = new Task();
+                task.setDeviceName(device.getDeviceName());
+                task.setQueueDescriptor(queueDesc);
+                task.setScheduledTime(new Date());
+                task.setParameters(sw.toString());
+                task.setPayload(ctx.getAttributes());
+                task.setStatus(Task.Status.SCHEDULED);
+                taskManager.schedule(task, queueDesc);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",
                         ctx.getDimse(), ctx.getSopInstanceUID(), remoteAET, e);

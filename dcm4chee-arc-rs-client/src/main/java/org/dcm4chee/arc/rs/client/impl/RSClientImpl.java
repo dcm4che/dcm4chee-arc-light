@@ -44,11 +44,14 @@ import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.RSOperation;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
@@ -77,7 +80,7 @@ public class RSClientImpl implements RSClient {
     private static final Logger LOG = LoggerFactory.getLogger(RSClientImpl.class);
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
@@ -101,6 +104,8 @@ public class RSClientImpl implements RSClient {
             byte[] content,
             boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.REST_CLIENT);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -113,7 +118,14 @@ public class RSClientImpl implements RSClient {
             gen.write("TLSDisableTrustManager", tlsDisableTrustManager);
             gen.writeEnd();
         }
-        queueManager.scheduleMessage(device.getDeviceName(), QUEUE_NAME, new Date(), sw.toString(), content, null);
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setPayload(content);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.schedule(task, queueDesc);
     }
 
     @Override
