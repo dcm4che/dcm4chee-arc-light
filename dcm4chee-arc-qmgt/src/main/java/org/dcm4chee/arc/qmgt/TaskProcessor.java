@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Jun 2021
  */
 public interface TaskProcessor {
-    Outcome process(QueueMessage task) throws Exception;
+    Outcome process(Task task) throws Exception;
 }

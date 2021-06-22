@@ -136,7 +136,7 @@ public class QueueManagerEJB {
             LOG.info("Finished processing of Task[id={}]", msgId);
             return null;
         }
-        QueueMessage.Status status = outcome.getStatus();
+        QueueMessage.Status status = QueueMessage.Status.valueOf(outcome.getStatus().name());
         String queueName = entity.getQueueName();
         entity.setProcessingEndTime(new Date());
         entity.setOutcomeMessage(outcome.getDescription());

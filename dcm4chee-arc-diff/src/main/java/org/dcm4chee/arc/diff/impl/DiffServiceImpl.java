@@ -49,7 +49,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
@@ -102,10 +102,10 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+    public Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
         ejb.resetDiffTask(diffTask);
-        Long taskPK = diffTask.getQueueMessage().getPk();
+        Long taskPK = diffTask.getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
             diffSCUMap.put(taskPK, diffSCU);
@@ -123,7 +123,7 @@ public class DiffServiceImpl implements DiffService {
         }
     }
 
-    private ScheduledFuture<?> updateDiffTask(DiffTask diffTask, DiffSCU diffSCU) {
+    private ScheduledFuture<?> updateDiffTask(Task diffTask, DiffSCU diffSCU) {
         Duration interval = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getDiffTaskProgressUpdateInterval();
         return interval != null
@@ -140,7 +140,7 @@ public class DiffServiceImpl implements DiffService {
     }
 
     private Outcome toOutcome(DiffSCU diffSCU) {
-        QueueMessage.Status status = QueueMessage.Status.COMPLETED;
+        Task.Status status = Task.Status.COMPLETED;
         StringBuilder sb = new StringBuilder();
         sb.append(diffSCU.matches()).append(" studies compared");
         status = check(", missing: ", diffSCU.missing(), status, sb);
@@ -228,15 +228,15 @@ public class DiffServiceImpl implements DiffService {
         return ejb.deleteTasks(queueTaskQueryParam, diffTaskQueryParam, deleteTasksFetchSize);
     }
 
-    private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
+    private Task.Status check(String prompt, int failures, Task.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;
 
         sb.append(prompt).append(failures);
-        return QueueMessage.Status.WARNING;
+        return Task.Status.WARNING;
     }
 
-    private DiffContext toDiffContext(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+    private DiffContext toDiffContext(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException {
         return new DiffContext()
                 .setLocalAE(device.getApplicationEntity(diffTask.getLocalAET(), true))

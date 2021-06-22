@@ -41,7 +41,7 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -63,9 +63,7 @@ public class StgVerTaskProcessor implements TaskProcessor {
     private StgCmtManager stgCmtMgr;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        return stgCmtMgr.executeStgVerTask(
-                queueMessage.getStorageVerificationTask(),
-                HttpServletRequestInfo.valueOf(queueMessage.readMessageProperties()));
+    public Outcome process(Task task) throws Exception {
+        return stgCmtMgr.executeStgVerTask(task, HttpServletRequestInfo.valueOf(task.getParametersAsJSON()));
     }
 }

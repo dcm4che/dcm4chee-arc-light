@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.diff;
 
 import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
@@ -66,7 +67,7 @@ public interface DiffService {
 
     void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs);
 
-    Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
+    Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
     DiffTask getDiffTask(long taskPK);
 

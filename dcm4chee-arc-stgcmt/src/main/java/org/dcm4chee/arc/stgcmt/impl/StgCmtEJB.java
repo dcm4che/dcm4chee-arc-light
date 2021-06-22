@@ -311,8 +311,8 @@ public class StgCmtEJB {
         return false;
     }
 
-    public int updateStgVerTask(StorageVerificationTask storageVerificationTask) {
-        return em.createNamedQuery(StorageVerificationTask.UPDATE_RESULT_BY_PK)
+    public int updateStgVerTask(Task storageVerificationTask) {
+        return em.createNamedQuery(Task.UPDATE_STGVER_RESULT_BY_PK)
                 .setParameter(1, storageVerificationTask.getPk())
                 .setParameter(2, storageVerificationTask.getCompleted())
                 .setParameter(3, storageVerificationTask.getFailed())

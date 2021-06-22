@@ -38,8 +38,8 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -57,7 +57,7 @@ import java.util.Set;
  * @since Oct 2017
  */
 public interface RetrieveManager {
-    Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
+    Outcome cmove(int priority, ExternalRetrieveContext ctx, Task queueMessage) throws Exception;
 
     int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 

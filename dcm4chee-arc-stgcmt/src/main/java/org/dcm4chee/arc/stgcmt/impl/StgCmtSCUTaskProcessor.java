@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
@@ -62,9 +62,9 @@ public class StgCmtSCUTaskProcessor implements TaskProcessor {
     @Inject
     private StgCmtSCU stgCmtSCU;
 
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
-        Attributes actionInfo = (Attributes) queueMessage.getMessageBody();
+    public Outcome process(Task task) throws Exception {
+        JsonObject jsonObject = task.getParametersAsJSON();
+        Attributes actionInfo = task.getPayload(Attributes.class);
         return stgCmtSCU.sendNAction(
                 jsonObject.getString("LocalAET"),
                 jsonObject.getString("RemoteAET"),
@@ -72,8 +72,8 @@ public class StgCmtSCUTaskProcessor implements TaskProcessor {
                 jsonObject.getString("SeriesInstanceUID"),
                 jsonObject.getString("SOPInstanceUID"),
                 jsonObject.getString("ExporterID"),
-                queueMessage.getPk(),
-                queueMessage.getBatchID(),
+                task.getPk(),
+                task.getBatchID(),
                 actionInfo);
     }
 

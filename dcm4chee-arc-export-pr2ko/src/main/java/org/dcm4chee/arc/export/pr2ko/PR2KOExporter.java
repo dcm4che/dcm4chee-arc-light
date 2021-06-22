@@ -52,7 +52,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -129,7 +129,7 @@ public class PR2KOExporter extends AbstractExporter {
         }
 
         if (matches.isEmpty())
-            return new Outcome(QueueMessage.Status.COMPLETED, noKeyObjectCreated(ctx));
+            return new Outcome(Task.Status.COMPLETED, noKeyObjectCreated(ctx));
 
         try (StoreSession session = storeService.newStoreSession(
                 ctx.getHttpServletRequestInfo(), ae, properties.get("SourceAET"))) {
@@ -139,7 +139,7 @@ public class PR2KOExporter extends AbstractExporter {
                 storeService.store(storeCtx, pr2ko(prAttrs));
             }
         }
-        return new Outcome(QueueMessage.Status.COMPLETED, toMessage(ctx, matches.size()));
+        return new Outcome(Task.Status.COMPLETED, toMessage(ctx, matches.size()));
     }
 
     private QueryContext queryContext(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {

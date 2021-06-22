@@ -43,7 +43,7 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class TaskScheduler extends Scheduler {
      private static final Logger LOG = LoggerFactory.getLogger(TaskScheduler.class);
 
     @Inject
-    private QueueManagerEJB ejb;
+    private TaskManagerEJB ejb;
 
     @Inject
     private Instance<TaskProcessor> taskProcessors;
@@ -88,23 +88,16 @@ public class TaskScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        int fetchSize = arcDev.getTaskProcessingFetchSize();
         for (QueueDescriptor desc : arcDev.getQueueDescriptors()) {
-            process(arcDev, desc);
+            process(desc, fetchSize);
         }
     }
 
-    public void process(String queueName, Date scheduledTime) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        if (arcDev.getTaskProcessingPollingInterval().getSeconds() * 1000L >
-                scheduledTime.getTime() - System.currentTimeMillis()) {
-            process(arcDev, arcDev.getQueueDescriptor(queueName));
-        }
-    }
-
-    private void process(ArchiveDeviceExtension arcDev, QueueDescriptor desc) {
+    public void process(QueueDescriptor desc, int fetchSize) {
         String queueName = desc.getQueueName();
         if (desc.isInstalled() && !inProcess.contains(queueName)) {
-            List<Long> pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize());
+            List<Long> pks = ejb.findTasksToProcess(queueName, fetchSize);
             if (!pks.isEmpty()) {
                 device.execute(() -> process(desc, pks));
             }
@@ -133,18 +126,18 @@ public class TaskScheduler extends Scheduler {
         do {
             for (Long pk : pks) {
                 if (arcDev.getTaskProcessingPollingInterval() == null
-                        || !(desc = arcDev.getQueueDescriptor(queueName)).isInstalled()) {
+                        || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
                     return;
                 }
-                QueueMessage task = onProcessingStart(pk);
+                Task task = onProcessingStart(pk);
                 if (task != null) {
-                    processTask(desc, processor, task);
+                    processTask(processor, task);
                 }
             }
         } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
     }
 
-    private QueueMessage onProcessingStart(Long pk) {
+    private Task onProcessingStart(Long pk) {
         try {
             return ejb.onProcessingStart(pk);
         } catch (Exception e) {
@@ -164,17 +157,16 @@ public class TaskScheduler extends Scheduler {
                 do {
                     for (Long pk : pks) {
                         semaphore.acquire();
-                        QueueDescriptor desc1;
                         if (arcDev.getTaskProcessingPollingInterval() == null
-                                || !(desc1 = arcDev.getQueueDescriptor(queueName)).isInstalled()) {
+                                || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
                             semaphore.release();
                             return;
                         }
-                        QueueMessage task = onProcessingStart(pk);
+                        Task task = onProcessingStart(pk);
                         if (task != null) {
                             device.execute(() -> {
                                 try {
-                                    processTask(desc1, processor, task);
+                                    processTask(processor, task);
                                 } finally {
                                     semaphore.release();
                                 }
@@ -192,7 +184,7 @@ public class TaskScheduler extends Scheduler {
         } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
     }
 
-    private void processTask(QueueDescriptor desc, TaskProcessor processor, QueueMessage task) {
+    private void processTask(TaskProcessor processor, Task task) {
         try {
             Outcome outcome = processor.process(task);
             ejb.onProcessingSuccessful(task.getPk(), outcome);

@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -63,8 +63,8 @@ public class RSClientTaskProcessor implements TaskProcessor {
     private RSClient rsClient;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
+    public Outcome process(Task task) throws Exception {
+        JsonObject jsonObject = task.getParametersAsJSON();
         return rsClient.request(
                 jsonObject.getString("RSOperation"),
                 jsonObject.getString("RequestURI"),
@@ -73,6 +73,6 @@ public class RSClientTaskProcessor implements TaskProcessor {
                 jsonObject.getString("PatientID"),
                 jsonObject.getBoolean("TLSAllowAnyHostname"),
                 jsonObject.getBoolean("TLSDisableTrustManager"),
-                (byte[]) queueMessage.getMessageBody());
+                task.getPayload(byte[].class));
     }
 }

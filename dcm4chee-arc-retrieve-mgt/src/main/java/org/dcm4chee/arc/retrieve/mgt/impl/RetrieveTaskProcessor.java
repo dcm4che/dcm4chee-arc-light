@@ -41,6 +41,7 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -64,9 +65,8 @@ public class RetrieveTaskProcessor implements TaskProcessor {
     private RetrieveManager retrieveManager;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
-        RetrieveTask task = queueMessage.getRetrieveTask();
+    public Outcome process(Task task) throws Exception {
+        JsonObject jsonObject = task.getParametersAsJSON();
         return retrieveManager.cmove(
                 jsonObject.getInt("Priority"),
                 new ExternalRetrieveContext()
@@ -74,7 +74,7 @@ public class RetrieveTaskProcessor implements TaskProcessor {
                         .setRemoteAET(task.getRemoteAET())
                         .setDestinationAET(task.getDestinationAET())
                         .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(jsonObject))
-                        .setKeys((Attributes) queueMessage.getMessageBody()),
-                queueMessage);
+                        .setKeys(task.getPayload(Attributes.class)),
+                task);
     }
 }

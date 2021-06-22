@@ -294,7 +294,7 @@ public class IANScheduler extends Scheduler {
 
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         if (descriptor.getIanDestinations().length != 0
-                && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+                && ctx.getOutcome().getStatus() == Task.Status.COMPLETED)
             scheduleIAN(ctx, descriptor);
     }
 

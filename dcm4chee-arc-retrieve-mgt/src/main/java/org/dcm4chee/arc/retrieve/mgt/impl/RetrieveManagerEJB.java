@@ -43,10 +43,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.QueueMessage_;
-import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.entity.RetrieveTask_;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -242,9 +239,9 @@ public class RetrieveManagerEJB {
         return task;
     }
 
-    public void updateRetrieveTask(QueueMessage queueMessage, Attributes cmd) {
-        em.createNamedQuery(RetrieveTask.UPDATE_BY_QUEUE_MESSAGE)
-                .setParameter(1, queueMessage)
+    public void updateRetrieveTask(Task task, Attributes cmd) {
+        em.createNamedQuery(Task.UPDATE_RETRIEVE_RESULT_BY_PK)
+                .setParameter(1, task.getPk())
                 .setParameter(2, cmd.getInt(Tag.NumberOfRemainingSuboperations, 0))
                 .setParameter(3, cmd.getInt(Tag.NumberOfCompletedSuboperations, 0))
                 .setParameter(4, cmd.getInt(Tag.NumberOfFailedSuboperations, 0))
@@ -254,9 +251,9 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public void resetRetrieveTask(QueueMessage queueMessage) {
-        em.createNamedQuery(RetrieveTask.UPDATE_BY_QUEUE_MESSAGE)
-                .setParameter(1, queueMessage)
+    public void resetRetrieveTask(Task task) {
+        em.createNamedQuery(Task.UPDATE_RETRIEVE_RESULT_BY_PK)
+                .setParameter(1, task.getPk())
                 .setParameter(2, -1)
                 .setParameter(3, 0)
                 .setParameter(4, 0)

@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2019
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,40 +35,43 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.ian.scu.impl;
+package org.dcm4chee.arc.qmgt.impl;
 
-import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.ian.scu.IANSCU;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.TaskProcessor;
+import org.dcm4chee.arc.qmgt.TaskManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Apr 2016
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Jun 2021
  */
 @ApplicationScoped
-@Named("IAN_SCU")
-public class IANTaskProcessor implements TaskProcessor {
+public class TaskManagerImpl implements TaskManager {
 
     @Inject
-    private IANSCU ianSCU;
+    private Device device;
+
+    @Inject
+    private TaskManagerEJB ejb;
+
+    @Inject
+    private TaskScheduler scheduler;
 
     @Override
-    public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
-        return ianSCU.sendIAN(
-                jsonObject.getString("LocalAET"),
-                jsonObject.getString("RemoteAET"),
-                jsonObject.getString("SOPInstanceUID"),
-                task.getPayload(Attributes.class));
+    public void schedule(Task task, QueueDescriptor queueDesc) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ejb.scheduleTask(task);
+        if (task.getScheduledTime().getTime() <= System.currentTimeMillis()) {
+            scheduler.process(queueDesc, arcDev.getTaskProcessingFetchSize());
+        }
     }
 }

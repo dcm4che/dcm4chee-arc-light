@@ -52,7 +52,7 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
@@ -184,11 +184,11 @@ public class WadoExporter extends AbstractExporter {
 
         String exporterID = exportContext.getExporter().getExporterDescriptor().getExporterID();
         if (failed == 0) {
-            return new Outcome(QueueMessage.Status.COMPLETED,
+            return new Outcome(Task.Status.COMPLETED,
                     "Query retrieved " + count + " objects by Exporter " + exporterID);
         }
         if (count > 0) {
-            return new Outcome(QueueMessage.Status.WARNING,
+            return new Outcome(Task.Status.WARNING,
                     "Query retrieved " + count + " objects by Exporter " + exporterID
                             + ", failed: " + failed + " - " + ex.getMessage());
         }

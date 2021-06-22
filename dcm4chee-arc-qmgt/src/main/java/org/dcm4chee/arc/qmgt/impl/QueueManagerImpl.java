@@ -80,7 +80,7 @@ public class QueueManagerImpl implements QueueManager {
     public QueueMessage scheduleMessage(String deviceName, String queueName, Date scheduledTime,
                                         String messageProperties, Serializable messageBody, String batchID) {
         QueueMessage queueMessage = ejb.scheduleMessage(deviceName, queueName, scheduledTime, messageProperties, messageBody, batchID);
-        scheduler.process(queueName, scheduledTime);
+//        scheduler.process(queueName, scheduledTime);
         return queueMessage;
     }
 
@@ -122,7 +122,7 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public void rescheduleTask(Long msgID, String queueName, QueueMessageEvent queueEvent, Date scheduledTime) {
         ejb.rescheduleTask(msgID, queueName, queueEvent, scheduledTime);
-        scheduler.process(queueName, scheduledTime);
+//        scheduler.process(queueName, scheduledTime);
     }
 
     @Override

@@ -45,6 +45,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -82,7 +83,7 @@ public interface StgCmtManager {
     boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
                                String batchID);
 
-    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
+    Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
 
     boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;

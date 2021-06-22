@@ -45,7 +45,7 @@ import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -57,11 +57,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.io.StringWriter;
 import java.util.Date;
@@ -127,7 +127,7 @@ public class RSClientImpl implements RSClient {
                            byte[] content) throws Exception {
         RSOperation rsOperation = RSOperation.valueOf(rsOp);
         WebApplication webApplication;
-        QueueMessage.Status status = QueueMessage.Status.WARNING;
+        Task.Status status = Task.Status.WARNING;
         try {
             webApplication = iWebAppCache.findWebApplication(webAppName);
         } catch (Exception e) {
@@ -237,18 +237,18 @@ public class RSClientImpl implements RSClient {
         switch (status) {
             case OK:
             case NO_CONTENT:
-                return new Outcome(QueueMessage.Status.COMPLETED, "Completed : " + st);
+                return new Outcome(Task.Status.COMPLETED, "Completed : " + st);
             case REQUEST_TIMEOUT:
             case SERVICE_UNAVAILABLE:
-                return new Outcome(QueueMessage.Status.SCHEDULED, "Retry : " + st);
+                return new Outcome(Task.Status.SCHEDULED, "Retry : " + st);
             case NOT_FOUND:
             case FORBIDDEN:
             case BAD_REQUEST:
             case UNAUTHORIZED:
             case INTERNAL_SERVER_ERROR:
-                return new Outcome(QueueMessage.Status.FAILED, st.toString());
+                return new Outcome(Task.Status.FAILED, st.toString());
         }
-        return new Outcome(QueueMessage.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
+        return new Outcome(Task.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
     }
 
     private String getMethod(RSOperation rsOp) {

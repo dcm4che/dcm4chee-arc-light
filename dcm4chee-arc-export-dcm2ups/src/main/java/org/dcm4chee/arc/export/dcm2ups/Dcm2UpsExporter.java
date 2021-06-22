@@ -54,7 +54,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.InputReadinessState;
 import org.dcm4chee.arc.conf.UPSPriority;
 import org.dcm4chee.arc.conf.UPSState;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
@@ -159,14 +159,14 @@ public class Dcm2UpsExporter extends AbstractExporter {
     public Outcome export(ExportContext ctx) throws Exception {
         WebApplication destWebApp = webAppCache.findWebApplication(destWebAppName);
         if (!destWebApp.containsServiceClass(WebApplication.ServiceClass.UPS_RS))
-            return new Outcome(QueueMessage.Status.WARNING,
+            return new Outcome(Task.Status.WARNING,
                     "Destination webapp " + destWebAppName + " is not configured for UPS_RS web service");
 
         try {
             setInputReadinessState(descriptor.getProperty("InputReadinessState", DEFAULT_INPUT_READINESS_STATE));
             setUPSPriority(descriptor.getProperty("ScheduledProcedureStepPriority", DEFAULT_SCHEDULED_PROCEDURE_STEP_PRIORITY));
         } catch (IllegalArgumentException e) {
-            return new Outcome(QueueMessage.Status.WARNING, e.getMessage());
+            return new Outcome(Task.Status.WARNING, e.getMessage());
         }
 
         String url = destWebApp.getServiceURL().append("/workitems").toString();
@@ -325,10 +325,10 @@ public class Dcm2UpsExporter extends AbstractExporter {
     private Outcome outcome(Response rsp) {
         int status = rsp.getStatus();
         if (status == Response.Status.CREATED.getStatusCode())
-            return new Outcome(QueueMessage.Status.COMPLETED,
+            return new Outcome(Task.Status.COMPLETED,
                     "UPS created at : " + rsp.getHeaderString("Location"));
 
-        return new Outcome(QueueMessage.Status.WARNING,
+        return new Outcome(Task.Status.WARNING,
                 "UPS creation unsuccessful : " + rsp.getHeaderString("Warning"));
     }
 

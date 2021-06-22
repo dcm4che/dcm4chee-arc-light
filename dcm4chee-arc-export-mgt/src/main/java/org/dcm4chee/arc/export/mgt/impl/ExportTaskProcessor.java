@@ -44,13 +44,12 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
-import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,35 +78,34 @@ public class ExportTaskProcessor implements TaskProcessor {
     private Event<ExportContext> exportEvent;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
+    public Outcome process(Task task) throws Exception {
         Outcome outcome;
         ExportContext exportContext = null;
         try {
-            ExportTask exportTask = queueMessage.getExportTask();
             ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                    .getExporterDescriptorNotNull(exportTask.getExporterID());
+                    .getExporterDescriptorNotNull(task.getExporterID());
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
             exportContext = exporter.createExportContext();
-            exportContext.setTaskPK(queueMessage.getPk());
-            exportContext.setBatchID(queueMessage.getBatchID());
-            exportContext.setStudyInstanceUID(exportTask.getStudyInstanceUID());
-            exportContext.setSeriesInstanceUID(StringUtils.nullify(exportTask.getSeriesInstanceUID(), "*"));
-            exportContext.setSopInstanceUID(StringUtils.nullify(exportTask.getSopInstanceUID(), "*"));
+            exportContext.setTaskPK(task.getPk());
+            exportContext.setBatchID(task.getBatchID());
+            exportContext.setStudyInstanceUID(task.getStudyInstanceUID());
+            exportContext.setSeriesInstanceUID(StringUtils.nullify(task.getSeriesInstanceUID(), "*"));
+            exportContext.setSopInstanceUID(StringUtils.nullify(task.getSopInstanceUID(), "*"));
             exportContext.setAETitle(exporterDesc.getAETitle());
-            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(queueMessage.readMessageProperties()));
+            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(task.getParametersAsJSON()));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
         } catch (Exception e) {
             if (exportContext != null)
                 exportContext.setException(e);
-            LOG.warn("Failed to process {}", queueMessage, e);
+            LOG.warn("Failed to process {}", task, e);
             throw e;
         } finally {
             if (exportContext != null)
                 try {
                     exportEvent.fire(exportContext);
                 } catch (Exception e) {
-                    LOG.warn("Failed on firing export context {}", queueMessage, e);
+                    LOG.warn("Failed on firing export context {}", task, e);
                 }
         }
         return outcome;

@@ -43,7 +43,7 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.delete.RejectionService;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -64,8 +64,8 @@ public class RejectionTaskProcessor implements TaskProcessor {
     private RejectionService service;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-            JsonObject jsonObject = queueMessage.readMessageProperties();
+    public Outcome process(Task task) throws Exception {
+            JsonObject jsonObject = task.getParametersAsJSON();
             String aet = jsonObject.getString("LocalAET");
             String studyIUID = jsonObject.getString("StudyInstanceUID");
             String seriesIUID = jsonObject.getString("SeriesInstanceUID");
@@ -74,8 +74,8 @@ public class RejectionTaskProcessor implements TaskProcessor {
             int count = service.reject(aet, studyIUID, seriesIUID, sopIUID, new Code(code),
                     HttpServletRequestInfo.valueOf(jsonObject));
             return count > 0
-                    ? new Outcome(QueueMessage.Status.COMPLETED, count + " instances rejected.")
-                    : new Outcome(QueueMessage.Status.WARNING,
+                    ? new Outcome(Task.Status.COMPLETED, count + " instances rejected.")
+                    : new Outcome(Task.Status.WARNING,
                     "No instances of Study[UID=" + studyIUID + "] found for rejection.");
     }
 }

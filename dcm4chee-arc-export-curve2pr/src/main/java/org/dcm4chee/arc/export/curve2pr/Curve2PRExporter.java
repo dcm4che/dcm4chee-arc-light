@@ -50,7 +50,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -139,7 +139,7 @@ public class Curve2PRExporter extends AbstractExporter {
             ae = retrieveContext.getLocalApplicationEntity();
             retrieveContext.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
             if (!retrieveService.calculateMatches(retrieveContext))
-                return new Outcome(QueueMessage.Status.WARNING, noMatches(ctx));
+                return new Outcome(Task.Status.WARNING, noMatches(ctx));
 
             for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
                 if (isImage(instanceLocations))
@@ -147,7 +147,7 @@ public class Curve2PRExporter extends AbstractExporter {
             }
         }
         if (results.isEmpty())
-            return new Outcome(QueueMessage.Status.COMPLETED, noPresentationStateCreated(ctx));
+            return new Outcome(Task.Status.COMPLETED, noPresentationStateCreated(ctx));
 
         int totInstanceRefs = 0;
         int instanceRefs;
@@ -162,7 +162,7 @@ public class Curve2PRExporter extends AbstractExporter {
                 storeService.store(storeCtx, pr);
             }
         }
-        return new Outcome(QueueMessage.Status.COMPLETED, toMessage(ctx, results.size(), totInstanceRefs));
+        return new Outcome(Task.Status.COMPLETED, toMessage(ctx, results.size(), totInstanceRefs));
     }
 
     private int countInstanceRefs(Attributes pr) {

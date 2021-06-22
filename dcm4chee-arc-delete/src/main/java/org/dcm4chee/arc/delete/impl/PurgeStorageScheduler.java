@@ -134,7 +134,7 @@ public class PurgeStorageScheduler extends Scheduler {
         ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
         String storageID = desc.getDeleteStudyFromStorageID();
         if (ctx.getException() != null || storageID == null
-                || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+                || ctx.getOutcome().getStatus() != Task.Status.COMPLETED)
             return;
 
         String suid = ctx.getStudyInstanceUID();

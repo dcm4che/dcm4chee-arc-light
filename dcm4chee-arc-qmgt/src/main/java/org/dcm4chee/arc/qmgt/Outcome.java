@@ -1,6 +1,6 @@
 package org.dcm4chee.arc.qmgt;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -8,15 +8,15 @@ import org.dcm4chee.arc.entity.QueueMessage;
  */
 public class Outcome {
 
-    private final QueueMessage.Status status;
+    private final Task.Status status;
     private final String description;
 
-    public Outcome(QueueMessage.Status status, String description) {
+    public Outcome(Task.Status status, String description) {
         this.status = status;
         this.description = description;
     }
 
-    public QueueMessage.Status getStatus() {
+    public Task.Status getStatus() {
         return status;
     }
 

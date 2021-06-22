@@ -44,7 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Dimse;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -66,14 +66,14 @@ public class MPPSTaskProcessor implements TaskProcessor {
     private MPPSSCU mppsSCU;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
+    public Outcome process(Task task) throws Exception {
+        JsonObject jsonObject = task.getParametersAsJSON();
             return mppsSCU.forwardMPPS(
                     jsonObject.getString("LocalAET"),
                     jsonObject.getString("RemoteAET"),
                     Dimse.valueOf(jsonObject.getString("DIMSE")),
                     jsonObject.getString("SOPInstanceUID"),
-                    (Attributes) queueMessage.getMessageBody(),
+                    task.getPayload(Attributes.class),
                     procAttrs(jsonObject));
     }
 

@@ -56,8 +56,8 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.DefaultExportContext;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -129,7 +129,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
-        if (stgCmtSCPAETitle != null && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+        if (stgCmtSCPAETitle != null && ctx.getOutcome().getStatus() == Task.Status.COMPLETED)
             scheduleStorageCommit(ctx, descriptor);
      }
 
@@ -242,12 +242,12 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             Attributes cmd = dimseRSP.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status != Status.Success) {
-                return new Outcome(QueueMessage.Status.WARNING,
+                return new Outcome(Task.Status.WARNING,
                         "Request Storage Commitment from AE: " + remoteAET
                                 + " failed with status: " + TagUtils.shortToHexString(status)
                                 + "H, error comment: " + cmd.getString(Tag.ErrorComment));
             }
-            return new Outcome(QueueMessage.Status.COMPLETED, "Request Storage Commitment from AE: " + remoteAET);
+            return new Outcome(Task.Status.COMPLETED, "Request Storage Commitment from AE: " + remoteAET);
     }
 
     @Override
@@ -304,7 +304,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
                         UID.StorageCommitmentPushModelInstance,
                         failed > 0 ? 2 : 1, eventInfo, null);
                 neventReport.next();
-                return new Outcome(failed > 0 ? QueueMessage.Status.WARNING : QueueMessage.Status.COMPLETED,
+                return new Outcome(failed > 0 ? Task.Status.WARNING : Task.Status.COMPLETED,
                         "Return Storage Commitment Result[successful: " + successful + ", failed: " + failed
                                 + "] to AE: " + remoteAE.getAETitle());
             } finally {

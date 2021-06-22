@@ -44,8 +44,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -89,15 +89,15 @@ public class RetrieveManagerImpl implements RetrieveManager {
     private RetrieveManagerEJB ejb;
 
     @Override
-    public Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception {
+    public Outcome cmove(int priority, ExternalRetrieveContext ctx, Task task) throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
         Association as = moveSCU.openAssociation(localAE, ctx.getRemoteAET());
         ctx.setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()));
         try {
-            ejb.resetRetrieveTask(queueMessage);
+            ejb.resetRetrieveTask(task);
             final DimseRSP rsp = moveSCU.cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());
             while (rsp.next()) {
-                ejb.updateRetrieveTask(queueMessage, rsp.getCommand());
+                ejb.updateRetrieveTask(task, rsp.getCommand());
             }
             externalRetrieve.fire(ctx.setResponse(rsp.getCommand()));
             return toOutcome(ctx, localAE.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -140,11 +140,11 @@ public class RetrieveManagerImpl implements RetrieveManager {
                 status == Status.Success
                     ? arcAE.retrieveTaskWarningOnNoMatch() && ctx.completed() == 0 && ctx.warning() == 0
                         || arcAE.retrieveTaskWarningOnWarnings() && ctx.warning() == 0
-                        ? QueueMessage.Status.WARNING
-                        : QueueMessage.Status.COMPLETED
+                        ? Task.Status.WARNING
+                        : Task.Status.COMPLETED
                     : status == Status.OneOrMoreFailures && (ctx.completed() > 0 || ctx.warning() > 0)
-                        ? QueueMessage.Status.WARNING
-                        : QueueMessage.Status.FAILED,
+                        ? Task.Status.WARNING
+                        : Task.Status.FAILED,
                 sb.toString());
     }
 

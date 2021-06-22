@@ -43,7 +43,7 @@ package org.dcm4chee.arc.export.stow;
 
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -84,10 +84,10 @@ public class StowExporter extends AbstractExporter {
                 destWebAppName);
         retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
         if (!retrieveService.calculateMatches(retrieveContext))
-            return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
+            return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
         if (!retrieveContext.getDestinationWebApp().containsServiceClass(WebApplication.ServiceClass.STOW_RS))
-            return new Outcome(QueueMessage.Status.WARNING,
+            return new Outcome(Task.Status.WARNING,
                     "Destination webapp " + destWebAppName + " is not configured for STOW_RS web service");
 
         Long taskPK = exportContext.getTaskPK();
@@ -97,12 +97,12 @@ public class StowExporter extends AbstractExporter {
             stowTask.run();
             return new Outcome(
                     retrieveContext.remaining() > 0
-                            ? QueueMessage.Status.CANCELED
+                            ? Task.Status.CANCELED
                             : retrieveContext.failed() > 0
                             ? (retrieveContext.missing() > 0
-                            ? QueueMessage.Status.FAILED
-                            : QueueMessage.Status.WARNING)
-                            : QueueMessage.Status.COMPLETED,
+                            ? Task.Status.FAILED
+                            : Task.Status.WARNING)
+                            : Task.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destWebAppName));
         } finally {
             stowTaskMap.remove(taskPK);

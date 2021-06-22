@@ -265,7 +265,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo request) throws IOException {
+    public Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo request) throws IOException {
         String localAET = storageVerificationTask.getLocalAET();
         StgCmtContext ctx = new StgCmtContext(device.getApplicationEntity(localAET, true), localAET)
                 .setRequest(request);
@@ -280,7 +280,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
             calculateResult(ctx,
                     storageVerificationTask.getStudyInstanceUID(),
                     storageVerificationTask.getSeriesInstanceUID(),
-                    storageVerificationTask.getSOPInstanceUID());
+                    storageVerificationTask.getSopInstanceUID());
         } catch (IOException e) {
             ctx.setException(e);
             stgCmtEvent.fire(ctx);
@@ -295,8 +295,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
         ejb.updateStgVerTask(storageVerificationTask);
         return new Outcome(
                 failed == 0
-                        ? QueueMessage.Status.COMPLETED
-                        : QueueMessage.Status.WARNING,
+                        ? Task.Status.COMPLETED
+                        : Task.Status.WARNING,
                 toOutcomeMessage(storageVerificationTask, ctx));
     }
 
@@ -325,19 +325,19 @@ public class StgCmtManagerImpl implements StgCmtManager {
         }
     }
 
-    private String toOutcomeMessage(StorageVerificationTask storageVerificationTask, StgCmtContext ctx) {
+    private String toOutcomeMessage(Task storageVerificationTask, StgCmtContext ctx) {
         return (ctx.getStorageIDs().length == 0)
             ? (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
                     storageVerificationTask.getStudyInstanceUID(),
                     ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
-                : (storageVerificationTask.getSOPInstanceUID() == null)
+                : (storageVerificationTask.getSopInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        storageVerificationTask.getSOPInstanceUID(),
+                        storageVerificationTask.getSopInstanceUID(),
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
@@ -346,14 +346,14 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     storageVerificationTask.getStudyInstanceUID(),
                     Arrays.toString(ctx.getStorageIDs()),
                     ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
-                : (storageVerificationTask.getSOPInstanceUID() == null)
+                : (storageVerificationTask.getSopInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStorageIDs()),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        storageVerificationTask.getSOPInstanceUID(),
+                        storageVerificationTask.getSopInstanceUID(),
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStorageIDs()),

@@ -130,21 +130,21 @@ public class DiffServiceEJB {
         em.persist(task);
     }
 
-    public void resetDiffTask(DiffTask diffTask) {
-        diffTask = em.find(DiffTask.class, diffTask.getPk());
-        diffTask.reset();
+    public void resetDiffTask(Task diffTask) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        diffTask.resetDiffTask();
         diffTask.getDiffTaskAttributes().forEach(entity -> em.remove(entity));
     }
 
-    public void addDiffTaskAttributes(DiffTask diffTask, Attributes attrs) {
-        diffTask = em.find(DiffTask.class, diffTask.getPk());
+    public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
+        diffTask = em.find(Task.class, diffTask.getPk());
         if (diffTask != null) {
             diffTask.getDiffTaskAttributes().add(new AttributesBlob(attrs));
         }
     }
 
-    public void updateDiffTask(DiffTask diffTask, DiffSCU diffSCU) {
-        diffTask = em.find(DiffTask.class, diffTask.getPk());
+    public void updateDiffTask(Task diffTask, DiffSCU diffSCU) {
+        diffTask = em.find(Task.class, diffTask.getPk());
         if (diffTask != null) {
             diffTask.setMatches(diffSCU.matches());
             diffTask.setMissing(diffSCU.missing());

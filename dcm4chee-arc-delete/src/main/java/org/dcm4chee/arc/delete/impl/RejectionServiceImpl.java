@@ -51,7 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.ExpirationState;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.QueryService;
@@ -90,7 +90,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor desc = ctx.getExporter().getExporterDescriptor();
         if (ctx.getException() != null || !desc.isRejectForDataRetentionExpiry()
-                || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
+                || ctx.getOutcome().getStatus() != Task.Status.COMPLETED)
             return;
 
         ApplicationEntity ae = getApplicationEntity(desc.getAETitle());

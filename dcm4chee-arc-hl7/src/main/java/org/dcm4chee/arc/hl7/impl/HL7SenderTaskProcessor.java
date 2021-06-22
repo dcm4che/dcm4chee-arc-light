@@ -48,7 +48,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -79,9 +79,9 @@ public class HL7SenderTaskProcessor implements TaskProcessor {
     private HL7Sender hl7Sender;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
-        ArchiveHL7Message hl7Msg = new ArchiveHL7Message((byte[]) queueMessage.getMessageBody());
+    public Outcome process(Task task) throws Exception {
+        JsonObject jsonObject = task.getParametersAsJSON();
+        ArchiveHL7Message hl7Msg = new ArchiveHL7Message(task.getPayload(byte[].class));
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(jsonObject.getString("SendingApplication")
                                 + '|'
@@ -98,14 +98,14 @@ public class HL7SenderTaskProcessor implements TaskProcessor {
     private Outcome toOutcome(byte[] rsp, HL7Application sender) {
         HL7Segment msa = HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet()).getSegment("MSA");
         if (msa == null)
-            return new Outcome(QueueMessage.Status.WARNING, "Missing MSA segment in response message");
+            return new Outcome(Task.Status.WARNING, "Missing MSA segment in response message");
 
         return new Outcome(status(msa), msa.toString());
     }
 
-    private QueueMessage.Status status(HL7Segment msa) {
+    private Task.Status status(HL7Segment msa) {
         return HL7Exception.AA.equals(msa.getField(1, null))
-                ? QueueMessage.Status.COMPLETED
-                : QueueMessage.Status.WARNING;
+                ? Task.Status.COMPLETED
+                : Task.Status.WARNING;
     }
 }

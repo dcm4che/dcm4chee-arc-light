@@ -51,7 +51,7 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.MPPSForwardRule;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -186,10 +186,10 @@ class MPPSSCUImpl implements MPPSSCU {
             String warning = "Forward " + dimse + " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET
                     + " failed with error status: " + Integer.toHexString(status) + 'H';
             pCtx.setOutcomeMsg(warning);
-            return new Outcome(QueueMessage.Status.WARNING, warning);
+            return new Outcome(Task.Status.WARNING, warning);
         }
 
-        return new Outcome(QueueMessage.Status.COMPLETED,
+        return new Outcome(Task.Status.COMPLETED,
                     "Forward " + dimse +  " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET);
     }
 

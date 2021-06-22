@@ -45,7 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
@@ -87,12 +87,12 @@ public class StgCmtSCPTaskProcessor implements TaskProcessor {
     private StgCmtManager stgCmtMgr;
 
     @Override
-    public Outcome process(QueueMessage queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.readMessageProperties();
+    public Outcome process(Task queueMessage) throws Exception {
+        JsonObject jsonObject = queueMessage.getParametersAsJSON();
         String localAET = jsonObject.getString("LocalAET");
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(jsonObject.getString("RemoteAET"));
-        Attributes actionInfo = (Attributes) queueMessage.getMessageBody();
+        Attributes actionInfo = queueMessage.getPayload(Attributes.class);
         StgCmtContext ctx = new StgCmtContext(localAE, localAET)
                 .setRemoteAE(remoteAE)
                 .setTransactionUID(actionInfo.getString(Tag.TransactionUID));
