@@ -47,10 +47,13 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2018
  */
 public interface PDQService {
     PDQServiceDescriptor getPDQServiceDescriptor();
 
     Attributes query(IDWithIssuer pid) throws PDQServiceException;
+
+    Attributes query(PDQServiceContext ctx) throws PDQServiceException;
 }

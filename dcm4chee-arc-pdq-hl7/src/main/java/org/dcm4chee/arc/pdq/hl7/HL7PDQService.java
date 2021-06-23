@@ -60,6 +60,7 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.SAXTransformer;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,11 @@ public class HL7PDQService extends AbstractPDQService {
         this.hl7AppCache = hl7AppCache;
         this.hl7Sender = hl7Sender;
         this.msh3456 = descriptor.getPDQServiceURI().getSchemeSpecificPart();
+    }
+
+    @Override
+    public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
+        return query(ctx.getPatientID());
     }
 
     @Override

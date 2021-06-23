@@ -62,6 +62,7 @@ import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -348,6 +349,10 @@ public class AuditService {
                                                 activeParticipants,
                                                 studyPOI.build(), patientPOI.build());
         emitAuditMessage(auditMsg, auditLogger);
+    }
+
+    void spoolPDQ(PDQServiceContext ctx) {
+
     }
 
     void spoolQuery(QueryContext ctx) {

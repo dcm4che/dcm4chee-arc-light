@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
@@ -70,6 +71,11 @@ public class DicomPDQService extends AbstractPDQService {
         super(descriptor);
         this.device = device;
         this.cFindSCU = cFindSCU;
+    }
+
+    @Override
+    public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
+        return query(ctx.getPatientID());
     }
 
     @Override

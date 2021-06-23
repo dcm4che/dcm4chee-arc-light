@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.xroad.XRoadServiceProvider;
 
@@ -59,6 +60,11 @@ public class XRoadPDQService extends AbstractPDQService {
     public XRoadPDQService(PDQServiceDescriptor descriptor, XRoadServiceProvider serviceProvider) {
         super(descriptor);
         this.serviceProvider = serviceProvider;
+    }
+
+    @Override
+    public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
+        return query(ctx.getPatientID());
     }
 
     @Override
