@@ -51,7 +51,6 @@ import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -113,7 +112,7 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
-        ejb.resetDiffTask(diffTask);
+        taskManager.resetDiffTask(diffTask);
         Long taskPK = diffTask.getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
@@ -122,8 +121,8 @@ public class DiffServiceImpl implements DiffService {
             Attributes diff;
             updateDiffTask = updateDiffTask(diffTask, diffSCU);
             while ((diff = diffSCU.nextDiff()) != null)
-                ejb.addDiffTaskAttributes(diffTask, diff);
-            ejb.updateDiffTask(diffTask, diffSCU);
+                taskManager.addDiffTaskAttributes(diffTask, diff);
+            taskManager.updateDiffTask(diffTask, diffSCU.matches(), diffSCU.missing(), diffSCU.different());
             return toOutcome(diffSCU);
         } finally {
             diffSCUMap.remove(taskPK);
@@ -169,7 +168,7 @@ public class DiffServiceImpl implements DiffService {
                 .getDiffTaskProgressUpdateInterval();
         return interval != null
                 ? device.scheduleAtFixedRate(
-                    () -> ejb.updateDiffTask(diffTask, diffSCU),
+                () -> taskManager.updateDiffTask(diffTask, diffSCU.matches(), diffSCU.missing(), diffSCU.different()),
                     interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS)
                 : null;
     }

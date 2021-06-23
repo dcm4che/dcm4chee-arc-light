@@ -47,16 +47,17 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.*;
@@ -72,9 +73,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.Tuple;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.file.NoSuchFileException;
 import java.security.MessageDigest;
 import java.util.*;
@@ -94,6 +98,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Inject
     private StgCmtEJB ejb;
+
+    @Inject
+    private TaskManager taskManager;
 
     @Inject
     private RetrieveService retrieveService;
@@ -200,9 +207,54 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean scheduleStgVerTask(
-            StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID) {
-        return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
+    public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                                      HttpServletRequestInfo httpServletRequestInfo,
+                                      String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      Boolean updateLocationStatus, String... storageIDs) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER);
+        Task task = new Task();
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", localAET);
+            gen.write("StudyInstanceUID", studyInstanceUID);
+            if (qrlevel != QueryRetrieveLevel2.STUDY) {
+                gen.write("SeriesInstanceUID", seriesInstanceUID);
+                if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                    gen.write("SOPInstanceUID", sopInstanceUID);
+                }
+            }
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
+        }
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(batchID);
+        task.setLocalAET(localAET);
+        task.setStorageVerificationPolicy(storageVerificationPolicy);
+        task.setUpdateLocationStatus(updateLocationStatus);
+        task.setStorageIDs(storageIDs);
+        task.setStudyInstanceUID(studyInstanceUID);
+        if (qrlevel != QueryRetrieveLevel2.STUDY) {
+            task.setSeriesInstanceUID(seriesInstanceUID);
+            if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                task.setSopInstanceUID(sopInstanceUID);
+            }
+        }
+        return taskManager.schedule(task, queueDesc);
+    }
+
+    @Override
+    public boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID) {
+        return scheduleStgVerTask(localAET, QueryRetrieveLevel2.SERIES, null,
+                studyInstanceUID, seriesInstanceUID, null,
+                batchID, null, null);
     }
 
     @Override
@@ -314,14 +366,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     private void scheduleStgVerTask(RetrieveContext ctx, String studyIUID, String seriesIUID) {
-        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
-        storageVerificationTask.setLocalAET(ctx.getLocalAETitle());
-        storageVerificationTask.setStudyInstanceUID(studyIUID);
-        storageVerificationTask.setSeriesInstanceUID(seriesIUID);
         try {
-            ejb.scheduleStgVerTask(storageVerificationTask, ctx.getHttpServletRequestInfo(), null);
+            scheduleStgVerTask(ctx.getLocalAETitle(), studyIUID, seriesIUID, null);
         } catch (Exception e) {
-            LOG.warn("Failed to schedule {}\n", storageVerificationTask, e);
+            LOG.warn("Failed to schedule Storage Verification of Series{uid={}} of Study{uid={}}:\n", seriesIUID, studyIUID, e);
         }
     }
 

@@ -43,6 +43,9 @@ package org.dcm4chee.arc.stgcmt;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.entity.Task;
@@ -80,8 +83,12 @@ public interface StgCmtManager {
 
     boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
-    boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
-                               String batchID);
+    boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrLevel, HttpServletRequestInfo httpServletRequestInfo,
+                               String studyIUID, String seriesIUID, String sopIUID, String batchID,
+                               StorageVerificationPolicy storageVerificationPolicy, Boolean UpdateLocationStatus,
+                               String... storageIDs);
+
+    boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID);
 
     Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;

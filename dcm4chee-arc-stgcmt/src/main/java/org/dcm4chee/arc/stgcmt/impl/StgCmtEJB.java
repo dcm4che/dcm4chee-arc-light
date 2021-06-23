@@ -50,7 +50,6 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -65,15 +64,11 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -228,87 +223,6 @@ public class StgCmtEJB {
         List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
         q.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(q).executeUpdate();
-    }
-
-    public boolean  scheduleStgVerTask(StorageVerificationTask storageVerificationTask,
-                                       HttpServletRequestInfo httpServletRequestInfo,
-                                       String batchID) {
-        if (isAlreadyScheduled(storageVerificationTask))
-            return false;
-
-        QueueMessage queueMessage = queueManager.scheduleMessage(
-                device.getDeviceName(),
-                StgCmtManager.QUEUE_NAME,
-                new Date(),
-                toJSON(storageVerificationTask, httpServletRequestInfo),
-                0,
-                batchID);
-        storageVerificationTask.setQueueMessage(queueMessage);
-        em.persist(storageVerificationTask);
-        return true;
-    }
-
-    private String toJSON(StorageVerificationTask task, HttpServletRequestInfo httpServletRequestInfo) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", task.getLocalAET());
-            gen.write("StudyInstanceUID", task.getStudyInstanceUID());
-            if (!task.getSeriesInstanceUID().equals("*")) {
-                gen.write("SeriesInstanceUID", task.getSeriesInstanceUID());
-                if (!task.getSOPInstanceUID().equals("*")) {
-                    gen.write("SOPInstanceUID", task.getSOPInstanceUID());
-                }
-            }
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.writeTo(gen);
-            gen.writeEnd();
-        }
-        return sw.toString();
-    }
-
-    private boolean isAlreadyScheduled(StorageVerificationTask storageVerificationTask) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
-        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(queueMsg.get(QueueMessage_.status).in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
-        predicates.add(cb.equal(
-                stgVerTask.get(StorageVerificationTask_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));
-        if (storageVerificationTask.getSeriesInstanceUID() == null)
-            predicates.add(stgVerTask.get(StorageVerificationTask_.seriesInstanceUID).isNull());
-        else {
-            predicates.add(cb.or(
-                    stgVerTask.get(StorageVerificationTask_.seriesInstanceUID).isNull(),
-                    cb.equal(stgVerTask.get(StorageVerificationTask_.seriesInstanceUID),
-                            storageVerificationTask.getSeriesInstanceUID())));
-            if (storageVerificationTask.getSOPInstanceUID() == null)
-                predicates.add(stgVerTask.get(StorageVerificationTask_.sopInstanceUID).isNull());
-            else
-                predicates.add(cb.or(
-                        stgVerTask.get(StorageVerificationTask_.sopInstanceUID).isNull(),
-                        cb.equal(stgVerTask.get(StorageVerificationTask_.sopInstanceUID),
-                                storageVerificationTask.getSOPInstanceUID())));
-        }
-        if (storageVerificationTask.getStorageVerificationPolicy() != null)
-            predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageVerificationPolicy),
-                    storageVerificationTask.getStorageVerificationPolicy()));
-        if (storageVerificationTask.getStorageIDsAsString() != null)
-            predicates.add(cb.equal(stgVerTask.get(StorageVerificationTask_.storageIDs),
-                    storageVerificationTask.getStorageIDsAsString()));
-        try (Stream<Long> resultStream = em.createQuery(q
-                .where(predicates.toArray(new Predicate[0]))
-                .select(stgVerTask.get(StorageVerificationTask_.pk)))
-                .getResultStream()) {
-            Optional<Long> prev = resultStream.findFirst();
-            if (prev.isPresent()) {
-                LOG.info("Previous {} found - suppress duplicate storage verification", prev.get());
-                return true;
-            }
-        }
-        return false;
     }
 
     public int updateStgVerTask(Task storageVerificationTask) {

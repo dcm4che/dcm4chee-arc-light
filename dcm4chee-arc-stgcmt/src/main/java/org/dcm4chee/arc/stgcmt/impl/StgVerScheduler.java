@@ -47,7 +47,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.ScheduleExpression;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
@@ -68,7 +67,6 @@ import java.util.List;
 public class StgVerScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgVerScheduler.class);
-    private static final long MILLIS_PER_DAY = 24 * 3600_000;
 
     @Inject
     private QueueManager queueManager;
@@ -122,7 +120,8 @@ public class StgVerScheduler extends Scheduler {
             for (Series.StorageVerification storageVerification : storageVerifications) {
                 if (claim(storageVerification, period)) {
                     try {
-                        if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, storageVerification), null, batchID)) {
+                        if (stgCmtMgr.scheduleStgVerTask(aet,
+                                storageVerification.studyInstanceUID, storageVerification.seriesInstanceUID, batchID)) {
                             if (--remaining <= 0) {
                                 LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
                                 return;
@@ -167,13 +166,5 @@ public class StgVerScheduler extends Scheduler {
         cal.add(Calendar.MONTH, period.getMonths());
         cal.add(Calendar.DAY_OF_MONTH, period.getDays());
         return cal.getTime();
-    }
-
-    private StorageVerificationTask createStgVerTask(String aet, Series.StorageVerification storageVerification) {
-        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
-        storageVerificationTask.setLocalAET(aet);
-        storageVerificationTask.setStudyInstanceUID(storageVerification.studyInstanceUID);
-        storageVerificationTask.setSeriesInstanceUID(storageVerification.seriesInstanceUID);
-        return storageVerificationTask;
     }
 }

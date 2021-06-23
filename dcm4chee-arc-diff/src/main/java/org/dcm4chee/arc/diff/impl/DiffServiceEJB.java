@@ -41,19 +41,9 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
-import javax.persistence.criteria.Expression;
-import javax.persistence.Tuple;
-
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.conf.TaskProcessorName;
-import org.dcm4chee.arc.diff.*;
+import org.dcm4chee.arc.diff.DiffBatch;
+import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -65,14 +55,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
-import java.io.StringWriter;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -93,28 +87,6 @@ public class DiffServiceEJB {
 
     @Inject
     private Device device;
-
-    public void resetDiffTask(Task diffTask) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        diffTask.resetDiffTask();
-        diffTask.getDiffTaskAttributes().forEach(entity -> em.remove(entity));
-    }
-
-    public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        if (diffTask != null) {
-            diffTask.getDiffTaskAttributes().add(new AttributesBlob(attrs));
-        }
-    }
-
-    public void updateDiffTask(Task diffTask, DiffSCU diffSCU) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        if (diffTask != null) {
-            diffTask.setMatches(diffSCU.matches());
-            diffTask.setMissing(diffSCU.missing());
-            diffTask.setDifferent(diffSCU.different());
-        }
-    }
 
     public DiffTask getDiffTask(long taskPK) {
         return em.find(DiffTask.class, taskPK);

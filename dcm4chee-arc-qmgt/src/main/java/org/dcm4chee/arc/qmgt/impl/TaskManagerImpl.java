@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
@@ -67,11 +68,27 @@ public class TaskManagerImpl implements TaskManager {
     private TaskScheduler scheduler;
 
     @Override
-    public void schedule(Task task, QueueDescriptor queueDesc) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        ejb.scheduleTask(task);
+    public boolean schedule(Task task, QueueDescriptor queueDesc) {
+        if (!ejb.scheduleTask(task)) return false;
         if (task.getScheduledTime().getTime() <= System.currentTimeMillis()) {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             scheduler.process(queueDesc, arcDev.getTaskProcessingFetchSize());
         }
+        return true;
+    }
+
+    @Override
+    public void resetDiffTask(Task diffTask) {
+        ejb.resetDiffTask(diffTask);
+    }
+
+    @Override
+    public void addDiffTaskAttributes(Task diffTask, Attributes diff) {
+        ejb.addDiffTaskAttributes(diffTask, diff);
+    }
+
+    @Override
+    public void updateDiffTask(Task diffTask, int matches, int missing, int different) {
+        ejb.updateDiffTask(diffTask, matches, missing, different);
     }
 }

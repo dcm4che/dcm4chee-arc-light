@@ -47,10 +47,10 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.entity.ExpirationState;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.conf.TaskProcessorName;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -62,6 +62,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
@@ -70,6 +72,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -241,8 +244,15 @@ class StgVerMatching {
                     if (match == null)
                         continue;
 
-                    if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, match, qrLevel),
-                            HttpServletRequestInfo.valueOf(request), batchID)) {
+                    HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+                    if (stgCmtMgr.scheduleStgVerTask(aet, qrLevel, httpServletRequestInfo,
+                            match.getString(Tag.StudyInstanceUID),
+                            match.getString(Tag.SeriesInstanceUID),
+                            match.getString(Tag.SOPInstanceUID),
+                            batchID,
+                            storageVerificationPolicy != null ? StorageVerificationPolicy.valueOf(storageVerificationPolicy) : null,
+                            storageVerificationUpdateLocationStatus != null ? Boolean.valueOf(storageVerificationUpdateLocationStatus) : null,
+                            storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING))) {
                         count++;
                     }
                 }
@@ -327,24 +337,4 @@ class StgVerMatching {
         return queryParam;
     }
 
-    private StorageVerificationTask createStgVerTask(String aet, Attributes match, QueryRetrieveLevel2 qrlevel) {
-        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
-        storageVerificationTask.setLocalAET(aet);
-        if (storageVerificationPolicy != null) {
-            storageVerificationTask.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(storageVerificationPolicy));
-        }
-        if (storageVerificationUpdateLocationStatus != null) {
-            storageVerificationTask.setUpdateLocationStatus(Boolean.valueOf(storageVerificationUpdateLocationStatus));
-        }
-        if (!storageVerificationStorageIDs.isEmpty()) {
-            storageVerificationTask.setStorageIDs(storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
-        }
-        storageVerificationTask.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
-        if (qrlevel != QueryRetrieveLevel2.STUDY) {
-            storageVerificationTask.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
-            if (qrlevel == QueryRetrieveLevel2.IMAGE)
-                storageVerificationTask.setSOPInstanceUID(match.getString(Tag.SOPInstanceUID));
-        }
-        return storageVerificationTask;
-    }
 }

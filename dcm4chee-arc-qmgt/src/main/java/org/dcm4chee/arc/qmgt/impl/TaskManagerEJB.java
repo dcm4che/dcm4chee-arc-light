@@ -41,11 +41,12 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.conf.TaskProcessorName;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +55,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -157,9 +162,81 @@ public class TaskManagerEJB {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
-    public void scheduleTask(Task task) {
+    public boolean scheduleTask(Task task) {
+        switch (task.getProcessor()) {
+            case STG_VERIFIER:
+                if (isStorageVerificationTaskAlreadyScheduled(task))
+                    return false;
+        }
         em.persist(task);
         LOG.info("Schedule {}", task);
+        return true;
+    }
+
+    public void resetDiffTask(Task diffTask) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        diffTask.resetDiffTask();
+        diffTask.getDiffTaskAttributes().forEach(entity -> em.remove(entity));
+    }
+
+    public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        if (diffTask != null) {
+            diffTask.getDiffTaskAttributes().add(new AttributesBlob(attrs));
+        }
+    }
+
+    public void updateDiffTask(Task diffTask, int matches, int missing, int different) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        if (diffTask != null) {
+            diffTask.setMatches(matches);
+            diffTask.setMissing(missing);
+            diffTask.setDifferent(different);
+        }
+    }
+
+    private boolean isStorageVerificationTaskAlreadyScheduled(Task storageVerificationTask) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Task> stgVerTask = q.from(Task.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(stgVerTask.get(Task_.processor), TaskProcessorName.STG_VERIFIER));
+        predicates.add(stgVerTask.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS));
+        predicates.add(cb.equal(
+                stgVerTask.get(Task_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));
+        if (storageVerificationTask.getSeriesInstanceUID() == null)
+            predicates.add(stgVerTask.get(Task_.seriesInstanceUID).isNull());
+        else {
+            predicates.add(cb.or(
+                    stgVerTask.get(Task_.seriesInstanceUID).isNull(),
+                    cb.equal(stgVerTask.get(Task_.seriesInstanceUID),
+                            storageVerificationTask.getSeriesInstanceUID())));
+            if (storageVerificationTask.getSopInstanceUID() == null)
+                predicates.add(stgVerTask.get(Task_.sopInstanceUID).isNull());
+            else
+                predicates.add(cb.or(
+                        stgVerTask.get(Task_.sopInstanceUID).isNull(),
+                        cb.equal(stgVerTask.get(Task_.sopInstanceUID),
+                                storageVerificationTask.getSopInstanceUID())));
+        }
+        if (storageVerificationTask.getStorageVerificationPolicy() != null)
+            predicates.add(cb.equal(stgVerTask.get(Task_.storageVerificationPolicy),
+                    storageVerificationTask.getStorageVerificationPolicy()));
+        if (storageVerificationTask.getStorageIDsAsString() != null)
+            predicates.add(cb.equal(stgVerTask.get(Task_.storageIDs),
+                    storageVerificationTask.getStorageIDsAsString()));
+        try (Stream<Long> resultStream = em.createQuery(q
+                .where(predicates.toArray(new Predicate[0]))
+                .select(stgVerTask.get(Task_.pk)))
+                .getResultStream()) {
+            Optional<Long> prev = resultStream.findFirst();
+            if (prev.isPresent()) {
+                LOG.info("Previous {} found - suppress duplicate storage verification", prev.get());
+                return true;
+            }
+        }
+        return false;
     }
 
 }
