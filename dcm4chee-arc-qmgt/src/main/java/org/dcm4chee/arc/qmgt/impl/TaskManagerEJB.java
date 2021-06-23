@@ -239,4 +239,10 @@ public class TaskManagerEJB {
         return false;
     }
 
+    public long countScheduledTasksOnThisDevice(String queueName) {
+        return em.createNamedQuery(Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
+                .setParameter(1, device.getDeviceName())
+                .setParameter(2, queueName)
+                .setParameter(3, QueueMessage.Status.SCHEDULED).getSingleResult();
+    }
 }

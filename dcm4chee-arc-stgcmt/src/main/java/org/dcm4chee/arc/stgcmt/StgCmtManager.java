@@ -83,13 +83,6 @@ public interface StgCmtManager {
 
     boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
-    boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrLevel, HttpServletRequestInfo httpServletRequestInfo,
-                               String studyIUID, String seriesIUID, String sopIUID, String batchID,
-                               StorageVerificationPolicy storageVerificationPolicy, Boolean UpdateLocationStatus,
-                               String... storageIDs);
-
-    boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID);
-
     Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
 

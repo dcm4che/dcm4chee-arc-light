@@ -43,11 +43,10 @@ package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.ScheduleExpression;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +76,9 @@ public class StgVerScheduler extends Scheduler {
     @Inject
     private StgCmtManager stgCmtMgr;
 
+    @Inject
+    private TaskManager taskManager;
+
     protected StgVerScheduler() {
         super(Mode.scheduleWithFixedDelay);
     }
@@ -105,7 +107,7 @@ public class StgVerScheduler extends Scheduler {
             return;
         }
         int maxScheduled = arcDev.getStorageVerificationMaxScheduled();
-        int remaining = remaining(maxScheduled);
+        int remaining = remaining(maxScheduled, arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER));
         if (remaining == 0) {
             LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
             return;
@@ -120,7 +122,7 @@ public class StgVerScheduler extends Scheduler {
             for (Series.StorageVerification storageVerification : storageVerifications) {
                 if (claim(storageVerification, period)) {
                     try {
-                        if (stgCmtMgr.scheduleStgVerTask(aet,
+                        if (taskManager.scheduleStgVerTask(aet,
                                 storageVerification.studyInstanceUID, storageVerification.seriesInstanceUID, batchID)) {
                             if (--remaining <= 0) {
                                 LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
@@ -136,11 +138,11 @@ public class StgVerScheduler extends Scheduler {
         while (getPollingInterval() != null && storageVerifications.size() == fetchSize);
     }
 
-    private int remaining(int maxScheduled) {
+    private int remaining(int maxScheduled, QueueDescriptor queueDesc) {
         if (maxScheduled <= 0) {
             return Integer.MAX_VALUE;
         }
-        long scheduled = queueManager.countScheduledMessagesOnThisDevice(StgCmtManager.QUEUE_NAME);
+        long scheduled = taskManager.countScheduledTasksOnThisDevice(queueDesc.getQueueName());
         return (int) Math.max(maxScheduled - scheduled, 0L);
     }
 

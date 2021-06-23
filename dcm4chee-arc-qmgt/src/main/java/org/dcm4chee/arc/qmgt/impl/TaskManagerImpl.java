@@ -43,13 +43,21 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.TaskManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -75,6 +83,62 @@ public class TaskManagerImpl implements TaskManager {
             scheduler.process(queueDesc, arcDev.getTaskProcessingFetchSize());
         }
         return true;
+    }
+
+    @Override
+    public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                                      HttpServletRequestInfo httpServletRequestInfo,
+                                      String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      Boolean updateLocationStatus, String... storageIDs) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER);
+        Task task = new Task();
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", localAET);
+            gen.write("StudyInstanceUID", studyInstanceUID);
+            if (qrlevel != QueryRetrieveLevel2.STUDY) {
+                gen.write("SeriesInstanceUID", seriesInstanceUID);
+                if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                    gen.write("SOPInstanceUID", sopInstanceUID);
+                }
+            }
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
+        }
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(batchID);
+        task.setLocalAET(localAET);
+        task.setStorageVerificationPolicy(storageVerificationPolicy);
+        task.setUpdateLocationStatus(updateLocationStatus);
+        task.setStorageIDs(storageIDs);
+        task.setStudyInstanceUID(studyInstanceUID);
+        if (qrlevel != QueryRetrieveLevel2.STUDY) {
+            task.setSeriesInstanceUID(seriesInstanceUID);
+            if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                task.setSopInstanceUID(sopInstanceUID);
+            }
+        }
+        return schedule(task, queueDesc);
+    }
+
+    @Override
+    public boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID) {
+        return scheduleStgVerTask(localAET, QueryRetrieveLevel2.SERIES, null,
+                studyInstanceUID, seriesInstanceUID, null,
+                batchID, null, null);
+    }
+
+    @Override
+    public long countScheduledTasksOnThisDevice(String queueName) {
+        return ejb.countScheduledTasksOnThisDevice(queueName);
     }
 
     @Override
