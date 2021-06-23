@@ -78,15 +78,10 @@ export class DevicesService {
     cloneVendorData(oldDeviceName, newDeviceName){
         return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${oldDeviceName.trim()}/vendordata`,{
             responseType: "blob"
-        }).pipe(switchMap((vendorData:Blob)=> {
-            let xmlHttpRequest = new XMLHttpRequest();
-            xmlHttpRequest.open('PUT',
-                `${j4care.addLastSlash(this.appService.baseUrl)}devices/${newDeviceName.trim()}/vendordata`);
-            xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
-            xmlHttpRequest.send(vendorData);
-            return xmlHttpRequest.status === 204 ? xmlHttpRequest.getAllResponseHeaders() : xmlHttpRequest.response;
-            //return this.$http.put(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${newDeviceName.trim()}/vendordata`, vendorData);
-        }));
+        }).pipe(switchMap((vendorData:Blob)=> this.$http.put(
+            `${j4care.addLastSlash(this.appService.baseUrl)}devices/${newDeviceName.trim()}/vendordata`, vendorData, new HttpHeaders({'Content-Type': 'application/zip'})
+            )
+        ));
     }
     getAes(){
         return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}aes`);
