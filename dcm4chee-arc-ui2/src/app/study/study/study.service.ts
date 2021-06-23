@@ -100,28 +100,34 @@ export class StudyService {
             if (obj.PatientID) {
                 patientId = obj.PatientID;
             }
-            if (obj.IssuerOfPatientID) {
+            if (obj.IssuerOfPatientID && obj.IssuerOfPatientID != "") {
                 patientId += '^^^' + obj.IssuerOfPatientID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID')) {
+            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') != "") {
                 patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType')) {
+            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') != "") {
                 patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
             }
-            if (_.hasIn(obj, '["00100020"].Value[0]')) {
+            if (_.hasIn(obj, '["00100020"].Value[0]') && _.get(obj, '["00100020"].Value[0]') != "") {
                 patientId += obj["00100020"].Value[0];
             }
-            if (_.hasIn(obj, '["00100021"].Value[0]'))
+            if (_.hasIn(obj, '["00100021"].Value[0]') && _.get(obj, '["00100021"].Value[0]') != "")
                 patientId += '^^^' + obj["00100021"].Value[0];
             else {
-                if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') || _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]'))
+                if ((
+                        _.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') &&
+                        _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != ""
+                    ) ||
+                        _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') &&
+                        _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != ""
+                    )
                     patientId += '^^^';
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')) {
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != "") {
                 patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')) {
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != "") {
                 patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
             }
             return _.replace(patientId,"/","%2F");
