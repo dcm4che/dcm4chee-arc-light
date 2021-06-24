@@ -304,7 +304,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes queryExportTaskInfo(ExportTask exportTask, ApplicationEntity ae) {
+    public Attributes queryExportTaskInfo(Task exportTask, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         ArchiveDeviceExtension arcDev = ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         int retries = arcDev.getStoreUpdateDBMaxRetries();

@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.export.mgt;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -58,21 +59,17 @@ import java.util.List;
  * @since Feb 2016
  */
 public interface ExportManager {
-    void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime);
 
-    void createOrUpdateStudyExportTask(String exporterDeviceName, String exporterID, String studyIUID, Date scheduledTime);
+    void createOrUpdateStudyExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+                                       String studyIUID, Date scheduledTime);
 
-    void createOrUpdateSeriesExportTask(
-            String exporterID, String studyIUID, String seriesIUID, Date scheduledTime);
-
-    void createOrUpdateSeriesExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
+    void createOrUpdateSeriesExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+                                        String studyIUID, String seriesIUID,
                                         Date scheduledTime);
 
-    void createOrUpdateInstanceExportTask(
-            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime);
-
-    void createOrUpdateInstanceExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
-                                          String sopIUID, Date scheduledTime);
+    void createOrUpdateInstanceExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+                                          String studyIUID, String seriesIUID, String sopIUID,
+                                          Date scheduledTime);
 
     List<Long> findExportTasksToSchedule(int fetchSize);
 

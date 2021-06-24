@@ -85,6 +85,17 @@ import java.util.Date;
 @NamedQuery(name = Task.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
         query = "select o.pk from Task o where o.deviceName=?1 and o.queueName=?2 and o.status=?3 " +
                 "and o.scheduledTime < current_timestamp order by o.scheduledTime")
+@NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
+        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+                "and o.status=?3")
+@NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID,
+        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+                "and o.seriesInstanceUID in ('*',?3) " +
+                "and o.status=?4")
+@NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
+        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+                "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
+                "and o.status=?5")
 @NamedQuery(name = Task.FIND_DEVICE_BY_BATCH_ID,
         query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName")
 @NamedQuery(name = Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
@@ -102,6 +113,12 @@ public class Task {
     public static final String FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS =
             "Task.FindScheduledByDeviceAndQueueNameAndStatus";
     public static final String FIND_DEVICE_BY_BATCH_ID = "Task.FindDeviceByBatchId";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID =
+            "Task.FindByExporterIDAndStudyIUID";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID =
+            "Task.FindByExporterIDAndStudyIUIDAndSeriesIUID";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
+            "Task.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "Task.CountByDeviceAndQueueNameAndStatus";
     public static final String COUNT_BY_BATCH_ID_AND_STATUS = "Task.CountByBatchIdAndStatus";
     public static final String UPDATE_STATUS = "Task.UpdateStatus";
@@ -494,12 +511,12 @@ public class Task {
         this.numberOfInstances = numberOfInstances;
     }
 
-    public String getModalities() {
-        return modalities;
+    public String[] getModalities() {
+        return StringUtils.split(modalities, '\\');
     }
 
-    public void setModalities(String modalities) {
-        this.modalities = modalities;
+    public void setModalities(String[] modalities) {
+        this.modalities = StringUtils.concat(modalities, '\\');
     }
 
     public int getRemaining() {

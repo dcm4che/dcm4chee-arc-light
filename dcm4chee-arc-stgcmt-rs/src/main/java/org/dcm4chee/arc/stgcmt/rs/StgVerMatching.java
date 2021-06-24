@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -96,6 +97,9 @@ class StgVerMatching {
 
     @Inject
     private StgCmtManager stgCmtMgr;
+
+    @Inject
+    private TaskManager taskManager;
 
     @Inject
     private RunInTransaction runInTx;
@@ -245,7 +249,7 @@ class StgVerMatching {
                         continue;
 
                     HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
-                    if (stgCmtMgr.scheduleStgVerTask(aet, qrLevel, httpServletRequestInfo,
+                    if (taskManager.scheduleStgVerTask(aet, qrLevel, httpServletRequestInfo,
                             match.getString(Tag.StudyInstanceUID),
                             match.getString(Tag.SeriesInstanceUID),
                             match.getString(Tag.SOPInstanceUID),

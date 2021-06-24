@@ -237,8 +237,10 @@ public class ExportPriorsScheduler {
                 Attributes match = query.nextMatch();
                 String suid;
                 if (match != null && !(suid = match.getString(Tag.StudyInstanceUID)).equals(receivedStudyUID)) {
-                    exporters.forEach(exporter ->
-                        exportManager.scheduleStudyExport(suid, exporter, notExportedAfter, batchID));
+                    for (ExporterDescriptor exporter : exporters) {
+                        exportManager.scheduleStudyExport(suid, exporter,
+                                notExportedAfter, batchID);
+                    }
                     --remaining;
                 }
             }

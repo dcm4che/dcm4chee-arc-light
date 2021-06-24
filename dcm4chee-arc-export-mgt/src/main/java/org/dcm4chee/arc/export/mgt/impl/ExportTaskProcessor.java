@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -51,6 +53,7 @@ import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
+import org.dcm4chee.arc.query.QueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +75,13 @@ public class ExportTaskProcessor implements TaskProcessor {
     private ExporterFactory exporterFactory;
 
     @Inject
+    private ExportManagerEJB ejb;
+
+    @Inject
     private Device device;
+
+    @Inject
+    private QueryService queryService;
 
     @Inject
     private Event<ExportContext> exportEvent;
@@ -84,6 +93,14 @@ public class ExportTaskProcessor implements TaskProcessor {
         try {
             ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getExporterDescriptorNotNull(task.getExporterID());
+            Attributes attrs = queryService.queryExportTaskInfo(task, device.getApplicationEntity(exporterDesc.getAETitle()));
+            if (attrs != null) {
+                task.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
+                task.setNumberOfInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1));
+                ejb.merge(task);
+            } else {
+                LOG.info("No Export Task Info found for {}", task);
+            }
             Exporter exporter = exporterFactory.getExporter(exporterDesc);
             exportContext = exporter.createExportContext();
             exportContext.setTaskPK(task.getPk());
