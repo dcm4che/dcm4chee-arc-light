@@ -45,9 +45,6 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,16 +65,7 @@ public class StgVerScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(StgVerScheduler.class);
 
     @Inject
-    private QueueManager queueManager;
-
-    @Inject
     private StgCmtEJB ejb;
-
-    @Inject
-    private StgCmtManager stgCmtMgr;
-
-    @Inject
-    private TaskManager taskManager;
 
     protected StgVerScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -122,7 +110,7 @@ public class StgVerScheduler extends Scheduler {
             for (Series.StorageVerification storageVerification : storageVerifications) {
                 if (claim(storageVerification, period)) {
                     try {
-                        if (taskManager.scheduleStgVerTask(aet,
+                        if (ejb.scheduleStgVerTask(aet,
                                 storageVerification.studyInstanceUID, storageVerification.seriesInstanceUID, batchID)) {
                             if (--remaining <= 0) {
                                 LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
@@ -142,7 +130,7 @@ public class StgVerScheduler extends Scheduler {
         if (maxScheduled <= 0) {
             return Integer.MAX_VALUE;
         }
-        long scheduled = taskManager.countScheduledTasksOnThisDevice(queueDesc.getQueueName());
+        long scheduled = ejb.countScheduledTasksOnThisDevice(queueDesc.getQueueName());
         return (int) Math.max(maxScheduled - scheduled, 0L);
     }
 

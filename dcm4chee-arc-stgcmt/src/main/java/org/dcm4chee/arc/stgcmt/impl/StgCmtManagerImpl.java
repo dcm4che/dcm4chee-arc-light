@@ -47,20 +47,24 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.*;
-import org.dcm4chee.arc.stgcmt.*;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -73,12 +77,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.Tuple;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.nio.file.NoSuchFileException;
 import java.security.MessageDigest;
 import java.util.*;
@@ -98,9 +99,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     @Inject
     private StgCmtEJB ejb;
-
-    @Inject
-    private TaskManager taskManager;
 
     @Inject
     private RetrieveService retrieveService;
@@ -316,7 +314,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
 
     private void scheduleStgVerTask(RetrieveContext ctx, String studyIUID, String seriesIUID) {
         try {
-            taskManager.scheduleStgVerTask(ctx.getLocalAETitle(), studyIUID, seriesIUID, null);
+            ejb.scheduleStgVerTask(ctx.getLocalAETitle(), studyIUID, seriesIUID, null);
         } catch (Exception e) {
             LOG.warn("Failed to schedule Storage Verification of Series{uid={}} of Study{uid={}}:\n", seriesIUID, studyIUID, e);
         }

@@ -42,27 +42,13 @@
 package org.dcm4chee.arc.qmgt;
 
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Jun 2021
  */
 public interface TaskManager {
-    boolean schedule(Task task, QueueDescriptor queueDesc);
-
-    boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
-                               HttpServletRequestInfo httpServletRequestInfo,
-                               String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
-                               String batchID, StorageVerificationPolicy storageVerificationPolicy,
-                               Boolean updateLocationStatus, String... storageIDs);
-
-    boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID);
-
-    long countScheduledTasksOnThisDevice(String queueName);
+    void schedule(Task task, QueueDescriptor queueDesc);
 }

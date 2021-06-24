@@ -45,11 +45,11 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -64,11 +64,15 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -533,5 +537,110 @@ public class StgCmtEJB {
 
         referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
         return referencedQueueMsgIDs.size();
+    }
+
+    public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                                      HttpServletRequestInfo httpServletRequestInfo,
+                                      String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      Boolean updateLocationStatus, String... storageIDs) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER);
+        Task task = new Task();
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(sw)) {
+            gen.writeStartObject();
+            gen.write("LocalAET", localAET);
+            gen.write("StudyInstanceUID", studyInstanceUID);
+            if (qrlevel != QueryRetrieveLevel2.STUDY) {
+                gen.write("SeriesInstanceUID", seriesInstanceUID);
+                if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                    gen.write("SOPInstanceUID", sopInstanceUID);
+                }
+            }
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.writeTo(gen);
+            gen.writeEnd();
+        }
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueDescriptor(queueDesc);
+        task.setScheduledTime(new Date());
+        task.setParameters(sw.toString());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(batchID);
+        task.setLocalAET(localAET);
+        task.setStorageVerificationPolicy(storageVerificationPolicy);
+        task.setUpdateLocationStatus(updateLocationStatus);
+        task.setStorageIDs(storageIDs);
+        task.setStudyInstanceUID(studyInstanceUID);
+        if (qrlevel != QueryRetrieveLevel2.STUDY) {
+            task.setSeriesInstanceUID(seriesInstanceUID);
+            if (qrlevel == QueryRetrieveLevel2.IMAGE) {
+                task.setSopInstanceUID(sopInstanceUID);
+            }
+        }
+        if (isStorageVerificationTaskAlreadyScheduled(task)) {
+            return false;
+        }
+        em.persist(task);
+        LOG.info("Schedule {}", task);
+        return true;
+    }
+
+    public boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID) {
+        return scheduleStgVerTask(localAET, QueryRetrieveLevel2.SERIES, null,
+                studyInstanceUID, seriesInstanceUID, null,
+                batchID, null, null);
+    }
+
+    private boolean isStorageVerificationTaskAlreadyScheduled(Task storageVerificationTask) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Task> stgVerTask = q.from(Task.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(stgVerTask.get(Task_.processor), TaskProcessorName.STG_VERIFIER));
+        predicates.add(stgVerTask.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS));
+        predicates.add(cb.equal(
+                stgVerTask.get(Task_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));
+        if (storageVerificationTask.getSeriesInstanceUID() == null)
+            predicates.add(stgVerTask.get(Task_.seriesInstanceUID).isNull());
+        else {
+            predicates.add(cb.or(
+                    stgVerTask.get(Task_.seriesInstanceUID).isNull(),
+                    cb.equal(stgVerTask.get(Task_.seriesInstanceUID),
+                            storageVerificationTask.getSeriesInstanceUID())));
+            if (storageVerificationTask.getSopInstanceUID() == null)
+                predicates.add(stgVerTask.get(Task_.sopInstanceUID).isNull());
+            else
+                predicates.add(cb.or(
+                        stgVerTask.get(Task_.sopInstanceUID).isNull(),
+                        cb.equal(stgVerTask.get(Task_.sopInstanceUID),
+                                storageVerificationTask.getSopInstanceUID())));
+        }
+        if (storageVerificationTask.getStorageVerificationPolicy() != null)
+            predicates.add(cb.equal(stgVerTask.get(Task_.storageVerificationPolicy),
+                    storageVerificationTask.getStorageVerificationPolicy()));
+        if (storageVerificationTask.getStorageIDsAsString() != null)
+            predicates.add(cb.equal(stgVerTask.get(Task_.storageIDs),
+                    storageVerificationTask.getStorageIDsAsString()));
+        try (Stream<Long> resultStream = em.createQuery(q
+                .where(predicates.toArray(new Predicate[0]))
+                .select(stgVerTask.get(Task_.pk)))
+                .getResultStream()) {
+            Optional<Long> prev = resultStream.findFirst();
+            if (prev.isPresent()) {
+                LOG.info("Previous {} found - suppress duplicate storage verification", prev.get());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public long countScheduledTasksOnThisDevice(String queueName) {
+        return em.createNamedQuery(Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
+                .setParameter(1, device.getDeviceName())
+                .setParameter(2, queueName)
+                .setParameter(3, Task.Status.SCHEDULED).getSingleResult();
     }
 }
