@@ -297,6 +297,10 @@ public class DiffServiceEJB {
         return sq;
     }
 
+    public void merge(Task diffTask) {
+        em.merge(diffTask);
+    }
+
     private class ListDiffBatches {
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final MatchTask matchTask = new MatchTask(cb);

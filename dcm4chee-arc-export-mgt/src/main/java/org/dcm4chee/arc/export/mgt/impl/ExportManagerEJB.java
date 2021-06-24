@@ -484,6 +484,7 @@ public class ExportManagerEJB implements ExportManager {
         return sq;
     }
 
+    @Override
     public void merge(Task task) {
         em.merge(task);
     }

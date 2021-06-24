@@ -47,6 +47,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
@@ -75,7 +76,7 @@ public class ExportTaskProcessor implements TaskProcessor {
     private ExporterFactory exporterFactory;
 
     @Inject
-    private ExportManagerEJB ejb;
+    private ExportManager ejb;
 
     @Inject
     private Device device;

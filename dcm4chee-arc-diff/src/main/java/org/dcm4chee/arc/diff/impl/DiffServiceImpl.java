@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.diff.*;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -112,23 +113,34 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
-        taskManager.resetDiffTask(diffTask);
+        diffTask.resetDiffTask();
+        ejb.merge(diffTask);
         Long taskPK = diffTask.getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
             diffSCUMap.put(taskPK, diffSCU);
             diffSCU.init();
             Attributes diff;
-            updateDiffTask = updateDiffTask(diffTask, diffSCU);
-            while ((diff = diffSCU.nextDiff()) != null)
-                taskManager.addDiffTaskAttributes(diffTask, diff);
-            taskManager.updateDiffTask(diffTask, diffSCU.matches(), diffSCU.missing(), diffSCU.different());
+            updateDiffTask = updateDiffTaskAtFixRate(diffTask, diffSCU);
+            while ((diff = diffSCU.nextDiff()) != null) {
+                diffTask.getDiffTaskAttributes().add(new AttributesBlob(diff));
+                ejb.merge(diffTask);
+            }
+            updateDiffTask.cancel(false);
+            updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         } finally {
-            diffSCUMap.remove(taskPK);
             if (updateDiffTask != null)
                 updateDiffTask.cancel(false);
+            diffSCUMap.remove(taskPK);
         }
+    }
+
+    private void updateDiffTask(Task diffTask, DiffSCU diffSCU) {
+        diffTask.setMatches(diffSCU.matches());
+        diffTask.setMissing(diffSCU.missing());
+        diffTask.setDifferent(diffSCU.different());
+        ejb.merge(diffTask);
     }
 
     private void scheduleDiffTask(DiffContext ctx, String queryString) {
@@ -163,12 +175,12 @@ public class DiffServiceImpl implements DiffService {
         taskManager.schedule(task, queueDesc);
     }
 
-    private ScheduledFuture<?> updateDiffTask(Task diffTask, DiffSCU diffSCU) {
+    private ScheduledFuture<?> updateDiffTaskAtFixRate(Task diffTask, DiffSCU diffSCU) {
         Duration interval = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getDiffTaskProgressUpdateInterval();
         return interval != null
                 ? device.scheduleAtFixedRate(
-                () -> taskManager.updateDiffTask(diffTask, diffSCU.matches(), diffSCU.missing(), diffSCU.different()),
+                () -> updateDiffTask(diffTask, diffSCU),
                     interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS)
                 : null;
     }

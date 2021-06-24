@@ -140,19 +140,4 @@ public class TaskManagerImpl implements TaskManager {
     public long countScheduledTasksOnThisDevice(String queueName) {
         return ejb.countScheduledTasksOnThisDevice(queueName);
     }
-
-    @Override
-    public void resetDiffTask(Task diffTask) {
-        ejb.resetDiffTask(diffTask);
-    }
-
-    @Override
-    public void addDiffTaskAttributes(Task diffTask, Attributes diff) {
-        ejb.addDiffTaskAttributes(diffTask, diff);
-    }
-
-    @Override
-    public void updateDiffTask(Task diffTask, int matches, int missing, int different) {
-        ejb.updateDiffTask(diffTask, matches, missing, different);
-    }
 }

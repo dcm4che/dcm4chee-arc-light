@@ -81,7 +81,7 @@ public class TaskManagerEJB {
         return em.createNamedQuery(Task.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
                 .setParameter(1, device.getDeviceName())
                 .setParameter(2, queueName)
-                .setParameter(3, QueueMessage.Status.SCHEDULED)
+                .setParameter(3, Task.Status.SCHEDULED)
                 .setMaxResults(maxResults)
                 .getResultList();
     }
@@ -173,28 +173,6 @@ public class TaskManagerEJB {
         return true;
     }
 
-    public void resetDiffTask(Task diffTask) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        diffTask.resetDiffTask();
-        diffTask.getDiffTaskAttributes().forEach(entity -> em.remove(entity));
-    }
-
-    public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        if (diffTask != null) {
-            diffTask.getDiffTaskAttributes().add(new AttributesBlob(attrs));
-        }
-    }
-
-    public void updateDiffTask(Task diffTask, int matches, int missing, int different) {
-        diffTask = em.find(Task.class, diffTask.getPk());
-        if (diffTask != null) {
-            diffTask.setMatches(matches);
-            diffTask.setMissing(missing);
-            diffTask.setDifferent(different);
-        }
-    }
-
     private boolean isStorageVerificationTaskAlreadyScheduled(Task storageVerificationTask) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
@@ -243,6 +221,6 @@ public class TaskManagerEJB {
         return em.createNamedQuery(Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
                 .setParameter(1, device.getDeviceName())
                 .setParameter(2, queueName)
-                .setParameter(3, QueueMessage.Status.SCHEDULED).getSingleResult();
+                .setParameter(3, Task.Status.SCHEDULED).getSingleResult();
     }
 }

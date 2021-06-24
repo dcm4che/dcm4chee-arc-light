@@ -39,7 +39,6 @@
 package org.dcm4chee.arc.export.rs;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.*;
@@ -51,8 +50,6 @@ import java.io.*;
 @RequestScoped
 @Path("aets/{AETitle}/rs")
 public class ExportCSVRS extends ExportCSV {
-
-    @Inject
 
     @PathParam("AETitle")
     private String aet;

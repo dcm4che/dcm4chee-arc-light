@@ -65,10 +65,4 @@ public interface TaskManager {
     boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID);
 
     long countScheduledTasksOnThisDevice(String queueName);
-
-    void resetDiffTask(Task diffTask);
-
-    void addDiffTaskAttributes(Task diffTask, Attributes diff);
-
-    void updateDiffTask(Task diffTask, int matches, int missing, int different);
 }

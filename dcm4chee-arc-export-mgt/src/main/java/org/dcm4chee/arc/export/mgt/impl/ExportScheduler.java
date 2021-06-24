@@ -122,26 +122,26 @@ public class ExportScheduler extends Scheduler {
         Date scheduledTime = scheduledTime(now, rule.getExportDelay(), exporterDesc.getSchedules());
         switch (rule.getEntity()) {
             case Study:
-                createOrUpdateStudyExportTask(session, exporterDeviceName, exporterID, queueDesc,
+                createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
                         ctx.getStudyInstanceUID(), scheduledTime);
                 if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentStudy())
-                    createOrUpdateStudyExportTask(session, exporterDeviceName, exporterID, queueDesc,
+                    createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
                             ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                             scheduledTime);
                 break;
             case Series:
-                createOrUpdateSeriesExportTask(session, exporterDeviceName, exporterID, queueDesc,
+                createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
                         scheduledTime);
                 if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentSeries())
-                    createOrUpdateSeriesExportTask(session, exporterDeviceName, exporterID, queueDesc,
+                    createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
                             ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                             ctx.getPreviousInstance().getSeries().getSeriesInstanceUID(),
                             scheduledTime);
                 break;
             case Instance:
-                createOrUpdateInstanceExportTask(session, exporterDeviceName, exporterID, queueDesc,
+                createOrUpdateInstanceExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
                         ctx.getSopInstanceUID(),
