@@ -636,7 +636,7 @@ class StoreServiceImpl implements StoreService {
                     result = attrs;
                     reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
                 } else {
-                    reqAttrsSeq.add(attrs.getNestedDataset(Tag.RequestAttributesSequence));
+                    reqAttrsSeq.add(new Attributes(attrs.getNestedDataset(Tag.RequestAttributesSequence)));
                 }
             }
         } catch (TransformerConfigurationException tce) {
