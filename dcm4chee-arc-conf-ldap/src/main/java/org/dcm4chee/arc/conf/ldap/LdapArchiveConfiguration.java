@@ -156,6 +156,20 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoCDA2HtmlTemplateURI",
                 ext.getWadoCDA2HtmlTemplateURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedPRClasses", ext.getWadoSupportedPRClasses());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSpoolDirectory",
+                ext.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
+                ext.getWadoThumbnailViewPort(), ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
+                ext.getFallbackWadoURIWebApplication(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
+                ext.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
+                ext.isWadoIgnorePresentationLUTShape(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
+                ext.isWadoMetadataWithoutPrivate(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI",
                 ext.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI",
@@ -171,8 +185,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnzipVendorDataToURI",
                 ext.getUnzipVendorDataToURI(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedPRClasses", ext.getWadoSupportedPRClasses());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryMaxNumberOfResults",
                 ext.getQueryMaxNumberOfResults(), 0);
@@ -228,8 +240,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessagePollingInterval",
                 ext.getPurgeQueueMessagePollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSpoolDirectory",
-                ext.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
@@ -441,8 +451,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowRetiredTransferSyntax",
                 ext.isStowRetiredTransferSyntax(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowExcludeAPPMarkers", ext.isStowExcludeAPPMarkers(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
-                ext.getWadoThumbnailViewPort(), ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.isRestrictRetrieveSilently(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
@@ -456,10 +464,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSProcessingFetchSize",
                 ext.getUPSProcessingFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
-                ext.getFallbackWadoURIWebApplication(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
-                ext.getFallbackWadoURIHttpStatusCode(), 303);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), HL7ReferredMergedPatientPolicy.REJECT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
@@ -492,8 +496,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getSupplementIssuerFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditAssigningAuthorityOfPatientID",
                 ext.getAuditAssigningAuthorityOfPatientID(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
-                ext.isWadoIgnorePresentationLUTShape(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
                 ext.getChangeRequesterAET(), null);
     }
@@ -550,6 +552,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setWadoCDA2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoCDA2HtmlTemplateURI"), null));
+        ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
+        ext.setWadoSupportedPRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedPRClasses")));
+        ext.setWadoSpoolDirectory(
+                LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
+        ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"),
+                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
+        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
+        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
+        ext.setWadoIgnorePresentationLUTShape(LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), false));
+        ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), false));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setImportReportTemplateParams(LdapUtils.stringArray(attrs.get("hl7ImportReportTemplateParam")));
@@ -558,8 +570,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
-        ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
-        ext.setWadoSupportedPRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedPRClasses")));
         ext.setQueryFetchSize(LdapUtils.intValue(attrs.get("dcmQueryFetchSize"), 100));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), 0));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -595,8 +605,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStowSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setPurgeQueueMessagePollingInterval(toDuration(attrs.get("dcmPurgeQueueMessagePollingInterval"), null));
-        ext.setWadoSpoolDirectory(
-                LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
@@ -766,8 +774,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectConflictingPatientAttribute(tags(attrs.get("dcmRejectConflictingPatientAttribute")));
         ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(attrs.get("dcmStowRetiredTransferSyntax"), false));
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), false));
-        ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"),
-                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
         ext.setMWLPollingInterval(toDuration(attrs.get("dcmMWLPollingInterval"), null));
@@ -776,8 +782,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
         ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
-        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
-        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
         ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(
                 HL7ReferredMergedPatientPolicy.class, attrs.get("hl7ReferredMergedPatientPolicy"),
                 HL7ReferredMergedPatientPolicy.REJECT));
@@ -802,7 +806,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSupplementIssuerFetchSize(LdapUtils.intValue(attrs.get("dcmSupplementIssuerFetchSize"), 100));
         ext.setAuditAssigningAuthorityOfPatientID(
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
-        ext.setWadoIgnorePresentationLUTShape(LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), false));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
     }
 
@@ -926,6 +929,31 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoCDA2HtmlTemplateURI",
                 aa.getWadoCDA2HtmlTemplateURI(), bb.getWadoCDA2HtmlTemplateURI(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedSRClasses",
+                aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedPRClasses",
+                aa.getWadoSupportedPRClasses(), bb.getWadoSupportedPRClasses());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSpoolDirectory",
+                aa.getWadoSpoolDirectory(),
+                bb.getWadoSpoolDirectory(),
+                ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
+                aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(),
+                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
+                aa.getFallbackWadoURIWebApplication(),
+                bb.getFallbackWadoURIWebApplication(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
+                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
+                aa.isWadoIgnorePresentationLUTShape(),
+                bb.isWadoIgnorePresentationLUTShape(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoMetadataExcludePrivate",
+                aa.isWadoMetadataWithoutPrivate(),
+                bb.isWadoMetadataWithoutPrivate(),
+                false);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7ImportReportTemplateParam",
@@ -940,10 +968,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern", aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedSRClasses",
-                aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
-        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedPRClasses",
-                aa.getWadoSupportedPRClasses(), bb.getWadoSupportedPRClasses());
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueryFetchSize",
                 aa.getQueryFetchSize(), bb.getQueryFetchSize(),  100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueryMaxNumberOfResults",
@@ -1006,10 +1030,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
                 bb.getPurgeQueueMessagePollingInterval(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSpoolDirectory",
-                aa.getWadoSpoolDirectory(),
-                bb.getWadoSpoolDirectory(),
-                ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL",
                 aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
@@ -1301,9 +1321,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStowExcludeAPPMarkers(),
                 bb.isStowExcludeAPPMarkers(),
                 false);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
-                aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(),
-                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRestrictRetrieveSilently",
                 aa.isRestrictRetrieveSilently(),
                 bb.isRestrictRetrieveSilently(),
@@ -1329,12 +1346,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSProcessingFetchSize",
                 aa.getUPSProcessingFetchSize(), bb.getUPSProcessingFetchSize(), 100);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
-                aa.getFallbackWadoURIWebApplication(),
-                bb.getFallbackWadoURIWebApplication(),
-                null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
-                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), 303);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ReferredMergedPatientPolicy",
                 aa.getHl7ReferredMergedPatientPolicy(), bb.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);
@@ -1381,10 +1392,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAuditAssigningAuthorityOfPatientID(),
                 bb.getAuditAssigningAuthorityOfPatientID(),
                 null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
-                aa.isWadoIgnorePresentationLUTShape(),
-                bb.isWadoIgnorePresentationLUTShape(),
-                false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeRequesterAET",
                 aa.getChangeRequesterAET(), bb.getChangeRequesterAET(), null);
         if (remove)
@@ -1575,6 +1582,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoCDA2HtmlTemplateURI",
                 ext.getWadoCDA2HtmlTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
+                ext.getWadoThumbnailViewPort(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
+                ext.getFallbackWadoURIWebApplication(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
+                ext.getFallbackWadoURIHttpStatusCode());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
+                ext.getWadoIgnorePresentationLUTShape(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
+                ext.getWadoMetadataWithoutPrivate(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQidoETag", ext.getQidoETag(), null);
@@ -1669,15 +1686,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStowRetiredTransferSyntax(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowExcludeAPPMarkers",
                 ext.getStowExcludeAPPMarkers(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoThumbnailViewport",
-                ext.getWadoThumbnailViewPort(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.getRestrictRetrieveSilently(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.getStowQuicktime2MP4(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackWadoURIWebAppName",
-                ext.getFallbackWadoURIWebApplication(), null);
-        LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
-                ext.getFallbackWadoURIHttpStatusCode());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
                 ext.getRetrieveTaskWarningOnNoMatch(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
@@ -1688,8 +1699,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUserIdentityNegotiationRole(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUserIdentityNegotiationKeycloakClientID",
                 ext.getUserIdentityNegotiationKeycloakClientID(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
-                ext.getWadoIgnorePresentationLUTShape(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
                 ext.getChangeRequesterAET(), null);
     }
@@ -1733,6 +1742,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setWadoCDA2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoCDA2HtmlTemplateURI"), null));
+        ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"), null));
+        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(
+                attrs.get("dcmFallbackWadoURIWebAppName"), null));
+        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(
+                attrs.get("dcmFallbackWadoURIHttpStatusCode"), null));
+        ext.setWadoIgnorePresentationLUTShape(
+                LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), null));
+        ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), null));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), null));
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), null));
@@ -1817,15 +1834,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStowRetiredTransferSyntax(LdapUtils.booleanValue(
                 attrs.get("dcmStowRetiredTransferSyntax"), null));
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), null));
-        ext.setWadoThumbnailViewPort(LdapUtils.stringValue(attrs.get("dcmWadoThumbnailViewport"), null));
         ext.setRestrictRetrieveSilently(
                 LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), null));
         ext.setStowQuicktime2MP4(
                 LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), null));
-        ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(
-                attrs.get("dcmFallbackWadoURIWebAppName"), null));
-        ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(
-                attrs.get("dcmFallbackWadoURIHttpStatusCode"), null));
         ext.setRetrieveTaskWarningOnNoMatch(
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), null));
         ext.setRetrieveTaskWarningOnWarnings(
@@ -1835,8 +1847,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUserIdentityNegotiationRole(LdapUtils.stringValue(attrs.get("dcmUserIdentityNegotiationRole"), null));
         ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
-        ext.setWadoIgnorePresentationLUTShape(
-                LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), null));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
     }
 
@@ -1918,6 +1928,20 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoCDA2HtmlTemplateURI",
                 aa.getWadoCDA2HtmlTemplateURI(), bb.getWadoCDA2HtmlTemplateURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
+                aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
+                aa.getFallbackWadoURIWebApplication(),
+                bb.getFallbackWadoURIWebApplication(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
+                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
+                aa.getWadoIgnorePresentationLUTShape(),
+                bb.getWadoIgnorePresentationLUTShape(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoMetadataExcludePrivate",
+                aa.getWadoMetadataWithoutPrivate(),
+                bb.getWadoMetadataWithoutPrivate(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryMaxNumberOfResults",
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQidoMaxNumberOfResults",
@@ -2042,18 +2066,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStowRetiredTransferSyntax(), bb.getStowRetiredTransferSyntax(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowExcludeAPPMarkers",
                 aa.getStowExcludeAPPMarkers(), bb.getStowExcludeAPPMarkers(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoThumbnailViewport",
-                aa.getWadoThumbnailViewPort(), bb.getWadoThumbnailViewPort(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRestrictRetrieveSilently",
                 aa.getRestrictRetrieveSilently(), bb.getRestrictRetrieveSilently(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowQuicktime2MP4",
                 aa.getStowQuicktime2MP4(), bb.getStowQuicktime2MP4(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIWebAppName",
-                aa.getFallbackWadoURIWebApplication(),
-                bb.getFallbackWadoURIWebApplication(),
-                null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
-                aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskWarningOnNoMatch",
                 aa.getRetrieveTaskWarningOnNoMatch(),
                 bb.getRetrieveTaskWarningOnNoMatch(), null);
@@ -2069,9 +2085,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUserIdentityNegotiationKeycloakClientID",
                 aa.getUserIdentityNegotiationKeycloakClientID(),
                 bb.getUserIdentityNegotiationKeycloakClientID(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
-                aa.getWadoIgnorePresentationLUTShape(),
-                bb.getWadoIgnorePresentationLUTShape(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeRequesterAET",
                 aa.getChangeRequesterAET(),
                 bb.getChangeRequesterAET(),

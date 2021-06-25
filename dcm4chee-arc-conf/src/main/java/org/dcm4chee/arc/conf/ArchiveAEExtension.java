@@ -444,7 +444,7 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
     }
 
-    public Boolean getWadoMetadataWithoutPrivateAttributes() {
+    public Boolean getWadoMetadataWithoutPrivate() {
         return wadoMetadataWithoutPrivate;
     }
 
@@ -452,7 +452,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.wadoMetadataWithoutPrivate = wadoMetadataWithoutPrivate;
     }
 
-    public boolean getWadoMetadataWithoutPrivate() {
+    public boolean wadoMetadataWithoutPrivate() {
         return wadoMetadataWithoutPrivate != null
                 ? wadoMetadataWithoutPrivate
                 : getArchiveDeviceExtension().isWadoMetadataWithoutPrivate();

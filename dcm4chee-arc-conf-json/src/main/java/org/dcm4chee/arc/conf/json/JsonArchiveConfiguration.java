@@ -121,6 +121,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoCDA2HtmlTemplateURI", arcDev.getWadoCDA2HtmlTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmWadoSpoolDirectory",
+                arcDev.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcDev.getWadoThumbnailViewPort(),
+                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
+        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName",
+                arcDev.getFallbackWadoURIWebApplication(), null);
+        writer.writeNotDef("dcmFallbackWadoURIHttpStatusCode",
+                arcDev.getFallbackWadoURIHttpStatusCode(), 303);
+        writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
+        writer.writeNotDef("dcmWadoMetadataExcludePrivate", arcDev.isWadoMetadataWithoutPrivate(), false);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
         writer.writeNotDef("dcmQueryMaxNumberOfResults", arcDev.getQueryMaxNumberOfResults(), 0);
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
@@ -175,8 +185,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI(), null);
         writer.writeNotNullOrDef("dcmPurgeQueueMessagePollingInterval",
                 arcDev.getPurgeQueueMessagePollingInterval(), null);
-        writer.writeNotNullOrDef("dcmWadoSpoolDirectory",
-                arcDev.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingInterval",
                 arcDev.getRejectExpiredStudiesPollingInterval(), null);
         writer.writeNotEmpty("dcmRejectExpiredStudiesSchedule", arcDev.getRejectExpiredStudiesSchedules());
@@ -351,8 +359,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSchedulerMinStartDelay", arcDev.getSchedulerMinStartDelay(), 60);
         writer.writeNotDef("dcmStowRetiredTransferSyntax", arcDev.isStowRetiredTransferSyntax(), false);
         writer.writeNotDef("dcmStowExcludeAPPMarkers", arcDev.isStowExcludeAPPMarkers(), false);
-        writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcDev.getWadoThumbnailViewPort(),
-                ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT);
         writer.writeNotDef("dcmRestrictRetrieveSilently", arcDev.isRestrictRetrieveSilently(), false);
         writer.writeNotDef("dcmStowQuicktime2MP4", arcDev.isStowQuicktime2MP4(), false);
         writer.writeNotNullOrDef("dcmMWLPollingInterval", arcDev.getMWLPollingInterval(), null);
@@ -362,10 +368,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUPSProcessingPollingInterval",
                 arcDev.getUPSProcessingPollingInterval(), null);
         writer.writeNotDef("dcmUPSProcessingFetchSize", arcDev.getUPSProcessingFetchSize(), 100);
-        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName",
-                arcDev.getFallbackWadoURIWebApplication(), null);
-        writer.writeNotDef("dcmFallbackWadoURIHttpStatusCode",
-                arcDev.getFallbackWadoURIHttpStatusCode(), 303);
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy", arcDev.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);
         writer.writeNotDef("dcmRetrieveTaskWarningOnNoMatch",
@@ -391,7 +393,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
-        writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
@@ -1163,6 +1164,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoCDA2HtmlTemplateURI", arcAE.getWadoCDA2HtmlTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
+        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName", arcAE.getFallbackWadoURIWebApplication(), null);
+        writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
+        writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
+        writer.writeNotNull("dcmWadoMetadataExcludePrivate", arcAE.getWadoMetadataWithoutPrivate());
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
         writer.writeNotNull("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults());
         writer.writeNotNull("dcmQidoETag", arcAE.getQidoETag());
@@ -1239,11 +1245,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmRelationalRetrieveNegotiationLenient", arcAE.getRelationalRetrieveNegotiationLenient());
         writer.writeNotNull("dcmStowRetiredTransferSyntax", arcAE.getStowRetiredTransferSyntax());
         writer.writeNotNull("dcmStowExcludeAPPMarkers", arcAE.getStowExcludeAPPMarkers());
-        writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
         writer.writeNotNull("dcmRestrictRetrieveSilently", arcAE.getRestrictRetrieveSilently());
         writer.writeNotNull("dcmStowQuicktime2MP4", arcAE.getStowQuicktime2MP4());
-        writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName", arcAE.getFallbackWadoURIWebApplication(), null);
-        writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
         writer.writeNotNull("dcmRetrieveTaskWarningOnNoMatch", arcAE.getRetrieveTaskWarningOnNoMatch());
         writer.writeNotNull("dcmRetrieveTaskWarningOnWarnings", arcAE.getRetrieveTaskWarningOnWarnings());
         writer.writeNotNullOrDef("dcmUserIdentityNegotiation", arcAE.getUserIdentityNegotiation(), null);
@@ -1251,7 +1254,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getUserIdentityNegotiationRole(), null);
         writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
                 arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
-        writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
@@ -1381,6 +1383,24 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoCDA2HtmlTemplateURI":
                     arcDev.setWadoCDA2HtmlTemplateURI(reader.stringValue());
+                    break;
+                case "dcmWadoSpoolDirectory":
+                    arcDev.setWadoSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmWadoThumbnailViewport":
+                    arcDev.setWadoThumbnailViewPort(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIWebAppName":
+                    arcDev.setFallbackWadoURIWebApplication(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIHttpStatusCode":
+                    arcDev.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "dcmWadoIgnorePresentationLUTShape":
+                    arcDev.setWadoIgnorePresentationLUTShape(reader.booleanValue());
+                    break;
+                case "dcmWadoMetadataExcludePrivate":
+                    arcDev.setWadoMetadataWithoutPrivate(reader.booleanValue());
                     break;
                 case "dcmQueryFetchSize":
                     arcDev.setQueryFetchSize(reader.intValue());
@@ -1528,9 +1548,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPurgeQueueMessagePollingInterval":
                     arcDev.setPurgeQueueMessagePollingInterval(Duration.valueOf(reader.stringValue()));
-                    break;
-                case "dcmWadoSpoolDirectory":
-                    arcDev.setWadoSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmRejectExpiredStudiesPollingInterval":
                     arcDev.setRejectExpiredStudiesPollingInterval(Duration.valueOf(reader.stringValue()));
@@ -1891,9 +1908,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStowExcludeAPPMarkers":
                     arcDev.setStowExcludeAPPMarkers(reader.booleanValue());
                     break;
-                case "dcmWadoThumbnailViewport":
-                    arcDev.setWadoThumbnailViewPort(reader.stringValue());
-                    break;
                 case "dcmRestrictRetrieveSilently":
                     arcDev.setRestrictRetrieveSilently(reader.booleanValue());
                     break;
@@ -1917,12 +1931,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSProcessingFetchSize":
                     arcDev.setUPSProcessingFetchSize(reader.intValue());
-                    break;
-                case "dcmFallbackWadoURIWebAppName":
-                    arcDev.setFallbackWadoURIWebApplication(reader.stringValue());
-                    break;
-                case "dcmFallbackWadoURIHttpStatusCode":
-                    arcDev.setFallbackWadoURIHttpStatusCode(reader.intValue());
                     break;
                 case "hl7ReferredMergedPatientPolicy":
                     arcDev.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));
@@ -1971,9 +1979,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditAssigningAuthorityOfPatientID":
                     arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
-                    break;
-                case "dcmWadoIgnorePresentationLUTShape":
-                    arcDev.setWadoIgnorePresentationLUTShape(reader.booleanValue());
                     break;
                 case "dcmChangeRequesterAET":
                     arcDev.setChangeRequesterAET(reader.stringValue());
@@ -3754,6 +3759,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmWadoCDA2HtmlTemplateURI":
                     arcAE.setWadoCDA2HtmlTemplateURI(reader.stringValue());
                     break;
+                case "dcmWadoThumbnailViewport":
+                    arcAE.setWadoThumbnailViewPort(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIWebAppName":
+                    arcAE.setFallbackWadoURIWebApplication(reader.stringValue());
+                    break;
+                case "dcmFallbackWadoURIHttpStatusCode":
+                    arcAE.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "dcmWadoIgnorePresentationLUTShape":
+                    arcAE.setWadoIgnorePresentationLUTShape(reader.booleanValue());
+                    break;
+                case "dcmWadoMetadataExcludePrivate":
+                    arcAE.setWadoMetadataWithoutPrivate(reader.booleanValue());
+                    break;
                 case "dcmQueryMaxNumberOfResults":
                     arcAE.setQueryMaxNumberOfResults(reader.intValue());
                     break;
@@ -3953,20 +3973,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStowExcludeAPPMarkers":
                     arcAE.setStowExcludeAPPMarkers(reader.booleanValue());
                     break;
-                case "dcmWadoThumbnailViewport":
-                    arcAE.setWadoThumbnailViewPort(reader.stringValue());
-                    break;
                 case "dcmRestrictRetrieveSilently":
                     arcAE.setRestrictRetrieveSilently(reader.booleanValue());
                     break;
                 case "dcmStowQuicktime2MP4":
                     arcAE.setStowQuicktime2MP4(reader.booleanValue());
-                    break;
-                case "dcmFallbackWadoURIWebAppName":
-                    arcAE.setFallbackWadoURIWebApplication(reader.stringValue());
-                    break;
-                case "dcmFallbackWadoURIHttpStatusCode":
-                    arcAE.setFallbackWadoURIHttpStatusCode(reader.intValue());
                     break;
                 case "dcmRetrieveTaskWarningOnNoMatch":
                     arcAE.setRetrieveTaskWarningOnNoMatch(reader.booleanValue());
@@ -3982,9 +3993,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUserIdentityNegotiationKeycloakClientID":
                     arcAE.setUserIdentityNegotiationKeycloakClientID(reader.stringValue());
-                    break;
-                case "dcmWadoIgnorePresentationLUTShape":
-                    arcAE.setWadoIgnorePresentationLUTShape(reader.booleanValue());
                     break;
                 case "dcmChangeRequesterAET":
                     arcAE.setChangeRequesterAET(reader.stringValue());

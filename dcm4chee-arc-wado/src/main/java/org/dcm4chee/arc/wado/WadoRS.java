@@ -599,7 +599,7 @@ public class WadoRS {
 
     private boolean withoutPrivateAttributes(ApplicationEntity ae) {
         return excludeprivate != null ? excludeprivate.equals("false")
-                : ae.getAEExtensionNotNull(ArchiveAEExtension.class).getWadoMetadataWithoutPrivate();
+                : ae.getAEExtensionNotNull(ArchiveAEExtension.class).wadoMetadataWithoutPrivate();
     }
 
     private AttributeSet getMetadataFilter(String name) {
