@@ -170,6 +170,13 @@ public class WadoRS {
     @Pattern(regexp = "no|yes|srgb|adobergb|rommrgb")
     private String iccprofile;
 
+    @QueryParam("includefields")
+    private String includefields;
+
+    @QueryParam("excludeprivate")
+    @Pattern(regexp = "true|false")
+    private String excludeprivate;
+
     private List<MediaType> acceptableMediaTypes;
     private List<MediaType> acceptableMultipartRelatedMediaTypes;
     private Collection<String> acceptableTransferSyntaxes;
@@ -198,16 +205,15 @@ public class WadoRS {
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Study, studyUID, null, null, null, null, null, ar);
+        retrieve(Target.Study, studyUID, null, null, null, null, ar);
     }
 
     @GET
     @Path("/studies/{studyUID}/metadata")
     public void retrieveStudyMetadata(
             @PathParam("studyUID") String studyUID,
-            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.StudyMetadata, studyUID, null, null, null, null, includefields, ar);
+        retrieve(Target.StudyMetadata, studyUID, null, null, null, null, ar);
     }
 
     @GET
@@ -216,7 +222,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Series, studyUID, seriesUID, null, null, null, null, ar);
+        retrieve(Target.Series, studyUID, seriesUID, null, null, null, ar);
     }
 
     @GET
@@ -224,9 +230,8 @@ public class WadoRS {
     public void retrieveSeriesMetadata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.SeriesMetadata, studyUID, seriesUID, null, null, null, includefields, ar);
+        retrieve(Target.SeriesMetadata, studyUID, seriesUID, null, null, null, ar);
     }
 
     @GET
@@ -236,7 +241,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, null, ar);
+        retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, ar);
     }
 
     @GET
@@ -246,7 +251,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.InstanceMetadata, studyUID, seriesUID, objectUID, null, null, null, ar);
+        retrieve(Target.InstanceMetadata, studyUID, seriesUID, objectUID, null, null, ar);
     }
 
     @GET
@@ -258,7 +263,7 @@ public class WadoRS {
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Bulkdata, studyUID, seriesUID, objectUID,
-                null, new AttributePath(attributePath).path, null, ar);
+                null, new AttributePath(attributePath).path, ar);
     }
 
     @GET
@@ -270,7 +275,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Frame, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, null, ar);
+                new FrameList(frameList).frames, null, ar);
     }
 
     @GET
@@ -279,7 +284,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedStudy, studyUID, null, null,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -289,7 +294,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedSeries, studyUID, seriesUID, null,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -300,7 +305,7 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedInstance, studyUID, seriesUID, objectUID,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -312,7 +317,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedFrame, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, null, ar);
+                new FrameList(frameList).frames, null, ar);
     }
 
     @GET
@@ -321,7 +326,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.StudyThumbnail, studyUID, null, null,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -331,7 +336,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.SeriesThumbnail, studyUID, seriesUID, null,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -342,7 +347,7 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.InstanceThumbnail, studyUID, seriesUID, objectUID,
-                null, null, null, ar);
+                null, null, ar);
     }
 
     @GET
@@ -354,7 +359,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.FrameThumbnail, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, null, ar);
+                new FrameList(frameList).frames, null, ar);
     }
 
     Output bulkdataPath() {
@@ -550,9 +555,10 @@ public class WadoRS {
     }
 
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
-            int[] attributePath, String includefields, AsyncResponse ar) {
+            int[] attributePath, AsyncResponse ar) {
         logRequest();
-        if (aet.equals(getApplicationEntity().getAETitle()))
+        ApplicationEntity ae = getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
             validateWebApp();
         Output output = target.output(this);
         try {
@@ -565,6 +571,7 @@ public class WadoRS {
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
                 ctx.setMetadataFilter(getMetadataFilter(includefields));
+                ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null
@@ -588,6 +595,11 @@ public class WadoRS {
         } catch (Exception e) {
             ar.resume(e);
         }
+    }
+
+    private boolean withoutPrivateAttributes(ApplicationEntity ae) {
+        return excludeprivate != null ? excludeprivate.equals("false")
+                : ae.getAEExtensionNotNull(ArchiveAEExtension.class).getWadoMetadataWithoutPrivate();
     }
 
     private AttributeSet getMetadataFilter(String name) {
@@ -1423,6 +1435,8 @@ public class WadoRS {
         mkInstanceURL(sb, inst);
         if (ctx.getMetadataFilter() != null)
             metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
+        else if (ctx.isWithoutPrivateAttributes())
+            metadata.removePrivateAttributes();
         setBulkdataURI(metadata, sb.toString());
         return metadata;
     }

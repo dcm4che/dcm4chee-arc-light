@@ -108,6 +108,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int queryMaxNumberOfResults = 0;
     private volatile int qidoMaxNumberOfResults = 0;
     private volatile boolean qidoETag = false;
+    private volatile boolean wadoMetadataWithoutPrivate = false;
     private volatile boolean wadoIgnorePresentationLUTShape = false;
     private volatile String wadoThumbnailViewPort = WADO_THUMBNAIL_VIEWPORT;
     private volatile String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
@@ -683,6 +684,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isWadoSupportedPRClass(String cuid) {
         return wadoSupportedPRClasses.contains(cuid);
+    }
+
+    public boolean isWadoMetadataWithoutPrivate() {
+        return wadoMetadataWithoutPrivate;
+    }
+
+    public void setWadoMetadataWithoutPrivate(boolean wadoMetadataWithoutPrivate) {
+        this.wadoMetadataWithoutPrivate = wadoMetadataWithoutPrivate;
     }
 
     public boolean isWadoIgnorePresentationLUTShape() {

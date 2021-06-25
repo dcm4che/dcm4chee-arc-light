@@ -546,6 +546,22 @@
       "$ref": "schemas.json#/wadoRetrieveThumbnailAccept"
     }
   },
+  "wadoRetrieveMetadataIncludefields": {
+    "name": "includefields",
+    "in": "query",
+    "description": "Only return Data Elements referred in configured WADO-RS Attribute Set",
+    "schema": {
+      "type": "string"
+    }
+  },
+  "wadoRetrieveMetadataExcludeprivate": {
+    "name": "excludeprivate",
+    "in": "query",
+    "description": "Indicates if private Data Elements shall be excluded from returned metadata. Overwrites configured value of Archive Device/Network AE attribute: Wado Metadata Without Private.",
+    "schema": {
+      "type": "boolean"
+    }
+  },
   "dicomdir": {
     "name": "dicomdir",
     "in": "query",
