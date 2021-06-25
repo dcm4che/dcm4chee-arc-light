@@ -48,6 +48,8 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -58,6 +60,8 @@ import java.io.OutputStream;
  * @since Apr 2016
  */
 public class BulkdataOutput implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BulkdataOutput.class);
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
@@ -101,7 +105,9 @@ public class BulkdataOutput implements StreamingOutput {
                         throw new IOException(missingBulkdata());
                 }
             }
+            LOG.debug("Start writing {} bytes", dis.length());
             StreamUtils.copy(dis, out, dis.length());
+            LOG.debug("Finished writing {} bytes", dis.length());
         }
     }
 

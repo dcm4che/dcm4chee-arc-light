@@ -48,6 +48,8 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.Closeable;
@@ -61,6 +63,8 @@ import java.nio.file.Path;
  * @since Apr 2016
  */
 public class UncompressedFramesOutput implements StreamingOutput, Closeable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UncompressedFramesOutput.class);
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
@@ -95,7 +99,9 @@ public class UncompressedFramesOutput implements StreamingOutput, Closeable {
                 skipFrame();
                 frame++;
             }
+            LOG.debug("Start writing uncompressed frame of {}", inst);
             StreamUtils.copy(dis, out, frameLength);
+            LOG.debug("Finished writing uncompressed frame of {}", inst);
             frame++;
             if (allFramesRead())
                 close();

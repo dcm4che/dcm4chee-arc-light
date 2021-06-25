@@ -447,17 +447,23 @@ public class QidoRS {
         try {
             Date lastModified = null;
             if (etag && arcAE.qidoETag()) {
+                LOG.debug("Query Last Modified date of {}", model);
                 lastModified = service.getLastModified(studyInstanceUID, seriesInstanceUID);
                 if (lastModified == null)
                     return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
+                LOG.debug("Last Modified date: ", lastModified);
 
                 if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
                     || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
                     || request.getHeader(HttpHeaders.IF_MATCH) != null
                     || request.getHeader(HttpHeaders.IF_NONE_MATCH) != null) {
                     Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
-                    if (respBuilder != null)
-                        return respBuilder.build();
+                    if (respBuilder != null) {
+                        Response response = respBuilder.build();
+                        LOG.debug("Preconditions are met - return status {}", response.getStatus());
+                        return response;
+                    }
+                    LOG.debug("Preconditions are not met - build response");
                 }
             }
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
@@ -484,31 +490,40 @@ public class QidoRS {
                 int limitInt = parseInt(limit);
                 int remaining = 0;
                 if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
-                    int numResults = (int) (query.fetchCount() - offsetInt);
-                    if (numResults <= 0)
+                    LOG.debug("Query for number of matching {}s", model);
+                    long matches = query.fetchCount();
+                    LOG.debug("Number of matching {}s: {}", model, matches);
+                    int numResults = (int) (matches - offsetInt);
+                    if (numResults <= 0) {
+                        LOG.debug("Offset {} >= {} - return 204 No Content", offsetInt, matches);
                         return Response.noContent().build();
+                    }
 
                     remaining = numResults - maxResults;
                 }
                 int fetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
+                LOG.debug("Query for matching {}s", model);
                 query.executeQuery(fetchSize, offsetInt, remaining > 0 ? maxResults : limitInt);
-                if (!query.hasMoreMatches())
+                if (!query.hasMoreMatches()) {
+                    LOG.debug("No matching {}s found - return 204 No Content", model);
                     return Response.noContent().build();
-
+                }
                 Response.ResponseBuilder builder = Response.ok();
-                if (remaining > 0)
+                if (remaining > 0) {
                     builder.header("Warning", warning(remaining));
-
+                }
                 if (lastModified != null) {
                     builder.lastModified(lastModified);
                     builder.tag(String.valueOf(lastModified.hashCode()));
                 } else {
                     builder.header("Cache-Control", "no-cache");
                 }
-                return builder.entity(
+                Response response = builder.entity(
                         output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
                         .type(output.type())
                         .build();
+                LOG.debug("Writing response {}, {}", response.getStatus(), response.getHeaders());
+                return response;
             }
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

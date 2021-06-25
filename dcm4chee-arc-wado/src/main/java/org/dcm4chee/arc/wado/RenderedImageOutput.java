@@ -50,6 +50,8 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.*;
 import javax.imageio.metadata.IIOMetadata;
@@ -71,6 +73,8 @@ import java.util.Iterator;
  * @since Aug 2015
  */
 public class RenderedImageOutput implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RenderedImageOutput.class);
     private static final float DEF_FRAME_TIME = 1000.f;
     private static final byte[] LOOP_FOREVER = { 1, 0, 0 };
 
@@ -107,6 +111,7 @@ public class RenderedImageOutput implements StreamingOutput {
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
         RetrieveService service = ctx.getRetrieveService();
+        LOG.debug("Start writing rendered {}", inst);
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             reader.setInput(dis);
             ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
@@ -134,6 +139,7 @@ public class RenderedImageOutput implements StreamingOutput {
             }
             imageOut.close();   // does not close out,
                                 // marks imageOut as closed to prevent finalizer thread to invoke out.flush()
+            LOG.debug("Finished writing rendered {}", inst);
         } finally {
             writer.dispose();
             reader.dispose();

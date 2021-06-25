@@ -84,10 +84,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -582,16 +579,22 @@ public class WadoRS {
                 return;
             }
 
+            LOG.debug("Query Last Modified date of {}", target);
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
                 throw new WebApplicationException(
                         errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
+            LOG.debug("Last Modified date: ", lastModified);
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
-            if (respBuilder == null)
+            if (respBuilder == null) {
+                LOG.debug("Preconditions are not met - build response");
                 buildResponse(target, frameList, attributePath, ar, output, ctx, lastModified);
-            else
-                ar.resume(respBuilder.build());
+            } else {
+                Response response = respBuilder.build();
+                LOG.debug("Preconditions are met - return status {}", response.getStatus());
+                ar.resume(response);
+            }
         } catch (Exception e) {
             ar.resume(e);
         }
@@ -615,6 +618,7 @@ public class WadoRS {
 
     private void buildResponse(Target target, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
             final RetrieveContext ctx, Date lastModified) throws IOException {
+        LOG.debug("Query for matching {}", target);
         service.calculateMatches(ctx);
         LOG.info("retrieve{}: {} Matches", target, ctx.getNumberOfMatches());
         if (ctx.getNumberOfMatches() == 0)
@@ -955,7 +959,7 @@ public class WadoRS {
             }
             @Override
             public Object entity(WadoRS wadoRS, Target target, RetrieveContext ctx, int[] frameList, int[] attributePath) {
-                return wadoRS.writeMetadataJSON(ctx);
+                return (StreamingOutput) out -> wadoRS.writeMetadataJSON(ctx, out);
             }
             @Override
             public boolean isMetadata() {
@@ -1398,34 +1402,33 @@ public class WadoRS {
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,
                                   final InstanceLocations inst) {
         output.addPart(
-                (StreamingOutput) out -> {
-                        try {
-                            SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadMetadata(ctx, inst));
-                        } catch (Exception e) {
-                            throw new WebApplicationException(
-                                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-                        }
-                },
+                (StreamingOutput) out -> writeMetadataXML(ctx, inst, out),
                 MediaTypes.APPLICATION_DICOM_XML_TYPE);
 
     }
 
-    private Object writeMetadataJSON(final RetrieveContext ctx) {
-        final Collection<InstanceLocations> insts = ctx.getMatches();
-        return (StreamingOutput) out -> {
-                try {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
-                    gen.writeStartArray();
-                    for (InstanceLocations inst : insts)
-                        writer.write(loadMetadata(ctx, inst));
-                    gen.writeEnd();
-                    gen.flush();
-                } catch (Exception e) {
-                    throw new WebApplicationException(
-                            errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-                }
-        };
+    private void writeMetadataXML(RetrieveContext ctx, InstanceLocations inst, OutputStream out) {
+        try {
+            SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadMetadata(ctx, inst));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void writeMetadataJSON(RetrieveContext ctx, OutputStream out) {
+        try {
+            JsonGenerator gen = Json.createGenerator(out);
+            JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
+            gen.writeStartArray();
+            for (InstanceLocations inst : ctx.getMatches())
+                writer.write(loadMetadata(ctx, inst));
+            gen.writeEnd();
+            gen.flush();
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {

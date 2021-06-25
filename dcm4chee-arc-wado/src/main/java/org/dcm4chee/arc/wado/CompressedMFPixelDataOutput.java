@@ -47,17 +47,22 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2016
  */
 public class CompressedMFPixelDataOutput implements StreamingOutput, Closeable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CompressedMFPixelDataOutput.class);
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
@@ -80,7 +85,9 @@ public class CompressedMFPixelDataOutput implements StreamingOutput, Closeable {
                 throw new IOException(
                         "Number of data fragments not sufficient for number of frames in requested object");
 
+            LOG.debug("Start writing compressed frame of {}", inst);
             StreamUtils.copy(dis, out, dis.length());
+            LOG.debug("Finished writing compressed frame of {}", inst);
             if (--remainingFrames <= 0)
                 close();
         } catch (IOException e) {

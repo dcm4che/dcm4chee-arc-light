@@ -42,6 +42,8 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -52,6 +54,8 @@ import java.io.OutputStream;
  * @since Apr 2016
  */
 public class DecompressPixelDataOutput extends DecompressSupport implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DecompressPixelDataOutput.class);
 
     public DecompressPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
         super(ctx, inst);
@@ -64,7 +68,9 @@ public class DecompressPixelDataOutput extends DecompressSupport implements Stre
             int frame = 1;
             while (!encapsulatedPixelData.isEndOfStream()) {
                 decompressFrame(frame++);
+                LOG.debug("Start writing decompressed frame of {}", inst);
                 writeFrameTo(out);
+                LOG.debug("Finished writing decompressed frame of {}", inst);
             }
         } finally {
             close();

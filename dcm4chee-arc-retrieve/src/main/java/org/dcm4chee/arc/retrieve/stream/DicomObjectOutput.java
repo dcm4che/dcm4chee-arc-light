@@ -45,6 +45,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -57,6 +59,7 @@ import java.util.Collections;
  * @since Aug 2015
  */
 public class DicomObjectOutput implements StreamingOutput {
+    private static final Logger LOG = LoggerFactory.getLogger(DicomObjectOutput.class);
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
@@ -75,6 +78,7 @@ public class DicomObjectOutput implements StreamingOutput {
 
     @Override
     public void write(final OutputStream out) throws IOException {
+        LOG.debug("Start writing {}", inst);
         try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
             transcoder.transcode(new Transcoder.Handler() {
                 @Override
@@ -85,5 +89,6 @@ public class DicomObjectOutput implements StreamingOutput {
             });
             fileMetaInformation = transcoder.getFileMetaInformation();
         }
+        LOG.debug("Finished writing {}", inst);
     }
 }

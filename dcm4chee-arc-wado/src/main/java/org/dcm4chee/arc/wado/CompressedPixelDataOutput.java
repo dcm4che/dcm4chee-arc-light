@@ -46,6 +46,8 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -56,6 +58,8 @@ import java.io.OutputStream;
  * @since Apr 2016
  */
 public class CompressedPixelDataOutput implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CompressedPixelDataOutput.class);
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
@@ -73,8 +77,10 @@ public class CompressedPixelDataOutput implements StreamingOutput {
             if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
                 throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
             dis.skipFully(dis.length());
+            LOG.debug("Start writing compressed pixel data of {}", inst);
             while (dis.readItemHeader())
                 StreamUtils.copy(dis, out, dis.length());
+            LOG.debug("Finished writing compressed pixel data of {}", inst);
         }
     }
 }

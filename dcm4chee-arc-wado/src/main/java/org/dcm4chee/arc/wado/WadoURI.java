@@ -227,15 +227,21 @@ public class WadoURI {
                 return;
             }
 
+            LOG.debug("Query Last Modified date of Instance");
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
                 throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
+            LOG.debug("Last Modified date: ", lastModified);
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
-            if (respBuilder == null)
+            if (respBuilder == null) {
+                LOG.debug("Preconditions are not met - build response");
                 buildResponse(ar, ctx, lastModified);
-            else
-                ar.resume(respBuilder.build());
+            } else {
+                Response response = respBuilder.build();
+                LOG.debug("Preconditions are met - return status {}", response.getStatus());
+                ar.resume(response);
+            }
         } catch (Exception e) {
             ar.resume(e);
         }
@@ -299,6 +305,7 @@ public class WadoURI {
     }
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
+        LOG.debug("Query for requested instance");
         if (!service.calculateMatches(ctx)) {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             String webAppName = arcAE.fallbackWadoURIWebApplication();
