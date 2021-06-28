@@ -249,7 +249,7 @@ class StgVerMatching {
                         continue;
 
                     HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
-                    if (taskManager.scheduleStgVerTask(aet, qrLevel, httpServletRequestInfo,
+                    if (stgCmtMgr.scheduleStgVerTask(aet, qrLevel, httpServletRequestInfo,
                             match.getString(Tag.StudyInstanceUID),
                             match.getString(Tag.SeriesInstanceUID),
                             match.getString(Tag.SOPInstanceUID),

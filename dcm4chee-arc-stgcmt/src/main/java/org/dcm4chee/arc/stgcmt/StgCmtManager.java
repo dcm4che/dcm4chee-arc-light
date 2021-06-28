@@ -113,6 +113,12 @@ public interface StgCmtManager {
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
+    boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                               HttpServletRequestInfo httpServletRequestInfo,
+                               String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                               String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                               Boolean updateLocationStatus, String... storageIDs);
+
     Iterator<StorageVerificationTask> listStgVerTasks(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit);
 }

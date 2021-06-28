@@ -47,6 +47,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -310,6 +311,17 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     (studyIUID, seriesMap) -> seriesMap.keySet().forEach(
                             seriesIUID -> scheduleStgVerTask(ctx, studyIUID, seriesIUID)));
         }
+    }
+
+    @Override
+    public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                                      HttpServletRequestInfo httpServletRequestInfo,
+                                      String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      Boolean updateLocationStatus, String... storageIDs) {
+        return ejb.scheduleStgVerTask(localAET, qrlevel, httpServletRequestInfo,
+                studyInstanceUID, seriesInstanceUID, sopInstanceUID, batchID, storageVerificationPolicy,
+                updateLocationStatus, storageIDs);
     }
 
     private void scheduleStgVerTask(RetrieveContext ctx, String studyIUID, String seriesIUID) {
