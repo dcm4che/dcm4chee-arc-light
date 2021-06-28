@@ -82,6 +82,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
+    private Boolean wadoMetadataWithoutPrivate;
     private Boolean wadoIgnorePresentationLUTShape;
     private String wadoThumbnailViewPort;
     private String wadoZIPEntryNameFormat;
@@ -441,6 +442,20 @@ public class ArchiveAEExtension extends AEExtension {
         return sendPendingCMoveInterval != null
                 ? sendPendingCMoveInterval
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
+    }
+
+    public Boolean getWadoMetadataWithoutPrivate() {
+        return wadoMetadataWithoutPrivate;
+    }
+
+    public void setWadoMetadataWithoutPrivate(Boolean wadoMetadataWithoutPrivate) {
+        this.wadoMetadataWithoutPrivate = wadoMetadataWithoutPrivate;
+    }
+
+    public boolean wadoMetadataWithoutPrivate() {
+        return wadoMetadataWithoutPrivate != null
+                ? wadoMetadataWithoutPrivate
+                : getArchiveDeviceExtension().isWadoMetadataWithoutPrivate();
     }
 
     public Boolean getWadoIgnorePresentationLUTShape() {

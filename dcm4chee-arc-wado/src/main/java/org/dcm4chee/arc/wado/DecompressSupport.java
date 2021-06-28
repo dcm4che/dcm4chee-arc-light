@@ -73,7 +73,7 @@ class DecompressSupport implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(DecompressSupport.class);
 
     private final RetrieveContext ctx;
-    private final InstanceLocations inst;
+    protected final InstanceLocations inst;
     private ImageReaderFactory.ImageReaderParam decompressorParam;
     private ImageReader decompressor;
     private ImageReadParam decompressParam;

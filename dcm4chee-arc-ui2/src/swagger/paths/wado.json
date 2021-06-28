@@ -300,6 +300,12 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataIncludefields"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataExcludeprivate"
         }
       ],
       "responses": {
@@ -337,6 +343,12 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataIncludefields"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataExcludeprivate"
         }
       ],
       "responses": {
@@ -377,6 +389,12 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveMetadataAccept"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataIncludefields"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveMetadataExcludeprivate"
         }
       ],
       "responses": {

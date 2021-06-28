@@ -42,6 +42,8 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -62,6 +64,9 @@ import java.io.OutputStream;
  * @since Aug 2019
  */
 public class ThumbnailOutput implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ThumbnailOutput.class);
+
     private final File file;
     private final int rows;
     private final int columns;
@@ -78,6 +83,7 @@ public class ThumbnailOutput implements StreamingOutput {
 
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
+        LOG.debug("Start writing thumbnail {}", file);
         BufferedImage bi = ImageIO.read(file);
         if (bi.getHeight() != rows || bi.getWidth() != columns)
             bi = RenderedImageOutput.rescale(bi, rows, columns, 1.f);
@@ -85,7 +91,9 @@ public class ThumbnailOutput implements StreamingOutput {
             bi = toRGB(bi);
         try (ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out)) {
             writer.setOutput(imageOut);
+            LOG.debug("Start writing thumbnail {}", file.getName());
             writer.write(new IIOImage(bi, null, null));
+            LOG.debug("Finished writing thumbnail {}", file.getName());
         } finally {
             writer.dispose();
         }

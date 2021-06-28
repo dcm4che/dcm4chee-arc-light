@@ -1643,7 +1643,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.338 NAME 'dcmRestrictRetrieveSilently'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup'
-  DESC 'Indicates to retry tasks left in status IN PROCESS on system start-up; false if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -2021,22 +2021,27 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.414 NAME 'dcmQidoETag'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.415 NAME 'dcmTaskProcessingPollingInterval'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.415 NAME 'dcmWadoMetadataExcludePrivate'
+  DESC 'Indicates to exclude Private Data Elements from Metadata returned by WADO-RS Retrieve Transaction; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.416 NAME 'dcmTaskProcessingPollingInterval'
   DESC 'Polling Interval for scheduled Tasks ready for processing in ISO-8601 duration format PnDTnHnMnS. If absent, Tasks will not get processed.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.416 NAME 'dcmTaskProcessingFetchSize'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskProcessingFetchSize'
   DESC 'Limit result set of DB query for scheduled Tasks ready for processing; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskProcessorName'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.418 NAME 'dcmTaskProcessorName'
   DESC 'Name of Task Processor associated with the Queue. Enumerated values: EXPORTER, MOVE_SCU, MPPS_SCU, IAN_SCU, STGCMT_SCP, STGCMT_SCU, STG_VERIFIER, HL7_SENDER, REST_CLIENT, REJECT_SCU, DIFF_SCU.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.418 NAME 'dcmMaxTasksParallel'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.419 NAME 'dcmMaxTasksParallel'
   DESC 'Maximal number of tasks processed in parallel; 1 if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -2107,6 +2112,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmWadoCDA2HtmlTemplateURI $
+    dcmWadoMetadataExcludePrivate $
     dcmWadoIgnorePresentationLUTShape $
     dcmWadoThumbnailViewport $
     dcmWadoZIPEntryNameFormat $
@@ -2336,6 +2342,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmWadoCDA2HtmlTemplateURI $
+    dcmWadoMetadataExcludePrivate $
     dcmWadoIgnorePresentationLUTShape $
     dcmWadoThumbnailViewport $
     dcmWadoZIPEntryNameFormat $

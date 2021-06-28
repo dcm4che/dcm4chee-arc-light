@@ -44,21 +44,18 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.AssociationEvent;
-import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveWADO;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.retrieve.RetrieveEnd;
-import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -209,6 +206,11 @@ public class AuditTriggerObserver {
     public void onStudySizeEvent(@Observes StudySizeEvent event) {
         if (deviceHasAuditLoggers())
             auditService.spoolStudySizeEvent(event);
+    }
+
+    public void onPatientDemographicsQuery(@Observes PDQServiceContext ctx) {
+        if (deviceHasAuditLoggers())
+            auditService.spoolPDQ(ctx);
     }
 
     private boolean deviceHasAuditLoggers() {

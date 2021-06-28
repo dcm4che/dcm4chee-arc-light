@@ -545,6 +545,7 @@
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-pdq</module>
     <module>dcm4chee-arc-pdq-dicom</module>
+    <module>dcm4chee-arc-pdq-hl7</module>
     <module>dcm4chee-arc-pdq-rs</module>
     <module>dcm4chee-arc-pdq-scheduler</module>
     <module>dcm4chee-arc-pdq-xroad</module>

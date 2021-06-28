@@ -47,6 +47,8 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -100,7 +102,9 @@ public class QueryPatientDemographicRS {
             if (descriptor == null)
                 return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
-            attrs = serviceFactory.getPDQService(descriptor).query(patientID);
+            PDQServiceContext ctx = new PDQServiceContext(patientID);
+            ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+            attrs = serviceFactory.getPDQService(descriptor).query(ctx);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PDQServiceException e) {

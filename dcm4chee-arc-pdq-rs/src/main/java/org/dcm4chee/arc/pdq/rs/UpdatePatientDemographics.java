@@ -53,6 +53,7 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.slf4j.Logger;
@@ -121,10 +122,11 @@ public class UpdatePatientDemographics {
             Attributes attrs;
             boolean adjustIssuerOfPatientID = adjustIssuerOfPatientID();
             try {
-                attrs = serviceFactory.getPDQService(descriptor)
-                        .query(adjustIssuerOfPatientID
-                                ? patientID.withoutIssuer()
-                                : patientID);
+                PDQServiceContext pdqServiceCtx = new PDQServiceContext(adjustIssuerOfPatientID
+                                                                        ? patientID.withoutIssuer()
+                                                                        : patientID);
+                pdqServiceCtx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+                attrs = serviceFactory.getPDQService(descriptor).query(pdqServiceCtx);
             } catch (PDQServiceException e) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
                 patientService.updatePatientStatus(ctx);

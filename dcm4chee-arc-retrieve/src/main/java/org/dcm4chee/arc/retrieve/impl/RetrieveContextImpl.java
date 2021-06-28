@@ -113,6 +113,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
+    private boolean withoutPrivateAttributes;
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
@@ -689,6 +690,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setMetadataFilter(AttributeSet metadataFilter) {
         this.metadataFilter = metadataFilter;
+    }
+
+    @Override
+    public boolean isWithoutPrivateAttributes() {
+        return withoutPrivateAttributes;
+    }
+
+    @Override
+    public void setWithoutPrivateAttributes(boolean withoutPrivateAttributes) {
+        this.withoutPrivateAttributes = withoutPrivateAttributes;
     }
 
     @Override

@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.pdq.PDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.slf4j.Logger;
@@ -172,9 +173,10 @@ public class PatientVerificationScheduler extends Scheduler {
         ctx.setPDQServiceURI(pdqService.getPDQServiceDescriptor().getPDQServiceURI().toString());
         Attributes attrs;
         try {
-            attrs = pdqService.query(adjustIssuerOfPatientID
-                    ? patient.idWithIssuer.withoutIssuer()
-                    : patient.idWithIssuer);
+            PDQServiceContext pdqServiceCtx = new PDQServiceContext(adjustIssuerOfPatientID
+                                                ? patient.idWithIssuer.withoutIssuer()
+                                                : patient.idWithIssuer);
+            attrs = pdqService.query(pdqServiceCtx);
         } catch (PDQServiceException e) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
             patientService.updatePatientStatus(ctx);

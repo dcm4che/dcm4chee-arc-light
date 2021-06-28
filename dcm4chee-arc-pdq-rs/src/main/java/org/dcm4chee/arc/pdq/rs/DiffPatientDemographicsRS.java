@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.pdq.PDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.dcm4chee.arc.query.Query;
@@ -357,7 +358,9 @@ public class DiffPatientDemographicsRS {
 
     private Attributes queryPDQService(PDQService service, Attributes match) {
         try {
-            return service.query(IDWithIssuer.pidOf(match));
+            PDQServiceContext ctx = new PDQServiceContext(IDWithIssuer.pidOf(match));
+            ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+            return service.query(ctx);
         } catch (PDQServiceException e) {
             throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));
         }

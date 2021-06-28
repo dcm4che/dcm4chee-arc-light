@@ -261,6 +261,10 @@ public interface RetrieveContext extends Closeable {
 
     void setMetadataFilter(AttributeSet metadataFilter);
 
+    boolean isWithoutPrivateAttributes();
+
+    void setWithoutPrivateAttributes(boolean withoutPrivateAttributes);
+
     boolean isUpdateSeriesMetadata();
 
     boolean isConsiderPurgedInstances();

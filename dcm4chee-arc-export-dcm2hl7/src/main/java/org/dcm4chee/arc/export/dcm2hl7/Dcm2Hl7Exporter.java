@@ -49,6 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
@@ -65,7 +66,6 @@ import org.dcm4chee.arc.retrieve.RetrieveService;
  * @since May 2021
  */
 public class Dcm2Hl7Exporter extends AbstractExporter {
-    private final String msh3456;
     private final HL7Sender hl7Sender;
     private final Device device;
     private final RetrieveService retrieveService;
@@ -74,7 +74,6 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
     public Dcm2Hl7Exporter(ExporterDescriptor descriptor, HL7Sender hl7Sender, Device device,
                            RetrieveService retrieveService, IHL7ApplicationCache hl7AppCache) {
         super(descriptor);
-        this.msh3456 = descriptor.getExportURI().getSchemeSpecificPart();
         this.hl7Sender = hl7Sender;
         this.device = device;
         this.retrieveService = retrieveService;
@@ -83,26 +82,45 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) throws Exception {
-        String[] appFacility = msh3456.split("_");
-        if (appFacility.length != 4)
+        String[][] sendingAndReceiving = parseSendingAndReceivingApplicationAndFacility(
+                descriptor.getExportURI().getSchemeSpecificPart());
+        if (sendingAndReceiving == null) {
             return new Outcome(Task.Status.WARNING,
-                    "Sending and/or Receiving application and facility not specified");
+                    "Export URI: " + descriptor.getExportURI() + " not in format: " +
+                            "hl7:{Sending Application}/{Sending Facility}:{Receiving Application}/{Receiving Facility}");
 
+        }
+        String sendingAppFacility = sendingAndReceiving[0][0] + '|' + sendingAndReceiving[0][1];
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(appFacility[0] + '|' + appFacility[1], true);
+                .getHL7Application(sendingAppFacility, true);
         if (sender == null)
             return new Outcome(Task.Status.WARNING,
-                    "Sending HL7 Application not configured : " + appFacility[0] + '|' + appFacility[1]);
+                    "Sending HL7 Application not configured : " + sendingAppFacility);
 
+        String receivingAppFacility = sendingAndReceiving[1][0] + '|' + sendingAndReceiving[1][1];
         HL7Application receiver;
         try {
-            receiver = hl7AppCache.findHL7Application(appFacility[2] + '|' + appFacility[3]);
+            receiver = hl7AppCache.findHL7Application(receivingAppFacility);
         } catch (ConfigurationException e) {
             return new Outcome(Task.Status.WARNING,
-                    "Unknown Receiving HL7 Application : " + appFacility[2] + '|' + appFacility[3]);
+                    "Unknown Receiving HL7 Application : " + receivingAppFacility);
         }
 
         return scheduleMessage(exportContext, sender, receiver);
+    }
+
+    private static String[][] parseSendingAndReceivingApplicationAndFacility(String schemeSpecificPart) {
+        String[] ss = StringUtils.split(schemeSpecificPart, ':');
+        if (ss.length == 2) {
+            String[][] result = {
+                    StringUtils.split(ss[0], '/'),
+                    StringUtils.split(ss[1], '/')
+            };
+            if (result[0].length == 2 && result[1].length == 2) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private Outcome scheduleMessage(ExportContext exportContext, HL7Application sender, HL7Application receiver)

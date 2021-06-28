@@ -50,6 +50,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -65,6 +67,9 @@ import java.io.OutputStream;
  * @since Aug 2015
  */
 public class DicomXSLTOutput implements StreamingOutput {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DicomXSLTOutput.class);
+
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
     private final MediaType mediaType;
@@ -83,7 +88,9 @@ public class DicomXSLTOutput implements StreamingOutput {
             SAXWriter saxWriter = SAXTransformer.getSAXWriter(templates(), new StreamResult(output),
                     transformer -> transformer.setParameter("wadoURL", wadoURL));
             saxWriter.setIncludeKeyword(false);
+            LOG.debug("Start writing XSLT result of {}", inst);
             saxWriter.write(readAttributes());
+            LOG.debug("Finished writing XSLT result of {}", inst);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }

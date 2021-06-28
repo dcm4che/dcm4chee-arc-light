@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,46 +35,36 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.wado;
+package org.dcm4chee.arc.pdq;
 
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.store.InstanceLocations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Apr 2016
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Jun 2021
  */
-public class DecompressPixelDataOutput extends DecompressSupport implements StreamingOutput {
+public class PDQServiceContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DecompressPixelDataOutput.class);
+    private final IDWithIssuer patientID;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
-    public DecompressPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
-        super(ctx, inst);
+    public PDQServiceContext(IDWithIssuer patientID) {
+        this.patientID = patientID;
     }
 
-    @Override
-    public void write(OutputStream out) throws IOException {
-        try {
-            initEncapsulatedPixelData();
-            int frame = 1;
-            while (!encapsulatedPixelData.isEndOfStream()) {
-                decompressFrame(frame++);
-                LOG.debug("Start writing decompressed frame of {}", inst);
-                writeFrameTo(out);
-                LOG.debug("Finished writing decompressed frame of {}", inst);
-            }
-        } finally {
-            close();
-        }
+    public IDWithIssuer getPatientID() {
+        return patientID;
     }
 
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
+    }
 }

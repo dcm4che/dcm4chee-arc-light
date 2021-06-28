@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,46 +35,41 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.wado;
+package org.dcm4chee.arc.pdq.hl7;
 
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.store.InstanceLocations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.PDQServiceDescriptor;
+import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.pdq.PDQService;
+import org.dcm4chee.arc.pdq.PDQServiceProvider;
 
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Apr 2016
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Jun 2021
  */
-public class DecompressPixelDataOutput extends DecompressSupport implements StreamingOutput {
+@ApplicationScoped
+@Named("pdq-hl7")
+public class HL7PDQServiceProvider implements PDQServiceProvider {
+    @Inject
+    private Device device;
 
-    private static final Logger LOG = LoggerFactory.getLogger(DecompressPixelDataOutput.class);
+    @Inject
+    private IHL7ApplicationCache hl7AppCache;
 
-    public DecompressPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
-        super(ctx, inst);
-    }
+    @Inject
+    private HL7Sender hl7Sender;
 
     @Override
-    public void write(OutputStream out) throws IOException {
-        try {
-            initEncapsulatedPixelData();
-            int frame = 1;
-            while (!encapsulatedPixelData.isEndOfStream()) {
-                decompressFrame(frame++);
-                LOG.debug("Start writing decompressed frame of {}", inst);
-                writeFrameTo(out);
-                LOG.debug("Finished writing decompressed frame of {}", inst);
-            }
-        } finally {
-            close();
-        }
+    public PDQService getPDQService(PDQServiceDescriptor descriptor) {
+        return new HL7PDQService(descriptor, device, hl7AppCache, hl7Sender);
     }
-
 }

@@ -42,6 +42,8 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -55,6 +57,8 @@ import java.io.OutputStream;
  */
 public class StreamCopyOutput implements StreamingOutput {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StreamCopyOutput.class);
+
     private final InputStream in;
     private final int length;
 
@@ -66,8 +70,10 @@ public class StreamCopyOutput implements StreamingOutput {
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
         try {
+            LOG.debug("Start writing {} bytes", length);
             StreamUtils.copy(in, out, length - 1);
             skipPaddedByte(out);
+            LOG.debug("Finished writing {} bytes", length);
         } finally {
             SafeClose.close(in);
         }
