@@ -8,6 +8,8 @@ import {LoadingBarService} from '@ngx-loading-bar/core';
 import {AeListService} from "../../../configuration/ae-list/ae-list.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {SelectDropdown} from "../../../interfaces";
+import {CreateAeService} from "./create-ae.service";
+import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
 
 @Component({
     selector: 'app-create-ae',
@@ -37,13 +39,19 @@ export class CreateAeComponent implements OnInit{
     selectedForAcceptedCallingAET:string[] = [];
     dicomConnectionns = [];
     selectedDicomConnection:any =  {};
+    webAppSchema;
+    webApps = {};
+    showWebApp = false;
+    formObj;
     constructor(
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: LoadingBarService,
         public httpErrorHandler:HttpErrorHandler,
-        private aeListService:AeListService
+        private aeListService:AeListService,
+        private service:CreateAeService,
+        private deviceConfigService:DeviceConfiguratorService
     ) {
     }
     ngOnInit(){
@@ -66,6 +74,15 @@ export class CreateAeComponent implements OnInit{
                 this.httpErrorHandler.handleError(err);
             })
         }
+/*        this.webAppSchema = this.service.getWebAppsSchema();
+        this.formObj = this.deviceConfigService.convertSchemaToForm({
+            dicomNetworkConnection:{
+                cn: "dicom",
+                dcmNetworkConnection: {dcmBindAddress: "0.0.0.0", dcmClientBindAddress: "0.0.0.0", dcmMaxOpsPerformed: 0, dcmMaxOpsInvoked: 0},
+                dicomHostname: "127.0.0.1",
+                dicomPort: 11112
+            },
+        },  this.service.getSchema(), {},'attr');*/
     }
 
     get dicomconn() {
@@ -374,5 +391,8 @@ export class CreateAeComponent implements OnInit{
             }
         }
         return true;
+    }
+    submitFunction(e){
+        console.log("e",e);
     }
 }
