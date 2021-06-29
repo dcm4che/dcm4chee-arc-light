@@ -41,6 +41,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.Date;
@@ -62,6 +63,7 @@ public class ExternalRetrieveContext {
     private Attributes response;
     private String deviceName;
     private String queueName;
+    private QueueDescriptor queueDescriptor;
     private String batchID;
     private Date scheduledTime;
 
@@ -84,6 +86,14 @@ public class ExternalRetrieveContext {
     public ExternalRetrieveContext setQueueName(String queueName) {
         this.queueName = queueName;
         return this;
+    }
+
+    public QueueDescriptor getQueueDescriptor() {
+        return queueDescriptor;
+    }
+
+    public void setQueueDescriptor(QueueDescriptor queueDescriptor) {
+        this.queueDescriptor = queueDescriptor;
     }
 
     public String getBatchID() {

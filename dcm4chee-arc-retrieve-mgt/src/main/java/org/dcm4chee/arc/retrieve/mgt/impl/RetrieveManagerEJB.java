@@ -43,6 +43,8 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -71,6 +73,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -123,9 +126,20 @@ public class RetrieveManagerEJB {
             gen.writeEnd();
         }
         Date scheduledTime = new Date(System.currentTimeMillis() + delay);
-        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
-                ctx.getQueueName(), scheduledTime, sw.toString(), keys, ctx.getBatchID());
-        persist(createRetrieveTask(ctx, queueMessage), studyUID, scheduledTime);
+        Task task = new Task();
+        task.setDeviceName(ctx.getDeviceName());
+        task.setQueueDescriptor(ctx.getQueueDescriptor());
+        task.setParameters(sw.toString());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(ctx.getBatchID());
+        task.setLocalAET(ctx.getLocalAET());
+        task.setRemoteAET(ctx.getRemoteAET());
+        task.setDestinationAET(ctx.getDestinationAET());
+        task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
+        task.setSopInstanceUID(ctx.getSOPInstanceUID());
+        task.setScheduledTime(scheduledTime);
+        em.persist(task);
+        LOG.info("Create {}", task);
         return true;
     }
 
@@ -153,54 +167,49 @@ public class RetrieveManagerEJB {
     private boolean isAlreadyScheduledOrRetrievedAfter(ExternalRetrieveContext ctx, Date retrievedAfter,
                                                        String studyUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage, JoinType.LEFT);
+        CriteriaQuery<Task> q = cb.createQuery(Task.class);
+        Root<Task> task = q.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        Path<QueueMessage.Status> statusPath = queueMsg.get(QueueMessage_.status);
-        Predicate statusPredicate = cb.or(
-                statusPath.isNull(),
-                statusPath.in(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS));
-        if (retrievedAfter != null)
-            statusPredicate = cb.or(
-                    statusPredicate,
-                    cb.greaterThan(retrieveTask.get(RetrieveTask_.updatedTime), retrievedAfter));
-
-        predicates.add(statusPredicate);
-        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.remoteAET), ctx.getRemoteAET()));
-        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.destinationAET), ctx.getDestinationAET()));
-        predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.studyInstanceUID), studyUID));
+        predicates.add(cb.equal(task.get(Task_.processor), TaskProcessorName.MOVE_SCU));
+        Predicate statusPredicate = task.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS);
+        predicates.add(retrievedAfter != null
+                ? cb.or(statusPredicate, cb.greaterThan(task.get(Task_.updatedTime), retrievedAfter))
+                : statusPredicate);
+        predicates.add(cb.equal(task.get(Task_.remoteAET), ctx.getRemoteAET()));
+        predicates.add(cb.equal(task.get(Task_.destinationAET), ctx.getDestinationAET()));
+        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), studyUID));
         if (ctx.getSeriesInstanceUID() != null)
-            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.seriesInstanceUID), ctx.getSeriesInstanceUID()));
+            predicates.add(cb.equal(task.get(Task_.seriesInstanceUID), ctx.getSeriesInstanceUID()));
         else {
             predicates.add(cb.or(
-                    retrieveTask.get(RetrieveTask_.seriesInstanceUID).isNull(),
-                    cb.equal(retrieveTask.get(RetrieveTask_.seriesInstanceUID),
+                    task.get(Task_.seriesInstanceUID).isNull(),
+                    cb.equal(task.get(Task_.seriesInstanceUID),
                             ctx.getSeriesInstanceUID())));
             if (ctx.getSOPInstanceUID() == null)
-                predicates.add(retrieveTask.get(RetrieveTask_.sopInstanceUID).isNull());
+                predicates.add(task.get(Task_.sopInstanceUID).isNull());
             else
                 predicates.add(cb.or(
-                        retrieveTask.get(RetrieveTask_.sopInstanceUID).isNull(),
-                        cb.equal(retrieveTask.get(RetrieveTask_.sopInstanceUID),
+                        task.get(Task_.sopInstanceUID).isNull(),
+                        cb.equal(task.get(Task_.sopInstanceUID),
                                 ctx.getSOPInstanceUID())));
         }
 
-        Iterator<RetrieveTask> iterator = em.createQuery(q
+        try (Stream<Task> resultStream = em.createQuery(q
                 .where(predicates.toArray(new Predicate[0]))
-                .select(retrieveTask))
-                .getResultStream()
-                .iterator();
-        if (iterator.hasNext()) {
-            iterator.forEachRemaining(retrieveTask1 -> {
-                if (retrieveTask1.getQueueMessage() == null && ctx.getScheduledTime().before(retrieveTask1.getScheduledTime())) {
-                    LOG.info("Previous {} found - Update scheduled time to {}", retrieveTask1, ctx.getScheduledTime());
-                    retrieveTask1.setScheduledTime(ctx.getScheduledTime());
-                } else
-                    LOG.info("Previous {} found - suppress duplicate retrieve", retrieveTask1);
-            });
-            return true;
+                .select(task))
+                .getResultStream()) {
+            Iterator<Task> iterator = resultStream.iterator();
+            if (iterator.hasNext()) {
+                iterator.forEachRemaining(retrieveTask1 -> {
+                    if (ctx.getScheduledTime().before(retrieveTask1.getScheduledTime())) {
+                        LOG.info("Previous {} found - Update scheduled time to {}", retrieveTask1, ctx.getScheduledTime());
+                        retrieveTask1.setScheduledTime(ctx.getScheduledTime());
+                    } else
+                        LOG.info("Previous {} found - suppress duplicate retrieve", retrieveTask1);
+                });
+                return true;
+            }
         }
         return false;
     }
