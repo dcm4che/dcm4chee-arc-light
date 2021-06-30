@@ -70,7 +70,7 @@ public class TaskManagerImpl implements TaskManager {
         ejb.scheduleTask(task);
         if (task.getScheduledTime().getTime() <= System.currentTimeMillis()) {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            scheduler.process(arcDev.getQueueDescriptorNotNull(task.getQueueName()), arcDev.getTaskProcessingFetchSize());
+            scheduler.process(arcDev.getQueueDescriptorNotNull(task.getQueueName()), arcDev.getTaskFetchSize());
         }
     }
 }

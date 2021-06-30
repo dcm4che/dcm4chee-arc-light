@@ -95,8 +95,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration deleteUPSCanceledDelay;
     private volatile Duration upsProcessingPollingInterval;
     private volatile int upsProcessingFetchSize = 100;
-    private volatile Duration taskProcessingPollingInterval;
-    private volatile int taskProcessingFetchSize = 100;
+    private volatile Duration taskPollingInterval;
+    private volatile int taskFetchSize = 100;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
     private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
@@ -142,8 +142,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
-    private volatile Duration exportTaskPollingInterval;
-    private volatile int exportTaskFetchSize = 100;
     private volatile boolean retrieveTaskWarningOnNoMatch;
     private volatile boolean retrieveTaskWarningOnWarnings;
     private volatile Duration deleteRejectedPollingInterval;
@@ -604,20 +602,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.upsProcessingFetchSize = upsProcessingFetchSize;
     }
 
-    public Duration getTaskProcessingPollingInterval() {
-        return taskProcessingPollingInterval;
+    public Duration getTaskPollingInterval() {
+        return taskPollingInterval;
     }
 
-    public void setTaskProcessingPollingInterval(Duration taskProcessingPollingInterval) {
-        this.taskProcessingPollingInterval = taskProcessingPollingInterval;
+    public void setTaskPollingInterval(Duration taskPollingInterval) {
+        this.taskPollingInterval = taskPollingInterval;
     }
 
-    public int getTaskProcessingFetchSize() {
-        return taskProcessingFetchSize;
+    public int getTaskFetchSize() {
+        return taskFetchSize;
     }
 
-    public void setTaskProcessingFetchSize(int taskProcessingFetchSize) {
-        this.taskProcessingFetchSize = taskProcessingFetchSize;
+    public void setTaskFetchSize(int taskFetchSize) {
+        this.taskFetchSize = taskFetchSize;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -990,22 +988,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setQidoETag(boolean qidoETag) {
         this.qidoETag = qidoETag;
-    }
-
-    public int getExportTaskFetchSize() {
-        return exportTaskFetchSize;
-    }
-
-    public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        this.exportTaskFetchSize = greaterZero(exportTaskFetchSize, "exportTaskFetchSize");
-    }
-
-    public Duration getExportTaskPollingInterval() {
-        return exportTaskPollingInterval;
-    }
-
-    public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
-        this.exportTaskPollingInterval = exportTaskPollingInterval;
     }
 
     public Duration getDeleteRejectedPollingInterval() {
@@ -3126,8 +3108,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
         upsProcessingPollingInterval = arcdev.upsProcessingPollingInterval;
         upsProcessingFetchSize = arcdev.upsProcessingFetchSize;
-        taskProcessingPollingInterval = arcdev.taskProcessingPollingInterval;
-        taskProcessingFetchSize = arcdev.taskProcessingFetchSize;
+        taskPollingInterval = arcdev.taskPollingInterval;
+        taskFetchSize = arcdev.taskFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
@@ -3179,8 +3161,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
-        exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
-        exportTaskFetchSize = arcdev.exportTaskFetchSize;
         retrieveTaskWarningOnNoMatch = arcdev.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = arcdev.retrieveTaskWarningOnWarnings;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;

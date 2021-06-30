@@ -152,8 +152,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP(), null);
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP(), null);
-        writer.writeNotNullOrDef("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval(), null);
-        writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 100);
         writer.writeNotNullOrDef("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval(), null);
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
         writer.writeNotNullOrDef("dcmFailedToDeletePollingInterval", arcDev.getFailedToDeletePollingInterval(), null);
@@ -366,9 +364,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUPSProcessingPollingInterval",
                 arcDev.getUPSProcessingPollingInterval(), null);
         writer.writeNotDef("dcmUPSProcessingFetchSize", arcDev.getUPSProcessingFetchSize(), 100);
-        writer.writeNotNullOrDef("dcmTaskProcessingPollingInterval",
-                arcDev.getTaskProcessingPollingInterval(), null);
-        writer.writeNotDef("dcmTaskProcessingFetchSize", arcDev.getTaskProcessingFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmTaskPollingInterval",
+                arcDev.getTaskPollingInterval(), null);
+        writer.writeNotDef("dcmTaskFetchSize", arcDev.getTaskFetchSize(), 100);
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy", arcDev.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);
         writer.writeNotDef("dcmRetrieveTaskWarningOnNoMatch",
@@ -1460,12 +1458,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAltCMoveSCP":
                     arcDev.setAlternativeCMoveSCP(reader.stringValue());
                     break;
-                case "dcmExportTaskPollingInterval":
-                    arcDev.setExportTaskPollingInterval(Duration.valueOf(reader.stringValue()));
-                    break;
-                case "dcmExportTaskFetchSize":
-                    arcDev.setExportTaskFetchSize(reader.intValue());
-                    break;
                 case "dcmPurgeStoragePollingInterval":
                     arcDev.setPurgeStoragePollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
@@ -1924,11 +1916,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUPSProcessingFetchSize":
                     arcDev.setUPSProcessingFetchSize(reader.intValue());
                     break;
-                case "dcmTaskProcessingPollingInterval":
-                    arcDev.setTaskProcessingPollingInterval(Duration.valueOf(reader.stringValue()));
+                case "dcmTaskPollingInterval":
+                    arcDev.setTaskPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
-                case "dcmTaskProcessingFetchSize":
-                    arcDev.setTaskProcessingFetchSize(reader.intValue());
+                case "dcmTaskFetchSize":
+                    arcDev.setTaskFetchSize(reader.intValue());
                     break;
                 case "hl7ReferredMergedPatientPolicy":
                     arcDev.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));

@@ -1302,8 +1302,7 @@ class ArchiveDeviceFactory {
             "SRT",
             null,
             "Radiology");
-    static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
-    static final Duration TASK_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration UPS_PROCESSING_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final Duration DELETE_UPS_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P7D");
@@ -1757,7 +1756,6 @@ class ArchiveDeviceFactory {
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
         ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
-        ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
@@ -1776,7 +1774,7 @@ class ArchiveDeviceFactory {
         ext.setCalculateStudySizePollingInterval(CALCULATE_STUDY_SIZE_POLLING_INTERVAL);
         ext.setCalculateQueryAttributes(true);
 
-        ext.setTaskProcessingPollingInterval(TASK_PROCESSING_POLLING_INTERVAL);
+        ext.setTaskPollingInterval(TASK_POLLING_INTERVAL);
 
         ext.setUPSProcessingPollingInterval(UPS_PROCESSING_POLLING_INTERVAL);
         ext.setDeleteUPSPollingInterval(DELETE_UPS_POLLING_INTERVAL);

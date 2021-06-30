@@ -104,8 +104,6 @@ class Assert {
         assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
         assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
         assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
-        assertEquals(expected.getExportTaskPollingInterval(), actual.getExportTaskPollingInterval());
-        assertEquals(expected.getExportTaskFetchSize(), actual.getExportTaskFetchSize());
         assertEquals(expected.getPurgeStoragePollingInterval(), actual.getPurgeStoragePollingInterval());
         assertEquals(expected.getPurgeStorageFetchSize(), actual.getPurgeStorageFetchSize());
         assertEquals(expected.getDeleteStudyBatchSize(), actual.getDeleteStudyBatchSize());

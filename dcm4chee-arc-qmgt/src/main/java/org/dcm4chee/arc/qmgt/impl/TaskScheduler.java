@@ -82,13 +82,13 @@ public class TaskScheduler extends Scheduler {
 
     @Override
     protected Duration getPollingInterval() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getTaskProcessingPollingInterval();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getTaskPollingInterval();
     }
 
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getTaskProcessingFetchSize();
+        int fetchSize = arcDev.getTaskFetchSize();
         for (QueueDescriptor desc : arcDev.getQueueDescriptors()) {
             process(desc, fetchSize);
         }
@@ -123,7 +123,7 @@ public class TaskScheduler extends Scheduler {
         String queueName = desc.getQueueName();
         do {
             for (Long pk : pks) {
-                if (arcDev.getTaskProcessingPollingInterval() == null
+                if (arcDev.getTaskPollingInterval() == null
                         || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
                     return;
                 }
@@ -132,7 +132,7 @@ public class TaskScheduler extends Scheduler {
                     processTask(task);
                 }
             }
-        } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
+        } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskFetchSize())).isEmpty());
     }
 
     private Task onProcessingStart(Long pk) {
@@ -155,7 +155,7 @@ public class TaskScheduler extends Scheduler {
                 do {
                     for (Long pk : pks) {
                         semaphore.acquire();
-                        if (arcDev.getTaskProcessingPollingInterval() == null
+                        if (arcDev.getTaskPollingInterval() == null
                                 || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
                             semaphore.release();
                             return;
@@ -174,12 +174,12 @@ public class TaskScheduler extends Scheduler {
                         }
                     }
                 }
-                while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
+                while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskFetchSize())).isEmpty());
             } finally {
                 semaphore.acquire(maxTasksParallel);
                 semaphore.release(maxTasksParallel);
             }
-        } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
+        } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskFetchSize())).isEmpty());
     }
 
     private void processTask(Task task) {

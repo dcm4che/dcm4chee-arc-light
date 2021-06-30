@@ -152,12 +152,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.30 NAME 'dcmDuration'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.31 NAME 'dcmExportTaskPollingInterval'
-  DESC 'Export Task Polling Interval in ISO-8601 duration format PnDTnHnMnS.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.32 NAME 'dcmExportTaskFetchSize'
-  DESC 'Limit result set of DB query for Export Tasks ready for processing; 100 if absent'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1648,12 +1648,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.340 NAME 'dcmRetrieveTaskPollingInterval'
-  DESC 'Retrieve Task Polling Interval in ISO-8601 duration format PnDTnHnMnS.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.341 NAME 'dcmRetrieveTaskFetchSize'
-  DESC 'Limit result set of DB query for Retrieve Tasks ready for processing; 100 if absent'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -2026,13 +2026,13 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.415 NAME 'dcmWadoMetadataExcludePriv
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.416 NAME 'dcmTaskProcessingPollingInterval'
-  DESC 'Polling Interval for scheduled Tasks ready for processing in ISO-8601 duration format PnDTnHnMnS. If absent, Tasks will not get processed.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.416 NAME 'dcmTaskPollingInterval'
+  DESC 'Polling Interval for scheduled Tasks in ISO-8601 duration format PnDTnHnMnS. If absent, Tasks will not get processed.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskProcessingFetchSize'
-  DESC 'Limit result set of DB query for scheduled Tasks ready for processing; 100 if absent'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskFetchSize'
+  DESC 'Limit result set of DB query for scheduled Tasks; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -2143,8 +2143,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDiffStudiesIncludefieldAll $
     dcmUPSProcessingPollingInterval $
     dcmUPSProcessingFetchSize $
-    dcmTaskProcessingPollingInterval $
-    dcmTaskProcessingFetchSize $
+    dcmTaskPollingInterval $
+    dcmTaskFetchSize $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
     dcmRetrieveTaskPollingInterval $

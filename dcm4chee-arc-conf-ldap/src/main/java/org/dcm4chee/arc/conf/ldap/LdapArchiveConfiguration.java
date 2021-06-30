@@ -199,10 +199,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTaskPollingInterval",
                 ext.getIanTaskPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportTaskPollingInterval",
-                ext.getExportTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportTaskFetchSize",
-                ext.getExportTaskFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStoragePollingInterval",
                 ext.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeStorageFetchSize",
@@ -460,10 +456,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSProcessingFetchSize",
                 ext.getUPSProcessingFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTaskProcessingPollingInterval",
-                ext.getTaskProcessingPollingInterval(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmTaskProcessingFetchSize",
-                ext.getTaskProcessingFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTaskPollingInterval",
+                ext.getTaskPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmTaskFetchSize",
+                ext.getTaskFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), HL7ReferredMergedPatientPolicy.REJECT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
@@ -581,8 +577,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), false));
         ext.setIanTaskPollingInterval(toDuration(attrs.get("dcmIanTaskPollingInterval"), null));
         ext.setIanTaskFetchSize(LdapUtils.intValue(attrs.get("dcmIanTaskFetchSize"), 100));
-        ext.setExportTaskPollingInterval(toDuration(attrs.get("dcmExportTaskPollingInterval"), null));
-        ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 100));
         ext.setPurgeStoragePollingInterval(toDuration(attrs.get("dcmPurgeStoragePollingInterval"), null));
         ext.setPurgeStorageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeStorageFetchSize"), 100));
         ext.setFailedToDeletePollingInterval(toDuration(attrs.get("dcmFailedToDeletePollingInterval"), null));
@@ -780,8 +774,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteMWLDelay(LdapUtils.stringArray(attrs.get("dcmDeleteMWLDelay")));
         ext.setUPSProcessingPollingInterval(toDuration(attrs.get("dcmUPSProcessingPollingInterval"), null));
         ext.setUPSProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmUPSProcessingFetchSize"), 100));
-        ext.setTaskProcessingPollingInterval(toDuration(attrs.get("dcmTaskProcessingPollingInterval"), null));
-        ext.setTaskProcessingFetchSize(LdapUtils.intValue(attrs.get("dcmTaskProcessingFetchSize"), 100));
+        ext.setTaskPollingInterval(toDuration(attrs.get("dcmTaskPollingInterval"), null));
+        ext.setTaskFetchSize(LdapUtils.intValue(attrs.get("dcmTaskFetchSize"), 100));
         ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(
                 HL7ReferredMergedPatientPolicy.class, attrs.get("hl7ReferredMergedPatientPolicy"),
                 HL7ReferredMergedPatientPolicy.REJECT));
@@ -984,10 +978,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTaskPollingInterval",
                 aa.getIanTaskPollingInterval(), bb.getIanTaskPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 100);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportTaskPollingInterval",
-                aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmExportTaskFetchSize",
-                aa.getExportTaskFetchSize(), bb.getExportTaskFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeStoragePollingInterval",
                 aa.getPurgeStoragePollingInterval(), bb.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeStorageFetchSize",
@@ -1342,10 +1332,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getUPSProcessingPollingInterval(), bb.getUPSProcessingPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSProcessingFetchSize",
                 aa.getUPSProcessingFetchSize(), bb.getUPSProcessingFetchSize(), 100);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTaskProcessingPollingInterval",
-                aa.getTaskProcessingPollingInterval(), bb.getTaskProcessingPollingInterval(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmTaskProcessingFetchSize",
-                aa.getTaskProcessingFetchSize(), bb.getTaskProcessingFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTaskPollingInterval",
+                aa.getTaskPollingInterval(), bb.getTaskPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTaskFetchSize",
+                aa.getTaskFetchSize(), bb.getTaskFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ReferredMergedPatientPolicy",
                 aa.getHl7ReferredMergedPatientPolicy(), bb.getHl7ReferredMergedPatientPolicy(),
                 HL7ReferredMergedPatientPolicy.REJECT);

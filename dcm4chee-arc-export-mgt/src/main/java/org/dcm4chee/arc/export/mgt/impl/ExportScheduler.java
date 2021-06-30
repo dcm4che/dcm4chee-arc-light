@@ -4,7 +4,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.store.StoreContext;
@@ -16,7 +15,8 @@ import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,48 +25,18 @@ import java.util.stream.Stream;
  * @since Oct 2015
  */
 @ApplicationScoped
-public class ExportScheduler extends Scheduler {
+public class ExportScheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportScheduler.class);
+
+    @Inject
+    private Device device;
 
     @Inject
     private ExportManager ejb;
 
     @Inject
     private IDeviceCache deviceCache;
-
-    protected ExportScheduler() {
-        super(Mode.scheduleWithFixedDelay);
-    }
-
-    @Override
-    protected Logger log() {
-        return LOG;
-    }
-
-    @Override
-    protected Duration getPollingInterval() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getExportTaskPollingInterval();
-    }
-
-    @Override
-    protected void execute() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getExportTaskFetchSize();
-        List<Long> exportTasksToSchedule;
-        do {
-            exportTasksToSchedule = ejb.findExportTasksToSchedule(fetchSize);
-            for (Long pk : exportTasksToSchedule) {
-                try {
-                    if (!ejb.scheduleExportTask(pk)) return;
-                } catch (Exception e) {
-                    LOG.warn("Failed to schedule ExportTask[pk={}}]\n:", pk, e);
-                }
-            }
-        }
-        while (getPollingInterval() != null && exportTasksToSchedule.size() == fetchSize);
-    }
 
     public void onStore(@Observes StoreContext ctx) {
         if (ctx.getException() != null)
