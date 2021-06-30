@@ -1834,8 +1834,8 @@ class ArchiveDeviceFactory {
                 "Study attributes",
                 "Compares only Study attributes",
                 DIFF_STUDY_ATTRS,
-                "groupButtons=synchronize,export,reject",
-                "actions=study-reject-export,study-reject,study-export"));
+                "groupButtons=export,reject,reimport",
+                "actions=study-reject,study-export,study-reimport"));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
                 2, "patient",
                 "Patient attributes",
@@ -1848,8 +1848,8 @@ class ArchiveDeviceFactory {
                 "Request attributes",
                 "Compares Request attributes",
                 DIFF_ACCESSION_NUMBER,
-                "groupButtons=synchronize,export,reject",
-                "actions=study-reject-export,study-reject,study-export"));
+                "groupButtons=export,reject,reimport",
+                "actions=study-reject,study-export,study-reimport"));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
                 4, "all",
                 "Patient and Study attributes",
