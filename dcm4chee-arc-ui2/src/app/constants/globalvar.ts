@@ -1071,6 +1071,24 @@ export class Globalvar {
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                     description:$localize `:@@sps_start_time:SPS Start Time`,
                     placeholder:$localize `:@@scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`
+                },
+                {
+                    tag:"select",
+                    type:"text",
+                    filterKey:"StudyStatusID",
+                    options:[
+                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
+                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
+                        new SelectDropdown("READY", $localize `:@@READY:READY`),
+                        new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
+                        new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
+                        new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                        new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
+                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
+                    ],
+                    showStar:true,
+                    description:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`,
+                    placeholder:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`
                 }
             ]
         }
