@@ -483,9 +483,6 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}/thumbnail": {
       "$ref": "paths/wado.json#/frames.thumbnail"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/mark4export/{exporterID}": {
-      "$ref": "paths/export.json#/studies.csv.mark4export"
-    },
     "/modalities": {
       "$ref": "paths/misc.json#/modalities"
     },
@@ -654,20 +651,11 @@
     "/monitor/export/{taskPK}/reschedule/{exporterID}": {
       "$ref": "paths/monitor.json#/exportTaskReschedule"
     },
-    "/monitor/export/{taskPK}/mark4export/{exporterID}": {
-      "$ref": "paths/monitor.json#/exportTaskMark4Export"
-    },
     "/monitor/export/reschedule": {
       "$ref": "paths/monitor.json#/exportReschedule"
     },
     "/monitor/export/reschedule/{newExporterID}": {
       "$ref": "paths/monitor.json#/exportRescheduleExporter"
-    },
-    "/monitor/export/mark4export": {
-      "$ref": "paths/monitor.json#/mark4Export"
-    },
-    "/monitor/export/mark4export/{newExporterID}": {
-      "$ref": "paths/monitor.json#/mark4ExportOnExporter"
     },
     "/monitor/export/batch": {
       "$ref": "paths/monitor.json#/exportBatch"

@@ -100,8 +100,7 @@ class ExportCSV {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
-    Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in,
-                                  Function<ExportContext, Integer> action) {
+    Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in) {
         logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
         try {
@@ -142,12 +141,12 @@ class ExportCSV {
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize) {
-                        count += action.apply(new ExportContext(exporter, studyUIDs));
+                        count += scheduleExportTasks(new ExportContext(exporter, studyUIDs));
                         studyUIDs.clear();
                     }
                 }
                 if (!studyUIDs.isEmpty())
-                    count += action.apply(new ExportContext(exporter, studyUIDs));
+                    count += scheduleExportTasks(new ExportContext(exporter, studyUIDs));
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
