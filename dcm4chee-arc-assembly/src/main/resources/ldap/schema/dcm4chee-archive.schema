@@ -1977,13 +1977,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.339 NAME 'dcmRetryInProcessOnStartup'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.340 NAME 'dcmRetrieveTaskPollingInterval'
-  DESC 'Retrieve Task Polling Interval in ISO-8601 duration format PnDTnHnMnS.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.341 NAME 'dcmRetrieveTaskFetchSize'
-  DESC 'Limit result set of DB query for Retrieve Tasks ready for processing; 100 if absent'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )

@@ -203,10 +203,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getExportTaskPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportTaskFetchSize",
                 ext.getExportTaskFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskPollingInterval",
-                ext.getRetrieveTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveTaskFetchSize",
-                ext.getRetrieveTaskFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStoragePollingInterval",
                 ext.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeStorageFetchSize",
@@ -587,8 +583,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanTaskFetchSize(LdapUtils.intValue(attrs.get("dcmIanTaskFetchSize"), 100));
         ext.setExportTaskPollingInterval(toDuration(attrs.get("dcmExportTaskPollingInterval"), null));
         ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 100));
-        ext.setRetrieveTaskPollingInterval(toDuration(attrs.get("dcmRetrieveTaskPollingInterval"), null));
-        ext.setRetrieveTaskFetchSize(LdapUtils.intValue(attrs.get("dcmRetrieveTaskFetchSize"), 100));
         ext.setPurgeStoragePollingInterval(toDuration(attrs.get("dcmPurgeStoragePollingInterval"), null));
         ext.setPurgeStorageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeStorageFetchSize"), 100));
         ext.setFailedToDeletePollingInterval(toDuration(attrs.get("dcmFailedToDeletePollingInterval"), null));
@@ -994,10 +988,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportTaskFetchSize",
                 aa.getExportTaskFetchSize(), bb.getExportTaskFetchSize(), 100);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskPollingInterval",
-                aa.getRetrieveTaskPollingInterval(), bb.getRetrieveTaskPollingInterval(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveTaskFetchSize",
-                aa.getRetrieveTaskFetchSize(), bb.getRetrieveTaskFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeStoragePollingInterval",
                 aa.getPurgeStoragePollingInterval(), bb.getPurgeStoragePollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeStorageFetchSize",

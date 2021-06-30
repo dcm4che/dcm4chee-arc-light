@@ -154,8 +154,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval(), null);
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 100);
-        writer.writeNotNullOrDef("dcmRetrieveTaskPollingInterval", arcDev.getRetrieveTaskPollingInterval(), null);
-        writer.writeNotDef("dcmRetrieveTaskFetchSize", arcDev.getRetrieveTaskFetchSize(), 100);
         writer.writeNotNullOrDef("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval(), null);
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
         writer.writeNotNullOrDef("dcmFailedToDeletePollingInterval", arcDev.getFailedToDeletePollingInterval(), null);
@@ -1467,12 +1465,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmExportTaskFetchSize":
                     arcDev.setExportTaskFetchSize(reader.intValue());
-                    break;
-                case "dcmRetrieveTaskPollingInterval":
-                    arcDev.setRetrieveTaskPollingInterval(Duration.valueOf(reader.stringValue()));
-                    break;
-                case "dcmRetrieveTaskFetchSize":
-                    arcDev.setRetrieveTaskFetchSize(reader.intValue());
                     break;
                 case "dcmPurgeStoragePollingInterval":
                     arcDev.setPurgeStoragePollingInterval(Duration.valueOf(reader.stringValue()));

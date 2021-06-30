@@ -144,8 +144,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String alternativeCMoveSCP;
     private volatile Duration exportTaskPollingInterval;
     private volatile int exportTaskFetchSize = 100;
-    private volatile Duration retrieveTaskPollingInterval;
-    private volatile int retrieveTaskFetchSize = 100;
     private volatile boolean retrieveTaskWarningOnNoMatch;
     private volatile boolean retrieveTaskWarningOnWarnings;
     private volatile Duration deleteRejectedPollingInterval;
@@ -2974,22 +2972,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.restrictRetrieveSilently = restrictRetrieveSilently;
     }
 
-    public Duration getRetrieveTaskPollingInterval() {
-        return retrieveTaskPollingInterval;
-    }
-
-    public void setRetrieveTaskPollingInterval(Duration retrieveTaskPollingInterval) {
-        this.retrieveTaskPollingInterval = retrieveTaskPollingInterval;
-    }
-
-    public int getRetrieveTaskFetchSize() {
-        return retrieveTaskFetchSize;
-    }
-
-    public void setRetrieveTaskFetchSize(int retrieveTaskFetchSize) {
-        this.retrieveTaskFetchSize = retrieveTaskFetchSize;
-    }
-
     public boolean isRetrieveTaskWarningOnNoMatch() {
         return retrieveTaskWarningOnNoMatch;
     }
@@ -3199,8 +3181,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
-        retrieveTaskPollingInterval = arcdev.retrieveTaskPollingInterval;
-        retrieveTaskFetchSize = arcdev.retrieveTaskFetchSize;
         retrieveTaskWarningOnNoMatch = arcdev.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = arcdev.retrieveTaskWarningOnWarnings;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
