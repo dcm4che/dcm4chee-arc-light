@@ -212,40 +212,6 @@ public class RetrieveManagerEJB {
         return false;
     }
 
-    public int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
-        int count = 0;
-        for (String studyUID : ctx.getKeys().getStrings(Tag.StudyInstanceUID)) {
-            if (notRetrievedAfter == null
-                    || !isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID)) {
-                persist(createRetrieveTask(ctx, (QueueMessage) null),
-                        studyUID,
-                        ctx.getScheduledTime());
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private void persist(RetrieveTask task, String studyUID, Date scheduledTime) {
-        task.setStudyInstanceUID(studyUID);
-        task.setScheduledTime(scheduledTime);
-        em.persist(task);
-    }
-
-    private RetrieveTask createRetrieveTask(ExternalRetrieveContext ctx, QueueMessage queueMessage) {
-        RetrieveTask task = new RetrieveTask();
-        task.setLocalAET(ctx.getLocalAET());
-        task.setRemoteAET(ctx.getRemoteAET());
-        task.setDestinationAET(ctx.getDestinationAET());
-        task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
-        task.setSOPInstanceUID(ctx.getSOPInstanceUID());
-        task.setDeviceName(ctx.getDeviceName());
-        task.setQueueName(ctx.getQueueName());
-        task.setBatchID(ctx.getBatchID());
-        task.setQueueMessage(queueMessage);
-        return task;
-    }
-
     public void updateRetrieveTask(Task task, Attributes cmd) {
         em.createNamedQuery(Task.UPDATE_RETRIEVE_RESULT_BY_PK)
                 .setParameter(1, task.getPk())
