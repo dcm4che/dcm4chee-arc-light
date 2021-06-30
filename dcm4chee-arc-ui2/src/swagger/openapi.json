@@ -690,14 +690,8 @@
     "/monitor/retrieve/{taskPK}/reschedule": {
       "$ref": "paths/monitor.json#/retrieveTaskReschedule"
     },
-    "/monitor/retrieve/{taskPK}/mark4retrieve": {
-      "$ref": "paths/monitor.json#/retrieveTaskMark4Retrieve"
-    },
     "/monitor/retrieve/reschedule": {
       "$ref": "paths/monitor.json#/retrieveReschedule"
-    },
-    "/monitor/retrieve/mark4retrieve": {
-      "$ref": "paths/monitor.json#/mark4retrieve"
     },
     "/monitor/retrieve/batch": {
       "$ref": "paths/monitor.json#/retrieveBatch"
@@ -963,20 +957,8 @@
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/{instance}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/instances"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/{instance}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/instances.mark4retrieve"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies.csv"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/studies.csv.mark4retrieve"
     },
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find2.studies"
@@ -987,15 +969,6 @@
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find2.instances"
     },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.instances.mark4retrieve"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find.studies"
     },
@@ -1005,15 +978,6 @@
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find.instances"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.instances.mark4retrieve"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/export/dicom:{destination}": {
       "$ref": "paths/legacy.json#/move.studies"
     },
@@ -1022,15 +986,6 @@
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/export/dicom:{destination}": {
       "$ref": "paths/legacy.json#/move.instances"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.instances.mark4retrieve"
     },
     "/aets/{aet}/rs/studies/workitems": {
       "$ref": "paths/workitems.json#/local.studies"

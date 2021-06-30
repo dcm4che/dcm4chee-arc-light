@@ -154,8 +154,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay) {
-        return ejb.scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay);
+    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter) {
+        return ejb.scheduleRetrieveTask(priority, ctx, notRetrievedAfter);
     }
 
     @Override

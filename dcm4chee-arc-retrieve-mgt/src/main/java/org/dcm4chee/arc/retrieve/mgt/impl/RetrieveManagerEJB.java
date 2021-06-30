@@ -91,20 +91,20 @@ public class RetrieveManagerEJB {
     @Inject
     private Device device;
 
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay) {
+    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter) {
         int count = 0;
         Attributes keys = ctx.getKeys();
         String[] studyUIDs = keys.getStrings(Tag.StudyInstanceUID);
         for (String studyUID : studyUIDs) {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay, keys))
+            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, keys))
                 count++;
         }
 
         return count;
     }
 
-    private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay,
+    private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter,
                                          Attributes keys) {
         String studyUID = keys.getString(Tag.StudyInstanceUID);
         if (isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID))
@@ -123,7 +123,6 @@ public class RetrieveManagerEJB {
                 ctx.getHttpServletRequestInfo().writeTo(gen);
             gen.writeEnd();
         }
-        Date scheduledTime = new Date(System.currentTimeMillis() + delay);
         Task task = new Task();
         task.setDeviceName(ctx.getDeviceName());
         task.setQueueName(ctx.getQueueName());
@@ -136,7 +135,7 @@ public class RetrieveManagerEJB {
         task.setDestinationAET(ctx.getDestinationAET());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSopInstanceUID(ctx.getSOPInstanceUID());
-        task.setScheduledTime(scheduledTime);
+        task.setScheduledTime(ctx.getScheduledTime() != null ? ctx.getScheduledTime() : new Date());
         em.persist(task);
         LOG.info("Create {}", task);
         return true;

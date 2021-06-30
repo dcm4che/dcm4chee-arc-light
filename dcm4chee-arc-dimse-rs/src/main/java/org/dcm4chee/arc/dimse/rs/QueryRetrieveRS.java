@@ -179,8 +179,8 @@ public class QueryRetrieveRS {
     public Response queryRetrieveMatchingStudies(
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET
+        );
     }
 
     @POST
@@ -191,8 +191,8 @@ public class QueryRetrieveRS {
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
     {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET
+        );
     }
 
     @POST
@@ -204,43 +204,8 @@ public class QueryRetrieveRS {
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
     {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForQueryRetrieve(
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForQueryRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForQueryRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::createRetrieveTask);
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET
+        );
     }
 
     @POST
@@ -248,8 +213,8 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingStudies(
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.STUDY, null, null, destAET
+        );
     }
 
     @POST
@@ -259,8 +224,8 @@ public class QueryRetrieveRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("DestinationAET") String destAET)
     {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET
+        );
     }
 
     @POST
@@ -271,40 +236,8 @@ public class QueryRetrieveRS {
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("DestinationAET") String destAET)
     {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForRetrieve(
-            @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET,
-                this::createRetrieveTask);
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET
+        );
     }
 
     @POST
@@ -313,8 +246,8 @@ public class QueryRetrieveRS {
     public Response retrieveMatchingStudiesLegacy(
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET
+        );
     }
 
     @POST
@@ -325,8 +258,8 @@ public class QueryRetrieveRS {
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
             {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET
+        );
     }
 
     @POST
@@ -338,56 +271,9 @@ public class QueryRetrieveRS {
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET)
             {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET
+        );
     }
-
-    @POST
-    @Path("/studies/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForRetrieveLegacy(
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForRetrieveLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForRetrieveLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/csv:{field}/mark4retrieve/dicom:{destinationAET}")
-    @Consumes("text/csv")
-    @Produces("application/json")
-    public Response markMatchingStudiesFromCSVForRetrieve(
-            @PathParam("field") int field,
-            @PathParam("destinationAET") String destAET,
-            InputStream in) {
-        return processCSV(field, destAET, in, this::createRetrieveTask);
-    }
-
 
     @POST
     @Path("/studies/csv:{field}/export/dicom:{destinationAET}")
@@ -507,12 +393,12 @@ public class QueryRetrieveRS {
     }
 
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-                             String destAET, Function<ExternalRetrieveContext, Integer> action) {
-        return process(level, studyInstanceUID, seriesInstanceUID, movescp, destAET, action);
+                             String destAET) {
+        return process(level, studyInstanceUID, seriesInstanceUID, movescp, destAET);
     }
     
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-            String queryAET, String destAET, Function<ExternalRetrieveContext, Integer> action) {
+                             String queryAET, String destAET) {
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -545,7 +431,7 @@ public class QueryRetrieveRS {
                 do {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                     if (Status.isPending(status))
-                        count += action.apply(createExtRetrieveCtx(destAET, dimseRSP));
+                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, dimseRSP));
                 } while (dimseRSP.next());
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
@@ -598,11 +484,7 @@ public class QueryRetrieveRS {
     }
 
     private int scheduleRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null, 0L);
-    }
-
-    private int createRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.createRetrieveTask(ctx, null);
+        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null);
     }
 
     private void logRequest() {

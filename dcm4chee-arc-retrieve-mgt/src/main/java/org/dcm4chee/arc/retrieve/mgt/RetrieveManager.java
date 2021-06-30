@@ -61,7 +61,7 @@ public interface RetrieveManager {
 
     int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
-    int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter, long delay);
+    int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 

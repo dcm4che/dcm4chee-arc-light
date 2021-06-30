@@ -179,36 +179,6 @@ public class RetrieveRS {
         return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
-    @POST
-    @Path("/studies/{StudyUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markStudy4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID);
-    }
-
-    @POST
-    @Path("/studies/{StudyUID}/series/{SeriesUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markSeries4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("SeriesUID") String seriesUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID, seriesUID);
-    }
-
-    @POST
-    @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markInstance4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("SeriesUID") String seriesUID,
-            @PathParam("ObjectUID") String objectUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID, seriesUID, objectUID);
-    }
-
     private int priority() {
         return parseInt(priority, 0);
     }
@@ -241,28 +211,6 @@ public class RetrieveRS {
         }
     }
 
-    private Response createRetrieveTask(String destAET, String... uids) {
-        logRequest();
-        if (uids[0].startsWith("csv"))
-            return errResponse("Missing Content-type Header in 'Mark Studies for Retrieve specified in CSV from external archive' service " +
-                            "causes invocation of 'Mark Study for Retrieve from external archive' service.",
-                    Response.Status.BAD_REQUEST);
-
-        if (queueName == null)
-            queueName = "Retrieve1";
-
-        try {
-            validate();
-            Attributes keys = toKeys(uids);
-            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
-        } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        return Response.noContent().build();
-    }
-
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
@@ -273,7 +221,7 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         retrieveManager.scheduleRetrieveTask(
-                priority(), createExtRetrieveCtx(destAET, keys), null, 0L);
+                priority(), createExtRetrieveCtx(destAET, keys), null);
         return Response.accepted().build();
     }
 
