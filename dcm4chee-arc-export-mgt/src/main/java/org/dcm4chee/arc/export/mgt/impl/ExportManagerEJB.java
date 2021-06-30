@@ -193,7 +193,7 @@ public class ExportManagerEJB implements ExportManager {
         Task task = new Task();
         task.setDeviceName(deviceName);
         task.setQueueName(queueName);
-        task.setProcessor(Task.Processor.EXPORTER);
+        task.setType(Task.Type.EXPORT);
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);

@@ -198,7 +198,7 @@ public class HL7SenderImpl implements HL7Sender {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(HL7Sender.QUEUE_NAME);
-        task.setProcessor(Task.Processor.HL7_SENDER);
+        task.setType(Task.Type.HL7);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(data);

@@ -163,7 +163,7 @@ public class DiffServiceImpl implements DiffService {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
-        task.setProcessor(Task.Processor.DIFF_SCU);
+        task.setType(Task.Type.DIFF);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setBatchID(ctx.getBatchID());

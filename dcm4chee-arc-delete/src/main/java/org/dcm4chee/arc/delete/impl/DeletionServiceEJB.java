@@ -745,7 +745,7 @@ public class DeletionServiceEJB {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(RejectionService.QUEUE_NAME);
-        task.setProcessor(Task.Processor.REJECT_SCU);
+        task.setType(Task.Type.REJECT);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);

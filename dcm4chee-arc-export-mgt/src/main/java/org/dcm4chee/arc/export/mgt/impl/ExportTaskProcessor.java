@@ -68,7 +68,7 @@ import javax.inject.Named;
  * @since Oct 2015
  */
 @ApplicationScoped
-@Named("EXPORTER")
+@Named("EXPORT")
 public class ExportTaskProcessor implements TaskProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(ExportTaskProcessor.class);
 

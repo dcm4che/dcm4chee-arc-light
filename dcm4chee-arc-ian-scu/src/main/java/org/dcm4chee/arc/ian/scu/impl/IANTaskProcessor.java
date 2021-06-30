@@ -56,7 +56,7 @@ import javax.json.JsonObject;
  * @since Apr 2016
  */
 @ApplicationScoped
-@Named("IAN_SCU")
+@Named("IAN")
 public class IANTaskProcessor implements TaskProcessor {
 
     @Inject

@@ -126,7 +126,7 @@ public class RetrieveManagerEJB {
         Task task = new Task();
         task.setDeviceName(ctx.getDeviceName());
         task.setQueueName(ctx.getQueueName());
-        task.setProcessor(Task.Processor.MOVE_SCU);
+        task.setType(Task.Type.RETRIEVE);
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
@@ -169,7 +169,7 @@ public class RetrieveManagerEJB {
         Root<Task> task = q.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(task.get(Task_.processor), Task.Processor.MOVE_SCU));
+        predicates.add(cb.equal(task.get(Task_.type), Task.Type.RETRIEVE));
         Predicate statusPredicate = task.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS);
         predicates.add(retrievedAfter != null
                 ? cb.or(statusPredicate, cb.greaterThan(task.get(Task_.updatedTime), retrievedAfter))

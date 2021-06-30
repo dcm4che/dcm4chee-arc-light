@@ -58,7 +58,7 @@ import javax.json.JsonObject;
  * @since Mar 2018
  */
 @ApplicationScoped
-@Named("DIFF_SCU")
+@Named("DIFF")
 public class DiffTaskProcessor implements TaskProcessor {
     @Inject
     private DiffService diffService;

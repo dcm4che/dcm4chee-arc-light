@@ -118,7 +118,7 @@ public class RSClientImpl implements RSClient {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
-        task.setProcessor(Task.Processor.REST_CLIENT);
+        task.setType(Task.Type.REST);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(content);

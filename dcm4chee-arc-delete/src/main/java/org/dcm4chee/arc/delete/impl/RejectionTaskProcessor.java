@@ -58,7 +58,7 @@ import javax.json.JsonObject;
  * @since Jan 2019
  */
 @ApplicationScoped
-@Named("REJECT_SCU")
+@Named("REJECT")
 public class RejectionTaskProcessor implements TaskProcessor {
     @Inject
     private RejectionService service;

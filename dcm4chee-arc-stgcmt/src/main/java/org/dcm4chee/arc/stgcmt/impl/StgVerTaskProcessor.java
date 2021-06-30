@@ -56,7 +56,7 @@ import javax.inject.Named;
  * @since Jul 2018
  */
 @ApplicationScoped
-@Named("STG_VERIFIER")
+@Named("STGVER")
 public class StgVerTaskProcessor implements TaskProcessor {
 
     @Inject

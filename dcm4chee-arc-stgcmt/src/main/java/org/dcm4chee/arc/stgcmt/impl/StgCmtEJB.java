@@ -563,7 +563,7 @@ public class StgCmtEJB {
         }
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtManager.QUEUE_NAME);
-        task.setProcessor(Task.Processor.STG_VERIFIER);
+        task.setType(Task.Type.STGVER);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
@@ -599,7 +599,7 @@ public class StgCmtEJB {
         Root<Task> stgVerTask = q.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(stgVerTask.get(Task_.processor), Task.Processor.STG_VERIFIER));
+        predicates.add(cb.equal(stgVerTask.get(Task_.type), Task.Type.STGVER));
         predicates.add(stgVerTask.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS));
         predicates.add(cb.equal(
                 stgVerTask.get(Task_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));

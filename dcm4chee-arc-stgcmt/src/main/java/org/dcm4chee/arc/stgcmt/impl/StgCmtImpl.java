@@ -220,7 +220,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCU.QUEUE_NAME);
-        task.setProcessor(Task.Processor.STGCMT_SCU);
+        task.setType(Task.Type.STGCMT_SCU);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(actionInfo);
@@ -239,7 +239,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCP.QUEUE_NAME);
-        task.setProcessor(Task.Processor.STGCMT_SCP);
+        task.setType(Task.Type.STGCMT_SCP);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(eventInfo);

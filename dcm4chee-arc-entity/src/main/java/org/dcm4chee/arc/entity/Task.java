@@ -67,7 +67,7 @@ import java.util.Date;
         indexes = {
                 @Index(columnList = "device_name"),
                 @Index(columnList = "queue_name"),
-                @Index(columnList = "processor"),
+                @Index(columnList = "task_type"),
                 @Index(columnList = "task_status"),
                 @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
@@ -137,18 +137,18 @@ public class Task {
         }
     }
 
-    public enum Processor {
-        EXPORTER,
-        MOVE_SCU,
-        MPPS_SCU,
-        IAN_SCU,
+    public enum Type {
+        EXPORT,
+        RETRIEVE,
+        MPPS,
+        IAN,
         STGCMT_SCP,
         STGCMT_SCU,
-        STG_VERIFIER,
-        HL7_SENDER,
-        REST_CLIENT,
-        REJECT_SCU,
-        DIFF_SCU
+        STGVER,
+        HL7,
+        REST,
+        REJECT,
+        DIFF
     }
 
     @Id
@@ -179,8 +179,8 @@ public class Task {
     private String queueName;
 
     @Basic(optional = false)
-    @Column(name = "processor")
-    private Processor processor;
+    @Column(name = "task_type")
+    private Type type;
 
     @Basic(optional = false)
     @Column(name = "task_status")
@@ -366,12 +366,12 @@ public class Task {
         this.errorMessage = errorMessage != null ? StringUtils.truncate(errorMessage, 255) : null;
     }
 
-    public Processor getProcessor() {
-        return processor;
+    public Type getType() {
+        return type;
     }
 
-    public void setProcessor(Processor processor) {
-        this.processor = processor;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public String getQueueName() {
@@ -691,7 +691,7 @@ public class Task {
         writer.writeNotNullOrDef("pk", pk, null);
         writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
         writer.writeNotNullOrDef("queue", queueName, null);
-        writer.writeNotNullOrDef("processor", processor.toString(), null);
+        writer.writeNotNullOrDef("type", type.toString(), null);
         writer.writeNotNullOrDef("status", status.toString(), null);
         writer.writeNotNullOrDef("batchID", batchID, null);
         writer.writeNotNullOrDef("failures", numberOfFailures, 0);
@@ -726,7 +726,7 @@ public class Task {
         return "Task{" +
                 "deviceName='" + deviceName + '\'' +
                 ", queueName='" + queueName + '\'' +
-                ", processor=" + processor +
+                ", type=" + type +
                 ", status=" + status +
                 ", scheduledTime=" + scheduledTime +
                 ", numberOfFailures=" + numberOfFailures +

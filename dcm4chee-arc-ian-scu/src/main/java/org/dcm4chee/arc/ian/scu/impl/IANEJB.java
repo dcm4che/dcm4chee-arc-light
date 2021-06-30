@@ -156,7 +156,7 @@ public class IANEJB {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(IANSCU.QUEUE_NAME);
-        task.setProcessor(Task.Processor.IAN_SCU);
+        task.setType(Task.Type.IAN);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(attrs);

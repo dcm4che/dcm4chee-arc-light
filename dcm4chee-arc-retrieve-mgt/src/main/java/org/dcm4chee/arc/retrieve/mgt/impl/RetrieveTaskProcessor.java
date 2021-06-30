@@ -58,7 +58,7 @@ import javax.json.JsonObject;
  * @since Jul 2017
  */
 @ApplicationScoped
-@Named("MOVE_SCU")
+@Named("RETRIEVE")
 public class RetrieveTaskProcessor implements TaskProcessor {
 
     @Inject

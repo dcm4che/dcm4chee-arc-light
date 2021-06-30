@@ -185,7 +185,7 @@ public class TaskScheduler extends Scheduler {
     private void processTask(Task task) {
         try {
             TaskProcessor processor = taskProcessors.select(
-                    new NamedQualifier(task.getProcessor().name())).get();
+                    new NamedQualifier(task.getType().name())).get();
             Outcome outcome = processor.process(task);
             ejb.onProcessingSuccessful(task.getPk(), outcome);
         } catch (Exception e) {

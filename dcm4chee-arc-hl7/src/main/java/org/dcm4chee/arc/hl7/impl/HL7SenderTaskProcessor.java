@@ -66,7 +66,7 @@ import javax.json.JsonObject;
  * @since Jul 2016
  */
 @ApplicationScoped
-@Named("HL7_SENDER")
+@Named("HL7")
 public class HL7SenderTaskProcessor implements TaskProcessor {
 
     @Inject

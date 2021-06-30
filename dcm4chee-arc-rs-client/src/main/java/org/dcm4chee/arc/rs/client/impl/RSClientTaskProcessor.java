@@ -56,7 +56,7 @@ import javax.json.JsonObject;
  * @since Nov 2016
  */
 @ApplicationScoped
-@Named("REST_CLIENT")
+@Named("REST")
 public class RSClientTaskProcessor implements TaskProcessor {
 
     @Inject

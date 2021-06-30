@@ -59,7 +59,7 @@ import javax.json.JsonObject;
  * @since Sep 2015
  */
 @ApplicationScoped
-@Named("MPPS_SCU")
+@Named("MPPS")
 public class MPPSTaskProcessor implements TaskProcessor {
 
     @Inject
