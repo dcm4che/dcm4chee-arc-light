@@ -205,6 +205,7 @@ public enum QIDO {
         Tag.ScheduledProcedureStepDescription,
         Tag.ScheduledProtocolCodeSequence,
         Tag.ScheduledProcedureStepID,
+        Tag.ScheduledProcedureStepStatus,
         Tag.ScheduledStationName,
         Tag.ScheduledProcedureStepLocation,
         Tag.PreMedication
