@@ -61,14 +61,14 @@ import java.util.List;
  */
 public interface ExportManager {
 
-    void createOrUpdateStudyExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    void createOrUpdateStudyExportTask(String deviceName, String exporterID, String queueName,
                                        String studyIUID, Date scheduledTime);
 
-    void createOrUpdateSeriesExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    void createOrUpdateSeriesExportTask(String deviceName, String exporterID, String queueName,
                                         String studyIUID, String seriesIUID,
                                         Date scheduledTime);
 
-    void createOrUpdateInstanceExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    void createOrUpdateInstanceExportTask(String deviceName, String exporterID, String queueName,
                                           String studyIUID, String seriesIUID, String sopIUID,
                                           Date scheduledTime);
 

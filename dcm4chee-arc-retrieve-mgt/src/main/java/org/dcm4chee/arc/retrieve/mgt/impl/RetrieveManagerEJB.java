@@ -43,8 +43,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -128,7 +126,8 @@ public class RetrieveManagerEJB {
         Date scheduledTime = new Date(System.currentTimeMillis() + delay);
         Task task = new Task();
         task.setDeviceName(ctx.getDeviceName());
-        task.setQueueDescriptor(ctx.getQueueDescriptor());
+        task.setQueueName(ctx.getQueueName());
+        task.setProcessor(Task.Processor.MOVE_SCU);
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
@@ -171,7 +170,7 @@ public class RetrieveManagerEJB {
         Root<Task> task = q.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(task.get(Task_.processor), TaskProcessorName.MOVE_SCU));
+        predicates.add(cb.equal(task.get(Task_.processor), Task.Processor.MOVE_SCU));
         Predicate statusPredicate = task.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS);
         predicates.add(retrievedAfter != null
                 ? cb.or(statusPredicate, cb.greaterThan(task.get(Task_.updatedTime), retrievedAfter))

@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public class StgVerScheduler extends Scheduler {
             return;
         }
         int maxScheduled = arcDev.getStorageVerificationMaxScheduled();
-        int remaining = remaining(maxScheduled, arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER));
+        int remaining = remaining(maxScheduled);
         if (remaining == 0) {
             LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
             return;
@@ -126,11 +127,11 @@ public class StgVerScheduler extends Scheduler {
         while (getPollingInterval() != null && storageVerifications.size() == fetchSize);
     }
 
-    private int remaining(int maxScheduled, QueueDescriptor queueDesc) {
+    private int remaining(int maxScheduled) {
         if (maxScheduled <= 0) {
             return Integer.MAX_VALUE;
         }
-        long scheduled = ejb.countScheduledTasksOnThisDevice(queueDesc.getQueueName());
+        long scheduled = ejb.countScheduledTasksOnThisDevice(StgCmtManager.QUEUE_NAME);
         return (int) Math.max(maxScheduled - scheduled, 0L);
     }
 

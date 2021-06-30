@@ -195,38 +195,38 @@ class ArchiveDeviceFactory {
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
-        newQueueDescriptor("MPPSSCU", "MPPS Forward Tasks", TaskProcessorName.MPPS_SCU, true),
-        newQueueDescriptor("IANSCU", "IAN Tasks", TaskProcessorName.IAN_SCU, true),
-        newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks", TaskProcessorName.STGCMT_SCP, true),
-        newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks", TaskProcessorName.STGCMT_SCU, true),
-        newQueueDescriptor("StgVerTasks", "Storage Verification Tasks", TaskProcessorName.STG_VERIFIER, true),
-        newQueueDescriptor("Export1", "Dicom Export Tasks", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export2", "WADO Export Tasks", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export3", "XDS-I Export Tasks", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export4", "Export4", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export5", "Nearline Storage Export Tasks", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export6", "Export6", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export7", "Export7", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export8", "Export8", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export9", "Export9", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("Export10", "Export10", TaskProcessorName.EXPORTER, false),
-        newQueueDescriptor("HL7Send", "HL7 Forward Tasks", TaskProcessorName.HL7_SENDER, true),
-        newQueueDescriptor("RSClient", "RESTful Forward Tasks", TaskProcessorName.REST_CLIENT, true),
-        newQueueDescriptor("Retrieve1", "Dicom Retrieve Tasks 1", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve2", "Dicom Retrieve Tasks 2", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve3", "Dicom Retrieve Tasks 3", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve4", "Dicom Retrieve Tasks 4", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve5", "Dicom Retrieve Tasks 5", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve6", "Dicom Retrieve Tasks 6", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve7", "Dicom Retrieve Tasks 7", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve8", "Dicom Retrieve Tasks 8", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve9", "Dicom Retrieve Tasks 9", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve10", "Dicom Retrieve Tasks 10", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve11", "Dicom Retrieve Tasks 11", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve12", "Dicom Retrieve Tasks 12", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("Retrieve13", "Dicom Retrieve Tasks 13", TaskProcessorName.MOVE_SCU, false),
-        newQueueDescriptor("DiffTasks", "Diff Tasks", TaskProcessorName.DIFF_SCU, true),
-        newQueueDescriptor("Rejection", "Rejection Tasks", TaskProcessorName.REJECT_SCU, true)
+        newQueueDescriptor("MPPSSCU", "MPPS Forward Tasks", true),
+        newQueueDescriptor("IANSCU", "IAN Tasks", true),
+        newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks", true),
+        newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks", true),
+        newQueueDescriptor("StgVerTasks", "Storage Verification Tasks", true),
+        newQueueDescriptor("Export1", "Dicom Export Tasks", false),
+        newQueueDescriptor("Export2", "WADO Export Tasks", false),
+        newQueueDescriptor("Export3", "XDS-I Export Tasks", false),
+        newQueueDescriptor("Export4", "Export4", false),
+        newQueueDescriptor("Export5", "Nearline Storage Export Tasks", false),
+        newQueueDescriptor("Export6", "Export6", false),
+        newQueueDescriptor("Export7", "Export7", false),
+        newQueueDescriptor("Export8", "Export8", false),
+        newQueueDescriptor("Export9", "Export9", false),
+        newQueueDescriptor("Export10", "Export10", false),
+        newQueueDescriptor("HL7Send", "HL7 Forward Tasks", true),
+        newQueueDescriptor("RSClient", "RESTful Forward Tasks", true),
+        newQueueDescriptor("Retrieve1", "Dicom Retrieve Tasks 1", false),
+        newQueueDescriptor("Retrieve2", "Dicom Retrieve Tasks 2", false),
+        newQueueDescriptor("Retrieve3", "Dicom Retrieve Tasks 3", false),
+        newQueueDescriptor("Retrieve4", "Dicom Retrieve Tasks 4", false),
+        newQueueDescriptor("Retrieve5", "Dicom Retrieve Tasks 5", false),
+        newQueueDescriptor("Retrieve6", "Dicom Retrieve Tasks 6", false),
+        newQueueDescriptor("Retrieve7", "Dicom Retrieve Tasks 7", false),
+        newQueueDescriptor("Retrieve8", "Dicom Retrieve Tasks 8", false),
+        newQueueDescriptor("Retrieve9", "Dicom Retrieve Tasks 9", false),
+        newQueueDescriptor("Retrieve10", "Dicom Retrieve Tasks 10", false),
+        newQueueDescriptor("Retrieve11", "Dicom Retrieve Tasks 11", false),
+        newQueueDescriptor("Retrieve12", "Dicom Retrieve Tasks 12", false),
+        newQueueDescriptor("Retrieve13", "Dicom Retrieve Tasks 13", false),
+        newQueueDescriptor("DiffTasks", "Diff Tasks", true),
+        newQueueDescriptor("Rejection", "Rejection Tasks", true)
     };
 
     static final MetricsDescriptor[] METRICS_DESCRIPTORS = {
@@ -248,10 +248,9 @@ class ArchiveDeviceFactory {
     };
 
     private static QueueDescriptor newQueueDescriptor(
-            String name, String description, TaskProcessorName taskProcessorName, boolean installed) {
+            String name, String description, boolean installed) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
-        desc.setTaskProcessorName(taskProcessorName);
         desc.setMaxRetries(10);
         desc.setRetryDelay(Duration.valueOf("PT30S"));
         desc.setRetryDelayMultiplier(200);

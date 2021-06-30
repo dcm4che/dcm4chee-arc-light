@@ -545,7 +545,6 @@ public class StgCmtEJB {
                                       String batchID, StorageVerificationPolicy storageVerificationPolicy,
                                       Boolean updateLocationStatus, String... storageIDs) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.STG_VERIFIER);
         Task task = new Task();
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
@@ -563,7 +562,8 @@ public class StgCmtEJB {
             gen.writeEnd();
         }
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(StgCmtManager.QUEUE_NAME);
+        task.setProcessor(Task.Processor.STG_VERIFIER);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
@@ -599,7 +599,7 @@ public class StgCmtEJB {
         Root<Task> stgVerTask = q.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(stgVerTask.get(Task_.processor), TaskProcessorName.STG_VERIFIER));
+        predicates.add(cb.equal(stgVerTask.get(Task_.processor), Task.Processor.STG_VERIFIER));
         predicates.add(stgVerTask.get(Task_.status).in(Task.Status.SCHEDULED, Task.Status.IN_PROCESS));
         predicates.add(cb.equal(
                 stgVerTask.get(Task_.studyInstanceUID), storageVerificationTask.getStudyInstanceUID()));

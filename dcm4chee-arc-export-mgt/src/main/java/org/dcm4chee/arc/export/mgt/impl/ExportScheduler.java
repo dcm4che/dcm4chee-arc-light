@@ -113,35 +113,36 @@ public class ExportScheduler extends Scheduler {
                     exporterID, exporterDevice.getDeviceName());
             return;
         }
-        QueueDescriptor queueDesc = arcDev.getQueueDescriptor(exporterDesc.getQueueName());
+        String queueName = exporterDesc.getQueueName();
+        QueueDescriptor queueDesc = arcDev.getQueueDescriptor(queueName);
         if (queueDesc == null) {
             LOG.warn("{}: Failed to process {} - no Queue {} configured on Archive Device {}", session, rule,
-                    exporterDesc.getQueueName(), exporterDevice.getDeviceName());
+                    queueName, exporterDevice.getDeviceName());
             return;
         }
         Date scheduledTime = scheduledTime(now, rule.getExportDelay(), exporterDesc.getSchedules());
         switch (rule.getEntity()) {
             case Study:
-                createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
+                createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueName,
                         ctx.getStudyInstanceUID(), scheduledTime);
                 if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentStudy())
-                    createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
+                    createOrUpdateStudyExportTask(session, exporterDevice.getDeviceName(), exporterID, queueName,
                             ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                             scheduledTime);
                 break;
             case Series:
-                createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
+                createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueName,
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
                         scheduledTime);
                 if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentSeries())
-                    createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
+                    createOrUpdateSeriesExportTask(session, exporterDevice.getDeviceName(), exporterID, queueName,
                             ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
                             ctx.getPreviousInstance().getSeries().getSeriesInstanceUID(),
                             scheduledTime);
                 break;
             case Instance:
-                createOrUpdateInstanceExportTask(session, exporterDevice.getDeviceName(), exporterID, queueDesc,
+                createOrUpdateInstanceExportTask(session, exporterDevice.getDeviceName(), exporterID, queueName,
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
                         ctx.getSopInstanceUID(),
@@ -160,13 +161,13 @@ public class ExportScheduler extends Scheduler {
     }
 
     private boolean createOrUpdateStudyExportTask(StoreSession session, String deviceName, String exporterID,
-                                                  QueueDescriptor queueDesc, String studyIUID, Date scheduledTime) {
+                                                  String queueName, String studyIUID, Date scheduledTime) {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateStudyExportTask(deviceName, exporterID, queueDesc, studyIUID, scheduledTime);
+                ejb.createOrUpdateStudyExportTask(deviceName, exporterID, queueName, studyIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -186,14 +187,14 @@ public class ExportScheduler extends Scheduler {
     }
 
     private boolean createOrUpdateSeriesExportTask(StoreSession session, String deviceName,
-                                                   String exporterID, QueueDescriptor queueDesc,
+                                                   String exporterID, String queueName,
                                                    String studyIUID, String seriesIUID, Date scheduledTime) {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateSeriesExportTask(deviceName, exporterID, queueDesc,
+                ejb.createOrUpdateSeriesExportTask(deviceName, exporterID, queueName,
                         studyIUID, seriesIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {
@@ -214,7 +215,7 @@ public class ExportScheduler extends Scheduler {
     }
 
     private boolean createOrUpdateInstanceExportTask(StoreSession session, String deviceName,
-                                                     String exporterID, QueueDescriptor queueDesc,
+                                                     String exporterID, String queueName,
                                                      String studyIUID, String seriesIUID, String sopIUID,
                                                      Date scheduledTime) {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
@@ -222,7 +223,7 @@ public class ExportScheduler extends Scheduler {
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                ejb.createOrUpdateInstanceExportTask(deviceName, exporterID, queueDesc,
+                ejb.createOrUpdateInstanceExportTask(deviceName, exporterID, queueName,
                         studyIUID, seriesIUID, sopIUID, scheduledTime);
                 return true;
             } catch (EJBException e) {

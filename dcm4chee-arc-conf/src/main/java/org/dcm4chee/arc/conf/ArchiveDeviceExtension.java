@@ -311,7 +311,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
-    private final EnumMap<TaskProcessorName, List<QueueDescriptor>> queuesByTaskProcessor = new EnumMap(TaskProcessorName.class);
     private final Map<String, MetricsDescriptor> metricsDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, PDQServiceDescriptor> pdqServiceDescriptorMap = new HashMap<>();
@@ -1842,34 +1841,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public QueueDescriptor removeQueueDescriptor(String queueName) {
-        QueueDescriptor remove = queueDescriptorMap.remove(queueName);
-        if (remove != null) {
-            queuesByTaskProcessor.get(remove.getTaskProcessorName()).remove(remove);
-        }
-        return remove;
+        return queueDescriptorMap.remove(queueName);
     }
 
     public void addQueueDescriptor(QueueDescriptor descriptor) {
         queueDescriptorMap.put(descriptor.getQueueName(), descriptor);
-        queuesByTaskProcessor
-                .computeIfAbsent(descriptor.getTaskProcessorName(), type -> new ArrayList<>())
-                .add(descriptor);
     }
 
     public Collection<QueueDescriptor> getQueueDescriptors() {
         return queueDescriptorMap.values();
-    }
-
-    public List<QueueDescriptor> queuesOf(TaskProcessorName taskProcessor) {
-        return queuesByTaskProcessor.getOrDefault(taskProcessor, Collections.emptyList());
-    }
-
-    public QueueDescriptor firstQueueOf(TaskProcessorName taskProcessor) {
-        List<QueueDescriptor> queueDescriptors = queuesByTaskProcessor.get(taskProcessor);
-        if (queueDescriptors == null || queueDescriptors.isEmpty()) {
-            throw new IllegalStateException("No Queue configured for " + taskProcessor);
-        }
-        return queueDescriptors.get(0);
     }
 
     public MetricsDescriptor getMetricsDescriptor(String metricsName) {
@@ -3383,8 +3363,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
-        queuesByTaskProcessor.clear();
-        queuesByTaskProcessor.putAll(arcdev.queuesByTaskProcessor);
         metricsDescriptorMap.clear();
         metricsDescriptorMap.putAll(arcdev.metricsDescriptorMap);
         pdqServiceDescriptorMap.clear();

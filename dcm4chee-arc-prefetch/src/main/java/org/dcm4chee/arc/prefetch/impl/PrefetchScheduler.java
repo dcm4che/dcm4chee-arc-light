@@ -111,6 +111,7 @@ public class PrefetchScheduler {
 
     private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev,
                           Calendar now, UnparsedHL7Message hl7Message) {
+        
         try {
             LOG.info("{}: Apply {}", sock, rule);
             Date notRetrievedAfter = new Date(

@@ -2660,7 +2660,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmQueue");
         attrs.put("dcmQueueName", descriptor.getQueueName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", descriptor.getDescription(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTaskProcessorName", descriptor.getTaskProcessorName(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxTasksParallel", descriptor.getMaxTasksParallel(), 1);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", descriptor.getMaxRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
@@ -2689,8 +2688,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 QueueDescriptor desc = new QueueDescriptor(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
-                desc.setTaskProcessorName(
-                        LdapUtils.enumValue(TaskProcessorName.class, attrs.get("dcmTaskProcessorName"), null));
                 desc.setMaxTasksParallel(LdapUtils.intValue(attrs.get("dcmMaxTasksParallel"), 1));
                 desc.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 desc.setRetryDelay(toDuration(attrs.get("dcmRetryDelay"), QueueDescriptor.DEFAULT_RETRY_DELAY));
@@ -2748,8 +2745,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               List<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
                 prev.getDescription(), desc.getDescription(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTaskProcessorName",
-                prev.getTaskProcessorName(), desc.getTaskProcessorName(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxTasksParallel",
                 prev.getMaxTasksParallel(), desc.getMaxTasksParallel(), 1);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);

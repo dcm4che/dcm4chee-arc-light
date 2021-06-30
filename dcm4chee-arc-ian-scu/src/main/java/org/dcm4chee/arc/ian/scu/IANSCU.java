@@ -51,6 +51,8 @@ import org.dcm4chee.arc.qmgt.Outcome;
  * @since Apr 2016
  */
 public interface IANSCU {
+    String QUEUE_NAME = "IANSCU";
+
     Outcome sendIAN(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
 
     DimseRSP sendIANRQ(String localAET, String remoteAET, String sopInstanceUID, Attributes ian)

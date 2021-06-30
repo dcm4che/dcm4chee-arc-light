@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.qmgt;
 
 
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 
 /**
@@ -50,5 +49,5 @@ import org.dcm4chee.arc.entity.Task;
  * @since Jun 2021
  */
 public interface TaskManager {
-    void schedule(Task task, QueueDescriptor queueDesc);
+    void schedule(Task task);
 }

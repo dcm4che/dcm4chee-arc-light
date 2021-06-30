@@ -47,15 +47,19 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.conf.TaskProcessorName;
-import org.dcm4chee.arc.diff.*;
+import org.dcm4chee.arc.diff.DiffBatch;
+import org.dcm4chee.arc.diff.DiffContext;
+import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
@@ -144,8 +148,6 @@ public class DiffServiceImpl implements DiffService {
     }
 
     private void scheduleDiffTask(DiffContext ctx, String queryString) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.DIFF_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -160,7 +162,8 @@ public class DiffServiceImpl implements DiffService {
         }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(QUEUE_NAME);
+        task.setProcessor(Task.Processor.DIFF_SCU);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setBatchID(ctx.getBatchID());
@@ -172,7 +175,7 @@ public class DiffServiceImpl implements DiffService {
         task.setCheckMissing(ctx.isCheckMissing());
         task.setCheckDifferent(ctx.isCheckDifferent());
         task.setCompareFields(ctx.getCompareFields());
-        taskManager.schedule(task, queueDesc);
+        taskManager.schedule(task);
     }
 
     private ScheduledFuture<?> updateDiffTaskAtFixRate(Task diffTask, DiffSCU diffSCU) {

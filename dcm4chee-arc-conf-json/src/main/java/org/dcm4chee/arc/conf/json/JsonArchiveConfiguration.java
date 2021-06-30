@@ -532,7 +532,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmQueueName", qd.getQueueName(), null);
             writer.writeNotNullOrDef("dicomDescription", qd.getDescription(), null);
-            writer.writeNotNullOrDef("dcmTaskProcessorName", qd.getTaskProcessorName(), null);
             writer.writeNotDef("dcmMaxTasksParallel", qd.getMaxTasksParallel(), 1);
             writer.writeNotDef("dcmMaxRetries", qd.getMaxRetries(), 0);
             writer.writeNotEmpty("dcmSchedule", qd.getSchedules());
@@ -2301,9 +2300,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dicomDescription":
                         qd.setDescription(reader.stringValue());
-                        break;
-                    case "dcmTaskProcessorName":
-                        qd.setTaskProcessorName(TaskProcessorName.valueOf(reader.stringValue()));
                         break;
                     case "dcmMaxTasksParallel":
                         qd.setMaxTasksParallel(reader.intValue());

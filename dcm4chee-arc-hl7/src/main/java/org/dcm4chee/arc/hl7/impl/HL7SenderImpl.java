@@ -105,7 +105,7 @@ public class HL7SenderImpl implements HL7Sender {
         String host = ReverseDNS.hostNameOf(event.getSocket().getInetAddress());
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         arcHL7App.hl7ForwardRules()
-                .filter(rule -> rule.getConditions().match(host, hl7Fields))
+                .filter(rule -> rule.match(host, hl7Fields))
                 .map(HL7ForwardRule::getDestinations)
                 .flatMap(Stream::of)
                 .distinct()
@@ -180,8 +180,6 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.HL7_SENDER);
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
         StringWriter sw = new StringWriter();
@@ -199,12 +197,13 @@ public class HL7SenderImpl implements HL7Sender {
         }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(HL7Sender.QUEUE_NAME);
+        task.setProcessor(Task.Processor.HL7_SENDER);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(data);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task, queueDesc);
+        taskManager.schedule(task);
     }
 
 }

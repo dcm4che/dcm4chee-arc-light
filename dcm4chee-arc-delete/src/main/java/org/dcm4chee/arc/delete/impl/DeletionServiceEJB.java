@@ -47,6 +47,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -729,8 +730,6 @@ public class DeletionServiceEJB {
 
     public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                                   HttpServletRequestInfo httpRequest, String batchID) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.REJECT_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -745,11 +744,12 @@ public class DeletionServiceEJB {
         }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(RejectionService.QUEUE_NAME);
+        task.setProcessor(Task.Processor.REJECT_SCU);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
-        taskManager.schedule(task, queueDesc);
+        taskManager.schedule(task);
     }
 }

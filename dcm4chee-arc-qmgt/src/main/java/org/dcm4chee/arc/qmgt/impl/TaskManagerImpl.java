@@ -43,7 +43,6 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 
@@ -67,11 +66,11 @@ public class TaskManagerImpl implements TaskManager {
     private TaskScheduler scheduler;
 
     @Override
-    public void schedule(Task task, QueueDescriptor queueDesc) {
+    public void schedule(Task task) {
         ejb.scheduleTask(task);
         if (task.getScheduledTime().getTime() <= System.currentTimeMillis()) {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            scheduler.process(queueDesc, arcDev.getTaskProcessingFetchSize());
+            scheduler.process(arcDev.getQueueDescriptorNotNull(task.getQueueName()), arcDev.getTaskProcessingFetchSize());
         }
     }
 }

@@ -2036,12 +2036,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.417 NAME 'dcmTaskProcessingFetchSize
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.418 NAME 'dcmTaskProcessorName'
-  DESC 'Name of Task Processor associated with the Queue. Enumerated values: EXPORTER, MOVE_SCU, MPPS_SCU, IAN_SCU, STGCMT_SCP, STGCMT_SCU, STG_VERIFIER, HL7_SENDER, REST_CLIENT, REJECT_SCU, DIFF_SCU.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.419 NAME 'dcmMaxTasksParallel'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.418 NAME 'dcmMaxTasksParallel'
   DESC 'Maximal number of tasks processed in parallel; 1 if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -2501,7 +2496,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmQueueName )
   MAY (
     dicomDescription $
-    dcmTaskProcessorName $
     dcmMaxTasksParallel $
     dcmMaxRetries $
     dcmRetryDelay $

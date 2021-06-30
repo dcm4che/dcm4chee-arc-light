@@ -103,8 +103,6 @@ class MPPSSCUImpl implements MPPSSCU {
         if (ctx.getException() != null)
             return;
 
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.MPPS_SCU);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Calendar now = Calendar.getInstance();
         Attributes mppsAttrs = ctx.getMPPS().getAttributes();
@@ -141,12 +139,12 @@ class MPPSSCUImpl implements MPPSSCU {
                 }
                 Task task = new Task();
                 task.setDeviceName(device.getDeviceName());
-                task.setQueueDescriptor(queueDesc);
+                task.setQueueName(QUEUE_NAME);
                 task.setScheduledTime(new Date());
                 task.setParameters(sw.toString());
                 task.setPayload(ctx.getAttributes());
                 task.setStatus(Task.Status.SCHEDULED);
-                taskManager.schedule(task, queueDesc);
+                taskManager.schedule(task);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",
                         ctx.getDimse(), ctx.getSopInstanceUID(), remoteAET, e);

@@ -163,7 +163,6 @@ class Assert {
             QueueDescriptor expectedQD = expected.getQueueDescriptor(qd.getQueueName());
             QueueDescriptor actualQD = actual.getQueueDescriptor(qd.getQueueName());
             assertEquals(expectedQD.getQueueName(), actualQD.getQueueName());
-            assertEquals(expectedQD.getTaskProcessorName(), actualQD.getTaskProcessorName());
             assertEquals(expectedQD.getDescription(), actualQD.getDescription());
             assertEquals(expectedQD.getMaxRetries(), actualQD.getMaxRetries());
             assertEquals(expectedQD.getRetryDelay(), actualQD.getRetryDelay());

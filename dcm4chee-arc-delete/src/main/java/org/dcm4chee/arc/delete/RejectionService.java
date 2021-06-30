@@ -54,6 +54,8 @@ import java.util.List;
  */
 public interface RejectionService {
 
+    String QUEUE_NAME = "Rejection";
+
     int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                HttpServletRequestInfo httpRequest) throws Exception;
 

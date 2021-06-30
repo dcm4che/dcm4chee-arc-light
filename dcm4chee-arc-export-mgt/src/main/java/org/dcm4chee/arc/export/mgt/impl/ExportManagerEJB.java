@@ -40,14 +40,11 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
@@ -72,7 +69,10 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -98,12 +98,12 @@ public class ExportManagerEJB implements ExportManager {
     private QueueManager queueManager;
 
     @Override
-    public void createOrUpdateStudyExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    public void createOrUpdateStudyExportTask(String deviceName, String exporterID, String queueName,
                                               String studyIUID, Date scheduledTime) {
-        createOrUpdateStudyExportTask(deviceName, exporterID, queueDesc, studyIUID, null, scheduledTime);
+        createOrUpdateStudyExportTask(deviceName, exporterID, queueName, studyIUID, null, scheduledTime);
     }
 
-    private void createOrUpdateStudyExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    private void createOrUpdateStudyExportTask(String deviceName, String exporterID, String queueName,
                                                String studyIUID, String batchID, Date scheduledTime) {
         try {
             Task task = em.createNamedQuery(Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID, Task.class)
@@ -113,14 +113,14 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(deviceName, task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(deviceName, exporterID, queueDesc,
+            createExportTask(deviceName, exporterID, queueName,
                     studyIUID, "*", "*",
                     batchID, scheduledTime, null);
         }
     }
 
     @Override
-    public void createOrUpdateSeriesExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    public void createOrUpdateSeriesExportTask(String deviceName, String exporterID, String queueName,
                                                String studyIUID, String seriesIUID,
                                                Date scheduledTime) {
         try {
@@ -133,14 +133,14 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(deviceName, task, seriesIUID, "*", scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(deviceName, exporterID, queueDesc,
+            createExportTask(deviceName, exporterID, queueName,
                     studyIUID, seriesIUID, "*",
                     null, scheduledTime, null);
         }
     }
 
     @Override
-    public void createOrUpdateInstanceExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    public void createOrUpdateInstanceExportTask(String deviceName, String exporterID, String queueName,
                                                  String studyIUID, String seriesIUID, String sopIUID,
                                                  Date scheduledTime) {
         try {
@@ -154,7 +154,7 @@ public class ExportManagerEJB implements ExportManager {
                     .getSingleResult();
             updateExportTask(deviceName, task, seriesIUID, sopIUID, scheduledTime);
         } catch (NoResultException nre) {
-            createExportTask(deviceName, exporterID, queueDesc,
+            createExportTask(deviceName, exporterID, queueName,
                     studyIUID, seriesIUID, sopIUID,
                     null, scheduledTime, null);
         }
@@ -171,7 +171,7 @@ public class ExportManagerEJB implements ExportManager {
         LOG.debug("Update {}", task);
     }
 
-    private Task createExportTask(String deviceName, String exporterID, QueueDescriptor queueDesc,
+    private Task createExportTask(String deviceName, String exporterID, String queueName,
                                         String studyIUID, String seriesIUID, String sopIUID,
                                         String batchID, Date scheduledTime,
                                         HttpServletRequestInfo httpServletRequestInfo) {
@@ -192,7 +192,8 @@ public class ExportManagerEJB implements ExportManager {
         }
         Task task = new Task();
         task.setDeviceName(deviceName);
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(queueName);
+        task.setProcessor(Task.Processor.EXPORTER);
         task.setParameters(sw.toString());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
@@ -229,14 +230,12 @@ public class ExportManagerEJB implements ExportManager {
     public void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
                                    HttpServletRequestInfo httpServletRequestInfo,
                                    String batchID, String... studyUIDs) {
-        QueueDescriptor queueDesc = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getQueueDescriptorNotNull(exporter.getQueueName());
         Date now = new Date();
         for (String studyUID : studyUIDs) {
             createExportTask(
                     device.getDeviceName(),
                     exporter.getExporterID(),
-                    queueDesc,
+                    exporter.getQueueName(),
                     studyUID,
                     StringUtils.maskNull(seriesUID, "*"),
                     StringUtils.maskNull(objectUID, "*"),
@@ -249,11 +248,14 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                                 String batchID, Date scheduledTime, String... studyUIDs) {
-        QueueDescriptor queueDesc = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getQueueDescriptorNotNull(exporter.getQueueName());
         for (String studyUID : studyUIDs)
             createOrUpdateStudyExportTask(
-                    device.getDeviceName(), exporter.getExporterID(), queueDesc, studyUID, batchID, scheduledTime);
+                    device.getDeviceName(),
+                    exporter.getExporterID(),
+                    exporter.getQueueName(),
+                    studyUID,
+                    batchID,
+                    scheduledTime);
 
         return studyUIDs.length;
     }
@@ -273,12 +275,10 @@ public class ExportManagerEJB implements ExportManager {
         } catch (NoResultException e) {
         }
 
-        QueueDescriptor queueDesc = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getQueueDescriptorNotNull(exporter.getQueueName());
         createExportTask(
                 device.getDeviceName(),
                 exporter.getExporterID(),
-                queueDesc,
+                exporter.getQueueName(),
                 studyUID,
                 "*",
                 "*",

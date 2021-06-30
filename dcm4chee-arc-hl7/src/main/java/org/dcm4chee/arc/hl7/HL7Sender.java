@@ -51,6 +51,8 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
  * @since Jul 2016
  */
 public interface HL7Sender {
+    String QUEUE_NAME = "HL7Send";
+
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                          String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
                          HttpServletRequestInfo httpServletRequestInfo)

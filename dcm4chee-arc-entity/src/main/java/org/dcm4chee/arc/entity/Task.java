@@ -45,7 +45,6 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.conf.TaskProcessorName;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -138,6 +137,20 @@ public class Task {
         }
     }
 
+    public enum Processor {
+        EXPORTER,
+        MOVE_SCU,
+        MPPS_SCU,
+        IAN_SCU,
+        STGCMT_SCP,
+        STGCMT_SCU,
+        STG_VERIFIER,
+        HL7_SENDER,
+        REST_CLIENT,
+        REJECT_SCU,
+        DIFF_SCU
+    }
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
@@ -167,7 +180,7 @@ public class Task {
 
     @Basic(optional = false)
     @Column(name = "processor")
-    private TaskProcessorName processor;
+    private Processor processor;
 
     @Basic(optional = false)
     @Column(name = "task_status")
@@ -353,11 +366,11 @@ public class Task {
         this.errorMessage = errorMessage != null ? StringUtils.truncate(errorMessage, 255) : null;
     }
 
-    public TaskProcessorName getProcessor() {
+    public Processor getProcessor() {
         return processor;
     }
 
-    public void setProcessor(TaskProcessorName processor) {
+    public void setProcessor(Processor processor) {
         this.processor = processor;
     }
 
@@ -367,11 +380,6 @@ public class Task {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
-    }
-
-    public void setQueueDescriptor(QueueDescriptor queueDesc) {
-        queueName = queueDesc.getQueueName();
-        processor = queueDesc.getTaskProcessorName();
     }
 
     public Date getScheduledTime() {

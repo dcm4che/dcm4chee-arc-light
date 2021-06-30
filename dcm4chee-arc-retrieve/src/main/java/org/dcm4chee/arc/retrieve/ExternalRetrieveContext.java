@@ -63,7 +63,6 @@ public class ExternalRetrieveContext {
     private Attributes response;
     private String deviceName;
     private String queueName;
-    private QueueDescriptor queueDescriptor;
     private String batchID;
     private Date scheduledTime;
 
@@ -86,14 +85,6 @@ public class ExternalRetrieveContext {
     public ExternalRetrieveContext setQueueName(String queueName) {
         this.queueName = queueName;
         return this;
-    }
-
-    public QueueDescriptor getQueueDescriptor() {
-        return queueDescriptor;
-    }
-
-    public void setQueueDescriptor(QueueDescriptor queueDescriptor) {
-        this.queueDescriptor = queueDescriptor;
     }
 
     public String getBatchID() {

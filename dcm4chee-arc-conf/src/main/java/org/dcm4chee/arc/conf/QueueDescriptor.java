@@ -12,7 +12,6 @@ public class QueueDescriptor {
 
     private String queueName;
     private String description;
-    private TaskProcessorName taskProcessorName;
     private int maxTasksParallel = 1;
     private int maxRetries = 0;
     private Duration retryDelay = DEFAULT_RETRY_DELAY;
@@ -47,14 +46,6 @@ public class QueueDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public TaskProcessorName getTaskProcessorName() {
-        return taskProcessorName;
-    }
-
-    public void setTaskProcessorName(TaskProcessorName taskProcessorName) {
-        this.taskProcessorName = taskProcessorName;
     }
 
     public int getMaxTasksParallel() {

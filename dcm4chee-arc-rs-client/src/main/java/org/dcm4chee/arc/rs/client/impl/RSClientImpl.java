@@ -45,9 +45,7 @@ import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.conf.TaskProcessorName;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -105,7 +103,6 @@ public class RSClientImpl implements RSClient {
             boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.REST_CLIENT);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -120,12 +117,13 @@ public class RSClientImpl implements RSClient {
         }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(QUEUE_NAME);
+        task.setProcessor(Task.Processor.REST_CLIENT);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(content);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task, queueDesc);
+        taskManager.schedule(task);
     }
 
     @Override

@@ -107,12 +107,10 @@ public class TaskScheduler extends Scheduler {
     private void process(QueueDescriptor desc, List<Long> pks) {
         if (inProcess.add(desc.getQueueName()))
             try {
-                TaskProcessor processor = taskProcessors.select(
-                        new NamedQualifier(desc.getTaskProcessorName().name())).get();
                 if (desc.getMaxTasksParallel() > 1)
-                    processTasksParallel(desc, processor, pks);
+                    processTasksParallel(desc, pks);
                 else
-                    processTasksSequential(desc, processor, pks);
+                    processTasksSequential(desc, pks);
             } catch (Throwable e) {
                 LOG.warn("Processing Tasks from {} throws:\n", desc, e);
             } finally {
@@ -120,7 +118,7 @@ public class TaskScheduler extends Scheduler {
             }
     }
 
-    private void processTasksSequential(QueueDescriptor desc, TaskProcessor processor, List<Long> pks) {
+    private void processTasksSequential(QueueDescriptor desc, List<Long> pks) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         String queueName = desc.getQueueName();
         do {
@@ -131,7 +129,7 @@ public class TaskScheduler extends Scheduler {
                 }
                 Task task = onProcessingStart(pk);
                 if (task != null) {
-                    processTask(processor, task);
+                    processTask(task);
                 }
             }
         } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
@@ -146,7 +144,7 @@ public class TaskScheduler extends Scheduler {
         }
     }
 
-    private void processTasksParallel(QueueDescriptor desc, TaskProcessor processor, List<Long> pks)
+    private void processTasksParallel(QueueDescriptor desc, List<Long> pks)
             throws InterruptedException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         String queueName = desc.getQueueName();
@@ -166,7 +164,7 @@ public class TaskScheduler extends Scheduler {
                         if (task != null) {
                             device.execute(() -> {
                                 try {
-                                    processTask(processor, task);
+                                    processTask(task);
                                 } finally {
                                     semaphore.release();
                                 }
@@ -184,8 +182,10 @@ public class TaskScheduler extends Scheduler {
         } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskProcessingFetchSize())).isEmpty());
     }
 
-    private void processTask(TaskProcessor processor, Task task) {
+    private void processTask(Task task) {
         try {
+            TaskProcessor processor = taskProcessors.select(
+                    new NamedQualifier(task.getProcessor().name())).get();
             Outcome outcome = processor.process(task);
             ejb.onProcessingSuccessful(task.getPk(), outcome);
         } catch (Exception e) {

@@ -49,5 +49,7 @@ import org.dcm4chee.arc.qmgt.Outcome;
  * @since Sep 2015
  */
 public interface StgCmtSCP {
+    String QUEUE_NAME = "StgCmtSCP";
+
     Outcome sendNEventReport(String localAET, ApplicationEntity remoteAE, Attributes eventInfo) throws Exception;
 }

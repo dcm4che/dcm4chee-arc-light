@@ -145,8 +145,6 @@ public class IANEJB {
     }
 
     public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor queueDesc = arcDev.firstQueueOf(TaskProcessorName.IAN_SCU);
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
@@ -157,12 +155,13 @@ public class IANEJB {
         }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
-        task.setQueueDescriptor(queueDesc);
+        task.setQueueName(IANSCU.QUEUE_NAME);
+        task.setProcessor(Task.Processor.IAN_SCU);
         task.setScheduledTime(new Date());
         task.setParameters(sw.toString());
         task.setPayload(attrs);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task, queueDesc);
+        taskManager.schedule(task);
     }
 
     public void removeIANTask(IanTask task) {

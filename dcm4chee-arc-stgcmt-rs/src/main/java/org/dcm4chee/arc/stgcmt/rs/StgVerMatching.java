@@ -41,16 +41,18 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.conf.TaskProcessorName;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.ExpirationState;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.Query;
@@ -63,8 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
@@ -73,7 +73,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.List;
 
 /**
