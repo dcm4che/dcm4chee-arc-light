@@ -41,3 +41,8 @@ dcmProperty: actions=study-reject-export,study-reject,study-export
 -
 add: dcmProperty
 dcmProperty: actions=study-reject,study-export,study-reimport
+
+dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 0032000A

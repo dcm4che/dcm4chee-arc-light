@@ -2392,6 +2392,7 @@ dcmTag: 001021C0
 dcmTag: 001021D0
 dcmTag: 00102203
 dcmTag: 0020000D
+dcmTag: 0032000A
 dcmTag: 00321031
 dcmTag: 00321032
 dcmTag: 00321033
