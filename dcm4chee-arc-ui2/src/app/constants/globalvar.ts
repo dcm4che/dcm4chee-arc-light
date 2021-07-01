@@ -1077,14 +1077,13 @@ export class Globalvar {
                     type:"text",
                     filterKey:"StudyStatusID",
                     options:[
-                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
-                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
-                        new SelectDropdown("READY", $localize `:@@READY:READY`),
-                        new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
+                        new SelectDropdown("CREATED", $localize `:@@CREATED:CREATED`),
                         new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
+                        new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
+                        new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
                         new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
-                        new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
-                        new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`)
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                        new SelectDropdown("READ", $localize `:@@READ:READ`)
                     ],
                     showStar:true,
                     description:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`,
