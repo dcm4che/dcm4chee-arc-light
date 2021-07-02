@@ -42,9 +42,11 @@ package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -67,6 +69,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -99,6 +103,9 @@ public class ExporterRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @Context
     private HttpServletRequest request;
@@ -169,12 +176,31 @@ public class ExporterRS {
             if (exporter == null) {
                 return errResponse("No such Exporter: " + exporterID, Response.Status.NOT_FOUND);
             }
-            exportManager.scheduleExportTask(seriesUID, objectUID, exporter,
-                    HttpServletRequestInfo.valueOf(request), batchID, studyUID);
+            exportManager.createExportTask(
+                    device.getDeviceName(),
+                    exporter.getExporterID(),
+                    exporter.getQueueName(),
+                    studyUID,
+                    seriesUID,
+                    objectUID,
+                    batchID,
+                    scheduledTime(),
+                    HttpServletRequestInfo.valueOf(request));
             return Response.accepted().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+
+        return new Date();
     }
 
     private Response dicomExport(String studyUID, String seriesUID, String objectUID, String destAET)

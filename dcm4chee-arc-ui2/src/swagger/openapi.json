@@ -96,10 +96,6 @@
       "description": "Export Instances"
     },
     {
-      "name": "EXPORT-LEGACY-RS",
-      "description": "Export Matching Instances - Legacy"
-    },
-    {
       "name": "IMPORT-RS",
       "description": "Import Instances"
     },
@@ -914,27 +910,6 @@
     },
     "/aets/{aet}/stgver/studies/{study}/series/{series}/instances": {
       "$ref": "paths/legacy.json#/stgver.studies.series.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
-      "$ref": "paths/legacy.json#/export.studies.csv"
-    },
-    "/aets/{aet}/export/{exporterID}/studies": {
-      "$ref": "paths/legacy.json#/export.studies"
-    },
-    "/aets/{aet}/export/{exporterID}/series": {
-      "$ref": "paths/legacy.json#/export.series"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/export.studies.series"
-    },
-    "/aets/{aet}/export/{exporterID}/instances": {
-      "$ref": "paths/legacy.json#/export.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/export.studies.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/export.studies.series.instances"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies"

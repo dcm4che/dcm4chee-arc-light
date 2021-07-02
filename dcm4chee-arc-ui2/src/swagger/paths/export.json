@@ -17,6 +17,9 @@
           "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -67,6 +70,9 @@
         },
         {
           "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/batchID"
@@ -122,6 +128,9 @@
         },
         {
           "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/batchID"
@@ -239,6 +248,9 @@
           "$ref": "../parameters.json#/storageExported"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -348,6 +360,9 @@
           "$ref": "../parameters.json#/storageExported"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -452,6 +467,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/batchID"
@@ -566,6 +584,9 @@
           "$ref": "../parameters.json#/storageExported"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -675,6 +696,9 @@
           "$ref": "../parameters.json#/storageExported"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -781,6 +805,9 @@
           "$ref": "../parameters.json#/storageExported"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/batchID"
         }
       ],
@@ -819,6 +846,9 @@
         },
         {
           "$ref": "../parameters.json#/csvFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/batchID"

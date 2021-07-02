@@ -42,7 +42,6 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.*;
@@ -171,7 +170,8 @@ public class ExportManagerEJB implements ExportManager {
         LOG.debug("Update {}", task);
     }
 
-    private Task createExportTask(String deviceName, String exporterID, String queueName,
+    @Override
+    public Task createExportTask(String deviceName, String exporterID, String queueName,
                                         String studyIUID, String seriesIUID, String sopIUID,
                                         String batchID, Date scheduledTime,
                                         HttpServletRequestInfo httpServletRequestInfo) {
@@ -224,40 +224,6 @@ public class ExportManagerEJB implements ExportManager {
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
         scheduleExportTask(exportTask, exporter, null, null);
         return true;
-    }
-
-    @Override
-    public void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   HttpServletRequestInfo httpServletRequestInfo,
-                                   String batchID, String... studyUIDs) {
-        Date now = new Date();
-        for (String studyUID : studyUIDs) {
-            createExportTask(
-                    device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
-                    studyUID,
-                    StringUtils.maskNull(seriesUID, "*"),
-                    StringUtils.maskNull(objectUID, "*"),
-                    batchID,
-                    now,
-                    httpServletRequestInfo);
-        }
-    }
-
-    @Override
-    public int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                String batchID, Date scheduledTime, String... studyUIDs) {
-        for (String studyUID : studyUIDs)
-            createOrUpdateStudyExportTask(
-                    device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
-                    studyUID,
-                    batchID,
-                    scheduledTime);
-
-        return studyUIDs.length;
     }
 
     @Override
@@ -421,25 +387,6 @@ public class ExportManagerEJB implements ExportManager {
             queueManager.rescheduleTask(task.getQueueMessage().getPk(), exporter.getQueueName(), queueEvent, new Date());
             LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         }
-    }
-
-    @Override
-    public void markForExportTask(
-            Long pk, String deviceName, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-            QueueMessageEvent queueEvent, Date scheduledTime) {
-        ExportTask task = em.find(ExportTask.class, pk);
-        if (task == null)
-            return;
-
-        LOG.info("Mark {} for export on device {} with exporter {}", task, deviceName, exporter);
-        task.setExporterID(exporter.getExporterID());
-        task.setDeviceName(deviceName);
-        task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
-        if (task.getQueueMessage() == null)
-            return;
-
-        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
-        task.setQueueMessage(null);
     }
 
     @Override

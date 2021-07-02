@@ -72,15 +72,14 @@ public interface ExportManager {
                                           String studyIUID, String seriesIUID, String sopIUID,
                                           Date scheduledTime);
 
+    Task createExportTask(String deviceName, String exporterID, String queueName,
+                          String studyIUID, String seriesIUID, String sopIUID,
+                          String batchID, Date scheduledTime,
+                          HttpServletRequestInfo httpServletRequestInfo);
+
     List<Long> findExportTasksToSchedule(int fetchSize);
 
     boolean scheduleExportTask(Long pk);
-
-    void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUID);
-
-    int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                         String batchID, Date scheduledTime, String... studyUIDs);
 
     boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
 
@@ -99,9 +98,6 @@ public interface ExportManager {
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
                               QueueMessageEvent queueEvent, Date scheduledTime);
-
-    void markForExportTask(Long pk, String deviceName, ExporterDescriptor exporter,
-                         HttpServletRequestInfo httpServletRequestInfo, QueueMessageEvent queueEvent, Date scheduledTime);
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
 
