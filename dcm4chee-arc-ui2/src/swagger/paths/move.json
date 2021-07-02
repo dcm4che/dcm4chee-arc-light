@@ -294,6 +294,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -343,6 +346,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -407,6 +413,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -476,6 +485,9 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
           "$ref": "../parameters.json#/priority"
         },
         {
@@ -538,6 +550,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -605,6 +620,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/priority"
@@ -675,6 +693,9 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/priority"

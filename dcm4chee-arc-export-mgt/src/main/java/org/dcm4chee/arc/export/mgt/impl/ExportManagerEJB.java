@@ -229,7 +229,7 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public boolean scheduleStudyExport(
             String studyUID, ExporterDescriptor exporter,
-            Date notExportedAfter, String batchID) {
+            Date notExportedAfter, String batchID, Date scheduledTime) {
         try {
             ExportTask prevTask = em.createNamedQuery(ExportTask.FIND_STUDY_EXPORT_AFTER, ExportTask.class)
                     .setParameter(1, notExportedAfter)
@@ -249,7 +249,7 @@ public class ExportManagerEJB implements ExportManager {
                 "*",
                 "*",
                 batchID,
-                new Date(),
+                scheduledTime,
                 null);
         return true;
     }

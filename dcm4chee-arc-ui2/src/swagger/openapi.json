@@ -84,10 +84,6 @@
       "description": "Invoke C-MOVE requests on external C-MOVE SCP"
     },
     {
-      "name": "MOVE-LEGACY-RS",
-      "description": "Invoke C-MOVE requests on external C-MOVE SCP - Legacy"
-    },
-    {
       "name": "DIFF-RS",
       "description": "Compare Studies with/between external Archive(s)"
     },
@@ -940,15 +936,6 @@
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find.instances"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.studies"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.series"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.instances"
     },
     "/aets/{aet}/rs/studies/workitems": {
       "$ref": "paths/workitems.json#/local.studies"

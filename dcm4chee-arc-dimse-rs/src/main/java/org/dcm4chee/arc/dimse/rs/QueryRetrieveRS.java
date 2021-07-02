@@ -77,7 +77,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -179,8 +178,7 @@ public class QueryRetrieveRS {
     public Response queryRetrieveMatchingStudies(
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET
-        );
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET);
     }
 
     @POST
@@ -189,10 +187,8 @@ public class QueryRetrieveRS {
     public Response queryRetrieveMatchingSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET
-        );
+            @PathParam("DestinationAET") String destAET){
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET);
     }
 
     @POST
@@ -202,10 +198,8 @@ public class QueryRetrieveRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET
-        );
+            @PathParam("DestinationAET") String destAET) {
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET);
     }
 
     @POST
@@ -213,8 +207,7 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingStudies(
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, destAET
-        );
+        return process(QueryRetrieveLevel2.STUDY, null, null, destAET);
     }
 
     @POST
@@ -222,10 +215,8 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET
-        );
+            @PathParam("DestinationAET") String destAET) {
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET);
     }
 
     @POST
@@ -234,45 +225,8 @@ public class QueryRetrieveRS {
     public Response retrieveMatchingInstances(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET
-        );
-    }
-
-    @POST
-    @Path("/studies/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingStudiesLegacy(
-            @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET
-        );
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingSeriesLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-            {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET
-        );
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingInstancesLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-            {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET
-        );
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET);
     }
 
     @POST
@@ -283,10 +237,10 @@ public class QueryRetrieveRS {
             @PathParam("field") int field,
             @PathParam("destinationAET") String destAET,
             InputStream in) {
-        return processCSV(field, destAET, in, this::scheduleRetrieveTask);
+        return processCSV(field, destAET, in);
     }
 
-    private Response processCSV(int field, String destAET, InputStream in, Function<ExternalRetrieveContext, Integer> action) {
+    private Response processCSV(int field, String destAET, InputStream in) {
         try {
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
@@ -320,12 +274,12 @@ public class QueryRetrieveRS {
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize) {
-                        count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
+                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
                         studyUIDs.clear();
                     }
                 }
                 if (!studyUIDs.isEmpty())
-                    count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
+                    count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed.";

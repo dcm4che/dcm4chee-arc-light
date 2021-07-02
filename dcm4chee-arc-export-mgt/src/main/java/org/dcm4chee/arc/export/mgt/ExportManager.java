@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.export.mgt;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -81,7 +80,7 @@ public interface ExportManager {
 
     boolean scheduleExportTask(Long pk);
 
-    boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
+    boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID, Date scheduledTime);
 
     boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
 
