@@ -40,15 +40,21 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.EventIdentification;
+import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.ParticipantObjectIdentificationBuilder;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
@@ -56,31 +62,37 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
-import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.ConnectionEvent;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.pdq.PDQServiceContext;
-import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -88,7 +100,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -352,7 +367,14 @@ public class AuditService {
     }
 
     void spoolPDQ(PDQServiceContext ctx) {
-
+        try {
+            writeSpoolFile(PDQAuditService.auditInfo(ctx, getArchiveDevice()),
+                    AuditUtils.EventType.PAT_DEMO_Q,
+                    ctx.getHl7Msg().data(),
+                    ctx.getRsp().data());
+        } catch (Exception e) {
+            LOG.info("Failed to spool PDQ for {}", ctx);
+        }
     }
 
     void spoolQuery(QueryContext ctx) {
@@ -435,7 +457,9 @@ public class AuditService {
 
     private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
-                QueryAuditService.auditMsg(auditLogger, path, eventType),
+                eventType.eventTypeCode == AuditMessages.EventTypeCode.ITI_21_PatientDemographicsQuery
+                        ? PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache)
+                        : QueryAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
     }
 

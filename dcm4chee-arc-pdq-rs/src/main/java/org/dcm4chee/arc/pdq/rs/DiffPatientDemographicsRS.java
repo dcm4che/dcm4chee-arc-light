@@ -360,6 +360,7 @@ public class DiffPatientDemographicsRS {
         try {
             PDQServiceContext ctx = new PDQServiceContext(IDWithIssuer.pidOf(match));
             ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+            ctx.setSearchMethod(PDQServiceContext.SearchMethod.DiffPatientDemographics);
             return service.query(ctx);
         } catch (PDQServiceException e) {
             throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));

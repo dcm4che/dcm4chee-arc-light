@@ -65,6 +65,7 @@ import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,20 +79,27 @@ public class HL7PDQService extends AbstractPDQService {
     private final Device device;
     private final IHL7ApplicationCache hl7AppCache;
     private final HL7Sender hl7Sender;
+    private final Event<PDQServiceContext> pdqEvent;
     private final String msh3456;
+    private PDQServiceContext pdqServiceCtx;
 
     public HL7PDQService(PDQServiceDescriptor descriptor, Device device, IHL7ApplicationCache hl7AppCache,
-                         HL7Sender hl7Sender) {
+                         HL7Sender hl7Sender, Event<PDQServiceContext> pdqEvent) {
         super(descriptor);
         this.device = device;
         this.hl7AppCache = hl7AppCache;
         this.hl7Sender = hl7Sender;
+        this.pdqEvent = pdqEvent;
         this.msh3456 = descriptor.getPDQServiceURI().getSchemeSpecificPart();
     }
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
-        return query(ctx.getPatientID());
+        setPdqServiceCtx(ctx);
+        Attributes demographics = query(ctx.getPatientID());
+        ctx.setPatientAttrs(demographics);
+        pdqEvent.fire(pdqServiceCtx);
+        return demographics;
     }
 
     @Override
@@ -112,7 +120,12 @@ public class HL7PDQService extends AbstractPDQService {
 
         HL7Application sender = sender(appFacility[0].replace('/', '|'));
         HL7Application receiver = receiver(appFacility[1].replace('/', '|'));
+        pdqServiceCtx.setReceivingAppFacility(receiver.getApplicationName());
         return query(queryParams(pid), sender, receiver, xslStylesheetURI);
+    }
+
+    public void setPdqServiceCtx(PDQServiceContext pdqServiceCtx) {
+        this.pdqServiceCtx = pdqServiceCtx;
     }
 
     private HL7Application sender(String sendingAppFacility) throws PDQServiceException {
@@ -122,6 +135,7 @@ public class HL7PDQService extends AbstractPDQService {
             throw new PDQServiceException(
                     "Sending HL7 Application " + sendingAppFacility + " not configured; used in " + descriptor);
 
+        pdqServiceCtx.setSendingAppFacility(sender.getApplicationName());
         return sender;
     }
 
@@ -143,14 +157,16 @@ public class HL7PDQService extends AbstractPDQService {
             msh.setReceivingApplicationWithFacility(receiver.getApplicationName());
             msh.setField(17, sender.getHL7SendingCharacterSet());
             UnparsedHL7Message msg = new UnparsedHL7Message(qbp.getBytes(sender.getHL7SendingCharacterSet()));
-            UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, msg);
-            return parseRsp(rsp, sender, xslStylesheetURI);
+            pdqServiceCtx.setHl7Msg(msg);
+            pdqServiceCtx.setRsp(hl7Sender.sendMessage(sender, receiver, msg));
+            return parseRsp(sender, xslStylesheetURI);
         } catch (Exception e) {
             throw new PDQServiceException(e);
         }
     }
 
-    private Attributes parseRsp(UnparsedHL7Message rsp, HL7Application sender, String xslStylesheetURI) throws HL7Exception {
+    private Attributes parseRsp(HL7Application sender, String xslStylesheetURI) throws HL7Exception {
+        UnparsedHL7Message rsp = pdqServiceCtx.getRsp();
         HL7Message hl7RspMsg = HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet());
         HL7Segment msa = hl7RspMsg.getSegment("MSA");
         if (msa == null)

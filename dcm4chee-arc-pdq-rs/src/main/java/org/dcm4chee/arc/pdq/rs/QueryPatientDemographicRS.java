@@ -60,7 +60,10 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -104,6 +107,7 @@ public class QueryPatientDemographicRS {
 
             PDQServiceContext ctx = new PDQServiceContext(patientID);
             ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+            ctx.setSearchMethod(PDQServiceContext.SearchMethod.QueryPatientDemographics);
             attrs = serviceFactory.getPDQService(descriptor).query(ctx);
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);

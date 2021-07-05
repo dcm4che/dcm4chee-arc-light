@@ -40,7 +40,9 @@
 
 package org.dcm4chee.arc.pdq;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 /**
@@ -49,8 +51,21 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
  */
 public class PDQServiceContext {
 
+    public enum SearchMethod {
+        DiffPatientDemographics,
+        UpdatePatientDemographics,
+        QueryPatientDemographics,
+        PatientVerificationScheduler
+    }
+
     private final IDWithIssuer patientID;
     private HttpServletRequestInfo httpServletRequestInfo;
+    private SearchMethod searchMethod;
+    private UnparsedHL7Message hl7Msg;
+    private UnparsedHL7Message rsp;
+    private String sendingAppFacility;
+    private String receivingAppFacility;
+    private Attributes patientAttrs;
 
     public PDQServiceContext(IDWithIssuer patientID) {
         this.patientID = patientID;
@@ -66,5 +81,63 @@ public class PDQServiceContext {
 
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    public String getSearchMethod() {
+        return searchMethod.name();
+    }
+
+    public void setSearchMethod(SearchMethod searchMethod) {
+        this.searchMethod = searchMethod;
+    }
+
+    public UnparsedHL7Message getHl7Msg() {
+        return hl7Msg;
+    }
+
+    public void setHl7Msg(UnparsedHL7Message hl7Msg) {
+        this.hl7Msg = hl7Msg;
+    }
+
+    public UnparsedHL7Message getRsp() {
+        return rsp;
+    }
+
+    public void setRsp(UnparsedHL7Message rsp) {
+        this.rsp = rsp;
+    }
+
+    public String getSendingAppFacility() {
+        return sendingAppFacility;
+    }
+
+    public void setSendingAppFacility(String sendingAppFacility) {
+        this.sendingAppFacility = sendingAppFacility;
+    }
+
+    public String getReceivingAppFacility() {
+        return receivingAppFacility;
+    }
+
+    public void setReceivingAppFacility(String receivingAppFacility) {
+        this.receivingAppFacility = receivingAppFacility;
+    }
+
+    public Attributes getPatientAttrs() {
+        return patientAttrs;
+    }
+
+    public void setPatientAttrs(Attributes patientAttrs) {
+        this.patientAttrs = patientAttrs;
+    }
+
+    @Override
+    public String toString() {
+        return "PDQServiceContext[sender=" + sendingAppFacility
+                + ", receiver=" + receivingAppFacility
+                + ", patientID=" + patientID
+                + ", httpServletRequestInfo=" + httpServletRequestInfo
+                + ", searchMethod=" + searchMethod
+                + "]";
     }
 }

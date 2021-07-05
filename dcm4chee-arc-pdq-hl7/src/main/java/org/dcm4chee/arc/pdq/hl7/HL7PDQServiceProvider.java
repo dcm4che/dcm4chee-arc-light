@@ -46,9 +46,11 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.pdq.PDQService;
+import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceProvider;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -68,8 +70,11 @@ public class HL7PDQServiceProvider implements PDQServiceProvider {
     @Inject
     private HL7Sender hl7Sender;
 
+    @Inject
+    private Event<PDQServiceContext> pdqEvent;
+
     @Override
     public PDQService getPDQService(PDQServiceDescriptor descriptor) {
-        return new HL7PDQService(descriptor, device, hl7AppCache, hl7Sender);
+        return new HL7PDQService(descriptor, device, hl7AppCache, hl7Sender, pdqEvent);
     }
 }

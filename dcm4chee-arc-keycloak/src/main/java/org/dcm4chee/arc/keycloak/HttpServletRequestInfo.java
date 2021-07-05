@@ -134,4 +134,15 @@ public class HttpServletRequestInfo {
         this.contentType = headers.getMediaType();
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "HttpServletRequestInfo[requesterUserID=" + requesterUserID
+                + ", requesterHost=" + requesterHost
+                + ", requesterPort=" + requesterPort
+                + ", requesterURI=" + requestURI
+                + ", queryString=" + queryString
+                + ", localHost=" + localHost
+                + "]";
+    }
 }

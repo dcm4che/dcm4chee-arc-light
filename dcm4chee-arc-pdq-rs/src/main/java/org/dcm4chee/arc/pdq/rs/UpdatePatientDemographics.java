@@ -126,6 +126,7 @@ public class UpdatePatientDemographics {
                                                                         ? patientID.withoutIssuer()
                                                                         : patientID);
                 pdqServiceCtx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
+                pdqServiceCtx.setSearchMethod(PDQServiceContext.SearchMethod.UpdatePatientDemographics);
                 attrs = serviceFactory.getPDQService(descriptor).query(pdqServiceCtx);
             } catch (PDQServiceException e) {
                 ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);
