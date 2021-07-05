@@ -52,7 +52,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 public class PDQServiceContext {
 
     public enum SearchMethod {
-        DiffPatientDemographics,
+        ComparePatientDemographics,
         UpdatePatientDemographics,
         QueryPatientDemographics,
         PatientVerificationScheduler
