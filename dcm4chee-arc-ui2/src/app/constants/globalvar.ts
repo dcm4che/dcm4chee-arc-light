@@ -795,6 +795,12 @@ export class Globalvar {
                 msg:$localize `:@@dynamic_formatter.keycloak_client:Create first a Keycloak Client!`,
                 pathInDevice:'dcmDevice.dcmKeycloakClient'
             },
+            dcmPDQServiceID:{
+                key:'dcmPDQServiceID',
+                labelKey:'{dcmPDQServiceID}',
+                msg:$localize `:@@dynamic_formatter.pdq_service:Create a PDQ Service Descriptor first!`,
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmPDQService'
+            },
             dcmWebApp:{
                 key:'dcmWebAppName',
                 labelKey:'{dcmWebAppName}',
