@@ -145,7 +145,7 @@ public class DiffServiceEJB {
     }
 
     private <T> CriteriaQuery<T> select(Class<T> claszz, SingularAttribute<QueueMessage, T> attribute,
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
+                                        TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> q = cb.createQuery(claszz);
         Root<DiffTask> diffTask = q.from(DiffTask.class);

@@ -178,14 +178,6 @@ public class ExportManagerEJB implements ExportManager {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
-            gen.write("StudyInstanceUID", studyIUID);
-            if (!seriesIUID.equals("*")) {
-                gen.write("SeriesInstanceUID", seriesIUID);
-                if (!sopIUID.equals("*")) {
-                    gen.write("SOPInstanceUID", sopIUID);
-                }
-            }
-            gen.write("ExporterID", exporterID);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.writeTo(gen);
             gen.writeEnd();
@@ -673,7 +665,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private CriteriaQuery<Long> select(SingularAttribute<QueueMessage, Long> attribute,
-                                         TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
+                                       TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<ExportTask> exportTask = q.from(ExportTask.class);

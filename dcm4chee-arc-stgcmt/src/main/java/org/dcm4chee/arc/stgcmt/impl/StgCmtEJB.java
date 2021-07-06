@@ -516,7 +516,7 @@ public class StgCmtEJB {
     }
 
     private <T> CriteriaQuery<T> select(Class<T> clazz, SingularAttribute<QueueMessage, T> attribute,
-                                         TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
+                                        TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> q = cb.createQuery(clazz);
         Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
@@ -549,14 +549,6 @@ public class StgCmtEJB {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
-            gen.write("LocalAET", localAET);
-            gen.write("StudyInstanceUID", studyInstanceUID);
-            if (qrlevel != QueryRetrieveLevel2.STUDY) {
-                gen.write("SeriesInstanceUID", seriesInstanceUID);
-                if (qrlevel == QueryRetrieveLevel2.IMAGE) {
-                    gen.write("SOPInstanceUID", sopInstanceUID);
-                }
-            }
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.writeTo(gen);
             gen.writeEnd();

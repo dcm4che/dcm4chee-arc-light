@@ -43,6 +43,10 @@ package org.dcm4chee.arc.qmgt;
 
 
 import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
+
+import javax.ws.rs.core.StreamingOutput;
+import java.util.function.Consumer;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -50,4 +54,10 @@ import org.dcm4chee.arc.entity.Task;
  */
 public interface TaskManager {
     void schedule(Task task);
+
+    long countTasks(TaskQueryParam1 taskQueryParam);
+
+    void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action);
+
+    StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit);
 }

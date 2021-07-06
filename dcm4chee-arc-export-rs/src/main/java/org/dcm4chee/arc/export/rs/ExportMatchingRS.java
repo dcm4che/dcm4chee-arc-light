@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.impl.TaskScheduler;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -82,67 +83,97 @@ import java.util.Date;
 @Path("aets/{AETitle}/rs")
 @InvokeValidate(type = ExportMatchingRS.class)
 public class ExportMatchingRS {
+
     private static final Logger LOG = LoggerFactory.getLogger(ExportMatchingRS.class);
+
     @PathParam("AETitle")
     private String aet;
+
     @Context
     private HttpServletRequest request;
+
     @Context
     private UriInfo uriInfo;
+
     @Inject
     private Device device;
+
     @Inject
     private QueryService queryService;
+
     @Inject
     private ExportManager exportManager;
+
+    @Inject
+    private TaskScheduler taskScheduler;
+
     @Inject
     private RunInTransaction runInTx;
+
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
+
     private String fuzzymatching;
     @QueryParam("incomplete")
     @Pattern(regexp = "true|false")
+
     private String incomplete;
     @QueryParam("retrievefailed")
     @Pattern(regexp = "true|false")
+
     private String retrievefailed;
     @QueryParam("storageVerificationFailed")
     @Pattern(regexp = "true|false")
+
     private String storageVerificationFailed;
     @QueryParam("metadataUpdateFailed")
     @Pattern(regexp = "true|false")
+
     private String metadataUpdateFailed;
     @QueryParam("compressionfailed")
     @Pattern(regexp = "true|false")
+
     private String compressionfailed;
     @QueryParam("ExpirationDate")
+
     private String expirationDate;
     @QueryParam("ExternalRetrieveAET")
+
     private String externalRetrieveAET;
+
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
+
     @QueryParam("patientVerificationStatus")
     @Pattern(regexp = "UNVERIFIED|VERIFIED|NOT_FOUND|VERIFICATION_FAILED")
     private String patientVerificationStatus;
+
     @QueryParam("batchID")
     private String batchID;
+
     @QueryParam("storageID")
     private String storageID;
+
     @QueryParam("storageClustered")
     @Pattern(regexp = "true|false")
     private String storageClustered;
+
     @QueryParam("storageExported")
     @Pattern(regexp = "true|false")
     private String storageExported;
+
     @QueryParam("allOfModalitiesInStudy")
     @Pattern(regexp = "true|false")
     private String allOfModalitiesInStudy;
+
     @QueryParam("StudySizeInKB")
     @Pattern(regexp = "\\d{1,9}(-\\d{0,9})?|-\\d{1,9}")
     private String studySizeInKB;
+
     @QueryParam("ExpirationState")
     @Pattern(regexp = "UPDATEABLE|FROZEN|REJECTED|EXPORT_SCHEDULED|FAILED_TO_EXPORT|FAILED_TO_REJECT")
     private String expirationState;
+
     @QueryParam("scheduledTime")
     private String scheduledTime;
 
@@ -258,6 +289,11 @@ public class ExportMatchingRS {
                 count = exportMatchingObjects.getCount();
                 status = exportMatchingObjects.getStatus();
                 warning = exportMatchingObjects.getWarning();
+            }
+            if (count > 0 && scheduledTime == null) {
+                taskScheduler.process(
+                        arcDev.getQueueDescriptorNotNull(exporter.getQueueName()),
+                        arcDev.getTaskFetchSize());
             }
             Response.ResponseBuilder builder = Response.status(status);
             if (warning != null) {

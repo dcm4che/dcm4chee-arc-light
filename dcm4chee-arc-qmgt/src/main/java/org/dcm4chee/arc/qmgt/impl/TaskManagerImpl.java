@@ -45,9 +45,19 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -73,4 +83,55 @@ public class TaskManagerImpl implements TaskManager {
             scheduler.process(arcDev.getQueueDescriptorNotNull(task.getQueueName()), arcDev.getTaskFetchSize());
         }
     }
+
+    @Override
+    public void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action) {
+        ejb.forEachTask(taskQueryParam, offset, limit, action);
+    }
+
+    @Override
+    public StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+        return new WriteAsJSON(taskQueryParam, offset, limit);
+    }
+
+    @Override
+    public long countTasks(TaskQueryParam1 taskQueryParam) {
+        return ejb.countTasks(taskQueryParam);
+    }
+
+    private class WriteAsJSON implements StreamingOutput {
+        final TaskQueryParam1 taskQueryParam;
+        final int offset;
+        final int limit;
+        int count;
+
+        private WriteAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+            this.taskQueryParam = taskQueryParam;
+            this.offset = offset;
+            this.limit = limit;
+        }
+
+        @Override
+        public void write(OutputStream out) throws IOException, WebApplicationException {
+            Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+            w.write('[');
+            try {
+                forEachTask(taskQueryParam, offset, limit,
+                        task -> {
+                            try {
+                                if (count++ > 0) w.write(',');
+                                task.writeAsJSON(w);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof IOException) throw (IOException) e.getCause();
+                throw new WebApplicationException(e);
+            }
+            w.write(']');
+            w.flush();
+        }
+    }
+
 }

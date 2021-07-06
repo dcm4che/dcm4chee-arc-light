@@ -151,11 +151,7 @@ public class DiffServiceImpl implements DiffService {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
-            gen.write("LocalAET", ctx.getLocalAE().getAETitle());
-            gen.write("PrimaryAET", ctx.getPrimaryAE().getAETitle());
-            gen.write("SecondaryAET", ctx.getSecondaryAE().getAETitle());
             gen.write("Priority", ctx.priority());
-            gen.write("QueryString", queryString);
             if (ctx.getHttpServletRequestInfo() != null)
                 ctx.getHttpServletRequestInfo().writeTo(gen);
             gen.writeEnd();

@@ -113,12 +113,8 @@ public class RetrieveManagerEJB {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(sw)) {
             gen.writeStartObject();
-            gen.write("LocalAET", ctx.getLocalAET());
-            gen.write("RemoteAET", ctx.getRemoteAET());
             gen.write("FindSCP", ctx.getFindSCP());
             gen.write("Priority", priority);
-            gen.write("DestinationAET", ctx.getDestinationAET());
-            gen.write("StudyInstanceUID", studyUID);
             if (ctx.getHttpServletRequestInfo() != null)
                 ctx.getHttpServletRequestInfo().writeTo(gen);
             gen.writeEnd();
@@ -133,6 +129,7 @@ public class RetrieveManagerEJB {
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());
         task.setDestinationAET(ctx.getDestinationAET());
+        task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSopInstanceUID(ctx.getSOPInstanceUID());
         task.setScheduledTime(ctx.getScheduledTime() != null ? ctx.getScheduledTime() : new Date());
@@ -453,7 +450,7 @@ public class RetrieveManagerEJB {
     }
 
     private Subquery<Long> statusSubquery(TaskQueryParam retrieveBatchQueryParam,
-                                           Root<RetrieveTask> retrieveTask, QueueMessage.Status status) {
+                                          Root<RetrieveTask> retrieveTask, QueueMessage.Status status) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<RetrieveTask> query = cb.createQuery(RetrieveTask.class);

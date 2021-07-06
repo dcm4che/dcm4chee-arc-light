@@ -509,7 +509,7 @@ public class QueueManagerEJB {
     }
 
     private <T> CriteriaQuery<T> queueMsgQuery(Class<T> clazz,
-            TaskQueryParam queueTaskQueryParam, SingularAttribute<QueueMessage, T> attribute) {
+                                               TaskQueryParam queueTaskQueryParam, SingularAttribute<QueueMessage, T> attribute) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         MatchTask matchTask = new MatchTask(cb);
         CriteriaQuery<T> q = cb.createQuery(clazz);

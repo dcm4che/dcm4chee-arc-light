@@ -46,6 +46,11 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskManager;
+import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +58,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -156,8 +165,42 @@ public class TaskManagerEJB {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
+    private int fetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
+
     public void scheduleTask(Task task) {
         em.persist(task);
         LOG.info("Schedule {}", task);
+    }
+    public void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder queryBuilder = new QueryBuilder(cb);
+        CriteriaQuery<Task> q = cb.createQuery(Task.class);
+        Root<Task> task = q.from(Task.class);
+        List<Predicate> predicates = queryBuilder.taskPredicates(task, taskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        if (taskQueryParam.getOrderBy() != null)
+            q.orderBy(queryBuilder.orderTasks(task, taskQueryParam.getOrderBy()));
+        TypedQuery<Task> query = em.createQuery(q);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        try (Stream<Task> resultStream = query.setHint(QueryHints.FETCH_SIZE, fetchSize()).getResultStream()) {
+            resultStream.forEach(action);
+        }
+    }
+
+    public long countTasks(TaskQueryParam1 taskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder queryBuilder = new QueryBuilder(cb);
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Task> task = q.from(Task.class);
+        List<Predicate> predicates = queryBuilder.taskPredicates(task, taskQueryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        return em.createQuery(q.select(cb.count(task))).getSingleResult();
     }
 }

@@ -124,6 +124,20 @@ public class QueryBuilder {
         return result;
     }
 
+    public Order orderTasks(Root<Task> task, String orderBy) {
+        switch (orderBy) {
+            case "createdTime":
+                return cb.asc(task.get(Task_.createdTime));
+            case "updatedTime":
+                return cb.asc(task.get(Task_.updatedTime));
+            case "-createdTime":
+                return cb.desc(task.get(Task_.createdTime));
+            case "-updatedTime":
+                return cb.desc(task.get(Task_.updatedTime));
+        }
+        throw new IllegalArgumentException(orderBy);
+    }
+
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -411,6 +425,68 @@ public class QueryBuilder {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
         mppsLevelPredicates(predicates, q, mpps, keys, queryParam);
+        return predicates;
+    }
+
+    public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam1 taskQueryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (taskQueryParam.getQueueName() != null)
+            predicates.add(cb.and(task.get(Task_.queueName).in(taskQueryParam.getQueueName())));
+        if (taskQueryParam.getStatus() != null)
+            predicates.add(cb.equal(task.get(Task_.status), taskQueryParam.getStatus()));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(task.get(Task_.batchID), taskQueryParam.getBatchID()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+        if (taskQueryParam.getUpdatedBefore() != null)
+            predicates.add(cb.lessThan(task.get(Task_.updatedTime), taskQueryParam.getUpdatedBefore()));
+        if (taskQueryParam.getType() != null) {
+            predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
+            switch (taskQueryParam.getType()) {
+                case EXPORT:
+                    if (taskQueryParam.getExporterID() != null)
+                        predicates.add(cb.equal(task.get(Task_.exporterID), taskQueryParam.getExporterID()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case RETRIEVE:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getRemoteAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
+                    if (taskQueryParam.getDestinationAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getDestinationAET()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case STGVER:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case DIFF:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getPrimaryAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getPrimaryAET()));
+                    if (taskQueryParam.getSecondaryAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getSecondaryAET()));
+                    if (taskQueryParam.getCompareFields() != null)
+                        predicates.add(cb.equal(task.get(Task_.compareFields), taskQueryParam.getCompareFields()));
+                    if (taskQueryParam.getCheckMissing() != null)
+                        predicates.add(cb.equal(task.get(Task_.checkMissing),
+                                Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
+                    if (taskQueryParam.getCheckDifferent() != null)
+                        predicates.add(cb.equal(task.get(Task_.checkDifferent),
+                                Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
+                    break;
+            }
+        }
         return predicates;
     }
 

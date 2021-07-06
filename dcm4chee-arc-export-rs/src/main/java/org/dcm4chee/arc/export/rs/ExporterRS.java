@@ -51,6 +51,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.TaskManager;
+import org.dcm4chee.arc.qmgt.impl.TaskScheduler;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -98,6 +100,9 @@ public class ExporterRS {
     @Inject
     private ExportManager exportManager;
 
+    @Inject
+    private TaskScheduler taskScheduler;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -123,7 +128,7 @@ public class ExporterRS {
     public Response exportStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("ExporterID") String exporterID) {
-        return export(studyUID, null, null, exporterID);
+        return export(studyUID, "*", "*", exporterID);
     }
 
     @POST
@@ -133,7 +138,7 @@ public class ExporterRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ExporterID") String exporterID) {
-        return export(studyUID, seriesUID, null, exporterID);
+        return export(studyUID, seriesUID, "*", exporterID);
     }
 
     @POST
@@ -186,6 +191,11 @@ public class ExporterRS {
                     batchID,
                     scheduledTime(),
                     HttpServletRequestInfo.valueOf(request));
+            if (scheduledTime == null) {
+                taskScheduler.process(
+                        arcDev.getQueueDescriptorNotNull(exporter.getQueueName()),
+                        arcDev.getTaskFetchSize());
+            }
             return Response.accepted().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

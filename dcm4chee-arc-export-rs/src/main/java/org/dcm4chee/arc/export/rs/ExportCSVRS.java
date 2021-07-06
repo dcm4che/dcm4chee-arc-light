@@ -74,20 +74,28 @@ import java.util.List;
 public class ExportCSVRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportCSVRS.class);
+
     @PathParam("AETitle")
     private String aet;
+
     @Context
     private HttpServletRequest request;
+
     @Context
     private UriInfo uriInfo;
+
     @Inject
     private Device device;
+
     @Inject
     private ExportManager exportManager;
+
     @QueryParam("batchID")
     private String batchID;
+
     @QueryParam("scheduledTime")
     private String scheduledTime;
+
     @HeaderParam("Content-Type")
     private MediaType contentType;
 

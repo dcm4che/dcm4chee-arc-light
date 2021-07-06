@@ -45,7 +45,6 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
-import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.entity.Task;

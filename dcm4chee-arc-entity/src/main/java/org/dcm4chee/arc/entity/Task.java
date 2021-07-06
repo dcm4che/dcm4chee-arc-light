@@ -43,6 +43,7 @@ package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 
@@ -51,12 +52,15 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -702,11 +706,57 @@ public class Task {
             writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
         writer.writeNotNullOrDef("errorMessage", errorMessage, null);
         writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
+        switch (type) {
+            case EXPORT:
+                writer.writeNotNullOrDef("ExporterID", exporterID, null);
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
+                writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
+                writer.writeNotNullOrDef("NumberOfInstances", numberOfInstances, null);
+                writer.writeNotEmpty("Modality", getModalities());
+                break;
+            case RETRIEVE:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("RemoteAET", remoteAET, null);
+                writer.writeNotNullOrDef("DestinationAET", destinationAET, null);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, null);
+                writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, null);
+                writer.writeNotNullOrDef("remaining", remaining, 0);
+                writer.writeNotNullOrDef("completed", completed, 0);
+                writer.writeNotNullOrDef("failed", failed, 0);
+                writer.writeNotNullOrDef("warning", warning, 0);
+                writer.writeNotNullOrDef("statusCode", TagUtils.shortToHexString(statusCode), -1);
+                writer.writeNotNullOrDef("errorComment", errorComment, null);
+                break;
+            case STGVER:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("StgCmtPolicy", storageVerificationPolicy, null);
+                writer.writeNotNull("UpdateLocationStatus", updateLocationStatus);
+                writer.writeNotEmpty("StorageID", getStorageIDs());
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, null);
+                writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, null);
+                writer.writeNotNullOrDef("completed", completed, 0);
+                writer.writeNotNullOrDef("failed", failed, 0);
+                break;
+            case DIFF:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("PrimaryAET", remoteAET, null);
+                writer.writeNotNullOrDef("SecondaryAET", destinationAET, null);
+                writer.writeNotNullOrDef("QueryString", queryString, null);
+                writer.writeNotDef("checkMissing", checkMissing, false);
+                writer.writeNotDef("checkDifferent", checkDifferent, false);
+                writer.writeNotDef("matches", matches, 0);
+                writer.writeNotDef("missing", missing, 0);
+                writer.writeNotDef("different", different, 0);
+                writer.writeNotNullOrDef("comparefield", compareFields, null);
+                break;
+        }
         gen.flush();
         out.write(',');
-        out.write(parameters);
-        gen.writeEnd();
-        gen.flush();
+        out.write(parameters.substring(1));
     }
 
     @PrePersist
