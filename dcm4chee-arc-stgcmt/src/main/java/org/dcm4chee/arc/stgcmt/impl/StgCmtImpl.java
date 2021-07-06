@@ -73,10 +73,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Date;
 
 /**
@@ -206,42 +203,30 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
                                  ExportContext ctx, String exporterID) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", localAET);
-            gen.write("RemoteAET", remoteAET);
-            gen.write("StudyInstanceUID", ctx.getStudyInstanceUID());
-            gen.write("SeriesInstanceUID", ctx.getSeriesInstanceUID());
-            gen.write("SOPInstanceUID", ctx.getSopInstanceUID());
-            gen.write("ExporterID", exporterID);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCU.QUEUE_NAME);
         task.setType(Task.Type.STGCMT_SCU);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setLocalAET(localAET);
+        task.setRemoteAET(remoteAET);
+        task.setStudyInstanceUID(ctx.getStudyInstanceUID());
+        task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
+        task.setSOPInstanceUID(ctx.getSopInstanceUID());
+        task.setExporterID(exporterID);
         task.setPayload(actionInfo);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.schedule(task);
     }
 
     private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", localAET);
-            gen.write("RemoteAET", remoteAET);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCP.QUEUE_NAME);
         task.setType(Task.Type.STGCMT_SCP);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setLocalAET(localAET);
+        task.setRemoteAET(remoteAET);
         task.setPayload(eventInfo);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.schedule(task);

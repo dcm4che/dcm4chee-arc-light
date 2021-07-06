@@ -49,8 +49,9 @@ import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -103,7 +104,6 @@ public class TaskManagerImpl implements TaskManager {
         final TaskQueryParam1 taskQueryParam;
         final int offset;
         final int limit;
-        int count;
 
         private WriteAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
             this.taskQueryParam = taskQueryParam;
@@ -114,23 +114,11 @@ public class TaskManagerImpl implements TaskManager {
         @Override
         public void write(OutputStream out) throws IOException, WebApplicationException {
             Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-            w.write('[');
-            try {
-                forEachTask(taskQueryParam, offset, limit,
-                        task -> {
-                            try {
-                                if (count++ > 0) w.write(',');
-                                task.writeAsJSON(w);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-            } catch (RuntimeException e) {
-                if (e.getCause() instanceof IOException) throw (IOException) e.getCause();
-                throw new WebApplicationException(e);
+            try (JsonGenerator gen = Json.createGenerator(w)) {
+                gen.writeStartArray();
+                forEachTask(taskQueryParam, offset, limit, task -> task.writeAsJSON(gen));
+                gen.writeEnd();
             }
-            w.write(']');
-            w.flush();
         }
     }
 

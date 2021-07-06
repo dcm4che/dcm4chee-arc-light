@@ -317,7 +317,7 @@ class QueryServiceImpl implements QueryService {
                         exportTask.getStudyInstanceUID(),
                         exportTask.getSeriesInstanceUID(),
                         qrView);
-                if (!exportTask.getSopInstanceUID().equals("*")) {
+                if (!exportTask.getSOPInstanceUID().equals("*")) {
                     attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
                 }
                 return attrs;

@@ -108,9 +108,12 @@ public class ExportTaskProcessor implements TaskProcessor {
             exportContext.setBatchID(task.getBatchID());
             exportContext.setStudyInstanceUID(task.getStudyInstanceUID());
             exportContext.setSeriesInstanceUID(StringUtils.nullify(task.getSeriesInstanceUID(), "*"));
-            exportContext.setSopInstanceUID(StringUtils.nullify(task.getSopInstanceUID(), "*"));
+            exportContext.setSopInstanceUID(StringUtils.nullify(task.getSOPInstanceUID(), "*"));
             exportContext.setAETitle(exporterDesc.getAETitle());
-            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(task.getParametersAsJSON()));
+            exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(
+                    task.getRequesterUserID(),
+                    task.getRequesterHost(),
+                    task.getRequestURI()));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
         } catch (Exception e) {

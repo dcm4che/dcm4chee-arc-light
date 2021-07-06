@@ -51,7 +51,9 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Fields;
+import org.dcm4chee.arc.conf.HL7ForwardRule;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -62,10 +64,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -182,25 +181,20 @@ public class HL7SenderImpl implements HL7Sender {
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("SendingApplication", msh.getField(2, ""));
-            gen.write("SendingFacility", msh.getField(3, ""));
-            gen.write("ReceivingApplication", msh.getField(4, ""));
-            gen.write("ReceivingFacility", msh.getField(5, ""));
-            gen.write("MessageType", msh.getField(9, ""));
-            gen.write("MessageControlID", msh.getField(10, ""));
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.writeTo(gen);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(HL7Sender.QUEUE_NAME);
         task.setType(Task.Type.HL7);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setSendingApplicationWithFacility(msh.getSendingApplicationWithFacility());
+        task.setReceivingApplicationWithFacility(msh.getReceivingApplicationWithFacility());
+        task.setMessageType(msh.getField(9, ""));
+        task.setMessageControlID(msh.getMessageControlID());
+        if (httpServletRequestInfo != null) {
+            task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
+            task.setRequesterHost(httpServletRequestInfo.requesterHost);
+            task.setRequestURI(httpServletRequestInfo.requestURI);
+        }
         task.setPayload(data);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.schedule(task);

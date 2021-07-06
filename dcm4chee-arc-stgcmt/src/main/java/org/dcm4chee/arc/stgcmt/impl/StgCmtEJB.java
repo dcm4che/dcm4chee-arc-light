@@ -46,7 +46,10 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -64,12 +67,9 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -544,20 +544,16 @@ public class StgCmtEJB {
                                       String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
                                       String batchID, StorageVerificationPolicy storageVerificationPolicy,
                                       Boolean updateLocationStatus, String... storageIDs) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Task task = new Task();
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.writeTo(gen);
-            gen.writeEnd();
-        }
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtManager.QUEUE_NAME);
         task.setType(Task.Type.STGVER);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        if (httpServletRequestInfo != null) {
+            task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
+            task.setRequesterHost(httpServletRequestInfo.requesterHost);
+            task.setRequestURI(httpServletRequestInfo.requestURI);
+        }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
         task.setLocalAET(localAET);
@@ -568,7 +564,7 @@ public class StgCmtEJB {
         if (qrlevel != QueryRetrieveLevel2.STUDY) {
             task.setSeriesInstanceUID(seriesInstanceUID);
             if (qrlevel == QueryRetrieveLevel2.IMAGE) {
-                task.setSopInstanceUID(sopInstanceUID);
+                task.setSOPInstanceUID(sopInstanceUID);
             }
         }
         if (isStorageVerificationTaskAlreadyScheduled(task)) {
@@ -602,13 +598,13 @@ public class StgCmtEJB {
                     stgVerTask.get(Task_.seriesInstanceUID).isNull(),
                     cb.equal(stgVerTask.get(Task_.seriesInstanceUID),
                             storageVerificationTask.getSeriesInstanceUID())));
-            if (storageVerificationTask.getSopInstanceUID() == null)
+            if (storageVerificationTask.getSOPInstanceUID() == null)
                 predicates.add(stgVerTask.get(Task_.sopInstanceUID).isNull());
             else
                 predicates.add(cb.or(
                         stgVerTask.get(Task_.sopInstanceUID).isNull(),
                         cb.equal(stgVerTask.get(Task_.sopInstanceUID),
-                                storageVerificationTask.getSopInstanceUID())));
+                                storageVerificationTask.getSOPInstanceUID())));
         }
         if (storageVerificationTask.getStorageVerificationPolicy() != null)
             predicates.add(cb.equal(stgVerTask.get(Task_.storageVerificationPolicy),

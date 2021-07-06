@@ -49,7 +49,8 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.MPPSForwardRule;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
@@ -64,10 +65,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
@@ -124,24 +122,18 @@ class MPPSSCUImpl implements MPPSSCU {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(patAttrs);
         for (String remoteAET : remoteAETs) {
             try {
-                StringWriter sw = new StringWriter();
-                try (JsonGenerator gen = Json.createGenerator(sw)) {
-                    gen.writeStartObject();
-                    gen.write("LocalAET", ctx.getLocalApplicationEntity().getAETitle());
-                    gen.write("RemoteAET", remoteAET);
-                    gen.write("DIMSE", ctx.getDimse().name());
-                    gen.write("SOPInstanceUID", ctx.getSopInstanceUID());
-                    gen.write("AccessionNumber", ssAttrs.getString(Tag.AccessionNumber));
-                    gen.write("StudyInstanceUID", ssAttrs.getString(Tag.StudyInstanceUID));
-                    gen.write("PatientID", idWithIssuer != null ? idWithIssuer.toString() : null);
-                    gen.write("PatientName", patAttrs.getString(Tag.PatientName));
-                    gen.writeEnd();
-                }
                 Task task = new Task();
                 task.setDeviceName(device.getDeviceName());
                 task.setQueueName(QUEUE_NAME);
                 task.setScheduledTime(new Date());
-                task.setParameters(sw.toString());
+                task.setLocalAET(ctx.getLocalApplicationEntity().getAETitle());
+                task.setRemoteAET(remoteAET);
+                task.setDIMSE(ctx.getDimse().name());
+                task.setSOPInstanceUID(ctx.getSopInstanceUID());
+                task.setAccessionNumber(ssAttrs.getString(Tag.AccessionNumber));
+                task.setStudyInstanceUID(ssAttrs.getString(Tag.StudyInstanceUID));
+                task.setPatientID(idWithIssuer != null ? idWithIssuer.toString() : null);
+                task.setPatientName(patAttrs.getString(Tag.PatientName));
                 task.setPayload(ctx.getAttributes());
                 task.setStatus(Task.Status.SCHEDULED);
                 taskManager.schedule(task);

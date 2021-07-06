@@ -42,25 +42,22 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 
 import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -271,6 +268,15 @@ public class Task {
     @Column(name = "error_comment")
     private String errorComment;
 
+    @Column(name = "rq_user_id", updatable = false)
+    private String requesterUserID;
+
+    @Column(name = "rq_host", updatable = false)
+    private String requesterHost;
+
+    @Column(name = "rq_uri", updatable = false)
+    private String requestURI;
+
     @Column(name = "query_str", updatable = false)
     private String queryString;
 
@@ -294,10 +300,6 @@ public class Task {
     @Basic(optional = false)
     @Column(name = "different")
     private int different;
-
-    @Basic(optional = false)
-    @Column(name = "params", length = 4000)
-    private String parameters;
 
     @Column(name = "payload", updatable = false)
     private byte[] payload;
@@ -450,12 +452,76 @@ public class Task {
         this.destinationAET = destinationAET;
     }
 
+    public String getWebApplicationName() {
+        return destinationAET;
+    }
+
+    public void setWebApplicationName(String webApplicationName) {
+        this.destinationAET = webApplicationName;
+    }
+
+    public String getSendingApplicationWithFacility() {
+        return localAET;
+    }
+
+    public void setSendingApplicationWithFacility(String appName) {
+        localAET = appName;
+    }
+
+    public String getReceivingApplicationWithFacility() {
+        return remoteAET;
+    }
+
+    public void setReceivingApplicationWithFacility(String appName) {
+        remoteAET = appName;
+    }
+
+    public String getMessageType() {
+        return exporterID;
+    }
+
+    public void setMessageType(String messageType) {
+        exporterID = messageType;
+    }
+
+    public String getMessageControlID() {
+        return queryString;
+    }
+
+    public void setMessageControlID(String messageControlID) {
+        queryString = messageControlID;
+    }
+
     public String getExporterID() {
         return exporterID;
     }
 
     public void setExporterID(String exporterID) {
         this.exporterID = exporterID;
+    }
+
+    public String getRSOperation() {
+        return exporterID;
+    }
+
+    public void setRSOperation(String rsOperation) {
+        exporterID = rsOperation;
+    }
+
+    public String getFindSCP() {
+        return exporterID;
+    }
+
+    public void setFindSCP(String findSCP) {
+        exporterID = findSCP;
+    }
+
+    public String getDIMSE() {
+        return exporterID;
+    }
+
+    public void setDIMSE(String dimse) {
+        exporterID = dimse;
     }
 
     public StorageVerificationPolicy getStorageVerificationPolicy() {
@@ -507,11 +573,11 @@ public class Task {
         this.seriesInstanceUID = seriesInstanceUID;
     }
 
-    public String getSopInstanceUID() {
+    public String getSOPInstanceUID() {
         return sopInstanceUID;
     }
 
-    public void setSopInstanceUID(String sopInstanceUID) {
+    public void setSOPInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
     }
 
@@ -529,6 +595,14 @@ public class Task {
 
     public void setModalities(String[] modalities) {
         this.modalities = StringUtils.concat(modalities, '\\');
+    }
+
+    public String getAccessionNumber() {
+        return modalities;
+    }
+
+    public void setAccessionNumber(String accessionNummber) {
+        this.modalities = accessionNummber;
     }
 
     public int getRemaining() {
@@ -579,12 +653,52 @@ public class Task {
         this.errorComment = errorComment;
     }
 
+    public String getRequesterUserID() {
+        return requesterUserID;
+    }
+
+    public void setRequesterUserID(String requesterUserID) {
+        this.requesterUserID = requesterUserID;
+    }
+
+    public String getRequesterHost() {
+        return requesterHost;
+    }
+
+    public void setRequesterHost(String requesterHost) {
+        this.requesterHost = requesterHost;
+    }
+
+    public String getRequestURI() {
+        return requestURI;
+    }
+
+    public void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
+    }
+
     public String getQueryString() {
         return queryString;
     }
 
     public void setQueryString(String queryString) {
         this.queryString = queryString;
+    }
+
+    public Code getCode() {
+        return new Code(queryString);
+    }
+
+    public void setCode(Code code) {
+        this.queryString = code.toString();
+    }
+
+    public String getPatientName() {
+        return queryString;
+    }
+
+    public void setPatientName(String patientName) {
+        this.queryString = patientName;
     }
 
     public boolean isCheckMissing() {
@@ -595,6 +709,14 @@ public class Task {
         this.checkMissing = checkMissing;
     }
 
+    public boolean isTLSAllowAnyHostname() {
+        return checkMissing;
+    }
+
+    public void setTLSAllowAnyHostname(boolean tlsAllowAnyHostname) {
+        this.checkMissing = tlsAllowAnyHostname;
+    }
+
     public boolean isCheckDifferent() {
         return checkDifferent;
     }
@@ -603,12 +725,28 @@ public class Task {
         this.checkDifferent = checkDifferent;
     }
 
+    public boolean isTLSDisableTrustManager() {
+        return checkDifferent;
+    }
+
+    public void setTLSDisableTrustManager(boolean tlsDisableTrustManager) {
+        this.checkDifferent = tlsDisableTrustManager;
+    }
+
     public String getCompareFields() {
         return compareFields;
     }
 
     public void setCompareFields(String compareFields) {
         this.compareFields = compareFields;
+    }
+
+    public String getPatientID() {
+        return compareFields;
+    }
+
+    public void setPatientID(String patientID) {
+        this.compareFields = patientID;
     }
 
     public int getMatches() {
@@ -641,20 +779,6 @@ public class Task {
         different = 0;
     }
 
-    public String getParameters() {
-        return parameters;
-    }
-
-    public JsonObject getParametersAsJSON() {
-        try (JsonReader r = Json.createReader(new StringReader(parameters))) {
-            return r.readObject();
-        }
-    }
-
-    public void setParameters(String parameters) {
-        this.parameters = parameters;
-    }
-
     public <T extends Serializable> T getPayload(Class<T> clazz) {
         if (payload == null) return null;
         ByteArrayInputStream bais = new ByteArrayInputStream(payload);
@@ -685,8 +809,7 @@ public class Task {
         return diffTaskAttributes;
     }
 
-    public void writeAsJSON(Writer out) throws IOException {
-        JsonGenerator gen = Json.createGenerator(out);
+    public void writeAsJSON(JsonGenerator gen) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
@@ -706,10 +829,13 @@ public class Task {
             writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
         writer.writeNotNullOrDef("errorMessage", errorMessage, null);
         writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
+        writer.writeNotNullOrDef("RequesterUserID", requesterUserID, null);
+        writer.writeNotNullOrDef("RequesterHostName", requesterHost, null);
+        writer.writeNotNullOrDef("RequestURI", requestURI, null);
         switch (type) {
             case EXPORT:
-                writer.writeNotNullOrDef("ExporterID", exporterID, null);
                 writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("ExporterID", exporterID, null);
                 writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
                 writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
                 writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
@@ -720,6 +846,7 @@ public class Task {
                 writer.writeNotNullOrDef("LocalAET", localAET, null);
                 writer.writeNotNullOrDef("RemoteAET", remoteAET, null);
                 writer.writeNotNullOrDef("DestinationAET", destinationAET, null);
+                writer.writeNotNullOrDef("FindSCP", getFindSCP(), null);
                 writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
                 writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, null);
                 writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, null);
@@ -753,10 +880,65 @@ public class Task {
                 writer.writeNotDef("different", different, 0);
                 writer.writeNotNullOrDef("comparefield", compareFields, null);
                 break;
+            case STGCMT_SCP:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("RemoteAET", remoteAET, null);
+                break;
+            case STGCMT_SCU:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("RemoteAET", remoteAET, null);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
+                writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
+                writer.writeNotNullOrDef("ExporterID", exporterID, null);
+                break;
+            case REJECT:
+                writer.writeNotNullOrDef("LocalAET", localAET, null);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
+                writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
+                writer.writeNotNullOrDef("Code", queryString, null);
+                break;
+            case HL7:
+                writeApplicationAndFacilityTo("SendingApplication", "SendingFacility",
+                        getSendingApplicationWithFacility(), gen);
+                writeApplicationAndFacilityTo("ReceivingApplication", "ReceivingFacility",
+                        getReceivingApplicationWithFacility(), gen);
+                gen.write("MessageType", getMessageType());
+                gen.write("MessageControlID", getMessageControlID());
+                break;
+            case REST:
+                gen.write("RSOperation", getRSOperation());
+                gen.write("RequestQueryString", getQueryString());
+                gen.write("WebApplicationName", getWebApplicationName());
+                gen.write("PatientID", getPatientID());
+                gen.write("TLSAllowAnyHostname", isTLSAllowAnyHostname());
+                gen.write("TLSDisableTrustManager", isTLSDisableTrustManager());
+                break;
+            case IAN:
+                gen.write("LocalAET", localAET);
+                gen.write("RemoteAET", remoteAET);
+                gen.write("SOPInstanceUID", sopInstanceUID);
+                break;
+            case MPPS:
+                gen.write("LocalAET", localAET);
+                gen.write("RemoteAET", remoteAET);
+                gen.write("DIMSE", getDIMSE());
+                gen.write("SOPInstanceUID", sopInstanceUID);
+                gen.write("AccessionNumber", getAccessionNumber());
+                gen.write("StudyInstanceUID", studyInstanceUID);
+                gen.write("PatientID", getPatientID());
+                gen.write("PatientName", getPatientName());
+                break;
         }
-        gen.flush();
-        out.write(',');
-        out.write(parameters.substring(1));
+        gen.writeEnd();
+    }
+
+    private static void writeApplicationAndFacilityTo(String application, String facility, String value,
+                                                      JsonGenerator gen) {
+        String[] ss = StringUtils.split(value, '|');
+        gen.write(application, ss[0]);
+        gen.write(facility, ss[1]);
     }
 
     @PrePersist

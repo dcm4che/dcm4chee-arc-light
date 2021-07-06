@@ -49,7 +49,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,15 +62,14 @@ public class StgCmtSCUTaskProcessor implements TaskProcessor {
     private StgCmtSCU stgCmtSCU;
 
     public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
         Attributes actionInfo = task.getPayload(Attributes.class);
         return stgCmtSCU.sendNAction(
-                jsonObject.getString("LocalAET"),
-                jsonObject.getString("RemoteAET"),
-                jsonObject.getString("StudyInstanceUID"),
-                jsonObject.getString("SeriesInstanceUID"),
-                jsonObject.getString("SOPInstanceUID"),
-                jsonObject.getString("ExporterID"),
+                task.getLocalAET(),
+                task.getRemoteAET(),
+                task.getStudyInstanceUID(),
+                task.getSeriesInstanceUID(),
+                task.getSOPInstanceUID(),
+                task.getExporterID(),
                 task.getPk(),
                 task.getBatchID(),
                 actionInfo);

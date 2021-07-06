@@ -46,7 +46,10 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.RetentionPeriod;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
@@ -61,13 +64,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
@@ -730,24 +730,21 @@ public class DeletionServiceEJB {
 
     public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                                   HttpServletRequestInfo httpRequest, String batchID) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", aet);
-            gen.write("StudyInstanceUID", studyIUID);
-            gen.write("SeriesInstanceUID", seriesIUID);
-            gen.write("SOPInstanceUID", sopIUID);
-            gen.write("Code", code.toString());
-            if (httpRequest != null)
-                httpRequest.writeTo(gen);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(RejectionService.QUEUE_NAME);
         task.setType(Task.Type.REJECT);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setLocalAET(aet);
+        task.setStudyInstanceUID(studyIUID);
+        task.setSeriesInstanceUID(seriesIUID);
+        task.setSOPInstanceUID(sopIUID);
+        task.setCode(code);
+        if (httpRequest != null) {
+            task.setRequesterUserID(httpRequest.requesterUserID);
+            task.setRequesterHost(httpRequest.requesterHost);
+            task.setRequestURI(httpRequest.requestURI);
+        }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
         taskManager.schedule(task);

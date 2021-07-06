@@ -87,12 +87,11 @@ public class StgCmtSCPTaskProcessor implements TaskProcessor {
     private StgCmtManager stgCmtMgr;
 
     @Override
-    public Outcome process(Task queueMessage) throws Exception {
-        JsonObject jsonObject = queueMessage.getParametersAsJSON();
-        String localAET = jsonObject.getString("LocalAET");
+    public Outcome process(Task task) throws Exception {
+        String localAET = task.getLocalAET();
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
-        ApplicationEntity remoteAE = aeCache.findApplicationEntity(jsonObject.getString("RemoteAET"));
-        Attributes actionInfo = queueMessage.getPayload(Attributes.class);
+        ApplicationEntity remoteAE = aeCache.findApplicationEntity(task.getRemoteAET());
+        Attributes actionInfo = task.getPayload(Attributes.class);
         StgCmtContext ctx = new StgCmtContext(localAE, localAET)
                 .setRemoteAE(remoteAE)
                 .setTransactionUID(actionInfo.getString(Tag.TransactionUID));

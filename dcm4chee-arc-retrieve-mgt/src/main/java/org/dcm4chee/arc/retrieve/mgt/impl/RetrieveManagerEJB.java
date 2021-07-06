@@ -45,7 +45,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -91,39 +90,29 @@ public class RetrieveManagerEJB {
     @Inject
     private Device device;
 
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter) {
+    public int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
         int count = 0;
         Attributes keys = ctx.getKeys();
         String[] studyUIDs = keys.getStrings(Tag.StudyInstanceUID);
         for (String studyUID : studyUIDs) {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-            if (scheduleRetrieveTask(priority, ctx, notRetrievedAfter, keys))
+            if (scheduleRetrieveTask(ctx, notRetrievedAfter, keys))
                 count++;
         }
 
         return count;
     }
 
-    private boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter,
-                                         Attributes keys) {
+    private boolean scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter, Attributes keys) {
         String studyUID = keys.getString(Tag.StudyInstanceUID);
         if (isAlreadyScheduledOrRetrievedAfter(ctx, notRetrievedAfter, studyUID))
             return false;
 
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("FindSCP", ctx.getFindSCP());
-            gen.write("Priority", priority);
-            if (ctx.getHttpServletRequestInfo() != null)
-                ctx.getHttpServletRequestInfo().writeTo(gen);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(ctx.getDeviceName());
         task.setQueueName(ctx.getQueueName());
         task.setType(Task.Type.RETRIEVE);
-        task.setParameters(sw.toString());
+        task.setFindSCP(ctx.getFindSCP());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
         task.setLocalAET(ctx.getLocalAET());
@@ -131,8 +120,13 @@ public class RetrieveManagerEJB {
         task.setDestinationAET(ctx.getDestinationAET());
         task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
-        task.setSopInstanceUID(ctx.getSOPInstanceUID());
+        task.setSOPInstanceUID(ctx.getSOPInstanceUID());
         task.setScheduledTime(ctx.getScheduledTime() != null ? ctx.getScheduledTime() : new Date());
+        if (ctx.getHttpServletRequestInfo() != null) {
+            task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
+            task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);
+            task.setRequestURI(ctx.getHttpServletRequestInfo().requestURI);
+        }
         em.persist(task);
         LOG.info("Create {}", task);
         return true;
@@ -148,8 +142,10 @@ public class RetrieveManagerEJB {
             gen.write("Priority", 0);
             gen.write("DestinationAET", retrieveTask.getDestinationAET());
             gen.write("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
+/*
             if (request != null)
                 HttpServletRequestInfo.valueOf(request).writeTo(gen);
+*/
             gen.writeEnd();
         }
         Date scheduledTime = new Date();

@@ -218,7 +218,7 @@ public class PrefetchScheduler {
                 .setDestinationAET(destination)
                 .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.scheduleRetrieveTask(Priority.NORMAL, ctx, notRetrievedAfter);
+        retrieveManager.scheduleRetrieveTask(ctx, notRetrievedAfter);
     }
 
     private Calendar hl7PrefetchDateTime(

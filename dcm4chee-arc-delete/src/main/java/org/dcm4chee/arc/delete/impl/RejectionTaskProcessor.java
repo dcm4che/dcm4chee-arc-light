@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.qmgt.TaskProcessor;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,17 +63,19 @@ public class RejectionTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-            JsonObject jsonObject = task.getParametersAsJSON();
-            String aet = jsonObject.getString("LocalAET");
-            String studyIUID = jsonObject.getString("StudyInstanceUID");
-            String seriesIUID = jsonObject.getString("SeriesInstanceUID");
-            String sopIUID = jsonObject.getString("SOPInstanceUID");
-            String code = jsonObject.getString("Code");
-            int count = service.reject(aet, studyIUID, seriesIUID, sopIUID, new Code(code),
-                    HttpServletRequestInfo.valueOf(jsonObject));
+            int count = service.reject(
+                    task.getLocalAET(),
+                    task.getStudyInstanceUID(),
+                    task.getSeriesInstanceUID(),
+                    task.getSOPInstanceUID(),
+                    task.getCode(),
+                    HttpServletRequestInfo.valueOf(
+                            task.getRequesterUserID(),
+                            task.getRequesterHost(),
+                            task.getRequestURI()));
             return count > 0
                     ? new Outcome(Task.Status.COMPLETED, count + " instances rejected.")
                     : new Outcome(Task.Status.WARNING,
-                    "No instances of Study[UID=" + studyIUID + "] found for rejection.");
+                    "No instances of Study[UID=" + task.getStudyInstanceUID() + "] found for rejection.");
     }
 }

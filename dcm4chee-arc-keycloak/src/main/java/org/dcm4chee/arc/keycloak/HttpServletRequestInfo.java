@@ -41,8 +41,6 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import javax.json.JsonObject;
-import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -84,20 +82,10 @@ public class HttpServletRequestInfo {
         return new HttpServletRequestInfo(request);
     }
 
-    public static HttpServletRequestInfo valueOf(JsonObject jsonObject) {
-        return jsonObject.getJsonString("RequestURI") != null
-                ? new HttpServletRequestInfo(
-                    jsonObject.getString("RequesterUserID"),
-                    jsonObject.getString("RequesterHostName"),
-                    jsonObject.getString("RequestURI"))
+    public static HttpServletRequestInfo valueOf(String requesterUserID, String requesterHost, String requestURI) {
+        return requestURI != null
+                ? new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI)
                 : null;
-
-    }
-
-    public void writeTo(JsonGenerator gen) {
-        gen.write("RequesterUserID", requesterUserID);
-        gen.write("RequesterHostName", requesterHost);
-        gen.write("RequestURI", requestURI);
     }
 
     private static String hostOfURI(String requestURI) {

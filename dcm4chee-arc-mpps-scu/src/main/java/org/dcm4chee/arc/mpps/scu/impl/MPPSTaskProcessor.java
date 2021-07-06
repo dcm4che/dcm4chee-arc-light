@@ -52,7 +52,6 @@ import org.dcm4chee.arc.qmgt.TaskProcessor;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,22 +66,21 @@ public class MPPSTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
             return mppsSCU.forwardMPPS(
-                    jsonObject.getString("LocalAET"),
-                    jsonObject.getString("RemoteAET"),
-                    Dimse.valueOf(jsonObject.getString("DIMSE")),
-                    jsonObject.getString("SOPInstanceUID"),
+                    task.getLocalAET(),
+                    task.getRemoteAET(),
+                    Dimse.valueOf(task.getDIMSE()),
+                    task.getSOPInstanceUID(),
                     task.getPayload(Attributes.class),
-                    procAttrs(jsonObject));
+                    procAttrs(task));
     }
 
-    private Attributes procAttrs(JsonObject jsonObject) {
+    private Attributes procAttrs(Task task) {
         Attributes procAttrs = new Attributes(4);
-        procAttrs.setString(Tag.AccessionNumber, VR.SH, jsonObject.getString("AccessionNumber"));
-        procAttrs.setString(Tag.StudyInstanceUID, VR.UI, jsonObject.getString("StudyInstanceUID"));
-        procAttrs.setString(Tag.PatientName, VR.PN, jsonObject.getString("PatientName"));
-        procAttrs.setString(Tag.PatientID, VR.LO, jsonObject.getString("PatientID"));
+        procAttrs.setString(Tag.AccessionNumber, VR.SH, task.getAccessionNumber());
+        procAttrs.setString(Tag.StudyInstanceUID, VR.UI, task.getStudyInstanceUID());
+        procAttrs.setString(Tag.PatientName, VR.PN, task.getPatientName());
+        procAttrs.setString(Tag.PatientID, VR.LO, task.getPatientID());
         return procAttrs;
     }
 }

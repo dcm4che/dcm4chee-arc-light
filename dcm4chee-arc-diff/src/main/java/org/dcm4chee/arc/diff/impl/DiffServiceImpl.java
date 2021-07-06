@@ -148,20 +148,16 @@ public class DiffServiceImpl implements DiffService {
     }
 
     private void scheduleDiffTask(DiffContext ctx, String queryString) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("Priority", ctx.priority());
-            if (ctx.getHttpServletRequestInfo() != null)
-                ctx.getHttpServletRequestInfo().writeTo(gen);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
         task.setType(Task.Type.DIFF);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        if (ctx.getHttpServletRequestInfo() != null) {
+            task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
+            task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);
+            task.setRequestURI(ctx.getHttpServletRequestInfo().requestURI);
+        }
         task.setBatchID(ctx.getBatchID());
         task.setStatus(Task.Status.SCHEDULED);
         task.setLocalAET(ctx.getLocalAE().getAETitle());

@@ -57,9 +57,9 @@ import java.util.Set;
  * @since Oct 2017
  */
 public interface RetrieveManager {
-    Outcome cmove(int priority, ExternalRetrieveContext ctx, Task queueMessage) throws Exception;
+    Outcome cmove(ExternalRetrieveContext ctx, Task queueMessage) throws Exception;
 
-    int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter);
+    int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
     boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 

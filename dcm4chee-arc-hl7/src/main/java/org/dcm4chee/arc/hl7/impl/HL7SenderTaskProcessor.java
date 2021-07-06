@@ -58,7 +58,6 @@ import org.dcm4chee.arc.qmgt.TaskProcessor;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -80,17 +79,14 @@ public class HL7SenderTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
         ArchiveHL7Message hl7Msg = new ArchiveHL7Message(task.getPayload(byte[].class));
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(jsonObject.getString("SendingApplication")
-                                + '|'
-                                + jsonObject.getString("SendingFacility"),
-                        true);
-        HL7Application receiver = hl7AppCache.findHL7Application(jsonObject.getString("ReceivingApplication")
-                                + '|'
-                                + jsonObject.getString("ReceivingFacility"));
-        hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(jsonObject));
+                .getHL7Application(task.getSendingApplicationWithFacility(),true);
+        HL7Application receiver = hl7AppCache.findHL7Application(task.getReceivingApplicationWithFacility());
+        hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(
+                task.getRequesterUserID(),
+                task.getRequesterHost(),
+                task.getRequestURI()));
         UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
         return toOutcome(rsp.data(), sender);
     }

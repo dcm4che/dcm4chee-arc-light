@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.diff.impl;
 
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.qmgt.TaskProcessor;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,7 +63,9 @@ public class DiffTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
-        return diffService.executeDiffTask(task, HttpServletRequestInfo.valueOf(jsonObject));
+        return diffService.executeDiffTask(task, HttpServletRequestInfo.valueOf(
+                task.getRequesterUserID(),
+                task.getRequesterHost(),
+                task.getRequestURI()));
     }
 }

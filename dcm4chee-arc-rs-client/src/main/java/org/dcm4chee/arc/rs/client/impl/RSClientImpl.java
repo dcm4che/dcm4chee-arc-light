@@ -44,7 +44,6 @@ import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
@@ -57,14 +56,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import java.io.StringWriter;
 import java.util.Date;
 
 /**
@@ -102,25 +98,18 @@ public class RSClientImpl implements RSClient {
             byte[] content,
             boolean tlsAllowAnyHostName,
             boolean tlsDisableTrustManager) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("RSOperation", rsOp.name());
-            gen.write("RequestURI", requestURI);
-            gen.write("RequestQueryString", requestQueryStr);
-            gen.write("WebApplicationName", webAppName);
-            gen.write("PatientID", patientID);
-            gen.write("TLSAllowAnyHostname", tlsAllowAnyHostName);
-            gen.write("TLSDisableTrustManager", tlsDisableTrustManager);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
         task.setType(Task.Type.REST);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setRSOperation(rsOp.name());
+        task.setRequestURI(requestURI);
+        task.setQueryString(requestQueryStr);
+        task.setWebApplicationName(webAppName);
+        task.setPatientID(patientID);
+        task.setTLSAllowAnyHostname(tlsAllowAnyHostName);
+        task.setTLSDisableTrustManager(tlsDisableTrustManager);
         task.setPayload(content);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.schedule(task);

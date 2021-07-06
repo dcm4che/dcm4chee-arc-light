@@ -64,6 +64,9 @@ public class StgVerTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        return stgCmtMgr.executeStgVerTask(task, HttpServletRequestInfo.valueOf(task.getParametersAsJSON()));
+        return stgCmtMgr.executeStgVerTask(task, HttpServletRequestInfo.valueOf(
+                task.getRequesterUserID(),
+                task.getRequesterHost(),
+                task.getRequestURI()));
     }
 }

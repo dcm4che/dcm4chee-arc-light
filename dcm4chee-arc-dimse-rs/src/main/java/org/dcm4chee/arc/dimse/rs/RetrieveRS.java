@@ -220,8 +220,7 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        retrieveManager.scheduleRetrieveTask(
-                priority(), createExtRetrieveCtx(destAET, keys), null);
+        retrieveManager.scheduleRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
         return Response.accepted().build();
     }
 

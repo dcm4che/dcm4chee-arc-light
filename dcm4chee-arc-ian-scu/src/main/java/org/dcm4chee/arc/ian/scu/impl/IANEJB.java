@@ -52,12 +52,9 @@ import org.dcm4chee.arc.qmgt.TaskManager;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -145,20 +142,14 @@ public class IANEJB {
     }
 
     public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", callingAET);
-            gen.write("RemoteAET", remoteAET);
-            gen.write("SOPInstanceUID", UIDUtils.createUID());
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(IANSCU.QUEUE_NAME);
         task.setType(Task.Type.IAN);
         task.setScheduledTime(new Date());
-        task.setParameters(sw.toString());
+        task.setLocalAET(callingAET);
+        task.setRemoteAET(remoteAET);
+        task.setSOPInstanceUID(UIDUtils.createUID());
         task.setPayload(attrs);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.schedule(task);

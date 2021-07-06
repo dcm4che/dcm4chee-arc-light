@@ -438,7 +438,7 @@ public class QueryRetrieveRS {
     }
 
     private int scheduleRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null);
+        return retrieveManager.scheduleRetrieveTask(ctx, null);
     }
 
     private void logRequest() {

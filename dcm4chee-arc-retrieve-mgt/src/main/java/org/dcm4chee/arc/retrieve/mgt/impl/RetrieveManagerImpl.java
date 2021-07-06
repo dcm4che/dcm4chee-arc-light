@@ -89,13 +89,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     private RetrieveManagerEJB ejb;
 
     @Override
-    public Outcome cmove(int priority, ExternalRetrieveContext ctx, Task task) throws Exception {
+    public Outcome cmove(ExternalRetrieveContext ctx, Task task) throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
         Association as = moveSCU.openAssociation(localAE, ctx.getRemoteAET());
         ctx.setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()));
         try {
             ejb.resetRetrieveTask(task);
-            final DimseRSP rsp = moveSCU.cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());
+            final DimseRSP rsp = moveSCU.cmove(as, Priority.NORMAL, ctx.getDestinationAET(), ctx.getKeys());
             while (rsp.next()) {
                 ejb.updateRetrieveTask(task, rsp.getCommand());
             }
@@ -149,8 +149,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, Date notRetrievedAfter) {
-        return ejb.scheduleRetrieveTask(priority, ctx, notRetrievedAfter);
+    public int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
+        return ejb.scheduleRetrieveTask(ctx, notRetrievedAfter);
     }
 
     @Override

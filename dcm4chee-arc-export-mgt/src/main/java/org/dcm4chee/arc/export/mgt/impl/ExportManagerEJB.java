@@ -163,8 +163,8 @@ public class ExportManagerEJB implements ExportManager {
         task.setDeviceName(deviceName);
         if (!task.getSeriesInstanceUID().equals("*"))
             task.setSeriesInstanceUID(seriesIUID);
-        if (!task.getSopInstanceUID().equals("*"))
-            task.setSopInstanceUID(sopIUID);
+        if (!task.getSOPInstanceUID().equals("*"))
+            task.setSOPInstanceUID(sopIUID);
         if (task.getScheduledTime() != null && task.getScheduledTime().before(scheduledTime))
             task.setScheduledTime(scheduledTime);
         LOG.debug("Update {}", task);
@@ -175,24 +175,21 @@ public class ExportManagerEJB implements ExportManager {
                                         String studyIUID, String seriesIUID, String sopIUID,
                                         String batchID, Date scheduledTime,
                                         HttpServletRequestInfo httpServletRequestInfo) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.writeTo(gen);
-            gen.writeEnd();
-        }
         Task task = new Task();
         task.setDeviceName(deviceName);
         task.setQueueName(queueName);
         task.setType(Task.Type.EXPORT);
-        task.setParameters(sw.toString());
+        if (httpServletRequestInfo != null) {
+            task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
+            task.setRequesterHost(httpServletRequestInfo.requesterHost);
+            task.setRequestURI(httpServletRequestInfo.requestURI);
+        }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
         task.setExporterID(exporterID);
         task.setStudyInstanceUID(studyIUID);
         task.setSeriesInstanceUID(seriesIUID);
-        task.setSopInstanceUID(sopIUID);
+        task.setSOPInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
         em.persist(task);
         LOG.info("Create {}", task);
@@ -284,8 +281,10 @@ public class ExportManagerEJB implements ExportManager {
                 }
             }
             gen.write("ExporterID", exportTask.getExporterID());
+/*
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.writeTo(gen);
+*/
             gen.writeEnd();
         }
         return sw.toString();

@@ -280,7 +280,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
             calculateResult(ctx,
                     storageVerificationTask.getStudyInstanceUID(),
                     storageVerificationTask.getSeriesInstanceUID(),
-                    storageVerificationTask.getSopInstanceUID());
+                    storageVerificationTask.getSOPInstanceUID());
         } catch (IOException e) {
             ctx.setException(e);
             stgCmtEvent.fire(ctx);
@@ -338,13 +338,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
                 ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
                     storageVerificationTask.getStudyInstanceUID(),
                     ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
-                : (storageVerificationTask.getSopInstanceUID() == null)
+                : (storageVerificationTask.getSOPInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        storageVerificationTask.getSopInstanceUID(),
+                        storageVerificationTask.getSOPInstanceUID(),
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
@@ -353,14 +353,14 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     storageVerificationTask.getStudyInstanceUID(),
                     Arrays.toString(ctx.getStorageIDs()),
                     ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
-                : (storageVerificationTask.getSopInstanceUID() == null)
+                : (storageVerificationTask.getSOPInstanceUID() == null)
                     ? String.format("Commit Storage of Series[uid=%s] of Study[uid=%s] on Storage%s for %s: - completed: %d, failed: %d",
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStorageIDs()),
                         ctx.getStorageVerificationPolicy(), storageVerificationTask.getCompleted(), storageVerificationTask.getFailed())
                     :  String.format("Commit Storage of Instance[uid=%s] of Series[uid=%s] on Storage%s of Study[uid=%s] for %s: - completed: %d, failed: %d",
-                        storageVerificationTask.getSopInstanceUID(),
+                        storageVerificationTask.getSOPInstanceUID(),
                         storageVerificationTask.getSeriesInstanceUID(),
                         storageVerificationTask.getStudyInstanceUID(),
                         Arrays.toString(ctx.getStorageIDs()),

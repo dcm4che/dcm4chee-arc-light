@@ -48,7 +48,6 @@ import org.dcm4chee.arc.rs.client.RSClient;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,15 +63,14 @@ public class RSClientTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        JsonObject jsonObject = task.getParametersAsJSON();
         return rsClient.request(
-                jsonObject.getString("RSOperation"),
-                jsonObject.getString("RequestURI"),
-                jsonObject.getString("RequestQueryString"),
-                jsonObject.getString("WebApplicationName"),
-                jsonObject.getString("PatientID"),
-                jsonObject.getBoolean("TLSAllowAnyHostname"),
-                jsonObject.getBoolean("TLSDisableTrustManager"),
+                task.getRSOperation(),
+                task.getRequestURI(),
+                task.getQueryString(),
+                task.getWebApplicationName(),
+                task.getPatientID(),
+                task.isTLSAllowAnyHostname(),
+                task.isTLSDisableTrustManager(),
                 task.getPayload(byte[].class));
     }
 }
