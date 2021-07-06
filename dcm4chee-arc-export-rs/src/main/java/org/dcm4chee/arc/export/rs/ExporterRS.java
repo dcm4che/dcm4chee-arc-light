@@ -183,8 +183,7 @@ public class ExporterRS {
             }
             exportManager.createExportTask(
                     device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
+                    exporter,
                     studyUID,
                     seriesUID,
                     objectUID,

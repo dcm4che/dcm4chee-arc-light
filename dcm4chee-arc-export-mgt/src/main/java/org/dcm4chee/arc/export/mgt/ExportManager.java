@@ -60,18 +60,18 @@ import java.util.List;
  */
 public interface ExportManager {
 
-    void createOrUpdateStudyExportTask(String deviceName, String exporterID, String queueName,
+    void createOrUpdateStudyExportTask(String deviceName, ExporterDescriptor exporterDesc,
                                        String studyIUID, Date scheduledTime);
 
-    void createOrUpdateSeriesExportTask(String deviceName, String exporterID, String queueName,
+    void createOrUpdateSeriesExportTask(String deviceName, ExporterDescriptor exporterDesc,
                                         String studyIUID, String seriesIUID,
                                         Date scheduledTime);
 
-    void createOrUpdateInstanceExportTask(String deviceName, String exporterID, String queueName,
+    void createOrUpdateInstanceExportTask(String deviceName, ExporterDescriptor exporterDesc,
                                           String studyIUID, String seriesIUID, String sopIUID,
                                           Date scheduledTime);
 
-    Task createExportTask(String deviceName, String exporterID, String queueName,
+    Task createExportTask(String deviceName, ExporterDescriptor exporterDesc,
                           String studyIUID, String seriesIUID, String sopIUID,
                           String batchID, Date scheduledTime,
                           HttpServletRequestInfo httpServletRequestInfo);

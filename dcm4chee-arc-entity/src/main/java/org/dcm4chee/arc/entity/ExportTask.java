@@ -291,30 +291,6 @@ public class ExportTask {
         gen.flush();
     }
 
-    public static final String[] header = {
-            "pk",
-            "createdTime",
-            "updatedTime",
-            "ExporterID",
-            "LocalAET",
-            "StudyInstanceUID",
-            "SeriesInstanceUID",
-            "SOPInstanceUID",
-            "NumberOfInstances",
-            "Modality",
-            "batchID",
-            "dicomDeviceName",
-            "scheduledTime",
-            "status",
-            "taskPK",
-            "queue",
-            "failures",
-            "processingStartTime",
-            "processingEndTime",
-            "errorMessage",
-            "outcomeMessage"
-    };
-
     public void printRecord(CSVPrinter printer, String localAET) throws IOException {
         if (queueMessage == null)
             printExportTask(printer, localAET);

@@ -442,8 +442,7 @@ public class ExportMatchingRS {
 
                     exportManager.createExportTask(
                             device.getDeviceName(),
-                            exporter.getExporterID(),
-                            exporter.getQueueName(),
+                            exporter,
                             match.getString(Tag.StudyInstanceUID),
                             qrLevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : "*",
                             qrLevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : "*",

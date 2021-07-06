@@ -39,9 +39,6 @@
  */
 package org.dcm4chee.arc.export.rs;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -50,15 +47,17 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -69,17 +68,19 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,6 +96,9 @@ public class ExportTaskRS {
 
     @Inject
     private ExportManager mgr;
+
+    @Inject
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -127,7 +131,7 @@ public class ExportTaskRS {
     private List<String> exporterIDs;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -173,16 +177,9 @@ public class ExportTaskRS {
         if (output == null)
             return notAcceptable();
 
-        QueueMessage.Status status = status();
         try {
             return Response.ok(
-                    output.entity(
-                            mgr.listExportTasks(
-                                    queueTaskQueryParam(status),
-                                    exportTaskQueryParam(deviceName, updatedTime),
-                                    parseInt(offset),
-                                    parseInt(limit)),
-                            deviceCache),
+                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (IllegalStateException e) {
@@ -198,10 +195,8 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response countExportTasks() {
         logRequest();
-        QueueMessage.Status status = status();
         try {
-            return count(mgr.countTasks(queueTaskQueryParam(status),
-                    exportTaskQueryParam(deviceName, updatedTime)));
+            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -471,36 +466,14 @@ public class ExportTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache) {
-                return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen, localAETitleOf(deviceCache, task)));
-                    gen.writeEnd();
-                    gen.flush();
-                };
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache) {
-                return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                            .withHeader(ExportTask.header)
-                            .withDelimiter(delimiter)
-                            .withQuoteMode(QuoteMode.ALL));
-                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task, deviceCache));
-                    writer.flush();
-                };
-            }
-
-            private void writeTaskToCSV(CSVPrinter printer, ExportTask task, IDeviceCache deviceCache) {
-                try {
-                    task.printRecord(printer, localAETitleOf(deviceCache, task));
-                } catch (IOException e) {
-                    LOG.warn("{}", e);
-                }
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.EXPORT_CSV_HEADERS, delimiter);
             }
         };
 
@@ -526,19 +499,7 @@ public class ExportTaskRS {
             return csvCompatible;
         }
 
-        private static String localAETitleOf(IDeviceCache deviceCache, ExportTask task) {
-            try {
-                return deviceCache.findDevice(task.getDeviceName())
-                        .getDeviceExtension(ArchiveDeviceExtension.class)
-                        .getExporterDescriptorNotNull(task.getExporterID())
-                        .getAETitle();
-            } catch (ConfigurationException | IllegalArgumentException e) {
-                LOG.info(e.getMessage());
-            }
-            return null;
-        }
-
-        abstract Object entity(final Iterator<ExportTask> tasks, IDeviceCache deviceCache);
+        abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
     }
 
     private QueueMessage.Status status() {
@@ -623,6 +584,22 @@ public class ExportTaskRS {
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
         taskQueryParam.setStudyIUID(studyUID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setType(Task.Type.EXPORT);
+        taskQueryParam.setDeviceName(deviceName);
+        if (status != null) taskQueryParam.setStatus(Task.Status.valueOf(status));
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setStudyIUID(studyUID);
+        taskQueryParam.setExporterIDs(exporterIDs.stream()
+                .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                .collect(Collectors.toList()));
         return taskQueryParam;
     }
 }

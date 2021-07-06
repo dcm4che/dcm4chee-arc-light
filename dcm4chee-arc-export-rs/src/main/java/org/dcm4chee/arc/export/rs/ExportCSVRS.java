@@ -196,8 +196,7 @@ public class ExportCSVRS {
         for (String studyUID : studyUIDs) {
             exportManager.createExportTask(
                     device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
+                    exporter,
                     studyUID,
                     "*",
                     "*",

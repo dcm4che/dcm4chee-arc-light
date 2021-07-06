@@ -60,4 +60,6 @@ public interface TaskManager {
     void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action);
 
     StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit);
+
+    StreamingOutput writeAsCSV(TaskQueryParam1 taskQueryParam, int offset, int limit, String[] header, char delimiter);
 }

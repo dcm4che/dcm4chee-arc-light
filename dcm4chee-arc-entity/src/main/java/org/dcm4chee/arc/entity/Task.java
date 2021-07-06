@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
@@ -124,6 +125,28 @@ public class Task {
     public static final String UPDATE_STATUS = "Task.UpdateStatus";
     public static final String UPDATE_STGVER_RESULT_BY_PK = "Task.UpdateStgVerResultByPk";
     public static final String UPDATE_RETRIEVE_RESULT_BY_PK = "Task.UpdateRetrieveResultByPk";
+    public static final String[] EXPORT_CSV_HEADERS = {
+            "pk",
+            "createdTime",
+            "updatedTime",
+            "ExporterID",
+            "LocalAET",
+            "StudyInstanceUID",
+            "SeriesInstanceUID",
+            "SOPInstanceUID",
+            "NumberOfInstances",
+            "Modality",
+            "batchID",
+            "dicomDeviceName",
+            "scheduledTime",
+            "status",
+            "queue",
+            "failures",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
 
     public enum Status {
         SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED;
@@ -932,6 +955,43 @@ public class Task {
                 break;
         }
         gen.writeEnd();
+    }
+
+    public void writeAsCSV(CSVPrinter printer) {
+        try {
+            switch (type) {
+                case EXPORT:
+                    writeExportTaskAsCSV(printer);
+                    break;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void writeExportTaskAsCSV(CSVPrinter printer) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        printer.printRecord(
+                pk,
+                df.format(createdTime),
+                df.format(updatedTime),
+                exporterID,
+                localAET,
+                studyInstanceUID,
+                !seriesInstanceUID.equals("*") ? seriesInstanceUID : null,
+                !sopInstanceUID.equals("*") ? sopInstanceUID : null,
+                numberOfInstances != null ? numberOfInstances.toString() : null,
+                modalities,
+                batchID,
+                deviceName,
+                scheduledTime,
+                status.toString(),
+                queueName,
+                numberOfFailures > 0 ? Integer.toString(numberOfFailures) : null,
+                processingStartTime != null ? df.format(processingStartTime) : null,
+                processingEndTime != null ? df.format(processingEndTime) : null,
+                errorMessage,
+                outcomeMessage);
     }
 
     private static void writeApplicationAndFacilityTo(String application, String facility, String value,

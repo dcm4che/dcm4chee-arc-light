@@ -170,8 +170,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
             exportManager.createExportTask(
                     device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
+                    exporter,
                     series.getStudy().getStudyInstanceUID(),
                     series.getSeriesInstanceUID(),
                     "*",
@@ -220,8 +219,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
             exportManager.createExportTask(
                     device.getDeviceName(),
-                    exporter.getExporterID(),
-                    exporter.getQueueName(),
+                    exporter,
                     study.getStudyInstanceUID(),
                     "*",
                     "*",

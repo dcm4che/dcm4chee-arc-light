@@ -41,8 +41,12 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
@@ -53,10 +57,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
@@ -92,34 +93,33 @@ public class TaskManagerImpl implements TaskManager {
 
     @Override
     public StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
-        return new WriteAsJSON(taskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam1 taskQueryParam) {
-        return ejb.countTasks(taskQueryParam);
-    }
-
-    private class WriteAsJSON implements StreamingOutput {
-        final TaskQueryParam1 taskQueryParam;
-        final int offset;
-        final int limit;
-
-        private WriteAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
-            this.taskQueryParam = taskQueryParam;
-            this.offset = offset;
-            this.limit = limit;
-        }
-
-        @Override
-        public void write(OutputStream out) throws IOException, WebApplicationException {
+        return out -> {
             Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
             try (JsonGenerator gen = Json.createGenerator(w)) {
                 gen.writeStartArray();
                 forEachTask(taskQueryParam, offset, limit, task -> task.writeAsJSON(gen));
                 gen.writeEnd();
             }
-        }
+        };
+    }
+
+    @Override
+    public StreamingOutput writeAsCSV(TaskQueryParam1 taskQueryParam, int offset, int limit,
+                                      String[] headers, char delimiter) {
+        return out -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+            try (CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
+                    .withHeader(headers)
+                    .withDelimiter(delimiter)
+                    .withQuoteMode(QuoteMode.ALL))) {
+                forEachTask(taskQueryParam, offset, limit, task -> task.writeAsCSV(printer));
+            }
+        };
+    }
+
+    @Override
+    public long countTasks(TaskQueryParam1 taskQueryParam) {
+        return ejb.countTasks(taskQueryParam);
     }
 
 }
