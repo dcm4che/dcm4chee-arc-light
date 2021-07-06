@@ -43,7 +43,9 @@ package org.dcm4chee.arc.query.util;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -51,7 +53,7 @@ import java.util.Date;
  */
 public class TaskQueryParam1 {
 
-    private String queueName;
+    private List<String> queueNames = new ArrayList<>();
     private String deviceName;
     private Task.Type type;
     private Task.Status status;
@@ -70,15 +72,15 @@ public class TaskQueryParam1 {
     private String checkMissing;
     private String checkDifferent;
     private String compareFields;
-    private String exporterID;
+    private List<String> exporterIDs = new ArrayList<>();
     private String stgCmtExporterID;
 
-    public String getQueueName() {
-        return queueName;
+    public List<String> getQueueNames() {
+        return queueNames;
     }
 
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
+    public void setQueueNames(List<String> queueNames) {
+        this.queueNames = queueNames;
     }
 
     public String getDeviceName() {
@@ -161,12 +163,12 @@ public class TaskQueryParam1 {
         this.studyIUID = studyIUID;
     }
 
-    public String getExporterID() {
-        return exporterID;
+    public List<String> getExporterIDs() {
+        return exporterIDs;
     }
 
-    public void setExporterID(String exporterID) {
-        this.exporterID = exporterID;
+    public void setExporterIDs(List<String> exporterIDs) {
+        this.exporterIDs = exporterIDs;
     }
 
     public String getRemoteAET() {

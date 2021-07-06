@@ -512,7 +512,7 @@ public class QueueManagerRS {
 
     private TaskQueryParam1 taskQueryParam1(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
-        taskQueryParam.setQueueName(queueName);
+        taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setDeviceName(deviceName);
         if (status != null) taskQueryParam.setStatus(Task.Status.valueOf(status));
         taskQueryParam.setBatchID(batchID);

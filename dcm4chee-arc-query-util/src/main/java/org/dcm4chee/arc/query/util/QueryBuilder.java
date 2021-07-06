@@ -430,8 +430,8 @@ public class QueryBuilder {
 
     public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam1 taskQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        if (taskQueryParam.getQueueName() != null)
-            predicates.add(cb.and(task.get(Task_.queueName).in(taskQueryParam.getQueueName())));
+        if (taskQueryParam.getQueueNames() != null && !taskQueryParam.getQueueNames().isEmpty())
+            predicates.add(task.get(Task_.queueName).in(taskQueryParam.getQueueNames()));
         if (taskQueryParam.getStatus() != null)
             predicates.add(cb.equal(task.get(Task_.status), taskQueryParam.getStatus()));
         if (taskQueryParam.getDeviceName() != null)
@@ -448,8 +448,8 @@ public class QueryBuilder {
             predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
             switch (taskQueryParam.getType()) {
                 case EXPORT:
-                    if (taskQueryParam.getExporterID() != null)
-                        predicates.add(cb.equal(task.get(Task_.exporterID), taskQueryParam.getExporterID()));
+                    if (taskQueryParam.getExporterIDs() != null && !taskQueryParam.getExporterIDs().isEmpty())
+                        predicates.add(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs()));
                     if (taskQueryParam.getStudyIUID() != null)
                         predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
                     break;
