@@ -805,24 +805,6 @@
     "/stgcmt/{transactionUID}": {
       "$ref": "paths/stgcmt.json#/stgcmt"
     },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies": {
-      "$ref": "paths/legacy.json#/stgcmt.studies"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/series": {
-      "$ref": "paths/legacy.json#/stgcmt.series"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.instances"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.series"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.instances"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.series.instances"
-    },
     "/aets/{aet}/rs/expire/series": {
       "$ref": "paths/iocm.json#/series.expire"
     },
