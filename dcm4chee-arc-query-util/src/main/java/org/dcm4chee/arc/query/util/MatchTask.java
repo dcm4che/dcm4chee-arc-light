@@ -307,7 +307,7 @@ public class MatchTask {
         if (stgCmtResultQueryParam.getBatchID() != null)
             predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.batchID), stgCmtResultQueryParam.getBatchID()));
         if (stgCmtResultQueryParam.getJmsMessageID() != null)
-            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.messageID), stgCmtResultQueryParam.getJmsMessageID()));
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.taskPK), stgCmtResultQueryParam.getJmsMessageID()));
         if (stgCmtResultQueryParam.getUpdatedBefore() != null)
             predicates.add(cb.lessThan(stgCmtResult.get(StgCmtResult_.updatedTime), stgCmtResultQueryParam.getUpdatedBefore()));
         return predicates;
