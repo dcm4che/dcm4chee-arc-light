@@ -136,7 +136,7 @@ public class StgCmtRS {
                     writer.writeNotNullOrDef("seriesUID", stgCmtResult.getSeriesInstanceUID(), null);
                     writer.writeNotNullOrDef("objectUID", stgCmtResult.getSopInstanceUID(), null);
                     writer.writeNotNullOrDef("exporterID", stgCmtResult.getExporterID(), null);
-                    writer.writeNotNullOrDef("JMSMessageID", stgCmtResult.getMessageID(), null);
+                    writer.writeNotNullOrDef("JMSMessageID", stgCmtResult.getTaskPK(), null);
                     writer.writeNotNullOrDef("batchID", stgCmtResult.getBatchID(), null);
                     writer.writeNotNullOrDef("requested", stgCmtResult.getNumberOfInstances(), 0);
                     writer.writeNotNullOrDef("failures", stgCmtResult.getNumberOfFailures(), 0);
