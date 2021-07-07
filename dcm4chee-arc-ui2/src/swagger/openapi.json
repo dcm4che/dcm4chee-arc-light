@@ -136,16 +136,8 @@
       "description": "Request Storage Commitment from external Archive"
     },
     {
-      "name": "STGCMT-LEGACY-RS",
-      "description": "Request Storage Commitment of matching entities from external Archive - Legacy"
-    },
-    {
       "name": "STGVER-RS",
       "description": "Storage Verification"
-    },
-    {
-      "name": "STGVER-LEGACY-RS",
-      "description": "Storage Verification Matching - Legacy"
     },
     {
       "name": "IMPAX-REPORT-RS",
@@ -870,24 +862,6 @@
     },
     "/queue/{queueName}/{taskID}": {
       "$ref": "paths/monitor.json#/queueTask"
-    },
-    "/aets/{aet}/stgver/studies": {
-      "$ref": "paths/legacy.json#/stgver.studies"
-    },
-    "/aets/{aet}/stgver/series": {
-      "$ref": "paths/legacy.json#/stgver.series"
-    },
-    "/aets/{aet}/stgver/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/stgver.studies.series"
-    },
-    "/aets/{aet}/stgver/instances": {
-      "$ref": "paths/legacy.json#/stgver.instances"
-    },
-    "/aets/{aet}/stgver/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/stgver.studies.instances"
-    },
-    "/aets/{aet}/stgver/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/stgver.studies.series.instances"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies"
