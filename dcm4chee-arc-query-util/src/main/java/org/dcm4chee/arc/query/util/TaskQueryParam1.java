@@ -49,6 +49,7 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Mar 2019
  */
 public class TaskQueryParam1 {

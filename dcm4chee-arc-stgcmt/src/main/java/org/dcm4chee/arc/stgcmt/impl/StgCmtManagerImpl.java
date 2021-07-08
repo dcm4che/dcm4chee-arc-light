@@ -61,6 +61,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
@@ -121,8 +122,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
-        return ejb.listStgCmts(stgCmtResultQueryParam, offset, limit);
+    public List<StgCmtResult> listStgCmts(StgCmtResultQueryParam queryParam, int offset, int limit) {
+        return ejb.listStgCmts(queryParam, offset, limit);
     }
 
     @Override

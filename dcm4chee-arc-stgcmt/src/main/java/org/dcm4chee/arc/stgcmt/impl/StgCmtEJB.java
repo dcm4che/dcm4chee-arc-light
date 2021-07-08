@@ -57,6 +57,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
@@ -188,11 +189,12 @@ public class StgCmtEJB {
         em.persist(result);
     }
 
-    public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
+    public List<StgCmtResult> listStgCmts(StgCmtResultQueryParam queryParam, int offset, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder queryBuilder = new QueryBuilder(cb);
         CriteriaQuery<StgCmtResult> q = cb.createQuery(StgCmtResult.class);
         Root<StgCmtResult> stgCmtResult = q.from(StgCmtResult.class);
-        List<Predicate> predicates = new MatchTask(cb).matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
+        List<Predicate> predicates = queryBuilder.stgCmtResultPredicates(stgCmtResult, queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         TypedQuery<StgCmtResult> query = em.createQuery(q);
@@ -217,15 +219,16 @@ public class StgCmtEJB {
     }
 
     public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
-        TaskQueryParam stgCmtResultQueryParam = new TaskQueryParam();
-        stgCmtResultQueryParam.setStgCmtStatus(status);
-        stgCmtResultQueryParam.setUpdatedBefore(updatedBefore);
+        StgCmtResultQueryParam stgCmtResultQueryParam = new StgCmtResultQueryParam(
+                status, updatedBefore, null, null, null, null);
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
+        QueryBuilder queryBuilder = new QueryBuilder(cb);
         CriteriaDelete<StgCmtResult> q = cb.createCriteriaDelete(StgCmtResult.class);
         Root<StgCmtResult> stgCmtResult = q.from(StgCmtResult.class);
-        List<Predicate> predicates = matchTask.matchStgCmtResult(stgCmtResult, stgCmtResultQueryParam);
-        q.where(predicates.toArray(new Predicate[0]));
+        List<Predicate> predicates = queryBuilder.stgCmtResultPredicates(stgCmtResult, stgCmtResultQueryParam);
+        if (!predicates.isEmpty()) {
+            q.where(predicates.toArray(new Predicate[0]));
+        }
         return em.createQuery(q).executeUpdate();
     }
 

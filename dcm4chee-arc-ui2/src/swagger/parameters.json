@@ -1497,6 +1497,14 @@
       "type": "string"
     }
   },
+  "taskPK": {
+    "name": "taskPK",
+    "in": "query",
+    "description": "Task PK to filter by",
+    "schema": {
+      "type": "integer"
+    }
+  },
   "scheduledTime": {
     "name": "scheduledTime",
     "in": "query",

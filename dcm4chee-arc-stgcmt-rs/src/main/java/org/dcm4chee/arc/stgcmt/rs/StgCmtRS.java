@@ -42,7 +42,7 @@ package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -93,8 +93,8 @@ public class StgCmtRS {
     @QueryParam("batchID")
     private String batchID;
 
-    @QueryParam("JMSMessageID")
-    private Long msgID;
+    @QueryParam("taskPK")
+    private Long taskPK;
 
     @QueryParam("updatedBefore")
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
@@ -122,7 +122,15 @@ public class StgCmtRS {
         logRequest();
         try {
             final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
-                    stgCmtResultQueryParam(), parseInt(offset), parseInt(limit));
+                    new StgCmtResultQueryParam(
+                            statusOf(status),
+                            null,
+                            exporterID,
+                            studyUID,
+                            batchID,
+                            taskPK),
+                    parseInt(offset),
+                    parseInt(limit));
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
@@ -136,7 +144,7 @@ public class StgCmtRS {
                     writer.writeNotNullOrDef("seriesUID", stgCmtResult.getSeriesInstanceUID(), null);
                     writer.writeNotNullOrDef("objectUID", stgCmtResult.getSopInstanceUID(), null);
                     writer.writeNotNullOrDef("exporterID", stgCmtResult.getExporterID(), null);
-                    writer.writeNotNullOrDef("JMSMessageID", stgCmtResult.getTaskPK(), null);
+                    writer.writeNotNullOrDef("taskPK", stgCmtResult.getTaskPK(), null);
                     writer.writeNotNullOrDef("batchID", stgCmtResult.getBatchID(), null);
                     writer.writeNotNullOrDef("requested", stgCmtResult.getNumberOfInstances(), 0);
                     writer.writeNotNullOrDef("failures", stgCmtResult.getNumberOfFailures(), 0);
@@ -219,13 +227,4 @@ public class StgCmtRS {
         return sw.toString();
     }
 
-    private TaskQueryParam stgCmtResultQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStgCmtStatus(statusOf(status));
-        taskQueryParam.setStgCmtExporterID(exporterID);
-        taskQueryParam.setStudyIUID(studyUID);
-        taskQueryParam.setStudyIUID(batchID);
-        taskQueryParam.setJmsMessageID(msgID);
-        return taskQueryParam;
-    }
 }

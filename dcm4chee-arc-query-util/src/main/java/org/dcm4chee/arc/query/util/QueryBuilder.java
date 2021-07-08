@@ -428,6 +428,23 @@ public class QueryBuilder {
         return predicates;
     }
 
+    public List<Predicate> stgCmtResultPredicates(Root<StgCmtResult> stgCmtResult, StgCmtResultQueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (queryParam.status != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.status), queryParam.status));
+        if (queryParam.studyUID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.studyInstanceUID), queryParam.studyUID));
+        if (queryParam.exporterID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.exporterID), queryParam.exporterID));
+        if (queryParam.batchID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.batchID), queryParam.batchID));
+        if (queryParam.taskPK != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.taskPK), queryParam.taskPK));
+        if (queryParam.updatedBefore != null)
+            predicates.add(cb.lessThan(stgCmtResult.get(StgCmtResult_.updatedTime), queryParam.updatedBefore));
+        return predicates;
+    }
+
     public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam1 taskQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         if (taskQueryParam.getQueueNames() != null && !taskQueryParam.getQueueNames().isEmpty())

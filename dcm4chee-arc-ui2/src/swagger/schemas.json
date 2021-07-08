@@ -2228,10 +2228,10 @@
           "description": "Exporter ID to filter by",
           "type": "string"
         },
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "JMS Message ID of Export Task",
-          "type": "string"
+        "taskPK": {
+          "title": "Task PK",
+          "description": "Task PK of Export Task",
+          "type": "integer"
         },
         "batchID": {
           "title": "Batch ID",

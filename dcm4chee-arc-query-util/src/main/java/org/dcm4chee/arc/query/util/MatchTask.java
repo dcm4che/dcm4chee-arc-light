@@ -294,25 +294,6 @@ public class MatchTask {
         throw new IllegalArgumentException(orderBy);
     }
 
-    public List<Predicate> matchStgCmtResult(Root<StgCmtResult> stgCmtResult, TaskQueryParam stgCmtResultQueryParam) {
-        List<Predicate> predicates = new ArrayList<>();
-        if (stgCmtResultQueryParam.getStgCmtStatus() != null)
-            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.status), stgCmtResultQueryParam.getStgCmtStatus()));
-        if (stgCmtResultQueryParam.getStudyIUID() != null)
-            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.studyInstanceUID), stgCmtResultQueryParam.getStudyIUID()));
-        if (stgCmtResultQueryParam.getStgCmtExporterID() != null)
-            predicates.add(cb.equal(
-                    stgCmtResult.get(StgCmtResult_.exporterID),
-                    stgCmtResultQueryParam.getStgCmtExporterID().toUpperCase()));
-        if (stgCmtResultQueryParam.getBatchID() != null)
-            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.batchID), stgCmtResultQueryParam.getBatchID()));
-        if (stgCmtResultQueryParam.getJmsMessageID() != null)
-            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.taskPK), stgCmtResultQueryParam.getJmsMessageID()));
-        if (stgCmtResultQueryParam.getUpdatedBefore() != null)
-            predicates.add(cb.lessThan(stgCmtResult.get(StgCmtResult_.updatedTime), stgCmtResultQueryParam.getUpdatedBefore()));
-        return predicates;
-    }
-
     public Order exportBatchOrder(String orderby, Path<ExportTask> exportTask) {
         return batchOrder(orderby, exportTask.get(ExportTask_.createdTime), exportTask.get(ExportTask_.updatedTime));
     }
