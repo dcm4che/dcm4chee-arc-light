@@ -113,6 +113,7 @@ public class RetrieveManagerEJB {
         task.setQueueName(ctx.getQueueName());
         task.setType(Task.Type.RETRIEVE);
         task.setFindSCP(ctx.getFindSCP());
+        task.setPayload(ctx.getKeys());
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
         task.setLocalAET(ctx.getLocalAET());

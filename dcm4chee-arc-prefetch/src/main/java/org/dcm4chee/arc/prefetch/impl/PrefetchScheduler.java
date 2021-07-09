@@ -54,6 +54,7 @@ import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -83,6 +84,9 @@ public class PrefetchScheduler {
 
     @Inject
     private RetrieveManager retrieveManager;
+
+    @Inject
+    private TaskManager taskManager;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
         if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
@@ -163,6 +167,7 @@ public class PrefetchScheduler {
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
             scheduleRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
+            taskManager.processQueue(rule.getQueueName());
             return;
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
@@ -182,11 +187,15 @@ public class PrefetchScheduler {
                 matches.remove(0);
             } while (matches.size() > numberOfPriors);
         }
+        int count = 0;
         for (Attributes match : matches) {
             if (rule.getDestinationCFindSCP() == null
-                    || !isAvailableAt(match, localAE, rule.getDestinationCFindSCP()))
+                    || !isAvailableAt(match, localAE, rule.getDestinationCFindSCP())) {
                 scheduleRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
+            }
         }
+        if (count > 0)
+            taskManager.processQueue(rule.getQueueName());
     }
 
     private boolean isAvailableAt(Attributes match, ApplicationEntity localAE, String destinationCFindSCP)

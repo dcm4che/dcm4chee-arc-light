@@ -51,6 +51,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -142,6 +143,9 @@ public class RetrieveRS {
     @Inject
     private RetrieveManager retrieveManager;
 
+    @Inject
+    private TaskManager taskManager;
+
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
@@ -221,6 +225,9 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         retrieveManager.scheduleRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
+        if (scheduledTime == null) {
+            taskManager.processQueue(queueName);
+        }
         return Response.accepted().build();
     }
 

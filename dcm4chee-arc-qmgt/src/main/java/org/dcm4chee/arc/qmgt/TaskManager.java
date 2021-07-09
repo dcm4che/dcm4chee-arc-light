@@ -57,6 +57,8 @@ public interface TaskManager {
 
     long countTasks(TaskQueryParam1 taskQueryParam);
 
+    void processQueue(String queueName);
+
     void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action);
 
     StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit);

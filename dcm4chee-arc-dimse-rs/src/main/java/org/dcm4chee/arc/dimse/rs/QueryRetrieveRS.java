@@ -52,6 +52,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -153,6 +154,9 @@ public class QueryRetrieveRS {
 
     @Inject
     private RetrieveManager retrieveManager;
+
+    @Inject
+    private TaskManager taskManager;
 
     @Inject
     private IApplicationEntityCache aeCache;
@@ -289,7 +293,9 @@ public class QueryRetrieveRS {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
             }
-
+            if (scheduledTime == null && count > 0) {
+                taskManager.processQueue(queueName);
+            }
             if (warning == null && count > 0)
                 return Response.accepted(count(count)).build();
 
@@ -400,6 +406,9 @@ public class QueryRetrieveRS {
                     } catch (IOException e) {
                         LOG.info("{}: Failed to release association:\\n", as, e);
                     }
+            }
+            if (scheduledTime == null && count > 0) {
+                taskManager.processQueue(queueName);
             }
             if (warning == null)
                 return Response.accepted(count(count)).build();
