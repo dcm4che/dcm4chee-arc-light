@@ -132,18 +132,27 @@ public class PrefetchScheduler {
             }
             IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);
             String batchID = rule.getCommonName() + '[' + pid + ']';
+            int count = 0;
             if (rule.getEntitySelectors().length == 0) {
-                prefetch(pid, batchID, new Attributes(0), -1,
+                count = prefetch(pid, batchID, new Attributes(0), -1,
                         rule, arcdev, scheduledTime, notRetrievedAfter);
             } else {
                 for (EntitySelector selector : rule.getEntitySelectors()) {
-                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
+                    count += prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
                             rule, arcdev, scheduledTime, notRetrievedAfter);
                 }
+            }
+            if (count > 0 && scheduledOnThisDevice(rule.getPrefetchDeviceName())
+                    && scheduledTime.getTime() <= now.getTimeInMillis()) {
+                taskManager.processQueue(rule.getQueueName());
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
+    }
+
+    private boolean scheduledOnThisDevice(String deviceName) {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
     }
 
     private IDWithIssuer idWithIssuer(HL7PrefetchRule rule, String cx) {
@@ -159,7 +168,7 @@ public class PrefetchScheduler {
         return null;
     }
 
-    private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
+    private int prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
             HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date scheduledDate, Date notRetrievedAfter)
             throws Exception {
         Attributes keys = new Attributes(queryKeys.size() + 4);
@@ -167,8 +176,7 @@ public class PrefetchScheduler {
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
             scheduleRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
-            taskManager.processQueue(rule.getQueueName());
-            return;
+            return 1;
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
         Issuer issuer = pid.getIssuer();
@@ -194,8 +202,7 @@ public class PrefetchScheduler {
                 scheduleRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
             }
         }
-        if (count > 0)
-            taskManager.processQueue(rule.getQueueName());
+        return count;
     }
 
     private boolean isAvailableAt(Attributes match, ApplicationEntity localAE, String destinationCFindSCP)

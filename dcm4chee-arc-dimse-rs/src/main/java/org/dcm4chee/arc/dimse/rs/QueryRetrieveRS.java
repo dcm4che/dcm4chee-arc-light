@@ -293,7 +293,7 @@ public class QueryRetrieveRS {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
             }
-            if (scheduledTime == null && count > 0) {
+            if (count > 0 && scheduledOnThisDevice() && scheduledTime == null) {
                 taskManager.processQueue(queueName);
             }
             if (warning == null && count > 0)
@@ -407,7 +407,7 @@ public class QueryRetrieveRS {
                         LOG.info("{}: Failed to release association:\\n", as, e);
                     }
             }
-            if (scheduledTime == null && count > 0) {
+            if (count > 0 && scheduledOnThisDevice() && scheduledTime == null) {
                 taskManager.processQueue(queueName);
             }
             if (warning == null)
@@ -426,12 +426,16 @@ public class QueryRetrieveRS {
         }
     }
 
+    private boolean scheduledOnThisDevice() {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
+    }
+
     private void validate(String queryAET) throws ConfigurationException {
         if (queryAET != null && !queryAET.equals(movescp))
             aeCache.findApplicationEntity(queryAET);
 
         aeCache.findApplicationEntity(movescp);
-        if (deviceName != null) {
+        if (!scheduledOnThisDevice()) {
             Device device = deviceCache.findDevice(deviceName);
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())

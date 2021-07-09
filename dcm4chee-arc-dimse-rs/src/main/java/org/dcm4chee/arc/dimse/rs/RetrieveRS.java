@@ -225,7 +225,7 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         retrieveManager.scheduleRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
-        if (scheduledTime == null) {
+        if (scheduledOnThisDevice() && scheduledTime == null) {
             taskManager.processQueue(queueName);
         }
         return Response.accepted().build();
@@ -276,7 +276,7 @@ public class RetrieveRS {
 
     private void validate() throws ConfigurationException {
         aeCache.findApplicationEntity(externalAET);
-        if (deviceName != null) {
+        if (!scheduledOnThisDevice()) {
             Device device = deviceCache.findDevice(deviceName);
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
@@ -285,6 +285,10 @@ public class RetrieveRS {
             validateQueue(device);
         } else
             validateQueue(device);
+    }
+
+    private boolean scheduledOnThisDevice() {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
     }
 
     private void validateQueue(Device device) {
