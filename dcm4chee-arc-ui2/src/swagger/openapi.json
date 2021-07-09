@@ -800,24 +800,6 @@
     "/aets/{aet}/rs/expire/series": {
       "$ref": "paths/iocm.json#/series.expire"
     },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies": {
-      "$ref": "paths/legacy.json#/reject.studies"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/series": {
-      "$ref": "paths/legacy.json#/reject.series"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/instances": {
-      "$ref": "paths/legacy.json#/reject.instances"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/reject.studies.series"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/reject.studies.instances"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/reject.studies.series.instances"
-    },
     "/aets/{aet}/dimse/{storescp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.study.reject"
     },
