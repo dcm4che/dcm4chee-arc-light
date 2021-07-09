@@ -100,10 +100,6 @@
       "description": "Notify external IAN SCP about Availability of Instances"
     },
     {
-      "name": "IAN-LEGACY-RS",
-      "description": "Schedule IAN to external archive - Legacy"
-    },
-    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
