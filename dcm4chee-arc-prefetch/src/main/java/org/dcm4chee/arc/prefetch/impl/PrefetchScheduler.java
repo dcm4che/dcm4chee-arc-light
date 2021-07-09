@@ -175,8 +175,7 @@ public class PrefetchScheduler {
         keys.addAll(queryKeys);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
-            scheduleRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
-            return 1;
+            return scheduleRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
         Issuer issuer = pid.getIssuer();
@@ -214,14 +213,16 @@ public class PrefetchScheduler {
                     >= match.getInt(Tag.NumberOfStudyRelatedInstances, 0);
     }
 
-    private void scheduleRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
+    private int scheduleRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
                                        Date scheduledDate, Date notRetrievedAfter) {
+        int count = 0;
         for (String destination : rule.getPrefetchCStoreSCPs()) {
-            scheduleRetrieveTask(keys, rule, batchID, scheduledDate, notRetrievedAfter, destination);
+            count += scheduleRetrieveTask(keys, rule, batchID, scheduledDate, notRetrievedAfter, destination);
         }
+        return count;
     }
 
-    private void scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
+    private int scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
                                       Date scheduledDate, Date notRetrievedAfter, String destination) {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
                 .setDeviceName(rule.getPrefetchDeviceName() == null
@@ -234,7 +235,7 @@ public class PrefetchScheduler {
                 .setDestinationAET(destination)
                 .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.scheduleRetrieveTask(ctx, notRetrievedAfter);
+        return retrieveManager.scheduleRetrieveTask(ctx, notRetrievedAfter);
     }
 
     private Calendar hl7PrefetchDateTime(
