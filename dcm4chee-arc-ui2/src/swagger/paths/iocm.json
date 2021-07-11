@@ -103,12 +103,6 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/queue"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -132,9 +126,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -161,12 +152,6 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/queue"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -190,9 +175,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -222,12 +204,6 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/queue"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -251,9 +227,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }

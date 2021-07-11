@@ -127,6 +127,7 @@ class MPPSSCUImpl implements MPPSSCU {
                 task.setQueueName(QUEUE_NAME);
                 task.setScheduledTime(new Date());
                 task.setLocalAET(ctx.getLocalApplicationEntity().getAETitle());
+                task.setType(Task.Type.MPPS);
                 task.setRemoteAET(remoteAET);
                 task.setDIMSE(ctx.getDimse().name());
                 task.setSOPInstanceUID(ctx.getSopInstanceUID());
