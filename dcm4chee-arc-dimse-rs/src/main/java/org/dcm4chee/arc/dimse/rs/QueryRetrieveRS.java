@@ -466,7 +466,7 @@ public class QueryRetrieveRS {
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
-                Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
+                Tag.SOPInstanceUID, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID);
         return createExtRetrieveCtx(destAET, keys);
     }
 
