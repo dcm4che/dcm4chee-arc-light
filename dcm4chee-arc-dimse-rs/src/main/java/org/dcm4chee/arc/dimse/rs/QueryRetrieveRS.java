@@ -373,6 +373,8 @@ public class QueryRetrieveRS {
                 keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
             if (seriesInstanceUID != null)
                 keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+            if (level == QueryRetrieveLevel2.IMAGE && !keys.contains(Tag.SOPInstanceUID))
+                keys.setNull(Tag.SOPInstanceUID, VR.UI);
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
