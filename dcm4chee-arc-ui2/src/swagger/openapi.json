@@ -747,24 +747,6 @@
     "/xroad/RR441/{patientID}": {
       "$ref": "paths/misc.json#/xroad"
     },
-    "/aets/{aet}/ian/{ianscp}/studies": {
-      "$ref": "paths/legacy.json#/ian.studies"
-    },
-    "/aets/{aet}/ian/{ianscp}/series": {
-      "$ref": "paths/legacy.json#/ian.series"
-    },
-    "/aets/{aet}/ian/{ianscp}/instances": {
-      "$ref": "paths/legacy.json#/ian.instances"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/ian.studies.series"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/ian.studies.instances"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/ian.studies.series.instances"
-    },
     "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients": {
       "$ref": "paths/pam.json#/hl7.patients"
     },
