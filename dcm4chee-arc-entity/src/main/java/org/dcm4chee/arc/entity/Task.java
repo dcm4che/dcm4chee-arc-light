@@ -297,7 +297,7 @@ public class Task {
     @Column(name = "rq_host", updatable = false)
     private String requesterHost;
 
-    @Column(name = "rq_uri", updatable = false)
+    @Column(name = "rq_uri", updatable = false, length = 4000)
     private String requestURI;
 
     @Column(name = "query_str", updatable = false)

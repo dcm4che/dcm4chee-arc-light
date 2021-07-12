@@ -203,7 +203,7 @@ public class ExternalRetrieveContext {
     }
 
     public int getStatus() {
-        return response.getInt(Tag.Status, -1);
+        return response != null ? response.getInt(Tag.Status, -1) : -1;
     }
 
     public String getErrorComment() {
