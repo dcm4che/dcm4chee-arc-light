@@ -52,7 +52,7 @@ import java.util.Date;
 public class ParseDateTime {
     public static Date valueOf(String value) {
         try {
-            return value != null ? new SimpleDateFormat("yyyyMMddhhmmss").parse(value) : null;
+            return value != null ? new SimpleDateFormat("yyyyMMddhhmmss").parse(value) : new Date();
         } catch (ParseException e) {
             throw new IllegalArgumentException(value);
         }

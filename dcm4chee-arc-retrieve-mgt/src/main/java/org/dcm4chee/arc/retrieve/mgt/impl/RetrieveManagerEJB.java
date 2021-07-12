@@ -122,7 +122,7 @@ public class RetrieveManagerEJB {
         task.setStudyInstanceUID(ctx.getStudyInstanceUID());
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSOPInstanceUID(ctx.getSOPInstanceUID());
-        task.setScheduledTime(ctx.getScheduledTime() != null ? ctx.getScheduledTime() : new Date());
+        task.setScheduledTime(ctx.getScheduledTime());
         if (ctx.getHttpServletRequestInfo() != null) {
             task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
             task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);

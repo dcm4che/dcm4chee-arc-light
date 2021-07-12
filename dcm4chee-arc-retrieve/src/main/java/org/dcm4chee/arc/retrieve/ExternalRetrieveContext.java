@@ -45,6 +45,7 @@ import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -185,7 +186,7 @@ public class ExternalRetrieveContext {
     }
 
     public ExternalRetrieveContext setScheduledTime(Date scheduledTime) {
-        this.scheduledTime = scheduledTime;
+        this.scheduledTime = Objects.requireNonNull(scheduledTime);
         return this;
     }
 
