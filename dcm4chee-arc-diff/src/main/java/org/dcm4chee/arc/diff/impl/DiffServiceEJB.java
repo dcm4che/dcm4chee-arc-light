@@ -41,8 +41,10 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.diff.DiffBatch;
+import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -87,6 +89,28 @@ public class DiffServiceEJB {
 
     @Inject
     private Device device;
+
+    public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        if (diffTask != null) {
+            diffTask.getDiffTaskAttributes().add(new AttributesBlob(attrs));
+        }
+    }
+
+    public void resetDiffTask(Task diffTask) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        diffTask.resetDiffTask();
+        diffTask.getDiffTaskAttributes().clear();
+    }
+
+    public void updateDiffTask(Task diffTask, DiffSCU diffSCU) {
+        diffTask = em.find(Task.class, diffTask.getPk());
+        if (diffTask != null) {
+            diffTask.setMatches(diffSCU.matches());
+            diffTask.setMissing(diffSCU.missing());
+            diffTask.setDifferent(diffSCU.different());
+        }
+    }
 
     public DiffTask getDiffTask(long taskPK) {
         return em.find(DiffTask.class, taskPK);
@@ -295,10 +319,6 @@ public class DiffServiceEJB {
         sq.where(predicates.toArray(new Predicate[0]));
         sq.select(cb.count(diffTask));
         return sq;
-    }
-
-    public void merge(Task diffTask) {
-        em.merge(diffTask);
     }
 
     private class ListDiffBatches {

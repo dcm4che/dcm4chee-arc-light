@@ -117,8 +117,7 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
-        diffTask.resetDiffTask();
-        ejb.merge(diffTask);
+        ejb.resetDiffTask(diffTask);
         Long taskPK = diffTask.getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
@@ -127,24 +126,16 @@ public class DiffServiceImpl implements DiffService {
             Attributes diff;
             updateDiffTask = updateDiffTaskAtFixRate(diffTask, diffSCU);
             while ((diff = diffSCU.nextDiff()) != null) {
-                diffTask.getDiffTaskAttributes().add(new AttributesBlob(diff));
-                ejb.merge(diffTask);
+                ejb.addDiffTaskAttributes(diffTask, diff);
             }
             updateDiffTask.cancel(false);
-            updateDiffTask(diffTask, diffSCU);
+            ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         } finally {
             if (updateDiffTask != null)
                 updateDiffTask.cancel(false);
             diffSCUMap.remove(taskPK);
         }
-    }
-
-    private void updateDiffTask(Task diffTask, DiffSCU diffSCU) {
-        diffTask.setMatches(diffSCU.matches());
-        diffTask.setMissing(diffSCU.missing());
-        diffTask.setDifferent(diffSCU.different());
-        ejb.merge(diffTask);
     }
 
     private void scheduleDiffTask(DiffContext ctx, String queryString) {
@@ -175,7 +166,7 @@ public class DiffServiceImpl implements DiffService {
                 .getDiffTaskProgressUpdateInterval();
         return interval != null
                 ? device.scheduleAtFixedRate(
-                () -> updateDiffTask(diffTask, diffSCU),
+                () -> ejb.updateDiffTask(diffTask, diffSCU),
                     interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS)
                 : null;
     }
