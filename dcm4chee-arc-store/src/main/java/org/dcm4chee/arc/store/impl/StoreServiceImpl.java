@@ -219,7 +219,6 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void writeToStorage(StoreContext ctx, InputStream data) throws DicomServiceException {
-        List<File> bulkDataFiles = Collections.emptyList();
         String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -234,18 +233,14 @@ class StoreServiceImpl implements StoreService {
             transcoder.setBulkDataDirectory(arcAE.getBulkDataSpoolDirectoryFile());
             transcoder.setIncludeFileMetaInformation(true);
             transcoder.setIncludeImplementationVersionName(arcDev.isStoreImplementationVersionName());
-            transcoder.setDeleteBulkDataFiles(false);
+            transcoder.setDeleteBulkDataFiles(true);
             transcoder.transcode(new TranscoderHandler(ctx));
-            bulkDataFiles = transcoder.getBulkDataFiles();
         } catch (StorageException e) {
             LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
             throw new DicomServiceException(Status.OutOfResources, e);
         } catch (Throwable e) {
             LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
-        } finally {
-            for (File tmpFile : bulkDataFiles)
-                tmpFile.delete();
         }
     }
 
