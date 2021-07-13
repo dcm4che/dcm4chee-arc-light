@@ -63,7 +63,7 @@ import javax.json.JsonObject;
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Sep 2015
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("STGCMT_SCP")

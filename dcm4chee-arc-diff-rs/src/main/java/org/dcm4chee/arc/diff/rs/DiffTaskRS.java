@@ -56,11 +56,14 @@ import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -103,6 +106,9 @@ public class DiffTaskRS {
     private DiffService diffService;
 
     @Inject
+    private TaskManager taskManager;
+
+    @Inject
     private Device device;
 
     @Inject
@@ -122,6 +128,9 @@ public class DiffTaskRS {
 
     @Context
     private HttpServletRequest request;
+
+    @QueryParam("taskID")
+    private Long taskID;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
@@ -192,12 +201,7 @@ public class DiffTaskRS {
 
         try {
             return Response.ok(
-                    output.entity(
-                            diffService.listDiffTasks(
-                                    queueTaskQueryParam(deviceName, status()),
-                                    diffTaskQueryParam(updatedTime),
-                                    parseInt(offset),
-                                    parseInt(limit))),
+                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -499,36 +503,14 @@ public class DiffTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final Iterator<DiffTask> tasks) {
-                return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
-                    gen.writeEnd();
-                    gen.flush();
-                };
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final Iterator<DiffTask> tasks) {
-                return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                            .withHeader(DiffTask.header)
-                            .withDelimiter(delimiter)
-                            .withQuoteMode(QuoteMode.ALL));
-                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
-                    writer.flush();
-                };
-            }
-
-            private void writeTaskToCSV(CSVPrinter printer, DiffTask task) {
-                try {
-                    task.printRecord(printer);
-                } catch (IOException e) {
-                    LOG.warn("{}", e);
-                }
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.DIFF_CSV_HEADERS, delimiter);
             }
         };
 
@@ -548,13 +530,13 @@ public class DiffTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                    && type.getParameters().keySet().contains("delimiter")
+                    && type.getParameters().containsKey("delimiter")
                     && type.getParameters().get("delimiter").equals("semicolon")
                     ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(final Iterator<DiffTask> tasks);
+        abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
     }
 
     private StreamingOutput entity(List<byte[]> diffTaskAttributesList) {
@@ -672,6 +654,25 @@ public class DiffTaskRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.DIFF);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setPrimaryAET(primaryAET);
+        taskQueryParam.setSecondaryAET(secondaryAET);
+        taskQueryParam.setCompareFields(comparefields);
+        taskQueryParam.setCheckMissing(checkMissing);
+        taskQueryParam.setCheckDifferent(checkDifferent);
         return taskQueryParam;
     }
 

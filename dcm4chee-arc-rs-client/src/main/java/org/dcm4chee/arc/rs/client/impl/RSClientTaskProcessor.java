@@ -52,7 +52,7 @@ import javax.inject.Named;
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Nov 2016
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("REST")

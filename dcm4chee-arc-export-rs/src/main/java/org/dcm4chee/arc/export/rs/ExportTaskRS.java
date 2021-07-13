@@ -78,6 +78,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -117,6 +118,9 @@ public class ExportTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @QueryParam("taskID")
+    private Long taskID;
 
     @QueryParam("StudyInstanceUID")
     private String studyUID;
@@ -182,8 +186,6 @@ public class ExportTaskRS {
                     output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -589,13 +591,14 @@ public class ExportTaskRS {
 
     private TaskQueryParam1 taskQueryParam1(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
-        taskQueryParam.setType(Task.Type.EXPORT);
+        taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
-        if (status != null) taskQueryParam.setStatus(Task.Status.valueOf(status));
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.EXPORT);
         taskQueryParam.setStudyIUID(studyUID);
         taskQueryParam.setExporterIDs(exporterIDs.stream()
                 .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))

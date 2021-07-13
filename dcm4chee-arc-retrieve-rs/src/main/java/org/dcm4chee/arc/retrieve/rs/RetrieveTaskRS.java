@@ -40,9 +40,6 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -52,12 +49,14 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -70,18 +69,17 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -100,6 +98,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private RetrieveManager mgr;
+
+    @Inject
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -121,6 +122,9 @@ public class RetrieveTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @QueryParam("taskID")
+    private Long taskID;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
@@ -170,7 +174,8 @@ public class RetrieveTaskRS {
     private String orderby;
 
     @QueryParam("dcmQueueName")
-    @ValidList(allowed = {"Retrieve1",
+    @ValidList(allowed = {
+            "Retrieve1",
             "Retrieve2",
             "Retrieve3",
             "Retrieve4",
@@ -218,12 +223,9 @@ public class RetrieveTaskRS {
             return notAcceptable();
 
         try {
-            return Response.ok(output.entity(mgr.listRetrieveTasks(
-                                    queueTaskQueryParam(status()),
-                                    retrieveTaskQueryParam(deviceName, updatedTime),
-                                    parseInt(offset),
-                                    parseInt(limit))),
-                            output.type)
+            return Response.ok(
+                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
+                    output.type)
                     .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -557,36 +559,14 @@ public class RetrieveTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final Iterator<RetrieveTask> tasks) {
-                return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
-                    gen.writeEnd();
-                    gen.flush();
-                };
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final Iterator<RetrieveTask> tasks) {
-                return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                            .withHeader(RetrieveTask.header)
-                            .withDelimiter(delimiter)
-                            .withQuoteMode(QuoteMode.ALL));
-                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
-                    writer.flush();
-                };
-            }
-
-            private void writeTaskToCSV(CSVPrinter printer, RetrieveTask task) {
-                try {
-                    task.printRecord(printer);
-                } catch (IOException e) {
-                    LOG.warn("{}", e);
-                }
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.RETRIEVE_CSV_HEADERS, delimiter);
             }
         };
 
@@ -606,13 +586,13 @@ public class RetrieveTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                    && type.getParameters().keySet().contains("delimiter")
+                    && type.getParameters().containsKey("delimiter")
                     && type.getParameters().get("delimiter").equals("semicolon")
                     ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(final Iterator<RetrieveTask> tasks);
+        abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
     }
 
     private QueueMessage.Status status() {
@@ -687,6 +667,26 @@ public class RetrieveTaskRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.STGVER);
+        taskQueryParam.setQueueNames(dcmQueueName.stream()
+                .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
+                .collect(Collectors.toList()));
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        taskQueryParam.setDestinationAET(destinationAET);
         return taskQueryParam;
     }
 }

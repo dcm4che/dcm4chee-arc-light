@@ -53,7 +53,7 @@ import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2019
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("REJECT")

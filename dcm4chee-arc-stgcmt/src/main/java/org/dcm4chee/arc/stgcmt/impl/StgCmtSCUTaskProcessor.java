@@ -52,7 +52,7 @@ import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 2016
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("STGCMT_SCU")

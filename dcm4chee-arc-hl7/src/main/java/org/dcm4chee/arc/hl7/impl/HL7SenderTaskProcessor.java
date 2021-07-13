@@ -62,7 +62,7 @@ import javax.inject.Named;
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2016
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("HL7")

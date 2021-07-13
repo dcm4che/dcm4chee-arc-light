@@ -447,6 +447,8 @@ public class QueryBuilder {
 
     public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam1 taskQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
+        if (taskQueryParam.getTaskPK() != null)
+            predicates.add(cb.equal(task.get(Task_.pk), taskQueryParam.getTaskPK()));
         if (taskQueryParam.getQueueNames() != null && !taskQueryParam.getQueueNames().isEmpty())
             predicates.add(task.get(Task_.queueName).in(taskQueryParam.getQueueNames()));
         if (taskQueryParam.getStatus() != null)

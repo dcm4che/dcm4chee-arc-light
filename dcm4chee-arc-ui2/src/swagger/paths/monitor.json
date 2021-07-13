@@ -159,6 +159,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -286,6 +289,9 @@
       "summary": "Count Export Tasks",
       "operationId": "countExportTasks",
       "parameters": [
+        {
+          "$ref": "../parameters.json#/taskID"
+        },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
@@ -598,6 +604,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -743,6 +752,9 @@
       "summary": "Count Retrieve Tasks",
       "operationId": "countRetrieveTasks",
       "parameters": [
+        {
+          "$ref": "../parameters.json#/taskID"
+        },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
@@ -1051,6 +1063,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1178,6 +1193,9 @@
       "summary": "Count Storage Verification Tasks",
       "operationId": "countStorageVerificationTasks",
       "parameters": [
+        {
+          "$ref": "../parameters.json#/taskID"
+        },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
@@ -1435,6 +1453,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1586,6 +1607,9 @@
       "summary": "Count Compare Studies Tasks",
       "operationId": "countCompareStudiesTasks",
       "parameters": [
+        {
+          "$ref": "../parameters.json#/taskID"
+        },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
@@ -2006,6 +2030,9 @@
           "$ref": "../parameters.json#/queuePathParam"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -2013,9 +2040,6 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2112,6 +2136,9 @@
           "$ref": "../parameters.json#/queuePathParam"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -2119,9 +2146,6 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"

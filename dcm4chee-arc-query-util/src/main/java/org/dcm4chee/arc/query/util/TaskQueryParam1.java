@@ -54,6 +54,7 @@ import java.util.List;
  */
 public class TaskQueryParam1 {
 
+    private Long taskPK;
     private List<String> queueNames = new ArrayList<>();
     private String deviceName;
     private Task.Type type;
@@ -75,6 +76,14 @@ public class TaskQueryParam1 {
     private String compareFields;
     private List<String> exporterIDs = new ArrayList<>();
     private String stgCmtExporterID;
+
+    public Long getTaskPK() {
+        return taskPK;
+    }
+
+    public void setTaskPK(Long taskPK) {
+        this.taskPK = taskPK;
+    }
 
     public List<String> getQueueNames() {
         return queueNames;
@@ -102,6 +111,10 @@ public class TaskQueryParam1 {
 
     public Task.Status getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status != null ? Task.Status.valueOf(status) : null;
     }
 
     public void setStatus(Task.Status status) {

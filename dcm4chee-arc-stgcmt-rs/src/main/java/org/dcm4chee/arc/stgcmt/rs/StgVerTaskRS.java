@@ -48,15 +48,19 @@ import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StorageVerificationTask;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -83,6 +87,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -104,6 +109,9 @@ public class StgVerTaskRS {
     private StgCmtManager stgCmtMgr;
 
     @Inject
+    private TaskManager taskManager;
+
+    @Inject
     private RSClient rsClient;
 
     @Inject
@@ -117,6 +125,9 @@ public class StgVerTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @QueryParam("taskID")
+    private Long taskID;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
@@ -172,12 +183,7 @@ public class StgVerTaskRS {
             return notAcceptable();
         try {
             return Response.ok(
-                    output.entity(
-                            stgCmtMgr.listStgVerTasks(
-                                    queueTaskQueryParam(deviceName, status()),
-                                    stgVerTaskQueryParam(updatedTime),
-                                    parseInt(offset),
-                                    parseInt(limit))),
+                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -458,36 +464,14 @@ public class StgVerTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(Iterator<StorageVerificationTask> tasks) {
-                return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
-                    gen.writeEnd();
-                    gen.flush();
-                };
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(Iterator<StorageVerificationTask> tasks) {
-                return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                            .withHeader(StorageVerificationTask.header)
-                            .withDelimiter(delimiter)
-                            .withQuoteMode(QuoteMode.ALL));
-                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
-                    writer.flush();
-                };
-            }
-
-            private void writeTaskToCSV(CSVPrinter printer, StorageVerificationTask task) {
-                try {
-                    task.printRecord(printer);
-                } catch (IOException e) {
-                    LOG.warn("{}", e, e);
-                }
+            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.STGVER_CSV_HEADERS, delimiter);
             }
         };
 
@@ -507,13 +491,13 @@ public class StgVerTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                    && type.getParameters().keySet().contains("delimiter")
+                    && type.getParameters().containsKey("delimiter")
                     && type.getParameters().get("delimiter").equals("semicolon")
                     ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(Iterator<StorageVerificationTask> tasks);
+        abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
     }
 
     private int count(Response response, String devName) {
@@ -612,6 +596,21 @@ public class StgVerTaskRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.STGVER);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setStudyIUID(studyIUID);
         return taskQueryParam;

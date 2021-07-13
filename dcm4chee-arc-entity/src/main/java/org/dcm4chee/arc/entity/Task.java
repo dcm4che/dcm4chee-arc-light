@@ -126,7 +126,7 @@ public class Task {
     public static final String UPDATE_STGVER_RESULT_BY_PK = "Task.UpdateStgVerResultByPk";
     public static final String UPDATE_RETRIEVE_RESULT_BY_PK = "Task.UpdateRetrieveResultByPk";
     public static final String[] EXPORT_CSV_HEADERS = {
-            "pk",
+            "taskID",
             "createdTime",
             "updatedTime",
             "ExporterID",
@@ -142,6 +142,82 @@ public class Task {
             "status",
             "queue",
             "failures",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
+    public static final String[] RETRIEVE_CSV_HEADERS = {
+            "taskID",
+            "createdTime",
+            "updatedTime",
+            "LocalAET",
+            "RemoteAET",
+            "DestinationAET",
+            "StudyInstanceUID",
+            "SeriesInstanceUID",
+            "SOPInstanceUID",
+            "remaining",
+            "completed",
+            "failed",
+            "warning",
+            "statusCode",
+            "errorComment",
+            "batchID",
+            "dicomDeviceName",
+            "queue",
+            "scheduledTime",
+            "status",
+            "failures",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
+    public static final String[] STGVER_CSV_HEADERS = {
+            "taskID",
+            "createdTime",
+            "updatedTime",
+            "LocalAET",
+            "StgCmtPolicy",
+            "UpdateLocationStatus",
+            "StorageID",
+            "StudyInstanceUID",
+            "SeriesInstanceUID",
+            "SOPInstanceUID",
+            "completed",
+            "failed",
+            "queue",
+            "dicomDeviceName",
+            "status",
+            "scheduledTime",
+            "failures",
+            "batchID",
+            "processingStartTime",
+            "processingEndTime",
+            "errorMessage",
+            "outcomeMessage"
+    };
+    public static final String[] DIFF_CSV_HEADERS = {
+            "taskID",
+            "LocalAET",
+            "PrimaryAET",
+            "SecondaryAET",
+            "QueryString",
+            "checkMissing",
+            "checkDifferent",
+            "matches",
+            "missing",
+            "different",
+            "comparefield",
+            "createdTime",
+            "updatedTime",
+            "queue",
+            "dicomDeviceName",
+            "status",
+            "scheduledTime",
+            "failures",
+            "batchID",
             "processingStartTime",
             "processingEndTime",
             "errorMessage",
@@ -948,10 +1024,10 @@ public class Task {
                 gen.write("RemoteAET", remoteAET);
                 gen.write("DIMSE", getDIMSE());
                 gen.write("SOPInstanceUID", sopInstanceUID);
-                gen.write("AccessionNumber", getAccessionNumber());
-                gen.write("StudyInstanceUID", studyInstanceUID);
-                gen.write("PatientID", getPatientID());
-                gen.write("PatientName", getPatientName());
+                writer.writeNotNullOrDef("AccessionNumber", getAccessionNumber(), null);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("PatientID", getPatientID(), null);
+                writer.writeNotNullOrDef("PatientName", getPatientName(), null);
                 break;
         }
         gen.writeEnd();
@@ -963,6 +1039,15 @@ public class Task {
                 case EXPORT:
                     writeExportTaskAsCSV(printer);
                     break;
+                case RETRIEVE:
+                    writeRetrieveTaskAsCSV(printer);
+                    break;
+                case STGVER:
+                    writeStorageVerificationTaskAsCSV(printer);
+                    break;
+                case DIFF:
+                    writeDiffTaskAsCSV(printer);
+                    break;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -972,7 +1057,7 @@ public class Task {
     private void writeExportTaskAsCSV(CSVPrinter printer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         printer.printRecord(
-                pk,
+                Long.toString(pk),
                 df.format(createdTime),
                 df.format(updatedTime),
                 exporterID,
@@ -985,9 +1070,94 @@ public class Task {
                 batchID,
                 deviceName,
                 scheduledTime,
-                status.toString(),
+                status,
                 queueName,
                 numberOfFailures > 0 ? Integer.toString(numberOfFailures) : null,
+                processingStartTime != null ? df.format(processingStartTime) : null,
+                processingEndTime != null ? df.format(processingEndTime) : null,
+                errorMessage,
+                outcomeMessage);
+    }
+
+    private void writeRetrieveTaskAsCSV(CSVPrinter printer) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        printer.printRecord(
+                Long.toString(pk),
+                df.format(createdTime),
+                df.format(updatedTime),
+                localAET,
+                remoteAET,
+                destinationAET,
+                studyInstanceUID,
+                seriesInstanceUID,
+                sopInstanceUID,
+                Integer.toString(remaining),
+                Integer.toString(completed),
+                Integer.toString(failed),
+                Integer.toString(warning),
+                statusCode != -1 ? TagUtils.shortToHexString(statusCode) : null,
+                errorComment,
+                batchID,
+                deviceName,
+                queueName,
+                scheduledTime,
+                status,
+                numberOfFailures > 0 ? Integer.toString(numberOfFailures) : null,
+                processingStartTime != null ? df.format(processingStartTime) : null,
+                processingEndTime != null ? df.format(processingEndTime) : null,
+                errorMessage,
+                outcomeMessage);
+    }
+
+    private void writeStorageVerificationTaskAsCSV(CSVPrinter printer) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        printer.printRecord(
+                Long.toString(pk),
+                df.format(createdTime),
+                df.format(updatedTime),
+                localAET,
+                storageVerificationPolicy,
+                String.valueOf(updateLocationStatus),
+                storageIDs,
+                studyInstanceUID,
+                seriesInstanceUID,
+                sopInstanceUID,
+                Integer.toString(completed),
+                Integer.toString(failed),
+                queueName,
+                deviceName,
+                status,
+                scheduledTime,
+                numberOfFailures > 0 ? Integer.toString(numberOfFailures) : null,
+                batchID,
+                processingStartTime != null ? df.format(processingStartTime) : null,
+                processingEndTime != null ? df.format(processingEndTime) : null,
+                errorMessage,
+                outcomeMessage);
+    }
+
+    private void writeDiffTaskAsCSV(CSVPrinter printer) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        printer.printRecord(
+                Long.toString(pk),
+                localAET,
+                getPrimaryAET(),
+                getSecondaryAET(),
+                queryString,
+                Boolean.toString(checkMissing),
+                Boolean.toString(checkDifferent),
+                matches,
+                missing,
+                different,
+                compareFields,
+                df.format(createdTime),
+                df.format(updatedTime),
+                queueName,
+                deviceName,
+                status,
+                scheduledTime,
+                numberOfFailures > 0 ? Integer.toString(numberOfFailures) : null,
+                batchID,
                 processingStartTime != null ? df.format(processingStartTime) : null,
                 processingEndTime != null ? df.format(processingEndTime) : null,
                 errorMessage,

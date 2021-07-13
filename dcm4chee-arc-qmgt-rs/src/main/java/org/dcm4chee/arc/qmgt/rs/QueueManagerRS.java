@@ -117,6 +117,9 @@ public class QueueManagerRS {
     @PathParam("queueName")
     private String queueName;
 
+    @QueryParam("taskID")
+    private Long taskID;
+
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
@@ -512,9 +515,10 @@ public class QueueManagerRS {
 
     private TaskQueryParam1 taskQueryParam1(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setDeviceName(deviceName);
-        if (status != null) taskQueryParam.setStatus(Task.Status.valueOf(status));
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);

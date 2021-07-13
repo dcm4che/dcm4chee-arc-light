@@ -53,7 +53,7 @@ import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2018
+ * @since Jul 2021
  */
 @ApplicationScoped
 @Named("STGVER")
