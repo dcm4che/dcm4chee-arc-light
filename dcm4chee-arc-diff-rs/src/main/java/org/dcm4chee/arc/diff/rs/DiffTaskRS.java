@@ -216,9 +216,7 @@ public class DiffTaskRS {
     public Response countDiffTasks() {
         logRequest();
         try {
-            return count(diffService.countTasks(
-                    queueTaskQueryParam(deviceName, status()),
-                    diffTaskQueryParam(updatedTime)));
+            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

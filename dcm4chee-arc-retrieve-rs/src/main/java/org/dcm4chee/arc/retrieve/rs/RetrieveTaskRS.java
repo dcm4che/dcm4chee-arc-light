@@ -240,9 +240,7 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         try {
-            return count(mgr.countTasks(
-                    queueTaskQueryParam(status()),
-                    retrieveTaskQueryParam(deviceName, updatedTime)));
+            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

@@ -198,9 +198,7 @@ public class StgVerTaskRS {
     public Response countStgVerTasks() {
         logRequest();
         try {
-            return count(stgCmtMgr.countTasks(
-                    queueTaskQueryParam(deviceName, status()),
-                    stgVerTaskQueryParam(updatedTime)));
+            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
