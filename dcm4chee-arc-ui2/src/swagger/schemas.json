@@ -268,22 +268,9 @@
       "IN PROCESS"
     ]
   },
-  "queueMsgStatus": {
+  "taskStatus": {
     "type": "string",
     "enum": [
-      "TO SCHEDULE",
-      "SCHEDULED",
-      "IN PROCESS",
-      "COMPLETED",
-      "WARNING",
-      "FAILED",
-      "CANCELED"
-    ]
-  },
-  "status": {
-    "type": "string",
-    "enum": [
-      "TO SCHEDULE",
       "SCHEDULED",
       "IN PROCESS",
       "COMPLETED",
@@ -880,159 +867,860 @@
       }
     }
   },
+  "task": {
+    "title": "Task",
+    "required": [
+      "taskID",
+      "dicomDeviceName",
+      "queue",
+      "type",
+      "status",
+      "failures",
+      "createdTime",
+      "updatedTime",
+      "scheduledTime"
+    ],
+    "properties": {
+      "taskID": {
+        "title": "Task ID",
+        "description": "id of Task",
+        "type": "string"
+      },
+      "dicomDeviceName": {
+        "title": "Archive Device by which the Task is processed",
+        "description": "name of queue",
+        "type": "string"
+      },
+      "queue": {
+        "title": "Queue Name",
+        "description": "name of queue",
+        "type": "string"
+      },
+      "status": {
+        "title": "Task Status",
+        "description": "status of task",
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "IN PROCESS",
+          "COMPLETED",
+          "WARNING",
+          "FAILED",
+          "CANCELED"
+        ]
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "number of failed attempts to process this task",
+        "type": "integer"
+      },
+      "createdTime": {
+        "title": "Created Time",
+        "description": "time when this task was created",
+        "type": "string",
+        "format": "date-time"
+      },
+      "updatedTime": {
+        "title": "Updated Time",
+        "description": "time when this task was last updated",
+        "type": "string",
+        "format": "date-time"
+      },
+      "scheduledTime": {
+        "title": "Scheduled Time",
+        "description": "time when next attempt to process this task is scheduled",
+        "type": "string",
+        "format": "date-time"
+      },
+      "processingStartTime": {
+        "title": "Processing Start Time",
+        "description": "time when last attempt to process this task started",
+        "type": "string",
+        "format": "date-time"
+      },
+      "processingEndTime": {
+        "title": "Processing End Time",
+        "description": "time when last attempt to process this task finished",
+        "type": "string",
+        "format": "date-time"
+      },
+      "errorMessage": {
+        "title": "Error Message",
+        "description": "error message of last failed attempt to process this task",
+        "type": "string"
+      },
+      "outcomeMessage": {
+        "title": "Outcome Message",
+        "description": "outcome message of process this task",
+        "type": "string"
+      },
+      "batchID": {
+        "title": "Batch ID",
+        "description": "Batch ID of this task",
+        "type": "string"
+      },
+      "RequesterURI": {
+        "title": "Request URI",
+        "description": "Endpoint URI of RESTful Service by which this task was scheduled",
+        "type": "string"
+      },
+      "RequesterUserID": {
+        "title": "Requester User ID",
+        "description": "ID of user who invoked the RESTful Service, if the user has been authenticated, or the IP of the HTTP client if the user has not been authenticated.",
+        "type": "string"
+      },
+      "RequesterHostName": {
+        "title": "Requester Hostname",
+        "description": "Hostname of HTTP client which invoked the RESTful Service",
+        "type": "string"
+      }
+    }
+  },
+  "taskList": {
+    "title": "TaskList",
+    "oneOf": [
+      {
+        "$ref": "#/exportTaskList"
+      },
+      {
+        "$ref": "#/retrieveTaskList"
+      },
+      {
+        "$ref": "#/stgverTaskList"
+      },
+      {
+        "$ref": "#/diffTaskList"
+      },
+      {
+        "$ref": "#/stgcmtscpTaskList"
+      },
+      {
+        "$ref": "#/stgcmtscuTaskList"
+      },
+      {
+        "$ref": "#/rejectTaskList"
+      },
+      {
+        "$ref": "#/hl7TaskList"
+      },
+      {
+        "$ref": "#/restTaskList"
+      },
+      {
+        "$ref": "#/ianTaskList"
+      },
+      {
+        "$ref": "#/mppsTaskList"
+      }
+    ]
+  },
+  "exportTaskList": {
+    "title": "ExportTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "ExporterID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "EXPORT"
+              ]
+            },
+            "ExporterID": {
+              "title": "Exporter ID",
+              "description": "ID of exporter performing the Task",
+              "type": "string"
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "AET configured in Exporter",
+              "type": "string"
+            },
+            "StudyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Unique Identifier of the Study",
+              "type": "string"
+            },
+            "SeriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Unique Identifier of the Series",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "Unique Identifier of the Object",
+              "type": "string"
+            },
+            "Modality": {
+              "title": "Modality",
+              "description": "Modality",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "NumberOfInstances": {
+              "title": "Number of Instances ",
+              "description": "Number of Instances",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "retrieveTaskList": {
+    "title": "RetrieveTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "RemoteAET",
+            "DestinationAET",
+            "StudyInstanceUID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "RETRIEVE"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE Title which was used as Calling AET",
+              "type": "string"
+            },
+            "RemoteAET": {
+              "title": "Remote AET",
+              "description": "AE Title of the C-MOVE SCP",
+              "type": "string"
+            },
+            "DestinationAET": {
+              "title": "Destination AET",
+              "description": "Move Destination AE Title",
+              "type": "string"
+            },
+            "FindSCP": {
+              "title": "Find SCP",
+              "description": "AE Title of C-FIND SCP to verify, if a Study is already available at the Destination",
+              "type": "string"
+            },
+            "StudyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Unique Identifier of the Study to be retrieved",
+              "type": "string"
+            },
+            "SeriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Unique Identifier of the Series to be retrieved",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "Unique Identifier of the Object to be retrieved",
+              "type": "string"
+            },
+            "statusCode": {
+              "title": "DICOM Status Code",
+              "description": "DICOM Status Code in hex",
+              "type": "string"
+            },
+            "errorComment": {
+              "title": "DICOM Error Comment",
+              "type": "string"
+            },
+            "remaining": {
+              "title": "Number of Remaining Sub-Operations",
+              "type": "integer"
+            },
+            "completed": {
+              "title": "Number of Completed Sub-Operations",
+              "type": "integer"
+            },
+            "failed": {
+              "title": "Number of Failed Sub-Operations",
+              "type": "integer"
+            },
+            "warning": {
+              "title": "Number of Warning Sub-Operations",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stgverTaskList": {
+    "title": "StorageVerificationTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "StudyInstanceUID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "STGVER"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE Title",
+              "type": "string"
+            },
+            "StgCmtPolicy": {
+              "title": "Storage Commitment Policy",
+              "description": "Storage Commitment Policy",
+              "type": "string",
+              "enum": [
+                "DB_RECORD_EXISTS",
+                "OBJECT_EXISTS",
+                "OBJECT_SIZE",
+                "OBJECT_FETCH",
+                "OBJECT_CHECKSUM",
+                "S3_MD5SUM"
+              ]
+            },
+            "UpdateLocationStatus": {
+              "title": "Update Location Status",
+              "description": "Indicates if the Status of the Location DB record shall be updated on Storage Verification accordingly.",
+              "type": "boolean"
+            },
+            "StorageID": {
+              "title": "Storage IDs",
+              "description": "Indicates that for successful Storage Verification the object must be stored on (one of) the specified Storage System",
+              "type": "array",
+              "item": {
+                "type": "string"
+              }
+            },
+            "StudyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Unique Identifier of the Study",
+              "type": "string"
+            },
+            "SeriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Unique Identifier of the Series",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "Unique Identifier of the Object",
+              "type": "string"
+            },
+            "completed": {
+              "title": "Number of Instances for which Storage Verification succeeded",
+              "type": "integer"
+            },
+            "failed": {
+              "title": "Number of Instances for which Storage Verification failed",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  },
   "diffTaskList": {
     "title": "DiffTaskList",
     "type": "array",
     "items": {
-      "required": [
-        "pk",
-        "JMSMessageID",
-        "status",
-        "dicomDeviceName",
-        "LocalAET",
-        "PrimaryAET",
-        "SecondaryAET",
-        "checkMissing",
-        "checkDifferent",
-        "createdTime",
-        "updatedTime",
-        "scheduledTime"
-      ],
-      "properties": {
-        "pk": {
-          "title": "Diff Task PK",
-          "description": "Diff Task PK",
-          "type": "integer"
+      "allOf": [
+        {
+          "$ref": "#/task"
         },
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "id of JMS message",
-          "type": "string"
-        },
-        "queue": {
-          "title": "Queue Name",
-          "description": "Queue Name",
-          "type": "string"
-        },
-        "status": {
-          "title": "Task Status",
-          "description": "status of task",
-          "type": "string",
-          "enum": [
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
-          ]
-        },
-        "dicomDeviceName": {
-          "title": "Device Name",
-          "description": "Name of Device performing the Task ",
-          "type": "string"
-        },
-        "LocalAET": {
-          "title": "Local AET",
-          "description": "Archive AE Title which was used as Calling AET",
-          "type": "string"
-        },
-        "PrimaryAET": {
-          "title": "Primary AET",
-          "description": "AE Title of the primary C-FIND SCP",
-          "type": "string"
-        },
-        "SecondaryAET": {
-          "title": "Secondary AET",
-          "description": "AE Title of the secondary C-FIND SCP",
-          "type": "string"
-        },
-        "QueryString": {
-          "title": "Query String",
-          "description": "Query Parameters of DIFF request",
-          "type": "string"
-        },
-        "checkMissing": {
-          "title": "Check Missing",
-          "description": "Indicates if the task checks for studies only available at the primary C-FIND SCP",
-          "type": "boolean"
-        },
-        "checkDifferent": {
-          "title": "Check Different",
-          "description": "Indicates if the task checks for different attributes of studies available at the primary and the secondary C-FIND SCP",
-          "type": "boolean"
-        },
-        "comparefield": {
-          "title": "Compare Field",
-          "description": "Refers set of attributes which are compared by this task",
-          "type": "string"
-        },
-        "matches": {
-          "title": "matches",
-          "description": "number of studies compared by this task",
-          "type": "integer"
-        },
-        "missing": {
-          "title": "missing",
-          "description": "number of studies only available at the primary C-FIND SCP",
-          "type": "integer"
-        },
-        "different": {
-          "title": "different",
-          "description": "number of studies which differs in the compared attributes between the primary and the secondary C-FIND SCP",
-          "type": "integer"
-        },
-        "failures": {
-          "title": "Failures",
-          "description": "number of failed attempts to process this task",
-          "type": "integer"
-        },
-        "createdTime": {
-          "title": "Created Time",
-          "description": "time when this task was created",
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedTime": {
-          "title": "Updated Time",
-          "description": "time when this task was last updated",
-          "type": "string",
-          "format": "date-time"
-        },
-        "scheduledTime": {
-          "title": "Scheduled Time",
-          "description": "time when next attempt to process this task is scheduled",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingStartTime": {
-          "title": "Processing Start Time",
-          "description": "time when last attempt to process this task started",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingEndTime": {
-          "title": "Processing End Time",
-          "description": "time when last attempt to process this task finished",
-          "type": "string",
-          "format": "date-time"
-        },
-        "errorMessage": {
-          "title": "Error Message",
-          "description": "error message of last failed attempt to process this task",
-          "type": "string"
-        },
-        "outcomeMessage": {
-          "title": "Outcome Message",
-          "description": "outcome message of process this task",
-          "type": "string"
-        },
-        "batchID": {
-          "title": "Batch ID",
-          "description": "Batch ID of this task",
-          "type": "string"
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "PrimaryAET",
+            "SecondaryAET",
+            "checkMissing",
+            "checkDifferent"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "DIFF"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE Title which was used as Calling AET",
+              "type": "string"
+            },
+            "PrimaryAET": {
+              "title": "Primary AET",
+              "description": "AE Title of the primary C-FIND SCP",
+              "type": "string"
+            },
+            "SecondaryAET": {
+              "title": "Secondary AET",
+              "description": "AE Title of the secondary C-FIND SCP",
+              "type": "string"
+            },
+            "QueryString": {
+              "title": "Query String",
+              "description": "Query Parameters of DIFF request",
+              "type": "string"
+            },
+            "checkMissing": {
+              "title": "Check Missing",
+              "description": "Indicates if the task checks for studies only available at the primary C-FIND SCP",
+              "type": "boolean"
+            },
+            "checkDifferent": {
+              "title": "Check Different",
+              "description": "Indicates if the task checks for different attributes of studies available at the primary and the secondary C-FIND SCP",
+              "type": "boolean"
+            },
+            "comparefield": {
+              "title": "Compare Field",
+              "description": "Refers set of attributes which are compared by this task",
+              "type": "string"
+            },
+            "matches": {
+              "title": "matches",
+              "description": "number of studies compared by this task",
+              "type": "integer"
+            },
+            "missing": {
+              "title": "missing",
+              "description": "number of studies only available at the primary C-FIND SCP",
+              "type": "integer"
+            },
+            "different": {
+              "title": "different",
+              "description": "number of studies which differs in the compared attributes between the primary and the secondary C-FIND SCP",
+              "type": "integer"
+            }
+          }
         }
-      }
+      ]
+    }
+  },
+  "stgcmtscpTaskList": {
+    "title": "StgCmtSCPTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "RemoteAET"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "STGCMTSCP"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE acting as Storage Commitment SCP",
+              "type": "string"
+            },
+            "RemoteAET": {
+              "title": "Remote AET",
+              "description": "Remote AE acting as Storage Commitment SCU",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stgcmtscuTaskList": {
+    "title": "StgCmtSCUTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "RemoteAET",
+            "StudyInstanceUID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "STGCMTSCU"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE acting as Storage Commitment SCU",
+              "type": "string"
+            },
+            "RemoteAET": {
+              "title": "Remote AET",
+              "description": "Remote AE acting as Storage Commitment SCP",
+              "type": "string"
+            },
+            "StudyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Unique Identifier of the Study which Storage Commitment is requested",
+              "type": "string"
+            },
+            "SeriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Unique Identifier of the Series which Storage Commitment is requested",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "Unique Identifier of the Object which Storage Commitment is requested",
+              "type": "string"
+            },
+            "ExporterID": {
+              "title": "Exporter ID",
+              "description": "ID of exporter by which the Storage Commitment Task was scheduled.",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "rejectTaskList": {
+    "title": "RejectTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "StudyInstanceUID",
+            "Code"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "REJECT"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE performing the Rejection by creating and storing a corresponding Rejection Note",
+              "type": "string"
+            },
+            "StudyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Unique Identifier of the Study which is rejected",
+              "type": "string"
+            },
+            "SeriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Unique Identifier of the Series which is rejected",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "Unique Identifier of the Object which is rejected",
+              "type": "string"
+            },
+            "Code": {
+              "title": "Rejection Code",
+              "description": "Rejection Code",
+              "type": "string",
+              "enum": [
+                "(110514, DCM, \"Incorrect worklist entry selected\")",
+                "(113001, DCM, \"Rejected for Quality Reasons\")",
+                "(113037, DCM, \"Rejected for Patient Safety Reasons\")",
+                "(113038, DCM, \"Incorrect Modality Worklist Entry\")",
+                "(113039, DCM, \"Data Retention Policy Expired\")"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hl7TaskList": {
+    "title": "HL7TaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "SendingApplication",
+            "SendingFacility",
+            "ReceivingApplication",
+            "ReceivingFacility",
+            "MessageType",
+            "MessageControlID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "HL7"
+              ]
+            },
+            "SendingApplication": {
+              "title": "Sending Application",
+              "description": "HL7 Sending Application",
+              "type": "string"
+            },
+            "SendingFacility": {
+              "title": "Sending Facility",
+              "description": "HL7 Sending Facility",
+              "type": "string"
+            },
+            "ReceivingApplication": {
+              "title": "Receiving Application",
+              "description": "HL7 Receiving Application",
+              "type": "string"
+            },
+            "ReceivingFacility": {
+              "title": "Receiving Facility",
+              "description": "HL7 Receiving Facility",
+              "type": "string"
+            },
+            "MessageType": {
+              "title": "Message Type",
+              "description": "HL7 Message Type",
+              "type": "string"
+            },
+            "MessageControlID": {
+              "title": "Message Control ID",
+              "description": "HL7 Message Control ID",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "restTaskList": {
+    "title": "RestTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "RSOperation",
+            "WebApplicationName"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "REST"
+              ]
+            },
+            "RSOperation": {
+              "title": "RESTful Operation",
+              "description": "Type of RESTful Operation",
+              "type": "string",
+              "enum": [
+                "CreatePatient",
+                "UpdatePatient",
+                "DeletePatient",
+                "ChangePatientID",
+                "ChangePatientID2",
+                "MergePatient",
+                "MergePatient2",
+                "UnmergePatient",
+                "UpdateStudy",
+                "DeleteStudy",
+                "ReimportStudy",
+                "RejectStudy",
+                "RejectSeries",
+                "RejectInstance",
+                "ApplyRetentionPolicy",
+                "UpdateStudyExpirationDate",
+                "UpdateSeriesExpirationDate",
+                "CreateMWL",
+                "UpdateMWL",
+                "DeleteMWL",
+                "UpdateStudyAccessControlID",
+                "MoveStudyToPatient",
+                "SupplementIssuer"
+              ]
+            },
+            "WebApplicationName": {
+              "title": "Web Application Name",
+              "description": "Name of Target Web Application",
+              "type": "string"
+            },
+            "RequestQueryString": {
+              "title": "Request Query String",
+              "description": "Request Query String",
+              "type": "string"
+            },
+            "PatientID": {
+              "title": "Patient ID",
+              "description": "ID of Patient concerned by the RESTful Operation",
+              "type": "string"
+            },
+            "TLSAllowAnyHostname": {
+              "title": "TLS Allow Any Hostname",
+              "description": "Indicates if the hostname in the HTTPS server’s certificate is not validated",
+              "type": "boolean"
+            },
+            "TLSDisableTrustManager": {
+              "title": "TLS Disable Trust Manager",
+              "description": "Indicates if the HTTPS server’s certificate is not validated at all",
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "ianTaskList": {
+    "title": "IANTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "RemoteAET",
+            "SOPInstanceUID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "IAN"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE acting as IAN SCU",
+              "type": "string"
+            },
+            "RemoteAET": {
+              "title": "Remote AET",
+              "description": "Remote AE acting as IAN SCP",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "SOP Instance UID of IAN",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "mppsTaskList": {
+    "title": "MPPSTaskList",
+    "type": "array",
+    "items": {
+      "allOf": [
+        {
+          "$ref": "#/task"
+        },
+        {
+          "required": [
+            "type",
+            "LocalAET",
+            "RemoteAET",
+            "SOPInstanceUID"
+          ],
+          "properties": {
+            "type": {
+              "title": "Task Type",
+              "description": "type of task",
+              "type": "string",
+              "enum": [
+                "MPPS"
+              ]
+            },
+            "LocalAET": {
+              "title": "Local AET",
+              "description": "Archive AE acting as MPPS SCU",
+              "type": "string"
+            },
+            "RemoteAET": {
+              "title": "Remote AET",
+              "description": "Remote AE acting as MPPS SCP",
+              "type": "string"
+            },
+            "SOPInstanceUID": {
+              "title": "SOP Instance UID",
+              "description": "SOP Instance UID of MPPS",
+              "type": "string"
+            }
+          }
+        }
+      ]
     }
   },
   "echo": {
@@ -1257,144 +1945,6 @@
       }
     }
   },
-  "exportTaskList": {
-    "title": "ExportTaskList",
-    "type": "array",
-    "items": {
-      "required": [
-        "pk",
-        "status",
-        "dicomDeviceName",
-        "ExporterID",
-        "createdTime",
-        "updatedTime"
-      ],
-      "properties": {
-        "pk": {
-          "title": "Export Task PK",
-          "description": "Export Task PK",
-          "type": "integer"
-        },
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "id of JMS message",
-          "type": "string"
-        },
-        "queue": {
-          "title": "Queue Name",
-          "description": "Queue Name of Exporter",
-          "type": "string"
-        },
-        "status": {
-          "title": "Task Status",
-          "description": "status of task",
-          "type": "string",
-          "enum": [
-            "TO SCHEDULE",
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
-          ]
-        },
-        "dicomDeviceName": {
-          "title": "Device Name",
-          "description": "Name of Device performing the Task",
-          "type": "string"
-        },
-        "ExporterID": {
-          "title": "Exporter ID",
-          "description": "ID of exporter performing the Task",
-          "type": "string"
-        },
-        "LocalAET": {
-          "title": "Local AET",
-          "description": "AET configured in Exporter",
-          "type": "string"
-        },
-        "StudyInstanceUID": {
-          "title": "Study Instance UID",
-          "description": "Unique Identifier of the Study",
-          "type": "string"
-        },
-        "SeriesInstanceUID": {
-          "title": "Series Instance UID",
-          "description": "Unique Identifier of the Series",
-          "type": "string"
-        },
-        "SOPInstanceUID": {
-          "title": "SOP Instance UID",
-          "description": "Unique Identifier of the Object",
-          "type": "string"
-        },
-        "Modality": {
-          "title": "Modality",
-          "description": "Modality",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "NumberOfInstances": {
-          "title": "Number of Instances ",
-          "description": "Number of Instances",
-          "type": "integer"
-        },
-        "failures": {
-          "title": "Failures",
-          "description": "number of failed attempts to process this task",
-          "type": "integer"
-        },
-        "createdTime": {
-          "title": "Created Time",
-          "description": "time when this task was created",
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedTime": {
-          "title": "Updated Time",
-          "description": "time when this task was last updated",
-          "type": "string",
-          "format": "date-time"
-        },
-        "scheduledTime": {
-          "title": "Scheduled Time",
-          "description": "time when next attempt to process this task is scheduled",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingStartTime": {
-          "title": "Processing Start Time",
-          "description": "time when last attempt to process this task started",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingEndTime": {
-          "title": "Processing End Time",
-          "description": "time when last attempt to process this task finished",
-          "type": "string",
-          "format": "date-time"
-        },
-        "errorMessage": {
-          "title": "Error Message",
-          "description": "error message of last failed attempt to process this task",
-          "type": "string"
-        },
-        "outcomeMessage": {
-          "title": "Outcome Message",
-          "description": "outcome message of process this task",
-          "type": "string"
-        },
-        "batchID": {
-          "title": "Batch ID",
-          "description": "Batch ID of this task",
-          "type": "string"
-        }
-      }
-    }
-  },
   "hl7appList": {
     "title": "HL7 Application List",
     "type": "array",
@@ -1506,107 +2056,6 @@
       "instances": {
         "title": "Number of Instances",
         "type": "integer"
-      }
-    }
-  },
-  "messageList": {
-    "title": "MessageList",
-    "type": "array",
-    "items": {
-      "required": [
-        "JMSMessageID",
-        "queue",
-        "priority",
-        "status",
-        "failures",
-        "createdTime",
-        "updatedTime",
-        "scheduledTime"
-      ],
-      "properties": {
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "id of JMS message",
-          "type": "string"
-        },
-        "queue": {
-          "title": "Queue Name",
-          "description": "name of queue",
-          "type": "string"
-        },
-        "priority": {
-          "title": "Priority",
-          "description": "priority of message from 0 (lowest) to 9 (highest)",
-          "type": "integer"
-        },
-        "status": {
-          "title": "Message Status",
-          "description": "status of message",
-          "type": "string",
-          "enum": [
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
-          ]
-        },
-        "failures": {
-          "title": "Failures",
-          "description": "number of failed attempts to process this message",
-          "type": "integer"
-        },
-        "createdTime": {
-          "title": "Created Time",
-          "description": "time when this messages was created",
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedTime": {
-          "title": "Updated Time",
-          "description": "time when this messages was last updated",
-          "type": "string",
-          "format": "date-time"
-        },
-        "scheduledTime": {
-          "title": "Scheduled Time",
-          "description": "time when next attempt to process this messages is scheduled",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingStartTime": {
-          "title": "Processing Start Time",
-          "description": "time when last attempt to process this messages started",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingEndTime": {
-          "title": "Processing End Time",
-          "description": "time when last attempt to process this messages finished",
-          "type": "string",
-          "format": "date-time"
-        },
-        "errorMessage": {
-          "title": "Error Message",
-          "description": "error message of last failed attempt to process this message",
-          "type": "string"
-        },
-        "outcomeMessage": {
-          "title": "Outcome Message",
-          "description": "outcome message of process this message",
-          "type": "string"
-        },
-        "messagePropertyXX": {
-          "title": "Message Property XX",
-          "description": "other JMS property of this message",
-          "type": "string"
-        },
-        "batchID": {
-          "title": "Batch ID",
-          "description": "Batch ID of this task",
-          "type": "string"
-        }
       }
     }
   },
@@ -1994,165 +2443,6 @@
       }
     }
   },
-  "retrieveTaskList": {
-    "title": "RetrieveTaskList",
-    "type": "array",
-    "items": {
-      "required": [
-        "pk",
-        "JMSMessageID",
-        "status",
-        "dicomDeviceName",
-        "LocalAET",
-        "RemoteAET",
-        "DestinationAET",
-        "StudyInstanceUID",
-        "createdTime",
-        "updatedTime",
-        "scheduledTime"
-      ],
-      "properties": {
-        "pk": {
-          "title": "Retrieve Task PK",
-          "description": "Retrieve Task PK",
-          "type": "integer"
-        },
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "id of JMS message",
-          "type": "string"
-        },
-        "queue": {
-          "title": "Queue Name",
-          "description": "Queue Name",
-          "type": "string"
-        },
-        "status": {
-          "title": "Task Status",
-          "description": "status of task",
-          "type": "string",
-          "enum": [
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
-          ]
-        },
-        "dicomDeviceName": {
-          "title": "Device Name",
-          "description": "Name of Device performing the Task ",
-          "type": "string"
-        },
-        "LocalAET": {
-          "title": "Local AET",
-          "description": "Archive AE Title which was used as Calling AET",
-          "type": "string"
-        },
-        "RemoteAET": {
-          "title": "Remote AET",
-          "description": "AE Title of the C-MOVE SCP",
-          "type": "string"
-        },
-        "DestinationAET": {
-          "title": "Destination AET",
-          "description": "Move Destination AE Title",
-          "type": "string"
-        },
-        "StudyInstanceUID": {
-          "title": "Study Instance UID",
-          "description": "Unique Identifier of the Study",
-          "type": "string"
-        },
-        "SeriesInstanceUID": {
-          "title": "Series Instance UID",
-          "description": "Unique Identifier of the Series",
-          "type": "string"
-        },
-        "SOPInstanceUID": {
-          "title": "SOP Instance UID",
-          "description": "Unique Identifier of the Object",
-          "type": "string"
-        },
-        "statusCode": {
-          "title": "DICOM Status Code",
-          "description": "DICOM Status Code in hex",
-          "type": "string"
-        },
-        "errorComment": {
-          "title": "DICOM Error Comment",
-          "type": "string"
-        },
-        "remaining": {
-          "title": "Number of Remaining Sub-Operations",
-          "type": "integer"
-        },
-        "completed": {
-          "title": "Number of Completed Sub-Operations",
-          "type": "integer"
-        },
-        "failed": {
-          "title": "Number of Failed Sub-Operations",
-          "type": "integer"
-        },
-        "warning": {
-          "title": "Number of Warning Sub-Operations",
-          "type": "integer"
-        },
-        "failures": {
-          "title": "Failures",
-          "description": "number of failed attempts to process this task",
-          "type": "integer"
-        },
-        "createdTime": {
-          "title": "Created Time",
-          "description": "time when this task was created",
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedTime": {
-          "title": "Updated Time",
-          "description": "time when this task was last updated",
-          "type": "string",
-          "format": "date-time"
-        },
-        "scheduledTime": {
-          "title": "Scheduled Time",
-          "description": "time when next attempt to process this task is scheduled",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingStartTime": {
-          "title": "Processing Start Time",
-          "description": "time when last attempt to process this task started",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingEndTime": {
-          "title": "Processing End Time",
-          "description": "time when last attempt to process this task finished",
-          "type": "string",
-          "format": "date-time"
-        },
-        "errorMessage": {
-          "title": "Error Message",
-          "description": "error message of last failed attempt to process this task",
-          "type": "string"
-        },
-        "outcomeMessage": {
-          "title": "Outcome Message",
-          "description": "outcome message of process this task",
-          "type": "string"
-        },
-        "batchID": {
-          "title": "Batch ID",
-          "description": "Batch ID of this task",
-          "type": "string"
-        }
-      }
-    }
-  },
   "rq_rsp": {
     "type": "object",
     "required": [
@@ -2228,7 +2518,7 @@
           "description": "Exporter ID to filter by",
           "type": "string"
         },
-        "taskPK": {
+        "taskID": {
           "title": "Task PK",
           "description": "Task PK of Export Task",
           "type": "integer"
@@ -2481,136 +2771,6 @@
             "type": "string",
             "format": "date-time"
           }
-        }
-      }
-    }
-  },
-  "stgverTaskList": {
-    "title": "StorageVerificationTaskList",
-    "type": "array",
-    "items": {
-      "required": [
-        "pk",
-        "JMSMessageID",
-        "status",
-        "dicomDeviceName",
-        "LocalAET",
-        "StudyInstanceUID",
-        "createdTime",
-        "updatedTime",
-        "scheduledTime"
-      ],
-      "properties": {
-        "pk": {
-          "title": "Storage Verification Task PK",
-          "description": "Storage Verification Task PK",
-          "type": "integer"
-        },
-        "JMSMessageID": {
-          "title": "JMS Message ID",
-          "description": "id of JMS message",
-          "type": "string"
-        },
-        "queue": {
-          "title": "Queue Name",
-          "description": "Queue Name",
-          "type": "string"
-        },
-        "status": {
-          "title": "Task Status",
-          "description": "status of task",
-          "type": "string",
-          "enum": [
-            "SCHEDULED",
-            "IN PROCESS",
-            "COMPLETED",
-            "WARNING",
-            "FAILED",
-            "CANCELED"
-          ]
-        },
-        "dicomDeviceName": {
-          "title": "Device Name",
-          "description": "Name of Device performing the Task ",
-          "type": "string"
-        },
-        "LocalAET": {
-          "title": "Local AET",
-          "description": "Archive AE Title",
-          "type": "string"
-        },
-        "StudyInstanceUID": {
-          "title": "Study Instance UID",
-          "description": "Unique Identifier of the Study",
-          "type": "string"
-        },
-        "SeriesInstanceUID": {
-          "title": "Series Instance UID",
-          "description": "Unique Identifier of the Series",
-          "type": "string"
-        },
-        "SOPInstanceUID": {
-          "title": "SOP Instance UID",
-          "description": "Unique Identifier of the Object",
-          "type": "string"
-        },
-        "completed": {
-          "title": "Number of Instances for which Storage Commitment succeeded",
-          "type": "integer"
-        },
-        "failed": {
-          "title": "Number of Instances for which Storage Commitment failed",
-          "type": "integer"
-        },
-        "failures": {
-          "title": "Failures",
-          "description": "number of failed attempts to process this task",
-          "type": "integer"
-        },
-        "createdTime": {
-          "title": "Created Time",
-          "description": "time when this task was created",
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedTime": {
-          "title": "Updated Time",
-          "description": "time when this task was last updated",
-          "type": "string",
-          "format": "date-time"
-        },
-        "scheduledTime": {
-          "title": "Scheduled Time",
-          "description": "time when next attempt to process this task is scheduled",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingStartTime": {
-          "title": "Processing Start Time",
-          "description": "time when last attempt to process this task started",
-          "type": "string",
-          "format": "date-time"
-        },
-        "processingEndTime": {
-          "title": "Processing End Time",
-          "description": "time when last attempt to process this task finished",
-          "type": "string",
-          "format": "date-time"
-        },
-        "errorMessage": {
-          "title": "Error Message",
-          "description": "error message of last failed attempt to process this task",
-          "type": "string"
-        },
-        "outcomeMessage": {
-          "title": "Outcome Message",
-          "description": "outcome message of process this task",
-          "type": "string"
-        },
-        "batchID": {
-          "title": "Batch ID",
-          "description": "Batch ID of this task",
-          "type": "string"
         }
       }
     }

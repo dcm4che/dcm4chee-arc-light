@@ -612,19 +612,19 @@
     "/monitor/export": {
       "$ref": "paths/monitor.json#/export"
     },
-    "/monitor/export/{taskPK}": {
+    "/monitor/export/{taskID}": {
       "$ref": "paths/monitor.json#/exportTask"
     },
     "/monitor/export/count": {
       "$ref": "paths/monitor.json#/exportCount"
     },
-    "/monitor/export/{taskPK}/cancel": {
+    "/monitor/export/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/exportTaskCancel"
     },
     "/monitor/export/cancel": {
       "$ref": "paths/monitor.json#/exportCancel"
     },
-    "/monitor/export/{taskPK}/reschedule/{exporterID}": {
+    "/monitor/export/{taskID}/reschedule/{exporterID}": {
       "$ref": "paths/monitor.json#/exportTaskReschedule"
     },
     "/monitor/export/reschedule": {
@@ -639,19 +639,19 @@
     "/monitor/retrieve": {
       "$ref": "paths/monitor.json#/retrieve"
     },
-    "/monitor/retrieve/{taskPK}": {
+    "/monitor/retrieve/{taskID}": {
       "$ref": "paths/monitor.json#/retrieveTask"
     },
     "/monitor/retrieve/count": {
       "$ref": "paths/monitor.json#/retrieveCount"
     },
-    "/monitor/retrieve/{taskPK}/cancel": {
+    "/monitor/retrieve/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/retrieveTaskCancel"
     },
     "/monitor/retrieve/cancel": {
       "$ref": "paths/monitor.json#/retrieveCancel"
     },
-    "/monitor/retrieve/{taskPK}/reschedule": {
+    "/monitor/retrieve/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/retrieveTaskReschedule"
     },
     "/monitor/retrieve/reschedule": {
@@ -663,19 +663,19 @@
     "/monitor/stgver": {
       "$ref": "paths/monitor.json#/stgver"
     },
-    "/monitor/stgver/{taskPK}": {
+    "/monitor/stgver/{taskID}": {
       "$ref": "paths/monitor.json#/stgverTask"
     },
     "/monitor/stgver/count": {
       "$ref": "paths/monitor.json#/stgverCount"
     },
-    "/monitor/stgver/{taskPK}/cancel": {
+    "/monitor/stgver/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/stgverTaskCancel"
     },
     "/monitor/stgver/cancel": {
       "$ref": "paths/monitor.json#/stgverCancel"
     },
-    "/monitor/stgver/{taskPK}/reschedule": {
+    "/monitor/stgver/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/stgverTaskReschedule"
     },
     "/monitor/stgver/reschedule": {
@@ -687,25 +687,25 @@
     "/monitor/diff": {
       "$ref": "paths/monitor.json#/diff"
     },
-    "/monitor/diff/{taskPK}": {
+    "/monitor/diff/{taskID}": {
       "$ref": "paths/monitor.json#/diffTask"
     },
     "/monitor/diff/count": {
       "$ref": "paths/monitor.json#/diffCount"
     },
-    "/monitor/diff/{taskPK}/cancel": {
+    "/monitor/diff/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/diffTaskCancel"
     },
     "/monitor/diff/cancel": {
       "$ref": "paths/monitor.json#/diffCancel"
     },
-    "/monitor/diff/{taskPK}/reschedule": {
+    "/monitor/diff/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/diffTaskReschedule"
     },
     "/monitor/diff/reschedule": {
       "$ref": "paths/monitor.json#/diffReschedule"
     },
-    "/monitor/diff/{taskPK}/studies": {
+    "/monitor/diff/{taskID}/studies": {
       "$ref": "paths/monitor.json#/diffTaskStudies"
     },
     "/monitor/diff/batch": {

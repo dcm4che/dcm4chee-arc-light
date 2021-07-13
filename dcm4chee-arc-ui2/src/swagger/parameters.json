@@ -358,19 +358,10 @@
   "taskIDPathParam": {
     "name": "taskID",
     "in": "path",
-    "description": "JMS Message ID of queue message",
+    "description": "Task ID",
     "required": true,
     "schema": {
-      "type": "string"
-    }
-  },
-  "taskPkPathParam": {
-    "name": "taskPk",
-    "in": "path",
-    "description": "Primary Key of a task",
-    "required": true,
-    "schema": {
-      "type": "string"
+      "type": "integer"
     }
   },
   "newExporterIDPathParam": {
@@ -1481,14 +1472,6 @@
       }
     }
   },
-  "JMSMessageID": {
-    "name": "JMSMessageID",
-    "in": "query",
-    "description": "JMS Message ID to filter by",
-    "schema": {
-      "type": "string"
-    }
-  },
   "batchID": {
     "name": "batchID",
     "in": "query",
@@ -1497,10 +1480,10 @@
       "type": "string"
     }
   },
-  "taskPK": {
-    "name": "taskPK",
+  "taskID": {
+    "name": "taskID",
     "in": "query",
-    "description": "Task PK to filter by",
+    "description": "Task ID to filter by",
     "schema": {
       "type": "integer"
     }
@@ -1580,12 +1563,12 @@
       "type": "boolean"
     }
   },
-  "queueMsgStatus": {
+  "taskStatus": {
     "name": "status",
     "in": "query",
     "description": "status of tasks to filter by",
     "schema": {
-      "$ref": "schemas.json#/queueMsgStatus"
+      "$ref": "schemas.json#/taskStatus"
     }
   },
   "cancelTaskStatus": {

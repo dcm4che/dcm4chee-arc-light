@@ -93,8 +93,8 @@ public class StgCmtRS {
     @QueryParam("batchID")
     private String batchID;
 
-    @QueryParam("taskPK")
-    private Long taskPK;
+    @QueryParam("taskID")
+    private Long taskID;
 
     @QueryParam("updatedBefore")
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
@@ -128,7 +128,7 @@ public class StgCmtRS {
                             exporterID,
                             studyUID,
                             batchID,
-                            taskPK),
+                            taskID),
                     parseInt(offset),
                     parseInt(limit));
             return Response.ok((StreamingOutput) out -> {
@@ -144,7 +144,7 @@ public class StgCmtRS {
                     writer.writeNotNullOrDef("seriesUID", stgCmtResult.getSeriesInstanceUID(), null);
                     writer.writeNotNullOrDef("objectUID", stgCmtResult.getSopInstanceUID(), null);
                     writer.writeNotNullOrDef("exporterID", stgCmtResult.getExporterID(), null);
-                    writer.writeNotNullOrDef("taskPK", stgCmtResult.getTaskPK(), null);
+                    writer.writeNotNullOrDef("taskID", stgCmtResult.getTaskPK(), null);
                     writer.writeNotNullOrDef("batchID", stgCmtResult.getBatchID(), null);
                     writer.writeNotNullOrDef("requested", stgCmtResult.getNumberOfInstances(), 0);
                     writer.writeNotNullOrDef("failures", stgCmtResult.getNumberOfFailures(), 0);

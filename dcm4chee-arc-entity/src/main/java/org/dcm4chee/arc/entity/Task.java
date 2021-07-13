@@ -836,15 +836,15 @@ public class Task {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
-        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
-        writer.writeNotNullOrDef("pk", pk, null);
+        writer.writeNotNullOrDef("taskID", pk, null);
         writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
         writer.writeNotNullOrDef("queue", queueName, null);
         writer.writeNotNullOrDef("type", type.toString(), null);
         writer.writeNotNullOrDef("status", status.toString(), null);
         writer.writeNotNullOrDef("batchID", batchID, null);
         writer.writeNotNullOrDef("failures", numberOfFailures, 0);
+        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
+        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
         writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
         if (processingStartTime != null)
             writer.writeNotNullOrDef("processingStartTime", df.format(processingStartTime), null);
@@ -898,10 +898,10 @@ public class Task {
                 writer.writeNotNullOrDef("QueryString", queryString, null);
                 writer.writeNotDef("checkMissing", checkMissing, false);
                 writer.writeNotDef("checkDifferent", checkDifferent, false);
+                writer.writeNotNullOrDef("comparefield", compareFields, null);
                 writer.writeNotDef("matches", matches, 0);
                 writer.writeNotDef("missing", missing, 0);
                 writer.writeNotDef("different", different, 0);
-                writer.writeNotNullOrDef("comparefield", compareFields, null);
                 break;
             case STGCMT_SCP:
                 writer.writeNotNullOrDef("LocalAET", localAET, null);
@@ -932,11 +932,11 @@ public class Task {
                 break;
             case REST:
                 gen.write("RSOperation", getRSOperation());
-                gen.write("RequestQueryString", getQueryString());
                 gen.write("WebApplicationName", getWebApplicationName());
-                gen.write("PatientID", getPatientID());
-                gen.write("TLSAllowAnyHostname", isTLSAllowAnyHostname());
-                gen.write("TLSDisableTrustManager", isTLSDisableTrustManager());
+                writer.writeNotNullOrDef("RequestQueryString", getQueryString(), null);
+                writer.writeNotNullOrDef("PatientID", getPatientID(), null);
+                writer.writeNotDef("TLSAllowAnyHostname", isTLSAllowAnyHostname(), false);
+                writer.writeNotDef("TLSDisableTrustManager", isTLSDisableTrustManager(), false);
                 break;
             case IAN:
                 gen.write("LocalAET", localAET);

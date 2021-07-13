@@ -168,7 +168,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -228,7 +228,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -262,7 +262,7 @@
       "operationId": "deleteExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -296,7 +296,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -330,7 +330,7 @@
       "operationId": "cancelExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -401,7 +401,7 @@
       "operationId": "rescheduleExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newExporterIDPathParam"
@@ -447,7 +447,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -499,7 +499,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -545,7 +545,7 @@
           "$ref": "../parameters.json#/ExporterIDs"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -616,7 +616,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -685,7 +685,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -719,7 +719,7 @@
       "operationId": "deleteRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -762,7 +762,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -796,7 +796,7 @@
       "operationId": "cancelRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -876,7 +876,7 @@
       "operationId": "rescheduleRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -937,7 +937,7 @@
           "$ref": "../parameters.json#/newQueueName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -986,7 +986,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -1060,7 +1060,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1120,7 +1120,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1154,7 +1154,7 @@
       "operationId": "deleteStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1188,7 +1188,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1222,7 +1222,7 @@
       "operationId": "cancelStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1293,7 +1293,7 @@
       "operationId": "rescheduleStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -1336,7 +1336,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1379,7 +1379,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -1456,7 +1456,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1528,7 +1528,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1562,7 +1562,7 @@
       "operationId": "deleteCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1608,7 +1608,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1642,7 +1642,7 @@
       "operationId": "cancelCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1725,7 +1725,7 @@
       "operationId": "rescheduleCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -1780,7 +1780,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1820,7 +1820,7 @@
       "operationId": "getCompareStudiesTaskResult",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/offset"
@@ -1844,7 +1844,7 @@
           "description": "no matching study found at primary C-FIND SCP"
         },
         "404": {
-          "description": "no task with specified taskPK"
+          "description": "no task with specified taskID"
         },
         "500": {
           "description": "Internal Server Error"
@@ -1864,7 +1864,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -1938,7 +1938,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -2009,13 +2009,13 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2035,11 +2035,11 @@
       ],
       "responses": {
         "200": {
-          "description": "Queue Messages",
+          "description": "Tasks in Queue",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas.json#/messageList"
+                "$ref": "../schemas.json#/taskList"
               }
             }
           }
@@ -2069,13 +2069,13 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2115,13 +2115,13 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2167,7 +2167,7 @@
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2244,13 +2244,13 @@
           "$ref": "../parameters.json#/newDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
