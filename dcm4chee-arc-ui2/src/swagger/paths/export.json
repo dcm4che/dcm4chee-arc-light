@@ -835,8 +835,8 @@
       "tags": [
         "EXPORT-RS"
       ],
-      "summary": "Export Studies specified in CSV",
-      "operationId": "ExportStudiesCSV",
+      "summary": "Export Studies with(out) Series specified in CSV",
+      "operationId": "ExportStudiesSeriesCSV",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -852,10 +852,13 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/csvSeriesUID"
         }
       ],
       "requestBody": {
-        "description": "CSV File containing Study Instance UIDs",
+        "description": "CSV File containing Study with(out) Series Instance UIDs",
         "required": true,
         "content": {
           "text/csv": {
@@ -874,16 +877,13 @@
           "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
         },
         "400": {
-          "description": "CSV field for Study Instance UID is specified as less than 1"
+          "description": "Specified CSV field for Study or Series Instance UID is less than 1 or fields specified for both UIDs are equal"
         },
         "404": {
           "description": "No such Archive AE Title or Exporter with specified exporterID not configured"
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }

@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -96,9 +97,12 @@ public class ExportCSVRS {
     @QueryParam("scheduledTime")
     private String scheduledTime;
 
+    @QueryParam("csvSeriesUID")
+    @Pattern(regexp = "^([1-9][0-9]{0,2})$", message = "CSV field for Series Instance UID should be greater than or equal to 1")
+    private String csvSeriesUID;
+
     @HeaderParam("Content-Type")
     private MediaType contentType;
-
 
     @POST
     @Path("/studies/csv:{field}/export/{ExporterID}")
@@ -127,6 +131,11 @@ public class ExportCSVRS {
                 return errResponse(status,
                         "CSV field for Study Instance UID should be greater than or equal to 1");
 
+            int csvSeriesUIDField = csvSeriesUID == null ? 0 : Integer.parseInt(csvSeriesUID);
+            if (field == csvSeriesUIDField)
+                return errResponse(status,
+                        "CSV fields for Study and Series Instance UIDs should be different");
+
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
                 return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
@@ -139,8 +148,7 @@ public class ExportCSVRS {
             int count = 0;
             String warning = null;
             int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
-            List<String> studyUIDs = new ArrayList<>();
-
+            List<StudySeriesInfo> studySeries = new ArrayList<>();
             try (
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
@@ -156,18 +164,21 @@ public class ExportCSVRS {
                         continue;
                     }
 
-                    if (!arcDev.isValidateUID() || validateUID(studyUID))
-                        studyUIDs.add(studyUID);
+                    if (!arcDev.isValidateUID() || validateUID(studyUID)) {
+                        StudySeriesInfo studySeriesInfo = new StudySeriesInfo(studyUID);
+                        addSeriesUID(studySeriesInfo, csvRecord, csvSeriesUIDField, arcDev);
+                        studySeries.add(studySeriesInfo);
+                    }
 
-                    if (studyUIDs.size() == csvUploadChunkSize) {
-                        count += scheduleExportTasks(exporter, studyUIDs, scheduledTime());
-                        studyUIDs.clear();
+                    if (studySeries.size() == csvUploadChunkSize) {
+                        count += scheduleExportTasks(exporter, studySeries, scheduledTime());
+                        studySeries.clear();
                     }
                 }
-                if (!studyUIDs.isEmpty()) {
-                    count += scheduleExportTasks(exporter, studyUIDs, scheduledTime());
-                }
 
+                if (!studySeries.isEmpty())
+                    count += scheduleExportTasks(exporter, studySeries, scheduledTime());
+                
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
                     status = Response.Status.NO_CONTENT;
@@ -181,7 +192,7 @@ public class ExportCSVRS {
             if (warning == null && count > 0)
                 return Response.accepted(count(count)).build();
 
-            LOG.warn("Response {} caused by {}", status, warning);
+            LOG.info("Response {} caused by {}", status, warning);
             Response.ResponseBuilder builder = Response.status(status)
                     .header("Warning", warning);
             if (count > 0)
@@ -192,25 +203,62 @@ public class ExportCSVRS {
         }
     }
 
-    private int scheduleExportTasks(ExporterDescriptor exporter, List<String> studyUIDs, Date scheduledTime) {
-        for (String studyUID : studyUIDs) {
+    private void addSeriesUID(StudySeriesInfo studySeriesInfo, CSVRecord csvRecord, int csvSeriesUID,
+                              ArchiveDeviceExtension arcDev) {
+        if (csvSeriesUID == 0)
+            return;
+
+        String seriesUID = csvRecord.get(csvSeriesUID - 1).replaceAll("\"", "");
+        if (arcDev.isValidateUID() && !validateUID(seriesUID)) {
+            LOG.info("Invalid Series[uid={}] of valid Study[uid={}] present in CSV file",
+                    seriesUID, studySeriesInfo.getStudyUID());
+            return;
+        }
+
+        studySeriesInfo.setSeriesUID(seriesUID);
+    }
+
+    static class StudySeriesInfo {
+        private final String studyUID;
+        private String seriesUID = "*";
+
+        StudySeriesInfo(String studyUID) {
+            this.studyUID = studyUID;
+        }
+
+        String getStudyUID() {
+            return studyUID;
+        }
+
+        String getSeriesUID() {
+            return seriesUID;
+        }
+
+        void setSeriesUID(String seriesUID) {
+            this.seriesUID = seriesUID;
+        }
+    }
+
+    private int scheduleExportTasks(
+            ExporterDescriptor exporter, List<StudySeriesInfo> studySeriesInfos, Date scheduledTime) {
+        for (StudySeriesInfo studySeriesInfo : studySeriesInfos) {
             exportManager.createExportTask(
                     device.getDeviceName(),
                     exporter,
-                    studyUID,
-                    "*",
+                    studySeriesInfo.getStudyUID(),
+                    studySeriesInfo.getSeriesUID(),
                     "*",
                     batchID,
                     scheduledTime,
                     HttpServletRequestInfo.valueOf(request));
         }
-        return studyUIDs.size();
+        return studySeriesInfos.size();
     }
 
-    private static boolean validateUID(String studyUID) {
-        boolean valid = UIDUtils.isValid(studyUID);
+    private static boolean validateUID(String uid) {
+        boolean valid = UIDUtils.isValid(uid);
         if (!valid)
-            LOG.warn("Invalid UID in CSV file: " + studyUID);
+            LOG.info("Invalid UID in CSV file: " + uid);
         return valid;
     }
 
@@ -246,7 +294,7 @@ public class ExportCSVRS {
     }
 
     private static Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
-        LOG.warn("Response {} caused by {}", status, errorMsg);
+        LOG.info("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
                 .entity(errorMsg)
                 .type("text/plain")

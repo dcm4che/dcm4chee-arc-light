@@ -1504,6 +1504,14 @@
       "type": "integer"
     }
   },
+  "csvSeriesUID": {
+    "name": "csvSeriesUID",
+    "in": "query",
+    "description": "CSV field which contains the Series Instance UID",
+    "schema": {
+      "type": "integer"
+    }
+  },
   "upsScheduledTime": {
     "name": "upsScheduledTime",
     "in": "query",
