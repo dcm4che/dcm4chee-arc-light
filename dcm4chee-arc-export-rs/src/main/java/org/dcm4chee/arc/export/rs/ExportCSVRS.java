@@ -255,7 +255,7 @@ public class ExportCSVRS {
         return studySeriesInfos.size();
     }
 
-    private static boolean validateUID(String uid) {
+    private boolean validateUID(String uid) {
         boolean valid = UIDUtils.isValid(uid);
         if (!valid)
             LOG.info("Invalid UID in CSV file: " + uid);
