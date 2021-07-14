@@ -47,6 +47,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.persistence.Tuple;
 import java.util.Date;
@@ -102,8 +103,7 @@ public interface ExportManager {
 
     List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
 
-    List<ExportBatch> listExportBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit);
+    List<ExportBatch> listExportBatches(TaskQueryParam1 queryParam, int offset, int limit);
 
     long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 

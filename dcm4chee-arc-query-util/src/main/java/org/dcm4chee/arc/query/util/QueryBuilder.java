@@ -138,6 +138,21 @@ public class QueryBuilder {
         throw new IllegalArgumentException(orderBy);
     }
 
+    public Order orderBatches(Root<Task> task, String orderBy) {
+        switch (orderBy) {
+            case "createdTime":
+                return cb.asc(cb.least(task.get(Task_.createdTime)));
+            case "updatedTime":
+                return cb.asc(cb.least(task.get(Task_.updatedTime)));
+            case "-createdTime":
+                return cb.desc(cb.greatest(task.get(Task_.createdTime)));
+            case "-updatedTime":
+                return cb.desc(cb.greatest(task.get(Task_.updatedTime)));
+        }
+
+        throw new IllegalArgumentException(orderBy);
+    }
+
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -1493,6 +1508,29 @@ public class QueryBuilder {
                     cb.equal(soundexCode.get(SoundexCode_.componentPartIndex), partIndex)));
         }
         predicates.add(cb.exists(sq.select(soundexCode).where(y)));
+    }
+
+    public List<Predicate> exportBatchPredicates(Path<Task> task, TaskQueryParam1 queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (queryParam.getBatchID() != null)
+            predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
+        else
+            predicates.add(task.get(Task_.batchID).isNotNull());
+        if (queryParam.getStatus() != null)
+            predicates.add(cb.equal(task.get(Task_.status), queryParam.getStatus()));
+        matchExportBatch(predicates, queryParam, task);
+        return predicates;
+    }
+
+    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> exportTask) {
+        if (!taskQueryParam.getExporterIDs().isEmpty())
+            predicates.add(cb.and(exportTask.get(Task_.exporterID).in(taskQueryParam.getExporterIDs())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(exportTask.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, exportTask.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, exportTask.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private enum FormatDate {

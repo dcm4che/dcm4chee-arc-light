@@ -43,9 +43,11 @@ package org.dcm4chee.arc.export.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +91,7 @@ public class ExportBatchRS {
     private String deviceName;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -134,8 +136,7 @@ public class ExportBatchRS {
         logRequest();
         try {
             List<ExportBatch> exportBatches = mgr.listExportBatches(
-                    queueBatchQueryParam(),
-                    exportBatchQueryParam(),
+                    taskQueryParam(),
                     parseInt(offset),
                     parseInt(limit));
             return Response.ok(Output.JSON.entity(exportBatches)).build();
@@ -240,6 +241,21 @@ public class ExportBatchRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam() {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.EXPORT);
+        taskQueryParam.setExporterIDs(exporterIDs.stream()
+                .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                .collect(Collectors.toList()));
         return taskQueryParam;
     }
 }
