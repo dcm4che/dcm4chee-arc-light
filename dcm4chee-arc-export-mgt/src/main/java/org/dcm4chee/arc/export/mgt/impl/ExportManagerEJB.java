@@ -70,7 +70,6 @@ import javax.persistence.metamodel.SingularAttribute;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -491,11 +490,11 @@ public class ExportManagerEJB implements ExportManager {
                     tuple.get(minProcessingEndTime),
                     tuple.get(maxProcessingEndTime));
 
-            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(task.get(Task_.batchID), batchID));
             queryBuilder.matchExportBatch(predicates, queryParam, task);
-            distinct.where(predicates.toArray(new Predicate[0]));
+            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true)
+                    .where(predicates.toArray(new Predicate[0]));
             exportBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
             exportBatch.setExporterIDs(select(distinct, task.get(Task_.exporterID)));
             exportBatch.setCompleted(tuple.get(completed));
@@ -510,28 +509,6 @@ public class ExportManagerEJB implements ExportManager {
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {
             return em.createQuery(query.select(path)).getResultList();
         }
-    }
-
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Iterator<ExportTask> listExportTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<ExportTask> q = cb.createQuery(ExportTask.class);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-
-        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        if (exportTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.exportTaskOrder(exportTaskQueryParam.getOrderBy(), exportTask));
-        TypedQuery<ExportTask> query = em.createQuery(q);
-        if (offset > 0)
-            query.setFirstResult(offset);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultStream().iterator();
     }
 
     public List<Tuple> exportTaskPksAndExporterIDs(
@@ -552,19 +529,6 @@ public class ExportManagerEJB implements ExportManager {
             query.setMaxResults(limit);
 
         return query.getResultList();
-    }
-
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-
-        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        return QueryBuilder.unbox(em.createQuery(q.select(cb.count(exportTask))).getSingleResult(), 0L);
     }
 
     private List<Predicate> predicates(Root<ExportTask> exportTask, MatchTask matchTask,

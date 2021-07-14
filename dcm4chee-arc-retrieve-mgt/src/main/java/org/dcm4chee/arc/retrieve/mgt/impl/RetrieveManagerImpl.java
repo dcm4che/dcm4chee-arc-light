@@ -64,7 +64,6 @@ import javax.inject.Inject;
 import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -210,17 +209,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public List<Tuple> listRetrieveTaskPkAndLocalAETs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
         return ejb.listRetrieveTaskPkAndLocalAETs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
-    }
-
-    @Override
-    public Iterator<RetrieveTask> listRetrieveTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
-        return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
     }
 
     @Override

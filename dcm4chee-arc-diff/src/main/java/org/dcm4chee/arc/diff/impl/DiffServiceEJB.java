@@ -53,6 +53,7 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -260,9 +262,8 @@ public class DiffServiceEJB {
 
     }
 
-    public List<DiffBatch> listDiffBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        ListDiffBatches listDiffBatches = new ListDiffBatches(queueBatchQueryParam, diffBatchQueryParam);
+    public List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+        ListDiffBatches listDiffBatches = new ListDiffBatches(taskQueryParam);
         TypedQuery<Tuple> query = em.createQuery(listDiffBatches.query);
         if (offset > 0)
             query.setFirstResult(offset);
@@ -272,99 +273,41 @@ public class DiffServiceEJB {
         return query.getResultStream().map(listDiffBatches::toDiffBatch).collect(Collectors.toList());
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Iterator<DiffTask> listDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<DiffTask> q = cb.createQuery(DiffTask.class);
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        MatchTask matchTask = new MatchTask(cb);
-        List<Predicate> predicates = matchTask.diffPredicates(queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        if (diffTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.diffTaskOrder(diffTaskQueryParam.getOrderBy(), diffTask));
-        TypedQuery<DiffTask> query = em.createQuery(q);
-        if (offset > 0)
-            query.setFirstResult(offset);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultStream().iterator();
-    }
-
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).diffPredicates(queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return QueryBuilder.unbox(em.createQuery(q.select(cb.count(diffTask))).getSingleResult(), 0L);
-    }
-
-    private Subquery<Long> statusSubquery(TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam,
-                                          From<DiffTask, QueueMessage> queueMsg, QueueMessage.Status status) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<QueueMessage> query = cb.createQuery(QueueMessage.class);
-        Subquery<Long> sq = query.subquery(Long.class);
-        Root<DiffTask> diffTask = sq.from(DiffTask.class);
-        Join<DiffTask, QueueMessage> queueMsg1 = sq.correlate(diffTask.join(DiffTask_.queueMessage));
-        MatchTask matchTask = new MatchTask(cb);
-        List<Predicate> predicates = matchTask.diffBatchPredicates(
-                queueMsg1, diffTask, queueBatchQueryParam, diffBatchQueryParam);
-        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.batchID), queueMsg.get(QueueMessage_.batchID)));
-        predicates.add(cb.equal(queueMsg1.get(QueueMessage_.status), status));
-        sq.where(predicates.toArray(new Predicate[0]));
-        sq.select(cb.count(diffTask));
-        return sq;
-    }
-
     private class ListDiffBatches {
         final CriteriaBuilder cb = em.getCriteriaBuilder();
-        final MatchTask matchTask = new MatchTask(cb);
+        final QueryBuilder queryBuilder = new QueryBuilder(cb);
         final CriteriaQuery<Tuple> query = cb.createTupleQuery();
-        final Root<DiffTask> diffTask = query.from(DiffTask.class);
-        final From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        final Expression<Date> minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
-        final Expression<Date> maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
-        final Expression<Date> minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
-        final Expression<Date> maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
-        final Expression<Date> minScheduledTime = cb.least(queueMsg.get(QueueMessage_.scheduledTime));
-        final Expression<Date> maxScheduledTime = cb.greatest(queueMsg.get(QueueMessage_.scheduledTime));
-        final Expression<Date> minCreatedTime = cb.least(diffTask.get(DiffTask_.createdTime));
-        final Expression<Date> maxCreatedTime = cb.greatest(diffTask.get(DiffTask_.createdTime));
-        final Expression<Date> minUpdatedTime = cb.least(diffTask.get(DiffTask_.updatedTime));
-        final Expression<Date> maxUpdatedTime = cb.greatest(diffTask.get(DiffTask_.updatedTime));
-        final Expression<Long> matches = cb.sumAsLong((diffTask.get(DiffTask_.matches)));
-        final Expression<Long> missing = cb.sumAsLong(diffTask.get(DiffTask_.missing));
-        final Expression<Long> different = cb.sumAsLong(diffTask.get(DiffTask_.different));
-        final Path<String> batchIDPath = queueMsg.get(QueueMessage_.batchID);
+        final Root<Task> task = query.from(Task.class);
+        final Expression<Date> minProcessingStartTime = cb.least(task.get(Task_.processingStartTime));
+        final Expression<Date> maxProcessingStartTime = cb.greatest(task.get(Task_.processingStartTime));
+        final Expression<Date> minProcessingEndTime = cb.least(task.get(Task_.processingEndTime));
+        final Expression<Date> maxProcessingEndTime = cb.greatest(task.get(Task_.processingEndTime));
+        final Expression<Date> minScheduledTime = cb.least(task.get(Task_.scheduledTime));
+        final Expression<Date> maxScheduledTime = cb.greatest(task.get(Task_.scheduledTime));
+        final Expression<Date> minCreatedTime = cb.least(task.get(Task_.createdTime));
+        final Expression<Date> maxCreatedTime = cb.greatest(task.get(Task_.createdTime));
+        final Expression<Date> minUpdatedTime = cb.least(task.get(Task_.updatedTime));
+        final Expression<Date> maxUpdatedTime = cb.greatest(task.get(Task_.updatedTime));
+        final Expression<Long> matches = cb.sumAsLong((task.get(Task_.matches)));
+        final Expression<Long> missing = cb.sumAsLong(task.get(Task_.missing));
+        final Expression<Long> different = cb.sumAsLong(task.get(Task_.different));
+        final Path<String> batchIDPath = task.get(Task_.batchID);
         final Expression<Long> completed;
         final Expression<Long> failed;
         final Expression<Long> warning;
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final TaskQueryParam queueBatchQueryParam;
-        final TaskQueryParam diffBatchQueryParam;
+        final TaskQueryParam1 queryParam;
 
-        ListDiffBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam) {
-            this.queueBatchQueryParam = queueBatchQueryParam;
-            this.diffBatchQueryParam = diffBatchQueryParam;
-            this.completed = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.COMPLETED).getSelection();
-            this.failed = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.FAILED).getSelection();
-            this.warning = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.WARNING).getSelection();
-            this.canceled = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.CANCELED).getSelection();
-            this.scheduled = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.SCHEDULED).getSelection();
-            this.inprocess = statusSubquery(queueBatchQueryParam, diffBatchQueryParam,
-                    queueMsg, QueueMessage.Status.IN_PROCESS).getSelection();
+        ListDiffBatches(TaskQueryParam1 queryParam) {
+            this.queryParam = queryParam;
+            this.completed = statusSubquery(Task.Status.COMPLETED).getSelection();
+            this.failed = statusSubquery(Task.Status.FAILED).getSelection();
+            this.warning = statusSubquery(Task.Status.WARNING).getSelection();
+            this.canceled = statusSubquery(Task.Status.CANCELED).getSelection();
+            this.scheduled = statusSubquery(Task.Status.SCHEDULED).getSelection();
+            this.inprocess = statusSubquery(Task.Status.IN_PROCESS).getSelection();
             query.multiselect(batchIDPath,
                     minProcessingStartTime, maxProcessingStartTime,
                     minProcessingEndTime, maxProcessingEndTime,
@@ -373,13 +316,32 @@ public class DiffServiceEJB {
                     minUpdatedTime, maxUpdatedTime,
                     matches, missing, different,
                     completed, failed, warning, canceled, scheduled, inprocess);
-            query.groupBy(queueMsg.get(QueueMessage_.batchID));
-            List<Predicate> predicates = matchTask.diffBatchPredicates(
-                    queueMsg, diffTask, queueBatchQueryParam, diffBatchQueryParam);
+            query.groupBy(task.get(Task_.batchID));
+            List<Predicate> predicates = new ArrayList<>();
+            if (queryParam.getBatchID() != null)
+                predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
+            else
+                predicates.add(task.get(Task_.batchID).isNotNull());
+            if (queryParam.getStatus() != null)
+                predicates.add(cb.equal(task.get(Task_.status), queryParam.getStatus()));
+            queryBuilder.matchDiffBatch(predicates, queryParam, task);
             if (!predicates.isEmpty())
                 query.where(predicates.toArray(new Predicate[0]));
-            if (diffBatchQueryParam.getOrderBy() != null)
-                query.orderBy(matchTask.diffBatchOrder(diffBatchQueryParam.getOrderBy(), diffTask));
+            if (queryParam.getOrderBy() != null)
+                query.orderBy(queryBuilder.orderBatches(task, queryParam.getOrderBy()));
+        }
+
+        private Subquery<Long> statusSubquery(Task.Status status) {
+            CriteriaQuery<Task> query = cb.createQuery(Task.class);
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<Task> sqtask = sq.from(Task.class);
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(sqtask.get(Task_.status), status));
+            predicates.add(cb.equal(sqtask.get(Task_.batchID), task.get(Task_.batchID)));
+            queryBuilder.matchDiffBatch(predicates, queryParam, sqtask);
+            sq.where(predicates.toArray(new Predicate[0]));
+            sq.select(cb.count(sqtask));
+            return sq;
         }
 
         DiffBatch toDiffBatch(Tuple tuple) {
@@ -405,22 +367,21 @@ public class DiffServiceEJB {
             diffBatch.setMissing(tuple.get(missing));
             diffBatch.setDifferent(tuple.get(different));
 
-            CriteriaQuery<String> distinctString = cb.createQuery(String.class).distinct(true);
-            Root<DiffTask> diffTask = distinctString.from(DiffTask.class);
-            From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-            distinctString.where(predicates(queueMsg, diffTask, batchID));
-            diffBatch.setDeviceNames(selectString(distinctString, queueMsg.get(QueueMessage_.deviceName)));
-            diffBatch.setComparefields(selectString(distinctString, diffTask.get(DiffTask_.compareFields)));
-            diffBatch.setLocalAETs(selectString(distinctString, diffTask.get(DiffTask_.localAET)));
-            diffBatch.setPrimaryAETs(selectString(distinctString, diffTask.get(DiffTask_.primaryAET)));
-            diffBatch.setSecondaryAETs(selectString(distinctString, diffTask.get(DiffTask_.secondaryAET)));
+            List<Predicate> predicateList = new ArrayList<>();
+            predicateList.add(cb.equal(task.get(Task_.batchID), batchID));
+            queryBuilder.matchDiffBatch(predicateList, queryParam, task);
+            Predicate[] predicates = predicateList.toArray(new Predicate[0]);
 
-            CriteriaQuery<Boolean> distinctBoolean = cb.createQuery(Boolean.class).distinct(true);
-            Root<DiffTask> diffTask1 = distinctBoolean.from(DiffTask.class);
-            From<DiffTask, QueueMessage> queueMsg1 = diffTask1.join(DiffTask_.queueMessage);
-            distinctBoolean.where(predicates(queueMsg1, diffTask1, batchID));
-            diffBatch.setCheckMissing(selectBoolean(distinctBoolean, diffTask1.get(DiffTask_.checkMissing)));
-            diffBatch.setCheckDifferent(selectBoolean(distinctBoolean, diffTask1.get(DiffTask_.checkDifferent)));
+            CriteriaQuery<String> distinctString = cb.createQuery(String.class).distinct(true).where(predicates);
+            diffBatch.setDeviceNames(selectString(distinctString, task.get(Task_.deviceName)));
+            diffBatch.setComparefields(selectString(distinctString, task.get(Task_.compareFields)));
+            diffBatch.setLocalAETs(selectString(distinctString, task.get(Task_.localAET)));
+            diffBatch.setPrimaryAETs(selectString(distinctString, task.get(Task_.remoteAET)));
+            diffBatch.setSecondaryAETs(selectString(distinctString, task.get(Task_.destinationAET)));
+
+            CriteriaQuery<Boolean> distinctBoolean = cb.createQuery(Boolean.class).distinct(true).where(predicates);
+            diffBatch.setCheckMissing(selectBoolean(distinctBoolean, task.get(Task_.checkMissing)));
+            diffBatch.setCheckDifferent(selectBoolean(distinctBoolean, task.get(Task_.checkDifferent)));
 
             diffBatch.setCompleted(tuple.get(completed));
             diffBatch.setCanceled(tuple.get(canceled));
@@ -429,13 +390,6 @@ public class DiffServiceEJB {
             diffBatch.setScheduled(tuple.get(scheduled));
             diffBatch.setInProcess(tuple.get(inprocess));
             return diffBatch;
-        }
-
-        private Predicate[] predicates(Path<QueueMessage> queueMsg, Path<DiffTask> diffTask, String batchID) {
-            List<Predicate> predicates = matchTask.diffBatchPredicates(
-                    queueMsg, diffTask, queueBatchQueryParam, diffBatchQueryParam);
-            predicates.add(cb.equal(queueMsg.get(QueueMessage_.batchID), batchID));
-            return predicates.toArray(new Predicate[0]);
         }
 
         private List<String> selectString(CriteriaQuery<String> query, Path<String> path) {

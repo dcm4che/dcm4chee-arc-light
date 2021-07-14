@@ -55,7 +55,6 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -63,6 +62,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -260,9 +260,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<StgVerBatch> listStgVerBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit) {
-        return ejb.listStgVerBatches(queueBatchQueryParam, stgVerBatchQueryParam, offset, limit);
+    public List<StgVerBatch> listStgVerBatches(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+        return ejb.listStgVerBatches(taskQueryParam, offset, limit);
     }
 
     @Override
@@ -627,17 +626,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return (TagUtils.toHexString(contentMD5).equals(digest))
                 ? new CheckResult(Location.Status.OK)
                 : new CheckResult(Location.Status.DIFFERING_S3_MD5SUM);
-    }
-
-    @Override
-    public Iterator<StorageVerificationTask> listStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit) {
-        return ejb.listStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     private static class SeriesResult {

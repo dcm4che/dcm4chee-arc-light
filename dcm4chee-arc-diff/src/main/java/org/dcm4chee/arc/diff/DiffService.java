@@ -47,6 +47,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.persistence.Tuple;
 import java.util.Date;
@@ -76,8 +77,7 @@ public interface DiffService {
     List<byte[]> getDiffTaskAttributes(
             TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
 
-    List<DiffBatch> listDiffBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
+    List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryParam, int parseInt, int parseInt1);
 
     long diffTasksOfBatch(String batchID);
 
@@ -103,8 +103,4 @@ public interface DiffService {
     List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
 
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    Iterator<DiffTask> listDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit);
 }

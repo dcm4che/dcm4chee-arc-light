@@ -54,6 +54,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.persistence.Tuple;
 import java.io.IOException;
@@ -108,10 +109,7 @@ public interface StgCmtManager {
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize);
 
-    List<StgVerBatch> listStgVerBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit);
-
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
+    List<StgVerBatch> listStgVerBatches(TaskQueryParam1 taskQueryParam, int offset, int limit);
 
     boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
                                HttpServletRequestInfo httpServletRequestInfo,
@@ -119,6 +117,4 @@ public interface StgCmtManager {
                                String batchID, StorageVerificationPolicy storageVerificationPolicy,
                                Boolean updateLocationStatus, String... storageIDs);
 
-    Iterator<StorageVerificationTask> listStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit);
 }

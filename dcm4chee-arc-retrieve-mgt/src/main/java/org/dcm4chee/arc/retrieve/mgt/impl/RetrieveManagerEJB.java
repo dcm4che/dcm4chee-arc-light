@@ -387,27 +387,6 @@ public class RetrieveManagerEJB {
         return query.getResultStream().map(listRetrieveBatches1::toRetrieveBatch).collect(Collectors.toList());
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Iterator<RetrieveTask> listRetrieveTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<RetrieveTask> q = cb.createQuery(RetrieveTask.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-
-        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        if (retrieveTaskQueryParam.getOrderBy() != null)
-            q.orderBy(matchTask.retrieveTaskOrder(retrieveTaskQueryParam.getOrderBy(), retrieveTask));
-        TypedQuery<RetrieveTask> query = em.createQuery(q);
-        if (offset > 0)
-            query.setFirstResult(offset);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultStream().iterator();
-    }
-
     private List<Predicate> predicates(Root<RetrieveTask> retrieveTask, MatchTask matchTask,
                                        TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
@@ -432,18 +411,6 @@ public class RetrieveManagerEJB {
                 retrieveTask.get(RetrieveTask_.deviceName),
                 retrieveTask.get(RetrieveTask_.localAET));
         return em.createQuery(tupleQuery).getSingleResult();
-    }
-
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-
-        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return QueryBuilder.unbox(em.createQuery(q.select(cb.count(retrieveTask))).getSingleResult(), 0L);
     }
 
     private class ListRetrieveBatches {

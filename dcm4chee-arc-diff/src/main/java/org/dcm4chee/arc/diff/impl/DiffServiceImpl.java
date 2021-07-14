@@ -51,7 +51,6 @@ import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -62,14 +61,12 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.Tuple;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -203,9 +200,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<DiffBatch> listDiffBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        return ejb.listDiffBatches(queueBatchQueryParam, diffBatchQueryParam, offset, limit);
+    public List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryPara, int offset, int limit) {
+        return ejb.listDiffBatches(taskQueryPara, offset, limit);
     }
 
     @Override
@@ -284,14 +280,4 @@ public class DiffServiceImpl implements DiffService {
                 .setHttpServletRequestInfo(httpServletRequestInfo);
     }
 
-    @Override
-    public Iterator<DiffTask> listDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit) {
-        return ejb.listDiffTasks(queueTaskQueryParam, diffTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, diffTaskQueryParam);
-    }
 }

@@ -1538,6 +1538,40 @@ public class QueryBuilder {
             dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
+    public void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+    }
+
+    public void matchDiffBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getPrimaryAET() != null)
+            predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getPrimaryAET()));
+        if (taskQueryParam.getSecondaryAET() != null)
+            predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getSecondaryAET()));
+        if (taskQueryParam.getCompareFields() != null)
+            predicates.add(cb.equal(task.get(Task_.compareFields), taskQueryParam.getCompareFields()));
+        if (taskQueryParam.getCheckMissing() != null)
+            predicates.add(cb.equal(task.get(Task_.checkMissing),
+                    Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
+        if (taskQueryParam.getCheckDifferent() != null)
+            predicates.add(cb.equal(task.get(Task_.checkDifferent),
+                    Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+    }
+
     private enum FormatDate {
         DA {
             @Override

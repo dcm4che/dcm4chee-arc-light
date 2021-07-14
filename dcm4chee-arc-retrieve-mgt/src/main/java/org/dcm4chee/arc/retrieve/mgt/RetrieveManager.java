@@ -84,11 +84,6 @@ public interface RetrieveManager {
 
     List<Tuple> listRetrieveTaskPkAndLocalAETs(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
 
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
-
-    Iterator<RetrieveTask> listRetrieveTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit);
-
     Tuple findDeviceNameAndLocalAETByPk(Long pk);
 
     List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues);

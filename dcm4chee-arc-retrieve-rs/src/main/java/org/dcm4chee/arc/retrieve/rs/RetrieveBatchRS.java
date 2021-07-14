@@ -246,28 +246,6 @@ public class RetrieveBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam retrieveBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setQueueName(dcmQueueName.stream()
-                                    .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
-                                    .collect(Collectors.toList()));
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setRemoteAET(remoteAET);
-        taskQueryParam.setDestinationAET(destinationAET);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        return taskQueryParam;
-    }
-
     private TaskQueryParam1 taskQueryParam() {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setDeviceName(deviceName);

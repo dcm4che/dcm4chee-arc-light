@@ -105,12 +105,7 @@ public interface ExportManager {
 
     List<ExportBatch> listExportBatches(TaskQueryParam1 queryParam, int offset, int limit);
 
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
-
     void merge(Task task);
-
-    Iterator<ExportTask> listExportTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit);
 
     List<Tuple> exportTaskPksAndExporterIDs(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int limit);

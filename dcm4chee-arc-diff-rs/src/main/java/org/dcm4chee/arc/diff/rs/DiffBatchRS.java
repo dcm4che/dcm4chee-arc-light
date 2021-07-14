@@ -43,12 +43,15 @@ package org.dcm4chee.arc.diff.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +72,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -152,9 +157,7 @@ public class DiffBatchRS {
         logRequest();
         try {
             List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                    queueBatchQueryParam(batchID),
-                    diffBatchQueryParam(),
-                    parseInt(offset), parseInt(limit));
+                    taskQueryParam(), parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -301,6 +304,24 @@ public class DiffBatchRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam() {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.DIFF);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setPrimaryAET(primaryAET);
+        taskQueryParam.setSecondaryAET(secondaryAET);
+        taskQueryParam.setCompareFields(comparefields);
+        taskQueryParam.setCheckMissing(checkMissing);
+        taskQueryParam.setCheckDifferent(checkDifferent);
         return taskQueryParam;
     }
 }
