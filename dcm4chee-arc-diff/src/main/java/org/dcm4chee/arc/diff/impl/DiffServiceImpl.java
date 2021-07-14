@@ -184,19 +184,18 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public DiffTask getDiffTask(long taskPK) {
+    public Task getDiffTask(long taskPK) {
         return ejb.getDiffTask(taskPK);
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
-        return ejb.getDiffTaskAttributes(diffTask, offset, limit);
+    public List<byte[]> getDiffTaskAttributes(Task task, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(task, offset, limit);
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        return ejb.getDiffTaskAttributes(queueBatchQueryParam, diffBatchQueryParam, offset, limit);
+    public List<byte[]> getDiffTaskAttributes(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(taskQueryParam, offset, limit);
     }
 
     @Override

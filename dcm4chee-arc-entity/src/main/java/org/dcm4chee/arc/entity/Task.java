@@ -99,10 +99,14 @@ import java.util.Date;
                 "and o.status=?5")
 @NamedQuery(name = Task.FIND_DEVICE_BY_BATCH_ID,
         query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName")
+@NamedQuery(name = Task.FIND_BY_PK_AND_TYPE,
+        query = "select o from Task o where o.pk=?1 and o.type=?2")
+@NamedQuery(name = Task.DIFF_ATTRS_BY_PK,
+        query = "select attrs.encodedAttributes from Task o join o.diffTaskAttributes attrs where o.pk=?1")
 @NamedQuery(name = Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
         query = "select count(o) from Task o where o.deviceName=?1 and o.queueName=?2 and o.status=?3")
-@NamedQuery(name = Task.COUNT_BY_BATCH_ID_AND_STATUS,
-        query = "select count(o) from Task o where o.batchID=?1 and o.status=?2")
+@NamedQuery(name = Task.COUNT_BY_BATCH_ID_AND_TYPE,
+        query = "select count(o) from Task o where o.batchID=?1 and o.type=?2")
 @NamedQuery(name = Task.UPDATE_STATUS,
         query = "update Task o set o.status = ?1 where o.status=?2 and o.queueName=?3 and o.deviceName=?4")
 @NamedQuery(name = Task.UPDATE_STGVER_RESULT_BY_PK,
@@ -120,8 +124,10 @@ public class Task {
             "Task.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "Task.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
+    public static final String FIND_BY_PK_AND_TYPE = "Task.FindByPkAndType";
+    public static final String DIFF_ATTRS_BY_PK = "Task.DiffAttrsByPk";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "Task.CountByDeviceAndQueueNameAndStatus";
-    public static final String COUNT_BY_BATCH_ID_AND_STATUS = "Task.CountByBatchIdAndStatus";
+    public static final String COUNT_BY_BATCH_ID_AND_TYPE = "Task.CountByBatchIdAndType";
     public static final String UPDATE_STATUS = "Task.UpdateStatus";
     public static final String UPDATE_STGVER_RESULT_BY_PK = "Task.UpdateStgVerResultByPk";
     public static final String UPDATE_RETRIEVE_RESULT_BY_PK = "Task.UpdateRetrieveResultByPk";

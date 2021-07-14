@@ -70,12 +70,11 @@ public interface DiffService {
 
     Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
-    DiffTask getDiffTask(long taskPK);
+    Task getDiffTask(long taskPK);
 
-    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
+    List<byte[]> getDiffTaskAttributes(Task diffTask, int offset, int limit);
 
-    List<byte[]> getDiffTaskAttributes(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
+    List<byte[]> getDiffTaskAttributes(TaskQueryParam1 queryParam, int offset, int limit);
 
     List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryParam, int parseInt, int parseInt1);
 

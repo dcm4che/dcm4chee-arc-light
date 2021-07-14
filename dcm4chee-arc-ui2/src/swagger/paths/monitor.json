@@ -1989,9 +1989,6 @@
           "$ref": "../parameters.json#/updatedTime"
         },
         {
-          "$ref": "../parameters.json#/batchID"
-        },
-        {
           "$ref": "../parameters.json#/offset"
         },
         {

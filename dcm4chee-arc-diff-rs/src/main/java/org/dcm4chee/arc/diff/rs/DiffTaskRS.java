@@ -41,9 +41,6 @@
 
 package org.dcm4chee.arc.diff.rs;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
@@ -82,13 +79,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -224,13 +218,13 @@ public class DiffTaskRS {
 
     @GET
     @NoCache
-    @Path("/{taskPK}/studies")
+    @Path("/{taskID}/studies")
     @Produces("application/dicom+json,application/json")
-    public Response getDiffTaskResult(@PathParam("taskPK") long taskPK) {
+    public Response getDiffTaskResult(@PathParam("taskID") long taskID) {
         logRequest();
-        DiffTask diffTask = diffService.getDiffTask(taskPK);
+        Task diffTask = diffService.getDiffTask(taskID);
         if (diffTask == null)
-            return errResponse("No such Diff Task : " + taskPK, Response.Status.NOT_FOUND);
+            return errResponse("No such Diff Task : " + taskID, Response.Status.NOT_FOUND);
 
         if (diffTask.getMatches() == 0)
             return Response.noContent().build();
@@ -245,8 +239,8 @@ public class DiffTaskRS {
     }
 
     @POST
-    @Path("{taskPK}/cancel")
-    public Response cancelDiffTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/cancel")
+    public Response cancelDiffTask(@PathParam("taskID") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
@@ -290,8 +284,8 @@ public class DiffTaskRS {
     }
 
     @POST
-    @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/reschedule")
+    public Response rescheduleTask(@PathParam("taskID") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
@@ -447,8 +441,8 @@ public class DiffTaskRS {
     }
 
     @DELETE
-    @Path("/{taskPK}")
-    public Response deleteTask(@PathParam("taskPK") long pk) {
+    @Path("/{taskID}")
+    public Response deleteTask(@PathParam("taskID") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         try {

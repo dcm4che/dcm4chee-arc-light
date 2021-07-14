@@ -77,6 +77,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Mar 2018
  */
 @RequestScoped
@@ -157,7 +158,7 @@ public class DiffBatchRS {
         logRequest();
         try {
             List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                    taskQueryParam(), parseInt(offset), parseInt(limit));
+                    taskQueryParam(batchID), parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -175,8 +176,7 @@ public class DiffBatchRS {
                 return Response.status(Response.Status.NOT_FOUND).build();
 
             return Response.ok(entity(diffService.getDiffTaskAttributes(
-                    queueBatchQueryParam(batchID),
-                    diffBatchQueryParam(),
+                    taskQueryParam(batchID),
                     parseInt(offset),
                     parseInt(limit))))
                     .build();
@@ -285,29 +285,7 @@ public class DiffBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam(String batchID) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam diffBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setPrimaryAET(primaryAET);
-        taskQueryParam.setSecondaryAET(secondaryAET);
-        taskQueryParam.setCompareFields(comparefields);
-        taskQueryParam.setCheckMissing(checkMissing);
-        taskQueryParam.setCheckDifferent(checkDifferent);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam1 taskQueryParam() {
+    private TaskQueryParam1 taskQueryParam(String batchID) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
