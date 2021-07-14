@@ -307,15 +307,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             batchID:this.filterObject['batchID']||'',
             formSchema:[
                 {
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"withoutScheduling",
-                    description:$localize `:@@without_scheduling:Without Scheduling`
-                },{
                     tag:"range-picker-time",
                     type:"text",
                     filterKey:"scheduledTime",
-                    description:$localize `:@@scheduled_time:Scheduled time`
+                    description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                 },
                 {
                     tag:"input",
@@ -384,14 +379,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 if(filter['priority']) clonedFilters['priority'] = filter['priority'];
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
                 if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
-                if(filter.withoutScheduling){
-                    if(filter['scheduledTime']) {
-                        clonedFilters['scheduledTime'] = filter['scheduledTime'];
-                    }
-                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
-                }else{
-                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
-                }
+                if(filter['scheduledTime']) clonedFilters['scheduledTime'] = filter['scheduledTime'];
+                return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
