@@ -305,7 +305,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                     return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/mark4export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
                 }else{
-                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/export/${filter.exporterID}/studies/csv:${filter.field}${j4care.getUrlParams(clonedFilters)}`;
+                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`;
                 }
             }
         };
