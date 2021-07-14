@@ -445,7 +445,14 @@ public class ExportManagerEJB implements ExportManager {
                     minUpdatedTime, maxUpdatedTime,
                     completed, failed, warning, canceled, scheduled, inprocess);
             query.groupBy(task.get(Task_.batchID));
-            List<Predicate> predicates = queryBuilder.exportBatchPredicates(task, queryParam);
+            List<Predicate> predicates = new ArrayList<>();
+            if (queryParam.getBatchID() != null)
+                predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
+            else
+                predicates.add(task.get(Task_.batchID).isNotNull());
+            if (queryParam.getStatus() != null)
+                predicates.add(cb.equal(task.get(Task_.status), queryParam.getStatus()));
+            queryBuilder.matchExportBatch(predicates, queryParam, task);
             if (!predicates.isEmpty())
                 query.where(predicates.toArray(new Predicate[0]));
             if (queryParam.getOrderBy() != null)
@@ -457,9 +464,9 @@ public class ExportManagerEJB implements ExportManager {
             Subquery<Long> sq = query.subquery(Long.class);
             Root<Task> sqtask = sq.from(Task.class);
             List<Predicate> predicates = new ArrayList<>();
-            queryBuilder.matchExportBatch(predicates, queryParam, sqtask);
             predicates.add(cb.equal(sqtask.get(Task_.status), status));
             predicates.add(cb.equal(sqtask.get(Task_.batchID), task.get(Task_.batchID)));
+            queryBuilder.matchExportBatch(predicates, queryParam, sqtask);
             sq.where(predicates.toArray(new Predicate[0]));
             sq.select(cb.count(sqtask));
             return sq;
@@ -485,7 +492,10 @@ public class ExportManagerEJB implements ExportManager {
                     tuple.get(maxProcessingEndTime));
 
             CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
-            distinct.where(predicates(task, batchID));
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
+            queryBuilder.matchExportBatch(predicates, queryParam, task);
+            distinct.where(predicates.toArray(new Predicate[0]));
             exportBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
             exportBatch.setExporterIDs(select(distinct, task.get(Task_.exporterID)));
             exportBatch.setCompleted(tuple.get(completed));
@@ -495,12 +505,6 @@ public class ExportManagerEJB implements ExportManager {
             exportBatch.setScheduled(tuple.get(scheduled));
             exportBatch.setInProcess(tuple.get(inprocess));
             return exportBatch;
-        }
-
-        private Predicate[] predicates(Path<Task> task, String batchID) {
-            List<Predicate> predicates = queryBuilder.exportBatchPredicates(task, queryParam);
-            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
-            return predicates.toArray(new Predicate[0]);
         }
 
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {

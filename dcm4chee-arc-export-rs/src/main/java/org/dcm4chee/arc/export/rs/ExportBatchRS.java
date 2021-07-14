@@ -225,25 +225,6 @@ public class ExportBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam exportBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setExporterIDs(exporterIDs.stream()
-                                        .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
-                                        .collect(Collectors.toList()));
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        return taskQueryParam;
-    }
-
     private TaskQueryParam1 taskQueryParam() {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setDeviceName(deviceName);

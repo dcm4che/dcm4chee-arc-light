@@ -43,6 +43,7 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
 import javax.persistence.Tuple;
@@ -75,8 +76,7 @@ public interface RetrieveManager {
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize);
 
-    List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit);
+    List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 taskQueryParam, int offset, int limit);
 
     List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam);
 

@@ -50,6 +50,7 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.slf4j.Logger;
@@ -376,9 +377,8 @@ public class RetrieveManagerEJB {
                 .getResultList();
     }
 
-    public List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
-        ListRetrieveBatches listRetrieveBatches1 = new ListRetrieveBatches(queueBatchQueryParam, retrieveBatchQueryParam);
+    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 queryParam, int offset, int limit) {
+        ListRetrieveBatches listRetrieveBatches1 = new ListRetrieveBatches(queryParam);
         TypedQuery<Tuple> query = em.createQuery(listRetrieveBatches1.query);
         if (offset > 0)
             query.setFirstResult(offset);
@@ -446,93 +446,75 @@ public class RetrieveManagerEJB {
         return QueryBuilder.unbox(em.createQuery(q.select(cb.count(retrieveTask))).getSingleResult(), 0L);
     }
 
-    private Subquery<Long> statusSubquery(TaskQueryParam retrieveBatchQueryParam,
-                                          Root<RetrieveTask> retrieveTask, QueueMessage.Status status) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<RetrieveTask> query = cb.createQuery(RetrieveTask.class);
-        Subquery<Long> sq = query.subquery(Long.class);
-        Root<RetrieveTask> retrieveTask1 = sq.from(RetrieveTask.class);
-
-        List<Predicate> predicates = new ArrayList<>();
-        matchTask.matchRetrieveBatch(predicates, retrieveBatchQueryParam, retrieveTask1);
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            predicates.add(retrieveTask1.get(RetrieveTask_.queueMessage).isNull());
-        else {
-            Join<RetrieveTask, QueueMessage> queueMsg1 = sq.correlate(retrieveTask1.join(RetrieveTask_.queueMessage));
-            predicates.add(cb.equal(queueMsg1.get(QueueMessage_.status), status));
-        }
-        predicates.add(cb.equal(retrieveTask1.get(RetrieveTask_.batchID), retrieveTask.get(RetrieveTask_.batchID)));
-        sq.where(predicates.toArray(new Predicate[0]));
-        sq.select(cb.count(retrieveTask1));
-        return sq;
-    }
-
     private class ListRetrieveBatches {
         final CriteriaBuilder cb = em.getCriteriaBuilder();
-        final MatchTask matchTask = new MatchTask(cb);
+        final QueryBuilder queryBuilder = new QueryBuilder(cb);
         final CriteriaQuery<Tuple> query = cb.createTupleQuery();
-        final Root<RetrieveTask> retrieveTask = query.from(RetrieveTask.class);
-        From<RetrieveTask, QueueMessage> queueMsg;
-        final Path<String> batchIDPath = retrieveTask.get(RetrieveTask_.batchID);
+        final Root<Task> task = query.from(Task.class);
+        final Path<String> batchIDPath = task.get(Task_.batchID);
         Expression<Date> minProcessingStartTime;
         Expression<Date> maxProcessingStartTime;
         Expression<Date> minProcessingEndTime;
         Expression<Date> maxProcessingEndTime;
-        final Expression<Date> minScheduledTime = cb.least(retrieveTask.get(RetrieveTask_.scheduledTime));
-        final Expression<Date> maxScheduledTime = cb.greatest(retrieveTask.get(RetrieveTask_.scheduledTime));
-        final Expression<Date> minCreatedTime = cb.least(retrieveTask.get(RetrieveTask_.createdTime));
-        final Expression<Date> maxCreatedTime = cb.greatest(retrieveTask.get(RetrieveTask_.createdTime));
-        final Expression<Date> minUpdatedTime = cb.least(retrieveTask.get(RetrieveTask_.updatedTime));
-        final Expression<Date> maxUpdatedTime = cb.greatest(retrieveTask.get(RetrieveTask_.updatedTime));
+        final Expression<Date> minScheduledTime = cb.least(task.get(Task_.scheduledTime));
+        final Expression<Date> maxScheduledTime = cb.greatest(task.get(Task_.scheduledTime));
+        final Expression<Date> minCreatedTime = cb.least(task.get(Task_.createdTime));
+        final Expression<Date> maxCreatedTime = cb.greatest(task.get(Task_.createdTime));
+        final Expression<Date> minUpdatedTime = cb.least(task.get(Task_.updatedTime));
+        final Expression<Date> maxUpdatedTime = cb.greatest(task.get(Task_.updatedTime));
         final Expression<Long> completed;
         final Expression<Long> failed;
         final Expression<Long> warning;
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final Expression<Long> toschedule;
-        final TaskQueryParam queueBatchQueryParam;
-        final TaskQueryParam retrieveBatchQueryParam;
+        final TaskQueryParam1 queryParam;
 
-        ListRetrieveBatches(TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam) {
-            this.queueBatchQueryParam = queueBatchQueryParam;
-            this.retrieveBatchQueryParam = retrieveBatchQueryParam;
-            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE) {
-                this.queueMsg = retrieveTask.join(RetrieveTask_.queueMessage,
-                        queueBatchQueryParam.getStatus() == null ? JoinType.LEFT : JoinType.INNER);
-                this.minProcessingStartTime = cb.least(queueMsg.get(QueueMessage_.processingStartTime));
-                this.maxProcessingStartTime = cb.greatest(queueMsg.get(QueueMessage_.processingStartTime));
-                this.minProcessingEndTime = cb.least(queueMsg.get(QueueMessage_.processingEndTime));
-                this.maxProcessingEndTime = cb.greatest(queueMsg.get(QueueMessage_.processingEndTime));
-            }
-            this.completed = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.COMPLETED).getSelection();
-            this.failed = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.FAILED).getSelection();
-            this.warning = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.WARNING).getSelection();
-            this.canceled = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.CANCELED).getSelection();
-            this.scheduled = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.SCHEDULED).getSelection();
-            this.inprocess = statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.IN_PROCESS).getSelection();
-            this.toschedule= statusSubquery(retrieveBatchQueryParam, retrieveTask, QueueMessage.Status.TO_SCHEDULE).getSelection();
-            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE)
-                query.multiselect(batchIDPath,
-                    minProcessingStartTime, maxProcessingStartTime,
-                    minProcessingEndTime, maxProcessingEndTime,
-                    minScheduledTime, maxScheduledTime,
-                    minCreatedTime, maxCreatedTime,
-                    minUpdatedTime, maxUpdatedTime,
-                    completed, failed, warning, canceled, scheduled, inprocess, toschedule);
+        ListRetrieveBatches(TaskQueryParam1 queryParam) {
+            this.queryParam = queryParam;
+            this.minProcessingStartTime = cb.least(task.get(Task_.processingStartTime));
+            this.maxProcessingStartTime = cb.greatest(task.get(Task_.processingStartTime));
+            this.minProcessingEndTime = cb.least(task.get(Task_.processingEndTime));
+            this.maxProcessingEndTime = cb.greatest(task.get(Task_.processingEndTime));
+            this.completed = statusSubquery(Task.Status.COMPLETED).getSelection();
+            this.failed = statusSubquery(Task.Status.FAILED).getSelection();
+            this.warning = statusSubquery(Task.Status.WARNING).getSelection();
+            this.canceled = statusSubquery(Task.Status.CANCELED).getSelection();
+            this.scheduled = statusSubquery(Task.Status.SCHEDULED).getSelection();
+            this.inprocess = statusSubquery(Task.Status.IN_PROCESS).getSelection();
+            query.multiselect(batchIDPath,
+                minProcessingStartTime, maxProcessingStartTime,
+                minProcessingEndTime, maxProcessingEndTime,
+                minScheduledTime, maxScheduledTime,
+                minCreatedTime, maxCreatedTime,
+                minUpdatedTime, maxUpdatedTime,
+                completed, failed, warning, canceled, scheduled, inprocess);
+            query.groupBy(task.get(Task_.batchID));
+            List<Predicate> predicates = new ArrayList<>();
+            if (queryParam.getBatchID() != null)
+                predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
             else
-                query.multiselect(batchIDPath,
-                        minScheduledTime, maxScheduledTime,
-                        minCreatedTime, maxCreatedTime,
-                        minUpdatedTime, maxUpdatedTime,
-                        completed, failed, warning, canceled, scheduled, inprocess, toschedule);
-            query.groupBy(retrieveTask.get(RetrieveTask_.batchID));
-            List<Predicate> predicates = matchTask.retrieveBatchPredicates(retrieveTask, queueMsg, queueBatchQueryParam, retrieveBatchQueryParam);
+                predicates.add(task.get(Task_.batchID).isNotNull());
+            if (queryParam.getStatus() != null)
+                predicates.add(cb.equal(task.get(Task_.status), queryParam.getStatus()));
+            queryBuilder.matchRetrieveBatch(predicates, queryParam, task);
             if (!predicates.isEmpty())
                 query.where(predicates.toArray(new Predicate[0]));
-            if (retrieveBatchQueryParam.getOrderBy() != null)
-                query.orderBy(matchTask.retrieveBatchOrder(retrieveBatchQueryParam.getOrderBy(), retrieveTask));
+            if (queryParam.getOrderBy() != null)
+                query.orderBy(queryBuilder.orderBatches(task, queryParam.getOrderBy()));
+        }
+
+        private Subquery<Long> statusSubquery(Task.Status status) {
+            CriteriaQuery<Task> query = cb.createQuery(Task.class);
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<Task> sqtask = sq.from(Task.class);
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(sqtask.get(Task_.status), status));
+            predicates.add(cb.equal(sqtask.get(Task_.batchID), task.get(Task_.batchID)));
+            queryBuilder.matchRetrieveBatch(predicates, queryParam, sqtask);
+            sq.where(predicates.toArray(new Predicate[0]));
+            sq.select(cb.count(sqtask));
+            return sq;
         }
 
         RetrieveBatch toRetrieveBatch(Tuple tuple) {
@@ -547,42 +529,30 @@ public class RetrieveManagerEJB {
             retrieveBatch.setUpdatedTimeRange(
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
-
-            if (queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE) {
-                retrieveBatch.setProcessingStartTimeRange(
-                        tuple.get(maxProcessingStartTime),
-                        tuple.get(maxProcessingStartTime));
-                retrieveBatch.setProcessingEndTimeRange(
-                        tuple.get(minProcessingEndTime),
-                        tuple.get(maxProcessingEndTime));
-            }
+            retrieveBatch.setProcessingStartTimeRange(
+                    tuple.get(maxProcessingStartTime),
+                    tuple.get(maxProcessingStartTime));
+            retrieveBatch.setProcessingEndTimeRange(
+                    tuple.get(minProcessingEndTime),
+                    tuple.get(maxProcessingEndTime));
 
             CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
-            Root<RetrieveTask> retrieveTask = distinct.from(RetrieveTask.class);
-            From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage,
-                    queueBatchQueryParam.getStatus() != null && queueBatchQueryParam.getStatus() != QueueMessage.Status.TO_SCHEDULE
-                            ? JoinType.INNER : JoinType.LEFT);
-            distinct.where(predicates(queueMsg, retrieveTask, batchID));
-            retrieveBatch.setDeviceNames(select(distinct, retrieveTask.get(RetrieveTask_.deviceName)));
-            retrieveBatch.setQueueNames(select(distinct, retrieveTask.get(RetrieveTask_.queueName)));
-            retrieveBatch.setLocalAETs(select(distinct, retrieveTask.get(RetrieveTask_.localAET)));
-            retrieveBatch.setRemoteAETs(select(distinct, retrieveTask.get(RetrieveTask_.remoteAET)));
-            retrieveBatch.setDestinationAETs(select(distinct, retrieveTask.get(RetrieveTask_.destinationAET)));
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
+            queryBuilder.matchRetrieveBatch(predicates, queryParam, task);
+            distinct.where(predicates.toArray(new Predicate[0]));
+            retrieveBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
+            retrieveBatch.setQueueNames(select(distinct, task.get(Task_.queueName)));
+            retrieveBatch.setLocalAETs(select(distinct, task.get(Task_.localAET)));
+            retrieveBatch.setRemoteAETs(select(distinct, task.get(Task_.remoteAET)));
+            retrieveBatch.setDestinationAETs(select(distinct, task.get(Task_.destinationAET)));
             retrieveBatch.setCompleted(tuple.get(completed));
             retrieveBatch.setCanceled(tuple.get(canceled));
             retrieveBatch.setWarning(tuple.get(warning));
             retrieveBatch.setFailed(tuple.get(failed));
             retrieveBatch.setScheduled(tuple.get(scheduled));
             retrieveBatch.setInProcess(tuple.get(inprocess));
-            retrieveBatch.setToSchedule(tuple.get(toschedule));
             return retrieveBatch;
-        }
-
-        private Predicate[] predicates(Path<QueueMessage> queueMsg, Path<RetrieveTask> retrieveTask, String batchID) {
-            List<Predicate> predicates = matchTask.retrieveBatchPredicates(
-                    retrieveTask, queueMsg, queueBatchQueryParam, retrieveBatchQueryParam);
-            predicates.add(cb.equal(retrieveTask.get(RetrieveTask_.batchID), batchID));
-            return predicates.toArray(new Predicate[0]);
         }
 
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {

@@ -1510,27 +1510,32 @@ public class QueryBuilder {
         predicates.add(cb.exists(sq.select(soundexCode).where(y)));
     }
 
-    public List<Predicate> exportBatchPredicates(Path<Task> task, TaskQueryParam1 queryParam) {
-        List<Predicate> predicates = new ArrayList<>();
-        if (queryParam.getBatchID() != null)
-            predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
-        else
-            predicates.add(task.get(Task_.batchID).isNotNull());
-        if (queryParam.getStatus() != null)
-            predicates.add(cb.equal(task.get(Task_.status), queryParam.getStatus()));
-        matchExportBatch(predicates, queryParam, task);
-        return predicates;
+    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+        if (!taskQueryParam.getExporterIDs().isEmpty())
+            predicates.add(cb.and(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> exportTask) {
-        if (!taskQueryParam.getExporterIDs().isEmpty())
-            predicates.add(cb.and(exportTask.get(Task_.exporterID).in(taskQueryParam.getExporterIDs())));
+    public void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+        if (!taskQueryParam.getQueueNames().isEmpty())
+            predicates.add(cb.and(task.get(Task_.queueName).in(taskQueryParam.getQueueNames())));
         if (taskQueryParam.getDeviceName() != null)
-            predicates.add(cb.equal(exportTask.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getRemoteAET() != null)
+            predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
+        if (taskQueryParam.getDestinationAET() != null)
+            predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getDestinationAET()));
         if (taskQueryParam.getCreatedTime() != null)
-            dateRange(predicates, exportTask.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
         if (taskQueryParam.getUpdatedTime() != null)
-            dateRange(predicates, exportTask.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private enum FormatDate {

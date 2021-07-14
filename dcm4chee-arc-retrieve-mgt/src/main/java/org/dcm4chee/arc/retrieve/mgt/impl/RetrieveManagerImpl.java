@@ -50,6 +50,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -190,9 +191,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
-        return ejb.listRetrieveBatches(queueBatchQueryParam, retrieveBatchQueryParam, offset, limit);
+    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 queryParam, int offset, int limit) {
+        return ejb.listRetrieveBatches(queryParam, offset, limit);
     }
 
     @Override
