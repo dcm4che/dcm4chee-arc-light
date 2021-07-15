@@ -46,3 +46,13 @@ dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration
 changetype: modify
 add: dcmTag
 dcmTag: 0032000A
+
+dn: dcmuiPermissionName=Tab - Study - Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Tab - Study - Series
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: tab-study-series

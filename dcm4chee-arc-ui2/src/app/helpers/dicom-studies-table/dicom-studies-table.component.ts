@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
 import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfaces";
 import {PatientDicom} from "../../models/patient-dicom";
+import {Patient1Dicom} from "../../models/patient1-dicom";
 import * as _ from "lodash-es";
 import {j4care} from "../j4care.service";
 import {StudyWebService} from "../../study/study/study-web-service.model";
@@ -16,6 +17,7 @@ export class DicomStudiesTableComponent implements OnInit {
     private _tableSchema:DicomTableSchema;
     private _config:TableSchemaConfig;
     @Input() patients:PatientDicom[];
+    @Input() patients1:Patient1Dicom[];
     @Input() title:string;
     @Input() studyWebService:StudyWebService;
     @Output() onPaginationClick = new EventEmitter();

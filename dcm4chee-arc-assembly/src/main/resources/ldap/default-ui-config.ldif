@@ -65,6 +65,15 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
+dn: dcmuiPermissionName=Tab - Study - Series,dcmuiConfigName=default,dicomDevi
+ ceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-study-series
+dcmuiPermissionName: Tab - Study - Series
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
 dn: dcmuiPermissionName=Tab - Study - Uwl,dcmuiConfigName=default,dicomDevic
  eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission

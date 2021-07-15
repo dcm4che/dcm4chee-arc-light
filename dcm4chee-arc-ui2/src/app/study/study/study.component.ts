@@ -26,7 +26,10 @@ import {Globalvar} from "../../constants/globalvar";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {PatientDicom} from "../../models/patient-dicom";
+import {Patient1Dicom} from "../../models/patient1-dicom";
 import {StudyDicom} from "../../models/study-dicom";
+import {Study1Dicom} from "../../models/study1-dicom";
+import {Series1Dicom} from "../../models/series1-dicom";
 import * as _  from "lodash-es";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {
@@ -110,6 +113,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     patientAttributes;
+    studyAttributes;
     devices;
     private _filter:StudyFilterConfig = {
         filterSchemaEntry:{
@@ -221,9 +225,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     testShow = true;
     fixedHeader = false;
     patients:PatientDicom[] = [];
+    patients1:Patient1Dicom[] = [];
+    studies:Study1Dicom[] = [];
     moreState = {
         "study":false,
         "patient":false,
+        "series":false,
         "mwl":false,
         "mpps":false,
         "uwl":false,
@@ -271,6 +278,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         console.log("this.studyWebService",this.studyWebService);
         this.getPatientAttributeFilters();
+        this.getStudyAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
             this.internal = !this.internal;
@@ -317,7 +325,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.getApplicationEntities();
                     });
                 }
-                if (this.studyConfig.tab === "study") {
+                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
                     this.getStorages(this, () => {
                         this.getApplicationEntities();
                     });
@@ -371,6 +379,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         return {
             "study": $localize `:@@studies:Studies`,
             "patient": $localize `:@@patients:Patients`,
+            "series": $localize `:@@series:Series`,
             "mwl": $localize `:@@mwl:MWL`,
             "uwl": $localize `:@@uwl:UWL`,
             "diff": $localize `:@@study.difference:Difference`,
@@ -765,7 +774,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(id.action === "toggle_series"){
                 if(!model.series){
-                    this.getSeries(model, 0);
+                    this.getSeriesOfStudy(model, 0);
                 }else{
                     model.showSeries = !model.showSeries;
                 }
@@ -1808,10 +1817,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e.level === "series"){
             console.log("e.object",e.object);
             if(e.direction === "next"){
-                this.getSeries(e.object,e.object.series[0].offset * 1 + this._filter.filterModel.limit * 1);
+                this.getSeriesOfStudy(e.object,e.object.series[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
             if(e.direction === "prev"){
-                this.getSeries(e.object,e.object.series[0].offset - this._filter.filterModel.limit);
+                this.getSeriesOfStudy(e.object,e.object.series[0].offset - this._filter.filterModel.limit);
             }
 
         }
@@ -1908,6 +1917,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "patient":
                 this.getPatients(filterModel);
+                break;
+            case "series":
+                this.getSeries(filterModel);
                 break;
             case "mwl":
                 this.getMWL(filterModel);
@@ -2464,7 +2476,87 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
             });
     }
-    getSeries(study:StudyDicom, offset){
+
+    getSeries(filterModel){
+        this.cfpLoadingBar.start();
+        this.searchCurrentList = "";
+        this.service.getSeries(filterModel, this.studyWebService.selectedWebService)
+            .subscribe(res => {
+                this.patients1 = [];
+                this.studies = [];
+                this._filter.filterModel.offset = filterModel.offset;
+                if(res){
+                    this.setTopToTableHeader();
+                    let index = 0;
+                    let patient: Patient1Dicom;
+                    let study: Study1Dicom;
+                    let series: Series1Dicom;
+                    let patAttrs;
+                    let studyAttrs;
+                    let tagsPatient = this.patientAttributes.dcmTag;
+                    let tagsStudy = this.studyAttributes.dcmTag;
+
+                    while (tagsPatient && (tagsPatient[index] < '00201200')) {
+                        index++;
+                    }
+                    tagsPatient.splice(index, 0, '00201200');
+                    tagsPatient.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
+
+                    while (tagsStudy && (tagsStudy[index] < '00201206')) {
+                        index++;
+                    }
+                    tagsStudy.splice(index, 0, '00201206');
+                    tagsStudy.push('77770010', '77771020', '77771021', '77771022', '77771023', '77771024', '77771025', '77771026', '77771027', '77771028', '77771029', '7777102A', '7777102B', '7777102C');
+
+                    res.forEach((seriesAttrs, index) => {
+                        patAttrs = {};
+                        studyAttrs = {};
+                        this.service.extractAttrs(seriesAttrs, tagsPatient, patAttrs);
+                        this.service.extractAttrs(seriesAttrs, tagsStudy, studyAttrs);
+                        if (!(patient && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            patient = new Patient1Dicom(patAttrs, [], false, true);
+                            this.patients1.push(patient);
+                        }
+
+                        if (!(study && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                            study = new Study1Dicom(studyAttrs, patient, 0,false, false,
+                                [], false, false, false, true);
+                            this.studies.push(study);
+                        }
+
+                        series = new Series1Dicom(
+                            seriesAttrs,
+                            patient,
+                            study,
+                            this._filter.filterModel.offset*1 + index
+                        );
+                        patient.studies.push(study);
+                        study.series.push(series);
+                    });
+                    if (this.more = (this._filter.filterModel.limit && res.length > this._filter.filterModel.limit)) {
+                        patient.studies.pop();
+                        if (patient.studies.length === 0) {
+                            this.patients.pop();
+                        }
+
+                        study.series.pop();
+                        if (study.series.length === 0) {
+                            this.studies.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                }else{
+                    this.appService.showMsg($localize `:@@no_series_found:No Series found!`);
+                }
+                this.cfpLoadingBar.complete();
+            }, err => {
+                j4care.log("Something went wrong on search", err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+            });
+    }
+
+    getSeriesOfStudy(study:StudyDicom, offset){
         console.log('in query sersies study=', study);
         this.cfpLoadingBar.start();
         let filters = this.getFilterClone();
@@ -2477,7 +2569,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         delete filters.aet;
         filters["orderby"] = 'SeriesNumber';
-        this.service.getSeries(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
+        this.service.getSeriesOfStudy(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
                 if (res){
                     let hasMore = res.length > this._filter.filterModel.limit;
@@ -2744,6 +2836,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.patientAttributes = patientAttributes;
         },err=>{
             j4care.log("Something went wrong on getting Patient Attributes",err);
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+
+    getStudyAttributeFilters(){
+        this.service.getAttributeFilter("Study").subscribe(studyAttributes=>{
+            this.studyAttributes = studyAttributes;
+        },err=>{
+            j4care.log("Something went wrong on getting Study Attributes",err);
             this.httpErrorHandler.handleError(err);
         });
     }
