@@ -2335,6 +2335,29 @@ export class Globalvar {
                 filterKey:"InstitutionName",
                 description:$localize `:@@institution_name:Institution Name`,
                 placeholder:$localize `:@@institution_name:Institution Name`
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"StationName",
+                description:$localize `:@@station_name:Station Name`,
+                placeholder:$localize `:@@station_name:Station Name`
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"PerformingPhysicianName",
+                placeholder:$localize `:@@Performing_physician_family_name:Performing physician family name`,
+                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
+            },{
+                tag:"range-picker-limit",
+                type:"text",
+                filterKey:"PerformedProcedureStepStartDate",
+                description:$localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
+                onlyDate:true
+            },{
+                tag:"range-picker-time",
+                type:"text",
+                filterKey:"PerformedProcedureStepStartTime",
+                description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`
             },
             {
                 tag:"input",
@@ -2369,14 +2392,7 @@ export class Globalvar {
                 filterKey:"ReferringPhysicianName",
                 placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
-            },{
-                tag:"input",
-                type:"text",
-                filterKey:"StationName",
-                description:$localize `:@@station_name:Station Name`,
-                placeholder:$localize `:@@station_name:Station Name`
             },
-
             {
                 tag:"input",
                 type:"text",
