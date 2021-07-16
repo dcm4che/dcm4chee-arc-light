@@ -46,7 +46,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
@@ -509,10 +508,6 @@ public class RetrieveTaskRS {
         }
 
         abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
-    }
-
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private Response notAcceptable() {

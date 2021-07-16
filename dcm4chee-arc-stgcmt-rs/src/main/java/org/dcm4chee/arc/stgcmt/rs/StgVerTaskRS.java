@@ -45,7 +45,6 @@ import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
@@ -440,10 +439,6 @@ public class StgVerTaskRS {
         return result
                 ? Response.noContent().build()
                 : errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
-    }
-
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private static int parseInt(String s) {

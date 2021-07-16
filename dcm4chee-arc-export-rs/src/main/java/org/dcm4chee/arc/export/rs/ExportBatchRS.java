@@ -42,11 +42,9 @@ package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -173,7 +171,6 @@ public class ExportBatchRS {
 
             private void writeTasks(ExportBatch exportBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
-                writer.writeNotNullOrDef("to-schedule", exportBatch.getToSchedule(), 0);
                 writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
                 writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
@@ -193,10 +190,6 @@ public class ExportBatchRS {
         };
 
         abstract Object entity(final List<ExportBatch> exportBatches);
-    }
-
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private static int parseInt(String s) {

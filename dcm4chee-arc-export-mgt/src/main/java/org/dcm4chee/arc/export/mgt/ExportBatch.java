@@ -48,7 +48,7 @@ import java.util.List;
  * @since Feb 2018
  */
 public class ExportBatch {
-    private String batchID;
+    private final String batchID;
     private Date[] createdTimeRange = {};
     private Date[] updatedTimeRange = {};
     private Date[] scheduledTimeRange = {};
@@ -62,7 +62,6 @@ public class ExportBatch {
     private long failed;
     private long scheduled;
     private long inProcess;
-    private long toSchedule;
 
     public ExportBatch(String batchID) {
         this.batchID = batchID;
@@ -184,13 +183,5 @@ public class ExportBatch {
 
     public void setInProcess(long inProcess) {
         this.inProcess = inProcess;
-    }
-
-    public long getToSchedule() {
-        return toSchedule;
-    }
-
-    public void setToSchedule(long toSchedule) {
-        this.toSchedule = toSchedule;
     }
 }

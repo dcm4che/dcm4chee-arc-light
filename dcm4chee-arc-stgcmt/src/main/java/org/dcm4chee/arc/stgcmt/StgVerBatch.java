@@ -49,7 +49,7 @@ import java.util.List;
  */
 
 public class StgVerBatch {
-    private String batchID;
+    private final String batchID;
     private Date[] createdTimeRange = {};
     private Date[] updatedTimeRange = {};
     private Date[] scheduledTimeRange = {};

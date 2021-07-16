@@ -42,9 +42,7 @@ package org.dcm4chee.arc.retrieve.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -194,7 +192,6 @@ public class RetrieveBatchRS {
 
             private void writeTasks(RetrieveBatch retrieveBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
-                writer.writeNotNullOrDef("to-schedule", retrieveBatch.getToSchedule(), 0);
                 writer.writeNotNullOrDef("scheduled", retrieveBatch.getScheduled(), 0);
                 writer.writeNotNullOrDef("in-process", retrieveBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", retrieveBatch.getWarning(), 0);
@@ -214,10 +211,6 @@ public class RetrieveBatchRS {
         };
 
         abstract Object entity(final List<RetrieveBatch> retrieveBatches);
-    }
-    
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private static int parseInt(String s) {

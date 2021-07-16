@@ -527,10 +527,6 @@ public class DiffTaskRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
-    }
-
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
         LOG.warn("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
