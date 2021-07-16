@@ -311,22 +311,8 @@ public class DiffServiceEJB {
             diffBatch.setMatches(tuple.get(matches));
             diffBatch.setMissing(tuple.get(missing));
             diffBatch.setDifferent(tuple.get(different));
-
-            CriteriaQuery<String> distinctString = cb.createQuery(String.class).distinct(true);
-            Root<Task> diffTaskString = distinctString.from(Task.class);
-            where(batchID, distinctString, diffTaskString);
-            diffBatch.setDeviceNames(select(distinctString, diffTaskString.get(Task_.deviceName)));
-            diffBatch.setComparefields(select(distinctString, diffTaskString.get(Task_.compareFields)));
-            diffBatch.setLocalAETs(select(distinctString, diffTaskString.get(Task_.localAET)));
-            diffBatch.setPrimaryAETs(select(distinctString, diffTaskString.get(Task_.remoteAET)));
-            diffBatch.setSecondaryAETs(select(distinctString, diffTaskString.get(Task_.destinationAET)));
-
-            CriteriaQuery<Boolean> distinctBoolean = cb.createQuery(Boolean.class).distinct(true);
-            Root<Task> diffTaskBoolean = distinctBoolean.from(Task.class);
-            where(batchID, distinctBoolean, diffTaskBoolean);
-            diffBatch.setCheckMissing(select(distinctBoolean, diffTaskBoolean.get(Task_.checkMissing)));
-            diffBatch.setCheckDifferent(select(distinctBoolean, diffTaskBoolean.get(Task_.checkDifferent)));
-
+            queryDistinctStringValues(diffBatch);
+            queryDistinctBooleanValues(diffBatch);
             diffBatch.setCompleted(tuple.get(completed));
             diffBatch.setCanceled(tuple.get(canceled));
             diffBatch.setWarning(tuple.get(warning));
@@ -336,11 +322,30 @@ public class DiffServiceEJB {
             return diffBatch;
         }
 
-        private <T> void where(String batchID, CriteriaQuery<T> distinct, Root<Task> diffTask) {
+        private void queryDistinctStringValues(DiffBatch diffBatch) {
+            CriteriaQuery<String> query = cb.createQuery(String.class).distinct(true);
+            Root<Task> diffTask = query.from(Task.class);
+            query.where(predicates(diffTask, diffBatch));
+            diffBatch.setDeviceNames(select(query, diffTask.get(Task_.deviceName)));
+            diffBatch.setComparefields(select(query, diffTask.get(Task_.compareFields)));
+            diffBatch.setLocalAETs(select(query, diffTask.get(Task_.localAET)));
+            diffBatch.setPrimaryAETs(select(query, diffTask.get(Task_.remoteAET)));
+            diffBatch.setSecondaryAETs(select(query, diffTask.get(Task_.destinationAET)));
+        }
+
+        private void queryDistinctBooleanValues(DiffBatch diffBatch) {
+            CriteriaQuery<Boolean> query = cb.createQuery(Boolean.class).distinct(true);
+            Root<Task> diffTask = query.from(Task.class);
+            query.where(predicates(diffTask, diffBatch));
+            diffBatch.setCheckMissing(select(query, diffTask.get(Task_.checkMissing)));
+            diffBatch.setCheckDifferent(select(query, diffTask.get(Task_.checkDifferent)));
+        }
+
+        private Predicate[] predicates(Root<Task> diffTask, DiffBatch diffBatch) {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(diffTask.get(Task_.batchID), batchID));
+            predicates.add(cb.equal(diffTask.get(Task_.batchID), diffBatch.getBatchID()));
             queryBuilder.matchDiffBatch(predicates, queryParam, diffTask);
-            distinct.where(predicates.toArray(new Predicate[0]));
+            return predicates.toArray(new Predicate[0]);
         }
 
         private <T> List<T> select(CriteriaQuery<T> query, Path<T> path) {
