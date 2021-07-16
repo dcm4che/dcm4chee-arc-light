@@ -78,9 +78,6 @@ export class RetrieveMonitoringService {
     statusValues(){
         return [
             {
-                value:"TO SCHEDULE",
-                text:$localize `:@@to_schedule:TO SCHEDULE`
-            },{
                 value:"SCHEDULED",
                 text:$localize `:@@SCHEDULED:SCHEDULED`
             },
