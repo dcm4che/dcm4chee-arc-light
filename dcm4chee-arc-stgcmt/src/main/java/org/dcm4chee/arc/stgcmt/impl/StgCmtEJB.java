@@ -427,13 +427,14 @@ public class StgCmtEJB {
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
 
+            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
+            Root<Task> stgverTask = distinct.from(Task.class);
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
-            queryBuilder.matchStgVerBatch(predicates, queryParam, task);
-            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true)
-                    .where(predicates.toArray(new Predicate[0]));
-            stgVerBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
-            stgVerBatch.setLocalAETs(select(distinct, task.get(Task_.localAET)));
+            predicates.add(cb.equal(stgverTask.get(Task_.batchID), batchID));
+            queryBuilder.matchStgVerBatch(predicates, queryParam, stgverTask);
+            distinct.where(predicates.toArray(new Predicate[0]));
+            stgVerBatch.setDeviceNames(select(distinct, stgverTask.get(Task_.deviceName)));
+            stgVerBatch.setLocalAETs(select(distinct, stgverTask.get(Task_.localAET)));
             stgVerBatch.setCompleted(tuple.get(completed));
             stgVerBatch.setCanceled(tuple.get(canceled));
             stgVerBatch.setWarning(tuple.get(warning));

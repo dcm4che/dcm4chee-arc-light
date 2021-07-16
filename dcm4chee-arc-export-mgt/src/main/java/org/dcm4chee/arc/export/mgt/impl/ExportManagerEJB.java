@@ -431,13 +431,14 @@ public class ExportManagerEJB implements ExportManager {
                     tuple.get(minProcessingEndTime),
                     tuple.get(maxProcessingEndTime));
 
+            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
+            Root<Task> exportTask = distinct.from(Task.class);
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
-            queryBuilder.matchExportBatch(predicates, queryParam, task);
-            CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true)
-                    .where(predicates.toArray(new Predicate[0]));
-            exportBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
-            exportBatch.setExporterIDs(select(distinct, task.get(Task_.exporterID)));
+            predicates.add(cb.equal(exportTask.get(Task_.batchID), batchID));
+            queryBuilder.matchExportBatch(predicates, queryParam, exportTask);
+            distinct.where(predicates.toArray(new Predicate[0]));
+            exportBatch.setDeviceNames(select(distinct, exportTask.get(Task_.deviceName)));
+            exportBatch.setExporterIDs(select(distinct, exportTask.get(Task_.exporterID)));
             exportBatch.setCompleted(tuple.get(completed));
             exportBatch.setCanceled(tuple.get(canceled));
             exportBatch.setWarning(tuple.get(warning));

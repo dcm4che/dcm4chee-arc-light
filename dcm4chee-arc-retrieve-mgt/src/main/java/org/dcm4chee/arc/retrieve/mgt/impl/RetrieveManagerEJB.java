@@ -450,15 +450,16 @@ public class RetrieveManagerEJB {
                     tuple.get(maxProcessingEndTime));
 
             CriteriaQuery<String> distinct = cb.createQuery(String.class).distinct(true);
+            Root<Task> retrieveTask = distinct.from(Task.class);
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(task.get(Task_.batchID), batchID));
-            queryBuilder.matchRetrieveBatch(predicates, queryParam, task);
+            predicates.add(cb.equal(retrieveTask.get(Task_.batchID), batchID));
+            queryBuilder.matchRetrieveBatch(predicates, queryParam, retrieveTask);
             distinct.where(predicates.toArray(new Predicate[0]));
-            retrieveBatch.setDeviceNames(select(distinct, task.get(Task_.deviceName)));
-            retrieveBatch.setQueueNames(select(distinct, task.get(Task_.queueName)));
-            retrieveBatch.setLocalAETs(select(distinct, task.get(Task_.localAET)));
-            retrieveBatch.setRemoteAETs(select(distinct, task.get(Task_.remoteAET)));
-            retrieveBatch.setDestinationAETs(select(distinct, task.get(Task_.destinationAET)));
+            retrieveBatch.setDeviceNames(select(distinct, retrieveTask.get(Task_.deviceName)));
+            retrieveBatch.setQueueNames(select(distinct, retrieveTask.get(Task_.queueName)));
+            retrieveBatch.setLocalAETs(select(distinct, retrieveTask.get(Task_.localAET)));
+            retrieveBatch.setRemoteAETs(select(distinct, retrieveTask.get(Task_.remoteAET)));
+            retrieveBatch.setDestinationAETs(select(distinct, retrieveTask.get(Task_.destinationAET)));
             retrieveBatch.setCompleted(tuple.get(completed));
             retrieveBatch.setCanceled(tuple.get(canceled));
             retrieveBatch.setWarning(tuple.get(warning));
