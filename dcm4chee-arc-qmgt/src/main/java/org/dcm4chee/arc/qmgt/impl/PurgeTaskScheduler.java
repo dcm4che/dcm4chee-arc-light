@@ -44,37 +44,31 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.BulkTaskEvent;
-import org.dcm4chee.arc.event.TaskOperation;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.qmgt.TaskManager;
+import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2016
  */
 @ApplicationScoped
-public class PurgeQueueMessageScheduler extends Scheduler {
+public class PurgeTaskScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PurgeQueueMessageScheduler.class);
-
-    @Inject
-    private QueueManager mgr;
+    private static final Logger LOG = LoggerFactory.getLogger(PurgeTaskScheduler.class);
 
     @Inject
-    private Event<BulkTaskEvent> bulkQueueMsgEvent;
+    private TaskManager mgr;
 
-    protected PurgeQueueMessageScheduler() {
+    protected PurgeTaskScheduler() {
         super(Mode.scheduleWithFixedDelay);
     }
 
@@ -93,40 +87,24 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (QueueDescriptor desc : arcDev.getQueueDescriptors()) {
-            delete(desc.getQueueName(), QueueMessage.Status.COMPLETED, desc.getPurgeQueueMessageCompletedDelay());
-            delete(desc.getQueueName(), QueueMessage.Status.FAILED, desc.getPurgeQueueMessageFailedDelay());
-            delete(desc.getQueueName(), QueueMessage.Status.WARNING, desc.getPurgeQueueMessageWarningDelay());
-            delete(desc.getQueueName(), QueueMessage.Status.CANCELED, desc.getPurgeQueueMessageCanceledDelay());
+            delete(desc.getQueueName(), Task.Status.COMPLETED, desc.getPurgeQueueMessageCompletedDelay());
+            delete(desc.getQueueName(), Task.Status.FAILED, desc.getPurgeQueueMessageFailedDelay());
+            delete(desc.getQueueName(), Task.Status.WARNING, desc.getPurgeQueueMessageWarningDelay());
+            delete(desc.getQueueName(), Task.Status.CANCELED, desc.getPurgeQueueMessageCanceledDelay());
         }
     }
 
-    private void delete(String queueName, QueueMessage.Status status, Duration delay) {
+    private void delete(String queueName, Task.Status status, Duration delay) {
         if (delay == null)
             return;
 
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int deleted = 0;
-        int count;
-        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                                    .getQueueTasksFetchSize();
-        BulkTaskEvent queueEvent = new BulkTaskEvent(queueName, TaskOperation.DeleteTasks);
-        do {
-            count = mgr.deleteTasks(
-                    taskQueryParam(queueName, status, before),
-                    deleteTaskFetchSize);
-            deleted += count;
-        } while (count >= deleteTaskFetchSize);
+        mgr.deleteTasks(taskQueryParam(queueName, status, before), queueName);
+     }
 
-        if (deleted > 0) {
-            LOG.info("Deleted {} {} messages from queue {}", deleted, status, queueName);
-            queueEvent.setCount(deleted);
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private TaskQueryParam taskQueryParam(String queueName, QueueMessage.Status status, Date updatedBefore) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setQueueName(Collections.singletonList(queueName));
+    private TaskQueryParam1 taskQueryParam(String queueName, Task.Status status, Date updatedBefore) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setStatus(status);
         taskQueryParam.setUpdatedBefore(updatedBefore);
         return taskQueryParam;

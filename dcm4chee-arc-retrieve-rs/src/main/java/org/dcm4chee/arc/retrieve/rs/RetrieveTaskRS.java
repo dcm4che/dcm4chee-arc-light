@@ -51,7 +51,6 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.validation.constraints.ValidList;
 import org.jboss.resteasy.annotations.cache.NoCache;

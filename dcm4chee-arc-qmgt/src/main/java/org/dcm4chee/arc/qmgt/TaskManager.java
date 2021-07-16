@@ -66,6 +66,8 @@ public interface TaskManager {
 
     Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
 
+    void deleteTasks(TaskQueryParam1 taskQueryParam, String queueName);
+
     Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
 
     void processQueue(String queueName);

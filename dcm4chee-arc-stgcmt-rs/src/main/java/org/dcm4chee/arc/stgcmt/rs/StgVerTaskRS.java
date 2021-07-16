@@ -49,7 +49,6 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
-import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;

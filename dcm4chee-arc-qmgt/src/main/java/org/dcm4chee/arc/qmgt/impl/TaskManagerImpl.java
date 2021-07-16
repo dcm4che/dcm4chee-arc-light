@@ -205,8 +205,20 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
+    public void deleteTasks(TaskQueryParam1 taskQueryParam, String queueName) {
+        deleteTasks(taskQueryParam, new BulkTaskEvent(queueName, TaskOperation.DeleteTasks));
+    }
+
+    @Override
     public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
+        deleteTasks(taskQueryParam, taskEvent);
+        return (taskEvent.getException() == null)
+                ? Response.ok("{\"deleted\":" + taskEvent.getCount() + '}').build()
+                : errResponseAsTextPlain(exceptionAsString(taskEvent.getException()), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
+    private void deleteTasks(TaskQueryParam1 taskQueryParam, BulkTaskEvent taskEvent) {
         try {
             long count = 0;
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -219,11 +231,9 @@ public class TaskManagerImpl implements TaskManager {
                 taskEvent.setCount(count);
                 bulkTaskEventEvent.fire(taskEvent);
             }
-            return Response.ok("{\"deleted\":" + count + '}').build();
         } catch (Exception e) {
             taskEvent.setException(e);
             bulkTaskEventEvent.fire(taskEvent);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
