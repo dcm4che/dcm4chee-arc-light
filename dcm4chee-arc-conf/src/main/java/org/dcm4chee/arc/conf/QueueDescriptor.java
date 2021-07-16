@@ -18,10 +18,10 @@ public class QueueDescriptor {
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
-    private Duration purgeQueueMessageCompletedDelay;
-    private Duration purgeQueueMessageFailedDelay;
-    private Duration purgeQueueMessageWarningDelay;
-    private Duration purgeQueueMessageCanceledDelay;
+    private Duration purgeTaskCompletedDelay;
+    private Duration purgeTaskFailedDelay;
+    private Duration purgeTaskWarningDelay;
+    private Duration purgeTaskCanceledDelay;
     private ScheduleExpression[] schedules = {};
     private boolean installed = true;
 
@@ -107,36 +107,36 @@ public class QueueDescriptor {
         this.retryOnWarning = retryOnWarning;
     }
 
-    public Duration getPurgeQueueMessageCompletedDelay() {
-        return purgeQueueMessageCompletedDelay;
+    public Duration getPurgeTaskCompletedDelay() {
+        return purgeTaskCompletedDelay;
     }
 
-    public void setPurgeQueueMessageCompletedDelay(Duration purgeQueueMessageCompletedDelay) {
-        this.purgeQueueMessageCompletedDelay = purgeQueueMessageCompletedDelay;
+    public void setPurgeTaskCompletedDelay(Duration purgeTaskCompletedDelay) {
+        this.purgeTaskCompletedDelay = purgeTaskCompletedDelay;
     }
 
-    public Duration getPurgeQueueMessageFailedDelay() {
-        return purgeQueueMessageFailedDelay;
+    public Duration getPurgeTaskFailedDelay() {
+        return purgeTaskFailedDelay;
     }
 
-    public void setPurgeQueueMessageFailedDelay(Duration purgeQueueMessageFailedDelay) {
-        this.purgeQueueMessageFailedDelay = purgeQueueMessageFailedDelay;
+    public void setPurgeTaskFailedDelay(Duration purgeTaskFailedDelay) {
+        this.purgeTaskFailedDelay = purgeTaskFailedDelay;
     }
 
-    public Duration getPurgeQueueMessageWarningDelay() {
-        return purgeQueueMessageWarningDelay;
+    public Duration getPurgeTaskWarningDelay() {
+        return purgeTaskWarningDelay;
     }
 
-    public void setPurgeQueueMessageWarningDelay(Duration purgeQueueMessageWarningDelay) {
-        this.purgeQueueMessageWarningDelay = purgeQueueMessageWarningDelay;
+    public void setPurgeTaskWarningDelay(Duration purgeTaskWarningDelay) {
+        this.purgeTaskWarningDelay = purgeTaskWarningDelay;
     }
 
-    public Duration getPurgeQueueMessageCanceledDelay() {
-        return purgeQueueMessageCanceledDelay;
+    public Duration getPurgeTaskCanceledDelay() {
+        return purgeTaskCanceledDelay;
     }
 
-    public void setPurgeQueueMessageCanceledDelay(Duration purgeQueueMessageCanceledDelay) {
-        this.purgeQueueMessageCanceledDelay = purgeQueueMessageCanceledDelay;
+    public void setPurgeTaskCanceledDelay(Duration purgeTaskCanceledDelay) {
+        this.purgeTaskCanceledDelay = purgeTaskCanceledDelay;
     }
 
     public ScheduleExpression[] getSchedules() {

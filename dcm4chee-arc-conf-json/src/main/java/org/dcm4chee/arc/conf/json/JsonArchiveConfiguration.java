@@ -180,7 +180,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", arcDev.getHL7ErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI(), null);
         writer.writeNotNullOrDef("dcmPurgeQueueMessagePollingInterval",
-                arcDev.getPurgeQueueMessagePollingInterval(), null);
+                arcDev.getPurgeTaskPollingInterval(), null);
         writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingInterval",
                 arcDev.getRejectExpiredStudiesPollingInterval(), null);
         writer.writeNotEmpty("dcmRejectExpiredStudiesSchedule", arcDev.getRejectExpiredStudiesSchedules());
@@ -536,13 +536,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
             writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
             writer.writeNotNullOrDef(
-                    "dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
+                    "dcmPurgeQueueMessageCompletedDelay", qd.getPurgeTaskCompletedDelay(), null);
             writer.writeNotNullOrDef(
-                    "dcmPurgeQueueMessageFailedDelay", qd.getPurgeQueueMessageFailedDelay(), null);
+                    "dcmPurgeQueueMessageFailedDelay", qd.getPurgeTaskFailedDelay(), null);
             writer.writeNotNullOrDef(
-                    "dcmPurgeQueueMessageWarningDelay", qd.getPurgeQueueMessageWarningDelay(), null);
+                    "dcmPurgeQueueMessageWarningDelay", qd.getPurgeTaskWarningDelay(), null);
             writer.writeNotNullOrDef(
-                    "dcmPurgeQueueMessageCanceledDelay", qd.getPurgeQueueMessageCanceledDelay(), null);
+                    "dcmPurgeQueueMessageCanceledDelay", qd.getPurgeTaskCanceledDelay(), null);
             writer.writeNotDef("dicomInstalled", qd.isInstalled(), true);
             writer.writeEnd();
         }
@@ -1531,7 +1531,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
                 case "dcmPurgeQueueMessagePollingInterval":
-                    arcDev.setPurgeQueueMessagePollingInterval(Duration.valueOf(reader.stringValue()));
+                    arcDev.setPurgeTaskPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmRejectExpiredStudiesPollingInterval":
                     arcDev.setRejectExpiredStudiesPollingInterval(Duration.valueOf(reader.stringValue()));
@@ -2304,16 +2304,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         qd.setRetryOnWarning(reader.booleanValue());
                         break;
                     case "dcmPurgeQueueMessageCompletedDelay":
-                        qd.setPurgeQueueMessageCompletedDelay(Duration.valueOf(reader.stringValue()));
+                        qd.setPurgeTaskCompletedDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmPurgeQueueMessageFailedDelay":
-                        qd.setPurgeQueueMessageFailedDelay(Duration.valueOf(reader.stringValue()));
+                        qd.setPurgeTaskFailedDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmPurgeQueueMessageWarningDelay":
-                        qd.setPurgeQueueMessageWarningDelay(Duration.valueOf(reader.stringValue()));
+                        qd.setPurgeTaskWarningDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmPurgeQueueMessageCanceledDelay":
-                        qd.setPurgeQueueMessageCanceledDelay(Duration.valueOf(reader.stringValue()));
+                        qd.setPurgeTaskCanceledDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmSchedule":
                         qd.setSchedules(ScheduleExpression.valuesOf(reader.stringArray()));

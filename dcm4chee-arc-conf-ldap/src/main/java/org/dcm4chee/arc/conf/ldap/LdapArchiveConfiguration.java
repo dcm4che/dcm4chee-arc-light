@@ -231,7 +231,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowSpoolDirectory",
                 ext.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessagePollingInterval",
-                ext.getPurgeQueueMessagePollingInterval(), null);
+                ext.getPurgeTaskPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
@@ -596,7 +596,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditAggregateDuration(toDuration(attrs.get("dcmAuditAggregateDuration"), null));
         ext.setStowSpoolDirectory(
                 LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
-        ext.setPurgeQueueMessagePollingInterval(toDuration(attrs.get("dcmPurgeQueueMessagePollingInterval"), null));
+        ext.setPurgeTaskPollingInterval(toDuration(attrs.get("dcmPurgeQueueMessagePollingInterval"), null));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
@@ -1014,8 +1014,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStowSpoolDirectory(),
                 bb.getStowSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
-                bb.getPurgeQueueMessagePollingInterval(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeTaskPollingInterval(),
+                bb.getPurgeTaskPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL",
                 aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
@@ -2648,13 +2648,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCompletedDelay",
-                descriptor.getPurgeQueueMessageCompletedDelay(), null);
+                descriptor.getPurgeTaskCompletedDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageFailedDelay",
-                descriptor.getPurgeQueueMessageFailedDelay(), null);
+                descriptor.getPurgeTaskFailedDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageWarningDelay",
-                descriptor.getPurgeQueueMessageWarningDelay(), null);
+                descriptor.getPurgeTaskWarningDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCanceledDelay",
-                descriptor.getPurgeQueueMessageCanceledDelay(), null);
+                descriptor.getPurgeTaskCanceledDelay(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotDef(ldapObj, attrs, "dicomInstalled", descriptor.isInstalled(), true);
         return attrs;
@@ -2674,13 +2674,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay"), null));
                 desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
                 desc.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
-                desc.setPurgeQueueMessageCompletedDelay(
+                desc.setPurgeTaskCompletedDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay"), null));
-                desc.setPurgeQueueMessageFailedDelay(
+                desc.setPurgeTaskFailedDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageFailedDelay"), null));
-                desc.setPurgeQueueMessageWarningDelay(
+                desc.setPurgeTaskWarningDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageWarningDelay"), null));
-                desc.setPurgeQueueMessageCanceledDelay(
+                desc.setPurgeTaskCanceledDelay(
                         toDuration(attrs.get("dcmPurgeQueueMessageCanceledDelay"), null));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setInstalled(LdapUtils.booleanValue(attrs.get("dicomInstalled"), true));
@@ -2736,13 +2736,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 100);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCompletedDelay",
-                prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay(), null);
+                prev.getPurgeTaskCompletedDelay(), desc.getPurgeTaskCompletedDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageFailedDelay",
-                prev.getPurgeQueueMessageFailedDelay(), desc.getPurgeQueueMessageFailedDelay(), null);
+                prev.getPurgeTaskFailedDelay(), desc.getPurgeTaskFailedDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageWarningDelay",
-                prev.getPurgeQueueMessageWarningDelay(), desc.getPurgeQueueMessageWarningDelay(), null);
+                prev.getPurgeTaskWarningDelay(), desc.getPurgeTaskWarningDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCanceledDelay",
-                prev.getPurgeQueueMessageCanceledDelay(), desc.getPurgeQueueMessageCanceledDelay(), null);
+                prev.getPurgeTaskCanceledDelay(), desc.getPurgeTaskCanceledDelay(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         LdapUtils.storeDiff(ldapObj, mods, "dicomInstalled", prev.isInstalled(), desc.isInstalled(), true);
         return mods;

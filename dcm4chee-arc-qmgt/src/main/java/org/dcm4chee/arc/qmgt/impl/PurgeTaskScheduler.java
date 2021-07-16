@@ -80,17 +80,17 @@ public class PurgeTaskScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getPurgeQueueMessagePollingInterval();
+        return arcDev.getPurgeTaskPollingInterval();
     }
 
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (QueueDescriptor desc : arcDev.getQueueDescriptors()) {
-            delete(desc.getQueueName(), Task.Status.COMPLETED, desc.getPurgeQueueMessageCompletedDelay());
-            delete(desc.getQueueName(), Task.Status.FAILED, desc.getPurgeQueueMessageFailedDelay());
-            delete(desc.getQueueName(), Task.Status.WARNING, desc.getPurgeQueueMessageWarningDelay());
-            delete(desc.getQueueName(), Task.Status.CANCELED, desc.getPurgeQueueMessageCanceledDelay());
+            delete(desc.getQueueName(), Task.Status.COMPLETED, desc.getPurgeTaskCompletedDelay());
+            delete(desc.getQueueName(), Task.Status.FAILED, desc.getPurgeTaskFailedDelay());
+            delete(desc.getQueueName(), Task.Status.WARNING, desc.getPurgeTaskWarningDelay());
+            delete(desc.getQueueName(), Task.Status.CANCELED, desc.getPurgeTaskCanceledDelay());
         }
     }
 

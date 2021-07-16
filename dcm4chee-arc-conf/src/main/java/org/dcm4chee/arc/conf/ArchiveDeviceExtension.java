@@ -162,7 +162,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration auditAggregateDuration;
     private volatile String stowSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private volatile String wadoSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private volatile Duration purgeQueueMessagePollingInterval;
+    private volatile Duration purgeTaskPollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
     private volatile Duration mwlPollingInterval;
@@ -1217,12 +1217,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
     }
 
-    public Duration getPurgeQueueMessagePollingInterval() {
-        return purgeQueueMessagePollingInterval;
+    public Duration getPurgeTaskPollingInterval() {
+        return purgeTaskPollingInterval;
     }
 
-    public void setPurgeQueueMessagePollingInterval(Duration purgeQueueMessagePollingInterval) {
-        this.purgeQueueMessagePollingInterval = purgeQueueMessagePollingInterval;
+    public void setPurgeTaskPollingInterval(Duration purgeTaskPollingInterval) {
+        this.purgeTaskPollingInterval = purgeTaskPollingInterval;
     }
 
     public Duration getPurgeStgCmtPollingInterval() {
@@ -3183,7 +3183,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
         hl7LogFilePattern = arcdev.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
-        purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
+        purgeTaskPollingInterval = arcdev.purgeTaskPollingInterval;
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;

@@ -255,7 +255,7 @@ class ArchiveDeviceFactory {
         desc.setRetryDelay(Duration.valueOf("PT30S"));
         desc.setRetryDelayMultiplier(200);
         desc.setMaxRetryDelay(Duration.valueOf("PT10M"));
-        desc.setPurgeQueueMessageCompletedDelay(Duration.valueOf("P1D"));
+        desc.setPurgeTaskCompletedDelay(Duration.valueOf("P1D"));
         desc.setInstalled(installed);
         return desc;
     }
@@ -1755,7 +1755,7 @@ class ArchiveDeviceFactory {
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
-        ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
+        ext.setPurgeTaskPollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
