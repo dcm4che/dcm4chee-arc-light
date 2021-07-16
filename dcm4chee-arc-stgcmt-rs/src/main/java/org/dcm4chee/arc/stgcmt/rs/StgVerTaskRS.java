@@ -346,7 +346,7 @@ public class StgVerTaskRS {
 
     @DELETE
     @Path("/{taskID}")
-    public Response deleteTask(@PathParam("taskID") long pk) {
+    public Response deleteTask(@PathParam("taskID") long taskID) {
         logRequest();
         return taskManager.deleteTask(taskQueryParam(taskID), request);
     }

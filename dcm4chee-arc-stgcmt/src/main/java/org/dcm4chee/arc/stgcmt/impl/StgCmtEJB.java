@@ -505,7 +505,7 @@ public class StgCmtEJB {
             return false;
         }
         em.persist(task);
-        LOG.info("Schedule {}", task);
+        LOG.info("Create {}", task);
         return true;
     }
 

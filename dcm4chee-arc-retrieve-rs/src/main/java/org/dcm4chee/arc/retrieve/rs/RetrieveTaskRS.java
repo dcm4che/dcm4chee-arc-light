@@ -415,7 +415,7 @@ public class RetrieveTaskRS {
 
     @DELETE
     @Path("/{taskPK}")
-    public Response deleteTask(@PathParam("taskPK") long pk) {
+    public Response deleteTask(@PathParam("taskPK") long taskID) {
         logRequest();
         return taskManager.deleteTask(taskQueryParam(taskID), request);
     }
