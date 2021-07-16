@@ -4040,7 +4040,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ],[
                             {
                                 tag:"label",
-                                text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
+                                text:$localize `:@@scheduled_time:Scheduled Time`
                             },{
                                 tag:"single-date-time-picker",
                                 type:"text",
